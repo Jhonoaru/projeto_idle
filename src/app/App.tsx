@@ -19,7 +19,11 @@ import { mockGuild } from "../data/mockGuild";
 import { hunts } from "../data/hunts";
 import { mockLogs } from "../data/mockLogs";
 import { quests } from "../data/quests";
-import { cancelCurrentAction, finishTravel } from "../game-services/actionService";
+import {
+  cancelCurrentAction,
+  finishTravel,
+  getTravelRemainingMs,
+} from "../game-services/actionService";
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
@@ -115,6 +119,7 @@ export function App() {
   );
 
   const saveReadyRef = useRef(false);
+  const charactersRef = useRef(characters);
 
   useEffect(() => {
     let canceled = false;
@@ -175,6 +180,56 @@ export function App() {
 
     return () => window.clearTimeout(timeout);
   }, [characters, database, depot, guild, isLoadingSave, logs]);
+
+  useEffect(() => {
+    charactersRef.current = characters;
+  }, [characters]);
+
+  useEffect(() => {
+    if (isLoadingSave) return undefined;
+
+    function finishExpiredTravelingCharacters() {
+      const arrivals: ActivityLogEntry[] = [];
+      let changed = false;
+      const updatedCharacters = charactersRef.current.map((character) => {
+        if (
+          character.status !== "traveling" ||
+          !character.currentAction ||
+          getTravelRemainingMs(character) > 0
+        ) {
+          return character;
+        }
+
+        const destination = character.currentAction.targetName ?? character.city;
+        changed = true;
+        arrivals.push(
+          createLogEntry(
+            "Travel finished",
+            `${character.name} chegou em ${destination} e esta disponivel.`,
+            "success",
+          ),
+        );
+
+        return {
+          ...character,
+          city: destination,
+          status: "idle" as const,
+          currentAction: undefined,
+        };
+      });
+
+      if (!changed) return;
+
+      charactersRef.current = updatedCharacters;
+      setCharacters(updatedCharacters);
+      setLogs((currentLogs) => [...arrivals, ...currentLogs]);
+    }
+
+    finishExpiredTravelingCharacters();
+    const interval = window.setInterval(finishExpiredTravelingCharacters, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [isLoadingSave]);
 
   useEffect(() => {
     if (selectedCharacter.status !== "hunting" || !selectedCharacter.currentAction?.targetId) {

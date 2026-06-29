@@ -69,15 +69,18 @@ export function finishTravel(character: Character) {
     };
   }
 
+  const destination = character.currentAction.targetName ?? character.city;
+
   return {
     character: {
       ...character,
+      city: destination,
       status: "idle" as const,
       currentAction: undefined,
     },
     success: true,
     remainingMs: 0,
-    message: `${character.name} chegou em ${character.city} e esta disponivel.`,
+    message: `${character.name} chegou em ${destination} e esta disponivel.`,
   };
 }
 

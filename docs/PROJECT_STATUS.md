@@ -430,3 +430,25 @@ Tipos legados:
 Validacao:
 
 - `npm.cmd run build` passou apos a correcao.
+
+## Correcao - Traveling finaliza automaticamente
+
+Status: implementada.
+
+Regra aplicada:
+
+- Apenas `traveling` finaliza automaticamente quando o tempo restante chega a `0s`.
+- Hunts, quests, bosses e treinos continuam exigindo finalizacao manual para aplicar resultado/recompensa.
+- Ao expirar, o personagem volta para `idle`, `currentAction` e limpo e `city` recebe `currentAction.targetName` quando existir.
+- Um log unico e criado no formato `{Nome} chegou em {Cidade} e esta disponivel.`
+
+Implementacao:
+
+- Checagem central em `src/app/App.tsx`, executada ao terminar o loading do save e depois a cada segundo.
+- A checagem usa `getTravelRemainingMs()` para manter a mesma regra de tempo da UI.
+- O autosave existente salva o estado apos a finalizacao automatica porque `characters` e `logs` mudam.
+- `finishTravel()` em `src/game-services/actionService.ts` tambem atualiza a cidade de destino ao finalizar manualmente.
+
+Validacao:
+
+- `npm.cmd run build` passou.
