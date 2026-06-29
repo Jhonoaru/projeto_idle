@@ -1,26 +1,26 @@
 import { calculateCapacityUsed } from "../../game-engine/inventory/calculateCapacityUsed";
 import { InventoryItemRow } from "./InventoryItemRow";
-import type { GuildDepot, InventoryItem } from "../../shared/types";
+import type { Character, InventoryItem } from "../../shared/types";
 
-interface GuildDepotPanelProps {
-  depot: GuildDepot;
-  onSendToCharacter: (inventoryItem: InventoryItem) => void;
+interface CharacterDepotPanelProps {
+  character: Character;
+  onSendToInventory: (inventoryItem: InventoryItem) => void;
   onToggleLock?: (inventoryItem: InventoryItem) => void;
 }
 
-export function GuildDepotPanel({
-  depot,
-  onSendToCharacter,
+export function CharacterDepotPanel({
+  character,
+  onSendToInventory,
   onToggleLock,
-}: GuildDepotPanelProps) {
-  const capacityUsed = depot.capacityUsed ?? calculateCapacityUsed(depot.items);
+}: CharacterDepotPanelProps) {
+  const capacityUsed = calculateCapacityUsed(character.characterDepot);
 
   return (
     <div className="inventory-panel">
       <div className="depot-summary">
         <div>
-          <span>Stored Gold</span>
-          <strong>{depot.goldStored.toLocaleString("en-US")}g</strong>
+          <span>Owner</span>
+          <strong>{character.name}</strong>
         </div>
         <div>
           <span>Stored Weight</span>
@@ -28,18 +28,18 @@ export function GuildDepotPanel({
         </div>
       </div>
       <div className="inventory-list">
-        {depot.items.length > 0 ? (
-          depot.items.map((inventoryItem) => (
+        {character.characterDepot.length > 0 ? (
+          character.characterDepot.map((inventoryItem) => (
             <InventoryItemRow
-              actionLabel="Enviar para Personagem"
+              actionLabel="Enviar para Inventário"
               inventoryItem={inventoryItem}
               key={inventoryItem.id}
-              onAction={onSendToCharacter}
+              onAction={onSendToInventory}
               onToggleLock={onToggleLock}
             />
           ))
         ) : (
-          <div className="empty-list">Guild Depot is empty.</div>
+          <div className="empty-list">Depot do personagem vazio.</div>
         )}
       </div>
     </div>

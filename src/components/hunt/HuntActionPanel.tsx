@@ -96,6 +96,11 @@ export function HuntActionPanel({
             Finalizar Simulacao
           </GameButton>
         </div>
+        {isHuntingSelectedArea ? (
+          <div className="hunt-access-warning">
+            Hunt iniciada: {selectedHunt.name}. Use Finalizar Simulacao ou Cancelar e Retornar.
+          </div>
+        ) : null}
         {blockReason ? <p className="action-block-reason">{blockReason}</p> : null}
       </div>
     </Panel>

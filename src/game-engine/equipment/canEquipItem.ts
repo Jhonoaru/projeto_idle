@@ -29,5 +29,22 @@ export function canEquipItem(character: Character, inventoryItem: InventoryItem)
     return { canEquip: false, reason: "vocation incompatible." };
   }
 
+  if (item.equipmentSlot === "offhand") {
+    if (item.offhandType === "quiver" && character.vocation !== "Ranger") {
+      return { canEquip: false, reason: "only Rangers can equip quivers." };
+    }
+
+    if (item.offhandType === "shield" && character.vocation === "Ranger") {
+      return { canEquip: false, reason: "Rangers use quivers in the offhand slot." };
+    }
+
+    if (
+      item.offhandType === "shield" &&
+      !["Guardian", "Monk", "Warden"].includes(character.vocation)
+    ) {
+      return { canEquip: false, reason: "this vocation cannot equip shields yet." };
+    }
+  }
+
   return { canEquip: true };
 }

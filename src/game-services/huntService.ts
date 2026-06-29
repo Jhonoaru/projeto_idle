@@ -44,6 +44,7 @@ export function startHunt(
       label: `Hunting at ${hunt.name}`,
       startedAt: formatTime(startedAt),
       endsAt: formatTime(endsAt),
+      durationMinutes,
       targetId: hunt.id,
       targetName: hunt.name,
       risk: hunt.risk,
@@ -62,7 +63,6 @@ export function finishHunt(
   const inventoryResult = addLootToInventory(character, result.lootItems);
   const characterAfterStatus: Character = {
     ...inventoryResult.character,
-    gold: Math.max(0, character.gold + result.netProfit),
     status: result.died ? "dead" : "idle",
     currentAction: undefined,
   };

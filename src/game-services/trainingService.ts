@@ -29,10 +29,6 @@ export function startTraining(
     throw new Error(`${character.name} cannot train while ${character.status}.`);
   }
 
-  if (trainingType === "exercise" && character.gold < cost) {
-    throw new Error(`${character.name} nao possui gold suficiente para Exercise Training.`);
-  }
-
   const expectedGainPercent = calculateTrainingGain(
     character,
     targetSkill,
@@ -56,7 +52,6 @@ export function startTraining(
 
   return {
     ...character,
-    gold: character.gold - cost,
     status: "training" as const,
     currentAction: {
       type: "training" as const,

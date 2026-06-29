@@ -1,13 +1,17 @@
 import { CharacterDetails } from "../character/CharacterDetails";
+import { ActionPanel } from "../action/ActionPanel";
+import { ActionSummaryCard } from "../action/ActionSummaryCard";
 import { BossPanel } from "../boss/BossPanel";
 import { CurrentActionBox } from "../character/CurrentActionBox";
 import { SkillList } from "../character/SkillList";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
+import { CharacterDepotPanel } from "../inventory/CharacterDepotPanel";
 import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
 import { HuntActionPanel } from "../hunt/HuntActionPanel";
 import { HuntList } from "../hunt/HuntList";
 import { HuntResultPanel } from "../hunt/HuntResultPanel";
+import { MarketPanel } from "../market/MarketPanel";
 import { QuestPanel } from "../quest/QuestPanel";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { Panel } from "../ui/Panel";
@@ -18,12 +22,16 @@ import type {
   BossSimulationResult,
   Character,
   EquipmentSlot,
+  Guild,
   GuildDepot,
   HuntArea,
   HuntSimulationResult,
   InventoryItem,
+  MarketItemCategory,
   Quest,
   PartyRole,
+  SellSource,
+  ShopDeliveryTarget,
   TrainingTarget,
   TrainingType,
 } from "../../shared/types";
@@ -38,6 +46,7 @@ interface LastResultView {
 interface MainPanelProps {
   selectedCharacter: Character;
   characters: Character[];
+  guild: Guild;
   hunts: HuntArea[];
   quests: Quest[];
   bosses: Boss[];
@@ -56,10 +65,12 @@ interface MainPanelProps {
   };
   activeTab:
     | "character"
+    | "action"
     | "hunts"
     | "inventory"
     | "equipment"
     | "depot"
+    | "market"
     | "training"
     | "quests"
     | "bosses";
@@ -70,7 +81,24 @@ interface MainPanelProps {
   onStartHunt: () => void;
   onFinishHunt: () => void;
   onSendToDepot: (inventoryItem: InventoryItem) => void;
+  onSendToCharacterDepot: (inventoryItem: InventoryItem) => void;
+  onSendCharacterDepotToInventory: (inventoryItem: InventoryItem) => void;
   onSendToCharacter: (inventoryItem: InventoryItem) => void;
+  onSellMarketItems: (
+    source: SellSource,
+    inventoryItemIds: string[],
+  ) => void;
+  onSellMarketCategory: (
+    source: SellSource,
+    category: MarketItemCategory,
+  ) => void;
+  onBuyMarketItem: (
+    itemId: string,
+    quantity: number,
+    unitPrice: number,
+    deliveryTarget: ShopDeliveryTarget,
+  ) => void;
+  onToggleMarketItemLock: (source: SellSource, inventoryItemId: string) => void;
   onEquipItem: (inventoryItem: InventoryItem) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
   onStartTraining: (
@@ -96,6 +124,7 @@ interface MainPanelProps {
 export function MainPanel({
   selectedCharacter,
   characters,
+  guild,
   hunts,
   quests,
   bosses,
@@ -115,7 +144,13 @@ export function MainPanel({
   onStartHunt,
   onFinishHunt,
   onSendToDepot,
+  onSendToCharacterDepot,
+  onSendCharacterDepotToInventory,
   onSendToCharacter,
+  onSellMarketItems,
+  onSellMarketCategory,
+  onBuyMarketItem,
+  onToggleMarketItemLock,
   onEquipItem,
   onUnequipItem,
   onStartTraining,
@@ -136,30 +171,48 @@ export function MainPanel({
     <section className="main-panel">
       <div className="main-tabs">
         <TabButton activeTab={activeTab} label="Personagem" tab="character" onChangeTab={onChangeTab} />
-        <TabButton activeTab={activeTab} label="Hunts" tab="hunts" onChangeTab={onChangeTab} />
-        <TabButton activeTab={activeTab} label="Inventario" tab="inventory" onChangeTab={onChangeTab} />
-        <TabButton activeTab={activeTab} label="Equipamento" tab="equipment" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Acao" tab="action" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Inventario & Equipamento" tab="inventory" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Depot" tab="depot" onChangeTab={onChangeTab} />
-        <TabButton activeTab={activeTab} label="Treino" tab="training" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Market" tab="market" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Hunts" tab="hunts" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Quests" tab="quests" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Bosses" tab="bosses" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Treino" tab="training" onChangeTab={onChangeTab} />
       </div>
 
       <div className="tab-content">
         {activeTab === "character" ? (
           <>
           <CharacterDetails character={selectedCharacter} />
-          <Panel title="Current Action">
-            <CurrentActionBox
+          <Panel title="Acao Atual">
+            <ActionSummaryCard
               character={selectedCharacter}
-              onCancelAction={onCancelAction}
-              onFinishTravel={onFinishTravel}
+              onViewAction={() => onChangeTab("action")}
             />
           </Panel>
           <Panel title="Skills">
             <SkillList character={selectedCharacter} skills={selectedCharacter.skills} />
           </Panel>
           </>
+        ) : null}
+
+        {activeTab === "action" ? (
+          <ActionPanel
+            bossParty={bossParty}
+            bosses={bosses}
+            characters={characters}
+            hunts={hunts}
+            onCancelAction={onCancelAction}
+            onChangeTab={onChangeTab}
+            onFinishBoss={onFinishBoss}
+            onFinishHunt={onFinishHunt}
+            onFinishQuest={onFinishQuest}
+            onFinishTraining={onFinishTraining}
+            onFinishTravel={onFinishTravel}
+            quests={quests}
+            selectedCharacter={selectedCharacter}
+          />
         ) : null}
 
         {activeTab === "hunts" ? (
@@ -188,24 +241,58 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "inventory" ? (
-          <Panel title={`${selectedCharacter.name} Inventory`}>
-          <InventoryPanel
-            character={selectedCharacter}
-            onEquipItem={onEquipItem}
-            onSendToDepot={onSendToDepot}
-          />
-          </Panel>
-        ) : null}
-
-        {activeTab === "equipment" ? (
-          <Panel title={`${selectedCharacter.name} Equipment`}>
-          <EquipmentPanel character={selectedCharacter} onUnequip={onUnequipItem} />
-          </Panel>
+          <>
+            <Panel title={`${selectedCharacter.name} Inventory`}>
+              <InventoryPanel
+                character={selectedCharacter}
+                onEquipItem={onEquipItem}
+                onSendToDepot={onSendToCharacterDepot}
+                onSendToGuildDepot={onSendToDepot}
+                onToggleLock={(inventoryItem) =>
+                  onToggleMarketItemLock("character_inventory", inventoryItem.id)
+                }
+              />
+            </Panel>
+            <Panel title={`${selectedCharacter.name} Equipment`}>
+              <EquipmentPanel character={selectedCharacter} onUnequip={onUnequipItem} />
+            </Panel>
+          </>
         ) : null}
 
         {activeTab === "depot" ? (
-          <Panel title="Guild Depot">
-          <GuildDepotPanel depot={depot} onSendToCharacter={onSendToCharacter} />
+          <>
+            <Panel title={`${selectedCharacter.name} Depot`}>
+              <CharacterDepotPanel
+                character={selectedCharacter}
+                onSendToInventory={onSendCharacterDepotToInventory}
+                onToggleLock={(inventoryItem) =>
+                  onToggleMarketItemLock("character_depot", inventoryItem.id)
+                }
+              />
+            </Panel>
+            <Panel title="Guild Depot">
+              <GuildDepotPanel
+                depot={depot}
+                onSendToCharacter={onSendToCharacter}
+                onToggleLock={(inventoryItem) =>
+                  onToggleMarketItemLock("guild_depot", inventoryItem.id)
+                }
+              />
+            </Panel>
+          </>
+        ) : null}
+
+        {activeTab === "market" ? (
+          <Panel title="Market NPC">
+            <MarketPanel
+              character={selectedCharacter}
+              guild={guild}
+              guildDepot={depot}
+              onBuyItem={onBuyMarketItem}
+              onSellCategory={onSellMarketCategory}
+              onSellItems={onSellMarketItems}
+              onToggleLock={onToggleMarketItemLock}
+            />
           </Panel>
         ) : null}
 

@@ -45,7 +45,7 @@ p {
 
 .top-bar {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(420px, 0.9fr);
+  grid-template-columns: minmax(220px, 0.9fr) minmax(360px, 1fr) minmax(320px, 0.8fr);
   gap: 14px;
   align-items: stretch;
   max-width: 1480px;
@@ -78,6 +78,59 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.save-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  align-content: center;
+}
+
+.save-controls span {
+  grid-column: 1 / -1;
+  color: #aeb7aa;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.save-controls button {
+  min-height: 30px;
+  border: 1px solid #4f4734;
+  border-radius: 4px;
+  color: #e8e2d4;
+  background: #20251f;
+  cursor: pointer;
+}
+
+.save-controls button:hover {
+  border-color: #d8b96a;
+  color: #f1d58c;
+}
+
+.save-loading-screen {
+  align-self: center;
+  justify-self: center;
+  display: grid;
+  gap: 8px;
+  min-width: 280px;
+  padding: 18px;
+  border: 1px solid #433d2e;
+  border-radius: 8px;
+  background: #171b18;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.24);
+}
+
+.save-loading-screen span {
+  color: #d8b96a;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.save-loading-screen strong {
+  color: #f1d58c;
 }
 
 .level-progress-block {
@@ -407,6 +460,71 @@ p {
   background: #151a17;
 }
 
+.action-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.action-character-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.action-character-summary div,
+.action-summary-card {
+  min-height: 62px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.action-character-summary span,
+.action-summary-card span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.action-character-summary strong,
+.action-summary-card strong {
+  display: block;
+  margin-top: 5px;
+  color: #f1d58c;
+}
+
+.action-summary-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.action-summary-card p,
+.action-control-panel p {
+  margin: 6px 0 0;
+  color: #c7cabc;
+  font-size: 0.84rem;
+}
+
+.action-summary-card button,
+.action-control-panel button {
+  min-height: 34px;
+  border: 1px solid #c9aa62;
+  border-radius: 6px;
+  color: #191711;
+  background: #d8b96a;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.action-control-panel {
+  display: grid;
+  gap: 10px;
+}
+
 .current-action-box.is-active {
   border-color: rgba(216, 185, 106, 0.42);
 }
@@ -437,6 +555,34 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.action-analyzer {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.action-analyzer div {
+  min-height: 58px;
+  padding: 9px;
+  border: 1px solid #2d332d;
+  border-radius: 6px;
+  background: #101411;
+}
+
+.action-analyzer span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.action-analyzer strong {
+  display: block;
+  margin-top: 5px;
+  color: #f1d58c;
+  font-size: 0.9rem;
 }
 
 .action-grid div {
@@ -817,6 +963,16 @@ p {
   background: #151a17;
 }
 
+.inventory-row.is-locked,
+.market-row.is-locked {
+  opacity: 0.72;
+}
+
+.inventory-row.is-locked h3,
+.market-row.is-locked label span {
+  color: #f0d27c;
+}
+
 .inventory-row h3 {
   margin-bottom: 4px;
   font-size: 0.94rem;
@@ -921,7 +1077,7 @@ p {
 
 .equipment-panel {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -934,6 +1090,12 @@ p {
   border-left-width: 3px;
   border-radius: 6px;
   background: #151a17;
+}
+
+.equipment-slot-offhand,
+.equipment-slot-backpack {
+  border-color: rgba(216, 185, 106, 0.46);
+  background: #181d17;
 }
 
 .equipment-slot-name {
@@ -964,6 +1126,174 @@ p {
 .training-panel {
   display: grid;
   gap: 12px;
+}
+
+.market-panel,
+.market-list,
+.sell-summary-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.market-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+  box-shadow: inset 0 0 0 1px rgba(216, 185, 106, 0.05);
+}
+
+.market-heading span,
+.market-destination span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.market-heading strong,
+.market-destination strong {
+  display: block;
+  margin-top: 4px;
+  color: #f1d58c;
+}
+
+.market-heading p {
+  margin-bottom: 0;
+  color: #c7cabc;
+  font-size: 0.84rem;
+}
+
+.market-source-tabs,
+.market-filters,
+.market-destination-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.market-source-tabs button,
+.market-destination-options button,
+.sell-summary-panel button,
+.market-row-actions button {
+  min-height: 34px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #d6d1c4;
+  background: #151a17;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.market-source-tabs button.is-selected,
+.market-destination-options button.is-selected {
+  border-color: #d8b96a;
+  color: #f1d58c;
+  background: #242719;
+}
+
+.market-filters input,
+.market-filters select {
+  min-height: 36px;
+  min-width: 150px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #d6d1c4;
+  background: #101411;
+}
+
+.market-destination {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.market-panel > .market-source-tabs:first-of-type {
+  padding: 8px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #101411;
+}
+
+.market-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 0.9fr) minmax(120px, auto) minmax(150px, auto);
+  gap: 10px;
+  align-items: center;
+  min-height: 74px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-left-width: 3px;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.market-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f1d58c;
+  font-weight: 800;
+}
+
+.market-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.market-row-meta span {
+  border: 1px solid #2d332d;
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+}
+
+.market-row-value {
+  display: grid;
+  gap: 3px;
+  text-align: right;
+}
+
+.market-row-value span {
+  color: #aeb7aa;
+  font-size: 0.76rem;
+}
+
+.market-row-value strong {
+  color: #f1d58c;
+}
+
+.market-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.market-row-actions button:last-child,
+.sell-summary-panel .hunt-action-buttons button:first-child {
+  border-color: #c9aa62;
+  color: #191711;
+  background: #d8b96a;
+}
+
+.market-row-actions button:disabled,
+.sell-summary-panel button:disabled {
+  border-color: #4b5147;
+  color: #9da69a;
+  background: #2a302b;
+  cursor: not-allowed;
 }
 
 .quest-panel,
@@ -1381,6 +1711,10 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .save-controls {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+
   .left-panel,
   .right-panel {
     order: initial;
@@ -1398,8 +1732,10 @@ p {
 
   .top-stats,
   .details-grid,
+  .action-character-summary,
   .skill-list,
   .action-grid,
+  .action-analyzer,
   .assignment-summary,
   .result-grid,
   .hunt-meta-grid,
@@ -1419,6 +1755,9 @@ p {
     .boss-card,
     .party-row,
     .boss-cooldown-row,
+    .market-heading,
+    .action-summary-card,
+    .market-row,
     .training-options-grid,
     .training-option-card,
     .current-training-card {

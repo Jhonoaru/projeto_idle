@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-06-28
+Atualizado em: 2026-06-29
 
 ## Stack usada
 
@@ -18,6 +18,7 @@ Comandos principais:
 - `npm run tauri:dev` tambem roda o app desktop em desenvolvimento.
 - `npm run dev` roda apenas o frontend Vite.
 - `npm run build` valida TypeScript e gera o build web.
+- Em PowerShell com execucao de scripts bloqueada, usar `npm.cmd run build` ou `npm.cmd run tauri dev`.
 
 ## Sistemas ja implementados
 
@@ -50,6 +51,12 @@ Comandos principais:
 - Simulacao de boss com chance de sucesso, morte, XP, gold, loot, renown e logs.
 - Cooldowns de boss por personagem.
 - Loot de boss enviado para o Guild Depot.
+- Market NPC local para venda de itens.
+- Venda de itens do inventario do personagem, depot pessoal do personagem e Guild Depot.
+- Gold separado entre personagem e guilda.
+- Itens travaveis contra venda acidental.
+- Aba Inventario & Equipamento unificada.
+- Aba Depot dividida entre Depot do Personagem e Guild Depot.
 - Log de atividade no painel direito.
 
 ## Decisoes de design
@@ -92,8 +99,8 @@ Comandos principais:
 - Camada de save/load isolada dos componentes React.
 - SQLite + Prisma apenas quando o loop de gameplay estiver pronto e quando for solicitado.
 - Offline catch-up real para progresso enquanto o app esta fechado.
-- Bosses e boss access.
-- Market futuro.
+- Mais bosses, boss access e balanceamento de cooldowns.
+- Melhorias futuras no Market NPC local.
 - Melhorias no depot e economia.
 - Mais quests, hunts, monstros, itens, equipamentos e regioes.
 - Balanceamento de risco, XP, gold, loot, capacity e progresso de skills.
@@ -122,10 +129,18 @@ Comandos principais:
 
 - O repositorio local existe no caminho informado.
 - A arvore atual ja contem os sistemas descritos acima.
-- O `git status` estava limpo antes desta documentacao.
+- O `git status` ja possuia alteracoes locais relacionadas as etapas recentes antes desta revisao.
 - Nao foi encontrado uso ativo de banco de dados.
 - Nao foi encontrado schema Prisma ativo.
-- Nao foi implementado sistema novo nesta etapa.
+- Nao foi implementado sistema online.
+- Nao foi implementado market entre jogadores.
+- A Etapa 10.5/Aba Acao foi revisada antes de iniciar a Etapa 11.
+- `npm.cmd run build` passou com TypeScript e Vite.
+- `npm.cmd run tauri dev` iniciou o app/Tauri sem erro imediato; a execucao foi encerrada por timeout curto de verificacao.
+- Etapa 11 implementada com persistencia SQLite local via Tauri SQL Plugin.
+- `cargo check` passou no projeto Tauri.
+- `npm.cmd run tauri:build` passou e gerou bundles MSI/NSIS.
+- Economia corrigida para usar `guild.gold` como moeda universal.
 
 ## Etapa 7 - Quests, acessos e cancelamento
 
@@ -151,7 +166,7 @@ Correcoes feitas durante a revisao:
 
 ## Etapa 8 - Bosses, Party e Cooldowns
 
-Status: implementada em versao inicial.
+Status: implementada em versao inicial e revisada em 2026-06-29.
 
 Checklist implementado:
 
@@ -174,3 +189,241 @@ Limites preservados:
 - Ainda sem SQLite/Prisma.
 - Ainda sem persistencia ao fechar o app.
 - Estado de bosses e cooldowns permanece em memoria/local state.
+
+## Etapa 9 - Equipamentos, mochila e quiver
+
+Status: item 3 atualizado.
+
+Modelo de slots adotado:
+
+- `weapon`: Arma Principal.
+- `offhand`: Arma Secundaria / Escudo / Quiver.
+- `helmet`: Elmo.
+- `armor`: Peitoral.
+- `legs`: Legs.
+- `boots`: Bota.
+- `amulet`: Colar.
+- `ring`: Anel.
+- `backpack`: Mochila Principal.
+
+Decisoes aplicadas:
+
+- `shield` e `ammo` foram migrados para o slot `offhand`.
+- Wooden Shield e Brass Shield usam `offhandType: "shield"`.
+- Light Quiver usa `offhandType: "quiver"`.
+- Ranger usa quiver no offhand.
+- Guardian nao equipa quiver.
+- Ranger nao equipa escudo.
+- Mochila Principal continua visivel no painel de equipamento.
+- Adventurer Backpack usa `isContainer: true` e `containerSlots: 20`.
+- `InventoryItem` esta preparado com `parentContainerId?: string | null` para containers futuros.
+
+Ainda nao implementado nesta etapa:
+
+- Abrir mochila.
+- Mochila dentro de mochila.
+- Drag and drop.
+- Persistencia de conteudo de containers.
+
+## Etapa 10 - Market NPC, venda de loot e economia basica
+
+Status: implementada em versao inicial.
+
+Checklist implementado:
+
+- Tipos de market, filtro, origem, destino e resultado de venda.
+- `InventoryItem.locked` para proteger item contra venda.
+- `Character.characterDepot` em memoria para depot pessoal simples.
+- Engine puro de market com calculo de valor, filtragem, lista vendavel e venda.
+- Service de market para vender do inventario, depot pessoal e Guild Depot.
+- Aba Market na ordem principal sugerida.
+- Filtros por busca, categoria e raridade.
+- Selecao de item unico, multiplos itens e venda por categoria.
+- Destino de gold configuravel para venda do inventario do personagem.
+- Venda do depot pessoal envia gold ao personagem.
+- Venda do Guild Depot envia gold a guilda.
+- Botao Travar/Destravar no Market, inventario e Guild Depot.
+- Botao Travar/Destravar tambem no Depot do Personagem.
+- Itens travados nao entram em venda normal pelo Market.
+- Logs de venda e destino do gold no Activity Log.
+
+Consolidacao posterior:
+
+- Inventario e equipamento permanecem em uma unica aba.
+- Inventory pode enviar item para Depot Pessoal ou Guild Depot.
+- Depot Pessoal pode devolver item para o inventario respeitando capacity.
+- Depot continua mostrando separadamente Depot do Personagem e Guild Depot.
+- Ordem das abas mantida: Personagem, Inventario & Equipamento, Depot, Market, Hunts, Quests, Bosses, Treino.
+
+Limites preservados:
+
+- Ainda sem compra de itens.
+- Ainda sem market online.
+- Ainda sem venda entre jogadores.
+- Ainda sem banco de dados, SQLite ou Prisma.
+- Ainda sem historico avancado de precos.
+
+## Etapa 10.5 - UX, Market NPC e Action Analyzer
+
+Status: implementada em versao inicial.
+
+Checklist implementado:
+
+- Market reformulado visualmente como Market NPC com modos Comprar e Vender.
+- Compra usando gold universal da guilda.
+- Entrega de compras para inventario, depot do personagem ou Guild Depot.
+- Itens iniciais de loja: potions, runes, municoes/quivers, containers e utilidades.
+- Compra respeita capacity quando entrega no inventario do personagem.
+- Venda continua centralizada no modo Vender.
+- Current Action mostra tempo ativo, restante e duracao total formatada.
+- Duracao de traveling de 10 segundos aparece como `10s`, nao como decimal em minutos.
+- Action Analyzer criado para hunting, training, questing e bossing.
+- Aba Acao criada para acompanhar Current Action, analyzer e controles sem duplicar listas.
+- Analyzer mostra estimativas parciais sem aplicar recompensa automaticamente.
+- Fluxo de hunt mostra aviso claro quando a hunt esta em andamento.
+
+Correcao posterior:
+
+- Ordem das abas atualizada para Personagem, Acao, Inventario & Equipamento, Depot, Market, Hunts, Quests, Bosses, Treino.
+- Aba Personagem mostra apenas resumo curto da acao atual com atalho para Acao.
+- Iniciar hunt, quest, boss ou treino troca automaticamente para a aba Acao.
+- Aba Acao exibe controles contextuais para finalizar/cancelar/viagem conforme status.
+
+Revisao de 2026-06-29:
+
+- Confirmado que a aba Acao existe e concentra resumo, Current Action, Action Analyzer e controles contextuais.
+- Confirmado que Current Action exibe tempo ativo, restante e duracao total com formatacao em segundos quando necessario.
+- Confirmado que Action Analyzer nao aplica recompensa automaticamente; apenas mostra estimativas parciais.
+- Corrigido bug pequeno: finalizar hunt pela aba Acao agora usa a hunt e a duracao gravadas em `currentAction`, nao a selecao atual da aba Hunts.
+- Corrigido bug pequeno: finalizar/cancelar boss pela aba Acao agora usa boss e party gravados em `currentAction`, evitando resultado errado se a selecao da aba Bosses mudar.
+- O contexto de party do boss agora preserva membros e roles dentro da acao atual.
+
+Limites preservados:
+
+- Ainda sem market online.
+- Ainda sem player market.
+- Ainda sem recompensa automatica por segundo.
+- Ainda sem combate visual completo.
+- Ainda sem banco de dados, SQLite ou Prisma.
+
+## Etapa 11 - Persistencia local com SQLite via Tauri SQL Plugin
+
+Status: implementada em versao inicial.
+
+Pacotes instalados:
+
+- NPM: `@tauri-apps/plugin-sql`.
+- Rust/Cargo: `tauri-plugin-sql` com feature `sqlite`.
+
+Configuracao Tauri:
+
+- Plugin SQL registrado em `src-tauri/src/lib.rs`.
+- Capability padrao atualizada com `sql:default` e `sql:allow-execute`.
+- Banco usado pelo frontend: `sqlite:guild_hunt_idle.db`.
+- O caminho e relativo ao diretorio App do Tauri, ou seja, fica no diretorio local de dados/configuracao do app gerenciado pelo Tauri, nao dentro da pasta do projeto.
+
+Arquivos criados:
+
+- `src/database/schema.ts`.
+- `src/database/migrations.ts`.
+- `src/database/db.ts`.
+- `src/database/saveGameRepository.ts`.
+
+Tabelas criadas:
+
+- `guilds`.
+- `characters`.
+- `character_skills`.
+- `inventory_items`.
+- `activity_logs`.
+- `save_metadata`.
+
+Estado persistido:
+
+- Guilda, gold, renown, rank e level.
+- Personagens, status, cidade, stamina, gold, experiencia, level e capacity.
+- Current action em JSON.
+- Skills por personagem.
+- Atributos principais em JSON.
+- Inventario do personagem.
+- Equipamentos por slot via `owner_type = equipped`.
+- Depot do personagem.
+- Guild Depot.
+- Quests completas, acessos, quest progress e boss cooldowns em JSON.
+- Logs principais.
+- Itens travados/locked.
+
+Integracao no app:
+
+- Ao iniciar, o app mostra `Carregando save...`.
+- `initDatabase()` conecta no SQLite e roda migrations simples.
+- `loadGameState()` carrega save existente.
+- Se nao houver save, o app usa os mocks atuais e salva o primeiro estado.
+- Se houver erro ao carregar SQLite, o app cai para mock local e registra erro no console.
+- Autosave roda apos mudancas reais de `guild`, `characters`, `depot` ou `logs`, com debounce curto.
+- Nao ha autosave por segundo do Action Analyzer.
+- TopBar possui botoes discretos: Salvar agora, Recarregar save e Resetar save.
+
+Cuidados aplicados:
+
+- O catalogo fixo de itens continua em `src/data/items.ts`.
+- O banco salva `item_id`; ao carregar, o repository reidrata o item pelo catalogo.
+- Se um item salvo nao existir mais no catalogo, o save carrega com fallback visual `Unknown Item`.
+- Equipamentos sao salvos separadamente do inventario para evitar duplicacao.
+- Campos de data continuam como string.
+- `save_metadata` ja possui `integrity_hash`, mas ainda sem hash calculado.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- `cargo check` passou em `src-tauri`.
+- `npm.cmd run tauri:build` passou e gerou os instaladores.
+- `npm.cmd run tauri dev` foi iniciado em verificacao curta; como comando de dev fica em execucao, foi encerrado por timeout.
+
+Limites atuais:
+
+- Ainda sem Prisma.
+- Ainda sem cloud save.
+- Ainda sem online, login ou sincronizacao.
+- Ainda sem market entre jogadores.
+- Ainda sem criptografia forte ou anti-cheat.
+- Migrations sao simples com `CREATE TABLE IF NOT EXISTS`; nao ha historico avancado de migracoes.
+- Hash de integridade ficou preparado como campo, ainda nao calculado.
+
+## Correcao de economia - Gold universal da Guilda
+
+Status: implementada.
+
+Decisao aplicada:
+
+- `guild.gold` e a moeda principal universal do save offline.
+- Todo gold de hunt, quest, boss e vendas entra em `guild.gold`.
+- Toda compra no Market NPC usa `guild.gold`.
+- `character.gold` permanece apenas como campo legado/historico salvo no estado, sem uso como moeda principal.
+
+Fluxos atualizados:
+
+- Finalizar hunt atualiza `guild.gold` com o resultado liquido da hunt e atualiza a TopBar.
+- Completar quest soma a recompensa de gold em `guild.gold`.
+- Finalizar boss soma o gold do boss em `guild.gold`.
+- Venda do inventario do personagem soma em `guild.gold`.
+- Venda do Depot do Personagem soma em `guild.gold`.
+- Venda do Guild Depot soma em `guild.gold`.
+- Compra no Market verifica e desconta sempre de `guild.gold`.
+- Exercise Training tambem valida e desconta de `guild.gold`.
+
+UI atualizada:
+
+- TopBar continua mostrando o gold da guilda.
+- Market NPC removeu selecao de gold do personagem/guilda.
+- Market NPC mostra `Compra usando gold da Guilda Aurora`.
+- Venda mostra `Gold sera enviado para a Guilda Aurora`.
+- Character Details mudou o label de gold pessoal para `Gold gerado` com detalhe `historico`.
+
+Tipos legados:
+
+- `SellDestination` e `ShopPaymentSource` continuam em `src/shared/types.ts` como deprecated para compatibilidade com o formato atual de resultado/tipos antigos, mas nao sao usados pela UI como escolha de moeda.
+
+Validacao:
+
+- `npm.cmd run build` passou apos a correcao.

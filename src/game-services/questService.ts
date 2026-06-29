@@ -67,6 +67,7 @@ export function finishQuest(character: Character, quest: Quest) {
         questProgress: markQuest(character, quest.id, "failed"),
       },
       guildRenownGained: 0,
+      goldGained: 0,
       result: {
         success: false,
         died: true,
@@ -85,6 +86,7 @@ export function finishQuest(character: Character, quest: Quest) {
         questProgress: markQuest(character, quest.id, "failed"),
       },
       guildRenownGained: 0,
+      goldGained: 0,
       result: {
         success: false,
         died: false,
@@ -108,6 +110,7 @@ export function finishQuest(character: Character, quest: Quest) {
   return {
     character: completed.character,
     guildRenownGained: quest.rewards.renown ?? 0,
+    goldGained: quest.rewards.gold ?? 0,
     result: {
       success: true,
       died: false,

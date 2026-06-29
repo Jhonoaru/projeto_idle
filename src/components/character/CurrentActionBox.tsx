@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { getTravelRemainingMs } from "../../game-services/actionService";
 import { CHARACTER_STATUS_LABELS, SKILL_LABELS } from "../../shared/constants";
-import { formatDuration } from "../../shared/time";
+import {
+  formatDuration,
+  formatDurationFromMinutes,
+  getClockElapsedMs,
+  getClockRemainingMs,
+} from "../../shared/time";
 import type { Character } from "../../shared/types";
 
 interface CurrentActionBoxProps {
@@ -17,17 +22,28 @@ export function CurrentActionBox({
 }: CurrentActionBoxProps) {
   const action = character.currentAction;
   const [remainingMs, setRemainingMs] = useState(getTravelRemainingMs(character));
+  const [elapsedMs, setElapsedMs] = useState(action ? getClockElapsedMs(action.startedAt) : 0);
 
   useEffect(() => {
-    if (character.status !== "traveling") return undefined;
+    if (!action) return undefined;
 
-    setRemainingMs(getTravelRemainingMs(character));
+    setElapsedMs(getClockElapsedMs(action.startedAt));
+    setRemainingMs(
+      character.status === "traveling"
+        ? getTravelRemainingMs(character)
+        : getClockRemainingMs(action.endsAt),
+    );
     const interval = window.setInterval(() => {
-      setRemainingMs(getTravelRemainingMs(character));
+      setElapsedMs(getClockElapsedMs(action.startedAt));
+      setRemainingMs(
+        character.status === "traveling"
+          ? getTravelRemainingMs(character)
+          : getClockRemainingMs(action.endsAt),
+      );
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [character]);
+  }, [action, character]);
 
   if (!action) {
     return (
@@ -52,8 +68,10 @@ export function CurrentActionBox({
         {action.targetName ? <Detail label="Target" value={action.targetName} /> : null}
         <Detail label="Started" value={action.startedAt} />
         <Detail label="Ends" value={action.endsAt} />
+        <Detail label="Active" value={formatDuration(elapsedMs)} />
+        <Detail label="Remaining" value={formatDuration(remainingMs)} />
         {action.durationMinutes ? (
-          <Detail label="Duration" value={`${action.durationMinutes} min`} />
+          <Detail label="Duration" value={formatDurationFromMinutes(action.durationMinutes)} />
         ) : null}
         {action.trainingType ? <Detail label="Training" value={action.trainingType} /> : null}
         {action.targetSkill ? (
@@ -71,9 +89,6 @@ export function CurrentActionBox({
         ) : null}
         {action.expectedGold ? (
           <Detail label="Expected Gold" value={action.expectedGold.toLocaleString("en-US")} />
-        ) : null}
-        {character.status === "traveling" ? (
-          <Detail label="Remaining" value={formatDuration(remainingMs)} />
         ) : null}
       </div>
 

@@ -2,14 +2,15 @@ import type { EquipmentSlot, InventoryItem } from "../../shared/types";
 
 interface EquipmentSlotBoxProps {
   slot: EquipmentSlot;
+  label: string;
   item?: InventoryItem;
   onUnequip: (slot: EquipmentSlot) => void;
 }
 
-export function EquipmentSlotBox({ slot, item, onUnequip }: EquipmentSlotBoxProps) {
+export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlotBoxProps) {
   return (
-    <article className={`equipment-slot ${item ? `rarity-${item.item.rarity}` : ""}`.trim()}>
-      <span className="equipment-slot-name">{slot}</span>
+    <article className={`equipment-slot equipment-slot-${slot} ${item ? `rarity-${item.item.rarity}` : ""}`.trim()}>
+      <span className="equipment-slot-name">{label}</span>
       {item ? (
         <>
           <strong>{item.item.name}</strong>

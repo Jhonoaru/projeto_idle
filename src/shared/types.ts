@@ -49,17 +49,40 @@ export type ItemType =
   | "quest"
   | "misc";
 
+export type MarketItemCategory =
+  | "creature_product"
+  | "equipment"
+  | "consumable"
+  | "material"
+  | "misc"
+  | "all";
+
+export type MarketPriceMode = "npc_fixed" | "simulated_market";
+
+export type SellSource = "character_inventory" | "character_depot" | "guild_depot";
+
+/** @deprecated Gold now always goes to guild.gold. */
+export type SellDestination = "character_gold" | "guild_gold";
+
+export type ShopCategory = "potions" | "runes" | "ammo" | "containers" | "utilities";
+
+/** @deprecated Market purchases now always use guild.gold. */
+export type ShopPaymentSource = "character_gold" | "guild_gold";
+
+export type ShopDeliveryTarget = "character_inventory" | "character_depot" | "guild_depot";
+
 export type EquipmentSlot =
   | "helmet"
   | "armor"
   | "legs"
   | "boots"
   | "weapon"
-  | "shield"
+  | "offhand"
   | "amulet"
   | "ring"
-  | "backpack"
-  | "ammo";
+  | "backpack";
+
+export type OffhandType = "shield" | "quiver" | "secondaryWeapon" | "focus";
 
 export interface Guild {
   id: string;
@@ -113,6 +136,7 @@ export interface CharacterAction {
   cost?: number;
   expectedGainPercent?: number;
   partyMemberIds?: string[];
+  partyMembers?: PartyMember[];
 }
 
 export interface Item {
@@ -125,6 +149,9 @@ export interface Item {
   stackable: boolean;
   description: string;
   equipmentSlot?: EquipmentSlot;
+  offhandType?: OffhandType;
+  isContainer?: boolean;
+  containerSlots?: number;
   attack?: number;
   defense?: number;
   armor?: number;
@@ -145,7 +172,34 @@ export interface InventoryItem {
   item: Item;
   quantity: number;
   ownerCharacterId?: string;
+  parentContainerId?: string | null;
+  locked?: boolean;
   location: "character" | "guildDepot";
+}
+
+export interface MarketSellEntry {
+  inventoryItemId: string;
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  unitValue: number;
+  totalValue: number;
+  source: SellSource;
+}
+
+export interface MarketSellResult {
+  success: boolean;
+  soldItems: MarketSellEntry[];
+  totalGold: number;
+  destination: SellDestination;
+  logs: string[];
+}
+
+export interface MarketFilter {
+  category: MarketItemCategory;
+  rarity?: ItemRarity | "all";
+  search?: string;
+  source: SellSource;
 }
 
 export interface Inventory {
@@ -167,11 +221,10 @@ export interface EquippedItems {
   legs?: InventoryItem;
   boots?: InventoryItem;
   weapon?: InventoryItem;
-  shield?: InventoryItem;
+  offhand?: InventoryItem;
   amulet?: InventoryItem;
   ring?: InventoryItem;
   backpack?: InventoryItem;
-  ammo?: InventoryItem;
 }
 
 export interface EquipmentBonuses {
@@ -382,6 +435,7 @@ export interface Character {
   staminaHours: number;
   gold: number;
   inventory: InventoryItem[];
+  characterDepot: InventoryItem[];
   equipment: EquippedItems;
   capacityUsed: number;
   capacityMax: number;

@@ -4,9 +4,19 @@ import { GAME_TITLE } from "../../shared/constants";
 
 interface TopBarProps {
   guild: Guild;
+  saveStatus?: string;
+  onManualSave?: () => void;
+  onReloadSave?: () => void;
+  onResetSave?: () => void;
 }
 
-export function TopBar({ guild }: TopBarProps) {
+export function TopBar({
+  guild,
+  saveStatus,
+  onManualSave,
+  onReloadSave,
+  onResetSave,
+}: TopBarProps) {
   return (
     <header className="top-bar">
       <div className="brand-block">
@@ -17,6 +27,12 @@ export function TopBar({ guild }: TopBarProps) {
         <StatBox label="Gold" value={guild.gold} />
         <StatBox label="Renown" value={guild.renown} />
         <StatBox label="Rank" value={guild.rank} detail={`Level ${guild.level}`} />
+      </div>
+      <div className="save-controls" aria-label="Save controls">
+        <span>{saveStatus ?? "SQLite local"}</span>
+        <button onClick={onManualSave} type="button">Salvar agora</button>
+        <button onClick={onReloadSave} type="button">Recarregar save</button>
+        <button onClick={onResetSave} type="button">Resetar save</button>
       </div>
     </header>
   );

@@ -14,7 +14,6 @@ export function completeQuest(character: Character, quest: Quest) {
   return {
     character: {
       ...withExperience.character,
-      gold: withExperience.character.gold + (quest.rewards.gold ?? 0),
       accessIds,
       completedQuestIds,
       questProgress: withExperience.character.questProgress.map((progress) =>

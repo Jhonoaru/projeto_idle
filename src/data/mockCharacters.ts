@@ -47,6 +47,12 @@ function inventory(characterId: string, entries: Array<[string, number]>): Inven
   );
 }
 
+function characterDepot(characterId: string, entries: Array<[string, number]>): InventoryItem[] {
+  return entries.map(([itemId, quantity]) =>
+    createInventoryItem(itemId, quantity, "character", characterId),
+  );
+}
+
 function equipment(
   characterId: string,
   entries: Array<[EquipmentSlot, string]>,
@@ -74,10 +80,15 @@ export const mockCharacters: Character[] = [
     inventory: inventory("char-arkon", [
       ["health-potion", 4],
       ["rusty-blade", 1],
+      ["rat-tail", 12],
+    ]),
+    characterDepot: characterDepot("char-arkon", [
+      ["orc-leather", 5],
+      ["iron-ore", 8],
     ]),
     equipment: equipment("char-arkon", [
       ["weapon", "worn-sword"],
-      ["shield", "wooden-shield"],
+      ["offhand", "wooden-shield"],
       ["armor", "leather-armor"],
     ]),
     completedQuestIds: ["quest-first-contract", "quest-sewer-clearance"],
@@ -121,9 +132,12 @@ export const mockCharacters: Character[] = [
       ["mana-potion", 5],
       ["light-quiver", 1],
     ]),
+    characterDepot: characterDepot("char-ayla", [
+      ["spider-silk", 10],
+    ]),
     equipment: equipment("char-ayla", [
       ["weapon", "simple-bow"],
-      ["ammo", "ranger-gloves"],
+      ["offhand", "light-quiver"],
       ["boots", "leather-boots"],
     ]),
     completedQuestIds: ["quest-first-contract"],
@@ -163,6 +177,10 @@ export const mockCharacters: Character[] = [
     inventory: inventory("char-mira", [
       ["mana-potion", 8],
       ["mystic-cap", 1],
+    ]),
+    characterDepot: characterDepot("char-mira", [
+      ["enchanted-dust", 1],
+      ["ancient-bone", 6],
     ]),
     equipment: equipment("char-mira", [
       ["weapon", "novice-wand"],
@@ -219,6 +237,9 @@ export const mockCharacters: Character[] = [
       ["mana-potion", 6],
       ["small-amulet", 1],
     ]),
+    characterDepot: characterDepot("char-lyra", [
+      ["old-cloth", 9],
+    ]),
     equipment: equipment("char-lyra", [
       ["weapon", "novice-wand"],
       ["helmet", "mystic-cap"],
@@ -252,6 +273,9 @@ export const mockCharacters: Character[] = [
     inventory: inventory("char-shen", [
       ["health-potion", 3],
       ["cloth-sash", 1],
+    ]),
+    characterDepot: characterDepot("char-shen", [
+      ["broken-fang", 7],
     ]),
     equipment: equipment("char-shen", [
       ["weapon", "monk-wraps"],

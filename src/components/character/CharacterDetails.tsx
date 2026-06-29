@@ -61,7 +61,11 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
         <StatBox label="Status" value={CHARACTER_STATUS_LABELS[character.status]} />
         <StatBox label="City" value={character.city} />
         <StatBox label="Stamina" value={`${character.staminaHours}h`} />
-        <StatBox label="Gold" value={character.gold.toLocaleString("en-US")} />
+        <StatBox
+          label="Gold gerado"
+          value={character.gold.toLocaleString("en-US")}
+          detail="historico"
+        />
         <StatBox label="Health" value={character.attributes.maxHealth} />
         <StatBox label="Mana" value={character.attributes.maxMana} />
         <StatBox label="Capacity" value={character.attributes.capacity} />

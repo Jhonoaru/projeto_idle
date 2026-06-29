@@ -2,17 +2,28 @@ import { EquipmentSlotBox } from "./EquipmentSlotBox";
 import type { Character, EquipmentSlot } from "../../shared/types";
 
 const equipmentSlots: EquipmentSlot[] = [
-  "helmet",
-  "armor",
-  "legs",
-  "boots",
   "weapon",
-  "shield",
+  "offhand",
+  "helmet",
   "amulet",
+  "armor",
   "ring",
+  "legs",
   "backpack",
-  "ammo",
+  "boots",
 ];
+
+const slotLabels: Record<EquipmentSlot, string> = {
+  weapon: "Arma Principal",
+  offhand: "Arma Secundária / Escudo / Quiver",
+  helmet: "Elmo",
+  armor: "Peitoral",
+  legs: "Legs",
+  boots: "Bota",
+  amulet: "Colar",
+  ring: "Anel",
+  backpack: "Mochila Principal",
+};
 
 interface EquipmentPanelProps {
   character: Character;
@@ -26,6 +37,7 @@ export function EquipmentPanel({ character, onUnequip }: EquipmentPanelProps) {
         <EquipmentSlotBox
           item={character.equipment[slot]}
           key={slot}
+          label={slotLabels[slot]}
           onUnequip={onUnequip}
           slot={slot}
         />

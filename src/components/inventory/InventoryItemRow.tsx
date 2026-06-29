@@ -4,24 +4,31 @@ interface InventoryItemRowProps {
   inventoryItem: InventoryItem;
   actionLabel?: string;
   onAction?: (inventoryItem: InventoryItem) => void;
+  secondaryActionLabel?: string;
+  onSecondaryAction?: (inventoryItem: InventoryItem) => void;
   onEquip?: (inventoryItem: InventoryItem) => void;
+  onToggleLock?: (inventoryItem: InventoryItem) => void;
 }
 
 export function InventoryItemRow({
   inventoryItem,
   actionLabel,
   onAction,
+  secondaryActionLabel,
+  onSecondaryAction,
   onEquip,
+  onToggleLock,
 }: InventoryItemRowProps) {
   const totalWeight = inventoryItem.item.weight * inventoryItem.quantity;
   const totalValue = inventoryItem.item.value * inventoryItem.quantity;
 
   return (
-    <article className={`inventory-row rarity-${inventoryItem.item.rarity}`}>
+    <article className={`inventory-row rarity-${inventoryItem.item.rarity} ${inventoryItem.locked ? "is-locked" : ""}`.trim()}>
       <div>
         <h3>{inventoryItem.item.name}</h3>
         <p>
           {inventoryItem.item.type} / {inventoryItem.item.rarity}
+          {inventoryItem.locked ? " / Travado" : ""}
         </p>
       </div>
       <div className="inventory-numbers">
@@ -38,6 +45,16 @@ export function InventoryItemRow({
         {actionLabel && onAction ? (
           <button onClick={() => onAction(inventoryItem)} type="button">
             {actionLabel}
+          </button>
+        ) : null}
+        {secondaryActionLabel && onSecondaryAction ? (
+          <button onClick={() => onSecondaryAction(inventoryItem)} type="button">
+            {secondaryActionLabel}
+          </button>
+        ) : null}
+        {onToggleLock ? (
+          <button onClick={() => onToggleLock(inventoryItem)} type="button">
+            {inventoryItem.locked ? "Destravar" : "Travar"}
           </button>
         ) : null}
       </div>

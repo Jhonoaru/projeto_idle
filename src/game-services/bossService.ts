@@ -43,6 +43,7 @@ export function startBoss(characters: Character[], boss: Boss, party: BossParty)
             expectedXp: boss.reward.experience,
             expectedGold: boss.reward.goldMax,
             partyMemberIds: memberIds,
+            partyMembers: party.members,
           },
         }
       : character,
@@ -66,7 +67,6 @@ export function finishBoss(
 ) {
   const result = simulateBossFight(characters, party, boss);
   const participantIds = new Set(party.members.map((member) => member.characterId));
-  const goldShare = Math.floor(result.goldGained / Math.max(1, participantIds.size));
   const updatedCharacters = characters.map((character) => {
     if (!participantIds.has(character.id)) return character;
 
@@ -75,7 +75,6 @@ export function finishBoss(
 
     return {
       ...withCooldown,
-      gold: withCooldown.gold + goldShare,
       status: result.diedCharacterIds.includes(character.id) ? "dead" as const : "idle" as const,
       currentAction: undefined,
     };
