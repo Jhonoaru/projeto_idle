@@ -327,6 +327,7 @@ Arquivos criados:
 - `src/database/schema.ts`.
 - `src/database/migrations.ts`.
 - `src/database/db.ts`.
+- `src/database/saveMapper.ts`.
 - `src/database/saveGameRepository.ts`.
 
 Tabelas criadas:
@@ -358,11 +359,12 @@ Integracao no app:
 - Ao iniciar, o app mostra `Carregando save...`.
 - `initDatabase()` conecta no SQLite e roda migrations simples.
 - `loadGameState()` carrega save existente.
-- Se nao houver save, o app usa os mocks atuais e salva o primeiro estado.
+- Se nao houver save, `loadGameState()` retorna `null`; o app usa os mocks atuais e salva o primeiro estado.
 - Se houver erro ao carregar SQLite, o app cai para mock local e registra erro no console.
 - Autosave roda apos mudancas reais de `guild`, `characters`, `depot` ou `logs`, com debounce curto.
 - Nao ha autosave por segundo do Action Analyzer.
 - TopBar possui botoes discretos: Salvar agora, Recarregar save e Resetar save.
+- Resetar save pede confirmacao simples do navegador/Tauri antes de apagar.
 
 Cuidados aplicados:
 
@@ -372,6 +374,7 @@ Cuidados aplicados:
 - Equipamentos sao salvos separadamente do inventario para evitar duplicacao.
 - Campos de data continuam como string.
 - `save_metadata` ja possui `integrity_hash`, mas ainda sem hash calculado.
+- `character.gold` nao e moeda principal. Por compatibilidade com o tipo/tabela inicial, o repository grava/carrega esse campo legado como `0`; o gold persistido de verdade e `guild.gold`.
 
 Validacao:
 

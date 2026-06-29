@@ -123,14 +123,18 @@ export function App() {
       try {
         const db = await initDatabase();
         const loadedState = await loadGameState(db);
+        const stateToApply = loadedState ?? createInitialGameState();
 
         if (canceled) return;
 
-        applyGameState(loadedState);
-        setSelectedCharacterId(loadedState.characters[0]?.id ?? mockCharacters[0].id);
+        applyGameState(stateToApply);
+        setSelectedCharacterId(stateToApply.characters[0]?.id ?? mockCharacters[0].id);
         setDatabase(db);
         saveReadyRef.current = true;
-        setSaveStatus("Save carregado.");
+        if (!loadedState) {
+          await saveGameState(db, stateToApply);
+        }
+        setSaveStatus(loadedState ? "Save carregado." : "Save inicial criado.");
       } catch (error) {
         console.error("Failed to load local SQLite save.", error);
 
@@ -244,16 +248,20 @@ export function App() {
     try {
       saveReadyRef.current = false;
       const loadedState = await loadGameState(database);
+      const stateToApply = loadedState ?? createInitialGameState();
       applyGameState({
-        ...loadedState,
+        ...stateToApply,
         logs: [
-          createLogEntry("Save", "Save carregado.", "success"),
-          ...loadedState.logs,
+          createLogEntry("Save", loadedState ? "Save carregado." : "Save inicial carregado.", "success"),
+          ...stateToApply.logs,
         ],
       });
-      setSelectedCharacterId(loadedState.characters[0]?.id ?? selectedCharacterId);
+      if (!loadedState) {
+        await saveGameState(database, stateToApply);
+      }
+      setSelectedCharacterId(stateToApply.characters[0]?.id ?? selectedCharacterId);
       saveReadyRef.current = true;
-      setSaveStatus("Save carregado.");
+      setSaveStatus(loadedState ? "Save carregado." : "Save inicial criado.");
     } catch (error) {
       console.error("Failed to reload local save.", error);
       saveReadyRef.current = true;
@@ -265,6 +273,10 @@ export function App() {
   async function handleResetSave() {
     if (!database) {
       setSaveStatus("Database indisponivel.");
+      return;
+    }
+
+    if (!window.confirm("Resetar o save local e voltar ao estado inicial?")) {
       return;
     }
 

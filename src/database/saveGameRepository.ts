@@ -1,5 +1,4 @@
 import type Database from "@tauri-apps/plugin-sql";
-import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
 import { mockDepot } from "../data/mockDepot";
 import { mockGuild } from "../data/mockGuild";
@@ -8,14 +7,22 @@ import type {
   ActivityLogEntry,
   Character,
   EquipmentSlot,
-  EquippedItems,
   Guild,
   GuildDepot,
   InventoryItem,
-  Item,
   SkillName,
-  SkillSet,
 } from "../shared/types";
+import {
+  mapCharacter,
+  mapGuild,
+  mapInventoryItem,
+  mapLog,
+  type CharacterRow,
+  type GuildRow,
+  type InventoryRow,
+  type LogRow,
+  type SkillRow,
+} from "./saveMapper";
 import { OWNER_TYPES, PRIMARY_METADATA_ID, SAVE_VERSION } from "./schema";
 
 export interface GameStateSnapshot {
@@ -23,65 +30,6 @@ export interface GameStateSnapshot {
   characters: Character[];
   depot: GuildDepot;
   logs: ActivityLogEntry[];
-}
-
-interface GuildRow {
-  id: string;
-  name: string;
-  gold: number;
-  renown: number;
-  rank: string;
-  level: number;
-}
-
-interface CharacterRow {
-  id: string;
-  name: string;
-  vocation: Character["vocation"];
-  level: number;
-  experience: number;
-  experience_to_next_level: number;
-  status: Character["status"];
-  city: string;
-  stamina_hours: number;
-  gold: number;
-  capacity_used: number;
-  capacity_max: number;
-  current_action_json: string | null;
-  attributes_json: string;
-  completed_quest_ids_json: string;
-  access_ids_json: string;
-  quest_progress_json: string;
-  boss_cooldowns_json: string;
-  created_at: string;
-}
-
-interface SkillRow {
-  character_id: string;
-  skill_name: SkillName;
-  level: number;
-  progress_percent: number;
-}
-
-interface InventoryRow {
-  id: string;
-  owner_type: string;
-  owner_id: string;
-  character_id: string | null;
-  item_id: string;
-  quantity: number;
-  locked: number;
-  location: InventoryItem["location"];
-  equipment_slot: EquipmentSlot | null;
-  parent_container_id: string | null;
-}
-
-interface LogRow {
-  id: string;
-  title: string;
-  message: string;
-  type: ActivityLogEntry["tone"];
-  created_at: string;
 }
 
 export function createInitialGameState(): GameStateSnapshot {
@@ -93,13 +41,11 @@ export function createInitialGameState(): GameStateSnapshot {
   };
 }
 
-export async function loadGameState(db: Database): Promise<GameStateSnapshot> {
+export async function loadGameState(db: Database): Promise<GameStateSnapshot | null> {
   const guildRows = await db.select<GuildRow[]>("SELECT * FROM guilds LIMIT 1");
 
   if (guildRows.length === 0) {
-    const initialState = createInitialGameState();
-    await saveGameState(db, initialState);
-    return initialState;
+    return null;
   }
 
   const guild = mapGuild(guildRows[0]);
@@ -221,7 +167,7 @@ async function saveCharacter(
       character.status,
       character.city,
       character.staminaHours,
-      character.gold,
+      0,
       character.capacityUsed,
       character.capacityMax,
       stringifyNullable(character.currentAction),
@@ -369,157 +315,6 @@ async function saveLogs(
   }
 }
 
-function mapGuild(row: GuildRow): Guild {
-  return {
-    id: row.id,
-    name: row.name,
-    gold: row.gold,
-    renown: row.renown,
-    rank: row.rank,
-    level: row.level,
-  };
-}
-
-function mapCharacter(
-  row: CharacterRow,
-  skillRows: SkillRow[],
-  inventoryRows: InventoryRow[],
-): Character {
-  return {
-    id: row.id,
-    name: row.name,
-    vocation: row.vocation,
-    level: row.level,
-    experience: row.experience,
-    experienceToNextLevel: row.experience_to_next_level,
-    status: row.status,
-    city: row.city,
-    staminaHours: row.stamina_hours,
-    gold: row.gold,
-    inventory: inventoryRows
-      .filter(
-        (inventoryRow) =>
-          inventoryRow.owner_type === OWNER_TYPES.characterInventory &&
-          inventoryRow.owner_id === row.id,
-      )
-      .map(mapInventoryItem),
-    characterDepot: inventoryRows
-      .filter(
-        (inventoryRow) =>
-          inventoryRow.owner_type === OWNER_TYPES.characterDepot &&
-          inventoryRow.owner_id === row.id,
-      )
-      .map(mapInventoryItem),
-    equipment: mapEquipment(row.id, inventoryRows),
-    capacityUsed: row.capacity_used,
-    capacityMax: row.capacity_max,
-    completedQuestIds: parseJson(row.completed_quest_ids_json, []),
-    accessIds: parseJson(row.access_ids_json, []),
-    bossCooldowns: parseJson(row.boss_cooldowns_json, []),
-    questProgress: parseJson(row.quest_progress_json, []),
-    skills: mapSkills(row.id, skillRows),
-    attributes: parseJson(row.attributes_json, {
-      maxHealth: 0,
-      maxMana: 0,
-      capacity: row.capacity_max,
-      speed: 0,
-      attackPower: 0,
-      defensePower: 0,
-      armor: 0,
-    }),
-    currentAction: row.current_action_json
-      ? parseJson(row.current_action_json, undefined)
-      : undefined,
-    createdAt: row.created_at,
-  };
-}
-
-function mapSkills(characterId: string, skillRows: SkillRow[]): SkillSet {
-  const characterSkillRows = skillRows.filter((row) => row.character_id === characterId);
-  const getSkill = (skillName: SkillName) => {
-    const row = characterSkillRows.find((entry) => entry.skill_name === skillName);
-
-    return {
-      name: skillName,
-      level: row?.level ?? 10,
-      progressPercent: row?.progress_percent ?? 0,
-    };
-  };
-
-  return {
-    sword: getSkill("sword"),
-    axe: getSkill("axe"),
-    club: getSkill("club"),
-    distance: getSkill("distance"),
-    fist: getSkill("fist"),
-    shielding: getSkill("shielding"),
-    magic: getSkill("magic"),
-  };
-}
-
-function mapEquipment(characterId: string, inventoryRows: InventoryRow[]): EquippedItems {
-  const equippedRows = inventoryRows.filter(
-    (row) =>
-      row.owner_type === OWNER_TYPES.equipped &&
-      row.owner_id === characterId &&
-      row.equipment_slot,
-  );
-
-  return Object.fromEntries(
-    equippedRows.map((row) => [row.equipment_slot, mapInventoryItem(row)]),
-  ) as EquippedItems;
-}
-
-function mapInventoryItem(row: InventoryRow): InventoryItem {
-  return {
-    id: row.id,
-    itemId: row.item_id,
-    item: getCatalogItem(row.item_id),
-    quantity: row.quantity,
-    ownerCharacterId: row.character_id ?? undefined,
-    parentContainerId: row.parent_container_id,
-    locked: Boolean(row.locked),
-    location: row.location,
-  };
-}
-
-function mapLog(row: LogRow): ActivityLogEntry {
-  return {
-    id: row.id,
-    timestamp: new Date(row.created_at).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }),
-    title: row.title,
-    message: row.message,
-    tone: row.type,
-  };
-}
-
-function getCatalogItem(itemId: string): Item {
-  return (
-    items[itemId] ?? {
-      id: itemId,
-      name: "Unknown Item",
-      type: "misc",
-      rarity: "common",
-      weight: 0,
-      value: 0,
-      stackable: false,
-      description: "This item id no longer exists in the local catalog.",
-    }
-  );
-}
-
 function stringifyNullable(value: unknown) {
   return value ? JSON.stringify(value) : null;
-}
-
-function parseJson<T>(value: string, fallback: T): T {
-  try {
-    return JSON.parse(value) as T;
-  } catch {
-    return fallback;
-  }
 }
