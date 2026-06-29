@@ -7,10 +7,16 @@ Atualizado em: 2026-06-29
 - Tauri v2 para empacotamento desktop.
 - React com TypeScript para a interface.
 - Vite para desenvolvimento e build do frontend.
-- Estado local/em memoria dentro do React.
+- Estado de jogo coordenado no React com persistencia local.
 - Dados iniciais em arquivos TypeScript dentro de `src/data`.
-- Ainda sem banco de dados ativo.
-- Ainda sem SQLite/Prisma ativo. A pasta `prisma/` existe apenas como reserva com `.gitkeep`.
+- SQLite local ativo via Tauri SQL Plugin (`sqlite:guild_hunt_idle.db`).
+- Save/load local funcionando para guilda, personagens, inventarios, equipamentos, containers, depot, logs e acoes atuais.
+- Sem Prisma ativo. A pasta `prisma/` existe apenas como reserva com `.gitkeep`.
+
+## Status recente
+
+- Etapa 13 implementada: hunts usam supplies reais do inventario do personagem.
+- Etapa 13.5 em QA: validar supplies reais, save/load, containers, `guild.gold`, Market NPC e Action Analyzer antes de iniciar sistemas grandes novos.
 
 Comandos principais:
 
@@ -51,12 +57,19 @@ Comandos principais:
 - Simulacao de boss com chance de sucesso, morte, XP, gold, loot, renown e logs.
 - Cooldowns de boss por personagem.
 - Loot de boss enviado para o Guild Depot.
+- Persistencia local com SQLite via Tauri SQL Plugin.
+- Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
 - Venda de itens do inventario do personagem, depot pessoal do personagem e Guild Depot.
 - Gold separado entre personagem e guilda.
+- Gold universal da guilda usado por compras, vendas e custos relevantes.
 - Itens travaveis contra venda acidental.
 - Aba Inventario & Equipamento unificada.
 - Aba Depot dividida entre Depot do Personagem e Guild Depot.
+- Containers com itens internos preservados por `parentContainerId`.
+- Supplies reais nas hunts: validacao antes de iniciar, consumo ao finalizar e balance liquido apos supplies.
+- Aba Acao com Current Action e Action Analyzer.
+- Traveling automatico para retorno/cancelamento e chegada automatica ao expirar.
 - Log de atividade no painel direito.
 
 ## Decisoes de design
@@ -86,6 +99,7 @@ Comandos principais:
 - `src/data/`: dados mockados e catalogos do jogo, como personagens, guilda, monstros, itens, hunts, quests, acessos e treinos.
 - `src/game-engine/`: regras puras de jogo para hunts, loot, inventario, equipamentos, atributos, quests e progressao.
 - `src/game-services/`: servicos que coordenam regras do engine para iniciar/finalizar acoes.
+- `src/database/`: conexao SQLite, migrations, mapper e repositorio de save/load local.
 - `src/shared/`: tipos, constantes e utilitarios compartilhados.
 - `src/security/`: notas futuras de seguranca local.
 - `src-tauri/`: projeto Tauri/Rust e configuracoes desktop.
@@ -95,9 +109,9 @@ Comandos principais:
 ## Proximos sistemas planejados
 
 - Balanceamento fino de bosses, party power, risco, recompensas e cooldowns.
-- Persistencia local de save offline.
-- Camada de save/load isolada dos componentes React.
-- SQLite + Prisma apenas quando o loop de gameplay estiver pronto e quando for solicitado.
+- QA da persistencia local apos novos fluxos de gameplay.
+- Melhor isolamento futuro da camada de save/load dos componentes React, se o estado crescer mais.
+- Prisma apenas quando houver decisao explicita.
 - Offline catch-up real para progresso enquanto o app esta fechado.
 - Mais bosses, boss access e balanceamento de cooldowns.
 - Melhorias futuras no Market NPC local.
@@ -185,10 +199,9 @@ Checklist implementado:
 
 Limites preservados:
 
-- Ainda sem banco de dados.
-- Ainda sem SQLite/Prisma.
-- Ainda sem persistencia ao fechar o app.
-- Estado de bosses e cooldowns permanece em memoria/local state.
+- SQLite local e save/load foram implementados posteriormente na Etapa 11.
+- Ainda sem Prisma.
+- Boss cooldowns agora sao persistidos no save local.
 
 ## Etapa 9 - Equipamentos, mochila e quiver
 
@@ -231,7 +244,7 @@ Status: implementada em versao inicial.
 
 Checklist implementado:
 
-- Tipos de market, filtro, origem, destino e resultado de venda.
+- Tipos de market, filtro, origem e resultado de venda.
 - `InventoryItem.locked` para proteger item contra venda.
 - `Character.characterDepot` em memoria para depot pessoal simples.
 - Engine puro de market com calculo de valor, filtragem, lista vendavel e venda.
@@ -239,9 +252,9 @@ Checklist implementado:
 - Aba Market na ordem principal sugerida.
 - Filtros por busca, categoria e raridade.
 - Selecao de item unico, multiplos itens e venda por categoria.
-- Destino de gold configuravel para venda do inventario do personagem.
-- Venda do depot pessoal envia gold ao personagem.
-- Venda do Guild Depot envia gold a guilda.
+- Venda do inventario do personagem envia gold para `guild.gold`.
+- Venda do depot pessoal envia gold para `guild.gold`.
+- Venda do Guild Depot envia gold para `guild.gold`.
 - Botao Travar/Destravar no Market, inventario e Guild Depot.
 - Botao Travar/Destravar tambem no Depot do Personagem.
 - Itens travados nao entram em venda normal pelo Market.
@@ -260,7 +273,8 @@ Limites preservados:
 - Ainda sem compra de itens.
 - Ainda sem market online.
 - Ainda sem venda entre jogadores.
-- Ainda sem banco de dados, SQLite ou Prisma.
+- SQLite local foi implementado posteriormente via Tauri SQL Plugin.
+- Ainda sem Prisma.
 - Ainda sem historico avancado de precos.
 
 ## Etapa 10.5 - UX, Market NPC e Action Analyzer
@@ -304,7 +318,8 @@ Limites preservados:
 - Ainda sem player market.
 - Ainda sem recompensa automatica por segundo.
 - Ainda sem combate visual completo.
-- Ainda sem banco de dados, SQLite ou Prisma.
+- SQLite local foi implementado posteriormente na Etapa 11.
+- Ainda sem Prisma.
 
 ## Etapa 11 - Persistencia local com SQLite via Tauri SQL Plugin
 
@@ -379,6 +394,7 @@ Cuidados aplicados:
 Validacao:
 
 - `npm.cmd run build` passou.
+
 - `cargo check` passou em `src-tauri`.
 - `npm.cmd run tauri:build` passou e gerou os instaladores.
 - `npm.cmd run tauri dev` foi iniciado em verificacao curta; como comando de dev fica em execucao, foi encerrado por timeout.
@@ -572,3 +588,23 @@ Limites atuais:
 Validacao:
 
 - `npm.cmd run build` passou.
+
+## Etapa 13.5 - QA de supplies, save/load, economia e Action Analyzer
+
+Status: concluida como QA de estabilizacao, sem sistema grande novo.
+
+Checklist validado:
+
+- Supplies reais: start de hunt usa `checkHuntSupplies`, bloqueia supply obrigatorio ausente e apenas avisa sobre supply opcional.
+- Supplies reais: finish de hunt usa `calculateSupplyUsage` + `consumeSupplies`, remove stacks do inventario e recalcula capacity.
+- Containers: supplies dentro de containers continuam em `character.inventory` com `parentContainerId`, podem ser consumidos e persistem no SQLite.
+- Save/load: SQLite grava e carrega guilda, personagens, skills, inventario, depot pessoal, Guild Depot, equipamentos, logs e `currentAction`.
+- `guild.gold`: Market, quests, bosses, hunts e Exercise Training usam a moeda universal da guilda; `character.gold` permanece legado.
+- Market NPC: compra usa `guild.gold`, venda de inventario/depot/Guild Depot soma em `guild.gold`, itens travados e containers com conteudo ficam protegidos.
+- Action Analyzer: hunt mostra progresso, XP, gold, loot estimado, supplies estimados/lista parcial e balance sem aplicar recompensa automaticamente.
+- Tauri dev: `npm.cmd run tauri dev` abriu janela `Guild Hunt Idle` e Vite escutou em `127.0.0.1:1420`.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- `npm.cmd run tauri dev` foi iniciado com sucesso; o processo foi encerrado depois da confirmacao para nao deixar servidor aberto.
