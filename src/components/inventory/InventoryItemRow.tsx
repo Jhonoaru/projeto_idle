@@ -8,6 +8,10 @@ interface InventoryItemRowProps {
   onSecondaryAction?: (inventoryItem: InventoryItem) => void;
   onEquip?: (inventoryItem: InventoryItem) => void;
   onToggleLock?: (inventoryItem: InventoryItem) => void;
+  onOpenContainer?: (inventoryItem: InventoryItem) => void;
+  onMoveOutOfContainer?: (inventoryItem: InventoryItem) => void;
+  moveToContainerTargets?: InventoryItem[];
+  onMoveToContainer?: (inventoryItem: InventoryItem, container: InventoryItem) => void;
 }
 
 export function InventoryItemRow({
@@ -18,6 +22,10 @@ export function InventoryItemRow({
   onSecondaryAction,
   onEquip,
   onToggleLock,
+  onOpenContainer,
+  onMoveOutOfContainer,
+  moveToContainerTargets = [],
+  onMoveToContainer,
 }: InventoryItemRowProps) {
   const totalWeight = inventoryItem.item.weight * inventoryItem.quantity;
   const totalValue = inventoryItem.item.value * inventoryItem.quantity;
@@ -40,6 +48,25 @@ export function InventoryItemRow({
         {inventoryItem.item.type === "equipment" && onEquip ? (
           <button onClick={() => onEquip(inventoryItem)} type="button">
             Equipar
+          </button>
+        ) : null}
+        {inventoryItem.item.isContainer && onOpenContainer ? (
+          <button onClick={() => onOpenContainer(inventoryItem)} type="button">
+            Abrir
+          </button>
+        ) : null}
+        {moveToContainerTargets.map((container) => (
+          <button
+            key={container.id}
+            onClick={() => onMoveToContainer?.(inventoryItem, container)}
+            type="button"
+          >
+            Mover para {container.item.name}
+          </button>
+        ))}
+        {inventoryItem.parentContainerId && onMoveOutOfContainer ? (
+          <button onClick={() => onMoveOutOfContainer(inventoryItem)} type="button">
+            Tirar da mochila
           </button>
         ) : null}
         {actionLabel && onAction ? (

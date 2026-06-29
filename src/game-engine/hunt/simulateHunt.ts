@@ -72,8 +72,8 @@ export function simulateHunt({
     lootItems.reduce((sum, item) => sum + item.weightTotal, 0).toFixed(2),
   );
   const totalGoldGained = goldGained + goldFromLoot;
-  const supplyCost = Math.round(hunt.supplyCostPerHour * durationFactor * (died ? 0.82 : 1));
-  const netProfit = totalGoldGained + totalLootValue - supplyCost;
+  const supplyCost = 0;
+  const netProfit = totalGoldGained + totalLootValue;
   const mainSkill = getMainSkill(character);
   const skillProgress = calculateSkillProgress(
     mainSkill.name,
@@ -111,6 +111,8 @@ export function simulateHunt({
     totalLootValue,
     totalLootWeight,
     supplyCost,
+    suppliesUsed: [],
+    supplyValueUsed: 0,
     netProfit,
     loot: lootItems,
     skillProgress,

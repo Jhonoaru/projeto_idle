@@ -1,4 +1,5 @@
 import { calculateHuntRisk } from "../../game-engine/hunt/calculateHuntRisk";
+import { checkHuntSupplies } from "../../game-engine/supplies/checkHuntSupplies";
 import { GameButton } from "../ui/GameButton";
 import { Panel } from "../ui/Panel";
 import { getAccessName } from "../../data/accesses";
@@ -42,7 +43,8 @@ export function HuntActionPanel({
   const isHuntingSelectedArea =
     character.status === "hunting" &&
     character.currentAction?.targetId === selectedHunt.id;
-  const canStartHunt = character.status === "idle" && hasAccess;
+  const supplyCheck = checkHuntSupplies(character, selectedHunt, durationMinutes);
+  const canStartHunt = character.status === "idle" && hasAccess && supplyCheck.hasRequiredSupplies;
   const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess);
 
   return (
@@ -88,6 +90,42 @@ export function HuntActionPanel({
           ))}
         </div>
 
+        <div className="supplies-panel">
+          <div className="supplies-heading">
+            <span>Supplies</span>
+            <strong>
+              {supplyCheck.hasRequiredSupplies
+                ? `Supplies OK para ${durationMinutes}min.`
+                : "Supplies insuficientes: compre no Market NPC."}
+            </strong>
+          </div>
+          {supplyCheck.availableSupplies.length > 0 ? (
+            <div className="supplies-list">
+              {supplyCheck.availableSupplies.map((entry) => (
+                <div
+                  className={entry.missingQuantity > 0 ? "is-missing" : "is-ok"}
+                  key={entry.itemId}
+                >
+                  <span>{entry.itemName}</span>
+                  <strong>
+                    {entry.availableQuantity}/{entry.requiredQuantity}
+                  </strong>
+                  <em>
+                    {entry.missingQuantity > 0
+                      ? `Faltam ${entry.missingQuantity}`
+                      : entry.optional ? "Opcional OK" : "OK"}
+                  </em>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-list">Esta hunt nao exige supplies especiais.</div>
+          )}
+          {supplyCheck.warnings.map((warning) => (
+            <p className="action-block-reason" key={warning}>{warning}</p>
+          ))}
+        </div>
+
         <div className="hunt-action-buttons">
           <GameButton disabled={!canStartHunt} onClick={onStartHunt}>
             Iniciar Hunt
@@ -102,6 +140,13 @@ export function HuntActionPanel({
           </div>
         ) : null}
         {blockReason ? <p className="action-block-reason">{blockReason}</p> : null}
+        {!supplyCheck.hasRequiredSupplies ? (
+          <p className="action-block-reason">
+            {supplyCheck.missingSupplies
+              .map((entry) => `Faltam ${entry.missingQuantity} ${entry.itemName}`)
+              .join(". ")}
+          </p>
+        ) : null}
       </div>
     </Panel>
   );

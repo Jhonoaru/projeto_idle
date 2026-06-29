@@ -21,6 +21,7 @@ export const shopItems: ShopItem[] = [
   { itemId: "piercing-arrow", category: "ammo", buyPrice: 11, defaultQuantity: 100 },
   { itemId: "light-quiver", category: "ammo", buyPrice: 180, defaultQuantity: 1 },
   { itemId: "adventurer-backpack", category: "containers", buyPrice: 240, defaultQuantity: 1 },
+  { itemId: "small-backpack", category: "containers", buyPrice: 125, defaultQuantity: 1 },
   { itemId: "loot-bag", category: "containers", buyPrice: 215, defaultQuantity: 1 },
   { itemId: "supply-bag", category: "containers", buyPrice: 235, defaultQuantity: 1 },
   { itemId: "rune-pouch", category: "containers", buyPrice: 320, defaultQuantity: 1 },

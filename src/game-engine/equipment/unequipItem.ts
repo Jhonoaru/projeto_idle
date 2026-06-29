@@ -19,6 +19,7 @@ export function unequipItem(character: Character, slot: EquipmentSlot) {
       id: `${equippedItem.id}-unequipped-${Date.now()}`,
       location: "character" as const,
       ownerCharacterId: character.id,
+      parentContainerId: null,
     },
   ]);
   const capacityUsed = calculateCapacityUsed(inventory);

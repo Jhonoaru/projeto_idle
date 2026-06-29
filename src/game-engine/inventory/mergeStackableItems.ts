@@ -10,7 +10,12 @@ export function mergeStackableItems(items: InventoryItem[]) {
       continue;
     }
 
-    const key = `${inventoryItem.location}-${inventoryItem.ownerCharacterId ?? "depot"}-${inventoryItem.itemId}`;
+    const key = [
+      inventoryItem.location,
+      inventoryItem.ownerCharacterId ?? "depot",
+      inventoryItem.parentContainerId ?? "root",
+      inventoryItem.itemId,
+    ].join("-");
     const existing = merged.get(key);
 
     if (!existing) {

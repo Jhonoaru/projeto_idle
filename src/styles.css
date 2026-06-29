@@ -842,6 +842,68 @@ p {
   background: #242719;
 }
 
+.supplies-panel {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.supplies-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.supplies-heading span,
+.supplies-list em {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.supplies-heading strong {
+  color: #f1d58c;
+}
+
+.supplies-list {
+  display: grid;
+  gap: 6px;
+}
+
+.supplies-list div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(90px, auto);
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px;
+  border: 1px solid #30352f;
+  border-radius: 5px;
+  background: #101411;
+}
+
+.supplies-list span {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.supplies-list strong {
+  color: #f1d58c;
+}
+
+.supplies-list .is-missing {
+  border-color: #8f614d;
+}
+
+.supplies-list .is-missing em {
+  color: #e2a36f;
+}
+
 .hunt-result-panel {
   display: grid;
   gap: 12px;
@@ -948,6 +1010,72 @@ p {
 .inventory-list {
   display: grid;
   gap: 8px;
+}
+
+.container-browser {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.container-browser-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.container-browser-header span,
+.container-strip em {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.container-browser-header strong,
+.container-strip strong {
+  color: #f1d58c;
+}
+
+.container-browser-header button,
+.container-strip button {
+  min-height: 32px;
+  border: 1px solid #4f4734;
+  border-radius: 5px;
+  color: #e8e2d4;
+  background: #20251f;
+  cursor: pointer;
+}
+
+.container-browser-header button:hover,
+.container-strip button:hover,
+.container-strip button.is-selected {
+  border-color: #d8b96a;
+  color: #f1d58c;
+}
+
+.container-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.container-strip button {
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  text-align: left;
+}
+
+.container-strip span {
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 .inventory-row {

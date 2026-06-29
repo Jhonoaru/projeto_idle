@@ -32,7 +32,7 @@ export function HuntResultPanel({
           <ResultStat label="Kills" value={result.killedMonsters.toLocaleString("en-US")} />
           <ResultStat label="XP" value={result.experienceGained.toLocaleString("en-US")} />
           <ResultStat label="Gold" value={result.goldGained.toLocaleString("en-US")} />
-          <ResultStat label="Supplies" value={result.supplyCost.toLocaleString("en-US")} />
+          <ResultStat label="Supplies" value={result.supplyValueUsed.toLocaleString("en-US")} />
           <ResultStat label="Net" value={result.netProfit.toLocaleString("en-US")} />
           <ResultStat label="Loot Value" value={result.totalLootValue.toLocaleString("en-US")} />
           <ResultStat label="Loot Weight" value={`${result.totalLootWeight.toFixed(2)} cap`} />
@@ -43,6 +43,32 @@ export function HuntResultPanel({
             />
           ) : null}
         </div>
+
+        <div className="result-section">
+          <h3>Supplies Usados</h3>
+          {result.suppliesUsed.length > 0 ? (
+            <ul>
+              {result.suppliesUsed.map((supply) => (
+                <li key={supply.itemId}>
+                  {supply.itemName} x{supply.quantityUsed} (-{supply.valueUsed.toLocaleString("en-US")}g)
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhum supply consumido.</p>
+          )}
+        </div>
+
+        {result.missingSupplies && result.missingSupplies.length > 0 ? (
+          <div className="result-section">
+            <h3>Warnings de Supply</h3>
+            <ul>
+              {result.missingSupplies.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         <div className="result-section">
           <h3>Loot Coletado</h3>

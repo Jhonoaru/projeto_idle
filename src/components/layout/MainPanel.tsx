@@ -100,6 +100,11 @@ interface MainPanelProps {
   ) => void;
   onToggleMarketItemLock: (source: SellSource, inventoryItemId: string) => void;
   onEquipItem: (inventoryItem: InventoryItem) => void;
+  onMoveInventoryItemToContainer: (
+    inventoryItem: InventoryItem,
+    container: InventoryItem,
+  ) => void;
+  onMoveInventoryItemOutOfContainer: (inventoryItem: InventoryItem) => void;
   onUnequipItem: (slot: EquipmentSlot) => void;
   onStartTraining: (
     targetSkill: TrainingTarget,
@@ -152,6 +157,8 @@ export function MainPanel({
   onBuyMarketItem,
   onToggleMarketItemLock,
   onEquipItem,
+  onMoveInventoryItemToContainer,
+  onMoveInventoryItemOutOfContainer,
   onUnequipItem,
   onStartTraining,
   onFinishTraining,
@@ -246,6 +253,8 @@ export function MainPanel({
               <InventoryPanel
                 character={selectedCharacter}
                 onEquipItem={onEquipItem}
+                onMoveOutOfContainer={onMoveInventoryItemOutOfContainer}
+                onMoveToContainer={onMoveInventoryItemToContainer}
                 onSendToDepot={onSendToCharacterDepot}
                 onSendToGuildDepot={onSendToDepot}
                 onToggleLock={(inventoryItem) =>

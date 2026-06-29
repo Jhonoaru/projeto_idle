@@ -26,6 +26,9 @@ import {
 } from "../game-services/actionService";
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
+import { getContainerContents } from "../game-engine/container/getContainerContents";
+import { moveItemOutOfContainer } from "../game-engine/container/moveItemOutOfContainer";
+import { moveItemToContainer } from "../game-engine/container/moveItemToContainer";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
 import { transferItem } from "../game-engine/inventory/transferItem";
@@ -442,7 +445,7 @@ export function App() {
       setActiveTab("action");
       prependLog(
         "Hunt started",
-        `${selectedCharacter.name} iniciou hunt em ${selectedHunt.name}. Acompanhe na aba Acao.`,
+        `${selectedCharacter.name} iniciou hunt em ${selectedHunt.name} com supplies suficientes. Acompanhe na aba Acao.`,
         "neutral",
       );
     } catch (error) {
@@ -519,6 +522,11 @@ export function App() {
   }
 
   function handleSendToDepot(inventoryItem: InventoryItem) {
+    if (hasContainerContents(selectedCharacter.inventory, inventoryItem)) {
+      prependLog("Container blocked", "Esvazie esta mochila antes de enviar ao Guild Depot.", "warning");
+      return;
+    }
+
     const transfer = transferItem(
       selectedCharacter,
       depot,
@@ -540,11 +548,17 @@ export function App() {
   }
 
   function handleSendToCharacterDepot(inventoryItem: InventoryItem) {
+    if (hasContainerContents(selectedCharacter.inventory, inventoryItem)) {
+      prependLog("Container blocked", "Esvazie esta mochila antes de enviar ao Depot do Personagem.", "warning");
+      return;
+    }
+
     const movedItem: InventoryItem = {
       ...inventoryItem,
       id: `${inventoryItem.id}-char-depot-${Date.now()}`,
       location: "character",
       ownerCharacterId: selectedCharacter.id,
+      parentContainerId: null,
     };
     const inventory = removeInventoryItemById(selectedCharacter.inventory, inventoryItem.id);
     const characterDepot = mergeStackableItems([
@@ -616,6 +630,7 @@ export function App() {
         id: `${inventoryItem.id}-inventory-${Date.now()}`,
         location: "character" as const,
         ownerCharacterId: selectedCharacter.id,
+        parentContainerId: null,
       },
     ]);
 
@@ -629,6 +644,62 @@ export function App() {
       "Depot transfer",
       `${selectedCharacter.name} retirou ${inventoryItem.item.name} x${inventoryItem.quantity} do Depot do Personagem.`,
       "success",
+    );
+  }
+
+  function handleMoveInventoryItemToContainer(
+    inventoryItem: InventoryItem,
+    container: InventoryItem,
+  ) {
+    const result = moveItemToContainer(
+      selectedCharacter.inventory,
+      inventoryItem.id,
+      container.id,
+      container,
+    );
+
+    if (!result.moved) {
+      prependLog(
+        "Container blocked",
+        result.reason ?? `${inventoryItem.item.name} nao pode ser movido.`,
+        "warning",
+      );
+      return;
+    }
+
+    updateSelectedCharacter({
+      ...selectedCharacter,
+      inventory: result.items,
+      capacityUsed: calculateCapacityUsed(result.items),
+    });
+    prependLog(
+      "Container",
+      `${inventoryItem.item.name} foi movido para ${container.item.name}.`,
+      "neutral",
+    );
+  }
+
+  function handleMoveInventoryItemOutOfContainer(inventoryItem: InventoryItem) {
+    const result = moveItemOutOfContainer(selectedCharacter.inventory, inventoryItem.id);
+
+    if (!result.moved) {
+      prependLog(
+        "Container blocked",
+        result.reason ?? `${inventoryItem.item.name} nao pode sair da mochila.`,
+        "warning",
+      );
+      return;
+    }
+
+    updateSelectedCharacter({
+      ...selectedCharacter,
+      inventory: result.items,
+      capacityUsed: calculateCapacityUsed(result.items),
+    });
+    prependLog(
+      "Container",
+      `${inventoryItem.item.name} voltou para a raiz do inventario.`,
+      "neutral",
     );
   }
 
@@ -1047,6 +1118,8 @@ export function App() {
           onSelectBoss={handleSelectBoss}
           onSelectHunt={setSelectedHunt}
           onEquipItem={handleEquipItem}
+          onMoveInventoryItemOutOfContainer={handleMoveInventoryItemOutOfContainer}
+          onMoveInventoryItemToContainer={handleMoveInventoryItemToContainer}
           onSendToCharacter={handleSendToCharacter}
           onSendCharacterDepotToInventory={handleSendCharacterDepotToInventory}
           onSendToCharacterDepot={handleSendToCharacterDepot}
@@ -1130,4 +1203,9 @@ function getDefaultPartyRole(vocation: (typeof mockCharacters)[number]["vocation
 
 function removeInventoryItemById(items: InventoryItem[], inventoryItemId: string) {
   return items.filter((item) => item.id !== inventoryItemId);
+}
+
+function hasContainerContents(items: InventoryItem[], inventoryItem: InventoryItem) {
+  return inventoryItem.item.isContainer === true &&
+    getContainerContents(items, inventoryItem.id).length > 0;
 }

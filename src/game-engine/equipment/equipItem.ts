@@ -35,6 +35,7 @@ export function equipItem(character: Character, inventoryItem: InventoryItem) {
       quantity: 1,
       location: "character" as const,
       ownerCharacterId: character.id,
+      parentContainerId: null,
     },
   };
   const characterWithEquipment = {

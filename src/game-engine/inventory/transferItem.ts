@@ -25,6 +25,7 @@ export function transferItem(
       quantity: movedQuantity,
       ownerCharacterId: undefined,
       location: "guildDepot",
+      parentContainerId: null,
     };
     const characterInventory = removeQuantity(character.inventory, inventoryItemId, movedQuantity);
     const depotItems = mergeStackableItems([...depot.items, movedItem]);
@@ -69,6 +70,7 @@ export function transferItem(
     quantity: movedQuantity,
     ownerCharacterId: character.id,
     location: "character",
+    parentContainerId: null,
   };
   const depotItems = removeQuantity(depot.items, inventoryItemId, movedQuantity);
   const characterInventory = mergeStackableItems([...character.inventory, movedItem]);

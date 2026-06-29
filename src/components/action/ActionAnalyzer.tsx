@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
+import { calculateSupplyUsage } from "../../game-engine/supplies/calculateSupplyUsage";
 import { calculateTrainingGain } from "../../game-engine/progression/calculateTrainingGain";
 import { SKILL_LABELS } from "../../shared/constants";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
@@ -50,7 +51,16 @@ export function ActionAnalyzer({
       const hunt = hunts.find((candidate) => candidate.id === action.targetId);
       const xpNow = Math.round((action.expectedXp ?? 0) * progress);
       const goldNow = Math.round((action.expectedGold ?? 0) * progress);
-      const supplies = Math.round(((hunt?.supplyCostPerHour ?? 0) / 60) * ((action.durationMinutes ?? 0) * progress));
+      const suppliesTotal = hunt
+        ? calculateSupplyUsage(character, hunt, action.durationMinutes ?? 0)
+            .reduce((sum, usage) => sum + usage.valueUsed, 0)
+        : 0;
+      const supplies = Math.round(suppliesTotal * progress);
+      const supplyText = hunt
+        ? calculateSupplyUsage(character, hunt, action.durationMinutes ?? 0)
+            .map((usage) => `${usage.itemName} x${Math.ceil(usage.quantityUsed * progress)}`)
+            .join(", ") || "Nenhum"
+        : "Nenhum";
       const lootValue = Math.round(goldNow * 1.8);
       const profit = goldNow + lootValue - supplies;
       const kills = Math.max(1, Math.round(((action.durationMinutes ?? 0) * progress) * 5));
@@ -61,6 +71,7 @@ export function ActionAnalyzer({
         ["Gold", goldNow.toLocaleString("en-US")],
         ["Loot", lootValue.toLocaleString("en-US")],
         ["Supplies", `-${supplies.toLocaleString("en-US")}`],
+        ["Supply list", supplyText],
         ["Balance", `${profit >= 0 ? "+" : ""}${profit.toLocaleString("en-US")}`],
         ["XP/h", (hunt?.estimatedXpPerHour ?? 0).toLocaleString("en-US")],
         ["Profit/h", ((hunt?.estimatedGoldPerHour ?? 0) - (hunt?.supplyCostPerHour ?? 0)).toLocaleString("en-US")],

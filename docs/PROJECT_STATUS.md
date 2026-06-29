@@ -452,3 +452,123 @@ Implementacao:
 Validacao:
 
 - `npm.cmd run build` passou.
+
+## Etapa 12 - Mochilas, Containers e Organizacao de Inventario
+
+Status: implementada em versao inicial.
+
+Tipos e dados:
+
+- `Item` agora suporta `allowedItemTypes` e `containerType`.
+- `InventoryItem.parentContainerId` continua sendo o vinculo entre item e container.
+- Containers configurados: Adventurer Backpack, Small Backpack, Loot Bag, Supply Bag e Rune Pouch.
+- Loot Bag aceita creature products, materials e misc.
+- Supply Bag aceita consumables.
+- Rune Pouch aceita consumables.
+- Small Backpack foi adicionado ao catalogo e ao Market NPC.
+
+Engine criado em `src/game-engine/container/`:
+
+- `isContainerItem.ts`.
+- `getContainerContents.ts`.
+- `calculateContainerUsedSlots.ts`.
+- `canMoveItemToContainer.ts`.
+- `moveItemToContainer.ts`.
+- `moveItemOutOfContainer.ts`.
+
+Regras implementadas:
+
+- Item com `parentContainerId` fica dentro do container com esse id.
+- Item sem `parentContainerId` fica na raiz do inventario/depot.
+- O sistema visual usa um nivel de abertura por vez, mas o tipo permanece preparado para profundidade futura.
+- Bloqueado mover container para dentro de container nesta etapa.
+- Bloqueado vender item dentro de container.
+- Bloqueado vender container com conteudo via regra do market engine.
+- Bloqueado enviar container com conteudo para depot, evitando filhos orfaos.
+- `mergeStackableItems()` agora separa stacks por `parentContainerId`, evitando fundir item da raiz com item dentro de mochila.
+- Equipar/unequipar item limpa `parentContainerId` quando necessario.
+- Transferir item entre personagem e Guild Depot limpa `parentContainerId`.
+
+UI:
+
+- Inventario do personagem agora possui navegador de containers.
+- Raiz mostra itens sem `parentContainerId`.
+- Ao abrir uma bag, mostra conteudo, slots usados/totais e botao Voltar para raiz.
+- Containers aparecem como blocos `[Bag]` com slots e tipo.
+- Itens podem ser movidos por botoes simples para containers compativeis.
+- Itens dentro de containers podem usar `Tirar da mochila`.
+- Mochila equipada no slot Backpack pode ser aberta e receber itens.
+
+Persistencia:
+
+- A tabela `inventory_items.parent_container_id` ja existia e continua salvando/carregando conteudo de containers.
+- Conteudo dentro de container equipado permanece associado pelo id do `InventoryItem`.
+
+Limites atuais:
+
+- Ainda sem drag and drop.
+- Ainda sem mochila dentro de mochila.
+- Ainda sem organizacao automatica complexa.
+- Depot com containers avancados fica para etapa futura; a prioridade desta etapa foi inventario do personagem.
+- Loot de hunt ainda cai na raiz do inventario; auto envio para Loot Bag fica para etapa futura.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+## Etapa 13 - Supplies Reais nas Hunts
+
+Status: implementada em versao inicial.
+
+Tipos e dados:
+
+- Criados tipos `SupplyType`, `HuntSupplyRequirement`, `HuntSupplyUsage`, `SupplyCheckEntry` e `SupplyCheckResult`.
+- `HuntArea` agora pode declarar `supplies`.
+- `HuntSimulationResult` agora inclui `suppliesUsed`, `supplyValueUsed` e `missingSupplies`.
+- Hunts receberam supplies recomendados por hora, com regras por vocacao quando necessario.
+- Market NPC ja vende potions, mana potions, runes, arrows, bags e quiver usados pelas hunts.
+
+Engine criado em `src/game-engine/supplies/`:
+
+- `getAvailableSupplies.ts`.
+- `findSupplyItemsInInventory.ts`.
+- `checkHuntSupplies.ts`.
+- `calculateSupplyUsage.ts`.
+- `consumeSupplies.ts`.
+
+Regras implementadas:
+
+- Check de supplies considera itens na raiz do inventario e dentro de containers, pois ambos vivem em `character.inventory`.
+- Start de hunt bloqueia quando faltam supplies obrigatorios.
+- Supplies opcionais geram warning, mas nao bloqueiam.
+- Ranger exige ammo nas hunts que declaram arrows para Ranger.
+- Arcanist/Warden exigem mana/runes nas hunts onde isso foi configurado.
+- Ao finalizar hunt, supplies sao consumidos de verdade do inventario/containers.
+- Stacks chegam a zero e sao removidas.
+- `netProfit` agora usa gold bruto + loot value - `supplyValueUsed`.
+- `supplyCostPerHour` permanece como estimativa antiga/visual nos dados, mas o resultado real usa supplies consumidos.
+
+UI:
+
+- Hunt Assignment mostra painel `Supplies`.
+- O painel mostra necessario, disponivel, faltante e warnings.
+- Botao Iniciar Hunt fica bloqueado quando falta supply obrigatorio.
+- Hunt Result mostra supplies usados e valor consumido.
+- Action Analyzer de hunt mostra supply estimado e lista parcial de consumo, sem consumir por segundo.
+
+Persistencia:
+
+- Consumo altera `character.inventory`, que ja e salvo no SQLite.
+- Itens dentro de containers mantem `parentContainerId`; se forem consumidos, a quantidade persistida cai ou a stack some.
+
+Limites atuais:
+
+- Ainda sem consumo por segundo persistente.
+- Ainda sem combate visual completo.
+- Ainda sem auto-compra de supplies.
+- Ainda sem presets avancados de supply.
+- Auto envio de loot para Loot Bag fica para etapa futura.
+
+Validacao:
+
+- `npm.cmd run build` passou.

@@ -3,6 +3,9 @@ import { simulateHunt } from "../game-engine/hunt/simulateHunt";
 import { addLootToInventory } from "../game-engine/inventory/addLootToInventory";
 import { addExperience } from "../game-engine/progression/addExperience";
 import { addSkillProgress } from "../game-engine/progression/addSkillProgress";
+import { calculateSupplyUsage } from "../game-engine/supplies/calculateSupplyUsage";
+import { checkHuntSupplies } from "../game-engine/supplies/checkHuntSupplies";
+import { consumeSupplies } from "../game-engine/supplies/consumeSupplies";
 import type {
   Character,
   CharacterStatus,
@@ -33,6 +36,16 @@ export function startHunt(
     throw new Error(`${character.name} does not have access for ${hunt.name}.`);
   }
 
+  const supplyCheck = checkHuntSupplies(character, hunt, durationMinutes);
+
+  if (!supplyCheck.hasRequiredSupplies) {
+    throw new Error(
+      `Supplies insuficientes: ${supplyCheck.missingSupplies
+        .map((entry) => `faltam ${entry.missingQuantity} ${entry.itemName}`)
+        .join(", ")}.`,
+    );
+  }
+
   const startedAt = new Date();
   const endsAt = new Date(startedAt.getTime() + durationMinutes * 60_000);
 
@@ -60,7 +73,13 @@ export function finishHunt(
   durationMinutes: number,
 ): { character: Character; result: HuntSimulationResult } {
   const result = simulateHunt({ character, hunt, durationMinutes });
-  const inventoryResult = addLootToInventory(character, result.lootItems);
+  const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes);
+  const supplyConsumption = consumeSupplies(character, expectedUsage);
+  const supplyValueUsed = supplyConsumption.suppliesUsed.reduce(
+    (sum, usage) => sum + usage.valueUsed,
+    0,
+  );
+  const inventoryResult = addLootToInventory(supplyConsumption.character, result.lootItems);
   const characterAfterStatus: Character = {
     ...inventoryResult.character,
     status: result.died ? "dead" : "idle",
@@ -99,8 +118,17 @@ export function finishHunt(
   }
   const resultWithRejectedLoot = {
     ...result,
+    suppliesUsed: supplyConsumption.suppliesUsed,
+    supplyCost: supplyValueUsed,
+    supplyValueUsed,
+    netProfit: result.goldGained + result.totalLootValue - supplyValueUsed,
     rejectedLoot: inventoryResult.rejectedLoot,
-    logs: [...result.logs, ...progressionLogs],
+    logs: [
+      ...result.logs,
+      ...supplyConsumption.logs,
+      `Hunt finalizada. Balance apos supplies: ${result.goldGained + result.totalLootValue - supplyValueUsed >= 0 ? "+" : ""}${(result.goldGained + result.totalLootValue - supplyValueUsed).toLocaleString("en-US")} gold.`,
+      ...progressionLogs,
+    ],
   };
   const attributes = calculateCharacterAttributes(characterAfterRewards);
 

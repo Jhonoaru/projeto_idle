@@ -22,6 +22,8 @@ export type TrainingType = "offline" | "exercise" | "dummy";
 
 export type TrainingTarget = SkillName;
 
+export type SupplyType = "health_potion" | "mana_potion" | "rune" | "ammo" | "utility";
+
 export type HuntRisk = "safe" | "low" | "medium" | "high" | "deadly";
 
 export type BossType = "solo" | "party" | "world";
@@ -83,6 +85,14 @@ export type EquipmentSlot =
   | "backpack";
 
 export type OffhandType = "shield" | "quiver" | "secondaryWeapon" | "focus";
+
+export type ContainerType =
+  | "backpack"
+  | "loot_bag"
+  | "supply_bag"
+  | "rune_pouch"
+  | "quiver"
+  | "generic";
 
 export interface Guild {
   id: string;
@@ -152,6 +162,8 @@ export interface Item {
   offhandType?: OffhandType;
   isContainer?: boolean;
   containerSlots?: number;
+  allowedItemTypes?: ItemType[];
+  containerType?: ContainerType;
   attack?: number;
   defense?: number;
   armor?: number;
@@ -334,6 +346,40 @@ export interface LootItem {
   maxQuantity: number;
 }
 
+export interface HuntSupplyRequirement {
+  itemId: string;
+  itemName: string;
+  supplyType: SupplyType;
+  recommendedQuantityPerHour: number;
+  requiredForVocation?: Vocation[];
+  optional?: boolean;
+}
+
+export interface HuntSupplyUsage {
+  itemId: string;
+  itemName: string;
+  quantityUsed: number;
+  valueUsed: number;
+  supplyType: SupplyType;
+}
+
+export interface SupplyCheckEntry {
+  itemId: string;
+  itemName: string;
+  supplyType: SupplyType;
+  requiredQuantity: number;
+  availableQuantity: number;
+  missingQuantity: number;
+  optional: boolean;
+}
+
+export interface SupplyCheckResult {
+  hasRequiredSupplies: boolean;
+  missingSupplies: SupplyCheckEntry[];
+  availableSupplies: SupplyCheckEntry[];
+  warnings: string[];
+}
+
 export interface BossReward {
   goldMin: number;
   goldMax: number;
@@ -461,6 +507,7 @@ export interface HuntArea {
   estimatedXpPerHour: number;
   estimatedGoldPerHour: number;
   supplyCostPerHour: number;
+  supplies?: HuntSupplyRequirement[];
   requiredAccess?: string;
   recommendedVocations?: Vocation[];
   tags: string[];
@@ -501,6 +548,9 @@ export interface HuntSimulationResult {
   totalLootValue: number;
   totalLootWeight: number;
   supplyCost: number;
+  suppliesUsed: HuntSupplyUsage[];
+  missingSupplies?: string[];
+  supplyValueUsed: number;
   netProfit: number;
   loot: HuntLootResult[];
   rejectedLoot?: HuntLootResult[];
