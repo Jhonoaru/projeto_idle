@@ -968,7 +968,12 @@ p {
 
 .quest-panel,
 .quest-list,
-.access-list {
+.access-list,
+.boss-panel,
+.boss-list,
+.boss-action-panel,
+.boss-result-panel,
+.boss-cooldown-list {
   display: grid;
   gap: 10px;
 }
@@ -1008,6 +1013,163 @@ p {
   padding: 10px;
   border-left-width: 3px;
   overflow: hidden;
+}
+
+.boss-command-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+  gap: 10px;
+}
+
+.boss-command-section {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.boss-command-section h3 {
+  margin-bottom: 0;
+  color: #f1d58c;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.boss-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, auto);
+  gap: 12px;
+  align-items: center;
+  min-height: 150px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-left-width: 3px;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.boss-card.is-selected {
+  border-color: #d8b96a;
+  background: #1d241f;
+}
+
+.boss-available {
+  border-left-color: #7fc77a;
+}
+
+.boss-locked {
+  border-left-color: #6f766c;
+  opacity: 0.78;
+}
+
+.boss-cooldown {
+  border-left-color: #d8b96a;
+}
+
+.boss-in_progress {
+  border-left-color: #67a8e8;
+}
+
+.boss-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.boss-title-row h3 {
+  margin-bottom: 0;
+  font-size: 0.98rem;
+}
+
+.boss-card p {
+  margin-bottom: 8px;
+  color: #c7cabc;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.party-builder {
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.party-row,
+.boss-cooldown-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(92px, auto) minmax(96px, auto);
+  gap: 8px;
+  align-items: center;
+  min-height: 70px;
+  padding: 9px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.party-row.is-selected {
+  border-color: #d8b96a;
+  background: #202719;
+}
+
+.party-row strong,
+.boss-cooldown-row strong {
+  display: block;
+  color: #f1d58c;
+}
+
+.party-row span,
+.party-row small,
+.boss-cooldown-row span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.76rem;
+}
+
+.party-row select {
+  min-height: 34px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  color: #d6d1c4;
+  background: #101411;
+}
+
+.party-row button,
+.boss-cooldown-row button {
+  min-height: 34px;
+  border: 1px solid #c9aa62;
+  border-radius: 6px;
+  color: #191711;
+  background: #d8b96a;
+  font-size: 0.76rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.party-row select:disabled {
+  color: #737b70;
+}
+
+.boss-warning-list {
+  display: grid;
+  gap: 6px;
+}
+
+.boss-warning-list p {
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #6e5636;
+  border-radius: 6px;
+  color: #f0a66f;
+  background: #231c14;
+  font-size: 0.8rem;
+}
+
+.boss-cooldown-row {
+  grid-template-columns: minmax(0, 1fr) minmax(160px, auto);
 }
 
 .quest-available {
@@ -1250,12 +1412,16 @@ p {
   .quest-card,
   .result-title-row,
   .inventory-row,
-  .depot-summary,
-  .equipment-panel,
-  .access-list,
-  .training-options-grid,
-  .training-option-card,
-  .current-training-card {
+    .depot-summary,
+    .equipment-panel,
+    .access-list,
+    .boss-command-grid,
+    .boss-card,
+    .party-row,
+    .boss-cooldown-row,
+    .training-options-grid,
+    .training-option-card,
+    .current-training-card {
     grid-template-columns: 1fr;
   }
 

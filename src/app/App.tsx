@@ -4,6 +4,7 @@ import { LeftPanel } from "../components/layout/LeftPanel";
 import { MainPanel } from "../components/layout/MainPanel";
 import { RightPanel } from "../components/layout/RightPanel";
 import { TopBar } from "../components/layout/TopBar";
+import { bosses } from "../data/bosses";
 import { mockCharacters } from "../data/mockCharacters";
 import { mockDepot } from "../data/mockDepot";
 import { mockGuild } from "../data/mockGuild";
@@ -14,6 +15,7 @@ import { cancelCurrentAction, finishTravel } from "../game-services/actionServic
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
 import { transferItem } from "../game-engine/inventory/transferItem";
+import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
 import { finishQuest, startQuest } from "../game-services/questService";
 import {
@@ -24,10 +26,14 @@ import {
 } from "../game-services/trainingService";
 import type {
   ActivityLogEntry,
+  Boss,
+  BossParty,
+  BossSimulationResult,
   HuntArea,
   HuntSimulationResult,
   EquipmentSlot,
   InventoryItem,
+  PartyRole,
   Quest,
   TrainingTarget,
   TrainingType,
@@ -55,8 +61,21 @@ export function App() {
     accessUnlocked?: string;
     logs: string[];
   }>();
+  const [selectedBoss, setSelectedBoss] = useState<Boss | undefined>(bosses[0]);
+  const [bossParty, setBossParty] = useState<BossParty>({
+    bossId: bosses[0].id,
+    members: [{ characterId: mockCharacters[0].id, role: "tank" }],
+  });
+  const [lastBossResult, setLastBossResult] = useState<BossSimulationResult>();
   const [activeTab, setActiveTab] = useState<
-    "character" | "hunts" | "inventory" | "equipment" | "depot" | "training" | "quests"
+    | "character"
+    | "hunts"
+    | "inventory"
+    | "equipment"
+    | "depot"
+    | "training"
+    | "quests"
+    | "bosses"
   >("character");
   const [selectedCharacterId, setSelectedCharacterId] = useState(
     mockCharacters[0].id,
@@ -106,6 +125,79 @@ export function App() {
       },
       ...currentLogs,
     ]);
+  }
+
+  function handleSelectBoss(boss: Boss) {
+    setSelectedBoss(boss);
+    setBossParty((currentParty) => {
+      if (currentParty.bossId === boss.id) return currentParty;
+
+      return {
+        bossId: boss.id,
+        members:
+          boss.type === "solo"
+            ? [{ characterId: selectedCharacter.id, role: getDefaultPartyRole(selectedCharacter.vocation) }]
+            : [],
+      };
+    });
+  }
+
+  function handleToggleBossPartyMember(characterId: string) {
+    if (!selectedBoss) return;
+
+    setBossParty((currentParty) => {
+      const party =
+        currentParty.bossId === selectedBoss.id
+          ? currentParty
+          : { bossId: selectedBoss.id, members: [] };
+      const existingMember = party.members.find((member) => member.characterId === characterId);
+
+      if (existingMember) {
+        return {
+          ...party,
+          members: party.members.filter((member) => member.characterId !== characterId),
+        };
+      }
+
+      const character = characters.find((candidate) => candidate.id === characterId);
+
+      if (!character || party.members.length >= selectedBoss.requirements.maxPartySize) {
+        return party;
+      }
+
+      return {
+        ...party,
+        members: [
+          ...party.members,
+          { characterId, role: getDefaultPartyRole(character.vocation) },
+        ],
+      };
+    });
+  }
+
+  function handleChangeBossPartyRole(characterId: string, role: PartyRole) {
+    setBossParty((currentParty) => ({
+      ...currentParty,
+      members: currentParty.members.map((member) =>
+        member.characterId === characterId ? { ...member, role } : member,
+      ),
+    }));
+  }
+
+  function handleClearBossCooldown(characterId: string, bossId: string) {
+    setCharacters((currentCharacters) =>
+      currentCharacters.map((character) =>
+        character.id === characterId
+          ? {
+              ...character,
+              bossCooldowns: character.bossCooldowns.filter(
+                (cooldown) => cooldown.bossId !== bossId,
+              ),
+            }
+          : character,
+      ),
+    );
+    prependLog("Boss cooldown", "Debug: cooldown de boss removido.", "neutral");
   }
 
   function handleStartHunt() {
@@ -360,6 +452,60 @@ export function App() {
     }
   }
 
+  function handleStartBoss() {
+    if (!selectedBoss) return;
+
+    try {
+      const result = startBoss(characters, selectedBoss, bossParty);
+      setCharacters(result.characters);
+
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Boss started", message, "neutral");
+      }
+    } catch (error) {
+      prependLog(
+        "Boss blocked",
+        error instanceof Error ? error.message : "Boss cannot be started.",
+        "warning",
+      );
+    }
+  }
+
+  function handleFinishBoss() {
+    if (!selectedBoss) return;
+
+    const result = finishBoss(characters, depot, selectedBoss, bossParty);
+    setCharacters(result.characters);
+    setDepot(result.depot);
+    setLastBossResult(result.result);
+
+    if (result.guildRenownGained > 0) {
+      setGuild((currentGuild) => ({
+        ...currentGuild,
+        renown: currentGuild.renown + result.guildRenownGained,
+      }));
+    }
+
+    for (const message of [...result.logs].reverse()) {
+      prependLog(
+        result.result.defeated ? "Boss defeated" : "Boss result",
+        message,
+        result.result.defeated ? "success" : "warning",
+      );
+    }
+  }
+
+  function handleCancelBoss() {
+    if (!selectedBoss) return;
+
+    const result = cancelBoss(characters, selectedBoss, bossParty);
+    setCharacters(result.characters);
+
+    for (const message of [...result.logs].reverse()) {
+      prependLog("Boss canceled", message, "neutral");
+    }
+  }
+
   return (
     <GameShell>
       <TopBar guild={guild} />
@@ -371,28 +517,40 @@ export function App() {
         />
         <MainPanel
           activeTab={activeTab}
+          bossParty={bossParty}
+          bosses={bosses}
+          characters={characters}
           depot={depot}
           durationMinutes={durationMinutes}
           hunts={hunts}
           quests={quests}
+          lastBossResult={lastBossResult}
           lastResult={lastHuntResult}
           lastQuestResult={lastQuestResult}
           lastTrainingResult={lastTrainingResult}
+          onCancelBoss={handleCancelBoss}
           onChangeTab={setActiveTab}
+          onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
           onCancelAction={handleCancelAction}
+          onClearBossCooldown={handleClearBossCooldown}
+          onFinishBoss={handleFinishBoss}
           onFinishHunt={handleFinishHunt}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
+          onSelectBoss={handleSelectBoss}
           onSelectHunt={setSelectedHunt}
           onEquipItem={handleEquipItem}
           onSendToCharacter={handleSendToCharacter}
           onSendToDepot={handleSendToDepot}
+          onStartBoss={handleStartBoss}
           onStartHunt={handleStartHunt}
           onStartQuest={handleStartQuest}
           onStartTraining={handleStartTraining}
           onFinishTraining={handleFinishTraining}
+          onToggleBossPartyMember={handleToggleBossPartyMember}
           onUnequipItem={handleUnequipItem}
+          selectedBoss={selectedBoss}
           selectedCharacter={selectedCharacter}
           selectedHunt={selectedHunt}
         />
@@ -400,4 +558,11 @@ export function App() {
       </div>
     </GameShell>
   );
+}
+
+function getDefaultPartyRole(vocation: (typeof mockCharacters)[number]["vocation"]): PartyRole {
+  if (vocation === "Guardian") return "tank";
+  if (vocation === "Warden") return "healer";
+  if (vocation === "Monk") return "support";
+  return "damage";
 }

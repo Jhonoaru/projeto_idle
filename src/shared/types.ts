@@ -24,6 +24,14 @@ export type TrainingTarget = SkillName;
 
 export type HuntRisk = "safe" | "low" | "medium" | "high" | "deadly";
 
+export type BossType = "solo" | "party" | "world";
+
+export type BossRisk = "safe" | "low" | "medium" | "high" | "deadly";
+
+export type BossStatus = "locked" | "available" | "cooldown" | "in_progress";
+
+export type PartyRole = "tank" | "healer" | "damage" | "support";
+
 export type QuestStatus = "locked" | "available" | "in_progress" | "completed" | "failed";
 
 export type QuestType = "access" | "story" | "daily" | "boss_access" | "tutorial";
@@ -104,6 +112,7 @@ export interface CharacterAction {
   secondarySkill?: TrainingTarget;
   cost?: number;
   expectedGainPercent?: number;
+  partyMemberIds?: string[];
 }
 
 export interface Item {
@@ -272,6 +281,80 @@ export interface LootItem {
   maxQuantity: number;
 }
 
+export interface BossReward {
+  goldMin: number;
+  goldMax: number;
+  experience: number;
+  lootTable: LootItem[];
+  renown?: number;
+}
+
+export interface BossRequirement {
+  requiredLevel: number;
+  requiredAccessIds?: string[];
+  requiredQuestIds?: string[];
+  requiredVocations?: Vocation[];
+  minPartySize: number;
+  maxPartySize: number;
+  requiredRoles?: Partial<Record<PartyRole, number>>;
+}
+
+export interface Boss {
+  id: string;
+  name: string;
+  type: BossType;
+  city: string;
+  description: string;
+  durationMinutes: number;
+  cooldownHours: number;
+  risk: BossRisk;
+  requirements: BossRequirement;
+  reward: BossReward;
+  tags: string[];
+}
+
+export interface BossCooldown {
+  bossId: string;
+  characterId: string;
+  availableAt: string;
+  defeatedAt?: string;
+}
+
+export interface PartyMember {
+  characterId: string;
+  role: PartyRole;
+}
+
+export interface BossParty {
+  bossId: string;
+  members: PartyMember[];
+}
+
+export interface BossLootResult {
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  totalValue: number;
+  rarity: ItemRarity;
+  weightTotal: number;
+  item: Item;
+}
+
+export interface BossSimulationResult {
+  success: boolean;
+  diedCharacterIds: string[];
+  defeated: boolean;
+  bossId: string;
+  bossName: string;
+  durationMinutes: number;
+  experienceGained: number;
+  goldGained: number;
+  loot: BossLootResult[];
+  renownGained: number;
+  cooldownsApplied: BossCooldown[];
+  logs: string[];
+}
+
 export interface Monster {
   id: string;
   name: string;
@@ -304,6 +387,7 @@ export interface Character {
   capacityMax: number;
   completedQuestIds: string[];
   accessIds: string[];
+  bossCooldowns: BossCooldown[];
   questProgress: CharacterQuestProgress[];
   skills: SkillSet;
   attributes: CharacterAttributes;

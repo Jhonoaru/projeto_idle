@@ -23,9 +23,19 @@ export function cancelCurrentAction(character: Character) {
 
   const startedAt = new Date();
   const endsAt = new Date(startedAt.getTime() + travelDurationMs);
+  const questProgress =
+    character.currentAction?.type === "questing" && character.currentAction.targetId
+      ? character.questProgress.map((progress) =>
+          progress.questId === character.currentAction?.targetId &&
+          progress.status === "in_progress"
+            ? { ...progress, status: "failed" as const }
+            : progress,
+        )
+      : character.questProgress;
   const updatedCharacter: Character = {
     ...character,
     status: "traveling",
+    questProgress,
     currentAction: {
       type: "traveling",
       label: `Retornando para ${character.city}`,

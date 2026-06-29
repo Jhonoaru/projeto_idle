@@ -1,4 +1,5 @@
 import { CharacterDetails } from "../character/CharacterDetails";
+import { BossPanel } from "../boss/BossPanel";
 import { CurrentActionBox } from "../character/CurrentActionBox";
 import { SkillList } from "../character/SkillList";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
@@ -12,6 +13,9 @@ import { TrainingPanel } from "../training/TrainingPanel";
 import { Panel } from "../ui/Panel";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
+  Boss,
+  BossParty,
+  BossSimulationResult,
   Character,
   EquipmentSlot,
   GuildDepot,
@@ -19,6 +23,7 @@ import type {
   HuntSimulationResult,
   InventoryItem,
   Quest,
+  PartyRole,
   TrainingTarget,
   TrainingType,
 } from "../../shared/types";
@@ -32,12 +37,17 @@ interface LastResultView {
 
 interface MainPanelProps {
   selectedCharacter: Character;
+  characters: Character[];
   hunts: HuntArea[];
   quests: Quest[];
+  bosses: Boss[];
   selectedHunt?: HuntArea;
+  selectedBoss?: Boss;
+  bossParty: BossParty;
   durationMinutes: number;
   lastResult?: LastResultView;
   lastTrainingResult?: TrainingResult;
+  lastBossResult?: BossSimulationResult;
   lastQuestResult?: {
     success: boolean;
     died: boolean;
@@ -51,7 +61,8 @@ interface MainPanelProps {
     | "equipment"
     | "depot"
     | "training"
-    | "quests";
+    | "quests"
+    | "bosses";
   depot: GuildDepot;
   onChangeTab: (tab: MainPanelProps["activeTab"]) => void;
   onSelectHunt: (hunt: HuntArea) => void;
@@ -73,16 +84,28 @@ interface MainPanelProps {
   onFinishTravel: () => void;
   onStartQuest: (quest: Quest) => void;
   onFinishQuest: (quest: Quest) => void;
+  onSelectBoss: (boss: Boss) => void;
+  onToggleBossPartyMember: (characterId: string) => void;
+  onChangeBossPartyRole: (characterId: string, role: PartyRole) => void;
+  onStartBoss: () => void;
+  onFinishBoss: () => void;
+  onCancelBoss: () => void;
+  onClearBossCooldown: (characterId: string, bossId: string) => void;
 }
 
 export function MainPanel({
   selectedCharacter,
+  characters,
   hunts,
   quests,
+  bosses,
   selectedHunt,
+  selectedBoss,
+  bossParty,
   durationMinutes,
   lastResult,
   lastTrainingResult,
+  lastBossResult,
   lastQuestResult,
   activeTab,
   depot,
@@ -101,6 +124,13 @@ export function MainPanel({
   onFinishTravel,
   onStartQuest,
   onFinishQuest,
+  onSelectBoss,
+  onToggleBossPartyMember,
+  onChangeBossPartyRole,
+  onStartBoss,
+  onFinishBoss,
+  onCancelBoss,
+  onClearBossCooldown,
 }: MainPanelProps) {
   return (
     <section className="main-panel">
@@ -112,6 +142,7 @@ export function MainPanel({
         <TabButton activeTab={activeTab} label="Depot" tab="depot" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Treino" tab="training" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Quests" tab="quests" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Bosses" tab="bosses" onChangeTab={onChangeTab} />
       </div>
 
       <div className="tab-content">
@@ -197,6 +228,26 @@ export function MainPanel({
               onFinishQuest={onFinishQuest}
               onStartQuest={onStartQuest}
               quests={quests}
+            />
+          </Panel>
+        ) : null}
+
+        {activeTab === "bosses" ? (
+          <Panel title="Bosses">
+            <BossPanel
+              bosses={bosses}
+              characters={characters}
+              lastResult={lastBossResult}
+              onCancelBoss={onCancelBoss}
+              onChangeRole={onChangeBossPartyRole}
+              onClearCooldown={onClearBossCooldown}
+              onFinishBoss={onFinishBoss}
+              onSelectBoss={onSelectBoss}
+              onStartBoss={onStartBoss}
+              onToggleMember={onToggleBossPartyMember}
+              party={bossParty}
+              selectedBoss={selectedBoss}
+              selectedCharacter={selectedCharacter}
             />
           </Panel>
         ) : null}

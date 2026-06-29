@@ -82,6 +82,7 @@ export const mockCharacters: Character[] = [
     ]),
     completedQuestIds: ["quest-first-contract", "quest-sewer-clearance"],
     accessIds: ["thaeron-sewers-access"],
+    bossCooldowns: [],
     questProgress: [],
     skills: skills({
       sword: [71, 42],
@@ -127,6 +128,7 @@ export const mockCharacters: Character[] = [
     ]),
     completedQuestIds: ["quest-first-contract"],
     accessIds: ["thaeron-sewers-access"],
+    bossCooldowns: [],
     questProgress: [],
     skills: skills({
       sword: [22, 15],
@@ -168,7 +170,16 @@ export const mockCharacters: Character[] = [
     ]),
     completedQuestIds: ["quest-first-contract"],
     accessIds: ["thaeron-sewers-access"],
-    questProgress: [],
+    bossCooldowns: [],
+    questProgress: [
+      {
+        questId: "quest-mudrot-investigation",
+        status: "in_progress",
+        currentStepIndex: 0,
+        startedAt: "2026-06-28T20:28:00-03:00",
+        endsAt: "2026-06-28T20:58:00-03:00",
+      },
+    ],
     skills: skills({
       sword: [12, 5],
       axe: [10, 22],
@@ -180,14 +191,15 @@ export const mockCharacters: Character[] = [
     }),
     currentAction: {
       type: "questing",
-      label: "Recovering a waterlogged tome",
+      label: "Mudrot Investigation",
       startedAt: "20:28",
-      endsAt: "21:12",
-      targetId: "hunt-ancient-crypt",
-      targetName: "Ancient Crypt",
-      risk: "high",
-      expectedXp: 4600,
-      expectedGold: 170,
+      endsAt: "20:58",
+      durationMinutes: 30,
+      targetId: "quest-mudrot-investigation",
+      targetName: "Mudrot Investigation",
+      risk: "low",
+      expectedXp: 2200,
+      expectedGold: 1200,
     },
     createdAt: "2026-06-28T20:10:00-03:00",
   }),
@@ -213,6 +225,7 @@ export const mockCharacters: Character[] = [
     ]),
     completedQuestIds: ["quest-first-contract"],
     accessIds: ["thaeron-sewers-access"],
+    bossCooldowns: [],
     questProgress: [],
     skills: skills({
       sword: [18, 14],
@@ -246,6 +259,7 @@ export const mockCharacters: Character[] = [
     ]),
     completedQuestIds: ["quest-first-contract"],
     accessIds: ["thaeron-sewers-access"],
+    bossCooldowns: [],
     questProgress: [],
     skills: skills({
       sword: [24, 38],
