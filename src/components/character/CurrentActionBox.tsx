@@ -21,29 +21,39 @@ export function CurrentActionBox({
   onFinishTravel,
 }: CurrentActionBoxProps) {
   const action = character.currentAction;
-  const [remainingMs, setRemainingMs] = useState(getTravelRemainingMs(character));
-  const [elapsedMs, setElapsedMs] = useState(action ? getClockElapsedMs(action.startedAt) : 0);
+  const totalMs = Math.max(1, (action?.durationMinutes ?? 0) * 60_000);
+  const isReadyToResolve = action?.readyToResolve === true;
+  const [remainingMs, setRemainingMs] = useState(
+    isReadyToResolve ? 0 : getTravelRemainingMs(character),
+  );
+  const [elapsedMs, setElapsedMs] = useState(
+    action ? (isReadyToResolve ? totalMs : getClockElapsedMs(action.startedAt)) : 0,
+  );
 
   useEffect(() => {
     if (!action) return undefined;
 
-    setElapsedMs(getClockElapsedMs(action.startedAt));
+    setElapsedMs(isReadyToResolve ? totalMs : getClockElapsedMs(action.startedAt));
     setRemainingMs(
-      character.status === "traveling"
+      isReadyToResolve
+        ? 0
+        : character.status === "traveling"
         ? getTravelRemainingMs(character)
         : getClockRemainingMs(action.endsAt),
     );
     const interval = window.setInterval(() => {
-      setElapsedMs(getClockElapsedMs(action.startedAt));
+      setElapsedMs(isReadyToResolve ? totalMs : getClockElapsedMs(action.startedAt));
       setRemainingMs(
-        character.status === "traveling"
+        isReadyToResolve
+          ? 0
+          : character.status === "traveling"
           ? getTravelRemainingMs(character)
           : getClockRemainingMs(action.endsAt),
       );
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [action, character]);
+  }, [action, character, isReadyToResolve, totalMs]);
 
   if (!action) {
     return (
@@ -63,6 +73,11 @@ export function CurrentActionBox({
         <span>{CHARACTER_STATUS_LABELS[action.type]}</span>
         <strong>{action.label}</strong>
       </div>
+      {isReadyToResolve ? (
+        <div className="offline-ready-badge">
+          Concluido offline - pronto para coletar
+        </div>
+      ) : null}
 
       <div className="action-grid">
         {action.targetName ? <Detail label="Target" value={action.targetName} /> : null}
@@ -70,6 +85,7 @@ export function CurrentActionBox({
         <Detail label="Ends" value={action.endsAt} />
         <Detail label="Active" value={formatDuration(elapsedMs)} />
         <Detail label="Remaining" value={formatDuration(remainingMs)} />
+        {isReadyToResolve ? <Detail label="Progress" value="100%" /> : null}
         {action.durationMinutes ? (
           <Detail label="Duration" value={formatDurationFromMinutes(action.durationMinutes)} />
         ) : null}
@@ -93,7 +109,8 @@ export function CurrentActionBox({
       </div>
 
       {["hunting", "training", "questing", "bossing"].includes(character.status) &&
-      onCancelAction ? (
+      onCancelAction &&
+      !isReadyToResolve ? (
         <button className="action-command-button" onClick={onCancelAction} type="button">
           Cancelar e Retornar
         </button>

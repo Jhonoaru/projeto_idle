@@ -34,7 +34,7 @@ p {
 
 .game-shell {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   height: 100vh;
   padding: 16px;
   overflow: hidden;
@@ -131,6 +131,45 @@ p {
 
 .save-loading-screen strong {
   color: #f1d58c;
+}
+
+.offline-report-panel {
+  display: grid;
+  gap: 10px;
+  max-width: 1480px;
+  width: 100%;
+  margin: 0 auto 14px;
+  padding: 12px;
+  border: 1px solid rgba(216, 185, 106, 0.55);
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.offline-report-panel span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.offline-report-panel strong {
+  display: block;
+  margin-top: 4px;
+  color: #f1d58c;
+}
+
+.offline-report-panel p,
+.offline-report-panel li {
+  color: #c7cabc;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.offline-report-panel ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding-left: 18px;
 }
 
 .level-progress-block {
@@ -534,6 +573,18 @@ p {
 
 .current-action-box.is-active {
   border-color: rgba(216, 185, 106, 0.42);
+}
+
+.offline-ready-badge {
+  justify-self: start;
+  border: 1px solid rgba(127, 199, 122, 0.55);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: #bfe6b7;
+  background: #172116;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .current-action-box > div > span,

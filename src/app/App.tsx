@@ -4,10 +4,14 @@ import { LeftPanel } from "../components/layout/LeftPanel";
 import { MainPanel } from "../components/layout/MainPanel";
 import { RightPanel } from "../components/layout/RightPanel";
 import { TopBar } from "../components/layout/TopBar";
+import { OfflineReportPanel } from "../components/offline/OfflineReportPanel";
 import { initDatabase } from "../database/db";
 import {
   createInitialGameState,
+  loadSaveMetadata,
   loadGameState,
+  markOfflineCatchUpApplied,
+  markSaveLoaded,
   resetSave,
   saveGameState,
   type GameStateSnapshot,
@@ -41,6 +45,7 @@ import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItem
 import { transferItem } from "../game-engine/inventory/transferItem";
 import { createPresetFromHunt } from "../game-engine/hunt-prep/createPresetFromHunt";
 import { prepareHuntSupplies } from "../game-engine/hunt-prep/prepareHuntSupplies";
+import { applyOfflineCatchUp } from "../game-engine/offline/applyOfflineCatchUp";
 import { applyImbuement } from "../game-engine/forge/applyImbuement";
 import { findCharacterItem, updateCharacterItem } from "../game-engine/forge/forgeInventoryHelpers";
 import { increaseItemTier } from "../game-engine/forge/increaseItemTier";
@@ -68,7 +73,9 @@ import type {
   Boss,
   BossParty,
   BossSimulationResult,
+  Character,
   HuntArea,
+  OfflineCatchUpReport,
   HuntPreparationResult,
   HuntSupplyPreset,
   HuntSimulationResult,
@@ -98,6 +105,7 @@ export function App() {
   const [database, setDatabase] = useState<Awaited<ReturnType<typeof initDatabase>>>();
   const [isLoadingSave, setIsLoadingSave] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Carregando save...");
+  const [offlineReport, setOfflineReport] = useState<OfflineCatchUpReport>();
   const [selectedHunt, setSelectedHunt] = useState<HuntArea | undefined>(hunts[0]);
   const [durationMinutes, setDurationMinutes] = useState(30);
   const [lastHuntResult, setLastHuntResult] = useState<LastHuntResult>();
@@ -142,6 +150,7 @@ export function App() {
 
   const saveReadyRef = useRef(false);
   const charactersRef = useRef(characters);
+  const resolvingActionRef = useRef(new Set<string>());
 
   useEffect(() => {
     let canceled = false;
@@ -150,17 +159,28 @@ export function App() {
       try {
         const db = await initDatabase();
         const loadedState = await loadGameState(db);
-        const stateToApply = loadedState ?? createInitialGameState();
+        const metadata = await loadSaveMetadata(db);
+        const catchUp = loadedState
+          ? applyLoadedOfflineCatchUp(loadedState, metadata?.lastSavedAt)
+          : undefined;
+        const stateToApply = catchUp?.state ?? createInitialGameState();
 
         if (canceled) return;
 
         applyGameState(stateToApply);
         setSelectedCharacterId(stateToApply.characters[0]?.id ?? mockCharacters[0].id);
         setDatabase(db);
-        saveReadyRef.current = true;
         if (!loadedState) {
           await saveGameState(db, stateToApply);
+        } else {
+          await markSaveLoaded(db);
+          if (catchUp && catchUp.report.characterReports.length > 0) {
+            setOfflineReport(catchUp.report);
+            await saveGameState(db, catchUp.state);
+            await markOfflineCatchUpApplied(db);
+          }
         }
+        saveReadyRef.current = true;
         setSaveStatus(loadedState ? "Save carregado." : "Save inicial criado.");
       } catch (error) {
         console.error("Failed to load local SQLite save.", error);
@@ -325,7 +345,11 @@ export function App() {
     try {
       saveReadyRef.current = false;
       const loadedState = await loadGameState(database);
-      const stateToApply = loadedState ?? createInitialGameState();
+      const metadata = await loadSaveMetadata(database);
+      const catchUp = loadedState
+        ? applyLoadedOfflineCatchUp(loadedState, metadata?.lastSavedAt)
+        : undefined;
+      const stateToApply = catchUp?.state ?? createInitialGameState();
       applyGameState({
         ...stateToApply,
         logs: [
@@ -335,6 +359,19 @@ export function App() {
       });
       if (!loadedState) {
         await saveGameState(database, stateToApply);
+      } else {
+        await markSaveLoaded(database);
+        if (catchUp && catchUp.report.characterReports.length > 0) {
+          setOfflineReport(catchUp.report);
+          await saveGameState(database, {
+            ...stateToApply,
+            logs: [
+              createLogEntry("Save", "Save carregado.", "success"),
+              ...stateToApply.logs,
+            ],
+          });
+          await markOfflineCatchUpApplied(database);
+        }
       }
       setSelectedCharacterId(stateToApply.characters[0]?.id ?? selectedCharacterId);
       saveReadyRef.current = true;
@@ -494,10 +531,20 @@ export function App() {
       return;
     }
 
+    const resolutionKey = getActionResolutionKey(selectedCharacter);
+    if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
+      prependLog("Hunt blocked", "Resultado da hunt ja esta sendo coletado.", "warning");
+      return;
+    }
+
     const activeHunt =
       hunts.find((hunt) => hunt.id === selectedCharacter.currentAction?.targetId);
 
-    if (!activeHunt) return;
+    if (!activeHunt) {
+      endActionResolution(resolutionKey, resolvingActionRef.current);
+      prependLog("Hunt blocked", "Hunt atual nao encontrada no catalogo.", "warning");
+      return;
+    }
 
     const activeDuration = selectedCharacter.currentAction.durationMinutes ?? durationMinutes;
 
@@ -544,6 +591,7 @@ export function App() {
         "success",
       );
     }
+    endActionResolution(resolutionKey, resolvingActionRef.current);
   }
 
   function handleReviveSelectedCharacter() {
@@ -1159,6 +1207,12 @@ export function App() {
   }
 
   function handleFinishTraining() {
+    const resolutionKey = getActionResolutionKey(selectedCharacter);
+    if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
+      prependLog("Training blocked", "Resultado do treino ja esta sendo coletado.", "warning");
+      return;
+    }
+
     try {
       const { character, result } = finishTraining(selectedCharacter);
       updateSelectedCharacter(character);
@@ -1182,6 +1236,8 @@ export function App() {
         error instanceof Error ? error.message : "Training cannot be finished.",
         "warning",
       );
+    } finally {
+      endActionResolution(resolutionKey, resolvingActionRef.current);
     }
   }
 
@@ -1204,6 +1260,12 @@ export function App() {
   }
 
   function handleFinishQuest(quest: Quest) {
+    const resolutionKey = getActionResolutionKey(selectedCharacter);
+    if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
+      prependLog("Quest blocked", "Resultado da quest ja esta sendo coletado.", "warning");
+      return;
+    }
+
     try {
       const result = finishQuest(selectedCharacter, quest, guild.gold);
       updateSelectedCharacter(result.character);
@@ -1234,6 +1296,8 @@ export function App() {
         error instanceof Error ? error.message : "Quest cannot be finished.",
         "warning",
       );
+    } finally {
+      endActionResolution(resolutionKey, resolvingActionRef.current);
     }
   }
 
@@ -1264,7 +1328,16 @@ export function App() {
       bossParty,
     );
 
-    if (!activeBossContext) return;
+    if (!activeBossContext) {
+      prependLog("Boss blocked", "Boss atual nao encontrado no catalogo.", "warning");
+      return;
+    }
+
+    const resolutionKey = getActionResolutionKey(selectedCharacter);
+    if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
+      prependLog("Boss blocked", "Resultado do boss ja esta sendo coletado.", "warning");
+      return;
+    }
 
     const result = finishBoss(
       characters,
@@ -1300,6 +1373,7 @@ export function App() {
         result.result.defeated ? "success" : "warning",
       );
     }
+    endActionResolution(resolutionKey, resolvingActionRef.current);
   }
 
   function handleCancelBoss() {
@@ -1342,6 +1416,14 @@ export function App() {
         onReloadSave={handleReloadSave}
         onResetSave={handleResetSave}
         saveStatus={saveStatus}
+      />
+      <OfflineReportPanel
+        report={offlineReport}
+        onDismiss={() => setOfflineReport(undefined)}
+        onGoToAction={() => {
+          setActiveTab("action");
+          setOfflineReport(undefined);
+        }}
       />
       <div className="game-layout">
         <LeftPanel
@@ -1433,6 +1515,45 @@ function createLogEntry(
     message,
     tone,
   };
+}
+
+function applyLoadedOfflineCatchUp(
+  state: GameStateSnapshot,
+  lastSavedAt?: string,
+) {
+  const catchUp = applyOfflineCatchUp(state, { lastSavedAt });
+
+  if (catchUp.report.characterReports.length === 0) {
+    return catchUp;
+  }
+
+  return {
+    ...catchUp,
+    state: {
+      ...catchUp.state,
+      logs: [
+        ...catchUp.report.logs.map((message) =>
+          createLogEntry("Offline catch-up", message, "neutral"),
+        ),
+        ...catchUp.state.logs,
+      ],
+    },
+  };
+}
+
+function getActionResolutionKey(character: Character) {
+  const action = character.currentAction;
+  return `${character.id}:${action?.type ?? character.status}:${action?.targetId ?? action?.label ?? "none"}`;
+}
+
+function beginActionResolution(key: string, activeKeys: Set<string>) {
+  if (activeKeys.has(key)) return false;
+  activeKeys.add(key);
+  return true;
+}
+
+function endActionResolution(key: string, activeKeys: Set<string>) {
+  activeKeys.delete(key);
 }
 
 function getActiveBossContext(

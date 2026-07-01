@@ -79,6 +79,9 @@ const createStatements = [
     id TEXT PRIMARY KEY,
     save_version INTEGER NOT NULL,
     last_saved_at TEXT NOT NULL,
+    last_loaded_at TEXT,
+    last_closed_at TEXT,
+    last_offline_catchup_at TEXT,
     modified_flag INTEGER NOT NULL DEFAULT 0,
     integrity_hash TEXT
   )`,
@@ -105,6 +108,9 @@ export async function runMigrations(db: Database) {
   await addColumnIfMissing(db, "inventory_items", "upgrade_level", "INTEGER NOT NULL DEFAULT 0");
   await addColumnIfMissing(db, "inventory_items", "tier", "INTEGER NOT NULL DEFAULT 0");
   await addColumnIfMissing(db, "inventory_items", "imbuements_json", "TEXT NOT NULL DEFAULT '[]'");
+  await addColumnIfMissing(db, "save_metadata", "last_loaded_at", "TEXT");
+  await addColumnIfMissing(db, "save_metadata", "last_closed_at", "TEXT");
+  await addColumnIfMissing(db, "save_metadata", "last_offline_catchup_at", "TEXT");
 
   await db.execute(
     `INSERT OR IGNORE INTO save_metadata (
@@ -128,5 +134,17 @@ async function addColumnIfMissing(
 
   if (columns.some((column) => column.name === columnName)) return;
 
-  await db.execute(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  try {
+    await db.execute(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
+  } catch (error) {
+    if (error instanceof Error && error.message.toLowerCase().includes("duplicate column")) {
+      return;
+    }
+
+    if (String(error).toLowerCase().includes("duplicate column")) {
+      return;
+    }
+
+    throw error;
+  }
 }

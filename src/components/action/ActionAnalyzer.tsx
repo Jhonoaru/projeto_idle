@@ -58,10 +58,11 @@ export function ActionAnalyzer({
 
     if (!action) return [];
 
-    const elapsedMs = getClockElapsedMs(action.startedAt);
-    const remainingMs = getClockRemainingMs(action.endsAt);
     const totalMs = Math.max(1, (action.durationMinutes ?? 1) * 60_000);
-    const progress = Math.min(1, elapsedMs / totalMs);
+    const isReadyToResolve = action.readyToResolve === true;
+    const elapsedMs = isReadyToResolve ? totalMs : getClockElapsedMs(action.startedAt);
+    const remainingMs = isReadyToResolve ? 0 : getClockRemainingMs(action.endsAt);
+    const progress = isReadyToResolve ? 1 : Math.min(1, elapsedMs / totalMs);
     const common = [
       ["Tempo", `${formatDuration(elapsedMs)} / ${formatDuration(totalMs)}`],
       ["Restante", formatDuration(remainingMs)],

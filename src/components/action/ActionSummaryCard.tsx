@@ -10,6 +10,7 @@ interface ActionSummaryCardProps {
 export function ActionSummaryCard({ character, onViewAction }: ActionSummaryCardProps) {
   const action = character.currentAction;
   const isDead = character.status === "dead" && character.deathState;
+  const isReadyToResolve = action?.readyToResolve === true;
 
   return (
     <div className="action-summary-card">
@@ -21,6 +22,8 @@ export function ActionSummaryCard({ character, onViewAction }: ActionSummaryCard
         <p>
           {isDead
             ? `${character.name} aguarda recuperacao em ${character.deathState?.templeName}.`
+            : isReadyToResolve
+              ? "Concluido offline. Resultado pronto para coletar."
             : action?.targetName
               ? `${action.targetName} - ${formatDuration(getClockRemainingMs(action.endsAt))} restantes`
               : "Escolha uma atividade nas abas correspondentes."}

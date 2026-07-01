@@ -33,6 +33,15 @@ export interface GameStateSnapshot {
   logs: ActivityLogEntry[];
 }
 
+export interface SaveMetadataSnapshot {
+  id: string;
+  saveVersion: number;
+  lastSavedAt: string;
+  lastLoadedAt?: string | null;
+  lastClosedAt?: string | null;
+  lastOfflineCatchupAt?: string | null;
+}
+
 export function createInitialGameState(): GameStateSnapshot {
   return {
     guild: mockGuild,
@@ -72,6 +81,43 @@ export async function loadGameState(db: Database): Promise<GameStateSnapshot | n
   };
 }
 
+export async function loadSaveMetadata(db: Database): Promise<SaveMetadataSnapshot | null> {
+  const rows = await db.select<Array<{
+    id: string;
+    save_version: number;
+    last_saved_at: string;
+    last_loaded_at?: string | null;
+    last_closed_at?: string | null;
+    last_offline_catchup_at?: string | null;
+  }>>("SELECT * FROM save_metadata WHERE id = $1 LIMIT 1", [PRIMARY_METADATA_ID]);
+
+  const row = rows[0];
+  if (!row) return null;
+
+  return {
+    id: row.id,
+    saveVersion: row.save_version,
+    lastSavedAt: row.last_saved_at,
+    lastLoadedAt: row.last_loaded_at,
+    lastClosedAt: row.last_closed_at,
+    lastOfflineCatchupAt: row.last_offline_catchup_at,
+  };
+}
+
+export async function markSaveLoaded(db: Database, now = new Date().toISOString()) {
+  await db.execute(
+    "UPDATE save_metadata SET last_loaded_at = $1 WHERE id = $2",
+    [now, PRIMARY_METADATA_ID],
+  );
+}
+
+export async function markOfflineCatchUpApplied(db: Database, now = new Date().toISOString()) {
+  await db.execute(
+    "UPDATE save_metadata SET last_offline_catchup_at = $1 WHERE id = $2",
+    [now, PRIMARY_METADATA_ID],
+  );
+}
+
 export async function saveGameState(db: Database, state: GameStateSnapshot) {
   const now = new Date().toISOString();
 
@@ -89,9 +135,21 @@ export async function saveGameState(db: Database, state: GameStateSnapshot) {
       id,
       save_version,
       last_saved_at,
+      last_loaded_at,
+      last_closed_at,
+      last_offline_catchup_at,
       modified_flag,
       integrity_hash
-    ) VALUES ($1, $2, $3, $4, $5)`,
+    ) VALUES (
+      $1,
+      $2,
+      $3,
+      COALESCE((SELECT last_loaded_at FROM save_metadata WHERE id = $1), NULL),
+      COALESCE((SELECT last_closed_at FROM save_metadata WHERE id = $1), NULL),
+      COALESCE((SELECT last_offline_catchup_at FROM save_metadata WHERE id = $1), NULL),
+      $4,
+      $5
+    )`,
     [PRIMARY_METADATA_ID, SAVE_VERSION, now, 0, null],
   );
 }

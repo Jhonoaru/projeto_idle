@@ -24,6 +24,7 @@ Atualizado em: 2026-07-01
 - Etapa 17 concluida: presets de hunt, preparacao de supplies via depots/Market NPC e persistencia SQLite dos presets.
 - Etapa 17.5 concluida: rework dos Imbuements com familias Basic/Intricate/Powerful, custos/materiais visiveis e UI da Forge estilo MMORPG.
 - Etapa 17.6 concluida: QA da Forge/Imbuements, correcoes de status, saves antigos e imbuements expirados/invalidos.
+- Etapa 18 concluida: Offline Catch-up real com acoes prontas para coletar, traveling automatico e recovery offline reportado.
 
 Comandos principais:
 
@@ -82,6 +83,7 @@ Comandos principais:
 - Containers com itens internos preservados por `parentContainerId`.
 - Supplies reais nas hunts: validacao antes de iniciar, consumo ao finalizar e balance liquido apos supplies.
 - Hunt Prep com presets guild-wide, checklist de supplies, movimentacao do Depot do Personagem/Guild Depot e compra de faltantes pelo Market NPC usando `guild.gold`.
+- Offline Catch-up real no carregamento do save, marcando hunts/treinos/quests/bosses concluidos como prontos para coletar sem aplicar recompensa automaticamente.
 - Aba Acao com Current Action e Action Analyzer.
 - Traveling automatico para retorno/cancelamento e chegada automatica ao expirar.
 - Log de atividade no painel direito.
@@ -515,6 +517,69 @@ Validacao:
 
 - `npm.cmd run build` passou.
 - `npm.cmd run tauri dev` abriu em verificacao curta com Vite em `127.0.0.1:1420` e binario Tauri iniciado.
+
+## Etapa 18 - Offline Catch-up Real
+
+Status: implementada.
+
+Arquivos criados:
+
+- `src/game-engine/offline/getOfflineElapsedMs.ts`.
+- `src/game-engine/offline/getActionCompletionStatus.ts`.
+- `src/game-engine/offline/markExpiredActionsReady.ts`.
+- `src/game-engine/offline/createOfflineReport.ts`.
+- `src/game-engine/offline/calculateOfflineCatchUp.ts`.
+- `src/game-engine/offline/applyOfflineCatchUp.ts`.
+- `src/components/offline/OfflineReportPanel.tsx`.
+
+Arquivos principais alterados:
+
+- `src/shared/types.ts`.
+- `src/app/App.tsx`.
+- `src/components/action/ActionPanel.tsx`.
+- `src/components/action/ActionAnalyzer.tsx`.
+- `src/components/action/ActionSummaryCard.tsx`.
+- `src/components/character/CurrentActionBox.tsx`.
+- `src/database/migrations.ts`.
+- `src/database/saveGameRepository.ts`.
+- `src/styles.css`.
+
+Regras implementadas:
+
+- Ao carregar/recarregar save, o app calcula tempo offline com base em `save_metadata.last_saved_at`.
+- O catch-up usa cap inicial de 12 horas para o tempo considerado.
+- Traveling vencido offline finaliza automaticamente e atualiza a cidade.
+- Hunting, training, questing e bossing vencidos offline recebem `currentAction.readyToResolve = true`.
+- Recompensas de hunt/treino/quest/boss nao sao aplicadas automaticamente; o jogador coleta pela aba Acao.
+- Dead/recovery vencido aparece no Offline Report como pronto para reviver, sem reviver automaticamente.
+- Acoes ja prontas continuam prontas apos reload, mas nao reabrem report repetido.
+- Trava em memoria evita duplo clique de coleta duplicando recompensa.
+- Current Action e Action Analyzer mostram progresso 100% e restante 0s quando a acao esta pronta.
+
+Save/metadata:
+
+- `save_metadata` recebeu campos opcionais `last_loaded_at`, `last_closed_at` e `last_offline_catchup_at`.
+- `readyToResolve`, `offlineCompletedAt` e `offlineElapsedMs` persistem dentro de `current_action_json`.
+- Saves antigos sem os novos campos continuam carregando.
+
+Limites atuais:
+
+- Sem auto-repeat de hunt.
+- Sem farm offline infinito.
+- Sem vender loot ou comprar supplies automaticamente offline.
+- Sem fila de acoes.
+- Como `currentAction.endsAt` historicamente usa relogio `HH:mm`, o catch-up infere a data usando `last_saved_at` como ancora.
+
+Proximos passos sugeridos:
+
+- Migrar novas acoes para salvar `startedAt/endsAt` em ISO completo mantendo compatibilidade com `HH:mm`.
+- Adicionar testes automatizados para parsing de horario, cap de 12h e resolucao de acoes prontas.
+- Futuramente, criar upgrades/regras para aumentar limite de offline e auto-repeat controlado.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- `npm.cmd run tauri dev` abriu o app em verificacao curta sem erro de SQLite.
 
 - `cargo check` passou em `src-tauri`.
 - `npm.cmd run tauri:build` passou e gerou os instaladores.

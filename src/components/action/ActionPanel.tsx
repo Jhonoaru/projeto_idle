@@ -42,6 +42,7 @@ export function ActionPanel({
 }: ActionPanelProps) {
   const action = selectedCharacter.currentAction;
   const currentQuest = quests.find((quest) => quest.id === action?.targetId);
+  const isReadyToResolve = action?.readyToResolve === true;
 
   return (
     <div className="action-panel">
@@ -110,26 +111,29 @@ export function ActionPanel({
 
           {selectedCharacter.status === "hunting" ? (
             <ActionButtons
-              finishLabel="Finalizar Simulacao"
+              finishLabel={isReadyToResolve ? "Coletar resultado da Hunt" : "Finalizar Simulacao"}
               onCancel={onCancelAction}
               onFinish={onFinishHunt}
+              showCancel={!isReadyToResolve}
             />
           ) : null}
 
           {selectedCharacter.status === "training" ? (
             <ActionButtons
-              finishLabel="Finalizar Treino"
+              finishLabel={isReadyToResolve ? "Coletar treino" : "Finalizar Treino"}
               onCancel={onCancelAction}
               onFinish={onFinishTraining}
+              showCancel={!isReadyToResolve}
             />
           ) : null}
 
           {selectedCharacter.status === "questing" ? (
             currentQuest ? (
               <ActionButtons
-                finishLabel="Finalizar Quest"
+                finishLabel={isReadyToResolve ? "Concluir Quest" : "Finalizar Quest"}
                 onCancel={onCancelAction}
                 onFinish={() => onFinishQuest(currentQuest)}
+                showCancel={!isReadyToResolve}
               />
             ) : (
               <p className="action-block-reason">Quest atual nao encontrada.</p>
@@ -138,9 +142,10 @@ export function ActionPanel({
 
           {selectedCharacter.status === "bossing" ? (
             <ActionButtons
-              finishLabel="Finalizar Boss"
+              finishLabel={isReadyToResolve ? "Coletar resultado do Boss" : "Finalizar Boss"}
               onCancel={onCancelAction}
               onFinish={onFinishBoss}
+              showCancel={!isReadyToResolve}
             />
           ) : null}
 
@@ -165,15 +170,17 @@ function ActionButtons({
   finishLabel,
   onFinish,
   onCancel,
+  showCancel = true,
 }: {
   finishLabel: string;
   onFinish: () => void;
   onCancel: () => void;
+  showCancel?: boolean;
 }) {
   return (
     <div className="hunt-action-buttons">
       <button onClick={onFinish} type="button">{finishLabel}</button>
-      <button onClick={onCancel} type="button">Cancelar e Retornar</button>
+      {showCancel ? <button onClick={onCancel} type="button">Cancelar e Retornar</button> : null}
     </div>
   );
 }

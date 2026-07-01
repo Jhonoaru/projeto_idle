@@ -311,6 +311,10 @@ export interface CharacterAction {
   label: string;
   startedAt: string;
   endsAt: string;
+  resolvedAt?: string;
+  offlineCompletedAt?: string;
+  readyToResolve?: boolean;
+  offlineElapsedMs?: number;
   durationMinutes?: number;
   targetId?: string;
   targetName?: string;
@@ -324,6 +328,24 @@ export interface CharacterAction {
   expectedGainPercent?: number;
   partyMemberIds?: string[];
   partyMembers?: PartyMember[];
+}
+
+export interface OfflineCharacterReport {
+  characterId: string;
+  characterName: string;
+  actionType: CharacterStatus;
+  actionLabel: string;
+  completedOffline: boolean;
+  readyToResolve: boolean;
+  message: string;
+}
+
+export interface OfflineCatchUpReport {
+  generatedAt: string;
+  totalOfflineMs: number;
+  consideredOfflineMs: number;
+  characterReports: OfflineCharacterReport[];
+  logs: string[];
 }
 
 export interface Item {
