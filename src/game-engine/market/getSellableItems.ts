@@ -8,6 +8,7 @@ export function isSellableItem(inventoryItem: InventoryItem, sourceItems: Invent
   const item = inventoryItem.item;
 
   if (inventoryItem.locked) return false;
+  if ((inventoryItem.imbuements ?? []).length > 0) return false;
   if (inventoryItem.parentContainerId) return false;
   if (
     item.isContainer &&

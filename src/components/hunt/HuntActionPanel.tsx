@@ -1,9 +1,10 @@
 import { calculateHuntRisk } from "../../game-engine/hunt/calculateHuntRisk";
+import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { checkHuntSupplies } from "../../game-engine/supplies/checkHuntSupplies";
 import { GameButton } from "../ui/GameButton";
 import { Panel } from "../ui/Panel";
 import { getAccessName } from "../../data/accesses";
-import type { Character, HuntArea } from "../../shared/types";
+import type { Character, GuildBestiaryState, HuntArea } from "../../shared/types";
 
 const durationOptions = [
   { label: "15 min", value: 15 },
@@ -16,6 +17,7 @@ interface HuntActionPanelProps {
   character: Character;
   selectedHunt?: HuntArea;
   durationMinutes: number;
+  bestiary?: GuildBestiaryState;
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: () => void;
   onFinishHunt: () => void;
@@ -25,6 +27,7 @@ export function HuntActionPanel({
   character,
   selectedHunt,
   durationMinutes,
+  bestiary,
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
@@ -44,6 +47,7 @@ export function HuntActionPanel({
     character.status === "hunting" &&
     character.currentAction?.targetId === selectedHunt.id;
   const supplyCheck = checkHuntSupplies(character, selectedHunt, durationMinutes);
+  const charmBonuses = calculateCharmBonusesForHunt(bestiary, selectedHunt);
   const canStartHunt = character.status === "idle" && hasAccess && supplyCheck.hasRequiredSupplies;
   const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess);
 
@@ -125,6 +129,18 @@ export function HuntActionPanel({
             <p className="action-block-reason" key={warning}>{warning}</p>
           ))}
         </div>
+
+        {charmBonuses.logs.length > 0 ? (
+          <div className="charm-bonus-panel">
+            <span>Charms ativos nesta hunt</span>
+            <strong>{charmBonuses.logs.length} bonus aplicado(s)</strong>
+            <ul>
+              {charmBonuses.logs.map((log) => (
+                <li key={log}>{log}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         <div className="hunt-action-buttons">
           <GameButton disabled={!canStartHunt} onClick={onStartHunt}>

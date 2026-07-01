@@ -1,6 +1,10 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { calculateCharmBonusesForHunt } from "../game-engine/bestiary/calculateCharmBonusesForHunt";
+import { calculateActiveImbuementBonuses } from "../game-engine/forge/calculateActiveImbuementBonuses";
+import { decrementHuntImbuements } from "../game-engine/forge/removeExpiredImbuements";
 import { simulateHunt } from "../game-engine/hunt/simulateHunt";
 import { addLootToInventory } from "../game-engine/inventory/addLootToInventory";
+import { applyDeathPenalty } from "../game-engine/death/applyDeathPenalty";
 import { addExperience } from "../game-engine/progression/addExperience";
 import { addSkillProgress } from "../game-engine/progression/addSkillProgress";
 import { calculateSupplyUsage } from "../game-engine/supplies/calculateSupplyUsage";
@@ -9,6 +13,7 @@ import { consumeSupplies } from "../game-engine/supplies/consumeSupplies";
 import type {
   Character,
   CharacterStatus,
+  GuildBestiaryState,
   HuntArea,
   HuntSimulationResult,
   SkillName,
@@ -71,9 +76,24 @@ export function finishHunt(
   character: Character,
   hunt: HuntArea,
   durationMinutes: number,
-): { character: Character; result: HuntSimulationResult } {
-  const result = simulateHunt({ character, hunt, durationMinutes });
-  const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes);
+  guildGold = 0,
+  bestiary?: GuildBestiaryState,
+): { character: Character; result: HuntSimulationResult; guildGoldLost: number } {
+  const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
+  const imbuementBonuses = calculateActiveImbuementBonuses(character);
+  const baseResult = simulateHunt({
+    character,
+    hunt,
+    durationMinutes,
+    deathRiskMultiplier: charmBonuses.deathRiskMultiplier,
+  });
+  const result = applyCharmBonusesToResult(baseResult, charmBonuses);
+  result.experienceGained = Math.round(result.experienceGained * (1 + imbuementBonuses.xpBonusPercent / 100));
+  const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
+    ...usage,
+    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * (1 - imbuementBonuses.supplyReductionPercent / 100))),
+    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * (1 - imbuementBonuses.supplyReductionPercent / 100))),
+  }));
   const supplyConsumption = consumeSupplies(character, expectedUsage);
   const supplyValueUsed = supplyConsumption.suppliesUsed.reduce(
     (sum, usage) => sum + usage.valueUsed,
@@ -90,6 +110,8 @@ export function finishHunt(
     result.experienceGained,
   );
   let characterAfterRewards = experienceResult.character;
+  const imbuementTick = decrementHuntImbuements(characterAfterRewards);
+  characterAfterRewards = imbuementTick.character;
   const progressionLogs: string[] = [];
 
   if (experienceResult.result.levelsGained > 0) {
@@ -116,29 +138,78 @@ export function finishHunt(
       );
     }
   }
+  let characterAfterDeath = characterAfterRewards;
+  let guildGoldLost = 0;
+  let deathLogs: string[] = [];
+
+  if (result.died) {
+    const death = applyDeathPenalty({
+      character: characterAfterRewards,
+      guildGold,
+      risk: hunt.risk,
+      cause: "hunt",
+      sourceId: hunt.id,
+      sourceName: hunt.name,
+      city: hunt.city || character.city,
+    });
+    characterAfterDeath = death.character;
+    guildGoldLost = death.goldLost;
+    deathLogs = death.logs;
+  }
+
+  const netProfit = result.died
+    ? result.goldGained - supplyValueUsed - guildGoldLost
+    : result.goldGained + result.totalLootValue - supplyValueUsed;
   const resultWithRejectedLoot = {
     ...result,
     suppliesUsed: supplyConsumption.suppliesUsed,
     supplyCost: supplyValueUsed,
     supplyValueUsed,
-    netProfit: result.goldGained + result.totalLootValue - supplyValueUsed,
+    netProfit,
     rejectedLoot: inventoryResult.rejectedLoot,
+    deathPenalty: characterAfterDeath.deathState?.penalty,
+    charmBonusesApplied: charmBonuses.logs,
     logs: [
       ...result.logs,
+      ...charmBonuses.logs,
+      ...(imbuementBonuses.xpBonusPercent > 0 ? [`Forge bonus applied: +${imbuementBonuses.xpBonusPercent}% XP.`] : []),
+      ...(imbuementBonuses.supplyReductionPercent > 0 ? [`Forge bonus applied: -${imbuementBonuses.supplyReductionPercent}% supplies.`] : []),
       ...supplyConsumption.logs,
-      `Hunt finalizada. Balance apos supplies: ${result.goldGained + result.totalLootValue - supplyValueUsed >= 0 ? "+" : ""}${(result.goldGained + result.totalLootValue - supplyValueUsed).toLocaleString("en-US")} gold.`,
+      ...deathLogs,
+      `Hunt finalizada. Balance apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold.`,
       ...progressionLogs,
+      ...imbuementTick.logs,
     ],
   };
-  const attributes = calculateCharacterAttributes(characterAfterRewards);
+  const attributes = calculateCharacterAttributes(characterAfterDeath);
 
   return {
     character: {
-      ...characterAfterRewards,
+      ...characterAfterDeath,
       attributes,
       capacityMax: attributes.capacity,
     },
     result: resultWithRejectedLoot,
+    guildGoldLost,
+  };
+}
+
+function applyCharmBonusesToResult(
+  result: HuntSimulationResult,
+  charmBonuses: ReturnType<typeof calculateCharmBonusesForHunt>,
+): HuntSimulationResult {
+  if (charmBonuses.logs.length === 0) return result;
+
+  const experienceGained = Math.round(result.experienceGained * charmBonuses.xpMultiplier);
+  const goldGained = Math.round(result.goldGained * charmBonuses.goldMultiplier);
+  const totalLootValue = Math.round(result.totalLootValue * charmBonuses.lootMultiplier);
+
+  return {
+    ...result,
+    experienceGained,
+    goldGained,
+    totalLootValue,
+    netProfit: goldGained + totalLootValue,
   };
 }
 

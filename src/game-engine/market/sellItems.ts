@@ -1,4 +1,4 @@
-import { calculateSellValue } from "./calculateSellValue";
+import { calculateInventoryItemSellValue } from "./calculateSellValue";
 import { isSellableItem } from "./getSellableItems";
 import type {
   InventoryItem,
@@ -39,7 +39,7 @@ export function sellItems({
     }
 
     const quantity = inventoryItem.quantity;
-    const value = calculateSellValue(inventoryItem.item, quantity, mode);
+    const value = calculateInventoryItemSellValue(inventoryItem, mode);
     soldItems.push({
       inventoryItemId: inventoryItem.id,
       itemId: inventoryItem.itemId,
@@ -78,6 +78,10 @@ function getBlockedSaleReason(
 
   if (inventoryItem.parentContainerId) {
     return `${inventoryItem.item.name} esta dentro de um container. Tire da mochila antes de vender.`;
+  }
+
+  if ((inventoryItem.imbuements ?? []).length > 0) {
+    return `${inventoryItem.item.name} possui imbuement ativo e nao pode ser vendido.`;
   }
 
   return `${inventoryItem.item.name} esta travado ou nao pode ser vendido.`;

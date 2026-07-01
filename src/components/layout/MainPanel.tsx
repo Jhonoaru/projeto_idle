@@ -1,10 +1,14 @@
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { ActionSummaryCard } from "../action/ActionSummaryCard";
+import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { BossPanel } from "../boss/BossPanel";
 import { CurrentActionBox } from "../character/CurrentActionBox";
+import { DeathPanel } from "../death/DeathPanel";
+import { TempleServicesPanel } from "../death/TempleServicesPanel";
 import { SkillList } from "../character/SkillList";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
+import { ForgePanel } from "../forge/ForgePanel";
 import { CharacterDepotPanel } from "../inventory/CharacterDepotPanel";
 import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
@@ -71,9 +75,11 @@ interface MainPanelProps {
     | "equipment"
     | "depot"
     | "market"
+    | "forge"
     | "training"
     | "quests"
-    | "bosses";
+    | "bosses"
+    | "bestiary";
   depot: GuildDepot;
   onChangeTab: (tab: MainPanelProps["activeTab"]) => void;
   onSelectHunt: (hunt: HuntArea) => void;
@@ -124,6 +130,16 @@ interface MainPanelProps {
   onFinishBoss: () => void;
   onCancelBoss: () => void;
   onClearBossCooldown: (characterId: string, bossId: string) => void;
+  onReviveCharacter: () => void;
+  onBuyBlessing: (blessingId: string) => void;
+  onClaimBestiaryReward: (monsterId: string) => void;
+  onUnlockCharm: (charmId: string) => void;
+  onAssignCharm: (charmId: string, monsterId: string) => void;
+  onRemoveCharm: (monsterId: string) => void;
+  onUpgradeForgeItem: (inventoryItem: InventoryItem) => void;
+  onIncreaseForgeTier: (inventoryItem: InventoryItem) => void;
+  onApplyForgeImbuement: (inventoryItem: InventoryItem, imbuementId: string) => void;
+  onRemoveForgeImbuements: (inventoryItem: InventoryItem) => void;
 }
 
 export function MainPanel({
@@ -173,6 +189,16 @@ export function MainPanel({
   onFinishBoss,
   onCancelBoss,
   onClearBossCooldown,
+  onReviveCharacter,
+  onBuyBlessing,
+  onClaimBestiaryReward,
+  onUnlockCharm,
+  onAssignCharm,
+  onRemoveCharm,
+  onUpgradeForgeItem,
+  onIncreaseForgeTier,
+  onApplyForgeImbuement,
+  onRemoveForgeImbuements,
 }: MainPanelProps) {
   return (
     <section className="main-panel">
@@ -182,16 +208,30 @@ export function MainPanel({
         <TabButton activeTab={activeTab} label="Inventario & Equipamento" tab="inventory" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Depot" tab="depot" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Market" tab="market" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Forge" tab="forge" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Hunts" tab="hunts" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Quests" tab="quests" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Bosses" tab="bosses" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Treino" tab="training" onChangeTab={onChangeTab} />
+        <TabButton activeTab={activeTab} label="Bestiary" tab="bestiary" onChangeTab={onChangeTab} />
       </div>
 
       <div className="tab-content">
         {activeTab === "character" ? (
           <>
           <CharacterDetails character={selectedCharacter} />
+          {selectedCharacter.status === "dead" ? (
+            <Panel title="Death Report">
+              <DeathPanel character={selectedCharacter} onRevive={onReviveCharacter} />
+            </Panel>
+          ) : null}
+          <Panel title="Temple Services">
+            <TempleServicesPanel
+              character={selectedCharacter}
+              guild={guild}
+              onBuyBlessing={onBuyBlessing}
+            />
+          </Panel>
           <Panel title="Acao Atual">
             <ActionSummaryCard
               character={selectedCharacter}
@@ -208,6 +248,7 @@ export function MainPanel({
           <ActionPanel
             bossParty={bossParty}
             bosses={bosses}
+            bestiary={guild.bestiary}
             characters={characters}
             hunts={hunts}
             onCancelAction={onCancelAction}
@@ -217,6 +258,7 @@ export function MainPanel({
             onFinishQuest={onFinishQuest}
             onFinishTraining={onFinishTraining}
             onFinishTravel={onFinishTravel}
+            onReviveCharacter={onReviveCharacter}
             quests={quests}
             selectedCharacter={selectedCharacter}
           />
@@ -225,6 +267,7 @@ export function MainPanel({
         {activeTab === "hunts" ? (
           <>
           <HuntActionPanel
+            bestiary={guild.bestiary}
             character={selectedCharacter}
             durationMinutes={durationMinutes}
             onChangeDuration={onChangeDuration}
@@ -305,6 +348,20 @@ export function MainPanel({
           </Panel>
         ) : null}
 
+        {activeTab === "forge" ? (
+          <Panel title="Forge Workshop">
+            <ForgePanel
+              character={selectedCharacter}
+              guild={guild}
+              guildDepot={depot}
+              onApplyImbuement={onApplyForgeImbuement}
+              onIncreaseTier={onIncreaseForgeTier}
+              onRemoveImbuements={onRemoveForgeImbuements}
+              onUpgradeItem={onUpgradeForgeItem}
+            />
+          </Panel>
+        ) : null}
+
         {activeTab === "training" ? (
           <Panel title={`${selectedCharacter.name} Training`}>
           <TrainingPanel
@@ -344,6 +401,18 @@ export function MainPanel({
               party={bossParty}
               selectedBoss={selectedBoss}
               selectedCharacter={selectedCharacter}
+            />
+          </Panel>
+        ) : null}
+
+        {activeTab === "bestiary" ? (
+          <Panel title="Guild Bestiary">
+            <BestiaryPanel
+              guild={guild}
+              onAssignCharm={onAssignCharm}
+              onClaimReward={onClaimBestiaryReward}
+              onRemoveCharm={onRemoveCharm}
+              onUnlockCharm={onUnlockCharm}
             />
           </Panel>
         ) : null}

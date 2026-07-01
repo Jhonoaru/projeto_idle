@@ -42,6 +42,33 @@ export type QuestRisk = "safe" | "low" | "medium" | "high" | "deadly";
 
 export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
 
+export type DeathCause = "hunt" | "boss" | "quest" | "unknown";
+
+export type BestiaryStage = "unknown" | "started" | "revealed" | "completed";
+
+export type CharmType = "xp" | "gold" | "loot" | "defense" | "supply";
+
+export type EquipmentUpgradeLevel = number;
+
+export type EquipmentTier = number;
+
+export type ImbuementType =
+  | "strike"
+  | "protection"
+  | "vampirism"
+  | "wisdom"
+  | "capacity"
+  | "swiftness"
+  | "efficiency";
+
+export type ImbuementSlot =
+  | "weapon"
+  | "armor"
+  | "helmet"
+  | "boots"
+  | "backpack"
+  | "offhand";
+
 export type ItemType =
   | "gold"
   | "creature_product"
@@ -101,6 +128,114 @@ export interface Guild {
   renown: number;
   rank: string;
   level: number;
+  bestiary?: GuildBestiaryState;
+}
+
+export interface MonsterBestiaryProgress {
+  monsterId: string;
+  monsterName: string;
+  kills: number;
+  stage: BestiaryStage;
+  firstSeenAt?: string;
+  completedAt?: string;
+  charmPointsClaimed?: boolean;
+}
+
+export interface BestiaryThreshold {
+  revealKills: number;
+  completeKills: number;
+  charmPointsReward: number;
+}
+
+export interface CharmDefinition {
+  id: string;
+  name: string;
+  description: string;
+  type: CharmType;
+  unlockCost: number;
+  effectPercent: number;
+  requiredCompletedMonsters?: number;
+}
+
+export interface ActiveCharmAssignment {
+  charmId: string;
+  monsterId: string;
+  assignedAt: string;
+}
+
+export interface ForgeMaterialRequirement {
+  itemId: string;
+  quantity: number;
+}
+
+export interface ImbuementBonus {
+  attackPowerPercent?: number;
+  defensePowerPercent?: number;
+  magicPowerPercent?: number;
+  distancePowerPercent?: number;
+  fistPowerPercent?: number;
+  maxHealthPercent?: number;
+  maxManaPercent?: number;
+  capacityFlat?: number;
+  speedFlat?: number;
+  supplyReductionPercent?: number;
+  xpBonusPercent?: number;
+}
+
+export interface ImbuementDefinition {
+  id: string;
+  name: string;
+  description: string;
+  type: ImbuementType;
+  allowedEquipmentSlots: EquipmentSlot[];
+  goldCost: number;
+  requiredMaterials: ForgeMaterialRequirement[];
+  bonus: ImbuementBonus;
+  durationHunts?: number;
+  durationMinutes?: number;
+}
+
+export interface ActiveImbuement {
+  imbuementId: string;
+  appliedAt: string;
+  remainingHunts?: number;
+  expiresAt?: string;
+}
+
+export interface GuildBestiaryState {
+  progress: MonsterBestiaryProgress[];
+  charmPoints: number;
+  unlockedCharmIds: string[];
+  activeCharms: ActiveCharmAssignment[];
+}
+
+export interface DeathPenalty {
+  experienceLost: number;
+  goldLost: number;
+  itemsLostValue: number;
+  skillProgressLost?: Partial<Record<SkillName, number>>;
+  blessProtected: boolean;
+  lostItems?: InventoryItem[];
+}
+
+export interface Blessing {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  protectionPercent: number;
+  consumedOnDeath: boolean;
+}
+
+export interface CharacterDeathState {
+  diedAt: string;
+  cause: DeathCause;
+  sourceId?: string;
+  sourceName?: string;
+  templeCity: string;
+  templeName: string;
+  recoveryEndsAt?: string;
+  penalty: DeathPenalty;
 }
 
 export interface SkillSet {
@@ -187,6 +322,9 @@ export interface InventoryItem {
   parentContainerId?: string | null;
   locked?: boolean;
   location: "character" | "guildDepot";
+  upgradeLevel?: EquipmentUpgradeLevel;
+  tier?: EquipmentTier;
+  imbuements?: ActiveImbuement[];
 }
 
 export interface MarketSellEntry {
@@ -442,6 +580,7 @@ export interface BossLootResult {
 export interface BossSimulationResult {
   success: boolean;
   diedCharacterIds: string[];
+  deathPenalties?: Record<string, DeathPenalty>;
   defeated: boolean;
   bossId: string;
   bossName: string;
@@ -492,6 +631,9 @@ export interface Character {
   skills: SkillSet;
   attributes: CharacterAttributes;
   currentAction?: CharacterAction;
+  deathState?: CharacterDeathState;
+  blessings?: string[];
+  deathCount?: number;
   createdAt: string;
 }
 
@@ -525,6 +667,7 @@ export interface HuntSimulationInput {
   character: Character;
   hunt: HuntArea;
   durationMinutes: number;
+  deathRiskMultiplier?: number;
 }
 
 export interface HuntLootResult {
@@ -542,6 +685,7 @@ export interface HuntSimulationResult {
   died: boolean;
   durationMinutes: number;
   killedMonsters: number;
+  monsterKills?: MonsterKillResult[];
   experienceGained: number;
   goldGained: number;
   lootItems: HuntLootResult[];
@@ -555,6 +699,24 @@ export interface HuntSimulationResult {
   loot: HuntLootResult[];
   rejectedLoot?: HuntLootResult[];
   skillProgress: Partial<Record<SkillName, number>>;
+  deathPenalty?: DeathPenalty;
+  charmBonusesApplied?: string[];
+  bestiaryLogs?: string[];
   deathReason?: string;
+  logs: string[];
+}
+
+export interface MonsterKillResult {
+  monsterId: string;
+  monsterName: string;
+  kills: number;
+}
+
+export interface CharmHuntBonuses {
+  xpMultiplier: number;
+  goldMultiplier: number;
+  lootMultiplier: number;
+  deathRiskMultiplier: number;
+  supplyMultiplier: number;
   logs: string[];
 }

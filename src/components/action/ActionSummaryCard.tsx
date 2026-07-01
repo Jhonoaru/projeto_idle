@@ -9,16 +9,21 @@ interface ActionSummaryCardProps {
 
 export function ActionSummaryCard({ character, onViewAction }: ActionSummaryCardProps) {
   const action = character.currentAction;
+  const isDead = character.status === "dead" && character.deathState;
 
   return (
     <div className="action-summary-card">
       <div>
         <span>{CHARACTER_STATUS_LABELS[character.status]}</span>
-        <strong>{action?.label ?? "Nenhuma acao em andamento"}</strong>
+        <strong>
+          {isDead ? "Morto" : action?.label ?? "Nenhuma acao em andamento"}
+        </strong>
         <p>
-          {action?.targetName
-            ? `${action.targetName} - ${formatDuration(getClockRemainingMs(action.endsAt))} restantes`
-            : "Escolha uma atividade nas abas correspondentes."}
+          {isDead
+            ? `${character.name} aguarda recuperacao em ${character.deathState?.templeName}.`
+            : action?.targetName
+              ? `${action.targetName} - ${formatDuration(getClockRemainingMs(action.endsAt))} restantes`
+              : "Escolha uma atividade nas abas correspondentes."}
         </p>
       </div>
       <button onClick={onViewAction} type="button">

@@ -1,4 +1,5 @@
 import type { EquipmentSlot, InventoryItem } from "../../shared/types";
+import { getImbuementById } from "../../data/imbuements";
 
 interface EquipmentSlotBoxProps {
   slot: EquipmentSlot;
@@ -13,8 +14,16 @@ export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlot
       <span className="equipment-slot-name">{label}</span>
       {item ? (
         <>
-          <strong>{item.item.name}</strong>
+          <strong>{formatEnhancedName(item)}</strong>
           <small>{formatItemStats(item)}</small>
+          {item.imbuements?.length ? (
+            <small>
+              {item.imbuements.map((active) => {
+                const definition = getImbuementById(active.imbuementId);
+                return `${definition?.name ?? active.imbuementId}: ${active.remainingHunts ?? 0} hunts`;
+              }).join(" / ")}
+            </small>
+          ) : null}
           <button onClick={() => onUnequip(slot)} type="button">
             Remover
           </button>
@@ -24,6 +33,12 @@ export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlot
       )}
     </article>
   );
+}
+
+function formatEnhancedName(inventoryItem: InventoryItem) {
+  const upgrade = inventoryItem.upgradeLevel ? ` +${inventoryItem.upgradeLevel}` : "";
+  const tier = inventoryItem.tier ? ` [T${inventoryItem.tier}]` : "";
+  return `${inventoryItem.item.name}${upgrade}${tier}`;
 }
 
 function formatItemStats(inventoryItem: InventoryItem) {

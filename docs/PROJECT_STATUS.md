@@ -16,7 +16,11 @@ Atualizado em: 2026-06-29
 ## Status recente
 
 - Etapa 13 implementada: hunts usam supplies reais do inventario do personagem.
-- Etapa 13.5 em QA: validar supplies reais, save/load, containers, `guild.gold`, Market NPC e Action Analyzer antes de iniciar sistemas grandes novos.
+- Etapa 13.5 concluida: QA de supplies reais, save/load, containers, `guild.gold`, Market NPC e Action Analyzer.
+- Etapa 14 concluida: morte com deathState, templo, bless, penalidade leve e recovery manual.
+- Etapa 15 concluida: Bestiary guild-wide, charm points, charms desbloqueaveis e bonus pequenos em hunts.
+- Etapa 15.5 concluida: QA/correcoes de Bestiary/Charms, normalizacao de save e bloqueio contra duplicacao de finish hunt.
+- Etapa 16 concluida: Forge inicial com upgrades, tiers, imbuements, materiais e persistencia em equipamentos.
 
 Comandos principais:
 
@@ -57,6 +61,12 @@ Comandos principais:
 - Simulacao de boss com chance de sucesso, morte, XP, gold, loot, renown e logs.
 - Cooldowns de boss por personagem.
 - Loot de boss enviado para o Guild Depot.
+- Sistema inicial de morte com penalidade de XP/gold, `deathState`, contador de mortes e recovery no templo.
+- Templos por cidade com fallback para Thaeron.
+- Bless individual por personagem, comprada com `guild.gold` e consumida ao proteger morte.
+- Bestiary guild-wide com kills por criatura, stages, charm points, unlocks e charms ativos.
+- Charms iniciais aplicaveis em criaturas completadas, com bonus pequenos de XP, gold, loot, defesa ou supplies em hunts futuras.
+- Forge Workshop com upgrade +0 a +5, tier 0 a 3 e imbuements por hunts em equipamentos.
 - Persistencia local com SQLite via Tauri SQL Plugin.
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
@@ -608,3 +618,282 @@ Validacao:
 
 - `npm.cmd run build` passou.
 - `npm.cmd run tauri dev` foi iniciado com sucesso; o processo foi encerrado depois da confirmacao para nao deixar servidor aberto.
+
+## Etapa 14 - Sistema de Morte, Templo, Bless e Recuperacao
+
+Status: implementada em versao inicial.
+
+Arquivos criados:
+
+- `src/data/blessings.ts`.
+- `src/data/temples.ts`.
+- `src/game-engine/death/calculateDeathPenalty.ts`.
+- `src/game-engine/death/applyDeathPenalty.ts`.
+- `src/game-engine/death/createDeathState.ts`.
+- `src/game-engine/death/reviveCharacter.ts`.
+- `src/game-engine/death/getActiveBlessing.ts`.
+- `src/game-engine/death/calculateBlessProtection.ts`.
+- `src/components/death/DeathPanel.tsx`.
+- `src/components/death/TempleServicesPanel.tsx`.
+
+Regras implementadas:
+
+- `CharacterStatus` usa o estado existente `dead`.
+- `Character` agora pode salvar `deathState`, `blessings` e `deathCount`.
+- Morte de hunt, boss e quest usa o engine de morte.
+- Ao morrer, a acao atual e limpa, o personagem fica `dead`, vai para o templo da cidade fonte e recebe `deathState`.
+- XP perdida respeita o minimo do level atual para evitar delevel nesta etapa.
+- Gold perdido sai de `guild.gold`, com penalidade leve por risco.
+- Bless ativa reduz penalidade por `protectionPercent` e e consumida quando `consumedOnDeath` estiver ativo.
+- Recovery usa horario real em `recoveryEndsAt`; se passar enquanto o app estiver fechado, o personagem continua morto, mas o botao de reviver fica liberado ao abrir.
+- Reviver no templo volta o personagem para `idle`, limpa `deathState`, mantem a cidade do templo e registra log.
+
+UI:
+
+- Aba Personagem mostra Death Report quando o personagem esta morto.
+- Aba Personagem mostra Temple Services para comprar uma bless individual.
+- Aba Acao mostra Death Report em vez de Current Action normal quando o personagem esta morto.
+- Action Analyzer mostra causa, local, tempo desde a morte, recovery, penalidade, bless e templo.
+- Current Action/controles nao oferecem finalizar hunt/boss/treino para personagem morto.
+
+Persistencia:
+
+- SQLite adiciona colunas seguras em `characters`: `death_state_json`, `blessings_json` e `death_count`.
+- Saves antigos carregam com `deathState` indefinido, `blessings: []` e `deathCount: 0`.
+
+Limites atuais:
+
+- Sem PvP, online, corpse, drop de backpack ou perda de equipamento.
+- Sem stack avancada de blessings.
+- Sem templo com mapa visual.
+- Sem recovery automatica sem clique.
+- Sem perda pesada de skill.
+- Perda de item real ficou para etapa futura; `itemsLostValue` permanece preparado.
+
+Como testar:
+
+- Hunt: iniciar uma hunt de risco alto/deadly e finalizar ate ocorrer morte; confirmar `dead`, Death Report, templo, XP/gold reduzidos e bloqueio de novas acoes.
+- Bless: comprar uma bless em Temple Services, morrer, confirmar reducao da penalidade, consumo da bless e logs.
+- Boss: iniciar boss com chance de morte, finalizar e confirmar que apenas personagens mortos ficam `dead`.
+- Save/load: deixar personagem morto, salvar/recarregar ou reiniciar app, confirmar que continua morto e que o recovery restante respeita o horario real.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+## Etapa 15 - Bestiary e Charms
+
+Status: implementada em versao inicial.
+
+Arquivos criados:
+
+- `src/data/bestiaryThresholds.ts`.
+- `src/data/charms.ts`.
+- `src/game-engine/bestiary/`.
+- `src/components/bestiary/`.
+
+Arquivos principais alterados:
+
+- `src/shared/types.ts`.
+- `src/game-engine/hunt/simulateHunt.ts`.
+- `src/game-services/huntService.ts`.
+- `src/app/App.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/components/hunt/HuntActionPanel.tsx`.
+- `src/components/hunt/HuntResultPanel.tsx`.
+- `src/components/action/ActionAnalyzer.tsx`.
+- `src/database/migrations.ts`.
+- `src/database/saveMapper.ts`.
+- `src/database/saveGameRepository.ts`.
+
+Regras implementadas:
+
+- Bestiary pertence a `guild.bestiary`, ou seja, e guild-wide.
+- Finalizar hunt registra `monsterKills` por criatura no resultado.
+- Kills de hunt atualizam o Bestiary da guilda ao finalizar a simulacao.
+- Stages iniciais: `unknown`, `started`, `revealed` e `completed`.
+- Thresholds por level do monstro definem reveal, complete e charm points.
+- Reward de charm points precisa ser coletado manualmente com Claim Reward.
+- Charms iniciais: Scholar, Greed, Scavenger, Fortify e Conservation.
+- Unlock de charm consome charm points.
+- Assign exige charm desbloqueado e criatura completed.
+- Uma criatura tem no maximo 1 charm ativo; um charm fica em no maximo 1 criatura.
+- Remove charm nao tem custo nesta etapa.
+
+Bonus em hunts:
+
+- Scholar aplica bonus proporcional de XP.
+- Greed aplica bonus proporcional de gold.
+- Scavenger aplica bonus proporcional no valor total de loot.
+- Fortify reduz chance de morte antes do roll da hunt.
+- Conservation reduz supplies estimados/consumidos de forma leve.
+- Hunts com multiplas criaturas aplicam bonus proporcional ao numero de monstros da hunt.
+
+UI:
+
+- Nova aba principal `Bestiary`.
+- Bestiary mostra criaturas vistas, completas, charm points e charms desbloqueados.
+- Cards mostram stage, kills, barra de progresso, reward e charm ativo.
+- Detalhes mostram informacoes basicas da criatura quando revelada/completa.
+- Charm Panel permite unlock, assign e remove no monstro selecionado.
+- Hunt Assignment mostra charms ativos na hunt.
+- Hunt Result mostra kills por criatura, Bestiary Updates e Charm Bonuses.
+- Action Analyzer mostra estimativa de kills por criatura e quantidade de charms ativos durante hunt.
+
+Persistencia:
+
+- SQLite salva `guild.bestiary` em `guilds.bestiary_json`.
+- Saves antigos carregam bestiary vazio.
+- Kills, charm points, charms desbloqueados e assignments persistem no save local.
+
+Limites atuais:
+
+- Sem online, ranking, bestiary por personagem ou sprites.
+- Sem charms avancados de dano elemental, leech, dodge ou parry.
+- Sem charm em boss.
+- Sem custo/cooldown para trocar charm.
+- Sem auto-claim reward.
+- Bonus de loot altera valor total do resultado, nao rerolla loot table detalhada.
+
+Como testar:
+
+- Finalizar hunt em Sewers Below Thaeron e conferir kills em Sewer Rat/Cave Spider na aba Bestiary.
+- Repetir ate completar ou reduzir thresholds temporariamente para teste.
+- Usar Claim Reward em criatura completed.
+- Desbloquear Scholar com charm points.
+- Atribuir Scholar a uma criatura completed.
+- Fazer hunt com essa criatura e conferir bonus de XP em Hunt Result.
+- Salvar/recarregar e confirmar kills, charm points, unlocks e assignments.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+## Etapa 15.5 - QA, Correcoes e Balanceamento do Bestiary/Charms
+
+Status: concluida como QA de estabilizacao, sem sistema grande novo.
+
+Bugs/riscos encontrados e corrigidos:
+
+- Finalizar Hunt podia ser chamado sem `currentAction` ativa e simular a hunt selecionada novamente; agora exige `status === hunting` e `currentAction.targetId`.
+- `GuildBestiaryState` podia carregar progress duplicado, charms duplicados ou assignments invalidos de saves antigos; agora `normalizeBestiaryState` deduplica e sanitiza.
+- `charmPoints` agora e normalizado para nunca ficar negativo/NaN.
+- `unlockedCharmIds` agora remove duplicados.
+- `activeCharms` agora ignora charm invalido, monster invalido, charm nao desbloqueado e monstro nao completed.
+- Save do guild bestiary agora grava a versao normalizada do estado.
+- Unlock sem pontos agora retorna mensagem clara: `Not enough charm points.`
+- UI do CharmPanel nao habilita unlock para charm ja desbloqueado.
+- Bestiary card mostra reward coletado como `Reward claimed`.
+- Fallback visual para criatura salva sem catalogo usa `Unknown Creature` sem quebrar a UI.
+
+Balanceamento revisado:
+
+- Thresholds mantidos conforme Etapa 15: starter 25/100/5, mid 50/250/10, advanced 100/500/20 e high 250/1000/35.
+- Bonus de charms mantido em 5%, aplicado proporcionalmente por criatura na hunt.
+- Sem aumento de reward ou reducao agressiva de thresholds nesta QA.
+
+Validacoes feitas:
+
+- Bestiary vazio em save antigo carrega como `progress: []`, `charmPoints: 0`, `unlockedCharmIds: []`, `activeCharms: []`.
+- Claim antes de completed continua bloqueado.
+- Claim duplicado continua bloqueado por `charmPointsClaimed`.
+- Assign exige charm desbloqueado e criatura completed.
+- Um charm/monstro duplicado em save antigo e limpo pela normalizacao.
+- Hunt Result continua mostrando monsterKills, Bestiary Updates e Charm Bonuses.
+- Hunt Assignment e Action Analyzer continuam mostrando charms ativos sem salvar progresso parcial.
+
+Limites mantidos:
+
+- Sem auto-claim.
+- Sem custo/cooldown de troca de charm.
+- Sem charm em boss.
+- Sem sprites/imagens.
+- Sem reroll detalhado de loot por charm; Scavenger ainda atua no valor total.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- `npm.cmd run tauri dev` abriu o app; processo encerrado apos confirmacao.
+
+## Etapa 16 - Forge, Upgrades, Tiers e Imbuements de Equipamentos
+
+Status: implementada em versao inicial.
+
+Arquivos criados:
+
+- `src/data/imbuements.ts`.
+- `src/game-engine/forge/`.
+- `src/components/forge/ForgePanel.tsx`.
+
+Arquivos principais alterados:
+
+- `src/shared/types.ts`.
+- `src/app/App.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/components/inventory/InventoryItemRow.tsx`.
+- `src/components/equipment/EquipmentSlotBox.tsx`.
+- `src/game-engine/equipment/calculateEquipmentBonuses.ts`.
+- `src/game-services/huntService.ts`.
+- `src/game-engine/market/`.
+- `src/database/migrations.ts`.
+- `src/database/saveMapper.ts`.
+- `src/database/saveGameRepository.ts`.
+
+Regras implementadas:
+
+- Nova aba principal `Forge`.
+- Equipamentos podem receber `upgradeLevel` de +0 ate +5.
+- Equipamentos podem receber `tier` de 0 ate 3.
+- Imbuements iniciais: Minor Strike, Minor Focus, Minor Precision, Minor Fortification, Minor Wisdom, Minor Capacity e Minor Efficiency.
+- Upgrade, tier e imbuement gastam `guild.gold` e materiais.
+- Materiais sao consumidos na ordem: inventario do personagem, depot do personagem e Guild Depot.
+- Materiais locked e quest items nao sao consumidos automaticamente.
+- Itens stackable e nao equipamentos nao aparecem na Forge.
+- Itens equipados tambem podem ser melhorados.
+- Imbuements usam `remainingHunts` e perdem 1 carga ao finalizar hunt.
+- Imbuements expirados sao removidos automaticamente ao chegar em 0 hunts.
+
+Bonus:
+
+- Upgrade/tier aumentam atributos derivados do equipamento.
+- Backpack ganha capacity extra por upgrade.
+- Minor Wisdom aumenta XP final de hunts.
+- Minor Efficiency reduz supplies consumidos.
+- Minor Strike/Focus/Precision/Fortification entram no poder/defesa via atributos do personagem.
+- Character Details reflete os atributos recalculados apos upgrade/tier/imbuement.
+
+Market:
+
+- Item com imbuement ativo nao pode ser vendido.
+- Item com upgrade/tier pode ser vendido e recebe valor de venda aumentado de forma leve.
+- Itens equipados continuam fora do Market.
+
+Persistencia:
+
+- SQLite adiciona `upgrade_level`, `tier` e `imbuements_json` em `inventory_items`.
+- Saves antigos carregam itens com `upgradeLevel: 0`, `tier: 0` e `imbuements: []`.
+- Itens equipados tambem salvam upgrades, tiers e imbuements.
+- `remainingHunts` persiste no save.
+
+Limites atuais:
+
+- Sem chance de falha.
+- Sem item quebrar, downgrade ou reroll de affix.
+- Sem crafting completo.
+- Sem custo/cooldown para remover imbuement manualmente.
+- Consumo de materiais dentro de containers segue a estrutura atual de `character.inventory`, mas nao ha UI especifica de selecao de origem.
+- Imbuements reduzem cargas apenas em hunts.
+
+Como testar:
+
+- Abrir Forge, selecionar uma arma e tentar Upgrade +1.
+- Garantir gold/materiais e confirmar que o nome vira `+1` e atributos mudam.
+- Selecionar item elegivel e aumentar Tier 1.
+- Aplicar Minor Strike em weapon e confirmar `remainingHunts = 20`.
+- Finalizar uma hunt e confirmar que o imbuement perde 1 carga.
+- Salvar/recarregar e confirmar upgrade/tier/imbuement persistidos.
+- Tentar vender item com imbuement ativo e confirmar bloqueio.
+
+Validacao:
+
+- `npm.cmd run build` passou.

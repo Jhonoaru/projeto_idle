@@ -45,6 +45,43 @@ export function HuntResultPanel({
         </div>
 
         <div className="result-section">
+          <h3>Bestiary Kills</h3>
+          {result.monsterKills && result.monsterKills.length > 0 ? (
+            <ul>
+              {result.monsterKills.map((entry) => (
+                <li key={entry.monsterId}>
+                  {entry.monsterName}: +{entry.kills.toLocaleString("en-US")}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhuma kill registrada.</p>
+          )}
+        </div>
+
+        {result.charmBonusesApplied && result.charmBonusesApplied.length > 0 ? (
+          <div className="result-section">
+            <h3>Charm Bonuses</h3>
+            <ul>
+              {result.charmBonusesApplied.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {result.bestiaryLogs && result.bestiaryLogs.length > 0 ? (
+          <div className="result-section">
+            <h3>Bestiary Updates</h3>
+            <ul>
+              {result.bestiaryLogs.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        <div className="result-section">
           <h3>Supplies Usados</h3>
           {result.suppliesUsed.length > 0 ? (
             <ul>

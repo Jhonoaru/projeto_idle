@@ -1,5 +1,6 @@
 import { createInventoryItem } from "../data/inventoryFactory";
 import { applyBossCooldown } from "../game-engine/boss/applyBossCooldown";
+import { applyDeathPenalty } from "../game-engine/death/applyDeathPenalty";
 import { canStartBoss } from "../game-engine/boss/canStartBoss";
 import { simulateBossFight } from "../game-engine/boss/simulateBossFight";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
@@ -64,29 +65,59 @@ export function finishBoss(
   depot: GuildDepot,
   boss: Boss,
   party: BossParty,
+  guildGold = 0,
 ) {
   const result = simulateBossFight(characters, party, boss);
   const participantIds = new Set(party.members.map((member) => member.characterId));
+  let remainingGuildGold = guildGold;
+  let guildGoldLost = 0;
+  const deathPenalties: BossSimulationResult["deathPenalties"] = {};
+  const deathLogs: string[] = [];
   const updatedCharacters = characters.map((character) => {
     if (!participantIds.has(character.id)) return character;
 
     const withExperience = addExperience(character, result.experienceGained);
     const withCooldown = applyBossCooldown(withExperience.character, boss);
+    const died = result.diedCharacterIds.includes(character.id);
+
+    if (died) {
+      const death = applyDeathPenalty({
+        character: withCooldown,
+        guildGold: remainingGuildGold,
+        risk: boss.risk,
+        cause: "boss",
+        sourceId: boss.id,
+        sourceName: boss.name,
+        city: boss.city || character.city,
+      });
+      remainingGuildGold = Math.max(0, remainingGuildGold - death.goldLost);
+      guildGoldLost += death.goldLost;
+      deathPenalties[character.id] = death.character.deathState!.penalty;
+      deathLogs.push(...death.logs);
+
+      return death.character;
+    }
 
     return {
       ...withCooldown,
-      status: result.diedCharacterIds.includes(character.id) ? "dead" as const : "idle" as const,
+      status: "idle" as const,
       currentAction: undefined,
     };
   });
   const updatedDepot = addBossLootToDepot(depot, result);
+  const resultWithDeath = {
+    ...result,
+    deathPenalties,
+    logs: [...result.logs, ...deathLogs],
+  };
 
   return {
     characters: updatedCharacters,
     depot: updatedDepot,
-    result,
+    result: resultWithDeath,
     guildRenownGained: result.renownGained,
-    logs: result.logs,
+    guildGoldLost,
+    logs: resultWithDeath.logs,
   };
 }
 

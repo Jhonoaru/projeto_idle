@@ -1,8 +1,9 @@
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
 import { ActionAnalyzer } from "./ActionAnalyzer";
 import { CurrentActionBox } from "../character/CurrentActionBox";
+import { DeathPanel } from "../death/DeathPanel";
 import { Panel } from "../ui/Panel";
-import type { Boss, BossParty, Character, HuntArea, Quest } from "../../shared/types";
+import type { Boss, BossParty, Character, GuildBestiaryState, HuntArea, Quest } from "../../shared/types";
 
 interface ActionPanelProps {
   selectedCharacter: Character;
@@ -11,12 +12,14 @@ interface ActionPanelProps {
   quests: Quest[];
   bosses: Boss[];
   bossParty: BossParty;
+  bestiary?: GuildBestiaryState;
   onCancelAction: () => void;
   onFinishTravel: () => void;
   onFinishHunt: () => void;
   onFinishTraining: () => void;
   onFinishQuest: (quest: Quest) => void;
   onFinishBoss: () => void;
+  onReviveCharacter: () => void;
   onChangeTab: (tab: "hunts" | "quests" | "bosses" | "training") => void;
 }
 
@@ -27,12 +30,14 @@ export function ActionPanel({
   quests,
   bosses,
   bossParty,
+  bestiary,
   onCancelAction,
   onFinishTravel,
   onFinishHunt,
   onFinishTraining,
   onFinishQuest,
   onFinishBoss,
+  onReviveCharacter,
   onChangeTab,
 }: ActionPanelProps) {
   const action = selectedCharacter.currentAction;
@@ -66,17 +71,22 @@ export function ActionPanel({
       </Panel>
 
       <Panel title="Current Action">
-        <CurrentActionBox
-          character={selectedCharacter}
-          onCancelAction={onCancelAction}
-          onFinishTravel={onFinishTravel}
-        />
+        {selectedCharacter.status === "dead" ? (
+          <DeathPanel character={selectedCharacter} onRevive={onReviveCharacter} />
+        ) : (
+          <CurrentActionBox
+            character={selectedCharacter}
+            onCancelAction={onCancelAction}
+            onFinishTravel={onFinishTravel}
+          />
+        )}
       </Panel>
 
       <Panel title="Action Analyzer">
         <ActionAnalyzer
           bossParty={bossParty}
           bosses={bosses}
+          bestiary={bestiary}
           character={selectedCharacter}
           characters={characters}
           hunts={hunts}
@@ -137,6 +147,12 @@ export function ActionPanel({
           {selectedCharacter.status === "traveling" ? (
             <div className="hunt-action-buttons">
               <button onClick={onFinishTravel} type="button">Finalizar Viagem</button>
+            </div>
+          ) : null}
+
+          {selectedCharacter.status === "dead" ? (
+            <div className="hunt-action-buttons">
+              <button onClick={onReviveCharacter} type="button">Reviver no Templo</button>
             </div>
           ) : null}
         </div>

@@ -13,6 +13,12 @@ import {
   type GameStateSnapshot,
 } from "../database/saveGameRepository";
 import { bosses } from "../data/bosses";
+import { getBlessingById } from "../data/blessings";
+import { addMonsterKillsToBestiary } from "../game-engine/bestiary/addMonsterKillsToBestiary";
+import { assignCharmToMonster } from "../game-engine/bestiary/assignCharmToMonster";
+import { claimBestiaryReward } from "../game-engine/bestiary/claimBestiaryReward";
+import { removeCharmFromMonster } from "../game-engine/bestiary/removeCharmFromMonster";
+import { unlockCharm } from "../game-engine/bestiary/unlockCharm";
 import { mockCharacters } from "../data/mockCharacters";
 import { mockDepot } from "../data/mockDepot";
 import { mockGuild } from "../data/mockGuild";
@@ -27,11 +33,17 @@ import {
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
+import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { moveItemOutOfContainer } from "../game-engine/container/moveItemOutOfContainer";
 import { moveItemToContainer } from "../game-engine/container/moveItemToContainer";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
 import { transferItem } from "../game-engine/inventory/transferItem";
+import { applyImbuement } from "../game-engine/forge/applyImbuement";
+import { findCharacterItem, updateCharacterItem } from "../game-engine/forge/forgeInventoryHelpers";
+import { increaseItemTier } from "../game-engine/forge/increaseItemTier";
+import { upgradeItem } from "../game-engine/forge/upgradeItem";
+import { reviveCharacter } from "../game-engine/death/reviveCharacter";
 import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
 import {
@@ -109,6 +121,8 @@ export function App() {
     | "quests"
     | "bosses"
     | "market"
+    | "bestiary"
+    | "forge"
   >("character");
   const [selectedCharacterId, setSelectedCharacterId] = useState(
     mockCharacters[0].id,
@@ -470,28 +484,34 @@ export function App() {
   }
 
   function handleFinishHunt() {
+    if (selectedCharacter.status !== "hunting" || !selectedCharacter.currentAction?.targetId) {
+      prependLog("Hunt blocked", "Nenhuma hunt ativa para finalizar.", "warning");
+      return;
+    }
+
     const activeHunt =
-      selectedCharacter.currentAction?.type === "hunting"
-        ? hunts.find((hunt) => hunt.id === selectedCharacter.currentAction?.targetId)
-        : selectedHunt;
+      hunts.find((hunt) => hunt.id === selectedCharacter.currentAction?.targetId);
 
     if (!activeHunt) return;
 
-    const activeDuration =
-      selectedCharacter.currentAction?.type === "hunting"
-        ? selectedCharacter.currentAction.durationMinutes ?? durationMinutes
-        : durationMinutes;
+    const activeDuration = selectedCharacter.currentAction.durationMinutes ?? durationMinutes;
 
     const { character, result } = finishHunt(
       selectedCharacter,
       activeHunt,
       activeDuration,
+      guild.gold,
+      guild.bestiary,
     );
+    const bestiaryUpdate = addMonsterKillsToBestiary(guild.bestiary, result.monsterKills ?? []);
+    result.bestiaryLogs = bestiaryUpdate.logs;
+    result.logs = [...result.logs, ...bestiaryUpdate.logs];
 
     updateSelectedCharacter(character);
     setGuild((currentGuild) => ({
       ...currentGuild,
       gold: Math.max(0, currentGuild.gold + result.netProfit),
+      bestiary: bestiaryUpdate.bestiary,
     }));
     setLastHuntResult({
       characterName: selectedCharacter.name,
@@ -519,6 +539,176 @@ export function App() {
         "success",
       );
     }
+  }
+
+  function handleReviveSelectedCharacter() {
+    try {
+      const revived = reviveCharacter(selectedCharacter);
+      updateSelectedCharacter(revived);
+      prependLog(
+        "Temple revival",
+        `${revived.name} foi revivido em ${revived.city} e esta disponivel.`,
+        "success",
+      );
+    } catch (error) {
+      prependLog(
+        "Temple",
+        error instanceof Error ? error.message : "Aguardando recuperacao no templo.",
+        "warning",
+      );
+    }
+  }
+
+  function handleBuyBlessing(blessingId: string) {
+    const blessing = getBlessingById(blessingId);
+
+    if (!blessing) {
+      prependLog("Temple Services", "Bless nao encontrada.", "warning");
+      return;
+    }
+
+    if (selectedCharacter.status === "dead") {
+      prependLog("Temple Services", "Personagem morto. Reviva no templo antes de receber bless.", "warning");
+      return;
+    }
+
+    if ((selectedCharacter.blessings ?? []).length > 0) {
+      prependLog("Temple Services", `${selectedCharacter.name} ja possui uma bless ativa.`, "warning");
+      return;
+    }
+
+    if (guild.gold < blessing.price) {
+      prependLog("Temple Services", `Gold insuficiente para ${blessing.name}.`, "warning");
+      return;
+    }
+
+    updateSelectedCharacter({
+      ...selectedCharacter,
+      blessings: [blessing.id],
+    });
+    setGuild((currentGuild) => ({
+      ...currentGuild,
+      gold: currentGuild.gold - blessing.price,
+    }));
+    prependLog(
+      "Temple Services",
+      `${selectedCharacter.name} recebeu ${blessing.name}. Gold da guilda reduzido em ${blessing.price.toLocaleString("en-US")}.`,
+      "success",
+    );
+  }
+
+  function handleClaimBestiaryReward(monsterId: string) {
+    try {
+      const result = claimBestiaryReward(guild.bestiary, monsterId);
+      setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Bestiary", message, "success");
+      }
+    } catch (error) {
+      prependLog("Bestiary", error instanceof Error ? error.message : "Reward blocked.", "warning");
+    }
+  }
+
+  function handleUnlockCharm(charmId: string) {
+    try {
+      const result = unlockCharm(guild.bestiary, charmId);
+      setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Charms", message, "success");
+      }
+    } catch (error) {
+      prependLog("Charms", error instanceof Error ? error.message : "Charm blocked.", "warning");
+    }
+  }
+
+  function handleAssignCharm(charmId: string, monsterId: string) {
+    try {
+      const result = assignCharmToMonster(guild.bestiary, charmId, monsterId);
+      setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Charms", message, "success");
+      }
+    } catch (error) {
+      prependLog("Charms", error instanceof Error ? error.message : "Assign blocked.", "warning");
+    }
+  }
+
+  function handleRemoveCharm(monsterId: string) {
+    try {
+      const result = removeCharmFromMonster(guild.bestiary, monsterId);
+      setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Charms", message, "neutral");
+      }
+    } catch (error) {
+      prependLog("Charms", error instanceof Error ? error.message : "Remove blocked.", "warning");
+    }
+  }
+
+  function handleUpgradeForgeItem(inventoryItem: InventoryItem) {
+    const target = findCharacterItem(selectedCharacter, inventoryItem.id);
+    if (!target) return;
+
+    try {
+      const result = upgradeItem(selectedCharacter, guild, depot, target.item);
+      updateSelectedCharacter(result.character);
+      setGuild(result.guild);
+      setDepot(result.guildDepot);
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Forge", message, "success");
+      }
+    } catch (error) {
+      prependLog("Forge failed", error instanceof Error ? error.message : "Upgrade blocked.", "warning");
+    }
+  }
+
+  function handleIncreaseForgeTier(inventoryItem: InventoryItem) {
+    const target = findCharacterItem(selectedCharacter, inventoryItem.id);
+    if (!target) return;
+
+    try {
+      const result = increaseItemTier(selectedCharacter, guild, depot, target.item);
+      updateSelectedCharacter(result.character);
+      setGuild(result.guild);
+      setDepot(result.guildDepot);
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Forge", message, "success");
+      }
+    } catch (error) {
+      prependLog("Forge failed", error instanceof Error ? error.message : "Tier blocked.", "warning");
+    }
+  }
+
+  function handleApplyForgeImbuement(inventoryItem: InventoryItem, imbuementId: string) {
+    const target = findCharacterItem(selectedCharacter, inventoryItem.id);
+    if (!target) return;
+
+    try {
+      const result = applyImbuement(selectedCharacter, guild, depot, target.item, target.slot, imbuementId);
+      updateSelectedCharacter(result.character);
+      setGuild(result.guild);
+      setDepot(result.guildDepot);
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Forge", message, "success");
+      }
+    } catch (error) {
+      prependLog("Forge failed", error instanceof Error ? error.message : "Imbuement blocked.", "warning");
+    }
+  }
+
+  function handleRemoveForgeImbuements(inventoryItem: InventoryItem) {
+    const updatedCharacter = updateCharacterItem(
+      selectedCharacter,
+      inventoryItem.id,
+      (item) => ({ ...item, imbuements: [] }),
+    );
+    const attributes = calculateCharacterAttributes(updatedCharacter);
+    updateSelectedCharacter({
+      ...updatedCharacter,
+      attributes,
+      capacityMax: attributes.capacity,
+    });
+    prependLog("Forge", `${inventoryItem.item.name} teve seus imbuements removidos.`, "neutral");
   }
 
   function handleSendToDepot(inventoryItem: InventoryItem) {
@@ -949,15 +1139,15 @@ export function App() {
 
   function handleFinishQuest(quest: Quest) {
     try {
-      const result = finishQuest(selectedCharacter, quest);
+      const result = finishQuest(selectedCharacter, quest, guild.gold);
       updateSelectedCharacter(result.character);
       setLastQuestResult(result.result);
 
-      if (result.guildRenownGained > 0 || result.goldGained > 0) {
+      if (result.guildRenownGained > 0 || result.goldGained > 0 || result.guildGoldLost > 0) {
         setGuild((currentGuild) => ({
           ...currentGuild,
           renown: currentGuild.renown + result.guildRenownGained,
-          gold: currentGuild.gold + result.goldGained,
+          gold: Math.max(0, currentGuild.gold + result.goldGained - result.guildGoldLost),
         }));
       }
 
@@ -1015,16 +1205,17 @@ export function App() {
       depot,
       activeBossContext.boss,
       activeBossContext.party,
+      guild.gold,
     );
     setCharacters(result.characters);
     setDepot(result.depot);
     setLastBossResult(result.result);
 
-    if (result.guildRenownGained > 0 || result.result.goldGained > 0) {
+    if (result.guildRenownGained > 0 || result.result.goldGained > 0 || result.guildGoldLost > 0) {
       setGuild((currentGuild) => ({
         ...currentGuild,
         renown: currentGuild.renown + result.guildRenownGained,
-        gold: currentGuild.gold + result.result.goldGained,
+        gold: Math.max(0, currentGuild.gold + result.result.goldGained - result.guildGoldLost),
       }));
     }
 
@@ -1106,6 +1297,9 @@ export function App() {
           lastQuestResult={lastQuestResult}
           lastTrainingResult={lastTrainingResult}
           onCancelBoss={handleCancelBoss}
+          onAssignCharm={handleAssignCharm}
+          onBuyBlessing={handleBuyBlessing}
+          onClaimBestiaryReward={handleClaimBestiaryReward}
           onChangeTab={setActiveTab}
           onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
@@ -1115,6 +1309,10 @@ export function App() {
           onFinishHunt={handleFinishHunt}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
+          onApplyForgeImbuement={handleApplyForgeImbuement}
+          onReviveCharacter={handleReviveSelectedCharacter}
+          onRemoveCharm={handleRemoveCharm}
+          onRemoveForgeImbuements={handleRemoveForgeImbuements}
           onSelectBoss={handleSelectBoss}
           onSelectHunt={setSelectedHunt}
           onEquipItem={handleEquipItem}
@@ -1131,9 +1329,12 @@ export function App() {
           onStartHunt={handleStartHunt}
           onStartQuest={handleStartQuest}
           onStartTraining={handleStartTraining}
+          onIncreaseForgeTier={handleIncreaseForgeTier}
           onFinishTraining={handleFinishTraining}
           onToggleBossPartyMember={handleToggleBossPartyMember}
           onToggleMarketItemLock={handleToggleMarketItemLock}
+          onUnlockCharm={handleUnlockCharm}
+          onUpgradeForgeItem={handleUpgradeForgeItem}
           onUnequipItem={handleUnequipItem}
           guild={guild}
           selectedBoss={selectedBoss}

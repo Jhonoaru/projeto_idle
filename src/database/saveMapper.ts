@@ -1,5 +1,6 @@
 import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
+import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import type {
   ActivityLogEntry,
   Character,
@@ -20,6 +21,7 @@ export interface GuildRow {
   renown: number;
   rank: string;
   level: number;
+  bestiary_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -41,6 +43,9 @@ export interface CharacterRow {
   access_ids_json: string;
   quest_progress_json: string;
   boss_cooldowns_json: string;
+  death_state_json?: string | null;
+  blessings_json?: string | null;
+  death_count?: number | null;
   created_at: string;
 }
 
@@ -62,6 +67,9 @@ export interface InventoryRow {
   location: InventoryItem["location"];
   equipment_slot: EquipmentSlot | null;
   parent_container_id: string | null;
+  upgrade_level?: number | null;
+  tier?: number | null;
+  imbuements_json?: string | null;
 }
 
 export interface LogRow {
@@ -80,6 +88,9 @@ export function mapGuild(row: GuildRow): Guild {
     renown: row.renown,
     rank: row.rank,
     level: row.level,
+    bestiary: normalizeBestiaryState(
+      row.bestiary_json ? parseJson(row.bestiary_json, undefined) : undefined,
+    ),
   };
 }
 
@@ -133,6 +144,11 @@ export function mapCharacter(
     currentAction: row.current_action_json
       ? parseJson(row.current_action_json, undefined)
       : undefined,
+    deathState: row.death_state_json
+      ? parseJson(row.death_state_json, undefined)
+      : undefined,
+    blessings: parseJson(row.blessings_json ?? "[]", []),
+    deathCount: row.death_count ?? 0,
     createdAt: row.created_at,
   };
 }
@@ -147,6 +163,9 @@ export function mapInventoryItem(row: InventoryRow): InventoryItem {
     parentContainerId: row.parent_container_id,
     locked: Boolean(row.locked),
     location: row.location,
+    upgradeLevel: row.upgrade_level ?? 0,
+    tier: row.tier ?? 0,
+    imbuements: parseJson(row.imbuements_json ?? "[]", []),
   };
 }
 

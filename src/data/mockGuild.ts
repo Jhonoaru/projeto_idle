@@ -7,4 +7,10 @@ export const mockGuild: Guild = {
   renown: 12,
   rank: "E",
   level: 1,
+  bestiary: {
+    progress: [],
+    charmPoints: 0,
+    unlockedCharmIds: [],
+    activeCharms: [],
+  },
 };

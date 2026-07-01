@@ -15,11 +15,12 @@ export function simulateHunt({
   character,
   hunt,
   durationMinutes,
+  deathRiskMultiplier = 1,
 }: HuntSimulationInput): HuntSimulationResult {
   const seed = `${character.id}-${hunt.id}-${durationMinutes}-${character.experience}`;
   const random = createSeededRandom(seed);
   const risk = calculateHuntRisk(character, hunt);
-  const died = random() < risk.deathChance;
+  const died = random() < risk.deathChance * deathRiskMultiplier;
   const effectiveDuration = died
     ? Math.max(5, Math.round(durationMinutes * (0.25 + random() * 0.45)))
     : durationMinutes;
@@ -43,6 +44,11 @@ export function simulateHunt({
     (sum, entry) => sum + entry.kills,
     0,
   );
+  const monsterKills = killedMonstersByType.map((entry) => ({
+    monsterId: entry.monster.id,
+    monsterName: entry.monster.name,
+    kills: entry.kills,
+  }));
 
   const experienceGained = Math.round(
     killedMonstersByType.reduce(
@@ -105,6 +111,7 @@ export function simulateHunt({
     died,
     durationMinutes: effectiveDuration,
     killedMonsters,
+    monsterKills,
     experienceGained,
     goldGained: totalGoldGained,
     lootItems,

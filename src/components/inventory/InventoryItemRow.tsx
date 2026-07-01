@@ -1,4 +1,5 @@
 import type { InventoryItem } from "../../shared/types";
+import { getImbuementById } from "../../data/imbuements";
 
 interface InventoryItemRowProps {
   inventoryItem: InventoryItem;
@@ -33,11 +34,20 @@ export function InventoryItemRow({
   return (
     <article className={`inventory-row rarity-${inventoryItem.item.rarity} ${inventoryItem.locked ? "is-locked" : ""}`.trim()}>
       <div>
-        <h3>{inventoryItem.item.name}</h3>
+        <h3>{formatEnhancedName(inventoryItem)}</h3>
         <p>
           {inventoryItem.item.type} / {inventoryItem.item.rarity}
           {inventoryItem.locked ? " / Travado" : ""}
+          {inventoryItem.imbuements?.length ? ` / ${inventoryItem.imbuements.length} imbuement(s)` : ""}
         </p>
+        {inventoryItem.imbuements?.length ? (
+          <p>
+            {inventoryItem.imbuements.map((active) => {
+              const definition = getImbuementById(active.imbuementId);
+              return `${definition?.name ?? active.imbuementId}: ${active.remainingHunts ?? 0} hunts`;
+            }).join(" / ")}
+          </p>
+        ) : null}
       </div>
       <div className="inventory-numbers">
         <span>x{inventoryItem.quantity}</span>
@@ -87,4 +97,10 @@ export function InventoryItemRow({
       </div>
     </article>
   );
+}
+
+function formatEnhancedName(inventoryItem: InventoryItem) {
+  const upgrade = inventoryItem.upgradeLevel ? ` +${inventoryItem.upgradeLevel}` : "";
+  const tier = inventoryItem.tier ? ` [T${inventoryItem.tier}]` : "";
+  return `${inventoryItem.item.name}${upgrade}${tier}`;
 }

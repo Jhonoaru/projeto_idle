@@ -1,4 +1,5 @@
 import type { EquipmentBonuses, EquippedItems, InventoryItem } from "../../shared/types";
+import { calculateEnhancedItemBonuses } from "../forge/calculateEnhancedItemBonuses";
 
 export function calculateEquipmentBonuses(
   equipment: EquippedItems = {},
@@ -17,16 +18,17 @@ export function calculateEquipmentBonuses(
   };
 
   for (const equippedItem of Object.values(equipment).filter(Boolean) as InventoryItem[]) {
-    bonuses.attack += equippedItem.item.attack ?? 0;
-    bonuses.defense += equippedItem.item.defense ?? 0;
-    bonuses.armor += equippedItem.item.armor ?? 0;
-    bonuses.magicPower += equippedItem.item.magicPower ?? 0;
-    bonuses.distancePower += equippedItem.item.distancePower ?? 0;
-    bonuses.fistPower += equippedItem.item.fistPower ?? 0;
-    bonuses.capacityBonus += equippedItem.item.capacityBonus ?? 0;
-    bonuses.healthBonus += equippedItem.item.healthBonus ?? 0;
-    bonuses.manaBonus += equippedItem.item.manaBonus ?? 0;
-    bonuses.speedBonus += equippedItem.item.speedBonus ?? 0;
+    const enhanced = calculateEnhancedItemBonuses(equippedItem);
+    bonuses.attack += enhanced.attack;
+    bonuses.defense += enhanced.defense;
+    bonuses.armor += enhanced.armor;
+    bonuses.magicPower += enhanced.magicPower;
+    bonuses.distancePower += enhanced.distancePower;
+    bonuses.fistPower += enhanced.fistPower;
+    bonuses.capacityBonus += enhanced.capacityBonus;
+    bonuses.healthBonus += enhanced.healthBonus;
+    bonuses.manaBonus += enhanced.manaBonus;
+    bonuses.speedBonus += enhanced.speedBonus;
   }
 
   return bonuses;

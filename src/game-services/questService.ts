@@ -2,6 +2,7 @@ import { canStartQuest } from "../game-engine/quest/canStartQuest";
 import { calculateQuestRisk } from "../game-engine/quest/calculateQuestRisk";
 import { completeQuest } from "../game-engine/quest/completeQuest";
 import { createSeededRandom } from "../game-engine/hunt/random";
+import { applyDeathPenalty } from "../game-engine/death/applyDeathPenalty";
 import { formatClock } from "../shared/time";
 import type { Character, Quest } from "../shared/types";
 
@@ -35,6 +36,9 @@ export function startQuest(character: Character, quest: Quest) {
         durationMinutes: quest.totalDurationMinutes,
         targetId: quest.id,
         targetName: quest.name,
+        risk: quest.risk,
+        expectedXp: quest.rewards.experience,
+        expectedGold: quest.rewards.gold,
       },
       questProgress: [
         ...character.questProgress.filter((entry) => entry.questId !== quest.id),
@@ -48,7 +52,7 @@ export function startQuest(character: Character, quest: Quest) {
   };
 }
 
-export function finishQuest(character: Character, quest: Quest) {
+export function finishQuest(character: Character, quest: Quest, guildGold = 0) {
   if (character.status !== "questing" || character.currentAction?.targetId !== quest.id) {
     throw new Error(`${character.name} nao esta fazendo ${quest.name}.`);
   }
@@ -59,20 +63,29 @@ export function finishQuest(character: Character, quest: Quest) {
   const failed = died || random() < risk.failChance;
 
   if (died) {
-    return {
+    const death = applyDeathPenalty({
       character: {
         ...character,
-        status: "dead" as const,
-        currentAction: undefined,
         questProgress: markQuest(character, quest.id, "failed"),
       },
+      guildGold,
+      risk: quest.risk,
+      cause: "quest",
+      sourceId: quest.id,
+      sourceName: quest.name,
+      city: character.city,
+    });
+
+    return {
+      character: death.character,
       guildRenownGained: 0,
       goldGained: 0,
+      guildGoldLost: death.goldLost,
       result: {
         success: false,
         died: true,
         accessUnlocked: undefined,
-        logs: [`${character.name} morreu durante ${quest.name}.`],
+        logs: death.logs,
       },
     };
   }
@@ -87,6 +100,7 @@ export function finishQuest(character: Character, quest: Quest) {
       },
       guildRenownGained: 0,
       goldGained: 0,
+      guildGoldLost: 0,
       result: {
         success: false,
         died: false,
@@ -111,6 +125,7 @@ export function finishQuest(character: Character, quest: Quest) {
     character: completed.character,
     guildRenownGained: quest.rewards.renown ?? 0,
     goldGained: quest.rewards.gold ?? 0,
+    guildGoldLost: 0,
     result: {
       success: true,
       died: false,

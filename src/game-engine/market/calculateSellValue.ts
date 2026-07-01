@@ -1,4 +1,4 @@
-import type { Item, MarketPriceMode } from "../../shared/types";
+import type { InventoryItem, Item, MarketPriceMode } from "../../shared/types";
 
 export function calculateSellValue(
   item: Item,
@@ -11,6 +11,20 @@ export function calculateSellValue(
   return {
     unitValue,
     totalValue: unitValue * quantity,
+  };
+}
+
+export function calculateInventoryItemSellValue(
+  inventoryItem: InventoryItem,
+  mode: MarketPriceMode = "npc_fixed",
+) {
+  const base = calculateSellValue(inventoryItem.item, inventoryItem.quantity, mode);
+  const multiplier = 1 + (inventoryItem.upgradeLevel ?? 0) * 0.05 + (inventoryItem.tier ?? 0) * 0.2;
+  const unitValue = Math.max(0, Math.round(base.unitValue * multiplier));
+
+  return {
+    unitValue,
+    totalValue: unitValue * inventoryItem.quantity,
   };
 }
 

@@ -9,6 +9,7 @@ const createStatements = [
     renown INTEGER NOT NULL,
     rank TEXT NOT NULL,
     level INTEGER NOT NULL,
+    bestiary_json TEXT NOT NULL DEFAULT '{"progress":[],"charmPoints":0,"unlockedCharmIds":[],"activeCharms":[]}',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
@@ -32,6 +33,9 @@ const createStatements = [
     access_ids_json TEXT NOT NULL,
     quest_progress_json TEXT NOT NULL,
     boss_cooldowns_json TEXT NOT NULL,
+    death_state_json TEXT,
+    blessings_json TEXT NOT NULL DEFAULT '[]',
+    death_count INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
@@ -55,6 +59,9 @@ const createStatements = [
     location TEXT NOT NULL,
     equipment_slot TEXT,
     parent_container_id TEXT,
+    upgrade_level INTEGER NOT NULL DEFAULT 0,
+    tier INTEGER NOT NULL DEFAULT 0,
+    imbuements_json TEXT NOT NULL DEFAULT '[]',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
@@ -83,6 +90,20 @@ export async function runMigrations(db: Database) {
     await db.execute(statement);
   }
 
+  await addColumnIfMissing(
+    db,
+    "guilds",
+    "bestiary_json",
+    "TEXT NOT NULL DEFAULT '{\"progress\":[],\"charmPoints\":0,\"unlockedCharmIds\":[],\"activeCharms\":[]}'",
+  );
+
+  await addColumnIfMissing(db, "characters", "death_state_json", "TEXT");
+  await addColumnIfMissing(db, "characters", "blessings_json", "TEXT NOT NULL DEFAULT '[]'");
+  await addColumnIfMissing(db, "characters", "death_count", "INTEGER NOT NULL DEFAULT 0");
+  await addColumnIfMissing(db, "inventory_items", "upgrade_level", "INTEGER NOT NULL DEFAULT 0");
+  await addColumnIfMissing(db, "inventory_items", "tier", "INTEGER NOT NULL DEFAULT 0");
+  await addColumnIfMissing(db, "inventory_items", "imbuements_json", "TEXT NOT NULL DEFAULT '[]'");
+
   await db.execute(
     `INSERT OR IGNORE INTO save_metadata (
       id,
@@ -93,4 +114,17 @@ export async function runMigrations(db: Database) {
     ) VALUES ($1, $2, $3, $4, $5)`,
     [PRIMARY_METADATA_ID, SAVE_VERSION, new Date().toISOString(), 0, null],
   );
+}
+
+async function addColumnIfMissing(
+  db: Database,
+  tableName: string,
+  columnName: string,
+  definition: string,
+) {
+  const columns = await db.select<Array<{ name: string }>>(`PRAGMA table_info(${tableName})`);
+
+  if (columns.some((column) => column.name === columnName)) return;
+
+  await db.execute(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${definition}`);
 }

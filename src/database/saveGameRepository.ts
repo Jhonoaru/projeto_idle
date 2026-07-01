@@ -1,4 +1,5 @@
 import type Database from "@tauri-apps/plugin-sql";
+import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { mockCharacters } from "../data/mockCharacters";
 import { mockDepot } from "../data/mockDepot";
 import { mockGuild } from "../data/mockGuild";
@@ -119,10 +120,21 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       renown,
       rank,
       level,
+      bestiary_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-    [guild.id, guild.name, guild.gold, guild.renown, guild.rank, guild.level, now, now],
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [
+      guild.id,
+      guild.name,
+      guild.gold,
+      guild.renown,
+      guild.rank,
+      guild.level,
+      JSON.stringify(normalizeBestiaryState(guild.bestiary)),
+      now,
+      now,
+    ],
   );
 }
 
@@ -153,9 +165,12 @@ async function saveCharacter(
       access_ids_json,
       quest_progress_json,
       boss_cooldowns_json,
+      death_state_json,
+      blessings_json,
+      death_count,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`,
     [
       character.id,
       guildId,
@@ -176,6 +191,9 @@ async function saveCharacter(
       JSON.stringify(character.accessIds),
       JSON.stringify(character.questProgress),
       JSON.stringify(character.bossCooldowns),
+      stringifyNullable(character.deathState),
+      JSON.stringify(character.blessings ?? []),
+      character.deathCount ?? 0,
       character.createdAt,
       now,
     ],
@@ -273,9 +291,12 @@ async function saveInventoryItem(
       location,
       equipment_slot,
       parent_container_id,
+      upgrade_level,
+      tier,
+      imbuements_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
     [
       inventoryItem.id,
       options.ownerType,
@@ -287,6 +308,9 @@ async function saveInventoryItem(
       inventoryItem.location,
       options.equipmentSlot,
       inventoryItem.parentContainerId ?? null,
+      inventoryItem.upgradeLevel ?? 0,
+      inventoryItem.tier ?? 0,
+      JSON.stringify(inventoryItem.imbuements ?? []),
       options.now,
       options.now,
     ],

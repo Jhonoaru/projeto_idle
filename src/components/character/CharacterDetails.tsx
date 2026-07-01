@@ -1,16 +1,19 @@
+import { useEffect, useState } from "react";
 import { Panel } from "../ui/Panel";
 import { StatBox } from "../ui/StatBox";
 import type { Character } from "../../shared/types";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
-import { experienceForLevel } from "../../game-engine/progression/experienceTable";
+import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { getAccessName } from "../../data/accesses";
+import { getBlessingById } from "../../data/blessings";
 
 interface CharacterDetailsProps {
   character: Character;
 }
 
 export function CharacterDetails({ character }: CharacterDetailsProps) {
+  const [, setTick] = useState(0);
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
   const bonusSummary = [
     equipmentBonuses.attack ? `Atk +${equipmentBonuses.attack}` : undefined,
@@ -21,14 +24,17 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
     equipmentBonuses.fistPower ? `Fist +${equipmentBonuses.fistPower}` : undefined,
     equipmentBonuses.capacityBonus ? `Cap +${equipmentBonuses.capacityBonus}` : undefined,
   ].filter(Boolean);
-  const currentLevelXp = experienceForLevel(character.level);
-  const nextLevelXp = experienceForLevel(character.level + 1);
-  const rawLevelProgress =
-    nextLevelXp > currentLevelXp
-      ? ((character.experience - currentLevelXp) / (nextLevelXp - currentLevelXp)) *
-        100
-      : 0;
-  const levelProgress = Math.min(100, Math.max(0, Math.round(rawLevelProgress)));
+  useEffect(() => {
+    if (!character.currentAction?.expectedXp) return undefined;
+
+    const interval = window.setInterval(() => setTick((current) => current + 1), 1000);
+
+    return () => window.clearInterval(interval);
+  }, [character.currentAction]);
+
+  const xpPreview = getEstimatedExperiencePreview(character);
+  const levelProgress = Math.round(xpPreview.levelProgressPercent);
+  const activeBlessing = getBlessingById(character.blessings?.[0]);
 
   return (
     <Panel className="details-panel" title="Selected Adventurer">
@@ -43,18 +49,32 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
         <StatBox
           label="Experience"
           value={character.experience.toLocaleString("en-US")}
-          detail={`${character.experienceToNextLevel.toLocaleString("en-US")} to next`}
+          detail={
+            xpPreview.isEstimated
+              ? `+${xpPreview.estimatedXpGained.toLocaleString("en-US")} estimated`
+              : `${character.experienceToNextLevel.toLocaleString("en-US")} to next`
+          }
         />
       </div>
 
       <div className="level-progress-block">
         <div>
-          <span>Level {character.level}</span>
+          <span>
+            Level {character.level}
+            {xpPreview.isEstimated ? " - progresso estimado" : ""}
+          </span>
           <strong>{levelProgress}%</strong>
         </div>
         <div className="level-progress-track" aria-hidden="true">
           <span style={{ width: `${levelProgress}%` }} />
         </div>
+        {xpPreview.isEstimated ? (
+          <p>
+            XP atual: {character.experience.toLocaleString("en-US")} / XP estimado nesta acao:
+            {" "}+{xpPreview.estimatedXpGained.toLocaleString("en-US")} / Progresso da acao:
+            {" "}{xpPreview.actionProgressPercent}%
+          </p>
+        ) : null}
       </div>
 
       <div className="details-grid">
@@ -78,6 +98,8 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
         />
         <StatBox label="Quests Done" value={character.completedQuestIds.length} />
         <StatBox label="Accesses" value={character.accessIds.length} />
+        <StatBox label="Deaths" value={character.deathCount ?? 0} />
+        <StatBox label="Bless" value={activeBlessing?.name ?? "None"} />
         <StatBox
           label="Last Access"
           value={getAccessName(character.accessIds.at(-1)) ?? "None"}

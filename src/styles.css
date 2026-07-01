@@ -160,6 +160,13 @@ p {
   color: #f1d58c;
 }
 
+.level-progress-block p {
+  margin: 0;
+  color: #aeb7aa;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .level-progress-track {
   height: 9px;
   overflow: hidden;
@@ -598,6 +605,351 @@ p {
   margin-top: 5px;
   color: #e8e2d4;
   font-size: 0.9rem;
+}
+
+.death-panel {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #7e3131;
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(58, 24, 24, 0.72), rgba(19, 15, 14, 0.96)),
+    #151110;
+}
+
+.death-panel-heading span,
+.death-grid span,
+.temple-services-summary span,
+.blessing-row span {
+  display: block;
+  color: #c8aaa4;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.death-panel-heading strong {
+  display: block;
+  margin-top: 4px;
+  color: #ffb4a8;
+  font-size: 1.2rem;
+}
+
+.death-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.death-grid div,
+.temple-services-summary div,
+.blessing-row {
+  min-height: 58px;
+  padding: 9px;
+  border: 1px solid rgba(126, 49, 49, 0.54);
+  border-radius: 6px;
+  background: rgba(14, 13, 12, 0.72);
+}
+
+.death-grid strong,
+.temple-services-summary strong,
+.blessing-row strong {
+  display: block;
+  margin-top: 5px;
+  color: #f1d58c;
+  font-size: 0.9rem;
+}
+
+.death-panel button,
+.blessing-row button {
+  min-height: 34px;
+  border: 1px solid #c9aa62;
+  border-radius: 6px;
+  color: #191711;
+  background: #d8b96a;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.death-panel button:disabled,
+.blessing-row button:disabled {
+  border-color: #4a4334;
+  color: #8f927e;
+  background: #24251f;
+  cursor: not-allowed;
+}
+
+.temple-services {
+  display: grid;
+  gap: 10px;
+}
+
+.temple-services-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.blessing-list {
+  display: grid;
+  gap: 8px;
+}
+
+.blessing-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 10px;
+  align-items: center;
+  border-color: #4f4734;
+  background: #151a17;
+}
+
+.blessing-row span {
+  margin-top: 4px;
+  color: #aeb7aa;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+.bestiary-panel,
+.bestiary-side,
+.charm-panel,
+.bestiary-list {
+  display: grid;
+  gap: 10px;
+}
+
+.bestiary-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.bestiary-summary div,
+.bestiary-details div,
+.bestiary-card,
+.charm-card,
+.charm-bonus-panel {
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.bestiary-summary span,
+.bestiary-details span,
+.bestiary-card span,
+.charm-card span,
+.charm-bonus-panel span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.bestiary-summary strong,
+.bestiary-details strong,
+.bestiary-card strong,
+.charm-card strong,
+.charm-bonus-panel strong {
+  display: block;
+  margin-top: 5px;
+  color: #f1d58c;
+}
+
+.bestiary-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.95fr) minmax(320px, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.bestiary-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bestiary-card.is-selected {
+  border-color: #d8b96a;
+}
+
+.bestiary-card em,
+.charm-card em {
+  display: block;
+  margin-top: 4px;
+  color: #c7cabc;
+  font-size: 0.78rem;
+  font-style: normal;
+}
+
+.bestiary-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bestiary-progress-track {
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid #3e463b;
+  border-radius: 999px;
+  background: #0f1311;
+}
+
+.bestiary-progress-track span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #5f8e68, #d8b96a);
+}
+
+.bestiary-inline-button,
+.charm-card button {
+  min-height: 32px;
+  border: 1px solid #c9aa62;
+  border-radius: 6px;
+  color: #191711;
+  background: #d8b96a;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.charm-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px;
+  gap: 10px;
+  align-items: center;
+}
+
+.charm-card p {
+  margin: 5px 0 0;
+  color: #c7cabc;
+  font-size: 0.82rem;
+}
+
+.charm-card button:disabled {
+  border-color: #4a4334;
+  color: #8f927e;
+  background: #24251f;
+  cursor: not-allowed;
+}
+
+.bestiary-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.charm-bonus-panel {
+  display: grid;
+  gap: 6px;
+}
+
+.charm-bonus-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #c7cabc;
+  font-size: 0.82rem;
+}
+
+.forge-panel,
+.forge-details,
+.forge-item-list {
+  display: grid;
+  gap: 10px;
+}
+
+.forge-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.forge-summary div,
+.forge-action-box,
+.forge-item-header {
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.forge-summary span,
+.forge-action-box span,
+.forge-item-header span,
+.forge-item-list span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.forge-summary strong,
+.forge-action-box strong,
+.forge-item-header strong,
+.forge-item-list strong {
+  display: block;
+  margin-top: 5px;
+  color: #f1d58c;
+}
+
+.forge-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.forge-filters button,
+.forge-item-list button,
+.forge-action-box button {
+  min-height: 32px;
+  border: 1px solid #4f4734;
+  border-radius: 6px;
+  color: #e8e2d4;
+  background: #20251f;
+  cursor: pointer;
+}
+
+.forge-filters button.is-selected,
+.forge-item-list button.is-selected {
+  border-color: #d8b96a;
+  color: #f1d58c;
+}
+
+.forge-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(340px, 1.2fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.forge-item-list button {
+  padding: 10px;
+  text-align: left;
+}
+
+.forge-item-header p,
+.forge-action-box p {
+  margin: 6px 0 0;
+  color: #c7cabc;
+  font-size: 0.82rem;
+}
+
+.forge-action-box ul {
+  margin: 8px 0;
+  padding-left: 18px;
+  color: #c7cabc;
+  font-size: 0.82rem;
+}
+
+.forge-action-box button {
+  border-color: #c9aa62;
+  color: #191711;
+  background: #d8b96a;
+  font-weight: 900;
 }
 
 .action-command-button,
