@@ -27,6 +27,7 @@ Atualizado em: 2026-07-01
 - Etapa 18 concluida: Offline Catch-up real com acoes prontas para coletar, traveling automatico e recovery offline reportado.
 - Etapa 18.5 concluida: QA do Offline Catch-up, blindagem contra duplicacao de coleta e save/load parcial.
 - Etapa 19 concluida: auto-repeat opcional de hunts com limites, regras de parada e integracao conservadora com offline catch-up.
+- Etapa 19.5 concluida: QA do Auto-repeat, normalizacao de configs antigas e ajustes de UI/duplicacao.
 
 Comandos principais:
 
@@ -676,6 +677,50 @@ Proximos passos sugeridos:
 - QA 19.5 focado em supplies/capacity/death/save-load do auto-repeat.
 - Integrar auto-prepare entre runs usando presets apenas depois de testes de duplicacao.
 - Criar testes unitarios para `canContinueAutoRepeat` e `resolveAutoRepeatAfterHunt`.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+## Etapa 19.5 - QA do Auto-repeat, Supplies, Offline e Duplicacao
+
+Status: concluida.
+
+Bugs/riscos encontrados:
+
+- Configs antigas ou corrompidas com `completedRepeats`, `maxRepeats`, stamina/capacity invalidos podiam gerar `NaN` e baguncar a contagem/paradas.
+- `mode` invalido vindo de save antigo nao era tratado explicitamente.
+- O botao de parar auto-repeat no painel Hunts podia aparecer para uma hunt selecionada diferente da hunt atual do personagem.
+
+Correcoes aplicadas:
+
+- `maxRepeats` e `completedRepeats` agora sao normalizados no engine de auto-repeat.
+- Stamina/capacity thresholds invalidos sao ignorados em vez de quebrar comparacoes.
+- `mode` invalido para o auto-repeat para o ciclo com motivo controlado.
+- O painel Hunts so mostra auto-repeat ativo/parar quando a hunt selecionada e a hunt atual do personagem.
+- Revisado o fluxo de repeat_count: 3 runs executam exatamente 3 coletas, sem quarta run.
+
+Testes/revisoes realizados:
+
+- Hunt normal sem auto-repeat revisada para continuar sem iniciar nova run.
+- Repeat count revisado contra off-by-one.
+- Paradas por supplies, capacity, stamina, morte e limite revisadas no engine.
+- Offline catch-up com auto-repeat revisado: continua marcando apenas a hunt atual como pronta para coletar.
+- Duplo clique segue protegido pela trava de resolucao criada na Etapa 18.5.
+
+Limites mantidos:
+
+- Sem auto-repeat para quest, boss ou treino.
+- Sem auto-venda, auto-deposit ou auto-compra infinita.
+- Sem multiplas runs aplicadas automaticamente offline.
+- Sem fila complexa de acoes.
+- `autoPrepareBetweenRuns` segue desativado por padrao.
+
+Proximos passos sugeridos:
+
+- Criar testes automatizados para `canContinueAutoRepeat` cobrindo configs invalidas.
+- QA visual no app com saves reais para repetir os testes manuais obrigatorios.
+- Implementar auto-prepare entre runs apenas depois de uma etapa dedicada de seguranca.
 
 Validacao:
 

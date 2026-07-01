@@ -25,6 +25,10 @@ export function canContinueAutoRepeat(
     return { canContinue: false, reason: "invalid_hunt", message: "Auto-repeat stopped: invalid hunt." };
   }
 
+  if (!["repeat_count", "until_supplies_end", "until_capacity_full", "until_death_or_stop"].includes(config.mode)) {
+    return { canContinue: false, reason: "invalid_hunt", message: "Auto-repeat stopped: invalid mode." };
+  }
+
   if (character.status === "dead") {
     return { canContinue: false, reason: "character_dead", message: `Auto-repeat stopped: ${character.name} died.` };
   }
@@ -34,7 +38,7 @@ export function canContinueAutoRepeat(
   }
 
   const maxRepeats = clampMaxRepeats(config.maxRepeats);
-  const completedRepeats = Math.max(0, config.completedRepeats);
+  const completedRepeats = normalizeCompletedRepeats(config.completedRepeats);
   const effectiveCap = config.mode === "repeat_count" ? maxRepeats : MAX_AUTO_REPEAT_RUNS;
   if (completedRepeats >= effectiveCap) {
     return {
@@ -44,14 +48,12 @@ export function canContinueAutoRepeat(
     };
   }
 
-  if (
-    config.stopIfStaminaBelowHours !== undefined &&
-    character.staminaHours < config.stopIfStaminaBelowHours
-  ) {
+  const staminaLimit = normalizeOptionalNumber(config.stopIfStaminaBelowHours);
+  if (staminaLimit !== undefined && character.staminaHours < staminaLimit) {
     return { canContinue: false, reason: "stamina_low", message: "Auto-repeat stopped: stamina too low." };
   }
 
-  const capacityLimit = config.stopIfCapacityAbovePercent;
+  const capacityLimit = normalizeOptionalNumber(config.stopIfCapacityAbovePercent);
   if (capacityLimit !== undefined && character.capacityMax > 0) {
     const usedPercent = (character.capacityUsed / character.capacityMax) * 100;
     if (usedPercent >= capacityLimit) {
@@ -81,6 +83,17 @@ export function canContinueAutoRepeat(
 }
 
 export function clampMaxRepeats(maxRepeats?: number) {
-  return Math.min(MAX_AUTO_REPEAT_RUNS, Math.max(1, Math.floor(maxRepeats ?? 3)));
+  const normalized = Number.isFinite(maxRepeats) ? Math.floor(maxRepeats as number) : 3;
+  return Math.min(MAX_AUTO_REPEAT_RUNS, Math.max(1, normalized));
 }
 
+export function normalizeCompletedRepeats(completedRepeats?: number) {
+  const normalized = Number.isFinite(completedRepeats)
+    ? Math.floor(completedRepeats as number)
+    : 0;
+  return Math.max(0, normalized);
+}
+
+function normalizeOptionalNumber(value?: number) {
+  return Number.isFinite(value) ? value : undefined;
+}

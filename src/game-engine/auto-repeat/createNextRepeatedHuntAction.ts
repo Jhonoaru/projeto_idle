@@ -1,5 +1,5 @@
 import { formatClock } from "../../shared/time";
-import { clampMaxRepeats } from "./canContinueAutoRepeat";
+import { clampMaxRepeats, normalizeCompletedRepeats } from "./canContinueAutoRepeat";
 import { MAX_AUTO_REPEAT_RUNS } from "./constants";
 import type { Character, HuntArea, HuntAutoRepeatConfig } from "../../shared/types";
 
@@ -11,7 +11,7 @@ export function createNextRepeatedHuntAction(
 ): Character {
   const now = new Date();
   const endsAt = new Date(now.getTime() + durationMinutes * 60_000);
-  const completedRepeats = Math.max(0, config.completedRepeats);
+  const completedRepeats = normalizeCompletedRepeats(config.completedRepeats);
   const maxRepeats = clampMaxRepeats(config.maxRepeats);
   const displayMaxRepeats = config.mode === "repeat_count" ? maxRepeats : MAX_AUTO_REPEAT_RUNS;
   const repeatIndex = completedRepeats + 1;

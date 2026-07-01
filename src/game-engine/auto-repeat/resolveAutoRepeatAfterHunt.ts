@@ -1,4 +1,4 @@
-import { canContinueAutoRepeat } from "./canContinueAutoRepeat";
+import { canContinueAutoRepeat, normalizeCompletedRepeats } from "./canContinueAutoRepeat";
 import { createNextRepeatedHuntAction } from "./createNextRepeatedHuntAction";
 import type {
   AutoRepeatSummary,
@@ -34,7 +34,7 @@ export function resolveAutoRepeatAfterHunt({
 
   const completedConfig = {
     ...previousConfig,
-    completedRepeats: Math.max(0, previousConfig.completedRepeats) + 1,
+    completedRepeats: normalizeCompletedRepeats(previousConfig.completedRepeats) + 1,
     updatedAt: new Date().toISOString(),
   };
   const validation = canContinueAutoRepeat(character, hunt, guild, depot, completedConfig, durationMinutes);
@@ -65,4 +65,3 @@ export function resolveAutoRepeatAfterHunt({
     },
   };
 }
-

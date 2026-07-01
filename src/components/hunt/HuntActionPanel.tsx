@@ -102,7 +102,8 @@ export function HuntActionPanel({
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, selectedHunt);
   const canStartHunt = character.status === "idle" && hasAccess && supplyCheck.hasRequiredSupplies;
   const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess);
-  const activeAutoRepeat = character.currentAction?.autoRepeat?.enabled === true;
+  const activeAutoRepeat =
+    isHuntingSelectedArea && character.currentAction?.autoRepeat?.enabled === true;
 
   return (
     <Panel title="Hunt Assignment">
