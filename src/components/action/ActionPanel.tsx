@@ -20,6 +20,7 @@ interface ActionPanelProps {
   onFinishQuest: (quest: Quest) => void;
   onFinishBoss: () => void;
   onReviveCharacter: () => void;
+  onStopHuntAutoRepeat: () => void;
   onChangeTab: (tab: "hunts" | "quests" | "bosses" | "training") => void;
 }
 
@@ -38,6 +39,7 @@ export function ActionPanel({
   onFinishQuest,
   onFinishBoss,
   onReviveCharacter,
+  onStopHuntAutoRepeat,
   onChangeTab,
 }: ActionPanelProps) {
   const action = selectedCharacter.currentAction;
@@ -114,6 +116,7 @@ export function ActionPanel({
               finishLabel={isReadyToResolve ? "Coletar resultado da Hunt" : "Finalizar Simulacao"}
               onCancel={onCancelAction}
               onFinish={onFinishHunt}
+              onStopAutoRepeat={action?.autoRepeat?.enabled ? onStopHuntAutoRepeat : undefined}
               showCancel={!isReadyToResolve}
             />
           ) : null}
@@ -170,16 +173,19 @@ function ActionButtons({
   finishLabel,
   onFinish,
   onCancel,
+  onStopAutoRepeat,
   showCancel = true,
 }: {
   finishLabel: string;
   onFinish: () => void;
   onCancel: () => void;
+  onStopAutoRepeat?: () => void;
   showCancel?: boolean;
 }) {
   return (
     <div className="hunt-action-buttons">
       <button onClick={onFinish} type="button">{finishLabel}</button>
+      {onStopAutoRepeat ? <button onClick={onStopAutoRepeat} type="button">Parar Auto-repeat</button> : null}
       {showCancel ? <button onClick={onCancel} type="button">Cancelar e Retornar</button> : null}
     </div>
   );

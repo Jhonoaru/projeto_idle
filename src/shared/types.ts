@@ -54,6 +54,23 @@ export type EquipmentTier = number;
 
 export type ImbuementPowerLevel = "basic" | "intricate" | "powerful";
 
+export type HuntAutoRepeatMode =
+  | "off"
+  | "repeat_count"
+  | "until_supplies_end"
+  | "until_capacity_full"
+  | "until_death_or_stop";
+
+export type AutoRepeatStopReason =
+  | "completed_max_repeats"
+  | "missing_supplies"
+  | "capacity_full"
+  | "stamina_low"
+  | "character_dead"
+  | "invalid_hunt"
+  | "manual_stop"
+  | "offline_cap_reached";
+
 export type ImbuementType =
   | "strike"
   | "focus"
@@ -328,6 +345,31 @@ export interface CharacterAction {
   expectedGainPercent?: number;
   partyMemberIds?: string[];
   partyMembers?: PartyMember[];
+  autoRepeat?: HuntAutoRepeatConfig;
+  repeatGroupId?: string;
+  repeatIndex?: number;
+  maxRepeatIndex?: number;
+}
+
+export interface HuntAutoRepeatConfig {
+  enabled: boolean;
+  mode: HuntAutoRepeatMode;
+  maxRepeats?: number;
+  completedRepeats: number;
+  stopIfCapacityAbovePercent?: number;
+  stopIfSuppliesMissing: boolean;
+  stopIfStaminaBelowHours?: number;
+  stopIfDeath: boolean;
+  usePresetId?: string;
+  autoPrepareBetweenRuns?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AutoRepeatSummary {
+  startedNextRun: boolean;
+  stopReason?: AutoRepeatStopReason;
+  message: string;
 }
 
 export interface OfflineCharacterReport {

@@ -78,6 +78,19 @@ export function CurrentActionBox({
           Concluido offline - pronto para coletar
         </div>
       ) : null}
+      {action.autoRepeat?.enabled ? (
+        <div className="auto-repeat-status">
+          <span>Auto-repeat ON</span>
+          <strong>
+            Run {action.repeatIndex ?? 1} / {action.maxRepeatIndex ?? action.autoRepeat.maxRepeats ?? "?"}
+          </strong>
+          <p>
+            Mode: {formatAutoRepeatMode(action.autoRepeat.mode)} / Stop capacity:
+            {" "}{action.autoRepeat.stopIfCapacityAbovePercent ?? "-"}% / Stamina:
+            {" "}{action.autoRepeat.stopIfStaminaBelowHours ?? "-"}h
+          </p>
+        </div>
+      ) : null}
 
       <div className="action-grid">
         {action.targetName ? <Detail label="Target" value={action.targetName} /> : null}
@@ -123,6 +136,14 @@ export function CurrentActionBox({
       ) : null}
     </div>
   );
+}
+
+function formatAutoRepeatMode(mode: string) {
+  if (mode === "repeat_count") return "Repeat count";
+  if (mode === "until_supplies_end") return "Until supplies end";
+  if (mode === "until_capacity_full") return "Until capacity limit";
+  if (mode === "until_death_or_stop") return "Until death/stop";
+  return "Off";
 }
 
 function Detail({ label, value }: { label: string; value: string }) {

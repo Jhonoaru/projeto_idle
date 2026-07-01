@@ -78,9 +78,15 @@ export function markExpiredActionsReady(
       actionLabel: action.label,
       completedOffline: true,
       readyToResolve: true,
-      message: `${character.name} completed ${action.targetName ?? action.label} while offline. Result ready to collect.`,
+      message: action.autoRepeat?.enabled
+        ? `${character.name} completed auto-repeat hunt ${action.targetName ?? action.label} while offline. Collect result to continue.`
+        : `${character.name} completed ${action.targetName ?? action.label} while offline. Result ready to collect.`,
     });
-    logs.push(`${character.name} completed ${action.targetName ?? action.label} while offline.`);
+    logs.push(
+      action.autoRepeat?.enabled
+        ? `${character.name} completed auto-repeat hunt ${action.targetName ?? action.label} while offline.`
+        : `${character.name} completed ${action.targetName ?? action.label} while offline.`,
+    );
 
     return {
       ...character,

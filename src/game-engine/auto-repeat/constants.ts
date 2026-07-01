@@ -1,0 +1,5 @@
+export const MAX_AUTO_REPEAT_RUNS = 10;
+export const DEFAULT_AUTO_REPEAT_RUNS = 3;
+export const MIN_AUTO_REPEAT_HUNT_MINUTES = 5;
+export const MAX_OFFLINE_AUTO_REPEAT_RUNS = 5;
+

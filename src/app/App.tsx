@@ -19,6 +19,7 @@ import {
 import { bosses } from "../data/bosses";
 import { getBlessingById } from "../data/blessings";
 import { addMonsterKillsToBestiary } from "../game-engine/bestiary/addMonsterKillsToBestiary";
+import { resolveAutoRepeatAfterHunt } from "../game-engine/auto-repeat/resolveAutoRepeatAfterHunt";
 import { assignCharmToMonster } from "../game-engine/bestiary/assignCharmToMonster";
 import { claimBestiaryReward } from "../game-engine/bestiary/claimBestiaryReward";
 import { removeCharmFromMonster } from "../game-engine/bestiary/removeCharmFromMonster";
@@ -75,6 +76,7 @@ import type {
   BossSimulationResult,
   Character,
   HuntArea,
+  HuntAutoRepeatConfig,
   OfflineCatchUpReport,
   HuntPreparationResult,
   HuntSupplyPreset,
@@ -488,20 +490,42 @@ export function App() {
     prependLog("Boss cooldown", "Debug: cooldown de boss removido.", "neutral");
   }
 
-  function handleStartHunt() {
+  function handleStartHunt(autoRepeat?: HuntAutoRepeatConfig) {
     if (!selectedHunt) return;
 
     try {
-      const updatedCharacter = startHunt(
+      let updatedCharacter = startHunt(
         selectedCharacter,
         selectedHunt,
         durationMinutes,
       );
+      if (autoRepeat?.enabled) {
+        const now = new Date().toISOString();
+        updatedCharacter = {
+          ...updatedCharacter,
+          currentAction: updatedCharacter.currentAction
+            ? {
+                ...updatedCharacter.currentAction,
+                autoRepeat: {
+                  ...autoRepeat,
+                  completedRepeats: 0,
+                  createdAt: autoRepeat.createdAt || now,
+                  updatedAt: now,
+                },
+                repeatGroupId: `repeat-${selectedCharacter.id}-${selectedHunt.id}-${Date.now()}`,
+                repeatIndex: 1,
+                maxRepeatIndex: autoRepeat.mode === "repeat_count" ? autoRepeat.maxRepeats ?? 3 : 10,
+              }
+            : updatedCharacter.currentAction,
+        };
+      }
       updateSelectedCharacter(updatedCharacter);
       setActiveTab("action");
       prependLog(
         "Hunt started",
-        `${selectedCharacter.name} iniciou hunt em ${selectedHunt.name} com supplies suficientes. Acompanhe na aba Acao.`,
+        autoRepeat?.enabled
+          ? `Auto-repeat enabled for ${selectedHunt.name}: ${autoRepeat.maxRepeats ?? 3} runs.`
+          : `${selectedCharacter.name} iniciou hunt em ${selectedHunt.name} com supplies suficientes. Acompanhe na aba Acao.`,
         "neutral",
       );
     } catch (error) {
@@ -517,6 +541,26 @@ export function App() {
     const result = cancelCurrentAction(selectedCharacter);
     updateSelectedCharacter(result.character);
     prependLog(result.success ? "Action canceled" : "Action blocked", result.message, result.success ? "neutral" : "warning");
+  }
+
+  function handleStopHuntAutoRepeat() {
+    if (selectedCharacter.currentAction?.type !== "hunting" || !selectedCharacter.currentAction.autoRepeat?.enabled) {
+      prependLog("Auto-repeat", "Nenhum auto-repeat ativo para parar.", "warning");
+      return;
+    }
+
+    updateSelectedCharacter({
+      ...selectedCharacter,
+      currentAction: {
+        ...selectedCharacter.currentAction,
+        autoRepeat: {
+          ...selectedCharacter.currentAction.autoRepeat,
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    });
+    prependLog("Auto-repeat", "Auto-repeat disabled manually. Hunt atual continua.", "neutral");
   }
 
   function handleFinishTravel() {
@@ -553,6 +597,7 @@ export function App() {
     try {
       const activeDuration = selectedCharacter.currentAction.durationMinutes ?? durationMinutes;
 
+      const previousAutoRepeat = selectedCharacter.currentAction?.autoRepeat;
       const { character, result } = finishHunt(
         selectedCharacter,
         activeHunt,
@@ -564,7 +609,16 @@ export function App() {
       result.bestiaryLogs = bestiaryUpdate.logs;
       result.logs = [...result.logs, ...bestiaryUpdate.logs];
 
-      updateSelectedCharacter(character);
+      const autoRepeatResult = resolveAutoRepeatAfterHunt({
+        character,
+        hunt: activeHunt,
+        guild,
+        depot,
+        previousConfig: previousAutoRepeat,
+        durationMinutes: activeDuration,
+      });
+
+      updateSelectedCharacter(autoRepeatResult.character);
       setGuild((currentGuild) => ({
         ...currentGuild,
         gold: Math.max(0, currentGuild.gold + result.netProfit),
@@ -572,7 +626,7 @@ export function App() {
       }));
       setLastHuntResult({
         characterName: selectedCharacter.name,
-        character,
+        character: autoRepeatResult.character,
         hunt: activeHunt,
         result,
       });
@@ -595,6 +649,9 @@ export function App() {
           `${selectedCharacter.name} retornou da hunt com ${result.netProfit.toLocaleString("en-US")}g para a Guilda ${guild.name}.`,
           "success",
         );
+      }
+      for (const message of [...autoRepeatResult.logs].reverse()) {
+        prependLog("Auto-repeat", message, autoRepeatResult.summary.startedNextRun ? "success" : "warning");
       }
     } catch (error) {
       endActionResolution(resolutionKey, resolvingActionRef.current);
@@ -1519,6 +1576,7 @@ export function App() {
           onBuyMarketItem={handleBuyMarketItem}
           onStartBoss={handleStartBoss}
           onStartHunt={handleStartHunt}
+          onStopHuntAutoRepeat={handleStopHuntAutoRepeat}
           onStartQuest={handleStartQuest}
           onStartTraining={handleStartTraining}
           onIncreaseForgeTier={handleIncreaseForgeTier}

@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { calculateHuntRisk } from "../../game-engine/hunt/calculateHuntRisk";
 import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { checkHuntSupplies } from "../../game-engine/supplies/checkHuntSupplies";
@@ -11,6 +12,8 @@ import type {
   GuildBestiaryState,
   GuildDepot,
   HuntArea,
+  HuntAutoRepeatConfig,
+  HuntAutoRepeatMode,
   HuntPreparationResult,
   HuntSupplyPreset,
 } from "../../shared/types";
@@ -32,8 +35,9 @@ interface HuntActionPanelProps {
   lastPreparationResult?: HuntPreparationResult;
   bestiary?: GuildBestiaryState;
   onChangeDuration: (durationMinutes: number) => void;
-  onStartHunt: () => void;
+  onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
   onFinishHunt: () => void;
+  onStopAutoRepeat: () => void;
   onCreateRecommendedPreset: () => void;
   onPrepareHunt: (preset: HuntSupplyPreset) => void;
   onDeletePreset: (presetId: string) => void;
@@ -51,10 +55,35 @@ export function HuntActionPanel({
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
+  onStopAutoRepeat,
   onCreateRecommendedPreset,
   onPrepareHunt,
   onDeletePreset,
 }: HuntActionPanelProps) {
+  const [autoRepeatEnabled, setAutoRepeatEnabled] = useState(false);
+  const [autoRepeatMode, setAutoRepeatMode] = useState<HuntAutoRepeatMode>("repeat_count");
+  const [maxRepeats, setMaxRepeats] = useState(3);
+  const [capacityLimit, setCapacityLimit] = useState(90);
+  const [staminaLimit, setStaminaLimit] = useState(10);
+  const autoRepeatConfig = useMemo(() => {
+    if (!autoRepeatEnabled) return undefined;
+
+    const now = new Date().toISOString();
+    return {
+      enabled: true,
+      mode: autoRepeatMode,
+      maxRepeats: clampRepeats(maxRepeats),
+      completedRepeats: 0,
+      stopIfCapacityAbovePercent: clampPercent(capacityLimit),
+      stopIfSuppliesMissing: true,
+      stopIfStaminaBelowHours: Math.max(0, staminaLimit),
+      stopIfDeath: true,
+      autoPrepareBetweenRuns: false,
+      createdAt: now,
+      updatedAt: now,
+    } satisfies HuntAutoRepeatConfig;
+  }, [autoRepeatEnabled, autoRepeatMode, capacityLimit, maxRepeats, staminaLimit]);
+
   if (!selectedHunt) {
     return (
       <Panel title="Hunt Assignment">
@@ -73,6 +102,7 @@ export function HuntActionPanel({
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, selectedHunt);
   const canStartHunt = character.status === "idle" && hasAccess && supplyCheck.hasRequiredSupplies;
   const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess);
+  const activeAutoRepeat = character.currentAction?.autoRepeat?.enabled === true;
 
   return (
     <Panel title="Hunt Assignment">
@@ -178,9 +208,82 @@ export function HuntActionPanel({
           </div>
         ) : null}
 
+        <div className="auto-repeat-panel">
+          <div className="auto-repeat-heading">
+            <div>
+              <span>Auto-repeat</span>
+              <strong>{autoRepeatEnabled ? "Enabled for next hunt" : activeAutoRepeat ? "Running" : "Off"}</strong>
+            </div>
+            <label>
+              <input
+                checked={autoRepeatEnabled}
+                disabled={character.status !== "idle"}
+                onChange={(event) => setAutoRepeatEnabled(event.target.checked)}
+                type="checkbox"
+              />
+              Enable
+            </label>
+          </div>
+          <div className="auto-repeat-grid">
+            <label>
+              Mode
+              <select
+                disabled={!autoRepeatEnabled || character.status !== "idle"}
+                onChange={(event) => setAutoRepeatMode(event.target.value as HuntAutoRepeatMode)}
+                value={autoRepeatMode}
+              >
+                <option value="repeat_count">Repeat X times</option>
+                <option value="until_supplies_end">Until supplies end</option>
+                <option value="until_capacity_full">Until capacity limit</option>
+                <option value="until_death_or_stop">Until death or stop</option>
+              </select>
+            </label>
+            <label>
+              Repeats
+              <input
+                disabled={!autoRepeatEnabled || character.status !== "idle"}
+                max={10}
+                min={1}
+                onChange={(event) => setMaxRepeats(Number(event.target.value))}
+                type="number"
+                value={maxRepeats}
+              />
+            </label>
+            <label>
+              Stop capacity %
+              <input
+                disabled={!autoRepeatEnabled || character.status !== "idle"}
+                max={100}
+                min={1}
+                onChange={(event) => setCapacityLimit(Number(event.target.value))}
+                type="number"
+                value={capacityLimit}
+              />
+            </label>
+            <label>
+              Stop stamina h
+              <input
+                disabled={!autoRepeatEnabled || character.status !== "idle"}
+                min={0}
+                onChange={(event) => setStaminaLimit(Number(event.target.value))}
+                type="number"
+                value={staminaLimit}
+              />
+            </label>
+          </div>
+          <p>
+            {autoRepeatEnabled
+              ? `This hunt will repeat up to ${clampRepeats(maxRepeats)} run(s). Auto-prepare between runs is off.`
+              : "Auto-repeat is optional and starts only when enabled before the hunt."}
+          </p>
+          {activeAutoRepeat ? (
+            <button onClick={onStopAutoRepeat} type="button">Parar próximas repetições</button>
+          ) : null}
+        </div>
+
         <div className="hunt-action-buttons">
-          <GameButton disabled={!canStartHunt} onClick={onStartHunt}>
-            Iniciar Hunt
+          <GameButton disabled={!canStartHunt} onClick={() => onStartHunt(autoRepeatConfig)}>
+            {autoRepeatConfig?.enabled ? "Iniciar Hunt com Auto-repeat" : "Iniciar Hunt"}
           </GameButton>
           <GameButton disabled={!isHuntingSelectedArea} onClick={onFinishHunt}>
             Finalizar Simulacao
@@ -202,6 +305,14 @@ export function HuntActionPanel({
       </div>
     </Panel>
   );
+}
+
+function clampRepeats(value: number) {
+  return Math.min(10, Math.max(1, Math.floor(Number.isFinite(value) ? value : 3)));
+}
+
+function clampPercent(value: number) {
+  return Math.min(100, Math.max(1, Math.floor(Number.isFinite(value) ? value : 90)));
 }
 
 function getHuntBlockReason(

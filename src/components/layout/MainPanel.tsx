@@ -29,6 +29,7 @@ import type {
   Guild,
   GuildDepot,
   HuntArea,
+  HuntAutoRepeatConfig,
   HuntPreparationResult,
   HuntSimulationResult,
   HuntSupplyPreset,
@@ -87,8 +88,9 @@ interface MainPanelProps {
   onChangeTab: (tab: MainPanelProps["activeTab"]) => void;
   onSelectHunt: (hunt: HuntArea) => void;
   onChangeDuration: (durationMinutes: number) => void;
-  onStartHunt: () => void;
+  onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
   onFinishHunt: () => void;
+  onStopHuntAutoRepeat: () => void;
   onCreateRecommendedPreset: () => void;
   onPrepareHunt: (preset: HuntSupplyPreset) => void;
   onDeleteHuntPreset: (presetId: string) => void;
@@ -171,6 +173,7 @@ export function MainPanel({
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
+  onStopHuntAutoRepeat,
   onCreateRecommendedPreset,
   onPrepareHunt,
   onDeleteHuntPreset,
@@ -269,6 +272,7 @@ export function MainPanel({
             onFinishTraining={onFinishTraining}
             onFinishTravel={onFinishTravel}
             onReviveCharacter={onReviveCharacter}
+            onStopHuntAutoRepeat={onStopHuntAutoRepeat}
             quests={quests}
             selectedCharacter={selectedCharacter}
           />
@@ -289,6 +293,7 @@ export function MainPanel({
             onFinishHunt={onFinishHunt}
             onPrepareHunt={onPrepareHunt}
             onStartHunt={onStartHunt}
+            onStopAutoRepeat={onStopHuntAutoRepeat}
             presets={guild.huntPresets ?? []}
             selectedHunt={selectedHunt}
           />

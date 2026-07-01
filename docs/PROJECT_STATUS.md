@@ -26,6 +26,7 @@ Atualizado em: 2026-07-01
 - Etapa 17.6 concluida: QA da Forge/Imbuements, correcoes de status, saves antigos e imbuements expirados/invalidos.
 - Etapa 18 concluida: Offline Catch-up real com acoes prontas para coletar, traveling automatico e recovery offline reportado.
 - Etapa 18.5 concluida: QA do Offline Catch-up, blindagem contra duplicacao de coleta e save/load parcial.
+- Etapa 19 concluida: auto-repeat opcional de hunts com limites, regras de parada e integracao conservadora com offline catch-up.
 
 Comandos principais:
 
@@ -85,6 +86,7 @@ Comandos principais:
 - Supplies reais nas hunts: validacao antes de iniciar, consumo ao finalizar e balance liquido apos supplies.
 - Hunt Prep com presets guild-wide, checklist de supplies, movimentacao do Depot do Personagem/Guild Depot e compra de faltantes pelo Market NPC usando `guild.gold`.
 - Offline Catch-up real no carregamento do save, marcando hunts/treinos/quests/bosses concluidos como prontos para coletar sem aplicar recompensa automaticamente.
+- Auto-repeat opcional de hunts, iniciado manualmente pelo jogador e limitado por repeats, supplies, capacity, stamina e morte.
 - Aba Acao com Current Action e Action Analyzer.
 - Traveling automatico para retorno/cancelamento e chegada automatica ao expirar.
 - Log de atividade no painel direito.
@@ -621,6 +623,59 @@ Proximos passos sugeridos:
 - Criar testes automatizados de unidade para `markExpiredActionsReady`, `getActionCompletionStatus` e duplo clique de coleta.
 - Migrar actions novas para salvar `startedAt/endsAt` em ISO completo, mantendo parser legado para saves antigos.
 - Adicionar um botao dedicado de limpar action invalida em uma etapa pequena de UX.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+## Etapa 19 - Auto-repeat Opcional de Hunts
+
+Status: implementada.
+
+Arquivos criados:
+
+- `src/game-engine/auto-repeat/constants.ts`.
+- `src/game-engine/auto-repeat/canContinueAutoRepeat.ts`.
+- `src/game-engine/auto-repeat/createNextRepeatedHuntAction.ts`.
+- `src/game-engine/auto-repeat/resolveAutoRepeatAfterHunt.ts`.
+- `src/game-engine/auto-repeat/stopAutoRepeat.ts`.
+- `src/game-engine/auto-repeat/calculateOfflineAutoRepeatRuns.ts`.
+- `src/game-engine/auto-repeat/getAutoRepeatStopReason.ts`.
+
+Arquivos principais alterados:
+
+- `src/shared/types.ts`.
+- `src/app/App.tsx`.
+- `src/components/hunt/HuntActionPanel.tsx`.
+- `src/components/action/ActionPanel.tsx`.
+- `src/components/character/CurrentActionBox.tsx`.
+- `src/game-engine/offline/markExpiredActionsReady.ts`.
+- `src/styles.css`.
+
+Regras implementadas:
+
+- Auto-repeat e opcional e fica desligado por padrao.
+- Configuracao inicial na aba Hunts: modo, numero de runs, limite de capacity e stamina minima.
+- Limite seguro por configuracao: 10 runs; padrao recomendado: 3 runs.
+- Ao coletar uma hunt, o resultado normal aplica uma unica vez e so depois o auto-repeat decide se inicia a proxima run.
+- A proxima run so inicia se personagem nao morreu, supplies existem, capacity esta abaixo do limite, stamina esta OK e limite de repeats nao foi atingido.
+- Botao `Parar Auto-repeat` desativa proximas repeticoes sem cancelar a hunt atual.
+- Current Action mostra auto-repeat ativo, run atual/maxima e condicoes de parada.
+- Offline catch-up continua conservador: uma hunt auto-repeat concluida offline fica pronta para coletar, mas nao simula multiplas runs fechadas.
+
+Limites atuais:
+
+- Sem auto-repeat para quest, boss ou treino.
+- Sem farm infinito offline.
+- Sem auto-venda, auto-deposit ou auto-compra infinita de supplies.
+- `autoPrepareBetweenRuns` fica salvo como `false`; preparacao automatica entre runs fica para etapa futura.
+- Offline nao aplica multiplas hunts automaticamente; a proxima run comeca no momento da coleta.
+
+Proximos passos sugeridos:
+
+- QA 19.5 focado em supplies/capacity/death/save-load do auto-repeat.
+- Integrar auto-prepare entre runs usando presets apenas depois de testes de duplicacao.
+- Criar testes unitarios para `canContinueAutoRepeat` e `resolveAutoRepeatAfterHunt`.
 
 Validacao:
 
