@@ -29,7 +29,9 @@ import type {
   Guild,
   GuildDepot,
   HuntArea,
+  HuntPreparationResult,
   HuntSimulationResult,
+  HuntSupplyPreset,
   InventoryItem,
   MarketItemCategory,
   Quest,
@@ -58,6 +60,7 @@ interface MainPanelProps {
   selectedBoss?: Boss;
   bossParty: BossParty;
   durationMinutes: number;
+  lastPreparationResult?: HuntPreparationResult;
   lastResult?: LastResultView;
   lastTrainingResult?: TrainingResult;
   lastBossResult?: BossSimulationResult;
@@ -86,6 +89,9 @@ interface MainPanelProps {
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: () => void;
   onFinishHunt: () => void;
+  onCreateRecommendedPreset: () => void;
+  onPrepareHunt: (preset: HuntSupplyPreset) => void;
+  onDeleteHuntPreset: (presetId: string) => void;
   onSendToDepot: (inventoryItem: InventoryItem) => void;
   onSendToCharacterDepot: (inventoryItem: InventoryItem) => void;
   onSendCharacterDepotToInventory: (inventoryItem: InventoryItem) => void;
@@ -139,7 +145,7 @@ interface MainPanelProps {
   onUpgradeForgeItem: (inventoryItem: InventoryItem) => void;
   onIncreaseForgeTier: (inventoryItem: InventoryItem) => void;
   onApplyForgeImbuement: (inventoryItem: InventoryItem, imbuementId: string) => void;
-  onRemoveForgeImbuements: (inventoryItem: InventoryItem) => void;
+  onRemoveForgeImbuements: (inventoryItem: InventoryItem, imbuementId?: string) => void;
 }
 
 export function MainPanel({
@@ -153,6 +159,7 @@ export function MainPanel({
   selectedBoss,
   bossParty,
   durationMinutes,
+  lastPreparationResult,
   lastResult,
   lastTrainingResult,
   lastBossResult,
@@ -164,6 +171,9 @@ export function MainPanel({
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
+  onCreateRecommendedPreset,
+  onPrepareHunt,
+  onDeleteHuntPreset,
   onSendToDepot,
   onSendToCharacterDepot,
   onSendCharacterDepotToInventory,
@@ -269,10 +279,17 @@ export function MainPanel({
           <HuntActionPanel
             bestiary={guild.bestiary}
             character={selectedCharacter}
+            guild={guild}
+            guildDepot={depot}
             durationMinutes={durationMinutes}
+            lastPreparationResult={lastPreparationResult}
             onChangeDuration={onChangeDuration}
+            onCreateRecommendedPreset={onCreateRecommendedPreset}
+            onDeletePreset={onDeleteHuntPreset}
             onFinishHunt={onFinishHunt}
+            onPrepareHunt={onPrepareHunt}
             onStartHunt={onStartHunt}
+            presets={guild.huntPresets ?? []}
             selectedHunt={selectedHunt}
           />
           <HuntResultPanel

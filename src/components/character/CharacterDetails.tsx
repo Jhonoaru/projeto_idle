@@ -15,6 +15,9 @@ interface CharacterDetailsProps {
 export function CharacterDetails({ character }: CharacterDetailsProps) {
   const [, setTick] = useState(0);
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
+  const hasForgeBonuses = Object.values(character.equipment).some(
+    (item) => item && ((item.upgradeLevel ?? 0) > 0 || (item.tier ?? 0) > 0 || (item.imbuements ?? []).length > 0),
+  );
   const bonusSummary = [
     equipmentBonuses.attack ? `Atk +${equipmentBonuses.attack}` : undefined,
     equipmentBonuses.defense ? `Def +${equipmentBonuses.defense}` : undefined,
@@ -95,6 +98,7 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
         <StatBox
           label="Gear Bonus"
           value={bonusSummary.length > 0 ? bonusSummary.join(" / ") : "None"}
+          detail={hasForgeBonuses ? "Includes Forge bonuses" : undefined}
         />
         <StatBox label="Quests Done" value={character.completedQuestIds.length} />
         <StatBox label="Accesses" value={character.accessIds.length} />

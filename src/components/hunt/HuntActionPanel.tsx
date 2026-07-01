@@ -1,10 +1,19 @@
 import { calculateHuntRisk } from "../../game-engine/hunt/calculateHuntRisk";
 import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { checkHuntSupplies } from "../../game-engine/supplies/checkHuntSupplies";
+import { HuntPrepPanel } from "../hunt-prep/HuntPrepPanel";
 import { GameButton } from "../ui/GameButton";
 import { Panel } from "../ui/Panel";
 import { getAccessName } from "../../data/accesses";
-import type { Character, GuildBestiaryState, HuntArea } from "../../shared/types";
+import type {
+  Character,
+  Guild,
+  GuildBestiaryState,
+  GuildDepot,
+  HuntArea,
+  HuntPreparationResult,
+  HuntSupplyPreset,
+} from "../../shared/types";
 
 const durationOptions = [
   { label: "15 min", value: 15 },
@@ -15,22 +24,36 @@ const durationOptions = [
 
 interface HuntActionPanelProps {
   character: Character;
+  guild: Guild;
+  guildDepot: GuildDepot;
   selectedHunt?: HuntArea;
   durationMinutes: number;
+  presets: HuntSupplyPreset[];
+  lastPreparationResult?: HuntPreparationResult;
   bestiary?: GuildBestiaryState;
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: () => void;
   onFinishHunt: () => void;
+  onCreateRecommendedPreset: () => void;
+  onPrepareHunt: (preset: HuntSupplyPreset) => void;
+  onDeletePreset: (presetId: string) => void;
 }
 
 export function HuntActionPanel({
   character,
+  guild,
+  guildDepot,
   selectedHunt,
   durationMinutes,
+  presets,
+  lastPreparationResult,
   bestiary,
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
+  onCreateRecommendedPreset,
+  onPrepareHunt,
+  onDeletePreset,
 }: HuntActionPanelProps) {
   if (!selectedHunt) {
     return (
@@ -129,6 +152,19 @@ export function HuntActionPanel({
             <p className="action-block-reason" key={warning}>{warning}</p>
           ))}
         </div>
+
+        <HuntPrepPanel
+          character={character}
+          durationMinutes={durationMinutes}
+          guild={guild}
+          guildDepot={guildDepot}
+          hunt={selectedHunt}
+          lastPreparationResult={lastPreparationResult}
+          onCreateRecommendedPreset={onCreateRecommendedPreset}
+          onDeletePreset={onDeletePreset}
+          onPrepareHunt={onPrepareHunt}
+          presets={presets}
+        />
 
         {charmBonuses.logs.length > 0 ? (
           <div className="charm-bonus-panel">

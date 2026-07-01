@@ -22,6 +22,7 @@ export interface GuildRow {
   rank: string;
   level: number;
   bestiary_json?: string | null;
+  hunt_presets_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -91,6 +92,7 @@ export function mapGuild(row: GuildRow): Guild {
     bestiary: normalizeBestiaryState(
       row.bestiary_json ? parseJson(row.bestiary_json, undefined) : undefined,
     ),
+    huntPresets: parseJson(row.hunt_presets_json ?? "[]", []),
   };
 }
 

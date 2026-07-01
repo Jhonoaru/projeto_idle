@@ -13,4 +13,5 @@ export const mockGuild: Guild = {
     unlockedCharmIds: [],
     activeCharms: [],
   },
+  huntPresets: [],
 };

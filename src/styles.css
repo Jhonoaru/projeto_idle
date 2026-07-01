@@ -857,7 +857,8 @@ p {
 
 .forge-panel,
 .forge-details,
-.forge-item-list {
+.forge-item-list,
+.forge-imbuement-list {
   display: grid;
   gap: 10px;
 }
@@ -880,7 +881,8 @@ p {
 .forge-summary span,
 .forge-action-box span,
 .forge-item-header span,
-.forge-item-list span {
+.forge-item-list span,
+.forge-item-list em {
   display: block;
   color: #aeb7aa;
   font-size: 0.72rem;
@@ -926,9 +928,19 @@ p {
   align-items: start;
 }
 
+.forge-layout-wide {
+  grid-template-columns: minmax(210px, 0.65fr) minmax(280px, 0.9fr) minmax(340px, 1.2fr);
+}
+
 .forge-item-list button {
   padding: 10px;
   text-align: left;
+}
+
+.forge-item-list em {
+  margin-top: 6px;
+  color: #d8b96a;
+  font-style: normal;
 }
 
 .forge-item-header p,
@@ -936,6 +948,12 @@ p {
   margin: 6px 0 0;
   color: #c7cabc;
   font-size: 0.82rem;
+}
+
+.forge-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .forge-action-box ul {
@@ -950,6 +968,154 @@ p {
   color: #191711;
   background: #d8b96a;
   font-weight: 900;
+}
+
+.forge-action-box button:disabled,
+.forge-imbuement-card button:disabled {
+  border-color: #4a4334;
+  color: #8f927e;
+  background: #24251f;
+  cursor: not-allowed;
+}
+
+.forge-active-imbuement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 7px;
+  border: 1px solid #30352f;
+  border-radius: 5px;
+  background: #101411;
+}
+
+.forge-active-imbuement p {
+  margin: 0;
+}
+
+.forge-active-imbuement button {
+  min-height: 28px;
+  padding: 4px 8px;
+}
+
+.forge-imbuement-family {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.forge-imbuement-family h3 {
+  color: #f1d58c;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+}
+
+.forge-imbuement-card {
+  display: grid;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid #343b34;
+  border-radius: 6px;
+  background: #101411;
+}
+
+.forge-imbuement-card.status-available {
+  border-color: rgba(127, 199, 122, 0.55);
+}
+
+.forge-imbuement-card.status-missing-materials,
+.forge-imbuement-card.status-not-enough-gold {
+  border-color: rgba(216, 185, 106, 0.65);
+}
+
+.forge-imbuement-card.status-wrong-slot,
+.forge-imbuement-card.status-requires-higher-level,
+.forge-imbuement-card.status-requires-higher-tier,
+.forge-imbuement-card.status-already-active,
+.forge-imbuement-card.status-locked {
+  opacity: 0.72;
+}
+
+.forge-imbuement-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.forge-imbuement-title span,
+.forge-imbuement-meta span,
+.forge-material span {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.forge-imbuement-title strong {
+  display: block;
+  margin-top: 4px;
+  color: #f1d58c;
+}
+
+.forge-imbuement-title em {
+  border: 1px solid #4a4f45;
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: #d6d1c4;
+  font-style: normal;
+  font-size: 0.68rem;
+  white-space: nowrap;
+}
+
+.forge-imbuement-card p {
+  margin: 0;
+  color: #c7cabc;
+  font-size: 0.8rem;
+}
+
+.forge-imbuement-meta,
+.forge-material-list {
+  display: grid;
+  gap: 5px;
+}
+
+.forge-imbuement-meta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.forge-material {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 5px 7px;
+  border: 1px solid #30352f;
+  border-radius: 5px;
+  background: #151a17;
+}
+
+.forge-material strong {
+  color: #d6d1c4;
+}
+
+.forge-material.is-missing {
+  border-color: #8f614d;
+}
+
+.forge-material.is-missing strong {
+  color: #e2a36f;
+}
+
+.forge-imbuement-card button {
+  min-height: 32px;
+  border: 1px solid #c9aa62;
+  border-radius: 6px;
+  color: #191711;
+  background: #d8b96a;
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .action-command-button,
@@ -1254,6 +1420,102 @@ p {
 
 .supplies-list .is-missing em {
   color: #e2a36f;
+}
+
+.hunt-prep-panel {
+  display: grid;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.hunt-prep-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.hunt-prep-heading div {
+  display: grid;
+  gap: 3px;
+}
+
+.hunt-prep-heading div:last-child {
+  text-align: right;
+}
+
+.hunt-prep-heading span,
+.hunt-prep-checklist em,
+.hunt-prep-result p {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.hunt-prep-heading span {
+  text-transform: uppercase;
+}
+
+.hunt-prep-heading strong {
+  color: #f1d58c;
+}
+
+.hunt-prep-checklist {
+  display: grid;
+  gap: 6px;
+}
+
+.hunt-prep-checklist div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(130px, auto);
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px;
+  border: 1px solid #30352f;
+  border-radius: 5px;
+  background: #101411;
+}
+
+.hunt-prep-checklist .is-missing {
+  border-color: #8f614d;
+}
+
+.hunt-prep-checklist span {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.hunt-prep-checklist strong {
+  color: #f1d58c;
+}
+
+.hunt-prep-checklist .is-missing em {
+  color: #e2a36f;
+}
+
+.hunt-prep-result {
+  display: grid;
+  gap: 5px;
+  padding: 9px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #101411;
+}
+
+.hunt-prep-result strong {
+  color: #d6d1c4;
+}
+
+.hunt-prep-result.is-success {
+  border-color: rgba(127, 199, 122, 0.5);
+}
+
+.hunt-prep-result.is-warning {
+  border-color: rgba(216, 185, 106, 0.65);
 }
 
 .hunt-result-panel {
@@ -2188,6 +2450,10 @@ p {
 
   .top-bar,
   .game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .forge-layout-wide {
     grid-template-columns: 1fr;
   }
 

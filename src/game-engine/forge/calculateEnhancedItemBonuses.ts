@@ -24,11 +24,13 @@ export function calculateEnhancedItemBonuses(inventoryItem: InventoryItem) {
   };
 
   for (const active of inventoryItem.imbuements ?? []) {
+    if ((active.remainingHunts ?? 1) <= 0) continue;
     const imbuement = getImbuementById(active.imbuementId);
     if (!imbuement) continue;
 
     bonuses.attack += Math.round(bonuses.attack * ((imbuement.bonus.attackPowerPercent ?? 0) / 100));
     bonuses.defense += Math.round(bonuses.defense * ((imbuement.bonus.defensePowerPercent ?? 0) / 100));
+    bonuses.armor += Math.round(bonuses.armor * ((imbuement.bonus.defensePowerPercent ?? 0) / 100));
     bonuses.magicPower += Math.round(bonuses.magicPower * ((imbuement.bonus.magicPowerPercent ?? 0) / 100));
     bonuses.distancePower += Math.round(bonuses.distancePower * ((imbuement.bonus.distancePowerPercent ?? 0) / 100));
     bonuses.fistPower += Math.round(bonuses.fistPower * ((imbuement.bonus.fistPowerPercent ?? 0) / 100));

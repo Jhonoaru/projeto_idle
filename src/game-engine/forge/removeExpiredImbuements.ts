@@ -11,12 +11,13 @@ export function decrementHuntImbuements(character: Character) {
       const remaining = (imbuement.remainingHunts ?? 0) - 1;
       const definition = getImbuementById(imbuement.imbuementId);
 
-      if (definition) {
-        logs.push(`${definition.name} perdeu 1 carga em ${item.item.name}.`);
-      }
       if (remaining <= 0) {
         logs.push(`${definition?.name ?? "Imbuement"} expirou em ${item.item.name}.`);
         return [];
+      }
+
+      if (definition) {
+        logs.push(`${definition.name}: ${remaining} hunts restantes em ${item.item.name}.`);
       }
 
       return [{ ...imbuement, remainingHunts: remaining }];
@@ -25,11 +26,10 @@ export function decrementHuntImbuements(character: Character) {
     return { ...item, imbuements: active };
   };
 
-  const inventory = character.inventory.map((item) => updateItem(item)!);
   const equipment = Object.fromEntries(
     Object.entries(character.equipment).map(([slot, item]) => [slot, updateItem(item)]),
   ) as Character["equipment"];
-  const updatedCharacter = { ...character, inventory, equipment };
+  const updatedCharacter = { ...character, equipment };
   const attributes = calculateCharacterAttributes(updatedCharacter);
 
   return {

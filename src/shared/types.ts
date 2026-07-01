@@ -52,13 +52,15 @@ export type EquipmentUpgradeLevel = number;
 
 export type EquipmentTier = number;
 
+export type ImbuementPowerLevel = "basic" | "intricate" | "powerful";
+
 export type ImbuementType =
   | "strike"
-  | "protection"
-  | "vampirism"
+  | "focus"
+  | "precision"
+  | "fortification"
   | "wisdom"
   | "capacity"
-  | "swiftness"
   | "efficiency";
 
 export type ImbuementSlot =
@@ -129,6 +131,42 @@ export interface Guild {
   rank: string;
   level: number;
   bestiary?: GuildBestiaryState;
+  huntPresets?: HuntSupplyPreset[];
+}
+
+export interface HuntSupplyPresetItem {
+  itemId: string;
+  quantity: number;
+  targetContainerType?: ContainerType;
+  targetContainerId?: string;
+}
+
+export interface HuntSupplyPreset {
+  id: string;
+  name: string;
+  huntId: string;
+  characterId?: string;
+  vocation?: Vocation;
+  durationMinutes: number;
+  items: HuntSupplyPresetItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface HuntPreparationItemDelta {
+  itemId: string;
+  itemName: string;
+  quantity: number;
+}
+
+export interface HuntPreparationResult {
+  success: boolean;
+  missingGold?: number;
+  missingItems?: HuntPreparationItemDelta[];
+  movedItems?: Array<HuntPreparationItemDelta & { from: string; to: string }>;
+  boughtItems?: Array<HuntPreparationItemDelta & { totalCost: number }>;
+  warnings: string[];
+  logs: string[];
 }
 
 export interface MonsterBestiaryProgress {
@@ -184,7 +222,9 @@ export interface ImbuementBonus {
 
 export interface ImbuementDefinition {
   id: string;
+  familyId: ImbuementType;
   name: string;
+  powerLevel: ImbuementPowerLevel;
   description: string;
   type: ImbuementType;
   allowedEquipmentSlots: EquipmentSlot[];
@@ -193,6 +233,8 @@ export interface ImbuementDefinition {
   bonus: ImbuementBonus;
   durationHunts?: number;
   durationMinutes?: number;
+  requiredCharacterLevel?: number;
+  requiredForgeTier?: number;
 }
 
 export interface ActiveImbuement {

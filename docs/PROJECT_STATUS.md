@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-06-29
+Atualizado em: 2026-07-01
 
 ## Stack usada
 
@@ -21,6 +21,9 @@ Atualizado em: 2026-06-29
 - Etapa 15 concluida: Bestiary guild-wide, charm points, charms desbloqueaveis e bonus pequenos em hunts.
 - Etapa 15.5 concluida: QA/correcoes de Bestiary/Charms, normalizacao de save e bloqueio contra duplicacao de finish hunt.
 - Etapa 16 concluida: Forge inicial com upgrades, tiers, imbuements, materiais e persistencia em equipamentos.
+- Etapa 17 concluida: presets de hunt, preparacao de supplies via depots/Market NPC e persistencia SQLite dos presets.
+- Etapa 17.5 concluida: rework dos Imbuements com familias Basic/Intricate/Powerful, custos/materiais visiveis e UI da Forge estilo MMORPG.
+- Etapa 17.6 concluida: QA da Forge/Imbuements, correcoes de status, saves antigos e imbuements expirados/invalidos.
 
 Comandos principais:
 
@@ -66,7 +69,7 @@ Comandos principais:
 - Bless individual por personagem, comprada com `guild.gold` e consumida ao proteger morte.
 - Bestiary guild-wide com kills por criatura, stages, charm points, unlocks e charms ativos.
 - Charms iniciais aplicaveis em criaturas completadas, com bonus pequenos de XP, gold, loot, defesa ou supplies em hunts futuras.
-- Forge Workshop com upgrade +0 a +5, tier 0 a 3 e imbuements por hunts em equipamentos.
+- Forge Workshop com upgrade +0 a +5, tier 0 a 3 e imbuements por hunts em equipamentos, incluindo familias Basic/Intricate/Powerful.
 - Persistencia local com SQLite via Tauri SQL Plugin.
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
@@ -78,6 +81,7 @@ Comandos principais:
 - Aba Depot dividida entre Depot do Personagem e Guild Depot.
 - Containers com itens internos preservados por `parentContainerId`.
 - Supplies reais nas hunts: validacao antes de iniciar, consumo ao finalizar e balance liquido apos supplies.
+- Hunt Prep com presets guild-wide, checklist de supplies, movimentacao do Depot do Personagem/Guild Depot e compra de faltantes pelo Market NPC usando `guild.gold`.
 - Aba Acao com Current Action e Action Analyzer.
 - Traveling automatico para retorno/cancelamento e chegada automatica ao expirar.
 - Log de atividade no painel direito.
@@ -100,6 +104,7 @@ Comandos principais:
 - `src/components/layout/`: shell, top bar, paineis laterais e painel principal.
 - `src/components/character/`: roster, detalhes, skills e acao atual.
 - `src/components/hunt/`: lista de hunts, cards, painel de acao e resultado.
+- `src/components/hunt-prep/`: UI de presets, checklist e resultado de preparacao de supplies.
 - `src/components/inventory/`: inventario, depot, linhas de item e capacity.
 - `src/components/equipment/`: painel de equipamentos e slots.
 - `src/components/training/`: treino, opcoes e resultado.
@@ -108,6 +113,7 @@ Comandos principais:
 - `src/components/ui/`: componentes pequenos reutilizaveis.
 - `src/data/`: dados mockados e catalogos do jogo, como personagens, guilda, monstros, itens, hunts, quests, acessos e treinos.
 - `src/game-engine/`: regras puras de jogo para hunts, loot, inventario, equipamentos, atributos, quests e progressao.
+- `src/game-engine/hunt-prep/`: regras puras para presets, validacao, movimentacao e compra de supplies antes da hunt.
 - `src/game-services/`: servicos que coordenam regras do engine para iniciar/finalizar acoes.
 - `src/database/`: conexao SQLite, migrations, mapper e repositorio de save/load local.
 - `src/shared/`: tipos, constantes e utilitarios compartilhados.
@@ -404,6 +410,111 @@ Cuidados aplicados:
 Validacao:
 
 - `npm.cmd run build` passou.
+
+## Etapa 17.5 - Rework dos Imbuements e Forge estilo MMORPG
+
+Status: implementada.
+
+Arquivos criados:
+
+- `src/components/forge/ForgeMaterialRequirement.tsx`.
+- `src/game-engine/forge/getImbuementApplicationStatus.ts`.
+
+Arquivos principais alterados:
+
+- `src/data/imbuements.ts`.
+- `src/components/forge/ForgePanel.tsx`.
+- `src/game-engine/forge/applyImbuement.ts`.
+- `src/game-engine/forge/canApplyImbuement.ts`.
+- `src/game-engine/forge/calculateEnhancedItemBonuses.ts`.
+- `src/game-engine/forge/removeExpiredImbuements.ts`.
+- `src/shared/types.ts`.
+- `src/app/App.tsx`.
+- `src/styles.css`.
+
+Regras implementadas:
+
+- Imbuements agora tem `familyId` e `powerLevel`: `basic`, `intricate` e `powerful`.
+- Familias implementadas: Strike, Focus, Precision, Fortification, Wisdom, Efficiency e Capacity.
+- Cada familia possui Basic/Intricate/Powerful com custos, materiais, bonus e duracao de 20 hunts.
+- Basic exige apenas slot correto; Intricate exige level 30 ou Tier 1; Powerful exige level 60 ou Tier 2.
+- A Forge mostra todos os imbuements, inclusive bloqueados, com status: Available, Missing Materials, Not Enough Gold, Wrong Slot, Requires Higher Level/Tier, Already Active ou Locked.
+- A aplicacao consome materiais do inventario, depot pessoal e Guild Depot, ignorando locked e quest items.
+- Aplicar um imbuement da mesma familia substitui o anterior sem recuperar materiais.
+- E possivel remover um imbuement especifico sem recuperar materiais.
+- Cargas de imbuement agora reduzem apenas nos equipamentos usados ao finalizar hunt.
+- Imbuements expirados ou invalidos nao aplicam bonus.
+
+UI:
+
+- Forge reorganizada em tres areas: lista de equipamentos, painel do item selecionado e lista de imbuements por familia.
+- Cards mostram nivel, bonus, duracao, custo em gold, materiais disponiveis/necessarios, status e botao Apply.
+- Materiais faltantes ficam destacados.
+- Itens mostram upgrade, tier e quantidade de imbuements ativos.
+
+Integracoes:
+
+- Wisdom aumenta XP final de hunts.
+- Efficiency reduz supplies consumidos.
+- Strike/Focus/Precision/Fortification entram nos atributos recalculados do personagem.
+- Capacity aplicada em backpack entra no capacity final.
+- Market continua bloqueando venda de item com imbuement ativo.
+- Save/load segue usando `imbuements_json`, com `remainingHunts` persistido.
+
+Limites atuais:
+
+- Sem chance de falha, crafting avancado ou reroll de atributos.
+- A UI mostra origem agregada dos materiais, mas nao seleciona manualmente de qual depot consumir.
+- Fortification melhora defesa/armor via atributos; nao ha uma tela separada de simulacao de reducao de risco.
+
+Como testar:
+
+- Abrir `Forge`, selecionar um equipamento na coluna esquerda e ver os imbuements liberados/bloqueados na coluna direita.
+- Conferir custo em gold e materiais nos cards.
+- Aplicar `Basic Strike` em uma weapon e confirmar gold, materiais, item ativo e atributos.
+- Aplicar `Intricate Strike` depois para confirmar substituicao do Basic.
+- Fazer uma hunt e confirmar que a carga cai de 20 para 19 nos equipamentos usados.
+- Salvar/recarregar e confirmar que o imbuement e `remainingHunts` persistem.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+## Etapa 17.6 - QA da Forge e Imbuements
+
+Status: concluida.
+
+Bugs encontrados e corrigidos:
+
+- Imbuement invalido vindo de save antigo nao quebrava a UI, mas podia contar contra o limite de slots e deixar `Apply` desabilitado indevidamente.
+- Imbuement expirado com `remainingHunts: 0` nao aplicava bonus, mas ainda podia ocupar slot na validacao da Forge.
+- Aplicar um novo imbuement preservava imbuements invalidos/expirados de outras familias no item, mantendo UI e Market confusos.
+- Cards bloqueados mostravam status, mas nao exibiam sempre a razao textual do bloqueio.
+
+Correcoes:
+
+- A validacao da Forge agora conta apenas imbuements ativos validos com `remainingHunts > 0`.
+- A aplicacao de imbuement limpa entradas invalidas/expiradas do item antes de gravar o novo imbuement.
+- Mensagens de bloqueio aparecem no card junto do status.
+- Regras de Basic/Intricate/Powerful, slot, gold, materiais, substituicao e limites foram revisadas sem adicionar sistemas novos.
+
+Limites mantidos:
+
+- Sem chance de falha.
+- Sem reroll.
+- Sem crafting avancado.
+- Sem escolha manual da origem dos materiais.
+- Fortification continua entrando via atributos de defesa/armor, sem simulador separado de risco.
+
+Proximos passos sugeridos:
+
+- Adicionar testes automatizados unitarios para `getImbuementApplicationStatus`, consumo de materiais e tick de `remainingHunts`.
+- Criar uma pequena suite de saves legados para validar compatibilidade antes de novas etapas grandes.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- `npm.cmd run tauri dev` abriu em verificacao curta com Vite em `127.0.0.1:1420` e binario Tauri iniciado.
 
 - `cargo check` passou em `src-tauri`.
 - `npm.cmd run tauri:build` passou e gerou os instaladores.

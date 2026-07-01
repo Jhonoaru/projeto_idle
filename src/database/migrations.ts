@@ -10,6 +10,7 @@ const createStatements = [
     rank TEXT NOT NULL,
     level INTEGER NOT NULL,
     bestiary_json TEXT NOT NULL DEFAULT '{"progress":[],"charmPoints":0,"unlockedCharmIds":[],"activeCharms":[]}',
+    hunt_presets_json TEXT NOT NULL DEFAULT '[]',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
@@ -96,6 +97,7 @@ export async function runMigrations(db: Database) {
     "bestiary_json",
     "TEXT NOT NULL DEFAULT '{\"progress\":[],\"charmPoints\":0,\"unlockedCharmIds\":[],\"activeCharms\":[]}'",
   );
+  await addColumnIfMissing(db, "guilds", "hunt_presets_json", "TEXT NOT NULL DEFAULT '[]'");
 
   await addColumnIfMissing(db, "characters", "death_state_json", "TEXT");
   await addColumnIfMissing(db, "characters", "blessings_json", "TEXT NOT NULL DEFAULT '[]'");

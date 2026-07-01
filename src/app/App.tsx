@@ -39,6 +39,8 @@ import { moveItemToContainer } from "../game-engine/container/moveItemToContaine
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
 import { transferItem } from "../game-engine/inventory/transferItem";
+import { createPresetFromHunt } from "../game-engine/hunt-prep/createPresetFromHunt";
+import { prepareHuntSupplies } from "../game-engine/hunt-prep/prepareHuntSupplies";
 import { applyImbuement } from "../game-engine/forge/applyImbuement";
 import { findCharacterItem, updateCharacterItem } from "../game-engine/forge/forgeInventoryHelpers";
 import { increaseItemTier } from "../game-engine/forge/increaseItemTier";
@@ -67,6 +69,8 @@ import type {
   BossParty,
   BossSimulationResult,
   HuntArea,
+  HuntPreparationResult,
+  HuntSupplyPreset,
   HuntSimulationResult,
   EquipmentSlot,
   InventoryItem,
@@ -97,6 +101,7 @@ export function App() {
   const [selectedHunt, setSelectedHunt] = useState<HuntArea | undefined>(hunts[0]);
   const [durationMinutes, setDurationMinutes] = useState(30);
   const [lastHuntResult, setLastHuntResult] = useState<LastHuntResult>();
+  const [lastPreparationResult, setLastPreparationResult] = useState<HuntPreparationResult>();
   const [lastTrainingResult, setLastTrainingResult] = useState<TrainingResult>();
   const [lastQuestResult, setLastQuestResult] = useState<{
     success: boolean;
@@ -597,6 +602,56 @@ export function App() {
     );
   }
 
+  function handleCreateRecommendedPreset() {
+    if (!selectedHunt) return;
+
+    const preset = createPresetFromHunt(selectedCharacter, selectedHunt, durationMinutes);
+    setGuild((currentGuild) => ({
+      ...currentGuild,
+      huntPresets: [
+        ...(currentGuild.huntPresets ?? []).filter(
+          (entry) =>
+            !(
+              entry.huntId === preset.huntId &&
+              entry.characterId === preset.characterId &&
+              entry.durationMinutes === preset.durationMinutes
+            ),
+        ),
+        preset,
+      ],
+    }));
+    prependLog("Hunt preset", `Preset recomendado criado para ${selectedHunt.name}.`, "success");
+  }
+
+  function handlePrepareHunt(preset: HuntSupplyPreset) {
+    const hunt = hunts.find((candidate) => candidate.id === preset.huntId);
+    if (!hunt) {
+      prependLog("Hunt prep", "Preset invalido: hunt nao encontrada.", "warning");
+      return;
+    }
+
+    const prepared = prepareHuntSupplies(guild, selectedCharacter, depot, hunt, preset);
+    setGuild({
+      ...prepared.guild,
+      huntPresets: guild.huntPresets ?? [],
+    });
+    updateSelectedCharacter(prepared.character);
+    setDepot(prepared.guildDepot);
+    setLastPreparationResult(prepared.result);
+
+    for (const message of [...prepared.result.logs, ...prepared.result.warnings].reverse()) {
+      prependLog(prepared.result.success ? "Hunt prep" : "Hunt prep blocked", message, prepared.result.success ? "success" : "warning");
+    }
+  }
+
+  function handleDeleteHuntPreset(presetId: string) {
+    setGuild((currentGuild) => ({
+      ...currentGuild,
+      huntPresets: (currentGuild.huntPresets ?? []).filter((preset) => preset.id !== presetId),
+    }));
+    prependLog("Hunt preset", "Preset removido.", "neutral");
+  }
+
   function handleClaimBestiaryReward(monsterId: string) {
     try {
       const result = claimBestiaryReward(guild.bestiary, monsterId);
@@ -696,11 +751,16 @@ export function App() {
     }
   }
 
-  function handleRemoveForgeImbuements(inventoryItem: InventoryItem) {
+  function handleRemoveForgeImbuements(inventoryItem: InventoryItem, imbuementId?: string) {
     const updatedCharacter = updateCharacterItem(
       selectedCharacter,
       inventoryItem.id,
-      (item) => ({ ...item, imbuements: [] }),
+      (item) => ({
+        ...item,
+        imbuements: imbuementId
+          ? (item.imbuements ?? []).filter((active) => active.imbuementId !== imbuementId)
+          : [],
+      }),
     );
     const attributes = calculateCharacterAttributes(updatedCharacter);
     updateSelectedCharacter({
@@ -708,7 +768,13 @@ export function App() {
       attributes,
       capacityMax: attributes.capacity,
     });
-    prependLog("Forge", `${inventoryItem.item.name} teve seus imbuements removidos.`, "neutral");
+    prependLog(
+      "Forge",
+      imbuementId
+        ? `${inventoryItem.item.name} teve um imbuement removido sem recuperar materiais.`
+        : `${inventoryItem.item.name} teve seus imbuements removidos.`,
+      "neutral",
+    );
   }
 
   function handleSendToDepot(inventoryItem: InventoryItem) {
@@ -1293,6 +1359,7 @@ export function App() {
           hunts={hunts}
           quests={quests}
           lastBossResult={lastBossResult}
+          lastPreparationResult={lastPreparationResult}
           lastResult={lastHuntResult}
           lastQuestResult={lastQuestResult}
           lastTrainingResult={lastTrainingResult}
@@ -1300,6 +1367,7 @@ export function App() {
           onAssignCharm={handleAssignCharm}
           onBuyBlessing={handleBuyBlessing}
           onClaimBestiaryReward={handleClaimBestiaryReward}
+          onCreateRecommendedPreset={handleCreateRecommendedPreset}
           onChangeTab={setActiveTab}
           onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
@@ -1312,7 +1380,9 @@ export function App() {
           onApplyForgeImbuement={handleApplyForgeImbuement}
           onReviveCharacter={handleReviveSelectedCharacter}
           onRemoveCharm={handleRemoveCharm}
+          onDeleteHuntPreset={handleDeleteHuntPreset}
           onRemoveForgeImbuements={handleRemoveForgeImbuements}
+          onPrepareHunt={handlePrepareHunt}
           onSelectBoss={handleSelectBoss}
           onSelectHunt={setSelectedHunt}
           onEquipItem={handleEquipItem}

@@ -1,10 +1,19 @@
 import { useMemo, useState } from "react";
-import { imbuements, getImbuementById } from "../../data/imbuements";
+import {
+  getImbuementById,
+  getImbuementFamilyLabel,
+  getImbuementPowerLabel,
+  imbuementFamilies,
+  imbuements,
+} from "../../data/imbuements";
 import { getItemUpgradeCost } from "../../game-engine/forge/getItemUpgradeCost";
 import { getItemTierCost } from "../../game-engine/forge/getItemTierCost";
 import { getForgeMaterialsAvailable } from "../../game-engine/forge/getForgeMaterialsAvailable";
+import { getImbuementApplicationStatus } from "../../game-engine/forge/getImbuementApplicationStatus";
 import { getForgeableItems } from "../../game-engine/forge/forgeInventoryHelpers";
-import type { Character, EquipmentSlot, Guild, GuildDepot, InventoryItem } from "../../shared/types";
+import { calculateEnhancedItemBonuses } from "../../game-engine/forge/calculateEnhancedItemBonuses";
+import { ForgeMaterialRequirement } from "./ForgeMaterialRequirement";
+import type { Character, EquipmentSlot, Guild, GuildDepot, ImbuementDefinition, InventoryItem } from "../../shared/types";
 
 interface ForgePanelProps {
   character: Character;
@@ -13,7 +22,7 @@ interface ForgePanelProps {
   onUpgradeItem: (inventoryItem: InventoryItem) => void;
   onIncreaseTier: (inventoryItem: InventoryItem) => void;
   onApplyImbuement: (inventoryItem: InventoryItem, imbuementId: string) => void;
-  onRemoveImbuements: (inventoryItem: InventoryItem) => void;
+  onRemoveImbuements: (inventoryItem: InventoryItem, imbuementId?: string) => void;
 }
 
 type ForgeFilter = "all" | "weapons" | "armor" | "accessories" | "backpack";
@@ -42,10 +51,8 @@ export function ForgePanel({
     () => Object.entries(character.equipment).find(([, item]) => item?.id === selectedItem?.id)?.[0] as EquipmentSlot | undefined,
     [character.equipment, selectedItem?.id],
   );
-  const availableImbuements = imbuements.filter((imbuement) => {
-    const slot = selectedSlot ?? selectedItem?.item.equipmentSlot;
-    return slot && imbuement.allowedEquipmentSlots.includes(slot);
-  });
+  const itemSlot = selectedSlot ?? selectedItem?.item.equipmentSlot;
+  const selectedBonuses = selectedItem ? calculateEnhancedItemBonuses(selectedItem) : undefined;
 
   if (forgeableItems.length === 0) {
     return <div className="empty-list">Nenhum equipamento disponivel para Forge.</div>;
@@ -55,7 +62,7 @@ export function ForgePanel({
     <div className="forge-panel">
       <div className="forge-summary">
         <div>
-          <span>Adventurer</span>
+          <span>Arcane Forge</span>
           <strong>{character.name}</strong>
         </div>
         <div>
@@ -63,8 +70,8 @@ export function ForgePanel({
           <strong>{guild.gold.toLocaleString("en-US")}g</strong>
         </div>
         <div>
-          <span>Forge Items</span>
-          <strong>{forgeableItems.length}</strong>
+          <span>Materials Indexed</span>
+          <strong>{materialsAvailable.size}</strong>
         </div>
       </div>
 
@@ -81,7 +88,7 @@ export function ForgePanel({
         ))}
       </div>
 
-      <div className="forge-layout">
+      <div className="forge-layout forge-layout-wide">
         <div className="forge-item-list">
           {filteredItems.map((item) => (
             <button
@@ -92,62 +99,145 @@ export function ForgePanel({
             >
               <strong>{formatForgeItemName(item)}</strong>
               <span>{item.item.equipmentSlot ?? "equipment"} / {item.item.rarity}</span>
+              <em>{item.imbuements?.length ?? 0} imbuement(s)</em>
             </button>
           ))}
         </div>
 
         {selectedItem ? (
-          <div className="forge-details">
-            <div className="forge-item-header">
-              <span>{selectedSlot ? `Equipped: ${selectedSlot}` : "Inventory"}</span>
-              <strong>{formatForgeItemName(selectedItem)}</strong>
-              <p>{selectedItem.item.description}</p>
-            </div>
-
-            <ForgeActionBox
-              actionLabel="Upgrade"
-              currentLabel={`+${selectedItem.upgradeLevel ?? 0} / +5`}
-              cost={getItemUpgradeCost(selectedItem.upgradeLevel ?? 0)}
-              materialsAvailable={materialsAvailable}
-              onAction={() => onUpgradeItem(selectedItem)}
-            />
-
-            <ForgeActionBox
-              actionLabel="Increase Tier"
-              currentLabel={`Tier ${selectedItem.tier ?? 0} / 3`}
-              cost={getItemTierCost(selectedItem.tier ?? 0)}
-              materialsAvailable={materialsAvailable}
-              onAction={() => onIncreaseTier(selectedItem)}
-            />
-
-            <div className="forge-action-box">
-              <div>
-                <span>Imbuements</span>
-                <strong>{selectedItem.imbuements?.length ? "Active" : "None"}</strong>
+          <>
+            <div className="forge-details">
+              <div className="forge-item-header">
+                <span>{selectedSlot ? `Equipped: ${selectedSlot}` : "Inventory"}</span>
+                <strong>{formatForgeItemName(selectedItem)}</strong>
+                <p>{selectedItem.item.description}</p>
               </div>
-              {(selectedItem.imbuements ?? []).map((active) => {
-                const definition = getImbuementById(active.imbuementId);
-                return (
-                  <p key={active.imbuementId}>
-                    {definition?.name ?? active.imbuementId}: {active.remainingHunts ?? 0} hunts restantes
-                  </p>
-                );
-              })}
-              {availableImbuements.map((imbuement) => (
-                <button key={imbuement.id} onClick={() => onApplyImbuement(selectedItem, imbuement.id)} type="button">
-                  Apply {imbuement.name}
-                </button>
-              ))}
-              {(selectedItem.imbuements ?? []).length > 0 ? (
-                <button onClick={() => onRemoveImbuements(selectedItem)} type="button">
-                  Remove Imbuements
-                </button>
+
+              <div className="forge-action-grid">
+                <ForgeActionBox
+                  actionLabel="Upgrade"
+                  currentLabel={`+${selectedItem.upgradeLevel ?? 0} / +5`}
+                  cost={getItemUpgradeCost(selectedItem.upgradeLevel ?? 0)}
+                  materialsAvailable={materialsAvailable}
+                  onAction={() => onUpgradeItem(selectedItem)}
+                />
+
+                <ForgeActionBox
+                  actionLabel="Increase Tier"
+                  currentLabel={`Tier ${selectedItem.tier ?? 0} / 3`}
+                  cost={getItemTierCost(selectedItem.tier ?? 0)}
+                  materialsAvailable={materialsAvailable}
+                  onAction={() => onIncreaseTier(selectedItem)}
+                />
+              </div>
+
+              <div className="forge-action-box">
+                <div>
+                  <span>Active Imbuements</span>
+                  <strong>{selectedItem.imbuements?.length ? `${selectedItem.imbuements.length} active` : "None"}</strong>
+                </div>
+                {(selectedItem.imbuements ?? []).map((active) => {
+                  const definition = getImbuementById(active.imbuementId);
+                  return (
+                    <div className="forge-active-imbuement" key={active.imbuementId}>
+                      <p>{definition ? `${definition.name}: ${definition.description}` : active.imbuementId}</p>
+                      <span>{active.remainingHunts ?? 0} hunts restantes</span>
+                      <button onClick={() => onRemoveImbuements(selectedItem, active.imbuementId)} type="button">
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {selectedBonuses ? (
+                <div className="forge-action-box">
+                  <div>
+                    <span>Current Bonuses</span>
+                    <strong>Includes Forge bonuses</strong>
+                  </div>
+                  <p>{formatBonusSummary(selectedBonuses)}</p>
+                </div>
               ) : null}
             </div>
-          </div>
+
+            <div className="forge-imbuement-list">
+              {imbuementFamilies.map((family) => (
+                <section className="forge-imbuement-family" key={family.id}>
+                  <h3>{family.label}</h3>
+                  {imbuements
+                    .filter((imbuement) => imbuement.familyId === family.id)
+                    .map((imbuement) => (
+                      <ImbuementCard
+                        character={character}
+                        guild={guild}
+                        guildDepot={guildDepot}
+                        imbuement={imbuement}
+                        inventoryItem={selectedItem}
+                        key={imbuement.id}
+                        onApply={() => onApplyImbuement(selectedItem, imbuement.id)}
+                        slot={itemSlot}
+                      />
+                    ))}
+                </section>
+              ))}
+            </div>
+          </>
         ) : null}
       </div>
     </div>
+  );
+}
+
+function ImbuementCard({
+  character,
+  guild,
+  guildDepot,
+  imbuement,
+  inventoryItem,
+  slot,
+  onApply,
+}: {
+  character: Character;
+  guild: Guild;
+  guildDepot: GuildDepot;
+  imbuement: ImbuementDefinition;
+  inventoryItem: InventoryItem;
+  slot?: EquipmentSlot;
+  onApply: () => void;
+}) {
+  const check = getImbuementApplicationStatus(character, guild, guildDepot, inventoryItem, slot, imbuement.id);
+  const replacement = getImbuementById(check.willReplaceImbuementId);
+
+  return (
+    <article className={`forge-imbuement-card status-${check.status.toLowerCase().replaceAll(" ", "-")}`}>
+      <div className="forge-imbuement-title">
+        <div>
+          <span>{getImbuementPowerLabel(imbuement.powerLevel)} / {getImbuementFamilyLabel(imbuement.familyId)}</span>
+          <strong>{imbuement.name}</strong>
+        </div>
+        <em>{check.status}</em>
+      </div>
+      <p>{imbuement.description}</p>
+      <p>{check.reason}</p>
+      <div className="forge-imbuement-meta">
+        <span>{imbuement.durationHunts ?? 20} hunts</span>
+        <span>{imbuement.goldCost.toLocaleString("en-US")}g</span>
+        <span>{imbuement.allowedEquipmentSlots.join(", ")}</span>
+      </div>
+      {replacement ? <p>Will replace {replacement.name}.</p> : null}
+      {imbuement.requiredCharacterLevel ? (
+        <p>Unlock: level {imbuement.requiredCharacterLevel} or Tier {imbuement.requiredForgeTier}</p>
+      ) : null}
+      <div className="forge-material-list">
+        {check.materials.map((material) => (
+          <ForgeMaterialRequirement key={material.itemId} material={material} />
+        ))}
+      </div>
+      <button disabled={!check.canApply} onClick={onApply} type="button">
+        Apply Imbuement
+      </button>
+    </article>
   );
 }
 
@@ -202,4 +292,19 @@ function matchesFilter(item: InventoryItem, filter: ForgeFilter) {
   if (filter === "accessories") return ["ring", "amulet"].includes(item.item.equipmentSlot ?? "");
   if (filter === "backpack") return item.item.equipmentSlot === "backpack";
   return true;
+}
+
+function formatBonusSummary(bonuses: ReturnType<typeof calculateEnhancedItemBonuses>) {
+  const entries = [
+    bonuses.attack ? `Atk +${bonuses.attack}` : undefined,
+    bonuses.defense ? `Def +${bonuses.defense}` : undefined,
+    bonuses.armor ? `Arm +${bonuses.armor}` : undefined,
+    bonuses.magicPower ? `Magic +${bonuses.magicPower}` : undefined,
+    bonuses.distancePower ? `Dist +${bonuses.distancePower}` : undefined,
+    bonuses.capacityBonus ? `Cap +${bonuses.capacityBonus}` : undefined,
+    bonuses.xpBonusPercent ? `XP +${bonuses.xpBonusPercent}%` : undefined,
+    bonuses.supplyReductionPercent ? `Supplies -${bonuses.supplyReductionPercent}%` : undefined,
+  ].filter(Boolean);
+
+  return entries.length > 0 ? entries.join(" / ") : "Sem bonus direto.";
 }
