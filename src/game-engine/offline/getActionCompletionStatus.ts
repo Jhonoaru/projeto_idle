@@ -24,6 +24,7 @@ export function getActionCompletionStatus(
 
   const action = character.currentAction;
   if (!action) return "running";
+  if (action.resolvedAt) return "invalid";
   if (action.readyToResolve) return "ready_to_resolve";
 
   const endsAt = resolveActionEndsAt(action.endsAt, lastSavedAt ? new Date(lastSavedAt) : now);
@@ -59,4 +60,3 @@ export function resolveActionEndsAt(endsAt: string | undefined, anchor: Date) {
 
   return resolved;
 }
-

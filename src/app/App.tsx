@@ -530,6 +530,10 @@ export function App() {
       prependLog("Hunt blocked", "Nenhuma hunt ativa para finalizar.", "warning");
       return;
     }
+    if (selectedCharacter.currentAction.resolvedAt) {
+      prependLog("Hunt blocked", "Resultado da hunt ja foi coletado.", "warning");
+      return;
+    }
 
     const resolutionKey = getActionResolutionKey(selectedCharacter);
     if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
@@ -546,52 +550,60 @@ export function App() {
       return;
     }
 
-    const activeDuration = selectedCharacter.currentAction.durationMinutes ?? durationMinutes;
+    try {
+      const activeDuration = selectedCharacter.currentAction.durationMinutes ?? durationMinutes;
 
-    const { character, result } = finishHunt(
-      selectedCharacter,
-      activeHunt,
-      activeDuration,
-      guild.gold,
-      guild.bestiary,
-    );
-    const bestiaryUpdate = addMonsterKillsToBestiary(guild.bestiary, result.monsterKills ?? []);
-    result.bestiaryLogs = bestiaryUpdate.logs;
-    result.logs = [...result.logs, ...bestiaryUpdate.logs];
+      const { character, result } = finishHunt(
+        selectedCharacter,
+        activeHunt,
+        activeDuration,
+        guild.gold,
+        guild.bestiary,
+      );
+      const bestiaryUpdate = addMonsterKillsToBestiary(guild.bestiary, result.monsterKills ?? []);
+      result.bestiaryLogs = bestiaryUpdate.logs;
+      result.logs = [...result.logs, ...bestiaryUpdate.logs];
 
-    updateSelectedCharacter(character);
-    setGuild((currentGuild) => ({
-      ...currentGuild,
-      gold: Math.max(0, currentGuild.gold + result.netProfit),
-      bestiary: bestiaryUpdate.bestiary,
-    }));
-    setLastHuntResult({
-      characterName: selectedCharacter.name,
-      character,
-      hunt: activeHunt,
-      result,
-    });
+      updateSelectedCharacter(character);
+      setGuild((currentGuild) => ({
+        ...currentGuild,
+        gold: Math.max(0, currentGuild.gold + result.netProfit),
+        bestiary: bestiaryUpdate.bestiary,
+      }));
+      setLastHuntResult({
+        characterName: selectedCharacter.name,
+        character,
+        hunt: activeHunt,
+        result,
+      });
 
-    for (const message of [...result.logs].reverse()) {
-      prependLog(result.died ? "Hunt failed" : "Hunt result", message, result.died ? "warning" : "success");
-    }
+      for (const message of [...result.logs].reverse()) {
+        prependLog(result.died ? "Hunt failed" : "Hunt result", message, result.died ? "warning" : "success");
+      }
 
-    if (result.rejectedLoot && result.rejectedLoot.length > 0) {
+      if (result.rejectedLoot && result.rejectedLoot.length > 0) {
+        prependLog(
+          "Capacity full",
+          `${selectedCharacter.name} deixou loot para tras por falta de capacity.`,
+          "warning",
+        );
+      }
+
+      if (result.netProfit > 0) {
+        prependLog(
+          "Guild gold",
+          `${selectedCharacter.name} retornou da hunt com ${result.netProfit.toLocaleString("en-US")}g para a Guilda ${guild.name}.`,
+          "success",
+        );
+      }
+    } catch (error) {
+      endActionResolution(resolutionKey, resolvingActionRef.current);
       prependLog(
-        "Capacity full",
-        `${selectedCharacter.name} deixou loot para tras por falta de capacity.`,
+        "Hunt blocked",
+        error instanceof Error ? error.message : "Hunt cannot be finished.",
         "warning",
       );
     }
-
-    if (result.netProfit > 0) {
-      prependLog(
-        "Guild gold",
-        `${selectedCharacter.name} retornou da hunt com ${result.netProfit.toLocaleString("en-US")}g para a Guilda ${guild.name}.`,
-        "success",
-      );
-    }
-    endActionResolution(resolutionKey, resolvingActionRef.current);
   }
 
   function handleReviveSelectedCharacter() {
@@ -1207,14 +1219,20 @@ export function App() {
   }
 
   function handleFinishTraining() {
+    if (selectedCharacter.currentAction?.resolvedAt) {
+      prependLog("Training blocked", "Resultado do treino ja foi coletado.", "warning");
+      return;
+    }
     const resolutionKey = getActionResolutionKey(selectedCharacter);
     if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
       prependLog("Training blocked", "Resultado do treino ja esta sendo coletado.", "warning");
       return;
     }
+    let resolved = false;
 
     try {
       const { character, result } = finishTraining(selectedCharacter);
+      resolved = true;
       updateSelectedCharacter(character);
       setLastTrainingResult(result);
       prependLog(
@@ -1237,7 +1255,9 @@ export function App() {
         "warning",
       );
     } finally {
-      endActionResolution(resolutionKey, resolvingActionRef.current);
+      if (!resolved) {
+        endActionResolution(resolutionKey, resolvingActionRef.current);
+      }
     }
   }
 
@@ -1260,14 +1280,20 @@ export function App() {
   }
 
   function handleFinishQuest(quest: Quest) {
+    if (selectedCharacter.currentAction?.resolvedAt) {
+      prependLog("Quest blocked", "Resultado da quest ja foi coletado.", "warning");
+      return;
+    }
     const resolutionKey = getActionResolutionKey(selectedCharacter);
     if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
       prependLog("Quest blocked", "Resultado da quest ja esta sendo coletado.", "warning");
       return;
     }
+    let resolved = false;
 
     try {
       const result = finishQuest(selectedCharacter, quest, guild.gold);
+      resolved = true;
       updateSelectedCharacter(result.character);
       setLastQuestResult(result.result);
 
@@ -1297,7 +1323,9 @@ export function App() {
         "warning",
       );
     } finally {
-      endActionResolution(resolutionKey, resolvingActionRef.current);
+      if (!resolved) {
+        endActionResolution(resolutionKey, resolvingActionRef.current);
+      }
     }
   }
 
@@ -1332,6 +1360,10 @@ export function App() {
       prependLog("Boss blocked", "Boss atual nao encontrado no catalogo.", "warning");
       return;
     }
+    if (selectedCharacter.currentAction?.resolvedAt) {
+      prependLog("Boss blocked", "Resultado do boss ja foi coletado.", "warning");
+      return;
+    }
 
     const resolutionKey = getActionResolutionKey(selectedCharacter);
     if (!beginActionResolution(resolutionKey, resolvingActionRef.current)) {
@@ -1339,41 +1371,49 @@ export function App() {
       return;
     }
 
-    const result = finishBoss(
-      characters,
-      depot,
-      activeBossContext.boss,
-      activeBossContext.party,
-      guild.gold,
-    );
-    setCharacters(result.characters);
-    setDepot(result.depot);
-    setLastBossResult(result.result);
+    try {
+      const result = finishBoss(
+        characters,
+        depot,
+        activeBossContext.boss,
+        activeBossContext.party,
+        guild.gold,
+      );
+      setCharacters(result.characters);
+      setDepot(result.depot);
+      setLastBossResult(result.result);
 
-    if (result.guildRenownGained > 0 || result.result.goldGained > 0 || result.guildGoldLost > 0) {
-      setGuild((currentGuild) => ({
-        ...currentGuild,
-        renown: currentGuild.renown + result.guildRenownGained,
-        gold: Math.max(0, currentGuild.gold + result.result.goldGained - result.guildGoldLost),
-      }));
-    }
+      if (result.guildRenownGained > 0 || result.result.goldGained > 0 || result.guildGoldLost > 0) {
+        setGuild((currentGuild) => ({
+          ...currentGuild,
+          renown: currentGuild.renown + result.guildRenownGained,
+          gold: Math.max(0, currentGuild.gold + result.result.goldGained - result.guildGoldLost),
+        }));
+      }
 
-    if (result.result.goldGained > 0) {
+      if (result.result.goldGained > 0) {
+        prependLog(
+          "Guild gold",
+          `${result.result.bossName} rendeu ${result.result.goldGained.toLocaleString("en-US")}g para a Guilda ${guild.name}.`,
+          "success",
+        );
+      }
+
+      for (const message of [...result.logs].reverse()) {
+        prependLog(
+          result.result.defeated ? "Boss defeated" : "Boss result",
+          message,
+          result.result.defeated ? "success" : "warning",
+        );
+      }
+    } catch (error) {
+      endActionResolution(resolutionKey, resolvingActionRef.current);
       prependLog(
-        "Guild gold",
-        `${result.result.bossName} rendeu ${result.result.goldGained.toLocaleString("en-US")}g para a Guilda ${guild.name}.`,
-        "success",
+        "Boss blocked",
+        error instanceof Error ? error.message : "Boss cannot be finished.",
+        "warning",
       );
     }
-
-    for (const message of [...result.logs].reverse()) {
-      prependLog(
-        result.result.defeated ? "Boss defeated" : "Boss result",
-        message,
-        result.result.defeated ? "success" : "warning",
-      );
-    }
-    endActionResolution(resolutionKey, resolvingActionRef.current);
   }
 
   function handleCancelBoss() {
@@ -1543,7 +1583,7 @@ function applyLoadedOfflineCatchUp(
 
 function getActionResolutionKey(character: Character) {
   const action = character.currentAction;
-  return `${character.id}:${action?.type ?? character.status}:${action?.targetId ?? action?.label ?? "none"}`;
+  return `${character.id}:${action?.type ?? character.status}:${action?.targetId ?? action?.label ?? "none"}:${action?.startedAt ?? "no-start"}`;
 }
 
 function beginActionResolution(key: string, activeKeys: Set<string>) {

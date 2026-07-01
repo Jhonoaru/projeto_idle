@@ -25,6 +25,7 @@ Atualizado em: 2026-07-01
 - Etapa 17.5 concluida: rework dos Imbuements com familias Basic/Intricate/Powerful, custos/materiais visiveis e UI da Forge estilo MMORPG.
 - Etapa 17.6 concluida: QA da Forge/Imbuements, correcoes de status, saves antigos e imbuements expirados/invalidos.
 - Etapa 18 concluida: Offline Catch-up real com acoes prontas para coletar, traveling automatico e recovery offline reportado.
+- Etapa 18.5 concluida: QA do Offline Catch-up, blindagem contra duplicacao de coleta e save/load parcial.
 
 Comandos principais:
 
@@ -580,6 +581,50 @@ Validacao:
 
 - `npm.cmd run build` passou.
 - `npm.cmd run tauri dev` abriu o app em verificacao curta sem erro de SQLite.
+
+## Etapa 18.5 - QA do Offline Catch-up, Duplicacao e Save/Load
+
+Status: concluida.
+
+Bugs/riscos encontrados:
+
+- A trava anti-duplo clique era liberada ao fim do handler, antes do React necessariamente limpar `currentAction`, permitindo uma janela pequena para segunda coleta do mesmo action snapshot.
+- Se uma coleta de hunt/boss falhasse no meio, a excecao podia deixar fluxo sem mensagem controlada.
+- Um save parcial com `currentAction.resolvedAt` poderia ser reavaliado pelo catch-up se viesse junto de `currentAction`.
+
+Correcoes aplicadas:
+
+- A chave de resolucao agora inclui `startedAt`, entao uma futura acao igual nao fica bloqueada por uma coleta antiga.
+- Coletas bem-sucedidas mantem a chave travada em memoria, impedindo duplo clique ate o React remover a action da tela.
+- Coletas que falham liberam a chave e registram log amigavel.
+- `hunting`, `training`, `questing` e `bossing` bloqueiam coleta se `currentAction.resolvedAt` existir.
+- O catch-up trata `resolvedAt` como action invalida e nao marca novamente como pronta.
+- Hunt e boss agora protegem excecoes inesperadas durante coleta e nao deixam falha silenciosa.
+
+Testes/revisoes realizados:
+
+- Revisao estatica dos fluxos de hunt, training, quest e boss para duplicacao de XP, gold, loot, supplies, bestiary, cooldown e carga de imbuement.
+- Revisao de save/load para `readyToResolve`, `offlineCompletedAt`, `offlineElapsedMs`, `resolvedAt` e metadata.
+- Revisao da UI de acao pronta: badge, restante 0s, progresso 100%, labels de coleta e cancelamento escondido.
+- Revisao de traveling offline e dead/recovery offline.
+
+Limites mantidos:
+
+- Sem auto-repeat.
+- Sem fila de acoes.
+- Sem farm infinito offline.
+- Sem auto-venda ou auto-compra offline.
+- Sem simulacao minuto a minuto enquanto fechado.
+
+Proximos passos sugeridos:
+
+- Criar testes automatizados de unidade para `markExpiredActionsReady`, `getActionCompletionStatus` e duplo clique de coleta.
+- Migrar actions novas para salvar `startedAt/endsAt` em ISO completo, mantendo parser legado para saves antigos.
+- Adicionar um botao dedicado de limpar action invalida em uma etapa pequena de UX.
+
+Validacao:
+
+- `npm.cmd run build` passou.
 
 - `cargo check` passou em `src-tauri`.
 - `npm.cmd run tauri:build` passou e gerou os instaladores.
