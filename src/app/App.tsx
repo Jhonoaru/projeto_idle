@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GameShell } from "../components/layout/GameShell";
+import { CharacterSideMenu } from "../components/layout/CharacterSideMenu";
 import { LeftPanel } from "../components/layout/LeftPanel";
-import { MainPanel } from "../components/layout/MainPanel";
-import { RightPanel } from "../components/layout/RightPanel";
+import { MainPanel, type MainPanelTab } from "../components/layout/MainPanel";
+import { RightCharacterPanel } from "../components/layout/RightCharacterPanel";
 import { TopBar } from "../components/layout/TopBar";
 import { OfflineReportPanel } from "../components/offline/OfflineReportPanel";
 import { initDatabase } from "../database/db";
@@ -125,20 +126,7 @@ export function App() {
     members: [{ characterId: mockCharacters[0].id, role: "tank" }],
   });
   const [lastBossResult, setLastBossResult] = useState<BossSimulationResult>();
-  const [activeTab, setActiveTab] = useState<
-    | "character"
-    | "action"
-    | "hunts"
-    | "inventory"
-    | "equipment"
-    | "depot"
-    | "training"
-    | "quests"
-    | "bosses"
-    | "market"
-    | "bestiary"
-    | "forge"
-  >("character");
+  const [activeTab, setActiveTab] = useState<MainPanelTab>("home");
   const [selectedCharacterId, setSelectedCharacterId] = useState(
     mockCharacters[0].id,
   );
@@ -1508,11 +1496,14 @@ export function App() {
   return (
     <GameShell>
       <TopBar
+        activeTab={activeTab}
         guild={guild}
+        onOpenTab={setActiveTab}
         onManualSave={handleManualSave}
         onReloadSave={handleReloadSave}
         onResetSave={handleResetSave}
         saveStatus={saveStatus}
+        selectedCharacter={selectedCharacter}
       />
       <OfflineReportPanel
         report={offlineReport}
@@ -1586,12 +1577,18 @@ export function App() {
           onUnlockCharm={handleUnlockCharm}
           onUpgradeForgeItem={handleUpgradeForgeItem}
           onUnequipItem={handleUnequipItem}
+          offlineReport={offlineReport}
           guild={guild}
           selectedBoss={selectedBoss}
           selectedCharacter={selectedCharacter}
           selectedHunt={selectedHunt}
         />
-        <RightPanel logs={logs} />
+        <CharacterSideMenu
+          activeTab={activeTab}
+          character={selectedCharacter}
+          onOpenTab={setActiveTab}
+        />
+        <RightCharacterPanel character={selectedCharacter} logs={logs} />
       </div>
     </GameShell>
   );

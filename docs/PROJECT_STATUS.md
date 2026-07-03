@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-01
+Atualizado em: 2026-07-02
 
 ## Stack usada
 
@@ -28,6 +28,7 @@ Atualizado em: 2026-07-01
 - Etapa 18.5 concluida: QA do Offline Catch-up, blindagem contra duplicacao de coleta e save/load parcial.
 - Etapa 19 concluida: auto-repeat opcional de hunts com limites, regras de parada e integracao conservadora com offline catch-up.
 - Etapa 19.5 concluida: QA do Auto-repeat, normalizacao de configs antigas e ajustes de UI/duplicacao.
+- Etapa 20 concluida: reconstrucao do layout principal para estilo client MMORPG idle, com topbar de jogo, botao Explorar, GameWindow, painel direito de personagem/inventario e menu lateral de sistemas.
 
 Comandos principais:
 
@@ -39,8 +40,13 @@ Comandos principais:
 
 ## Sistemas ja implementados
 
-- Layout base de client MMORPG escuro, compacto e denso.
-- Top bar com dados da guilda.
+- Layout principal estilo client MMORPG idle, escuro, compacto e denso.
+- Topbar de jogo com guilda, personagem selecionado, atalhos Explorar/Market/Forge/Imbuing/Daily/Ranking/Store, moedas e utilitarios.
+- Botao principal EXPLORAR na area central.
+- Janela Explorar / Modos de Jogo com Hunts, Bosses, Training e Quests reaproveitando os sistemas reais.
+- GameWindow reutilizavel para sistemas grandes, com cabecalho, botao fechar e scroll interno.
+- Painel direito fixo com resumo do personagem, XP, equipamentos, inventario compacto, capacity e activity log.
+- Menu lateral de personagem para Details, Skills, Blessings, Weapon Proficiency, Monster Focus, Destiny, Collections, Inventory e Bestiary.
 - Roster lateral de personagens.
 - Personagens com vocacao, level, experiencia, skills, atributos, status, cidade, stamina, ouro, inventario, equipamentos, quests completas, acessos e acao atual.
 - Vocações proprias: Guardian, Ranger, Arcanist, Warden e Monk.
@@ -90,7 +96,39 @@ Comandos principais:
 - Auto-repeat opcional de hunts, iniciado manualmente pelo jogador e limitado por repeats, supplies, capacity, stamina e morte.
 - Aba Acao com Current Action e Action Analyzer.
 - Traveling automatico para retorno/cancelamento e chegada automatica ao expirar.
-- Log de atividade no painel direito.
+- Log de atividade compacto no painel direito.
+
+## Sistemas reais vs placeholders da Etapa 20
+
+Funcionais/reaproveitados na nova navegacao:
+
+- Explorar > Hunts usa HuntActionPanel, Hunt Prep, supplies reais, presets e auto-repeat.
+- Explorar > Bosses usa BossPanel e party builder existentes.
+- Explorar > Training usa TrainingPanel existente.
+- Explorar > Quests usa QuestPanel existente.
+- Market, Forge, Imbuing, Inventory/Equipment, Depot, Bestiary, Action, Details, Skills e Blessings continuam usando os sistemas reais atuais.
+
+Placeholders visuais/local-only:
+
+- Collections mostra Outfits, Mounts e Avatars ficticios, sem loja real e sem sprites protegidos.
+- Weapon Proficiency usa skills existentes como base visual, sem bonus profundo ainda.
+- Monster Focus/Prey mostra slots e criaturas vistas no Bestiary quando houver, sem sistema real completo.
+- Path of Destiny mostra pontos e nodes visuais simples, sem arvore real completa.
+- Daily Reward e Store sao placeholders; nao concedem itens, nao criam premium e nao possuem pagamento real.
+- Updates, Wiki e Settings sao janelas locais simples.
+
+Limitacoes atuais:
+
+- Forge e Imbuing ainda compartilham o mesmo ForgePanel por baixo; a separacao e visual/navegacional nesta etapa.
+- Collections, Daily, Store, Weapon Proficiency, Monster Focus e Destiny nao alteram save nem aplicam bonus nesta etapa.
+- A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
+
+Proximos passos sugeridos:
+
+- Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
+- Evoluir Wiki/Settings com configuracoes locais reais.
+- Criar uma camada visual de cards mais rica para cada modo do Explorar.
+- Implementar sistemas reais futuros de Collections, Proficiency, Monster Focus e Destiny em etapas pequenas.
 
 ## Decisoes de design
 

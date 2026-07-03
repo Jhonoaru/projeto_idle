@@ -3,9 +3,9 @@ import { ActionPanel } from "../action/ActionPanel";
 import { ActionSummaryCard } from "../action/ActionSummaryCard";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { BossPanel } from "../boss/BossPanel";
-import { CurrentActionBox } from "../character/CurrentActionBox";
 import { DeathPanel } from "../death/DeathPanel";
 import { TempleServicesPanel } from "../death/TempleServicesPanel";
+import { ExploreWindow } from "../explore/ExploreWindow";
 import { SkillList } from "../character/SkillList";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
 import { ForgePanel } from "../forge/ForgePanel";
@@ -18,7 +18,9 @@ import { HuntResultPanel } from "../hunt/HuntResultPanel";
 import { MarketPanel } from "../market/MarketPanel";
 import { QuestPanel } from "../quest/QuestPanel";
 import { TrainingPanel } from "../training/TrainingPanel";
+import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
+import { MainPlayArea } from "./MainPlayArea";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
   Boss,
@@ -50,6 +52,34 @@ interface LastResultView {
   result: HuntSimulationResult;
 }
 
+export type MainPanelTab =
+  | "home"
+  | "character"
+  | "skills"
+  | "blessings"
+  | "proficiency"
+  | "focus"
+  | "destiny"
+  | "collections"
+  | "action"
+  | "hunts"
+  | "inventory"
+  | "equipment"
+  | "depot"
+  | "market"
+  | "forge"
+  | "imbuing"
+  | "training"
+  | "quests"
+  | "bosses"
+  | "bestiary"
+  | "daily"
+  | "ranking"
+  | "store"
+  | "updates"
+  | "wiki"
+  | "settings";
+
 interface MainPanelProps {
   selectedCharacter: Character;
   characters: Character[];
@@ -71,21 +101,10 @@ interface MainPanelProps {
     accessUnlocked?: string;
     logs: string[];
   };
-  activeTab:
-    | "character"
-    | "action"
-    | "hunts"
-    | "inventory"
-    | "equipment"
-    | "depot"
-    | "market"
-    | "forge"
-    | "training"
-    | "quests"
-    | "bosses"
-    | "bestiary";
+  activeTab: MainPanelTab;
   depot: GuildDepot;
-  onChangeTab: (tab: MainPanelProps["activeTab"]) => void;
+  offlineReport?: import("../../shared/types").OfflineCatchUpReport;
+  onChangeTab: (tab: MainPanelTab) => void;
   onSelectHunt: (hunt: HuntArea) => void;
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
@@ -168,6 +187,7 @@ export function MainPanel({
   lastQuestResult,
   activeTab,
   depot,
+  offlineReport,
   onChangeTab,
   onSelectHunt,
   onChangeDuration,
@@ -215,7 +235,20 @@ export function MainPanel({
 }: MainPanelProps) {
   return (
     <section className="main-panel">
-      <div className="main-tabs">
+      {activeTab === "home" ? (
+        <MainPlayArea
+          character={selectedCharacter}
+          characters={characters}
+          guild={guild}
+          lastHuntResult={lastResult}
+          offlineReport={offlineReport}
+          onOpenAction={() => onChangeTab("action")}
+          onOpenExplore={() => onChangeTab("hunts")}
+          selectedHunt={selectedHunt}
+        />
+      ) : null}
+
+      <div className="main-tabs client-legacy-tabs">
         <TabButton activeTab={activeTab} label="Personagem" tab="character" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Acao" tab="action" onChangeTab={onChangeTab} />
         <TabButton activeTab={activeTab} label="Inventario & Equipamento" tab="inventory" onChangeTab={onChangeTab} />
@@ -229,7 +262,15 @@ export function MainPanel({
         <TabButton activeTab={activeTab} label="Bestiary" tab="bestiary" onChangeTab={onChangeTab} />
       </div>
 
-      <div className="tab-content">
+      {activeTab !== "home" ? (
+      <GameWindow
+        icon={getWindowIcon(activeTab)}
+        onClose={() => onChangeTab("home")}
+        size={activeTab === "character" || activeTab === "skills" || activeTab === "blessings" ? "medium" : "full"}
+        subtitle={getWindowSubtitle(activeTab)}
+        title={getWindowTitle(activeTab)}
+      >
+      <div className="tab-content client-window-content">
         {activeTab === "character" ? (
           <>
           <CharacterDetails character={selectedCharacter} />
@@ -257,6 +298,45 @@ export function MainPanel({
           </>
         ) : null}
 
+        {activeTab === "skills" ? (
+          <Panel title={`${selectedCharacter.name} Skills`}>
+            <SkillList character={selectedCharacter} skills={selectedCharacter.skills} />
+          </Panel>
+        ) : null}
+
+        {activeTab === "blessings" ? (
+          <>
+            {selectedCharacter.status === "dead" ? (
+              <Panel title="Death Report">
+                <DeathPanel character={selectedCharacter} onRevive={onReviveCharacter} />
+              </Panel>
+            ) : null}
+            <Panel title="Temple Services">
+              <TempleServicesPanel
+                character={selectedCharacter}
+                guild={guild}
+                onBuyBlessing={onBuyBlessing}
+              />
+            </Panel>
+          </>
+        ) : null}
+
+        {activeTab === "collections" ? (
+          <CollectionsWindow character={selectedCharacter} />
+        ) : null}
+
+        {activeTab === "proficiency" ? (
+          <WeaponProficiencyWindow character={selectedCharacter} />
+        ) : null}
+
+        {activeTab === "focus" ? (
+          <MonsterFocusWindow guild={guild} />
+        ) : null}
+
+        {activeTab === "destiny" ? (
+          <DestinyWindow character={selectedCharacter} />
+        ) : null}
+
         {activeTab === "action" ? (
           <ActionPanel
             bossParty={bossParty}
@@ -279,37 +359,45 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "hunts" ? (
-          <>
-          <HuntActionPanel
+          <ExploreWindow
             bestiary={guild.bestiary}
+            bossParty={bossParty}
+            bosses={bosses}
+            characters={characters}
             character={selectedCharacter}
             guild={guild}
             guildDepot={depot}
             durationMinutes={durationMinutes}
+            hunts={hunts}
+            lastBossResult={lastBossResult}
             lastPreparationResult={lastPreparationResult}
+            lastQuestResult={lastQuestResult}
+            lastResult={lastResult}
+            lastTrainingResult={lastTrainingResult}
+            onCancelBoss={onCancelBoss}
+            onChangeBossPartyRole={onChangeBossPartyRole}
             onChangeDuration={onChangeDuration}
+            onClearBossCooldown={onClearBossCooldown}
             onCreateRecommendedPreset={onCreateRecommendedPreset}
-            onDeletePreset={onDeleteHuntPreset}
+            onDeleteHuntPreset={onDeleteHuntPreset}
+            onFinishBoss={onFinishBoss}
             onFinishHunt={onFinishHunt}
+            onFinishQuest={onFinishQuest}
+            onFinishTraining={onFinishTraining}
             onPrepareHunt={onPrepareHunt}
+            onSelectBoss={onSelectBoss}
+            onSelectHunt={onSelectHunt}
+            onStartBoss={onStartBoss}
             onStartHunt={onStartHunt}
-            onStopAutoRepeat={onStopHuntAutoRepeat}
+            onStartQuest={onStartQuest}
+            onStartTraining={onStartTraining}
+            onStopHuntAutoRepeat={onStopHuntAutoRepeat}
+            onToggleBossPartyMember={onToggleBossPartyMember}
             presets={guild.huntPresets ?? []}
+            quests={quests}
+            selectedBoss={selectedBoss}
             selectedHunt={selectedHunt}
           />
-          <HuntResultPanel
-            character={lastResult?.character}
-            characterName={lastResult?.characterName}
-            hunt={lastResult?.hunt}
-            result={lastResult?.result}
-          />
-          <HuntList
-            character={selectedCharacter}
-            hunts={hunts}
-            onSelectHunt={onSelectHunt}
-            selectedHuntId={selectedHunt?.id}
-          />
-          </>
         ) : null}
 
         {activeTab === "inventory" ? (
@@ -384,6 +472,20 @@ export function MainPanel({
           </Panel>
         ) : null}
 
+        {activeTab === "imbuing" ? (
+          <Panel title="Imbuing Shrine">
+            <ForgePanel
+              character={selectedCharacter}
+              guild={guild}
+              guildDepot={depot}
+              onApplyImbuement={onApplyForgeImbuement}
+              onIncreaseTier={onIncreaseForgeTier}
+              onRemoveImbuements={onRemoveForgeImbuements}
+              onUpgradeItem={onUpgradeForgeItem}
+            />
+          </Panel>
+        ) : null}
+
         {activeTab === "training" ? (
           <Panel title={`${selectedCharacter.name} Training`}>
           <TrainingPanel
@@ -438,8 +540,299 @@ export function MainPanel({
             />
           </Panel>
         ) : null}
+
+        {activeTab === "daily" ? <DailyRewardWindow /> : null}
+        {activeTab === "ranking" ? <RankingWindow characters={characters} /> : null}
+        {activeTab === "store" ? <StoreWindow /> : null}
+        {activeTab === "updates" ? <UpdatesWindow /> : null}
+        {activeTab === "wiki" ? <WikiWindow /> : null}
+        {activeTab === "settings" ? <SettingsWindow /> : null}
       </div>
+      </GameWindow>
+      ) : null}
     </section>
+  );
+}
+
+function getWindowTitle(tab: MainPanelTab) {
+  const titles: Record<MainPanelTab, string> = {
+    home: "Guild Hunt Idle",
+    character: "Character Details",
+    skills: "Skills",
+    blessings: "Blessings",
+    proficiency: "Weapon Proficiency",
+    focus: "Monster Focus",
+    destiny: "Path of Destiny",
+    collections: "Collections",
+    action: "Current Action",
+    hunts: "Explorar / Modos de Jogo",
+    inventory: "Inventory & Equipment",
+    equipment: "Equipment",
+    depot: "Depot",
+    market: "Market NPC",
+    forge: "Forge",
+    imbuing: "Imbuing Shrine",
+    training: "Training",
+    quests: "Quests",
+    bosses: "Bosses",
+    bestiary: "Bestiary & Charms",
+    daily: "Daily Reward",
+    ranking: "Local Ranking",
+    store: "Store",
+    updates: "Updates",
+    wiki: "Wiki",
+    settings: "Settings",
+  };
+
+  return titles[tab];
+}
+
+function getWindowSubtitle(tab: MainPanelTab) {
+  if (tab === "hunts") return "Hunts, bosses, training, and quests use the real game systems.";
+  if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
+  if (["daily", "store", "focus", "destiny", "collections", "proficiency"].includes(tab)) {
+    return "Client-style preview for a future system.";
+  }
+  return undefined;
+}
+
+function getWindowIcon(tab: MainPanelTab) {
+  const icons: Partial<Record<MainPanelTab, string>> = {
+    character: "D",
+    skills: "S",
+    blessings: "B",
+    hunts: "E",
+    market: "M",
+    forge: "F",
+    imbuing: "I",
+    daily: "D",
+    ranking: "R",
+    store: "S",
+    updates: "U",
+    wiki: "W",
+    settings: "G",
+  };
+
+  return icons[tab];
+}
+
+function CollectionsWindow({ character }: { character: Character }) {
+  return (
+    <div className="client-placeholder-grid">
+      <Panel title="Outfits">
+        <PlaceholderCards entries={["Wanderer", "Hunter", "Mystic", "Iron Guard", "Noble"]} />
+      </Panel>
+      <Panel title="Mounts">
+        <PlaceholderCards entries={["Trail Runner", "Ash Drake", "Stoneback"]} locked />
+      </Panel>
+      <Panel title="Avatars">
+        <PlaceholderCards entries={[character.name, "Guild Crest", "Temple Mark"]} />
+      </Panel>
+    </div>
+  );
+}
+
+function WeaponProficiencyWindow({ character }: { character: Character }) {
+  const entries = [
+    { name: "Sword", skill: character.skills.sword },
+    { name: "Axe", skill: character.skills.axe },
+    { name: "Club", skill: character.skills.club },
+    { name: "Bow", skill: character.skills.distance },
+    { name: "Wand", skill: character.skills.magic },
+    { name: "Staff", skill: character.skills.magic },
+    { name: "Fist", skill: character.skills.fist },
+  ];
+
+  return (
+    <div className="client-placeholder-grid">
+      {entries.map((entry) => (
+        <Panel key={entry.name} title={entry.name}>
+          <div className="client-info-card">
+            <strong>Level {entry.skill.level}</strong>
+            <p>{entry.skill.progressPercent}% progress to the next proficiency tier.</p>
+            <div className="level-progress-track" aria-hidden="true">
+              <span style={{ width: `${entry.skill.progressPercent}%` }} />
+            </div>
+            <small>Perks at Level 1, Level 2, and Level 3 are planned.</small>
+          </div>
+        </Panel>
+      ))}
+    </div>
+  );
+}
+
+function MonsterFocusWindow({ guild }: { guild: Guild }) {
+  const knownMonsters = guild.bestiary?.progress.slice(0, 6) ?? [];
+
+  return (
+    <Panel title="Prey Contracts / Monster Focus">
+      <div className="client-summary-grid">
+        <div>
+          <span>Slot 1</span>
+          <strong>Available</strong>
+        </div>
+        <div>
+          <span>Slot 2</span>
+          <strong>Future</strong>
+        </div>
+        <div>
+          <span>Slot 3</span>
+          <strong>Future</strong>
+        </div>
+      </div>
+      <div className="client-placeholder-grid">
+        {knownMonsters.length > 0 ? (
+          knownMonsters.map((monster) => (
+            <div className="client-info-card" key={monster.monsterId}>
+              <strong>{monster.monsterName}</strong>
+              <p>{monster.kills} kills / {monster.stage}</p>
+            </div>
+          ))
+        ) : (
+          <div className="client-info-card">
+            <strong>No focus target yet</strong>
+            <p>Bestiary discoveries will appear here in a future version.</p>
+          </div>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
+function DestinyWindow({ character }: { character: Character }) {
+  const points = Math.max(0, Math.floor((character.level - 20) / 10));
+
+  return (
+    <Panel title="Guild Destiny">
+      <div className="client-summary-grid">
+        <div>
+          <span>Vocation</span>
+          <strong>{character.vocation}</strong>
+        </div>
+        <div>
+          <span>Level</span>
+          <strong>{character.level}</strong>
+        </div>
+        <div>
+          <span>Points</span>
+          <strong>{points}</strong>
+        </div>
+      </div>
+      <div className="destiny-grid">
+        {["Core", "Offense", "Defense", "Utility", "Mastery", "Future"].map((node, index) => (
+          <div className={index <= points ? "is-open" : ""} key={node}>
+            <span>{node}</span>
+            <strong>{index <= points ? "Unlocked" : "Locked"}</strong>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+function DailyRewardWindow() {
+  return (
+    <Panel title="Daily Reward">
+      <div className="client-info-card">
+        <strong>Offline daily rewards are planned.</strong>
+        <p>This window is visual only in Etapa 20 and does not grant items or gold yet.</p>
+      </div>
+    </Panel>
+  );
+}
+
+function RankingWindow({ characters }: { characters: Character[] }) {
+  const ranked = [...characters].sort((a, b) => b.experience - a.experience);
+
+  return (
+    <Panel title="Experience Ranking">
+      <div className="ranking-list">
+        {ranked.map((character, index) => (
+          <div key={character.id}>
+            <span>#{index + 1}</span>
+            <strong>{character.name}</strong>
+            <em>Level {character.level} / {character.experience.toLocaleString("en-US")} XP</em>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+function StoreWindow() {
+  return (
+    <Panel title="Cosmetic Store">
+      <div className="client-placeholder-grid">
+        <div className="client-info-card">
+          <strong>Cosmetics</strong>
+          <p>Cosmetic store planned for future versions.</p>
+        </div>
+        <div className="client-info-card">
+          <strong>Outfits</strong>
+          <p>No checkout, premium, or paid currency is implemented.</p>
+        </div>
+        <div className="client-info-card">
+          <strong>Boosts</strong>
+          <p>Future placeholder only; progression is not pay-gated.</p>
+        </div>
+      </div>
+    </Panel>
+  );
+}
+
+function UpdatesWindow() {
+  return (
+    <Panel title="Changelog">
+      <div className="client-info-card">
+        <strong>Etapa 20</strong>
+        <p>Client-style layout, topbar navigation, character side menu, right character panel, and game windows.</p>
+      </div>
+    </Panel>
+  );
+}
+
+function WikiWindow() {
+  return (
+    <Panel title="Guild Wiki">
+      <div className="client-placeholder-grid">
+        {["Hunts", "Supplies", "Auto-repeat", "Bless", "Bestiary", "Forge", "Imbuing"].map((entry) => (
+          <div className="client-info-card" key={entry}>
+            <strong>{entry}</strong>
+            <p>Local guide entry planned for a future content pass.</p>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+function SettingsWindow() {
+  return (
+    <Panel title="Settings">
+      <div className="client-info-card">
+        <strong>Save controls remain in the topbar.</strong>
+        <p>Additional local settings can be added here without changing save/load behavior.</p>
+      </div>
+    </Panel>
+  );
+}
+
+function PlaceholderCards({
+  entries,
+  locked = false,
+}: {
+  entries: string[];
+  locked?: boolean;
+}) {
+  return (
+    <div className="collection-grid">
+      {entries.map((entry) => (
+        <div className={locked ? "is-locked" : ""} key={entry}>
+          <strong>{entry}</strong>
+          <span>{locked ? "Future" : "Preview"}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -449,10 +842,10 @@ function TabButton({
   tab,
   onChangeTab,
 }: {
-  activeTab: MainPanelProps["activeTab"];
+  activeTab: MainPanelTab;
   label: string;
-  tab: MainPanelProps["activeTab"];
-  onChangeTab: (tab: MainPanelProps["activeTab"]) => void;
+  tab: MainPanelTab;
+  onChangeTab: (tab: MainPanelTab) => void;
 }) {
   return (
     <button
