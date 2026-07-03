@@ -228,9 +228,10 @@ async function saveCharacter(
       death_state_json,
       blessings_json,
       death_count,
+      weapon_proficiencies_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
     [
       character.id,
       guildId,
@@ -254,6 +255,7 @@ async function saveCharacter(
       stringifyNullable(character.deathState),
       JSON.stringify(character.blessings ?? []),
       character.deathCount ?? 0,
+      JSON.stringify(character.weaponProficiencies ?? {}),
       character.createdAt,
       now,
     ],

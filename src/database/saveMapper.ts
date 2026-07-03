@@ -1,6 +1,8 @@
 import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
+import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import type {
   ActivityLogEntry,
   Character,
@@ -47,6 +49,7 @@ export interface CharacterRow {
   death_state_json?: string | null;
   blessings_json?: string | null;
   death_count?: number | null;
+  weapon_proficiencies_json?: string | null;
   created_at: string;
 }
 
@@ -101,6 +104,33 @@ export function mapCharacter(
   skillRows: SkillRow[],
   inventoryRows: InventoryRow[],
 ): Character {
+  const inventory = inventoryRows
+    .filter(
+      (inventoryRow) =>
+        inventoryRow.owner_type === OWNER_TYPES.characterInventory &&
+        inventoryRow.owner_id === row.id,
+    )
+    .map(mapInventoryItem);
+  const characterDepot = inventoryRows
+    .filter(
+      (inventoryRow) =>
+        inventoryRow.owner_type === OWNER_TYPES.characterDepot &&
+        inventoryRow.owner_id === row.id,
+    )
+    .map(mapInventoryItem);
+  const equipment = mapEquipment(row.id, inventoryRows);
+  const skills = mapSkills(row.id, skillRows);
+  const weaponProficiencies = normalizeWeaponProficiencies(
+    parseJson(row.weapon_proficiencies_json ?? "{}", {}),
+  );
+  const attributes = calculateCharacterAttributes({
+    level: row.level,
+    vocation: row.vocation,
+    skills,
+    equipment,
+    weaponProficiencies,
+  });
+
   return {
     id: row.id,
     name: row.name,
@@ -112,37 +142,17 @@ export function mapCharacter(
     city: row.city,
     staminaHours: row.stamina_hours,
     gold: 0,
-    inventory: inventoryRows
-      .filter(
-        (inventoryRow) =>
-          inventoryRow.owner_type === OWNER_TYPES.characterInventory &&
-          inventoryRow.owner_id === row.id,
-      )
-      .map(mapInventoryItem),
-    characterDepot: inventoryRows
-      .filter(
-        (inventoryRow) =>
-          inventoryRow.owner_type === OWNER_TYPES.characterDepot &&
-          inventoryRow.owner_id === row.id,
-      )
-      .map(mapInventoryItem),
-    equipment: mapEquipment(row.id, inventoryRows),
+    inventory,
+    characterDepot,
+    equipment,
     capacityUsed: row.capacity_used,
-    capacityMax: row.capacity_max,
+    capacityMax: attributes.capacity,
     completedQuestIds: parseJson(row.completed_quest_ids_json, []),
     accessIds: parseJson(row.access_ids_json, []),
     bossCooldowns: parseJson(row.boss_cooldowns_json, []),
     questProgress: parseJson(row.quest_progress_json, []),
-    skills: mapSkills(row.id, skillRows),
-    attributes: parseJson(row.attributes_json, {
-      maxHealth: 0,
-      maxMana: 0,
-      capacity: row.capacity_max,
-      speed: 0,
-      attackPower: 0,
-      defensePower: 0,
-      armor: 0,
-    }),
+    skills,
+    attributes,
     currentAction: row.current_action_json
       ? parseJson(row.current_action_json, undefined)
       : undefined,
@@ -151,6 +161,7 @@ export function mapCharacter(
       : undefined,
     blessings: parseJson(row.blessings_json ?? "[]", []),
     deathCount: row.death_count ?? 0,
+    weaponProficiencies,
     createdAt: row.created_at,
   };
 }

@@ -55,15 +55,15 @@ export function TopBar({
         <GameCurrencyPill label="Gold" value={`${guild.gold.toLocaleString("en-US")}g`} />
         <GameCurrencyPill label="Cosmetic" tone="future" value="0" />
         <div className="client-utility-buttons">
-          <button onClick={() => onOpenTab("updates")} type="button">Updates</button>
-          <button onClick={() => onOpenTab("wiki")} type="button">Wiki</button>
-          <button onClick={() => onOpenTab("settings")} type="button">Settings</button>
+          <button onClick={() => onOpenTab("updates")} title="Open updates" type="button">Updates</button>
+          <button onClick={() => onOpenTab("wiki")} title="Open wiki" type="button">Wiki</button>
+          <button onClick={() => onOpenTab("settings")} title="Open settings" type="button">Settings</button>
         </div>
         <div className="save-controls" aria-label="Save controls">
           <span>{saveStatus ?? "SQLite local"}</span>
-          <button onClick={onManualSave} type="button">Save</button>
-          <button onClick={onReloadSave} type="button">Reload</button>
-          <button onClick={onResetSave} type="button">Reset</button>
+          <button onClick={onManualSave} title="Save now" type="button">Save</button>
+          <button onClick={onReloadSave} title="Reload local save" type="button">Reload</button>
+          <button onClick={onResetSave} title="Reset local save" type="button">Reset</button>
         </div>
       </div>
     </header>

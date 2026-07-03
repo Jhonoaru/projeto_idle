@@ -5,6 +5,13 @@ import type { Character } from "../../shared/types";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
+import { calculateWeaponProficiencyBonuses } from "../../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
+import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
+import { WEAPON_PROFICIENCY_LABELS } from "../../game-engine/weapon-proficiency/weaponProficiencyDefinitions";
+import {
+  getWeaponProficiencyProgressPercent,
+  normalizeWeaponProficiencies,
+} from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { getAccessName } from "../../data/accesses";
 import { getBlessingById } from "../../data/blessings";
 
@@ -15,6 +22,11 @@ interface CharacterDetailsProps {
 export function CharacterDetails({ character }: CharacterDetailsProps) {
   const [, setTick] = useState(0);
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
+  const weaponProficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
+  const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
+  const activeShieldType = getEquippedWeaponProficiencyType(character.equipment.offhand);
+  const activeMastery = activeWeaponType ? weaponProficiencies[activeWeaponType] : undefined;
+  const activeMasteryBonuses = calculateWeaponProficiencyBonuses(character);
   const hasForgeBonuses = Object.values(character.equipment).some(
     (item) => item && ((item.upgradeLevel ?? 0) > 0 || (item.tier ?? 0) > 0 || (item.imbuements ?? []).length > 0),
   );
@@ -95,6 +107,33 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
         <StatBox label="Attack" value={character.attributes.attackPower} />
         <StatBox label="Defense" value={character.attributes.defensePower} />
         <StatBox label="Armor" value={character.attributes.armor} />
+        <StatBox
+          label="Active Mastery"
+          value={activeWeaponType ? WEAPON_PROFICIENCY_LABELS[activeWeaponType] : "None"}
+          detail={
+            activeMastery
+              ? `Lv ${activeMastery.level} / ${Math.round(getWeaponProficiencyProgressPercent(activeMastery))}%`
+              : undefined
+          }
+        />
+        <StatBox
+          label="Shield Mastery"
+          value={activeShieldType === "shield" ? `Lv ${weaponProficiencies.shield.level}` : "None"}
+          detail={activeShieldType === "shield" ? "Reduced XP gain" : undefined}
+        />
+        <StatBox
+          label="Mastery Bonus"
+          value={
+            activeMasteryBonuses.activePerks.length > 0
+              ? activeMasteryBonuses.activePerks.join(" / ")
+              : "None"
+          }
+          detail={
+            character.attributes.critChancePercent || character.attributes.critDamagePercent
+              ? `Crit ${character.attributes.critChancePercent ?? 0}% / ${character.attributes.critDamagePercent ?? 0}%`
+              : undefined
+          }
+        />
         <StatBox
           label="Gear Bonus"
           value={bonusSummary.length > 0 ? bonusSummary.join(" / ") : "None"}

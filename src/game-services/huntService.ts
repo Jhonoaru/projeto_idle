@@ -10,6 +10,11 @@ import { addSkillProgress } from "../game-engine/progression/addSkillProgress";
 import { calculateSupplyUsage } from "../game-engine/supplies/calculateSupplyUsage";
 import { checkHuntSupplies } from "../game-engine/supplies/checkHuntSupplies";
 import { consumeSupplies } from "../game-engine/supplies/consumeSupplies";
+import { applyWeaponProficiencyHuntProgress } from "../game-engine/weapon-proficiency/applyWeaponProficiencyHuntProgress";
+import {
+  calculateWeaponProficiencyBonuses,
+  getSupplyReductionForUsage,
+} from "../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
 import type {
   Character,
   CharacterStatus,
@@ -81,6 +86,7 @@ export function finishHunt(
 ): { character: Character; result: HuntSimulationResult; guildGoldLost: number } {
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
   const imbuementBonuses = calculateActiveImbuementBonuses(character);
+  const proficiencyBonuses = calculateWeaponProficiencyBonuses(character);
   const baseResult = simulateHunt({
     character,
     hunt,
@@ -88,11 +94,15 @@ export function finishHunt(
     deathRiskMultiplier: charmBonuses.deathRiskMultiplier,
   });
   const result = applyCharmBonusesToResult(baseResult, charmBonuses);
-  result.experienceGained = Math.round(result.experienceGained * (1 + imbuementBonuses.xpBonusPercent / 100));
+  result.experienceGained = Math.round(
+    result.experienceGained *
+      (1 + imbuementBonuses.xpBonusPercent / 100) *
+      (1 + proficiencyBonuses.bonus.xpBonusPercent / 100),
+  );
   const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
     ...usage,
-    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * (1 - imbuementBonuses.supplyReductionPercent / 100))),
-    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * (1 - imbuementBonuses.supplyReductionPercent / 100))),
+    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
+    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
   }));
   const supplyConsumption = consumeSupplies(character, expectedUsage);
   const supplyValueUsed = supplyConsumption.suppliesUsed.reduce(
@@ -110,6 +120,11 @@ export function finishHunt(
     result.experienceGained,
   );
   let characterAfterRewards = experienceResult.character;
+  const masteryProgress = applyWeaponProficiencyHuntProgress(
+    characterAfterRewards,
+    result,
+  );
+  characterAfterRewards = masteryProgress.character;
   const imbuementTick = decrementHuntImbuements(characterAfterRewards);
   characterAfterRewards = imbuementTick.character;
   const progressionLogs: string[] = [];
@@ -174,10 +189,13 @@ export function finishHunt(
       ...charmBonuses.logs,
       ...(imbuementBonuses.xpBonusPercent > 0 ? [`Forge bonus applied: +${imbuementBonuses.xpBonusPercent}% XP.`] : []),
       ...(imbuementBonuses.supplyReductionPercent > 0 ? [`Forge bonus applied: -${imbuementBonuses.supplyReductionPercent}% supplies.`] : []),
+      ...(proficiencyBonuses.bonus.xpBonusPercent > 0 ? [`Weapon proficiency bonus applied: +${proficiencyBonuses.bonus.xpBonusPercent}% XP.`] : []),
+      ...(proficiencyBonuses.bonus.supplyReductionPercent > 0 ? [`Weapon proficiency bonus available: up to -${proficiencyBonuses.bonus.supplyReductionPercent}% supplies by type.`] : []),
       ...supplyConsumption.logs,
       ...deathLogs,
       `Hunt finalizada. Balance apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold.`,
       ...progressionLogs,
+      ...masteryProgress.logs,
       ...imbuementTick.logs,
     ],
   };
@@ -192,6 +210,20 @@ export function finishHunt(
     result: resultWithRejectedLoot,
     guildGoldLost,
   };
+}
+
+function getSupplyMultiplier(
+  character: Character,
+  supplyType: string,
+  imbuementReductionPercent: number,
+) {
+  const proficiencyReductionPercent = getSupplyReductionForUsage(character, supplyType);
+  const totalReductionPercent = Math.min(
+    75,
+    Math.max(0, imbuementReductionPercent + proficiencyReductionPercent),
+  );
+
+  return Math.max(0, 1 - totalReductionPercent / 100);
 }
 
 function applyCharmBonusesToResult(

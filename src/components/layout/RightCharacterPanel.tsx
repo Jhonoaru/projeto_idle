@@ -1,6 +1,12 @@
 import { ActivityLog } from "../log/ActivityLog";
 import { Panel } from "../ui/Panel";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
+import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
+import { WEAPON_PROFICIENCY_LABELS } from "../../game-engine/weapon-proficiency/weaponProficiencyDefinitions";
+import {
+  getWeaponProficiencyProgressPercent,
+  normalizeWeaponProficiencies,
+} from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
 import type { ActivityLogEntry, Character, EquipmentSlot, InventoryItem } from "../../shared/types";
 
@@ -29,6 +35,9 @@ export function RightCharacterPanel({ character, logs }: RightCharacterPanelProp
     Math.round((character.capacityUsed / Math.max(1, character.capacityMax)) * 100),
   );
   const rootInventory = character.inventory.filter((item) => !item.parentContainerId).slice(0, 24);
+  const proficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
+  const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
+  const activeShieldType = getEquippedWeaponProficiencyType(character.equipment.offhand);
 
   return (
     <aside className="right-character-panel">
@@ -52,6 +61,22 @@ export function RightCharacterPanel({ character, logs }: RightCharacterPanelProp
             <span style={{ width: `${levelProgress}%` }} />
           </div>
           {xpPreview.isEstimated ? <p>Estimated while action is running.</p> : null}
+        </div>
+        <div className="client-mastery-line">
+          <span>Mastery</span>
+          <strong>
+            {activeWeaponType
+              ? `${WEAPON_PROFICIENCY_LABELS[activeWeaponType]} Lv ${proficiencies[activeWeaponType].level}`
+              : "No weapon"}
+          </strong>
+          {activeWeaponType ? (
+            <small>
+              {Math.round(getWeaponProficiencyProgressPercent(proficiencies[activeWeaponType]))}% to next
+            </small>
+          ) : null}
+          {activeShieldType === "shield" ? (
+            <small>Shield Lv {proficiencies.shield.level}</small>
+          ) : null}
         </div>
       </Panel>
 
@@ -115,7 +140,9 @@ function InventoryCell({ entry }: { entry: InventoryItem }) {
 }
 
 function formatEnhancement(item: InventoryItem) {
+  const masteryType = getEquippedWeaponProficiencyType(item);
   const parts = [
+    masteryType ? WEAPON_PROFICIENCY_LABELS[masteryType].replace(" Mastery", "") : undefined,
     item.upgradeLevel ? `+${item.upgradeLevel}` : undefined,
     item.tier ? `T${item.tier}` : undefined,
     item.imbuements?.length ? `${item.imbuements.length} imb` : undefined,

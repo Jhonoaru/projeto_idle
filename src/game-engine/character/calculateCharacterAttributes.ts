@@ -1,11 +1,13 @@
 import { VOCATION_CONFIGS } from "../../data/vocations";
 import { calculateEquipmentBonuses } from "../equipment/calculateEquipmentBonuses";
+import { calculateWeaponProficiencyBonuses } from "../weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getMainSkill } from "./getMainSkill";
 import type { Character, CharacterAttributes, EquippedItems } from "../../shared/types";
 
 export function calculateCharacterAttributes(
   character: Pick<Character, "level" | "vocation" | "skills"> & {
     equipment?: EquippedItems;
+    weaponProficiencies?: Character["weaponProficiencies"];
   },
 ): CharacterAttributes {
   const config = VOCATION_CONFIGS[character.vocation];
@@ -13,6 +15,7 @@ export function calculateCharacterAttributes(
   const magicLevel = character.skills.magic.level;
   const shielding = character.skills.shielding.level;
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
+  const proficiencyBonuses = calculateWeaponProficiencyBonuses(character).bonus;
 
   const maxHealth = Math.round(
     145 + character.level * config.healthPerLevel + equipmentBonuses.healthBonus,
@@ -38,23 +41,32 @@ export function calculateCharacterAttributes(
         ? equipmentBonuses.fistPower * 1.8
         : 0;
 
-  const attackPower = Math.round(
+  const baseAttackPower =
     (character.level * 1.8 +
       mainSkill.level * 2.2 +
       magicAttackBonus +
       vocationWeaponBonus +
       equipmentBonuses.attack) *
-      config.attackMultiplier,
+      config.attackMultiplier;
+  const attackBonusPercent =
+    proficiencyBonuses.attackPowerPercent +
+    proficiencyBonuses.magicPowerPercent +
+    proficiencyBonuses.distancePowerPercent +
+    proficiencyBonuses.fistPowerPercent;
+  const attackPower = Math.round(
+    baseAttackPower * (1 + attackBonusPercent / 100),
   );
 
   const armor = Math.round(equipmentBonuses.armor);
-  const defensePower = Math.round(
+  const baseDefensePower =
     (character.level * 1.4 +
       shielding * 2.1 +
       mainSkill.level * 0.45 +
       equipmentBonuses.defense +
       armor * 2.5) *
-      config.defenseMultiplier,
+      config.defenseMultiplier;
+  const defensePower = Math.round(
+    baseDefensePower * (1 + proficiencyBonuses.defensePowerPercent / 100),
   );
 
   return {
@@ -65,5 +77,7 @@ export function calculateCharacterAttributes(
     attackPower,
     defensePower,
     armor,
+    critChancePercent: proficiencyBonuses.critChancePercent,
+    critDamagePercent: proficiencyBonuses.critDamagePercent,
   };
 }

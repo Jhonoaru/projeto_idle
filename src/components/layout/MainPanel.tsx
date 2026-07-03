@@ -12,15 +12,22 @@ import { ForgePanel } from "../forge/ForgePanel";
 import { CharacterDepotPanel } from "../inventory/CharacterDepotPanel";
 import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
-import { HuntActionPanel } from "../hunt/HuntActionPanel";
-import { HuntList } from "../hunt/HuntList";
-import { HuntResultPanel } from "../hunt/HuntResultPanel";
 import { MarketPanel } from "../market/MarketPanel";
 import { QuestPanel } from "../quest/QuestPanel";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
+import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
+import {
+  WEAPON_PROFICIENCY_LABELS,
+  WEAPON_PROFICIENCY_PERKS,
+  WEAPON_PROFICIENCY_TYPES,
+} from "../../game-engine/weapon-proficiency/weaponProficiencyDefinitions";
+import {
+  getWeaponProficiencyProgressPercent,
+  normalizeWeaponProficiencies,
+} from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
   Boss,
@@ -104,7 +111,11 @@ interface MainPanelProps {
   activeTab: MainPanelTab;
   depot: GuildDepot;
   offlineReport?: import("../../shared/types").OfflineCatchUpReport;
+  saveStatus?: string;
   onChangeTab: (tab: MainPanelTab) => void;
+  onManualSave: () => void;
+  onReloadSave: () => void;
+  onResetSave: () => void;
   onSelectHunt: (hunt: HuntArea) => void;
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
@@ -188,7 +199,11 @@ export function MainPanel({
   activeTab,
   depot,
   offlineReport,
+  saveStatus,
   onChangeTab,
+  onManualSave,
+  onReloadSave,
+  onResetSave,
   onSelectHunt,
   onChangeDuration,
   onStartHunt,
@@ -546,7 +561,14 @@ export function MainPanel({
         {activeTab === "store" ? <StoreWindow /> : null}
         {activeTab === "updates" ? <UpdatesWindow /> : null}
         {activeTab === "wiki" ? <WikiWindow /> : null}
-        {activeTab === "settings" ? <SettingsWindow /> : null}
+        {activeTab === "settings" ? (
+          <SettingsWindow
+            onManualSave={onManualSave}
+            onReloadSave={onReloadSave}
+            onResetSave={onResetSave}
+            saveStatus={saveStatus}
+          />
+        ) : null}
       </div>
       </GameWindow>
       ) : null}
@@ -633,30 +655,68 @@ function CollectionsWindow({ character }: { character: Character }) {
 }
 
 function WeaponProficiencyWindow({ character }: { character: Character }) {
-  const entries = [
-    { name: "Sword", skill: character.skills.sword },
-    { name: "Axe", skill: character.skills.axe },
-    { name: "Club", skill: character.skills.club },
-    { name: "Bow", skill: character.skills.distance },
-    { name: "Wand", skill: character.skills.magic },
-    { name: "Staff", skill: character.skills.magic },
-    { name: "Fist", skill: character.skills.fist },
-  ];
+  const proficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
+  const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
+  const activeShieldType = getEquippedWeaponProficiencyType(character.equipment.offhand);
 
   return (
-    <div className="client-placeholder-grid">
-      {entries.map((entry) => (
-        <Panel key={entry.name} title={entry.name}>
-          <div className="client-info-card">
-            <strong>Level {entry.skill.level}</strong>
-            <p>{entry.skill.progressPercent}% progress to the next proficiency tier.</p>
-            <div className="level-progress-track" aria-hidden="true">
-              <span style={{ width: `${entry.skill.progressPercent}%` }} />
+    <div className="weapon-proficiency-window">
+      <div className="client-summary-grid">
+        <div>
+          <span>Main mastery</span>
+          <strong>{activeWeaponType ? WEAPON_PROFICIENCY_LABELS[activeWeaponType] : "None"}</strong>
+        </div>
+        <div>
+          <span>Shield mastery</span>
+          <strong>{activeShieldType === "shield" ? "Shield Mastery" : "None"}</strong>
+        </div>
+      </div>
+
+      <div className="weapon-proficiency-grid">
+        {WEAPON_PROFICIENCY_TYPES.map((type) => {
+          const progress = proficiencies[type];
+          const progressPercent = Math.round(getWeaponProficiencyProgressPercent(progress));
+          const perks = WEAPON_PROFICIENCY_PERKS[type];
+          const isActive = type === activeWeaponType || type === activeShieldType;
+
+          return (
+            <div
+              className={`weapon-proficiency-card ${isActive ? "is-active" : ""}`.trim()}
+              key={type}
+            >
+              <div className="weapon-proficiency-heading">
+                <div>
+                  <span>{isActive ? "Equipped" : "Mastery"}</span>
+                  <strong>{WEAPON_PROFICIENCY_LABELS[type]}</strong>
+                </div>
+                <em>Lv {progress.level}</em>
+              </div>
+              <div className="level-progress-track" aria-hidden="true">
+                <span style={{ width: `${progressPercent}%` }} />
+              </div>
+              <p>
+                {progress.experience.toLocaleString("en-US")} XP /{" "}
+                {progress.level >= 20
+                  ? "Max level"
+                  : `${progress.experienceToNextLevel.toLocaleString("en-US")} to next`}
+              </p>
+              <div className="weapon-perk-list">
+                {perks.map((perk) => {
+                  const unlocked = progress.unlockedPerkIds.includes(perk.id);
+
+                  return (
+                    <div className={unlocked ? "is-unlocked" : ""} key={perk.id}>
+                      <span>Level {perk.requiredLevel}</span>
+                      <strong>{perk.name}</strong>
+                      <small>{unlocked ? "Unlocked" : "Locked"} / {perk.description}</small>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <small>Perks at Level 1, Level 2, and Level 3 are planned.</small>
-          </div>
-        </Panel>
-      ))}
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -806,12 +866,27 @@ function WikiWindow() {
   );
 }
 
-function SettingsWindow() {
+function SettingsWindow({
+  saveStatus,
+  onManualSave,
+  onReloadSave,
+  onResetSave,
+}: {
+  saveStatus?: string;
+  onManualSave: () => void;
+  onReloadSave: () => void;
+  onResetSave: () => void;
+}) {
   return (
     <Panel title="Settings">
-      <div className="client-info-card">
-        <strong>Save controls remain in the topbar.</strong>
-        <p>Additional local settings can be added here without changing save/load behavior.</p>
+      <div className="client-info-card settings-save-card">
+        <strong>{saveStatus ?? "SQLite local save"}</strong>
+        <p>Local save controls for this offline client.</p>
+        <div className="settings-command-row">
+          <button onClick={onManualSave} type="button">Save now</button>
+          <button onClick={onReloadSave} type="button">Reload save</button>
+          <button onClick={onResetSave} type="button">Reset save</button>
+        </div>
       </div>
     </Panel>
   );

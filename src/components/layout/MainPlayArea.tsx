@@ -52,7 +52,12 @@ export function MainPlayArea({
               : `${character.name} is idle in ${character.city}. Pick a hunt, boss, quest, or training mode.`}
           </p>
         </div>
-        <button className="explore-primary-button" onClick={onOpenExplore} type="button">
+        <button
+          aria-label="Open Explore game modes"
+          className="explore-primary-button"
+          onClick={onOpenExplore}
+          type="button"
+        >
           EXPLORAR
         </button>
       </section>

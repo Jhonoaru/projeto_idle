@@ -364,6 +364,7 @@ export function App() {
         }
       }
       setSelectedCharacterId(stateToApply.characters[0]?.id ?? selectedCharacterId);
+      setActiveTab("home");
       saveReadyRef.current = true;
       setSaveStatus(loadedState ? "Save carregado." : "Save inicial criado.");
     } catch (error) {
@@ -395,6 +396,7 @@ export function App() {
         ],
       });
       setSelectedCharacterId(resetState.characters[0]?.id ?? mockCharacters[0].id);
+      setActiveTab("home");
       saveReadyRef.current = true;
       setSaveStatus("Save resetado.");
     } catch (error) {
@@ -1565,6 +1567,9 @@ export function App() {
           onSellMarketCategory={handleSellMarketCategory}
           onSellMarketItems={handleSellMarketItems}
           onBuyMarketItem={handleBuyMarketItem}
+          onManualSave={handleManualSave}
+          onReloadSave={handleReloadSave}
+          onResetSave={handleResetSave}
           onStartBoss={handleStartBoss}
           onStartHunt={handleStartHunt}
           onStopHuntAutoRepeat={handleStopHuntAutoRepeat}
@@ -1578,6 +1583,7 @@ export function App() {
           onUpgradeForgeItem={handleUpgradeForgeItem}
           onUnequipItem={handleUnequipItem}
           offlineReport={offlineReport}
+          saveStatus={saveStatus}
           guild={guild}
           selectedBoss={selectedBoss}
           selectedCharacter={selectedCharacter}

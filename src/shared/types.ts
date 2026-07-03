@@ -18,6 +18,16 @@ export type SkillName =
   | "shielding"
   | "magic";
 
+export type WeaponProficiencyType =
+  | "sword"
+  | "axe"
+  | "club"
+  | "bow"
+  | "wand"
+  | "staff"
+  | "fist"
+  | "shield";
+
 export type TrainingType = "offline" | "exercise" | "dummy";
 
 export type TrainingTarget = SkillName;
@@ -235,7 +245,39 @@ export interface ImbuementBonus {
   speedFlat?: number;
   supplyReductionPercent?: number;
   xpBonusPercent?: number;
+  critChancePercent?: number;
+  critDamagePercent?: number;
 }
+
+export interface WeaponProficiencyBonus {
+  attackPowerPercent?: number;
+  defensePowerPercent?: number;
+  magicPowerPercent?: number;
+  distancePowerPercent?: number;
+  fistPowerPercent?: number;
+  critChancePercent?: number;
+  critDamagePercent?: number;
+  supplyReductionPercent?: number;
+  xpBonusPercent?: number;
+}
+
+export interface WeaponProficiencyPerk {
+  id: string;
+  name: string;
+  description: string;
+  requiredLevel: number;
+  bonus: WeaponProficiencyBonus;
+}
+
+export interface WeaponProficiencyProgress {
+  type: WeaponProficiencyType;
+  level: number;
+  experience: number;
+  experienceToNextLevel: number;
+  unlockedPerkIds: string[];
+}
+
+export type WeaponProficiencyState = Record<WeaponProficiencyType, WeaponProficiencyProgress>;
 
 export interface ImbuementDefinition {
   id: string;
@@ -321,6 +363,8 @@ export interface CharacterAttributes {
   attackPower: number;
   defensePower: number;
   armor: number;
+  critChancePercent?: number;
+  critDamagePercent?: number;
 }
 
 export interface CharacterAction {
@@ -401,6 +445,7 @@ export interface Item {
   description: string;
   equipmentSlot?: EquipmentSlot;
   offhandType?: OffhandType;
+  weaponProficiencyType?: WeaponProficiencyType;
   isContainer?: boolean;
   containerSlots?: number;
   allowedItemTypes?: ItemType[];
@@ -740,6 +785,7 @@ export interface Character {
   deathState?: CharacterDeathState;
   blessings?: string[];
   deathCount?: number;
+  weaponProficiencies?: WeaponProficiencyState;
   createdAt: string;
 }
 

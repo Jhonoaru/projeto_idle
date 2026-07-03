@@ -1,6 +1,7 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
 import { experienceToNextLevel } from "../game-engine/progression/experienceTable";
+import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { createInventoryItem } from "./inventoryFactory";
 import type {
   Character,
@@ -30,10 +31,14 @@ function skills(levels: Record<SkillName, [number, number]>): SkillSet {
 function createCharacter(
   character: Omit<Character, "attributes" | "capacityUsed" | "capacityMax">,
 ): Character {
-  const attributes = calculateCharacterAttributes(character);
+  const characterWithProficiencies = {
+    ...character,
+    weaponProficiencies: normalizeWeaponProficiencies(character.weaponProficiencies),
+  };
+  const attributes = calculateCharacterAttributes(characterWithProficiencies);
 
   return {
-    ...character,
+    ...characterWithProficiencies,
     attributes,
     capacityMax: attributes.capacity,
     capacityUsed: calculateCapacityUsed(character.inventory),

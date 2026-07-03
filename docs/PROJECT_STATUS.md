@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-02
+Atualizado em: 2026-07-03
 
 ## Stack usada
 
@@ -29,6 +29,8 @@ Atualizado em: 2026-07-02
 - Etapa 19 concluida: auto-repeat opcional de hunts com limites, regras de parada e integracao conservadora com offline catch-up.
 - Etapa 19.5 concluida: QA do Auto-repeat, normalizacao de configs antigas e ajustes de UI/duplicacao.
 - Etapa 20 concluida: reconstrucao do layout principal para estilo client MMORPG idle, com topbar de jogo, botao Explorar, GameWindow, painel direito de personagem/inventario e menu lateral de sistemas.
+- Etapa 20.5 concluida: QA visual/navegacao do novo client MMORPG, com ajustes de responsividade, janelas full, Settings e scroll lateral.
+- Etapa 21.5 concluida: QA/correcao da Weapon Proficiency real, com progresso por tipo de arma, perks passivos, persistencia e integracao com hunts/supplies.
 
 Comandos principais:
 
@@ -80,6 +82,10 @@ Comandos principais:
 - Bestiary guild-wide com kills por criatura, stages, charm points, unlocks e charms ativos.
 - Charms iniciais aplicaveis em criaturas completadas, com bonus pequenos de XP, gold, loot, defesa ou supplies em hunts futuras.
 - Forge Workshop com upgrade +0 a +5, tier 0 a 3 e imbuements por hunts em equipamentos, incluindo familias Basic/Intricate/Powerful.
+- Weapon Proficiency real para sword, axe, club, bow, wand, staff, fist e shield.
+- Weapon Proficiency ganha XP ao finalizar hunts; arma principal ganha XP integral e shield equipado ganha XP reduzido.
+- Perks passivos de Weapon Proficiency desbloqueiam por level e aplicam bonus leves de ataque, defesa, magia, distance, fist, crit, XP ou supplies conforme o tipo equipado.
+- Bônus de supplies por proficiency sao condicionais: Bow reduz ammo, Wand reduz mana potion, Staff reduz runes e Shield aplica reducao leve defensiva.
 - Persistencia local com SQLite via Tauri SQL Plugin.
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
@@ -111,24 +117,85 @@ Funcionais/reaproveitados na nova navegacao:
 Placeholders visuais/local-only:
 
 - Collections mostra Outfits, Mounts e Avatars ficticios, sem loja real e sem sprites protegidos.
-- Weapon Proficiency usa skills existentes como base visual, sem bonus profundo ainda.
 - Monster Focus/Prey mostra slots e criaturas vistas no Bestiary quando houver, sem sistema real completo.
 - Path of Destiny mostra pontos e nodes visuais simples, sem arvore real completa.
 - Daily Reward e Store sao placeholders; nao concedem itens, nao criam premium e nao possuem pagamento real.
 - Updates, Wiki e Settings sao janelas locais simples.
+- Settings centraliza Save now, Reload save e Reset save alem dos atalhos compactos da topbar.
 
 Limitacoes atuais:
 
 - Forge e Imbuing ainda compartilham o mesmo ForgePanel por baixo; a separacao e visual/navegacional nesta etapa.
-- Collections, Daily, Store, Weapon Proficiency, Monster Focus e Destiny nao alteram save nem aplicam bonus nesta etapa.
+- Collections, Daily, Store, Monster Focus e Destiny nao alteram save nem aplicam bonus nesta etapa.
 - A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
+- Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
 
 Proximos passos sugeridos:
 
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
-- Implementar sistemas reais futuros de Collections, Proficiency, Monster Focus e Destiny em etapas pequenas.
+- Implementar sistemas reais futuros de Collections, Monster Focus e Destiny em etapas pequenas.
+
+## QA da Etapa 21.5 - Weapon Proficiency
+
+Validado/corrigido:
+
+- `character.weaponProficiencies` agora e normalizado para saves antigos ou ausentes.
+- SQLite persiste `weapon_proficiencies_json` por personagem.
+- Saves antigos sem o campo novo recebem sword, axe, club, bow, wand, staff, fist e shield no level 1.
+- Detecção de arma equipada usa `weaponProficiencyType` explícito e fallback seguro por slot/nome/atributos.
+- Quiver nao conta como shield; shield so conta quando `offhandType` e `shield`.
+- Finish hunt aplica XP de proficiency uma vez no fluxo normal de coleta.
+- Arma principal ganha mastery XP proporcional ao resultado; shield ganha XP reduzido.
+- Perks desbloqueiam por level, sem duplicar `unlockedPerkIds`.
+- Bônus passivos entram no recalculo de atributos sem gerar NaN.
+- Character Details mostra mastery ativa, progresso, shield mastery e perks ativos.
+- RightCharacterPanel mostra mastery ativa e tipo no equipamento.
+- Weapon Proficiency Window mostra todos os tipos, progresso, XP, level e perks locked/unlocked.
+- Supply reduction por mastery foi integrado ao consumo final de supplies, sem permitir consumo negativo.
+
+Balanceamento aplicado:
+
+- Tabela de XP usa curva progressiva ate level 20.
+- Level 2 e cedo; levels 5/10/20 escalam para objetivos de curto, medio e longo prazo.
+- Perks ficam em 2% a 3% para evitar quebrar economia, risco e supplies.
+- Shield XP usa 35% do XP da arma principal quando shield esta equipado.
+
+Limitacoes mantidas:
+
+- Nao ha escolha manual de perks.
+- Nao ha reset de proficiency.
+- Nao ha arvore complexa de mastery.
+- Boss/Quest/Training ainda nao concedem Weapon Proficiency XP nesta QA; o foco ficou em hunts.
+- Staff depende de item staff futuro ou fallback por nome, pois o catalogo atual ainda nao possui staff dedicado.
+
+## QA visual da Etapa 20.5
+
+Validado:
+
+- Topbar com guilda, personagem, level, gold, moeda cosmetica placeholder e atalhos principais.
+- Botao EXPLORAR abre a janela Explorar / Modos de Jogo.
+- GameWindow possui titulo, subtitulo, fechar e scroll interno.
+- Explorar exibe Hunts, Bosses, Training e Quests por abas internas.
+- Painel direito exibe personagem, XP, equipamentos, inventario compacto, capacity e activity log.
+- Menu lateral abre os sistemas do personagem e usa badges/estado ativo.
+- Janelas placeholder nao mencionam pagamento real, premium real ou loja funcional.
+- Settings agora contem comandos reais de save/reload/reset.
+
+Bugs corrigidos:
+
+- Topbar estava mais estreita que a area util em 1366px; agora usa `width: 100%`.
+- Janelas full ficavam apertadas com o roster aberto; agora escondem o roster e ganham area central maior.
+- Menu lateral podia exibir scrollbar horizontal por badges; overflow horizontal foi bloqueado.
+- Settings nao tinha botoes de save/reload/reset; agora usa os handlers reais do app.
+- Reload/reset podiam deixar uma janela aberta com contexto antigo; agora retornam para Home apos aplicar o save/reset.
+
+Limitacoes mantidas:
+
+- Store, Daily, Collections, Monster Focus e Destiny continuam placeholders visuais.
+- Imbuing ainda reaproveita o ForgePanel por baixo, com separacao visual/navegacional.
+- A QA manual completa de compras/vendas/equip/forge ainda deve ser repetida quando houver uma suite automatizada de UI.
 
 ## Decisoes de design
 
