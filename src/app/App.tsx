@@ -47,6 +47,12 @@ import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItem
 import { transferItem } from "../game-engine/inventory/transferItem";
 import { createPresetFromHunt } from "../game-engine/hunt-prep/createPresetFromHunt";
 import { prepareHuntSupplies } from "../game-engine/hunt-prep/prepareHuntSupplies";
+import { activateMonsterFocus } from "../game-engine/monster-focus/activateMonsterFocus";
+import { clearMonsterFocusSlot } from "../game-engine/monster-focus/clearMonsterFocusSlot";
+import {
+  getMonsterFocusRerollCost,
+  rerollMonsterFocusBonus,
+} from "../game-engine/monster-focus/rerollMonsterFocusBonus";
 import { applyOfflineCatchUp } from "../game-engine/offline/applyOfflineCatchUp";
 import { applyImbuement } from "../game-engine/forge/applyImbuement";
 import { findCharacterItem, updateCharacterItem } from "../game-engine/forge/forgeInventoryHelpers";
@@ -85,6 +91,7 @@ import type {
   EquipmentSlot,
   InventoryItem,
   MarketItemCategory,
+  MonsterFocusBonusType,
   PartyRole,
   Quest,
   SellSource,
@@ -1149,6 +1156,74 @@ export function App() {
     prependLog("Market lock", getMessage(item), "neutral");
   }
 
+  function handleActivateMonsterFocus(
+    slotIndex: number,
+    monsterId: string,
+    bonusType: MonsterFocusBonusType,
+  ) {
+    try {
+      const updatedCharacter = activateMonsterFocus(selectedCharacter, guild.bestiary, {
+        slotIndex,
+        monsterId,
+        bonusType,
+      });
+      updateSelectedCharacter(updatedCharacter);
+      prependLog(
+        "Monster Focus",
+        `${selectedCharacter.name} ativou Monster Focus no slot ${slotIndex + 1}.`,
+        "success",
+      );
+    } catch (error) {
+      prependLog(
+        "Monster Focus blocked",
+        error instanceof Error ? error.message : "Monster Focus nao pode ser ativado.",
+        "warning",
+      );
+    }
+  }
+
+  function handleClearMonsterFocus(slotIndex: number) {
+    updateSelectedCharacter(clearMonsterFocusSlot(selectedCharacter, slotIndex));
+    prependLog(
+      "Monster Focus",
+      `${selectedCharacter.name} limpou o slot ${slotIndex + 1}.`,
+      "neutral",
+    );
+  }
+
+  function handleRerollMonsterFocus(slotIndex: number) {
+    const cost = getMonsterFocusRerollCost(selectedCharacter, slotIndex);
+
+    if (guild.gold < cost) {
+      prependLog(
+        "Monster Focus blocked",
+        `Guilda ${guild.name} nao possui gold suficiente para reroll (${cost.toLocaleString("en-US")}g).`,
+        "warning",
+      );
+      return;
+    }
+
+    try {
+      const result = rerollMonsterFocusBonus(selectedCharacter, slotIndex);
+      updateSelectedCharacter(result.character);
+      setGuild((currentGuild) => ({
+        ...currentGuild,
+        gold: Math.max(0, currentGuild.gold - result.cost),
+      }));
+      prependLog(
+        "Monster Focus",
+        `${selectedCharacter.name} rerolled Monster Focus por ${result.cost.toLocaleString("en-US")}g.`,
+        "success",
+      );
+    } catch (error) {
+      prependLog(
+        "Monster Focus blocked",
+        error instanceof Error ? error.message : "Monster Focus nao pode ser rerolled.",
+        "warning",
+      );
+    }
+  }
+
   function handleBuyMarketItem(
     itemId: string,
     quantity: number,
@@ -1567,9 +1642,12 @@ export function App() {
           onSellMarketCategory={handleSellMarketCategory}
           onSellMarketItems={handleSellMarketItems}
           onBuyMarketItem={handleBuyMarketItem}
+          onActivateMonsterFocus={handleActivateMonsterFocus}
+          onClearMonsterFocus={handleClearMonsterFocus}
           onManualSave={handleManualSave}
           onReloadSave={handleReloadSave}
           onResetSave={handleResetSave}
+          onRerollMonsterFocus={handleRerollMonsterFocus}
           onStartBoss={handleStartBoss}
           onStartHunt={handleStartHunt}
           onStopHuntAutoRepeat={handleStopHuntAutoRepeat}

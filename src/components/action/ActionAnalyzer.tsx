@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
 import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
+import { calculateMonsterFocusBonuses } from "../../game-engine/monster-focus/calculateMonsterFocusBonuses";
 import { calculateSupplyUsage } from "../../game-engine/supplies/calculateSupplyUsage";
 import { calculateTrainingGain } from "../../game-engine/progression/calculateTrainingGain";
 import { SKILL_LABELS } from "../../shared/constants";
@@ -87,6 +88,8 @@ export function ActionAnalyzer({
       const profit = goldNow + lootValue - supplies;
       const kills = Math.max(1, Math.round(((action.durationMinutes ?? 0) * progress) * 5));
       const charmBonuses = hunt ? calculateCharmBonusesForHunt(bestiary, hunt) : undefined;
+      const focusBonuses = hunt ? calculateMonsterFocusBonuses(character, hunt) : undefined;
+      const focusSummary = focusBonuses?.applied[0];
       const estimatedMonsterKills = hunt
         ? hunt.monsters
             .map((monster) => `${monster.name} ~${Math.round(kills / Math.max(1, hunt.monsters.length))}`)
@@ -107,6 +110,12 @@ export function ActionAnalyzer({
         ["Kills", kills.toLocaleString("en-US")],
         ["Bestiary", estimatedMonsterKills],
         ["Charms", charmBonuses && charmBonuses.logs.length > 0 ? charmBonuses.logs.length.toString() : "Nenhum"],
+        [
+          "Monster Focus",
+          focusSummary
+            ? `${focusSummary.monsterName} / +${focusSummary.effectivePercent}% ${focusSummary.bonusType} / ${Math.max(0, focusSummary.remainingHunts - 1)} after`
+            : "No active target",
+        ],
       ];
     }
 

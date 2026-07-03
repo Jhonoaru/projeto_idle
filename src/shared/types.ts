@@ -28,6 +28,19 @@ export type WeaponProficiencyType =
   | "fist"
   | "shield";
 
+export type MonsterFocusBonusType =
+  | "experience"
+  | "loot"
+  | "gold"
+  | "supplies"
+  | "risk";
+
+export type MonsterFocusSlotStatus =
+  | "locked"
+  | "empty"
+  | "active"
+  | "expired";
+
 export type TrainingType = "offline" | "exercise" | "dummy";
 
 export type TrainingTarget = SkillName;
@@ -278,6 +291,23 @@ export interface WeaponProficiencyProgress {
 }
 
 export type WeaponProficiencyState = Record<WeaponProficiencyType, WeaponProficiencyProgress>;
+
+export interface MonsterFocusSlot {
+  slotIndex: number;
+  status: MonsterFocusSlotStatus;
+  monsterId?: string;
+  bonusType?: MonsterFocusBonusType;
+  bonusPercent?: number;
+  remainingHunts?: number;
+  createdAt?: string;
+  expiresAt?: string | null;
+  rerollCount?: number;
+}
+
+export interface MonsterFocusState {
+  slots: MonsterFocusSlot[];
+  lastFreeRerollAt?: string | null;
+}
 
 export interface ImbuementDefinition {
   id: string;
@@ -786,6 +816,7 @@ export interface Character {
   blessings?: string[];
   deathCount?: number;
   weaponProficiencies?: WeaponProficiencyState;
+  monsterFocus?: MonsterFocusState;
   createdAt: string;
 }
 

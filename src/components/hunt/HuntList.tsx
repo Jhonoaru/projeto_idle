@@ -15,6 +15,7 @@ export function HuntList({ hunts, character, selectedHuntId, onSelectHunt }: Hun
       <div className="hunt-list">
         {hunts.map((hunt) => (
           <HuntCard
+            character={character}
             hunt={hunt}
             hasAccess={!hunt.requiredAccess || character.accessIds.includes(hunt.requiredAccess)}
             isSelected={hunt.id === selectedHuntId}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { ActionSummaryCard } from "../action/ActionSummaryCard";
@@ -18,6 +19,14 @@ import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
+import {
+  monsterFocusBonusDescriptions,
+  monsterFocusBonusLabels,
+  monsterFocusBonusTypes,
+} from "../../data/monsterFocus";
+import { getAvailableFocusMonsters } from "../../game-engine/monster-focus/getAvailableFocusMonsters";
+import { getMonsterFocusRerollCost } from "../../game-engine/monster-focus/rerollMonsterFocusBonus";
+import { normalizeMonsterFocusState } from "../../game-engine/monster-focus/normalizeMonsterFocusState";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
 import {
   WEAPON_PROFICIENCY_LABELS,
@@ -44,6 +53,7 @@ import type {
   HuntSupplyPreset,
   InventoryItem,
   MarketItemCategory,
+  MonsterFocusBonusType,
   Quest,
   PartyRole,
   SellSource,
@@ -142,6 +152,13 @@ interface MainPanelProps {
     unitPrice: number,
     deliveryTarget: ShopDeliveryTarget,
   ) => void;
+  onActivateMonsterFocus: (
+    slotIndex: number,
+    monsterId: string,
+    bonusType: MonsterFocusBonusType,
+  ) => void;
+  onClearMonsterFocus: (slotIndex: number) => void;
+  onRerollMonsterFocus: (slotIndex: number) => void;
   onToggleMarketItemLock: (source: SellSource, inventoryItemId: string) => void;
   onEquipItem: (inventoryItem: InventoryItem) => void;
   onMoveInventoryItemToContainer: (
@@ -219,6 +236,9 @@ export function MainPanel({
   onSellMarketItems,
   onSellMarketCategory,
   onBuyMarketItem,
+  onActivateMonsterFocus,
+  onClearMonsterFocus,
+  onRerollMonsterFocus,
   onToggleMarketItemLock,
   onEquipItem,
   onMoveInventoryItemToContainer,
@@ -345,7 +365,13 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "focus" ? (
-          <MonsterFocusWindow guild={guild} />
+          <MonsterFocusWindow
+            character={selectedCharacter}
+            guild={guild}
+            onActivate={onActivateMonsterFocus}
+            onClear={onClearMonsterFocus}
+            onReroll={onRerollMonsterFocus}
+          />
         ) : null}
 
         {activeTab === "destiny" ? (
@@ -721,42 +747,170 @@ function WeaponProficiencyWindow({ character }: { character: Character }) {
   );
 }
 
-function MonsterFocusWindow({ guild }: { guild: Guild }) {
-  const knownMonsters = guild.bestiary?.progress.slice(0, 6) ?? [];
+function MonsterFocusWindow({
+  character,
+  guild,
+  onActivate,
+  onClear,
+  onReroll,
+}: {
+  character: Character;
+  guild: Guild;
+  onActivate: (slotIndex: number, monsterId: string, bonusType: MonsterFocusBonusType) => void;
+  onClear: (slotIndex: number) => void;
+  onReroll: (slotIndex: number) => void;
+}) {
+  const focus = normalizeMonsterFocusState(character.monsterFocus);
+  const knownMonsters = getAvailableFocusMonsters(guild.bestiary);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState(0);
+  const [selectedMonsterId, setSelectedMonsterId] = useState(
+    knownMonsters[0]?.monsterId ?? "",
+  );
+  const [selectedBonusType, setSelectedBonusType] = useState<MonsterFocusBonusType>("experience");
+  const selectedSlot = focus.slots[selectedSlotIndex] ?? focus.slots[0];
 
   return (
-    <Panel title="Prey Contracts / Monster Focus">
+    <div className="monster-focus-window">
       <div className="client-summary-grid">
         <div>
-          <span>Slot 1</span>
-          <strong>Available</strong>
+          <span>Character</span>
+          <strong>{character.name}</strong>
         </div>
         <div>
-          <span>Slot 2</span>
-          <strong>Future</strong>
+          <span>Known targets</span>
+          <strong>{knownMonsters.length}</strong>
         </div>
         <div>
-          <span>Slot 3</span>
-          <strong>Future</strong>
+          <span>Reroll cost</span>
+          <strong>
+            {selectedSlot?.status === "active"
+              ? `${getMonsterFocusRerollCost(character, selectedSlot.slotIndex).toLocaleString("en-US")}g`
+              : "-"}
+          </strong>
         </div>
       </div>
-      <div className="client-placeholder-grid">
-        {knownMonsters.length > 0 ? (
-          knownMonsters.map((monster) => (
-            <div className="client-info-card" key={monster.monsterId}>
-              <strong>{monster.monsterName}</strong>
-              <p>{monster.kills} kills / {monster.stage}</p>
+
+      <Panel title="Focus Slots">
+        <div className="monster-focus-slots">
+          {focus.slots.map((slot) => (
+            <button
+              className={`monster-focus-slot is-${slot.status} ${selectedSlotIndex === slot.slotIndex ? "is-selected" : ""}`.trim()}
+              disabled={slot.status === "locked"}
+              key={slot.slotIndex}
+              onClick={() => setSelectedSlotIndex(slot.slotIndex)}
+              type="button"
+            >
+              <span>Slot {slot.slotIndex + 1}</span>
+              <strong>{formatFocusSlotTitle(slot, knownMonsters)}</strong>
+              <small>{formatFocusSlotDetail(slot)}</small>
+            </button>
+          ))}
+        </div>
+      </Panel>
+
+      {selectedSlot?.status === "active" ? (
+        <Panel title="Active Contract">
+          <div className="monster-focus-active">
+            <div>
+              <span>Target</span>
+              <strong>{formatFocusSlotTitle(selectedSlot, knownMonsters)}</strong>
             </div>
-          ))
+            <div>
+              <span>Bonus</span>
+              <strong>
+                {selectedSlot.bonusType ? monsterFocusBonusLabels[selectedSlot.bonusType] : "-"}
+              </strong>
+            </div>
+            <div>
+              <span>Power</span>
+              <strong>{selectedSlot.bonusPercent ?? 0}%</strong>
+            </div>
+            <div>
+              <span>Remaining</span>
+              <strong>{selectedSlot.remainingHunts ?? 0}/10</strong>
+            </div>
+            <div className="hunt-action-buttons">
+              <button onClick={() => onReroll(selectedSlot.slotIndex)} type="button">
+                Reroll Bonus
+              </button>
+              <button onClick={() => onClear(selectedSlot.slotIndex)} type="button">
+                Clear
+              </button>
+            </div>
+          </div>
+        </Panel>
+      ) : null}
+
+      <Panel title="Activate Focus">
+        {knownMonsters.length > 0 ? (
+          <div className="monster-focus-activate">
+            <label>
+              <span>Known creature</span>
+              <select
+                onChange={(event) => setSelectedMonsterId(event.target.value)}
+                value={selectedMonsterId}
+              >
+                {knownMonsters.map((monster) => (
+                  <option key={monster.monsterId} value={monster.monsterId}>
+                    {monster.monsterName} - {monster.stage} - {monster.kills} kills
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="monster-focus-bonus-grid">
+              {monsterFocusBonusTypes.map((type) => (
+                <button
+                  className={selectedBonusType === type ? "is-selected" : ""}
+                  key={type}
+                  onClick={() => setSelectedBonusType(type)}
+                  type="button"
+                >
+                  <strong>{monsterFocusBonusLabels[type]}</strong>
+                  <span>{monsterFocusBonusDescriptions[type]}</span>
+                </button>
+              ))}
+            </div>
+            <button
+              className="action-command-button"
+              disabled={!selectedMonsterId || selectedSlot?.status === "locked"}
+              onClick={() =>
+                onActivate(selectedSlot?.slotIndex ?? 0, selectedMonsterId, selectedBonusType)
+              }
+              type="button"
+            >
+              Activate Focus
+            </button>
+          </div>
         ) : (
           <div className="client-info-card">
-            <strong>No focus target yet</strong>
-            <p>Bestiary discoveries will appear here in a future version.</p>
+            <strong>No known creatures yet</strong>
+            <p>Discover creatures through hunts to unlock Monster Focus targets.</p>
           </div>
         )}
-      </div>
-    </Panel>
+      </Panel>
+    </div>
   );
+}
+
+function formatFocusSlotTitle(
+  slot: ReturnType<typeof normalizeMonsterFocusState>["slots"][number],
+  knownMonsters: ReturnType<typeof getAvailableFocusMonsters>,
+) {
+  if (slot.status === "locked") return "Locked";
+  if (slot.status === "empty") return "Empty";
+  if (!slot.monsterId) return "Invalid target";
+
+  return knownMonsters.find((monster) => monster.monsterId === slot.monsterId)?.monsterName ?? slot.monsterId;
+}
+
+function formatFocusSlotDetail(
+  slot: ReturnType<typeof normalizeMonsterFocusState>["slots"][number],
+) {
+  if (slot.status === "locked") return "Future slot";
+  if (slot.status === "empty") return "Ready for a target";
+  if (!slot.bonusType) return "Invalid bonus";
+
+  return `${monsterFocusBonusLabels[slot.bonusType]} / ${slot.bonusPercent ?? 0}% / ${slot.remainingHunts ?? 0} hunts`;
 }
 
 function DestinyWindow({ character }: { character: Character }) {

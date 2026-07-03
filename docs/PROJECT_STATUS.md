@@ -31,6 +31,7 @@ Atualizado em: 2026-07-03
 - Etapa 20 concluida: reconstrucao do layout principal para estilo client MMORPG idle, com topbar de jogo, botao Explorar, GameWindow, painel direito de personagem/inventario e menu lateral de sistemas.
 - Etapa 20.5 concluida: QA visual/navegacao do novo client MMORPG, com ajustes de responsividade, janelas full, Settings e scroll lateral.
 - Etapa 21.5 concluida: QA/correcao da Weapon Proficiency real, com progresso por tipo de arma, perks passivos, persistencia e integracao com hunts/supplies.
+- Etapa 22 concluida: Monster Focus / Prey real, com slots por personagem, criaturas do Bestiary, bonus temporarios, cargas por hunt valida e persistencia.
 
 Comandos principais:
 
@@ -86,6 +87,10 @@ Comandos principais:
 - Weapon Proficiency ganha XP ao finalizar hunts; arma principal ganha XP integral e shield equipado ganha XP reduzido.
 - Perks passivos de Weapon Proficiency desbloqueiam por level e aplicam bonus leves de ataque, defesa, magia, distance, fist, crit, XP ou supplies conforme o tipo equipado.
 - Bônus de supplies por proficiency sao condicionais: Bow reduz ammo, Wand reduz mana potion, Staff reduz runes e Shield aplica reducao leve defensiva.
+- Monster Focus real por personagem com 3 slots: slot 1 disponivel, slots 2 e 3 bloqueados para futuro.
+- Monster Focus usa criaturas conhecidas no Bestiary guild-wide como alvos validos.
+- Monster Focus suporta bonus de experience, loot, gold, supplies e risk.
+- Monster Focus aplica bonus proporcional ao match ratio da criatura focada na hunt e consome 1 carga apenas em hunts compativeis.
 - Persistencia local com SQLite via Tauri SQL Plugin.
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
@@ -169,6 +174,45 @@ Limitacoes mantidas:
 - Nao ha arvore complexa de mastery.
 - Boss/Quest/Training ainda nao concedem Weapon Proficiency XP nesta QA; o foco ficou em hunts.
 - Staff depende de item staff futuro ou fallback por nome, pois o catalogo atual ainda nao possui staff dedicado.
+
+## Etapa 22 - Monster Focus / Prey real
+
+Implementado:
+
+- Tipos `MonsterFocusBonusType`, `MonsterFocusSlotStatus`, `MonsterFocusSlot` e `MonsterFocusState`.
+- `character.monsterFocus` normalizado para saves antigos.
+- Persistencia SQLite em `monster_focus_json`.
+- Configuracao em `src/data/monsterFocus.ts` com 10 hunts de duracao, slot 1 liberado, reroll base de 250g e bonus pequenos.
+- Engine isolada em `src/game-engine/monster-focus/`.
+- Janela Monster Focus real no menu lateral do personagem.
+- Slots ativos/vazios/bloqueados, clear e reroll de bonus.
+- Ativacao usando criaturas vistas no Bestiary.
+- Hunt cards e Action Analyzer mostram match/estimativa quando ha foco compativel.
+
+Calculo de bonus:
+
+- `matchRatio` usa `monsterKills` reais quando a hunt e finalizada.
+- Se nao houver kills detalhadas, usa presenca simples da criatura na hunt.
+- Bonus efetivo = `bonusPercent * matchRatio`.
+- Experience aumenta XP final.
+- Gold aumenta gold final.
+- Loot aumenta valor agregado de loot.
+- Supplies reduz consumo final.
+- Risk reduz multiplicador de morte antes da simulacao usando presenca simples.
+
+Consumo de cargas:
+
+- Ao coletar uma hunt compativel, cada slot ativo com match consome 1 carga.
+- Hunt sem a criatura focada nao consome carga.
+- Training, quest e boss nao consomem carga nesta etapa.
+- Offline catch-up apenas marca a hunt pronta; bonus/carga sao aplicados no fluxo de coleta.
+
+Limitacoes atuais:
+
+- Slot 2 e slot 3 continuam bloqueados para futuro.
+- Reroll troca apenas o tipo de bonus, mantem criatura e remainingHunts.
+- Nao ha premium, moeda paga, raridade de prey ou contrato diario complexo.
+- Bonus de loot atua no valor agregado do resultado, nao na rolagem individual de cada item.
 
 ## QA visual da Etapa 20.5
 

@@ -3368,6 +3368,132 @@ p {
   line-height: 1.35;
 }
 
+.monster-focus-window {
+  display: grid;
+  gap: 12px;
+}
+
+.monster-focus-slots,
+.monster-focus-active {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.monster-focus-slot {
+  display: grid;
+  gap: 5px;
+  min-height: 96px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 10px;
+  color: inherit;
+  background: #151a17;
+  text-align: left;
+  cursor: pointer;
+}
+
+.monster-focus-slot.is-selected,
+.monster-focus-slot.is-active {
+  border-color: #d8b96a;
+  background: #1f2419;
+}
+
+.monster-focus-slot.is-locked {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.monster-focus-slot span,
+.monster-focus-active span,
+.monster-focus-activate label span,
+.monster-focus-bonus-grid span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.monster-focus-slot strong,
+.monster-focus-active strong,
+.monster-focus-bonus-grid strong {
+  display: block;
+  color: #f1d58c;
+}
+
+.monster-focus-slot small {
+  display: block;
+  color: #c7cabc;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.monster-focus-active > div:not(.hunt-action-buttons) {
+  min-height: 64px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 10px;
+  background: #101411;
+}
+
+.monster-focus-active .hunt-action-buttons {
+  align-self: end;
+}
+
+.monster-focus-activate {
+  display: grid;
+  gap: 10px;
+}
+
+.monster-focus-activate label {
+  display: grid;
+  gap: 6px;
+}
+
+.monster-focus-activate select {
+  min-height: 36px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #e8e2d4;
+  background: #101411;
+}
+
+.monster-focus-bonus-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.monster-focus-bonus-grid button {
+  display: grid;
+  gap: 5px;
+  min-height: 84px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 9px;
+  color: inherit;
+  background: #151a17;
+  text-align: left;
+  cursor: pointer;
+}
+
+.monster-focus-bonus-grid button.is-selected {
+  border-color: #d8b96a;
+  background: #242719;
+}
+
+.focus-match-copy {
+  margin: 8px 0 0;
+  border: 1px solid rgba(216, 185, 106, 0.42);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: #f1d58c;
+  background: #181d17;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
 @media (max-width: 1180px) {
   .top-bar {
     grid-template-columns: 1fr;

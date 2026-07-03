@@ -1,16 +1,20 @@
-import type { HuntArea } from "../../shared/types";
+import { calculateMonsterFocusBonuses } from "../../game-engine/monster-focus/calculateMonsterFocusBonuses";
+import type { Character, HuntArea } from "../../shared/types";
 import { getAccessName } from "../../data/accesses";
 
 interface HuntCardProps {
+  character: Character;
   hunt: HuntArea;
   hasAccess: boolean;
   isSelected: boolean;
   onSelect: () => void;
 }
 
-export function HuntCard({ hunt, hasAccess, isSelected, onSelect }: HuntCardProps) {
+export function HuntCard({ character, hunt, hasAccess, isSelected, onSelect }: HuntCardProps) {
   const estimatedProfit =
     hunt.estimatedGoldPerHour - hunt.supplyCostPerHour;
+  const focusBonuses = calculateMonsterFocusBonuses(character, hunt);
+  const focusSummary = focusBonuses.applied[0];
 
   return (
     <article className={`hunt-card ${isSelected ? "is-selected" : ""}`.trim()}>
@@ -29,6 +33,12 @@ export function HuntCard({ hunt, hasAccess, isSelected, onSelect }: HuntCardProp
           <span>{estimatedProfit.toLocaleString("en-US")} profit/h</span>
         </div>
         <small>{hunt.monsters.map((monster) => monster.name).join(", ")}</small>
+        {focusSummary ? (
+          <p className="focus-match-copy">
+            Focus Match: {focusSummary.monsterName} / +{focusSummary.effectivePercent}%{" "}
+            {focusSummary.bonusType}
+          </p>
+        ) : null}
         {!hasAccess ? (
           <p className="locked-copy">Requer acesso: {getAccessName(hunt.requiredAccess)}</p>
         ) : null}

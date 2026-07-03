@@ -10,6 +10,8 @@ import { addSkillProgress } from "../game-engine/progression/addSkillProgress";
 import { calculateSupplyUsage } from "../game-engine/supplies/calculateSupplyUsage";
 import { checkHuntSupplies } from "../game-engine/supplies/checkHuntSupplies";
 import { consumeSupplies } from "../game-engine/supplies/consumeSupplies";
+import { calculateMonsterFocusBonuses } from "../game-engine/monster-focus/calculateMonsterFocusBonuses";
+import { consumeMonsterFocusCharge } from "../game-engine/monster-focus/consumeMonsterFocusCharge";
 import { applyWeaponProficiencyHuntProgress } from "../game-engine/weapon-proficiency/applyWeaponProficiencyHuntProgress";
 import {
   calculateWeaponProficiencyBonuses,
@@ -87,22 +89,27 @@ export function finishHunt(
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
   const imbuementBonuses = calculateActiveImbuementBonuses(character);
   const proficiencyBonuses = calculateWeaponProficiencyBonuses(character);
+  const focusRiskBonuses = calculateMonsterFocusBonuses(character, hunt);
   const baseResult = simulateHunt({
     character,
     hunt,
     durationMinutes,
-    deathRiskMultiplier: charmBonuses.deathRiskMultiplier,
+    deathRiskMultiplier: charmBonuses.deathRiskMultiplier * focusRiskBonuses.deathRiskMultiplier,
   });
   const result = applyCharmBonusesToResult(baseResult, charmBonuses);
+  const focusBonuses = calculateMonsterFocusBonuses(character, hunt, result);
   result.experienceGained = Math.round(
     result.experienceGained *
       (1 + imbuementBonuses.xpBonusPercent / 100) *
-      (1 + proficiencyBonuses.bonus.xpBonusPercent / 100),
+      (1 + proficiencyBonuses.bonus.xpBonusPercent / 100) *
+      focusBonuses.experienceMultiplier,
   );
+  result.goldGained = Math.round(result.goldGained * focusBonuses.goldMultiplier);
+  result.totalLootValue = Math.round(result.totalLootValue * focusBonuses.lootMultiplier);
   const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
     ...usage,
-    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
-    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
+    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
+    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
   }));
   const supplyConsumption = consumeSupplies(character, expectedUsage);
   const supplyValueUsed = supplyConsumption.suppliesUsed.reduce(
@@ -125,6 +132,12 @@ export function finishHunt(
     result,
   );
   characterAfterRewards = masteryProgress.character;
+  const focusConsumption = consumeMonsterFocusCharge(
+    characterAfterRewards,
+    hunt,
+    result,
+  );
+  characterAfterRewards = focusConsumption.character;
   const imbuementTick = decrementHuntImbuements(characterAfterRewards);
   characterAfterRewards = imbuementTick.character;
   const progressionLogs: string[] = [];
@@ -191,11 +204,13 @@ export function finishHunt(
       ...(imbuementBonuses.supplyReductionPercent > 0 ? [`Forge bonus applied: -${imbuementBonuses.supplyReductionPercent}% supplies.`] : []),
       ...(proficiencyBonuses.bonus.xpBonusPercent > 0 ? [`Weapon proficiency bonus applied: +${proficiencyBonuses.bonus.xpBonusPercent}% XP.`] : []),
       ...(proficiencyBonuses.bonus.supplyReductionPercent > 0 ? [`Weapon proficiency bonus available: up to -${proficiencyBonuses.bonus.supplyReductionPercent}% supplies by type.`] : []),
+      ...focusBonuses.logs,
       ...supplyConsumption.logs,
       ...deathLogs,
       `Hunt finalizada. Balance apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold.`,
       ...progressionLogs,
       ...masteryProgress.logs,
+      ...focusConsumption.logs,
       ...imbuementTick.logs,
     ],
   };
