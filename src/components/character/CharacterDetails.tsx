@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Panel } from "../ui/Panel";
 import { StatBox } from "../ui/StatBox";
-import type { Character } from "../../shared/types";
+import type { Character, Guild } from "../../shared/types";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
+import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
 import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-engine/destiny/calculateDestinyBonuses";
 import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
@@ -19,9 +20,10 @@ import { getBlessingById } from "../../data/blessings";
 
 interface CharacterDetailsProps {
   character: Character;
+  guild: Guild;
 }
 
-export function CharacterDetails({ character }: CharacterDetailsProps) {
+export function CharacterDetails({ character, guild }: CharacterDetailsProps) {
   const [, setTick] = useState(0);
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
   const weaponProficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
@@ -54,6 +56,7 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
   const activeBlessing = getBlessingById(character.blessings?.[0]);
   const destiny = normalizeDestinyState(character);
   const destinyBonuses = calculateDestinyBonuses(character);
+  const activeCosmetics = getActiveCharacterCosmetics(character, guild.collections);
 
   return (
     <Panel className="details-panel" title="Selected Adventurer">
@@ -147,6 +150,11 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
           label="Destiny"
           value={`${destiny.availablePoints} pts / ${destiny.unlockedNodeIds.length} nodes`}
           detail={formatDestinyBonusSummary(destinyBonuses)}
+        />
+        <StatBox
+          label="Cosmetics"
+          value={activeCosmetics.outfit?.name ?? "None"}
+          detail={`${activeCosmetics.avatar?.name ?? "No avatar"} / ${activeCosmetics.mount?.name ?? "No mount"}`}
         />
         <StatBox label="Quests Done" value={character.completedQuestIds.length} />
         <StatBox label="Accesses" value={character.accessIds.length} />

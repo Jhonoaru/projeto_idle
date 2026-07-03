@@ -1,5 +1,7 @@
 import type Database from "@tauri-apps/plugin-sql";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
+import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
+import { normalizeCollectionsState } from "../game-engine/collections/normalizeCollectionsState";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { mockCharacters } from "../data/mockCharacters";
@@ -71,7 +73,7 @@ export async function loadGameState(db: Database): Promise<GameStateSnapshot | n
   return {
     guild,
     characters: characterRows.map((row) =>
-      mapCharacter(row, skillRows, inventoryRows),
+      mapCharacter(row, skillRows, inventoryRows, guild),
     ),
     depot: {
       goldStored: 0,
@@ -127,7 +129,7 @@ export async function saveGameState(db: Database, state: GameStateSnapshot) {
   await saveGuild(db, state.guild, now);
 
   for (const character of state.characters) {
-    await saveCharacter(db, state.guild.id, character, now);
+    await saveCharacter(db, state.guild.id, character, now, state.guild.collections);
   }
 
   await saveGuildDepot(db, state.guild.id, state.depot, now);
@@ -182,9 +184,10 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       level,
       bestiary_json,
       hunt_presets_json,
+      collections_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
     [
       guild.id,
       guild.name,
@@ -194,6 +197,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       guild.level,
       JSON.stringify(normalizeBestiaryState(guild.bestiary)),
       JSON.stringify(guild.huntPresets ?? []),
+      JSON.stringify(normalizeCollectionsState(guild.collections)),
       now,
       now,
     ],
@@ -205,6 +209,7 @@ async function saveCharacter(
   guildId: string,
   character: Character,
   now: string,
+  collections: Guild["collections"],
 ) {
   await db.execute(
     `INSERT INTO characters (
@@ -233,9 +238,10 @@ async function saveCharacter(
       weapon_proficiencies_json,
       monster_focus_json,
       destiny_json,
+      cosmetics_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)`,
     [
       character.id,
       guildId,
@@ -262,6 +268,7 @@ async function saveCharacter(
       JSON.stringify(character.weaponProficiencies ?? {}),
       JSON.stringify(normalizeMonsterFocusState(character.monsterFocus)),
       JSON.stringify(normalizeDestinyState(character)),
+      JSON.stringify(normalizeCharacterCosmetics(character, normalizeCollectionsState(collections))),
       character.createdAt,
       now,
     ],

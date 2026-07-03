@@ -1,10 +1,12 @@
 import { GameIconButton } from "../ui/GameIconButton";
+import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
 import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
-import type { Character } from "../../shared/types";
+import type { Character, Guild } from "../../shared/types";
 import type { MainPanelTab } from "./MainPanel";
 
 interface CharacterSideMenuProps {
   character: Character;
+  guild: Guild;
   activeTab: MainPanelTab;
   onOpenTab: (tab: MainPanelTab) => void;
 }
@@ -23,6 +25,7 @@ const menuItems: Array<{ tab: MainPanelTab; label: string; icon: string }> = [
 
 export function CharacterSideMenu({
   character,
+  guild,
   activeTab,
   onOpenTab,
 }: CharacterSideMenuProps) {
@@ -31,7 +34,7 @@ export function CharacterSideMenu({
       {menuItems.map((item) => (
         <GameIconButton
           active={activeTab === item.tab}
-          badge={getBadge(item.tab, character)}
+          badge={getBadge(item.tab, character, guild)}
           icon={item.icon}
           key={item.tab}
           label={item.label}
@@ -42,7 +45,7 @@ export function CharacterSideMenu({
   );
 }
 
-function getBadge(tab: MainPanelTab, character: Character) {
+function getBadge(tab: MainPanelTab, character: Character, guild: Guild) {
   if (tab === "blessings") return character.blessings?.length ? "ON" : "0/1";
   if (tab === "focus") {
     const activeCount = character.monsterFocus?.slots?.filter((slot) => slot.status === "active").length ?? 0;
@@ -52,6 +55,9 @@ function getBadge(tab: MainPanelTab, character: Character) {
     const destiny = normalizeDestinyState(character);
     return destiny.availablePoints > 0 ? `${destiny.availablePoints}` : undefined;
   }
-  if (tab === "collections") return "New";
+  if (tab === "collections") {
+    const newCount = normalizeCollectionsState(guild.collections).newlyUnlockedCollectionItemIds.length;
+    return newCount > 0 ? `${newCount}` : undefined;
+  }
   return undefined;
 }

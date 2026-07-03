@@ -1,5 +1,6 @@
 import { ActivityLog } from "../log/ActivityLog";
 import { Panel } from "../ui/Panel";
+import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
@@ -9,10 +10,11 @@ import {
   normalizeWeaponProficiencies,
 } from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
-import type { ActivityLogEntry, Character, EquipmentSlot, InventoryItem } from "../../shared/types";
+import type { ActivityLogEntry, Character, EquipmentSlot, Guild, InventoryItem } from "../../shared/types";
 
 interface RightCharacterPanelProps {
   character: Character;
+  guild: Guild;
   logs: ActivityLogEntry[];
 }
 
@@ -28,7 +30,7 @@ const equipmentSlots: EquipmentSlot[] = [
   "backpack",
 ];
 
-export function RightCharacterPanel({ character, logs }: RightCharacterPanelProps) {
+export function RightCharacterPanel({ character, guild, logs }: RightCharacterPanelProps) {
   const xpPreview = getEstimatedExperiencePreview(character);
   const levelProgress = Math.round(xpPreview.levelProgressPercent);
   const capacityPercent = Math.min(
@@ -40,18 +42,22 @@ export function RightCharacterPanel({ character, logs }: RightCharacterPanelProp
   const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
   const activeShieldType = getEquippedWeaponProficiencyType(character.equipment.offhand);
   const destiny = normalizeDestinyState(character);
+  const activeCosmetics = getActiveCharacterCosmetics(character, guild.collections);
 
   return (
     <aside className="right-character-panel">
       <Panel title="Character">
         <div className="client-character-card">
-          <div className="client-avatar">{character.name.slice(0, 2).toUpperCase()}</div>
+          <div className="client-avatar">{activeCosmetics.avatar?.previewValue ?? character.name.slice(0, 2).toUpperCase()}</div>
           <div>
             <span>{character.vocation}</span>
             <strong>{character.name}</strong>
             <p>
               Level {character.level} / {CHARACTER_STATUS_LABELS[character.status]} / {character.city}
             </p>
+            <small>
+              {activeCosmetics.outfit?.name ?? "No outfit"} / {activeCosmetics.mount?.name ?? "No mount"}
+            </small>
           </div>
         </div>
         <div className="client-xp-block">

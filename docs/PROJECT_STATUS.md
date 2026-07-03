@@ -35,6 +35,7 @@ Atualizado em: 2026-07-03
 - Etapa 22.5 concluida: QA/correcao do Monster Focus / Prey, com normalizacao defensiva, UI sincronizada, resultado de hunt explicito e save SQLite normalizado.
 - Etapa 23 concluida: Path of Destiny / Wheel real por personagem, com pontos por level, nodes desbloqueaveis, bonus passivos, integracao com atributos/hunts e persistencia SQLite.
 - Etapa 23.5 concluida: QA/correcao do Path of Destiny / Wheel, com normalizacao mais robusta, bloqueio contra spam de unlock/reset e validacao de build.
+- Etapa 24 concluida: Collections real com Outfits, Mounts e Avatars, unlocks guild-wide, selecao por personagem e persistencia SQLite.
 
 Comandos principais:
 
@@ -95,6 +96,7 @@ Comandos principais:
 - Monster Focus aplica bonus proporcional ao match ratio da criatura focada na hunt e consome 1 carga apenas em hunts compativeis.
 - Path of Destiny real por personagem com Destiny Points derivados do level, nodes genericos/vocacionais, prerequisitos, custos e bonus passivos pequenos.
 - Path of Destiny integra bonus de health, ataque, defesa, magia, distancia, fist, crit, XP, gold, loot, supplies, capacity e risco onde os calculos ja sao seguros.
+- Collections real de cosmeticos com Outfits, Mounts e Avatars; unlocks sao guild-wide e cosméticos ativos sao por personagem.
 - Persistencia local com SQLite via Tauri SQL Plugin.
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
@@ -125,7 +127,6 @@ Funcionais/reaproveitados na nova navegacao:
 
 Placeholders visuais/local-only:
 
-- Collections mostra Outfits, Mounts e Avatars ficticios, sem loja real e sem sprites protegidos.
 - Daily Reward e Store sao placeholders; nao concedem itens, nao criam premium e nao possuem pagamento real.
 - Updates, Wiki e Settings sao janelas locais simples.
 - Settings centraliza Save now, Reload save e Reset save alem dos atalhos compactos da topbar.
@@ -133,7 +134,7 @@ Placeholders visuais/local-only:
 Limitacoes atuais:
 
 - Forge e Imbuing ainda compartilham o mesmo ForgePanel por baixo; a separacao e visual/navegacional nesta etapa.
-- Collections, Daily e Store nao alteram save nem aplicam bonus nesta etapa.
+- Daily e Store nao alteram save nem aplicam bonus nesta etapa.
 - A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
 - Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
 
@@ -142,7 +143,7 @@ Proximos passos sugeridos:
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
-- Implementar sistemas reais futuros de Collections em etapas pequenas.
+- Expandir unlocks de Collections por Bestiary, quests, bosses e eventos locais.
 
 ## QA da Etapa 21.5 - Weapon Proficiency
 
@@ -308,6 +309,42 @@ Limitacoes mantidas:
 - Sem arvore grande, ranking online, premium, builds salvas, import/export ou nodes ativos de combate.
 - Proximo passo sugerido: Etapa 24 - Collections: Outfits, Mounts e Avatars.
 
+## Etapa 24 - Collections: Outfits, Mounts e Avatars real
+
+Implementado:
+
+- Tipos `CollectionCategory`, `CollectionUnlockSource`, `CollectionRarity`, `CollectionItem`, `GuildCollectionsState` e `CharacterCosmetics`.
+- Catalogo inicial em `src/data/collections.ts` com Outfits, Mounts e Avatars.
+- Unlocks guild-wide em `guild.collections`.
+- Selecao ativa por personagem em `character.cosmetics`.
+- Engine em `src/game-engine/collections/` para defaults, normalizacao, unlock, equip, clear de novos itens e cosmeticos ativos.
+- Starter unlocks garantidos para saves novos e antigos.
+- SQLite persiste `guilds.collections_json` e `characters.cosmetics_json`.
+- Janela Collections real com abas Outfits, Mounts e Avatars, cards locked/unlocked/equipped, rarity/source, requisito e botao Equip.
+- Painel direito usa avatar textual ativo e mostra outfit/mount do personagem.
+- Character Details mostra resumo de cosmeticos ativos.
+- Badge lateral de Collections usa `newlyUnlockedCollectionItemIds` e e limpo ao abrir Collections.
+- Store lista cosmeticos `store_placeholder` como planejamento, sem compra, checkout, premium ou pagamento real.
+
+Cosmeticos iniciais:
+
+- Starter Outfits: Wanderer, Field Hunter, Apprentice Mystic, Iron Guard e Road Monk.
+- Starter Mounts: No Mount, Old Mule e Brown Pony.
+- Starter Avatars: Recruit Emblem, Sword Emblem, Shield Emblem, Bow Emblem, Arcane Emblem e Monk Emblem.
+- Locked/futuros: Rat Catcher, Cave Delver, Bandit Breaker, Noble Adventurer, Forest Stag, Cave Boar, Ash Wolf, Merchant Cart, Beast Hunter Sigil, Dungeon Victor Sigil, Golden Guild Sigil e Ancient Rune Sigil.
+
+Unlocks simples:
+
+- Completar uma quest com sucesso desbloqueia Cave Delver uma vez.
+- Derrotar um boss desbloqueia Dungeon Victor Sigil uma vez.
+- Unlocks duplicados nao geram novo item nem novo log.
+
+Limitacoes atuais:
+
+- Sem sprites externos, imagens protegidas, bonus de poder, loja paga, premium, checkout, trade ou online.
+- Bestiary/Daily ainda estao preparados por source, mas sem unlock automatico nesta etapa.
+- Proximo passo sugerido: Etapa 24.5 - QA de Collections.
+
 ## QA visual da Etapa 20.5
 
 Validado:
@@ -331,7 +368,7 @@ Bugs corrigidos:
 
 Limitacoes mantidas:
 
-- Store, Daily e Collections continuam placeholders visuais.
+- Store e Daily continuam placeholders visuais.
 - Imbuing ainda reaproveita o ForgePanel por baixo, com separacao visual/navegacional.
 - A QA manual completa de compras/vendas/equip/forge ainda deve ser repetida quando houver uma suite automatizada de UI.
 

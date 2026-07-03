@@ -2,6 +2,8 @@ import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
+import { normalizeCollectionsState } from "../game-engine/collections/normalizeCollectionsState";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
@@ -27,6 +29,7 @@ export interface GuildRow {
   level: number;
   bestiary_json?: string | null;
   hunt_presets_json?: string | null;
+  collections_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -54,6 +57,7 @@ export interface CharacterRow {
   weapon_proficiencies_json?: string | null;
   monster_focus_json?: string | null;
   destiny_json?: string | null;
+  cosmetics_json?: string | null;
   created_at: string;
 }
 
@@ -100,6 +104,9 @@ export function mapGuild(row: GuildRow): Guild {
       row.bestiary_json ? parseJson(row.bestiary_json, undefined) : undefined,
     ),
     huntPresets: parseJson(row.hunt_presets_json ?? "[]", []),
+    collections: normalizeCollectionsState(
+      row.collections_json ? parseJson(row.collections_json, undefined) : undefined,
+    ),
   };
 }
 
@@ -107,6 +114,7 @@ export function mapCharacter(
   row: CharacterRow,
   skillRows: SkillRow[],
   inventoryRows: InventoryRow[],
+  guild?: Guild,
 ): Character {
   const inventory = inventoryRows
     .filter(
@@ -135,6 +143,13 @@ export function mapCharacter(
     vocation: row.vocation,
     destiny: parseJson(row.destiny_json ?? "{}", {}),
   });
+  const cosmetics = normalizeCharacterCosmetics(
+    {
+      vocation: row.vocation,
+      cosmetics: parseJson(row.cosmetics_json ?? "{}", {}),
+    },
+    guild?.collections,
+  );
   const attributes = calculateCharacterAttributes({
     level: row.level,
     vocation: row.vocation,
@@ -177,6 +192,7 @@ export function mapCharacter(
     weaponProficiencies,
     monsterFocus,
     destiny,
+    cosmetics,
     createdAt: row.created_at,
   };
 }

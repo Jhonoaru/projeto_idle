@@ -11,6 +11,7 @@ const createStatements = [
     level INTEGER NOT NULL,
     bestiary_json TEXT NOT NULL DEFAULT '{"progress":[],"charmPoints":0,"unlockedCharmIds":[],"activeCharms":[]}',
     hunt_presets_json TEXT NOT NULL DEFAULT '[]',
+    collections_json TEXT NOT NULL DEFAULT '{}',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
@@ -40,6 +41,7 @@ const createStatements = [
     weapon_proficiencies_json TEXT NOT NULL DEFAULT '{}',
     monster_focus_json TEXT NOT NULL DEFAULT '{}',
     destiny_json TEXT NOT NULL DEFAULT '{}',
+    cosmetics_json TEXT NOT NULL DEFAULT '{}',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
@@ -104,6 +106,7 @@ export async function runMigrations(db: Database) {
     "TEXT NOT NULL DEFAULT '{\"progress\":[],\"charmPoints\":0,\"unlockedCharmIds\":[],\"activeCharms\":[]}'",
   );
   await addColumnIfMissing(db, "guilds", "hunt_presets_json", "TEXT NOT NULL DEFAULT '[]'");
+  await addColumnIfMissing(db, "guilds", "collections_json", "TEXT NOT NULL DEFAULT '{}'");
 
   await addColumnIfMissing(db, "characters", "death_state_json", "TEXT");
   await addColumnIfMissing(db, "characters", "blessings_json", "TEXT NOT NULL DEFAULT '[]'");
@@ -111,6 +114,7 @@ export async function runMigrations(db: Database) {
   await addColumnIfMissing(db, "characters", "weapon_proficiencies_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "characters", "monster_focus_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "characters", "destiny_json", "TEXT NOT NULL DEFAULT '{}'");
+  await addColumnIfMissing(db, "characters", "cosmetics_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "inventory_items", "upgrade_level", "INTEGER NOT NULL DEFAULT 0");
   await addColumnIfMissing(db, "inventory_items", "tier", "INTEGER NOT NULL DEFAULT 0");
   await addColumnIfMissing(db, "inventory_items", "imbuements_json", "TEXT NOT NULL DEFAULT '[]'");

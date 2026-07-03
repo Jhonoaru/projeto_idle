@@ -154,6 +154,28 @@ export type ShopPaymentSource = "character_gold" | "guild_gold";
 
 export type ShopDeliveryTarget = "character_inventory" | "character_depot" | "guild_depot";
 
+export type CollectionCategory =
+  | "outfit"
+  | "mount"
+  | "avatar";
+
+export type CollectionUnlockSource =
+  | "starter"
+  | "quest"
+  | "achievement"
+  | "bestiary"
+  | "boss"
+  | "daily"
+  | "store_placeholder"
+  | "event_placeholder";
+
+export type CollectionRarity =
+  | "common"
+  | "uncommon"
+  | "rare"
+  | "epic"
+  | "legendary";
+
 export type EquipmentSlot =
   | "helmet"
   | "armor"
@@ -184,6 +206,32 @@ export interface Guild {
   level: number;
   bestiary?: GuildBestiaryState;
   huntPresets?: HuntSupplyPreset[];
+  collections?: GuildCollectionsState;
+}
+
+export interface CollectionItem {
+  id: string;
+  category: CollectionCategory;
+  name: string;
+  description: string;
+  rarity: CollectionRarity;
+  unlockSource: CollectionUnlockSource;
+  previewType: "text" | "badge" | "silhouette" | "placeholder";
+  previewValue: string;
+  allowedVocations?: Vocation[];
+  unlockRequirementText?: string;
+  sortOrder?: number;
+}
+
+export interface GuildCollectionsState {
+  unlockedCollectionItemIds: string[];
+  newlyUnlockedCollectionItemIds: string[];
+}
+
+export interface CharacterCosmetics {
+  activeOutfitId?: string;
+  activeMountId?: string;
+  activeAvatarId?: string;
 }
 
 export interface HuntSupplyPresetItem {
@@ -872,6 +920,7 @@ export interface Character {
   weaponProficiencies?: WeaponProficiencyState;
   monsterFocus?: MonsterFocusState;
   destiny?: CharacterDestinyState;
+  cosmetics?: CharacterCosmetics;
   createdAt: string;
 }
 

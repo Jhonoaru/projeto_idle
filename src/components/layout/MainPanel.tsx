@@ -19,6 +19,10 @@ import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
+import { getCollectionItemById, getCollectionItemsByCategory } from "../../data/collections";
+import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
+import { isCollectionItemUnlocked } from "../../game-engine/collections/isCollectionItemUnlocked";
+import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
 import {
   monsterFocusBonusDescriptions,
   monsterFocusBonusLabels,
@@ -48,6 +52,7 @@ import type {
   BossParty,
   BossSimulationResult,
   Character,
+  CollectionCategory,
   EquipmentSlot,
   Guild,
   GuildDepot,
@@ -164,6 +169,8 @@ interface MainPanelProps {
   ) => void;
   onClearMonsterFocus: (slotIndex: number) => void;
   onRerollMonsterFocus: (slotIndex: number) => void;
+  onEquipCollectionItem: (itemId: string) => void;
+  onMarkCollectionsSeen: () => void;
   onUnlockDestinyNode: (nodeId: string) => void;
   onResetDestinyPath: () => void;
   onToggleMarketItemLock: (source: SellSource, inventoryItemId: string) => void;
@@ -246,6 +253,8 @@ export function MainPanel({
   onActivateMonsterFocus,
   onClearMonsterFocus,
   onRerollMonsterFocus,
+  onEquipCollectionItem,
+  onMarkCollectionsSeen,
   onUnlockDestinyNode,
   onResetDestinyPath,
   onToggleMarketItemLock,
@@ -317,7 +326,7 @@ export function MainPanel({
       <div className="tab-content client-window-content">
         {activeTab === "character" ? (
           <>
-          <CharacterDetails character={selectedCharacter} />
+          <CharacterDetails character={selectedCharacter} guild={guild} />
           {selectedCharacter.status === "dead" ? (
             <Panel title="Death Report">
               <DeathPanel character={selectedCharacter} onRevive={onReviveCharacter} />
@@ -366,7 +375,12 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "collections" ? (
-          <CollectionsWindow character={selectedCharacter} />
+          <CollectionsWindow
+            character={selectedCharacter}
+            guild={guild}
+            onEquip={onEquipCollectionItem}
+            onMarkSeen={onMarkCollectionsSeen}
+          />
         ) : null}
 
         {activeTab === "proficiency" ? (
@@ -653,7 +667,8 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
   if (tab === "focus") return "Per-character prey contracts with Bestiary targets and temporary hunt bonuses.";
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
-  if (["daily", "store", "collections"].includes(tab)) {
+  if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
+  if (["daily", "store"].includes(tab)) {
     return "Client-style preview for a future system.";
   }
   return undefined;
@@ -679,20 +694,122 @@ function getWindowIcon(tab: MainPanelTab) {
   return icons[tab];
 }
 
-function CollectionsWindow({ character }: { character: Character }) {
+function CollectionsWindow({
+  character,
+  guild,
+  onEquip,
+  onMarkSeen,
+}: {
+  character: Character;
+  guild: Guild;
+  onEquip: (itemId: string) => void;
+  onMarkSeen: () => void;
+}) {
+  const [activeCategory, setActiveCategory] = useState<CollectionCategory>("outfit");
+  const collections = normalizeCollectionsState(guild.collections);
+  const activeCosmetics = getActiveCharacterCosmetics(character, collections);
+  const categories: CollectionCategory[] = ["outfit", "mount", "avatar"];
+  const newCount = collections.newlyUnlockedCollectionItemIds.length;
+
+  useEffect(() => {
+    if (newCount > 0) onMarkSeen();
+  }, [newCount, onMarkSeen]);
+
+  const categoryItems = getCollectionItemsByCategory(activeCategory);
+
   return (
-    <div className="client-placeholder-grid">
-      <Panel title="Outfits">
-        <PlaceholderCards entries={["Wanderer", "Hunter", "Mystic", "Iron Guard", "Noble"]} />
-      </Panel>
-      <Panel title="Mounts">
-        <PlaceholderCards entries={["Trail Runner", "Ash Drake", "Stoneback"]} locked />
-      </Panel>
-      <Panel title="Avatars">
-        <PlaceholderCards entries={[character.name, "Guild Crest", "Temple Mark"]} />
+    <div className="collections-window">
+      <div className="client-summary-grid">
+        <div>
+          <span>Character</span>
+          <strong>{character.name}</strong>
+        </div>
+        <div>
+          <span>Active Outfit</span>
+          <strong>{activeCosmetics.outfit?.name ?? "None"}</strong>
+        </div>
+        <div>
+          <span>Active Mount</span>
+          <strong>{activeCosmetics.mount?.name ?? "None"}</strong>
+        </div>
+        <div>
+          <span>Active Avatar</span>
+          <strong>{activeCosmetics.avatar?.name ?? "None"}</strong>
+        </div>
+      </div>
+
+      <div className="collection-tabs">
+        {categories.map((category) => {
+          const items = getCollectionItemsByCategory(category);
+          const unlocked = items.filter((item) =>
+            collections.unlockedCollectionItemIds.includes(item.id),
+          ).length;
+
+          return (
+            <button
+              className={activeCategory === category ? "is-selected" : ""}
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              type="button"
+            >
+              {formatCollectionCategory(category)} {unlocked}/{items.length}
+            </button>
+          );
+        })}
+      </div>
+
+      <Panel title={formatCollectionCategory(activeCategory)}>
+        <div className="collection-card-grid">
+          {categoryItems.map((item) => {
+            const unlocked = isCollectionItemUnlocked(collections, item.id);
+            const equipped = isCosmeticEquipped(activeCosmetics.cosmetics, item.id);
+            const vocationAllowed = !item.allowedVocations || item.allowedVocations.includes(character.vocation);
+
+            return (
+              <div
+                className={`collection-card rarity-${item.rarity} ${unlocked ? "is-unlocked" : "is-locked"} ${equipped ? "is-equipped" : ""}`.trim()}
+                key={item.id}
+              >
+                <div className="collection-preview">
+                  <strong>{item.previewValue}</strong>
+                </div>
+                <div>
+                  <span>{item.rarity} / {item.unlockSource}</span>
+                  <strong>{item.name}</strong>
+                  <p>{item.description}</p>
+                  <small>
+                    {equipped
+                      ? "Equipped"
+                      : unlocked
+                        ? "Unlocked"
+                        : item.unlockRequirementText ?? "Locked for a future unlock"}
+                  </small>
+                  {item.allowedVocations ? <em>{item.allowedVocations.join(", ")}</em> : null}
+                </div>
+                <button
+                  disabled={!unlocked || equipped || !vocationAllowed}
+                  onClick={() => onEquip(item.id)}
+                  type="button"
+                >
+                  {equipped ? "Equipped" : unlocked && vocationAllowed ? "Equip" : "Locked"}
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </Panel>
     </div>
   );
+}
+
+function isCosmeticEquipped(cosmetics: ReturnType<typeof getActiveCharacterCosmetics>["cosmetics"], itemId: string) {
+  return cosmetics.activeOutfitId === itemId || cosmetics.activeMountId === itemId || cosmetics.activeAvatarId === itemId;
+}
+
+function formatCollectionCategory(category: CollectionCategory) {
+  if (category === "outfit") return "Outfits";
+  if (category === "mount") return "Mounts";
+  return "Avatars";
 }
 
 function WeaponProficiencyWindow({ character }: { character: Character }) {
@@ -1155,6 +1272,10 @@ function RankingWindow({ characters }: { characters: Character[] }) {
 }
 
 function StoreWindow() {
+  const storeItems = ["outfit-noble-adventurer", "mount-merchant-cart"]
+    .map((itemId) => getCollectionItemById(itemId))
+    .filter(Boolean);
+
   return (
     <Panel title="Cosmetic Store">
       <div className="client-placeholder-grid">
@@ -1162,10 +1283,12 @@ function StoreWindow() {
           <strong>Cosmetics</strong>
           <p>Cosmetic store planned for future versions.</p>
         </div>
-        <div className="client-info-card">
-          <strong>Outfits</strong>
-          <p>No checkout, premium, or paid currency is implemented.</p>
-        </div>
+        {storeItems.map((item) => (
+          <div className="client-info-card" key={item?.id}>
+            <strong>{item?.name}</strong>
+            <p>{item?.unlockRequirementText ?? "Future store placeholder. No purchase is available."}</p>
+          </div>
+        ))}
         <div className="client-info-card">
           <strong>Boosts</strong>
           <p>Future placeholder only; progression is not pay-gated.</p>

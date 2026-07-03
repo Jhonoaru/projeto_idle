@@ -14,4 +14,23 @@ export const mockGuild: Guild = {
     activeCharms: [],
   },
   huntPresets: [],
+  collections: {
+    unlockedCollectionItemIds: [
+      "outfit-wanderer",
+      "outfit-field-hunter",
+      "outfit-apprentice-mystic",
+      "outfit-iron-guard",
+      "outfit-road-monk",
+      "mount-none",
+      "mount-old-mule",
+      "mount-brown-pony",
+      "avatar-recruit-emblem",
+      "avatar-sword-emblem",
+      "avatar-shield-emblem",
+      "avatar-bow-emblem",
+      "avatar-arcane-emblem",
+      "avatar-monk-emblem",
+    ],
+    newlyUnlockedCollectionItemIds: [],
+  },
 };

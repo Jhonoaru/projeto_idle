@@ -38,6 +38,9 @@ import {
 } from "../game-services/actionService";
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
+import { clearNewCollectionFlags } from "../game-engine/collections/clearNewCollectionFlags";
+import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
+import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -1298,6 +1301,24 @@ export function App() {
     }
   }
 
+  function handleEquipCollectionItem(itemId: string) {
+    try {
+      const updatedCharacter = equipCollectionItem(selectedCharacter, guild, itemId);
+      updateSelectedCharacter(updatedCharacter);
+      prependLog("Collections", `${selectedCharacter.name} updated cosmetic collection.`, "success");
+    } catch (error) {
+      prependLog(
+        "Collections blocked",
+        error instanceof Error ? error.message : "Cosmetic cannot be equipped.",
+        "warning",
+      );
+    }
+  }
+
+  function handleMarkCollectionsSeen() {
+    setGuild((currentGuild) => clearNewCollectionFlags(currentGuild));
+  }
+
   function handleBuyMarketItem(
     itemId: string,
     quantity: number,
@@ -1501,6 +1522,15 @@ export function App() {
         }));
       }
 
+      if (result.result.success) {
+        const previewUnlock = unlockCollectionItem(guild, "outfit-cave-delver");
+        setGuild((currentGuild) => unlockCollectionItem(currentGuild, "outfit-cave-delver").guild);
+        const collectionLogs = previewUnlock.logs;
+        for (const message of [...collectionLogs].reverse()) {
+          prependLog("Collections", message, "success");
+        }
+      }
+
       if (result.goldGained > 0) {
         prependLog(
           "Guild gold",
@@ -1585,6 +1615,15 @@ export function App() {
           renown: currentGuild.renown + result.guildRenownGained,
           gold: Math.max(0, currentGuild.gold + result.result.goldGained - result.guildGoldLost),
         }));
+      }
+
+      if (result.result.defeated) {
+        const previewUnlock = unlockCollectionItem(guild, "avatar-dungeon-victor-sigil");
+        setGuild((currentGuild) => unlockCollectionItem(currentGuild, "avatar-dungeon-victor-sigil").guild);
+        const collectionLogs = previewUnlock.logs;
+        for (const message of [...collectionLogs].reverse()) {
+          prependLog("Collections", message, "success");
+        }
       }
 
       if (result.result.goldGained > 0) {
@@ -1718,6 +1757,8 @@ export function App() {
           onBuyMarketItem={handleBuyMarketItem}
           onActivateMonsterFocus={handleActivateMonsterFocus}
           onClearMonsterFocus={handleClearMonsterFocus}
+          onEquipCollectionItem={handleEquipCollectionItem}
+          onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}
           onManualSave={handleManualSave}
           onReloadSave={handleReloadSave}
@@ -1746,9 +1787,10 @@ export function App() {
         <CharacterSideMenu
           activeTab={activeTab}
           character={selectedCharacter}
+          guild={guild}
           onOpenTab={setActiveTab}
         />
-        <RightCharacterPanel character={selectedCharacter} logs={logs} />
+        <RightCharacterPanel character={selectedCharacter} guild={guild} logs={logs} />
       </div>
     </GameShell>
   );
