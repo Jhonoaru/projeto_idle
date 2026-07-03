@@ -1,4 +1,5 @@
 import {
+  monsterFocusBonusTypes,
   monsterFocusConfig,
 } from "../../data/monsterFocus";
 import type {
@@ -23,6 +24,10 @@ export function activateMonsterFocus(
 
   if (!slot) throw new Error("Monster Focus slot invalido.");
   if (slot.status === "locked") throw new Error("Monster Focus slot bloqueado.");
+  if (slot.status === "active") throw new Error("Limpe o slot ativo antes de ativar outro Monster Focus.");
+  if (!monsterFocusBonusTypes.includes(options.bonusType)) {
+    throw new Error("Bonus de Monster Focus invalido.");
+  }
   if (!isKnownFocusMonster(options.monsterId, bestiary)) {
     throw new Error("Criatura ainda nao conhecida no Bestiary.");
   }

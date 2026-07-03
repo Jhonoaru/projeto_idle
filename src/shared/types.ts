@@ -884,6 +884,7 @@ export interface HuntSimulationResult {
   skillProgress: Partial<Record<SkillName, number>>;
   deathPenalty?: DeathPenalty;
   charmBonusesApplied?: string[];
+  monsterFocusBonusesApplied?: string[];
   bestiaryLogs?: string[];
   deathReason?: string;
   logs: string[];

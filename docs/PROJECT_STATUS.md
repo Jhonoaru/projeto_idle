@@ -32,14 +32,14 @@ Atualizado em: 2026-07-03
 - Etapa 20.5 concluida: QA visual/navegacao do novo client MMORPG, com ajustes de responsividade, janelas full, Settings e scroll lateral.
 - Etapa 21.5 concluida: QA/correcao da Weapon Proficiency real, com progresso por tipo de arma, perks passivos, persistencia e integracao com hunts/supplies.
 - Etapa 22 concluida: Monster Focus / Prey real, com slots por personagem, criaturas do Bestiary, bonus temporarios, cargas por hunt valida e persistencia.
+- Etapa 22.5 concluida: QA/correcao do Monster Focus / Prey, com normalizacao defensiva, UI sincronizada, resultado de hunt explicito e save SQLite normalizado.
 
 Comandos principais:
 
-- `npm run tauri dev` para rodar o app desktop em desenvolvimento.
-- `npm run tauri:dev` tambem roda o app desktop em desenvolvimento.
+- `npm run tauri:dev` roda o app desktop em desenvolvimento.
 - `npm run dev` roda apenas o frontend Vite.
 - `npm run build` valida TypeScript e gera o build web.
-- Em PowerShell com execucao de scripts bloqueada, usar `npm.cmd run build` ou `npm.cmd run tauri dev`.
+- Em PowerShell com execucao de scripts bloqueada, usar `npm.cmd run build` ou `npm.cmd run tauri:dev`.
 
 ## Sistemas ja implementados
 
@@ -122,7 +122,6 @@ Funcionais/reaproveitados na nova navegacao:
 Placeholders visuais/local-only:
 
 - Collections mostra Outfits, Mounts e Avatars ficticios, sem loja real e sem sprites protegidos.
-- Monster Focus/Prey mostra slots e criaturas vistas no Bestiary quando houver, sem sistema real completo.
 - Path of Destiny mostra pontos e nodes visuais simples, sem arvore real completa.
 - Daily Reward e Store sao placeholders; nao concedem itens, nao criam premium e nao possuem pagamento real.
 - Updates, Wiki e Settings sao janelas locais simples.
@@ -131,7 +130,7 @@ Placeholders visuais/local-only:
 Limitacoes atuais:
 
 - Forge e Imbuing ainda compartilham o mesmo ForgePanel por baixo; a separacao e visual/navegacional nesta etapa.
-- Collections, Daily, Store, Monster Focus e Destiny nao alteram save nem aplicam bonus nesta etapa.
+- Collections, Daily, Store e Destiny nao alteram save nem aplicam bonus nesta etapa.
 - A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
 - Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
 
@@ -140,7 +139,7 @@ Proximos passos sugeridos:
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
-- Implementar sistemas reais futuros de Collections, Monster Focus e Destiny em etapas pequenas.
+- Implementar sistemas reais futuros de Collections e Destiny em etapas pequenas.
 
 ## QA da Etapa 21.5 - Weapon Proficiency
 
@@ -214,6 +213,38 @@ Limitacoes atuais:
 - Nao ha premium, moeda paga, raridade de prey ou contrato diario complexo.
 - Bonus de loot atua no valor agregado do resultado, nao na rolagem individual de cada item.
 
+## Etapa 22.5 - QA do Monster Focus / Prey
+
+Validado/corrigido:
+
+- Build TypeScript/Vite validado antes e depois das correcoes.
+- `character.monsterFocus` continua por personagem e e normalizado para saves antigos ou ausentes.
+- Normalizacao agora limpa monsterId fora do catalogo, bonus invalido, remainingHunts invalido, remainingHunts negativo, bonusPercent NaN e rerollCount NaN.
+- Save SQLite agora grava `monster_focus_json` ja normalizado, evitando persistir estados antigos corrompidos.
+- Ativacao bloqueia slot locked e tambem bloqueia sobrescrever slot ativo sem limpar antes.
+- Ativacao valida bonusType recebido antes de criar o slot.
+- Janela Monster Focus sincroniza criatura selecionada quando o Bestiary muda com a janela aberta.
+- Janela Monster Focus reajusta slot selecionado ao trocar personagem ou ao cair em slot bloqueado.
+- Botao de ativacao fica desabilitado quando o slot ativo precisa ser limpo primeiro.
+- Menu lateral deixou de marcar Focus como `Soon` e agora mostra quantidade de focuses ativos.
+- Subtitle da janela Monster Focus deixou de tratar o sistema como preview.
+- Hunt Result agora exibe uma secao propria de Monster Focus quando o bonus aplica.
+
+Validacao de integracao:
+
+- Hunts compativeis calculam bonus por `monsterKills` reais no resultado final.
+- Hunts incompativeis nao aplicam bonus e nao consomem carga.
+- Offline catch-up continua conservador: a hunt fica pronta e o bonus/carga so entram na coleta.
+- Auto-repeat continua usando o mesmo fluxo de coleta; cada run coletada aplica e consome uma vez quando compativel.
+- Boss, quest e training continuam fora do consumo/aplicacao de Monster Focus.
+
+Limitacoes mantidas:
+
+- Slots 2 e 3 seguem bloqueados.
+- Reroll continua apenas trocando o tipo de bonus, com custo em `guild.gold`.
+- Sem premium, moeda paga, ranking online, raridade de prey ou contratos diarios complexos.
+- Proximo passo sugerido: Etapa 23 - Destiny / Wheel real.
+
 ## QA visual da Etapa 20.5
 
 Validado:
@@ -237,7 +268,7 @@ Bugs corrigidos:
 
 Limitacoes mantidas:
 
-- Store, Daily, Collections, Monster Focus e Destiny continuam placeholders visuais.
+- Store, Daily, Collections e Destiny continuam placeholders visuais.
 - Imbuing ainda reaproveita o ForgePanel por baixo, com separacao visual/navegacional.
 - A QA manual completa de compras/vendas/equip/forge ainda deve ser repetida quando houver uma suite automatizada de UI.
 

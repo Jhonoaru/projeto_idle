@@ -2,6 +2,7 @@ import {
   monsterFocusBonusTypes,
   monsterFocusConfig,
 } from "../../data/monsterFocus";
+import { monsters } from "../../data/monsters";
 import type {
   MonsterFocusSlot,
   MonsterFocusState,
@@ -36,29 +37,38 @@ function normalizeSlot(
   const bonusType = monsterFocusBonusTypes.includes(source.bonusType as never)
     ? source.bonusType
     : undefined;
-  const remainingHunts = Math.max(
-    0,
-    Math.floor(Number.isFinite(source.remainingHunts) ? source.remainingHunts ?? 0 : 0),
-  );
-  const hasActiveData = Boolean(source.monsterId && bonusType && remainingHunts > 0);
+  const remainingHunts = toSafeInteger(source.remainingHunts);
+  const monsterId = isCatalogMonster(source.monsterId) ? source.monsterId : undefined;
+  const hasActiveData = Boolean(monsterId && bonusType && remainingHunts > 0);
   const status = hasActiveData
     ? "active"
-    : source.status === "expired"
+    : source.status === "expired" && monsterId && bonusType
       ? "expired"
       : "empty";
+  const defaultBonusPercent = monsterFocusConfig.bonusPercentByType[bonusType ?? "experience"];
+  const bonusPercent = toSafeInteger(source.bonusPercent, defaultBonusPercent);
 
   return {
     slotIndex: fallback.slotIndex,
     status,
-    monsterId: status === "active" || status === "expired" ? source.monsterId : undefined,
+    monsterId: status === "active" || status === "expired" ? monsterId : undefined,
     bonusType: status === "active" || status === "expired" ? bonusType : undefined,
-    bonusPercent:
-      status === "active" || status === "expired"
-        ? Math.max(0, Math.round(source.bonusPercent ?? monsterFocusConfig.bonusPercentByType[bonusType ?? "experience"]))
-        : undefined,
+    bonusPercent: status === "active" || status === "expired" ? bonusPercent : undefined,
     remainingHunts: status === "active" ? remainingHunts : status === "expired" ? 0 : undefined,
     createdAt: source.createdAt,
     expiresAt: source.expiresAt ?? null,
-    rerollCount: Math.max(0, Math.floor(source.rerollCount ?? 0)),
+    rerollCount: toSafeInteger(source.rerollCount),
   };
+}
+
+function isCatalogMonster(monsterId: string | undefined) {
+  return Boolean(monsterId && Object.values(monsters).some((monster) => monster.id === monsterId));
+}
+
+function toSafeInteger(value: unknown, fallback = 0) {
+  const numberValue = typeof value === "number" ? value : Number(value);
+
+  if (!Number.isFinite(numberValue)) return fallback;
+
+  return Math.max(0, Math.floor(numberValue));
 }

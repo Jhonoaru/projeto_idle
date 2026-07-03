@@ -1,5 +1,6 @@
 import type Database from "@tauri-apps/plugin-sql";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
+import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { mockCharacters } from "../data/mockCharacters";
 import { mockDepot } from "../data/mockDepot";
 import { mockGuild } from "../data/mockGuild";
@@ -257,7 +258,7 @@ async function saveCharacter(
       JSON.stringify(character.blessings ?? []),
       character.deathCount ?? 0,
       JSON.stringify(character.weaponProficiencies ?? {}),
-      JSON.stringify(character.monsterFocus ?? {}),
+      JSON.stringify(normalizeMonsterFocusState(character.monsterFocus)),
       character.createdAt,
       now,
     ],

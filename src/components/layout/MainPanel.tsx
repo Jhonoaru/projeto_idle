@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { ActionSummaryCard } from "../action/ActionSummaryCard";
@@ -638,7 +638,8 @@ function getWindowTitle(tab: MainPanelTab) {
 function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "hunts") return "Hunts, bosses, training, and quests use the real game systems.";
   if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
-  if (["daily", "store", "focus", "destiny", "collections", "proficiency"].includes(tab)) {
+  if (tab === "focus") return "Per-character prey contracts with Bestiary targets and temporary hunt bonuses.";
+  if (["daily", "store", "destiny", "collections"].includes(tab)) {
     return "Client-style preview for a future system.";
   }
   return undefined;
@@ -768,6 +769,26 @@ function MonsterFocusWindow({
   );
   const [selectedBonusType, setSelectedBonusType] = useState<MonsterFocusBonusType>("experience");
   const selectedSlot = focus.slots[selectedSlotIndex] ?? focus.slots[0];
+  const canActivate =
+    Boolean(selectedMonsterId) &&
+    (selectedSlot?.status === "empty" || selectedSlot?.status === "expired");
+
+  useEffect(() => {
+    if (!focus.slots[selectedSlotIndex] || focus.slots[selectedSlotIndex].status === "locked") {
+      setSelectedSlotIndex(focus.slots.find((slot) => slot.status !== "locked")?.slotIndex ?? 0);
+    }
+  }, [character.id, focus.slots, selectedSlotIndex]);
+
+  useEffect(() => {
+    if (knownMonsters.length === 0) {
+      if (selectedMonsterId !== "") setSelectedMonsterId("");
+      return;
+    }
+
+    if (!knownMonsters.some((monster) => monster.monsterId === selectedMonsterId)) {
+      setSelectedMonsterId(knownMonsters[0]?.monsterId ?? "");
+    }
+  }, [knownMonsters, selectedMonsterId]);
 
   return (
     <div className="monster-focus-window">
@@ -872,13 +893,13 @@ function MonsterFocusWindow({
             </div>
             <button
               className="action-command-button"
-              disabled={!selectedMonsterId || selectedSlot?.status === "locked"}
+              disabled={!canActivate}
               onClick={() =>
                 onActivate(selectedSlot?.slotIndex ?? 0, selectedMonsterId, selectedBonusType)
               }
               type="button"
             >
-              Activate Focus
+              {selectedSlot?.status === "active" ? "Clear Slot First" : "Activate Focus"}
             </button>
           </div>
         ) : (

@@ -197,6 +197,7 @@ export function finishHunt(
     rejectedLoot: inventoryResult.rejectedLoot,
     deathPenalty: characterAfterDeath.deathState?.penalty,
     charmBonusesApplied: charmBonuses.logs,
+    monsterFocusBonusesApplied: focusBonuses.logs,
     logs: [
       ...result.logs,
       ...charmBonuses.logs,

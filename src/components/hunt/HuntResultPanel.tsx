@@ -70,6 +70,17 @@ export function HuntResultPanel({
           </div>
         ) : null}
 
+        {result.monsterFocusBonusesApplied && result.monsterFocusBonusesApplied.length > 0 ? (
+          <div className="result-section">
+            <h3>Monster Focus</h3>
+            <ul>
+              {result.monsterFocusBonusesApplied.map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         {result.bestiaryLogs && result.bestiaryLogs.length > 0 ? (
           <div className="result-section">
             <h3>Bestiary Updates</h3>

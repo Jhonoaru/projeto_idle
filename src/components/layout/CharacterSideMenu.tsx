@@ -43,7 +43,10 @@ export function CharacterSideMenu({
 
 function getBadge(tab: MainPanelTab, character: Character) {
   if (tab === "blessings") return character.blessings?.length ? "ON" : "0/1";
-  if (tab === "focus") return "Soon";
+  if (tab === "focus") {
+    const activeCount = character.monsterFocus?.slots?.filter((slot) => slot.status === "active").length ?? 0;
+    return activeCount > 0 ? `${activeCount}` : undefined;
+  }
   if (tab === "destiny") return "Soon";
   if (tab === "collections") return "New";
   return undefined;
