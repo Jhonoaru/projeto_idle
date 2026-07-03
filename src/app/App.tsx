@@ -150,6 +150,7 @@ export function App() {
   const saveReadyRef = useRef(false);
   const charactersRef = useRef(characters);
   const resolvingActionRef = useRef(new Set<string>());
+  const resolvingDestinyRef = useRef(new Set<string>());
 
   useEffect(() => {
     let canceled = false;
@@ -1227,6 +1228,14 @@ export function App() {
   }
 
   function handleUnlockDestinyNode(nodeId: string) {
+    const resolutionKey = `unlock-${selectedCharacter.id}-${nodeId}`;
+    if (resolvingDestinyRef.current.has(resolutionKey)) {
+      prependLog("Destiny blocked", "Destiny node is already being unlocked.", "warning");
+      return;
+    }
+
+    resolvingDestinyRef.current.add(resolutionKey);
+
     try {
       const result = unlockDestinyNode(selectedCharacter, nodeId);
       updateSelectedCharacter(result.character);
@@ -1239,10 +1248,18 @@ export function App() {
         error instanceof Error ? error.message : "Destiny node cannot be unlocked.",
         "warning",
       );
+    } finally {
+      window.setTimeout(() => resolvingDestinyRef.current.delete(resolutionKey), 0);
     }
   }
 
   function handleResetDestinyPath() {
+    const resolutionKey = `reset-${selectedCharacter.id}`;
+    if (resolvingDestinyRef.current.has(resolutionKey)) {
+      prependLog("Destiny blocked", "Path reset is already being processed.", "warning");
+      return;
+    }
+
     const cost = getDestinyResetCost(selectedCharacter);
 
     if (cost <= 0) {
@@ -1263,16 +1280,22 @@ export function App() {
       return;
     }
 
-    updateSelectedCharacter(resetDestinyPath(selectedCharacter));
-    setGuild((currentGuild) => ({
-      ...currentGuild,
-      gold: Math.max(0, currentGuild.gold - cost),
-    }));
-    prependLog(
-      "Path of Destiny",
-      `${selectedCharacter.name} resetou Path of Destiny por ${cost.toLocaleString("en-US")}g.`,
-      "neutral",
-    );
+    resolvingDestinyRef.current.add(resolutionKey);
+
+    try {
+      updateSelectedCharacter(resetDestinyPath(selectedCharacter));
+      setGuild((currentGuild) => ({
+        ...currentGuild,
+        gold: Math.max(0, currentGuild.gold - cost),
+      }));
+      prependLog(
+        "Path of Destiny",
+        `${selectedCharacter.name} resetou Path of Destiny por ${cost.toLocaleString("en-US")}g.`,
+        "neutral",
+      );
+    } finally {
+      window.setTimeout(() => resolvingDestinyRef.current.delete(resolutionKey), 0);
+    }
   }
 
   function handleBuyMarketItem(

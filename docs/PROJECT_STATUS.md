@@ -34,6 +34,7 @@ Atualizado em: 2026-07-03
 - Etapa 22 concluida: Monster Focus / Prey real, com slots por personagem, criaturas do Bestiary, bonus temporarios, cargas por hunt valida e persistencia.
 - Etapa 22.5 concluida: QA/correcao do Monster Focus / Prey, com normalizacao defensiva, UI sincronizada, resultado de hunt explicito e save SQLite normalizado.
 - Etapa 23 concluida: Path of Destiny / Wheel real por personagem, com pontos por level, nodes desbloqueaveis, bonus passivos, integracao com atributos/hunts e persistencia SQLite.
+- Etapa 23.5 concluida: QA/correcao do Path of Destiny / Wheel, com normalizacao mais robusta, bloqueio contra spam de unlock/reset e validacao de build.
 
 Comandos principais:
 
@@ -276,6 +277,36 @@ Limitacoes atuais:
 - Reset Path existe com custo em `guild.gold` e confirmacao simples do navegador.
 - Sem builds salvas, import/export, efeitos elementais avancados, ranking online, premium ou multiplas paginas de wheel.
 - Proximo passo sugerido: Etapa 23.5 - QA do Path of Destiny.
+
+## Etapa 23.5 - QA do Path of Destiny / Wheel
+
+Validado/corrigido:
+
+- Build TypeScript/Vite validado antes e depois das correcoes.
+- Calculo de Destiny Points revisado: 0 antes do level 10 e +1 ponto a cada 5 levels a partir do level 10.
+- Defaults e saves antigos continuam carregando `character.destiny` com `unlockedNodeIds: []`, pontos derivados do level e `availablePoints = totalEarnedPoints - spentPoints`.
+- Normalizacao de Destiny agora reconstrui nodes desbloqueados pela ordem do catalogo, aceitando JSON salvo fora de ordem quando os prerequisitos tambem existem.
+- Normalizacao continua removendo node inexistente, node duplicado, node de vocacao errada, prerequisito ausente e progresso acima do budget de pontos.
+- `spentPoints`, `availablePoints` e `totalEarnedPoints` seguem recalculados pelo level, sem confiar em valores salvos corrompidos.
+- Unlock/Reset receberam trava curta contra spam de clique para evitar logs duplicados e cobranca repetida.
+- Dados dos nodes foram revisados para ids unicos, vocacoes reais, custos pequenos, prerequisitos existentes e bonus em escala segura.
+- Badge lateral continua usando `availablePoints`, atualizando ao trocar personagem ou gastar ponto.
+- Character Details, RightCharacterPanel e Action Analyzer continuam protegidos contra Destiny undefined via normalizacao.
+
+Validacao de integracao:
+
+- Bonus de atributos continuam aplicados via `calculateCharacterAttributes`.
+- Bonus de XP, gold, loot, supplies e risco continuam aplicados no fluxo de coleta da hunt.
+- Offline catch-up continua conservador: pontos e bonus entram quando a acao pronta e coletada, sem aplicar recompensa no carregamento.
+- Auto-repeat continua usando o mesmo finish hunt por run, sem caminho separado para duplicar bonus.
+- Weapon Proficiency, Monster Focus, Charms, Forge e Imbuements seguem acumulando com Destiny pelos calculos existentes.
+
+Limitacoes mantidas:
+
+- QA visual/manual completa no app desktop ainda deve ser feita em 1366x768.
+- Reset Path segue simples, com `window.confirm` e custo em `guild.gold`.
+- Sem arvore grande, ranking online, premium, builds salvas, import/export ou nodes ativos de combate.
+- Proximo passo sugerido: Etapa 24 - Collections: Outfits, Mounts e Avatars.
 
 ## QA visual da Etapa 20.5
 

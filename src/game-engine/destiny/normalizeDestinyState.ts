@@ -23,14 +23,25 @@ export function normalizeDestinyState(
 }
 
 function normalizeUnlockedNodeIds(nodeIds: unknown, vocation: Vocation) {
-  const uniqueNodeIds = [...new Set(Array.isArray(nodeIds) ? nodeIds.filter(Boolean) : [])];
+  const requestedNodeIds = new Set(Array.isArray(nodeIds) ? nodeIds.map(String).filter(Boolean) : []);
+  const availableNodeIds = new Set(
+    destinyNodes
+      .filter((node) => requestedNodeIds.has(node.id))
+      .filter((node) => isAllowedForVocation(node, vocation))
+      .map((node) => node.id),
+  );
   const unlocked: string[] = [];
+  let changed = true;
 
-  for (const nodeId of uniqueNodeIds) {
-    const node = getDestinyNodeById(String(nodeId));
-    if (!node || !isAllowedForVocation(node, vocation)) continue;
-    if (!node.prerequisiteNodeIds.every((requiredId) => unlocked.includes(requiredId))) continue;
-    unlocked.push(node.id);
+  while (changed) {
+    changed = false;
+
+    for (const node of destinyNodes) {
+      if (!availableNodeIds.has(node.id) || unlocked.includes(node.id)) continue;
+      if (!node.prerequisiteNodeIds.every((requiredId) => unlocked.includes(requiredId))) continue;
+      unlocked.push(node.id);
+      changed = true;
+    }
   }
 
   return unlocked;
