@@ -1,4 +1,5 @@
 import { GameIconButton } from "../ui/GameIconButton";
+import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import type { Character } from "../../shared/types";
 import type { MainPanelTab } from "./MainPanel";
 
@@ -47,7 +48,10 @@ function getBadge(tab: MainPanelTab, character: Character) {
     const activeCount = character.monsterFocus?.slots?.filter((slot) => slot.status === "active").length ?? 0;
     return activeCount > 0 ? `${activeCount}` : undefined;
   }
-  if (tab === "destiny") return "Soon";
+  if (tab === "destiny") {
+    const destiny = normalizeDestinyState(character);
+    return destiny.availablePoints > 0 ? `${destiny.availablePoints}` : undefined;
+  }
   if (tab === "collections") return "New";
   return undefined;
 }

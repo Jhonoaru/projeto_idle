@@ -38,6 +38,8 @@ import {
 } from "../game-services/actionService";
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
+import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
+import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { moveItemOutOfContainer } from "../game-engine/container/moveItemOutOfContainer";
@@ -1224,6 +1226,55 @@ export function App() {
     }
   }
 
+  function handleUnlockDestinyNode(nodeId: string) {
+    try {
+      const result = unlockDestinyNode(selectedCharacter, nodeId);
+      updateSelectedCharacter(result.character);
+      for (const message of [...result.logs].reverse()) {
+        prependLog("Path of Destiny", message, "success");
+      }
+    } catch (error) {
+      prependLog(
+        "Destiny blocked",
+        error instanceof Error ? error.message : "Destiny node cannot be unlocked.",
+        "warning",
+      );
+    }
+  }
+
+  function handleResetDestinyPath() {
+    const cost = getDestinyResetCost(selectedCharacter);
+
+    if (cost <= 0) {
+      prependLog("Path of Destiny", "No Destiny nodes to reset.", "warning");
+      return;
+    }
+
+    if (guild.gold < cost) {
+      prependLog(
+        "Destiny blocked",
+        `Guilda ${guild.name} nao possui gold suficiente para reset (${cost.toLocaleString("en-US")}g).`,
+        "warning",
+      );
+      return;
+    }
+
+    if (!window.confirm(`Reset Path of Destiny for ${selectedCharacter.name} for ${cost.toLocaleString("en-US")}g?`)) {
+      return;
+    }
+
+    updateSelectedCharacter(resetDestinyPath(selectedCharacter));
+    setGuild((currentGuild) => ({
+      ...currentGuild,
+      gold: Math.max(0, currentGuild.gold - cost),
+    }));
+    prependLog(
+      "Path of Destiny",
+      `${selectedCharacter.name} resetou Path of Destiny por ${cost.toLocaleString("en-US")}g.`,
+      "neutral",
+    );
+  }
+
   function handleBuyMarketItem(
     itemId: string,
     quantity: number,
@@ -1644,6 +1695,7 @@ export function App() {
           onBuyMarketItem={handleBuyMarketItem}
           onActivateMonsterFocus={handleActivateMonsterFocus}
           onClearMonsterFocus={handleClearMonsterFocus}
+          onResetDestinyPath={handleResetDestinyPath}
           onManualSave={handleManualSave}
           onReloadSave={handleReloadSave}
           onResetSave={handleResetSave}
@@ -1658,6 +1710,7 @@ export function App() {
           onToggleBossPartyMember={handleToggleBossPartyMember}
           onToggleMarketItemLock={handleToggleMarketItemLock}
           onUnlockCharm={handleUnlockCharm}
+          onUnlockDestinyNode={handleUnlockDestinyNode}
           onUpgradeForgeItem={handleUpgradeForgeItem}
           onUnequipItem={handleUnequipItem}
           offlineReport={offlineReport}

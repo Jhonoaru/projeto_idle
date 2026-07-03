@@ -1,4 +1,5 @@
 import { VOCATION_CONFIGS } from "../../data/vocations";
+import { calculateDestinyBonuses } from "../destiny/calculateDestinyBonuses";
 import { calculateEquipmentBonuses } from "../equipment/calculateEquipmentBonuses";
 import { calculateWeaponProficiencyBonuses } from "../weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getMainSkill } from "./getMainSkill";
@@ -8,6 +9,7 @@ export function calculateCharacterAttributes(
   character: Pick<Character, "level" | "vocation" | "skills"> & {
     equipment?: EquippedItems;
     weaponProficiencies?: Character["weaponProficiencies"];
+    destiny?: Character["destiny"];
   },
 ): CharacterAttributes {
   const config = VOCATION_CONFIGS[character.vocation];
@@ -16,15 +18,20 @@ export function calculateCharacterAttributes(
   const shielding = character.skills.shielding.level;
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
   const proficiencyBonuses = calculateWeaponProficiencyBonuses(character).bonus;
+  const destinyBonuses = calculateDestinyBonuses(character);
 
   const maxHealth = Math.round(
-    145 + character.level * config.healthPerLevel + equipmentBonuses.healthBonus,
+    (145 + character.level * config.healthPerLevel + equipmentBonuses.healthBonus) *
+      (1 + (destinyBonuses.maxHealthPercent ?? 0) / 100),
   );
   const maxMana = Math.round(
     45 + character.level * config.manaPerLevel + equipmentBonuses.manaBonus,
   );
   const capacity = Math.round(
-    420 + character.level * config.capacityPerLevel + equipmentBonuses.capacityBonus,
+    420 +
+      character.level * config.capacityPerLevel +
+      equipmentBonuses.capacityBonus +
+      (destinyBonuses.capacityBonusFlat ?? 0),
   );
   const speed = Math.round(
     210 + character.level * config.speedPerLevel + equipmentBonuses.speedBonus,
@@ -52,7 +59,13 @@ export function calculateCharacterAttributes(
     proficiencyBonuses.attackPowerPercent +
     proficiencyBonuses.magicPowerPercent +
     proficiencyBonuses.distancePowerPercent +
-    proficiencyBonuses.fistPowerPercent;
+    proficiencyBonuses.fistPowerPercent +
+    (destinyBonuses.attackPowerPercent ?? 0) +
+    (character.vocation === "Arcanist" || character.vocation === "Warden"
+      ? destinyBonuses.magicPowerPercent ?? 0
+      : 0) +
+    (character.vocation === "Ranger" ? destinyBonuses.distancePowerPercent ?? 0 : 0) +
+    (character.vocation === "Monk" ? destinyBonuses.fistPowerPercent ?? 0 : 0);
   const attackPower = Math.round(
     baseAttackPower * (1 + attackBonusPercent / 100),
   );
@@ -66,7 +79,8 @@ export function calculateCharacterAttributes(
       armor * 2.5) *
       config.defenseMultiplier;
   const defensePower = Math.round(
-    baseDefensePower * (1 + proficiencyBonuses.defensePowerPercent / 100),
+    baseDefensePower *
+      (1 + (proficiencyBonuses.defensePowerPercent + (destinyBonuses.defensePowerPercent ?? 0)) / 100),
   );
 
   return {
@@ -77,7 +91,7 @@ export function calculateCharacterAttributes(
     attackPower,
     defensePower,
     armor,
-    critChancePercent: proficiencyBonuses.critChancePercent,
-    critDamagePercent: proficiencyBonuses.critDamagePercent,
+    critChancePercent: proficiencyBonuses.critChancePercent + (destinyBonuses.critChancePercent ?? 0),
+    critDamagePercent: proficiencyBonuses.critDamagePercent + (destinyBonuses.critDamagePercent ?? 0),
   };
 }

@@ -3287,6 +3287,155 @@ p {
   border-color: #d8b96a;
 }
 
+.destiny-window {
+  display: grid;
+  gap: 12px;
+}
+
+.destiny-layout {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.2fr) minmax(280px, 0.8fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.destiny-wheel {
+  position: relative;
+  min-height: 430px;
+  overflow: hidden;
+  border: 1px solid #30352f;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(216, 185, 106, 0.12), transparent 34%),
+    linear-gradient(135deg, #111612, #171c18);
+}
+
+.destiny-links {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.destiny-links line {
+  stroke: #3b4238;
+  stroke-width: 1.1;
+}
+
+.destiny-links line.is-unlocked {
+  stroke: #d8b96a;
+  stroke-width: 1.5;
+}
+
+.destiny-node {
+  position: absolute;
+  width: 94px;
+  min-height: 66px;
+  transform: translate(-50%, -50%);
+  padding: 8px;
+  border: 1px solid #3b4238;
+  border-radius: 8px;
+  background: #151a17;
+  color: #e9e1c4;
+  text-align: center;
+  cursor: pointer;
+}
+
+.destiny-node span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.destiny-node strong {
+  display: block;
+  margin-top: 4px;
+  color: #f1d58c;
+  font-size: 0.76rem;
+  line-height: 1.15;
+}
+
+.destiny-node.is-medium {
+  width: 112px;
+}
+
+.destiny-node.is-major {
+  width: 128px;
+  min-height: 78px;
+  border-width: 2px;
+}
+
+.destiny-node.is-locked {
+  opacity: 0.56;
+}
+
+.destiny-node.is-available {
+  border-color: #7fae74;
+  box-shadow: 0 0 0 1px rgba(127, 174, 116, 0.22);
+}
+
+.destiny-node.is-unlocked {
+  border-color: #d8b96a;
+  background: #211e13;
+}
+
+.destiny-node.is-selected {
+  outline: 2px solid #d8b96a;
+  outline-offset: 2px;
+}
+
+.destiny-details {
+  display: grid;
+  gap: 10px;
+}
+
+.destiny-details > span,
+.destiny-detail-grid span {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.destiny-details > strong,
+.destiny-detail-grid strong {
+  color: #f1d58c;
+}
+
+.destiny-details p {
+  margin: 0;
+  color: #c8d0c1;
+  line-height: 1.45;
+}
+
+.destiny-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.destiny-detail-grid div {
+  min-height: 58px;
+  padding: 9px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.destiny-reset-button {
+  padding: 9px 12px;
+  border: 1px solid #4a3434;
+  border-radius: 6px;
+  background: #201616;
+  color: #e9c7b6;
+}
+
+.destiny-reset-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .ranking-list {
   display: grid;
   gap: 8px;

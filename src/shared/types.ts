@@ -35,6 +35,18 @@ export type MonsterFocusBonusType =
   | "supplies"
   | "risk";
 
+export type DestinyNodeCategory =
+  | "core"
+  | "offense"
+  | "defense"
+  | "utility"
+  | "vocation";
+
+export type DestinyNodeShape =
+  | "small"
+  | "medium"
+  | "major";
+
 export type MonsterFocusSlotStatus =
   | "locked"
   | "empty"
@@ -307,6 +319,48 @@ export interface MonsterFocusSlot {
 export interface MonsterFocusState {
   slots: MonsterFocusSlot[];
   lastFreeRerollAt?: string | null;
+}
+
+export interface DestinyBonus {
+  maxHealthPercent?: number;
+  attackPowerPercent?: number;
+  magicPowerPercent?: number;
+  distancePowerPercent?: number;
+  fistPowerPercent?: number;
+  defensePowerPercent?: number;
+  xpBonusPercent?: number;
+  goldBonusPercent?: number;
+  supplyReductionPercent?: number;
+  capacityBonusFlat?: number;
+  deathRiskReductionPercent?: number;
+  lootBonusPercent?: number;
+  critChancePercent?: number;
+  critDamagePercent?: number;
+}
+
+export interface DestinyNode {
+  id: string;
+  name: string;
+  description: string;
+  category: DestinyNodeCategory;
+  shape: DestinyNodeShape;
+  requiredLevel: number;
+  cost: number;
+  prerequisiteNodeIds: string[];
+  allowedVocations?: Vocation[];
+  position: {
+    x: number;
+    y: number;
+  };
+  bonus: DestinyBonus;
+}
+
+export interface CharacterDestinyState {
+  unlockedNodeIds: string[];
+  spentPoints: number;
+  availablePoints: number;
+  totalEarnedPoints: number;
+  lastCalculatedLevel: number;
 }
 
 export interface ImbuementDefinition {
@@ -817,6 +871,7 @@ export interface Character {
   deathCount?: number;
   weaponProficiencies?: WeaponProficiencyState;
   monsterFocus?: MonsterFocusState;
+  destiny?: CharacterDestinyState;
   createdAt: string;
 }
 

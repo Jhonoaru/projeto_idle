@@ -2,6 +2,7 @@ import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import type {
@@ -52,6 +53,7 @@ export interface CharacterRow {
   death_count?: number | null;
   weapon_proficiencies_json?: string | null;
   monster_focus_json?: string | null;
+  destiny_json?: string | null;
   created_at: string;
 }
 
@@ -128,12 +130,18 @@ export function mapCharacter(
   const monsterFocus = normalizeMonsterFocusState(
     parseJson(row.monster_focus_json ?? "{}", {}),
   );
+  const destiny = normalizeDestinyState({
+    level: row.level,
+    vocation: row.vocation,
+    destiny: parseJson(row.destiny_json ?? "{}", {}),
+  });
   const attributes = calculateCharacterAttributes({
     level: row.level,
     vocation: row.vocation,
     skills,
     equipment,
     weaponProficiencies,
+    destiny,
   });
 
   return {
@@ -168,6 +176,7 @@ export function mapCharacter(
     deathCount: row.death_count ?? 0,
     weaponProficiencies,
     monsterFocus,
+    destiny,
     createdAt: row.created_at,
   };
 }

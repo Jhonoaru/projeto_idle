@@ -1,4 +1,5 @@
 import { calculateHuntPower } from "./calculateHuntPower";
+import { calculateDestinyBonuses } from "../destiny/calculateDestinyBonuses";
 import type { Character, HuntArea, HuntRisk } from "../../shared/types";
 
 const riskBase: Record<HuntRisk, number> = {
@@ -11,6 +12,7 @@ const riskBase: Record<HuntRisk, number> = {
 
 export function calculateHuntRisk(character: Character, hunt: HuntArea) {
   const power = calculateHuntPower(character);
+  const destinyBonuses = calculateDestinyBonuses(character);
   const averageMonsterDamage =
     hunt.monsters.reduce(
       (sum, monster) => sum + (monster.minDamage + monster.maxDamage) / 2,
@@ -28,11 +30,12 @@ export function calculateHuntRisk(character: Character, hunt: HuntArea) {
   const staminaPenalty = character.staminaHours < 14 ? 0.04 : 0;
 
   const deathChance = clamp(
-    riskBase[hunt.risk] +
+    (riskBase[hunt.risk] +
       vocationFit +
       defensePressure +
       underLevelPenalty +
-      staminaPenalty,
+      staminaPenalty) *
+      Math.max(0.7, 1 - (destinyBonuses.deathRiskReductionPercent ?? 0) / 100),
     0.001,
     0.92,
   );

@@ -4,6 +4,8 @@ import { StatBox } from "../ui/StatBox";
 import type { Character } from "../../shared/types";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
+import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-engine/destiny/calculateDestinyBonuses";
+import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { calculateWeaponProficiencyBonuses } from "../../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
@@ -50,6 +52,8 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
   const xpPreview = getEstimatedExperiencePreview(character);
   const levelProgress = Math.round(xpPreview.levelProgressPercent);
   const activeBlessing = getBlessingById(character.blessings?.[0]);
+  const destiny = normalizeDestinyState(character);
+  const destinyBonuses = calculateDestinyBonuses(character);
 
   return (
     <Panel className="details-panel" title="Selected Adventurer">
@@ -138,6 +142,11 @@ export function CharacterDetails({ character }: CharacterDetailsProps) {
           label="Gear Bonus"
           value={bonusSummary.length > 0 ? bonusSummary.join(" / ") : "None"}
           detail={hasForgeBonuses ? "Includes Forge bonuses" : undefined}
+        />
+        <StatBox
+          label="Destiny"
+          value={`${destiny.availablePoints} pts / ${destiny.unlockedNodeIds.length} nodes`}
+          detail={formatDestinyBonusSummary(destinyBonuses)}
         />
         <StatBox label="Quests Done" value={character.completedQuestIds.length} />
         <StatBox label="Accesses" value={character.accessIds.length} />

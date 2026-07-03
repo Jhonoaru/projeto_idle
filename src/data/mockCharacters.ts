@@ -1,5 +1,6 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
+import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { experienceToNextLevel } from "../game-engine/progression/experienceTable";
 import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -36,6 +37,7 @@ function createCharacter(
     ...character,
     weaponProficiencies: normalizeWeaponProficiencies(character.weaponProficiencies),
     monsterFocus: normalizeMonsterFocusState(character.monsterFocus),
+    destiny: normalizeDestinyState(character),
   };
   const attributes = calculateCharacterAttributes(characterWithProficiencies);
 

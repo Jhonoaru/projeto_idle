@@ -33,6 +33,7 @@ Atualizado em: 2026-07-03
 - Etapa 21.5 concluida: QA/correcao da Weapon Proficiency real, com progresso por tipo de arma, perks passivos, persistencia e integracao com hunts/supplies.
 - Etapa 22 concluida: Monster Focus / Prey real, com slots por personagem, criaturas do Bestiary, bonus temporarios, cargas por hunt valida e persistencia.
 - Etapa 22.5 concluida: QA/correcao do Monster Focus / Prey, com normalizacao defensiva, UI sincronizada, resultado de hunt explicito e save SQLite normalizado.
+- Etapa 23 concluida: Path of Destiny / Wheel real por personagem, com pontos por level, nodes desbloqueaveis, bonus passivos, integracao com atributos/hunts e persistencia SQLite.
 
 Comandos principais:
 
@@ -91,6 +92,8 @@ Comandos principais:
 - Monster Focus usa criaturas conhecidas no Bestiary guild-wide como alvos validos.
 - Monster Focus suporta bonus de experience, loot, gold, supplies e risk.
 - Monster Focus aplica bonus proporcional ao match ratio da criatura focada na hunt e consome 1 carga apenas em hunts compativeis.
+- Path of Destiny real por personagem com Destiny Points derivados do level, nodes genericos/vocacionais, prerequisitos, custos e bonus passivos pequenos.
+- Path of Destiny integra bonus de health, ataque, defesa, magia, distancia, fist, crit, XP, gold, loot, supplies, capacity e risco onde os calculos ja sao seguros.
 - Persistencia local com SQLite via Tauri SQL Plugin.
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
@@ -122,7 +125,6 @@ Funcionais/reaproveitados na nova navegacao:
 Placeholders visuais/local-only:
 
 - Collections mostra Outfits, Mounts e Avatars ficticios, sem loja real e sem sprites protegidos.
-- Path of Destiny mostra pontos e nodes visuais simples, sem arvore real completa.
 - Daily Reward e Store sao placeholders; nao concedem itens, nao criam premium e nao possuem pagamento real.
 - Updates, Wiki e Settings sao janelas locais simples.
 - Settings centraliza Save now, Reload save e Reset save alem dos atalhos compactos da topbar.
@@ -130,7 +132,7 @@ Placeholders visuais/local-only:
 Limitacoes atuais:
 
 - Forge e Imbuing ainda compartilham o mesmo ForgePanel por baixo; a separacao e visual/navegacional nesta etapa.
-- Collections, Daily, Store e Destiny nao alteram save nem aplicam bonus nesta etapa.
+- Collections, Daily e Store nao alteram save nem aplicam bonus nesta etapa.
 - A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
 - Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
 
@@ -139,7 +141,7 @@ Proximos passos sugeridos:
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
-- Implementar sistemas reais futuros de Collections e Destiny em etapas pequenas.
+- Implementar sistemas reais futuros de Collections em etapas pequenas.
 
 ## QA da Etapa 21.5 - Weapon Proficiency
 
@@ -245,6 +247,36 @@ Limitacoes mantidas:
 - Sem premium, moeda paga, ranking online, raridade de prey ou contratos diarios complexos.
 - Proximo passo sugerido: Etapa 23 - Destiny / Wheel real.
 
+## Etapa 23 - Path of Destiny / Wheel real
+
+Implementado:
+
+- Tipos `DestinyNodeCategory`, `DestinyNodeShape`, `DestinyBonus`, `DestinyNode` e `CharacterDestinyState`.
+- `character.destiny` individual por personagem.
+- Destiny Points derivados do level: 0 antes do level 10 e +1 ponto a cada 5 levels a partir do level 10.
+- Dados iniciais em `src/data/destinyNodes.ts` com nodes genericos e nodes de Guardian, Ranger, Arcanist, Warden e Monk.
+- Engine em `src/game-engine/destiny/` para calcular pontos, normalizar save antigo, validar unlock, desbloquear node, somar bonus e resetar caminho.
+- Janela Path of Destiny substitui o placeholder por uma wheel funcional com linhas de prerequisito, nodes bloqueados/disponiveis/desbloqueados e painel de detalhes.
+- Badge no menu lateral mostra Destiny Points disponiveis.
+- Character Details e RightCharacterPanel mostram resumo de Destiny.
+- Action Analyzer mostra bonus de hunt vindos do Destiny quando houver.
+- SQLite persiste `destiny_json` por personagem e normaliza saves antigos com fallback seguro.
+
+Integracao de bonus:
+
+- Health, capacity, attack, magic, distance, fist, defense e crit entram no recalculo de atributos.
+- XP, gold, loot, supplies e risco entram no fluxo de hunt.
+- Supply reduction de Destiny e limitado defensivamente em 20% dentro do sistema.
+- Risk reduction de Destiny e limitado defensivamente em 30% e o risco final continua clampado.
+- Bonus acumulam com equipamentos, Forge, Imbuements, Weapon Proficiency, Charms e Monster Focus sem criar novo sistema online ou premium.
+
+Limitacoes atuais:
+
+- A wheel inicial e enxuta, com poucos nodes por vocacao.
+- Reset Path existe com custo em `guild.gold` e confirmacao simples do navegador.
+- Sem builds salvas, import/export, efeitos elementais avancados, ranking online, premium ou multiplas paginas de wheel.
+- Proximo passo sugerido: Etapa 23.5 - QA do Path of Destiny.
+
 ## QA visual da Etapa 20.5
 
 Validado:
@@ -268,7 +300,7 @@ Bugs corrigidos:
 
 Limitacoes mantidas:
 
-- Store, Daily, Collections e Destiny continuam placeholders visuais.
+- Store, Daily e Collections continuam placeholders visuais.
 - Imbuing ainda reaproveita o ForgePanel por baixo, com separacao visual/navegacional.
 - A QA manual completa de compras/vendas/equip/forge ainda deve ser repetida quando houver uma suite automatizada de UI.
 

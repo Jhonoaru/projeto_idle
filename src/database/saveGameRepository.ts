@@ -1,5 +1,6 @@
 import type Database from "@tauri-apps/plugin-sql";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
+import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { mockCharacters } from "../data/mockCharacters";
 import { mockDepot } from "../data/mockDepot";
@@ -231,9 +232,10 @@ async function saveCharacter(
       death_count,
       weapon_proficiencies_json,
       monster_focus_json,
+      destiny_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)`,
     [
       character.id,
       guildId,
@@ -259,6 +261,7 @@ async function saveCharacter(
       character.deathCount ?? 0,
       JSON.stringify(character.weaponProficiencies ?? {}),
       JSON.stringify(normalizeMonsterFocusState(character.monsterFocus)),
+      JSON.stringify(normalizeDestinyState(character)),
       character.createdAt,
       now,
     ],

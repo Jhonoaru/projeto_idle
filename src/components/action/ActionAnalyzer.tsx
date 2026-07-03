@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
 import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { calculateMonsterFocusBonuses } from "../../game-engine/monster-focus/calculateMonsterFocusBonuses";
+import { calculateDestinyBonuses } from "../../game-engine/destiny/calculateDestinyBonuses";
 import { calculateSupplyUsage } from "../../game-engine/supplies/calculateSupplyUsage";
 import { calculateTrainingGain } from "../../game-engine/progression/calculateTrainingGain";
 import { SKILL_LABELS } from "../../shared/constants";
@@ -89,6 +90,7 @@ export function ActionAnalyzer({
       const kills = Math.max(1, Math.round(((action.durationMinutes ?? 0) * progress) * 5));
       const charmBonuses = hunt ? calculateCharmBonusesForHunt(bestiary, hunt) : undefined;
       const focusBonuses = hunt ? calculateMonsterFocusBonuses(character, hunt) : undefined;
+      const destinyBonuses = calculateDestinyBonuses(character);
       const focusSummary = focusBonuses?.applied[0];
       const estimatedMonsterKills = hunt
         ? hunt.monsters
@@ -115,6 +117,15 @@ export function ActionAnalyzer({
           focusSummary
             ? `${focusSummary.monsterName} / +${focusSummary.effectivePercent}% ${focusSummary.bonusType} / ${Math.max(0, focusSummary.remainingHunts - 1)} after`
             : "No active target",
+        ],
+        [
+          "Destiny",
+          [
+            destinyBonuses.xpBonusPercent ? `XP +${destinyBonuses.xpBonusPercent}%` : undefined,
+            destinyBonuses.goldBonusPercent ? `Gold +${destinyBonuses.goldBonusPercent}%` : undefined,
+            destinyBonuses.supplyReductionPercent ? `Supplies -${destinyBonuses.supplyReductionPercent}%` : undefined,
+            destinyBonuses.deathRiskReductionPercent ? `Risk -${destinyBonuses.deathRiskReductionPercent}%` : undefined,
+          ].filter(Boolean).join(" / ") || "No hunt bonus",
         ],
       ];
     }

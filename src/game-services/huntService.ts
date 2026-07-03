@@ -1,5 +1,6 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { calculateCharmBonusesForHunt } from "../game-engine/bestiary/calculateCharmBonusesForHunt";
+import { calculateDestinyBonuses } from "../game-engine/destiny/calculateDestinyBonuses";
 import { calculateActiveImbuementBonuses } from "../game-engine/forge/calculateActiveImbuementBonuses";
 import { decrementHuntImbuements } from "../game-engine/forge/removeExpiredImbuements";
 import { simulateHunt } from "../game-engine/hunt/simulateHunt";
@@ -89,6 +90,7 @@ export function finishHunt(
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
   const imbuementBonuses = calculateActiveImbuementBonuses(character);
   const proficiencyBonuses = calculateWeaponProficiencyBonuses(character);
+  const destinyBonuses = calculateDestinyBonuses(character);
   const focusRiskBonuses = calculateMonsterFocusBonuses(character, hunt);
   const baseResult = simulateHunt({
     character,
@@ -102,14 +104,15 @@ export function finishHunt(
     result.experienceGained *
       (1 + imbuementBonuses.xpBonusPercent / 100) *
       (1 + proficiencyBonuses.bonus.xpBonusPercent / 100) *
+      (1 + (destinyBonuses.xpBonusPercent ?? 0) / 100) *
       focusBonuses.experienceMultiplier,
   );
-  result.goldGained = Math.round(result.goldGained * focusBonuses.goldMultiplier);
-  result.totalLootValue = Math.round(result.totalLootValue * focusBonuses.lootMultiplier);
+  result.goldGained = Math.round(result.goldGained * (1 + (destinyBonuses.goldBonusPercent ?? 0) / 100) * focusBonuses.goldMultiplier);
+  result.totalLootValue = Math.round(result.totalLootValue * (1 + (destinyBonuses.lootBonusPercent ?? 0) / 100) * focusBonuses.lootMultiplier);
   const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
     ...usage,
-    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
-    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent))),
+    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0))),
+    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0))),
   }));
   const supplyConsumption = consumeSupplies(character, expectedUsage);
   const supplyValueUsed = supplyConsumption.suppliesUsed.reduce(
@@ -205,6 +208,7 @@ export function finishHunt(
       ...(imbuementBonuses.supplyReductionPercent > 0 ? [`Forge bonus applied: -${imbuementBonuses.supplyReductionPercent}% supplies.`] : []),
       ...(proficiencyBonuses.bonus.xpBonusPercent > 0 ? [`Weapon proficiency bonus applied: +${proficiencyBonuses.bonus.xpBonusPercent}% XP.`] : []),
       ...(proficiencyBonuses.bonus.supplyReductionPercent > 0 ? [`Weapon proficiency bonus available: up to -${proficiencyBonuses.bonus.supplyReductionPercent}% supplies by type.`] : []),
+      ...formatDestinyLogs(destinyBonuses),
       ...focusBonuses.logs,
       ...supplyConsumption.logs,
       ...deathLogs,
@@ -232,14 +236,27 @@ function getSupplyMultiplier(
   character: Character,
   supplyType: string,
   imbuementReductionPercent: number,
+  destinyReductionPercent: number,
 ) {
   const proficiencyReductionPercent = getSupplyReductionForUsage(character, supplyType);
   const totalReductionPercent = Math.min(
     75,
-    Math.max(0, imbuementReductionPercent + proficiencyReductionPercent),
+    Math.max(0, imbuementReductionPercent + proficiencyReductionPercent + destinyReductionPercent),
   );
 
   return Math.max(0, 1 - totalReductionPercent / 100);
+}
+
+function formatDestinyLogs(destinyBonuses: ReturnType<typeof calculateDestinyBonuses>) {
+  const logs = [];
+
+  if (destinyBonuses.xpBonusPercent) logs.push(`Destiny bonus applied: +${destinyBonuses.xpBonusPercent}% XP.`);
+  if (destinyBonuses.goldBonusPercent) logs.push(`Destiny bonus applied: +${destinyBonuses.goldBonusPercent}% gold.`);
+  if (destinyBonuses.lootBonusPercent) logs.push(`Destiny bonus applied: +${destinyBonuses.lootBonusPercent}% loot value.`);
+  if (destinyBonuses.supplyReductionPercent) logs.push(`Destiny bonus applied: -${destinyBonuses.supplyReductionPercent}% supplies.`);
+  if (destinyBonuses.deathRiskReductionPercent) logs.push(`Destiny bonus active: -${destinyBonuses.deathRiskReductionPercent}% death risk.`);
+
+  return logs;
 }
 
 function applyCharmBonusesToResult(

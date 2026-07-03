@@ -1,4 +1,5 @@
 import { calculateCharacterAttributes } from "../character/calculateCharacterAttributes";
+import { normalizeDestinyState } from "../destiny/normalizeDestinyState";
 import { experienceForLevel, experienceToNextLevel } from "./experienceTable";
 import type { Character, LevelUpResult } from "../../shared/types";
 
@@ -16,9 +17,14 @@ export function addExperience(character: Character, amount: number) {
     level: newLevel,
     experience,
   };
-  const attributes = calculateCharacterAttributes(characterWithLevel);
-  const updatedCharacter: Character = {
+  const destiny = normalizeDestinyState(characterWithLevel);
+  const characterWithDestiny = {
     ...characterWithLevel,
+    destiny,
+  };
+  const attributes = calculateCharacterAttributes(characterWithDestiny);
+  const updatedCharacter: Character = {
+    ...characterWithDestiny,
     attributes,
     capacityMax: attributes.capacity,
     experienceToNextLevel: experienceToNextLevel(characterWithLevel),

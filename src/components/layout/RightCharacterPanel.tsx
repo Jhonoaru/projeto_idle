@@ -1,6 +1,7 @@
 import { ActivityLog } from "../log/ActivityLog";
 import { Panel } from "../ui/Panel";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
+import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
 import { WEAPON_PROFICIENCY_LABELS } from "../../game-engine/weapon-proficiency/weaponProficiencyDefinitions";
 import {
@@ -38,6 +39,7 @@ export function RightCharacterPanel({ character, logs }: RightCharacterPanelProp
   const proficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
   const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
   const activeShieldType = getEquippedWeaponProficiencyType(character.equipment.offhand);
+  const destiny = normalizeDestinyState(character);
 
   return (
     <aside className="right-character-panel">
@@ -77,6 +79,7 @@ export function RightCharacterPanel({ character, logs }: RightCharacterPanelProp
           {activeShieldType === "shield" ? (
             <small>Shield Lv {proficiencies.shield.level}</small>
           ) : null}
+          <small>Destiny Points: {destiny.availablePoints}</small>
         </div>
       </Panel>
 
