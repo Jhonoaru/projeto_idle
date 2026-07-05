@@ -20,9 +20,14 @@ import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
 import { getCollectionItemById, getCollectionItemsByCategory } from "../../data/collections";
+import { dailyRewards } from "../../data/dailyRewards";
 import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
 import { isCollectionItemUnlocked } from "../../game-engine/collections/isCollectionItemUnlocked";
 import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
+import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
+import { getCurrentDailyReward } from "../../game-engine/daily-reward/getCurrentDailyReward";
+import { getDailyRewardPreview } from "../../game-engine/daily-reward/getDailyRewardPreview";
+import { normalizeDailyRewardState } from "../../game-engine/daily-reward/normalizeDailyRewardState";
 import {
   monsterFocusBonusDescriptions,
   monsterFocusBonusLabels,
@@ -162,6 +167,7 @@ interface MainPanelProps {
     unitPrice: number,
     deliveryTarget: ShopDeliveryTarget,
   ) => void;
+  onClaimDailyReward: () => void;
   onActivateMonsterFocus: (
     slotIndex: number,
     monsterId: string,
@@ -250,6 +256,7 @@ export function MainPanel({
   onSellMarketItems,
   onSellMarketCategory,
   onBuyMarketItem,
+  onClaimDailyReward,
   onActivateMonsterFocus,
   onClearMonsterFocus,
   onRerollMonsterFocus,
@@ -609,7 +616,9 @@ export function MainPanel({
           </Panel>
         ) : null}
 
-        {activeTab === "daily" ? <DailyRewardWindow /> : null}
+        {activeTab === "daily" ? (
+          <DailyRewardWindow guild={guild} onClaim={onClaimDailyReward} />
+        ) : null}
         {activeTab === "ranking" ? <RankingWindow characters={characters} /> : null}
         {activeTab === "store" ? <StoreWindow /> : null}
         {activeTab === "updates" ? <UpdatesWindow /> : null}
@@ -668,9 +677,8 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "focus") return "Per-character prey contracts with Bestiary targets and temporary hunt bonuses.";
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
-  if (["daily", "store"].includes(tab)) {
-    return "Client-style preview for a future system.";
-  }
+  if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
+  if (tab === "store") return "Client-style preview for a future system.";
   return undefined;
 }
 
@@ -1242,15 +1250,100 @@ function DestinyWindow({
   );
 }
 
-function DailyRewardWindow() {
+function DailyRewardWindow({
+  guild,
+  onClaim,
+}: {
+  guild: Guild;
+  onClaim: () => void;
+}) {
+  const dailyReward = normalizeDailyRewardState(guild.dailyReward);
+  const currentReward = getCurrentDailyReward(dailyReward);
+  const canClaim = canClaimDailyReward(dailyReward);
+  const latestClaim = dailyReward.claimHistory.at(-1);
+  const latestClaimedToday = dailyReward.claimedToday ? latestClaim : undefined;
+
   return (
-    <Panel title="Daily Reward">
-      <div className="client-info-card">
-        <strong>Offline daily rewards are planned.</strong>
-        <p>This window is visual only in Etapa 20 and does not grant items or gold yet.</p>
+    <div className="daily-reward-window">
+      <div className="client-summary-grid">
+        <div>
+          <span>Status</span>
+          <strong>{canClaim ? "Available today" : "Already claimed today"}</strong>
+        </div>
+        <div>
+          <span>Current Streak</span>
+          <strong>{dailyReward.currentStreak} day{dailyReward.currentStreak === 1 ? "" : "s"}</strong>
+        </div>
+        <div>
+          <span>Total Claims</span>
+          <strong>{dailyReward.totalClaims}</strong>
+        </div>
+        <div>
+          <span>{canClaim ? "Reward" : "Next Reward"}</span>
+          <strong>{currentReward?.label ?? "Gold fallback"}</strong>
+        </div>
       </div>
-    </Panel>
+
+      <Panel title="Seven Day Cycle">
+        <div className="daily-reward-grid">
+          {dailyRewards.map((reward) => {
+            const status = getDailyRewardCardStatus(reward.day, dailyReward.cycleDay, latestClaimedToday?.day);
+
+            return (
+              <div className={`daily-reward-card is-${status}`} key={reward.day}>
+                <span>Day {reward.day}</span>
+                <strong>{getDailyRewardPreview(reward)}</strong>
+                <em>{status}</em>
+                <h3>{reward.label}</h3>
+                <p>{reward.description}</p>
+              </div>
+            );
+          })}
+        </div>
+      </Panel>
+
+      <Panel title="Claim">
+        <div className="client-info-card daily-claim-card">
+          <strong>{currentReward?.label ?? "Daily Reward"}</strong>
+          <p>{currentReward?.description ?? "Fallback gold if reward data is unavailable."}</p>
+          <button
+            className="action-command-button"
+            disabled={!canClaim}
+            onClick={onClaim}
+            type="button"
+          >
+            {canClaim ? "Claim Reward" : "Claimed Today"}
+          </button>
+        </div>
+      </Panel>
+
+      <Panel title="Recent Claims">
+        {dailyReward.claimHistory.length > 0 ? (
+          <div className="daily-history-list">
+            {[...dailyReward.claimHistory].reverse().slice(0, 6).map((claim) => (
+              <div key={`${claim.claimedAt}-${claim.day}`}>
+                <span>Day {claim.day}</span>
+                <strong>{claim.label}</strong>
+                <small>{new Date(claim.claimedAt).toLocaleDateString("en-US")}</small>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="client-info-card">
+            <strong>No claims yet</strong>
+            <p>Claim the available reward to start the guild streak.</p>
+          </div>
+        )}
+      </Panel>
+    </div>
   );
+}
+
+function getDailyRewardCardStatus(day: number, cycleDay: number, claimedTodayDay?: number) {
+  if (claimedTodayDay === day) return "claimed";
+  if (cycleDay === day) return "current";
+
+  return "upcoming";
 }
 
 function RankingWindow({ characters }: { characters: Character[] }) {

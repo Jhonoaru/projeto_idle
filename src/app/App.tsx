@@ -41,6 +41,7 @@ import { unequipItem } from "../game-engine/equipment/unequipItem";
 import { clearNewCollectionFlags } from "../game-engine/collections/clearNewCollectionFlags";
 import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
+import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -154,6 +155,7 @@ export function App() {
   const charactersRef = useRef(characters);
   const resolvingActionRef = useRef(new Set<string>());
   const resolvingDestinyRef = useRef(new Set<string>());
+  const claimingDailyRewardRef = useRef(false);
 
   useEffect(() => {
     let canceled = false;
@@ -1319,6 +1321,33 @@ export function App() {
     setGuild((currentGuild) => clearNewCollectionFlags(currentGuild));
   }
 
+  function handleClaimDailyReward() {
+    if (claimingDailyRewardRef.current) {
+      prependLog("Daily blocked", "Daily Reward claim is already being processed.", "warning");
+      return;
+    }
+
+    claimingDailyRewardRef.current = true;
+
+    try {
+      const result = claimDailyReward(guild, depot);
+      setGuild(result.guild);
+      setDepot(result.guildDepot);
+
+      for (const message of [...result.logs].reverse()) {
+        prependLog(
+          result.success ? "Daily Reward" : "Daily blocked",
+          message,
+          result.success ? "success" : "warning",
+        );
+      }
+    } finally {
+      window.setTimeout(() => {
+        claimingDailyRewardRef.current = false;
+      }, 0);
+    }
+  }
+
   function handleBuyMarketItem(
     itemId: string,
     quantity: number,
@@ -1756,6 +1785,7 @@ export function App() {
           onActivateMonsterFocus={handleActivateMonsterFocus}
           onClearMonsterFocus={handleClearMonsterFocus}
           onEquipCollectionItem={handleEquipCollectionItem}
+          onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}
           onManualSave={handleManualSave}

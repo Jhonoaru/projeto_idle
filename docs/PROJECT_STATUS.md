@@ -37,6 +37,7 @@ Atualizado em: 2026-07-05
 - Etapa 23.5 concluida: QA/correcao do Path of Destiny / Wheel, com normalizacao mais robusta, bloqueio contra spam de unlock/reset e validacao de build.
 - Etapa 24 concluida: Collections real com Outfits, Mounts e Avatars, unlocks guild-wide, selecao por personagem e persistencia SQLite.
 - Etapa 24.5 concluida: QA/correcao de Collections, com validacao de dados, defaults, save/load, painel direito, badge, Store placeholder e build.
+- Etapa 25 concluida: Daily Reward real offline/local, com streak, ciclo de 7 dias, Guild Depot, Collections e persistencia SQLite.
 
 Comandos principais:
 
@@ -128,14 +129,15 @@ Funcionais/reaproveitados na nova navegacao:
 
 Placeholders visuais/local-only:
 
-- Daily Reward e Store sao placeholders; nao concedem itens, nao criam premium e nao possuem pagamento real.
+- Daily Reward real guild-wide com claim diario local, streak simples, ciclo de 7 dias e recompensas pequenas.
+- Store continua placeholder; nao concede itens, nao cria premium e nao possui pagamento real.
 - Updates, Wiki e Settings sao janelas locais simples.
 - Settings centraliza Save now, Reload save e Reset save alem dos atalhos compactos da topbar.
 
 Limitacoes atuais:
 
 - Forge e Imbuing ainda compartilham o mesmo ForgePanel por baixo; a separacao e visual/navegacional nesta etapa.
-- Daily e Store nao alteram save nem aplicam bonus nesta etapa.
+- Store nao altera save nem aplica bonus nesta etapa.
 - A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
 - Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
 
@@ -344,7 +346,7 @@ Limitacoes atuais:
 
 - Sem sprites externos, imagens protegidas, bonus de poder, loja paga, premium, checkout, trade ou online.
 - Bestiary/Daily ainda estao preparados por source, mas sem unlock automatico nesta etapa.
-- Proximo passo sugerido: Etapa 25 - Daily Reward real.
+- Proximo passo sugerido: Etapa 25.5 - QA do Daily Reward.
 
 ## Etapa 24.5 - QA de Collections
 
@@ -381,6 +383,53 @@ Limitacoes mantidas:
 - Bestiary/Daily/Event ainda ficam como sources planejados, sem novo sistema grande de unlock nesta etapa.
 - QA manual visual completa em 1366x768 ainda deve ser repetida no app desktop.
 - Proximo passo sugerido: Etapa 25 - Daily Reward real.
+
+## Etapa 25 - Daily Reward real
+
+Implementado:
+
+- Tipos `DailyRewardType`, `DailyRewardDefinition`, `DailyRewardClaim` e `DailyRewardState`.
+- Estado guild-wide em `guild.dailyReward`, com `lastClaimedAt`, `currentStreak`, `totalClaims`, `cycleDay`, historico e `claimedToday`.
+- Persistencia SQLite em `guilds.daily_reward_json`, com migration para saves antigos.
+- Engine em `src/game-engine/daily-reward/` para default, normalizacao, data local, streak, permissao de claim, recompensa atual, preview, apply e claim.
+- Janela Daily Reward real aberta pela Topbar, com status, streak, total claims, trilha de 7 dias, botao Claim e historico recente.
+- Badge `!` no botao Daily da Topbar quando a recompensa do dia esta disponivel.
+- Activity Log ao claimar recompensa e ao bloquear claim duplicado.
+- Trava de clique duplo no handler do App e nova checagem na engine antes de aplicar recompensa.
+
+Regras:
+
+- Daily Reward e da guilda/conta, nao de personagem individual.
+- Permite 1 claim por dia local.
+- Se o ultimo claim foi ontem, `currentStreak` aumenta em 1.
+- Se o ultimo claim foi antes de ontem ou invalido, streak volta para 1.
+- Ao claimar, `cycleDay` avanca; depois do dia 7 volta para o dia 1.
+- `claimedToday` e recalculado por data local e nao depende cegamente do valor salvo.
+
+Ciclo inicial de 7 dias:
+
+- Dia 1: 250 gold em `guild.gold`.
+- Dia 2: Health Potion x5 no Guild Depot.
+- Dia 3: Iron Ore x3 no Guild Depot.
+- Dia 4: Mana Potion x5 no Guild Depot.
+- Dia 5: 500 gold em `guild.gold`.
+- Dia 6: Old Cloth x8 no Guild Depot.
+- Dia 7: Beast Hunter Sigil em Collections.
+
+Integracoes:
+
+- Gold entra em `guild.gold`.
+- Itens, supplies e materiais entram no Guild Depot por ser o destino mais seguro quando nao ha dependencia de personagem selecionado.
+- Recompensa de Collections usa `unlockCollectionItem`; se o cosmetico ja estiver desbloqueado ou invalido, vira fallback de 350 gold.
+- `newlyUnlockedCollectionItemIds` continua alimentando o badge de Collections quando o Daily desbloqueia cosmetico novo.
+- Save/load normaliza `dailyReward` para saves antigos, campos undefined, datas invalidas, NaN, streak negativo, `cycleDay` fora de 1..7 e historico quebrado.
+
+Limitacoes atuais:
+
+- Sem premium daily, pagamento, moeda paga, online, calendario online, anti-cheat de data, anuncios, temporadas, compra de streak ou restore streak.
+- Recompensas sao pequenas e nao aplicam bonus de poder, XP real temporario, gold multiplier, loot multiplier ou vantagem premium.
+- Historico e limitado aos ultimos 20 claims.
+- Proximo passo sugerido: Etapa 25.5 - QA do Daily Reward.
 
 ## QA visual da Etapa 20.5
 

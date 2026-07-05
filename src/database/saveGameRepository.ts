@@ -2,6 +2,7 @@ import type Database from "@tauri-apps/plugin-sql";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { normalizeCollectionsState } from "../game-engine/collections/normalizeCollectionsState";
+import { normalizeDailyRewardState } from "../game-engine/daily-reward/normalizeDailyRewardState";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { mockCharacters } from "../data/mockCharacters";
@@ -185,9 +186,10 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       bestiary_json,
       hunt_presets_json,
       collections_json,
+      daily_reward_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
     [
       guild.id,
       guild.name,
@@ -198,6 +200,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       JSON.stringify(normalizeBestiaryState(guild.bestiary)),
       JSON.stringify(guild.huntPresets ?? []),
       JSON.stringify(normalizeCollectionsState(guild.collections)),
+      JSON.stringify(normalizeDailyRewardState(guild.dailyReward)),
       now,
       now,
     ],

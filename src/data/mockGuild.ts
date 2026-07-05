@@ -1,3 +1,4 @@
+import { createDefaultDailyRewardState } from "../game-engine/daily-reward/createDefaultDailyRewardState";
 import type { Guild } from "../shared/types";
 
 export const mockGuild: Guild = {
@@ -33,4 +34,5 @@ export const mockGuild: Guild = {
     ],
     newlyUnlockedCollectionItemIds: [],
   },
+  dailyReward: createDefaultDailyRewardState(),
 };

@@ -1,5 +1,6 @@
 import { GameCurrencyPill } from "../ui/GameCurrencyPill";
 import { GameIconButton } from "../ui/GameIconButton";
+import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
 import type { Character, Guild } from "../../shared/types";
 import { GAME_TITLE } from "../../shared/constants";
 import type { MainPanelTab } from "./MainPanel";
@@ -25,6 +26,8 @@ export function TopBar({
   onReloadSave,
   onResetSave,
 }: TopBarProps) {
+  const dailyAvailable = canClaimDailyReward(guild.dailyReward);
+
   return (
     <header className="top-bar">
       <div className="brand-block">
@@ -46,7 +49,13 @@ export function TopBar({
         <GameIconButton active={activeTab === "market"} icon="M" label="Market" onClick={() => onOpenTab("market")} />
         <GameIconButton active={activeTab === "forge"} icon="F" label="Forge" onClick={() => onOpenTab("forge")} />
         <GameIconButton active={activeTab === "imbuing"} icon="I" label="Imbuing" onClick={() => onOpenTab("imbuing")} />
-        <GameIconButton active={activeTab === "daily"} icon="D" label="Daily" onClick={() => onOpenTab("daily")} />
+        <GameIconButton
+          active={activeTab === "daily"}
+          badge={dailyAvailable ? "!" : undefined}
+          icon="D"
+          label="Daily"
+          onClick={() => onOpenTab("daily")}
+        />
         <GameIconButton active={activeTab === "ranking"} icon="R" label="Ranking" onClick={() => onOpenTab("ranking")} />
         <GameIconButton active={activeTab === "store"} icon="S" label="Store" onClick={() => onOpenTab("store")} />
       </div>

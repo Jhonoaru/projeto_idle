@@ -176,6 +176,14 @@ export type CollectionRarity =
   | "epic"
   | "legendary";
 
+export type DailyRewardType =
+  | "gold"
+  | "item"
+  | "material"
+  | "supply"
+  | "collection"
+  | "xp_boost_placeholder";
+
 export type EquipmentSlot =
   | "helmet"
   | "armor"
@@ -207,6 +215,7 @@ export interface Guild {
   bestiary?: GuildBestiaryState;
   huntPresets?: HuntSupplyPreset[];
   collections?: GuildCollectionsState;
+  dailyReward?: DailyRewardState;
 }
 
 export interface CollectionItem {
@@ -232,6 +241,34 @@ export interface CharacterCosmetics {
   activeOutfitId?: string;
   activeMountId?: string;
   activeAvatarId?: string;
+}
+
+export interface DailyRewardDefinition {
+  day: number;
+  rewardType: DailyRewardType;
+  label: string;
+  description: string;
+  goldAmount?: number;
+  itemId?: string;
+  quantity?: number;
+  collectionItemId?: string;
+  previewValue?: string;
+}
+
+export interface DailyRewardClaim {
+  claimedAt: string;
+  day: number;
+  rewardType: DailyRewardType;
+  label: string;
+}
+
+export interface DailyRewardState {
+  lastClaimedAt?: string | null;
+  currentStreak: number;
+  totalClaims: number;
+  cycleDay: number;
+  claimHistory: DailyRewardClaim[];
+  claimedToday: boolean;
 }
 
 export interface HuntSupplyPresetItem {
