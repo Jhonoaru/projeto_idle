@@ -48,7 +48,7 @@ export function RightCharacterPanel({ character, guild, logs }: RightCharacterPa
     <aside className="right-character-panel">
       <Panel title="Character">
         <div className="client-character-card">
-          <div className="client-avatar">{activeCosmetics.avatar?.previewValue ?? character.name.slice(0, 2).toUpperCase()}</div>
+          <div className="client-avatar">{activeCosmetics.avatar?.previewValue ?? character.name?.slice(0, 2).toUpperCase() ?? "??"}</div>
           <div>
             <span>{character.vocation}</span>
             <strong>{character.name}</strong>

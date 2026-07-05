@@ -1514,21 +1514,20 @@ export function App() {
       updateSelectedCharacter(result.character);
       setLastQuestResult(result.result);
 
-      if (result.guildRenownGained > 0 || result.goldGained > 0 || result.guildGoldLost > 0) {
-        setGuild((currentGuild) => ({
-          ...currentGuild,
-          renown: currentGuild.renown + result.guildRenownGained,
-          gold: Math.max(0, currentGuild.gold + result.goldGained - result.guildGoldLost),
-        }));
-      }
-
+      const questGuild = {
+        ...guild,
+        renown: guild.renown + result.guildRenownGained,
+        gold: Math.max(0, guild.gold + result.goldGained - result.guildGoldLost),
+      };
       if (result.result.success) {
-        const previewUnlock = unlockCollectionItem(guild, "outfit-cave-delver");
-        setGuild((currentGuild) => unlockCollectionItem(currentGuild, "outfit-cave-delver").guild);
-        const collectionLogs = previewUnlock.logs;
+        const collectionUnlock = unlockCollectionItem(questGuild, "outfit-cave-delver");
+        setGuild(collectionUnlock.guild);
+        const collectionLogs = collectionUnlock.logs;
         for (const message of [...collectionLogs].reverse()) {
           prependLog("Collections", message, "success");
         }
+      } else if (result.guildRenownGained > 0 || result.goldGained > 0 || result.guildGoldLost > 0) {
+        setGuild(questGuild);
       }
 
       if (result.goldGained > 0) {
@@ -1609,21 +1608,20 @@ export function App() {
       setDepot(result.depot);
       setLastBossResult(result.result);
 
-      if (result.guildRenownGained > 0 || result.result.goldGained > 0 || result.guildGoldLost > 0) {
-        setGuild((currentGuild) => ({
-          ...currentGuild,
-          renown: currentGuild.renown + result.guildRenownGained,
-          gold: Math.max(0, currentGuild.gold + result.result.goldGained - result.guildGoldLost),
-        }));
-      }
-
+      const bossGuild = {
+        ...guild,
+        renown: guild.renown + result.guildRenownGained,
+        gold: Math.max(0, guild.gold + result.result.goldGained - result.guildGoldLost),
+      };
       if (result.result.defeated) {
-        const previewUnlock = unlockCollectionItem(guild, "avatar-dungeon-victor-sigil");
-        setGuild((currentGuild) => unlockCollectionItem(currentGuild, "avatar-dungeon-victor-sigil").guild);
-        const collectionLogs = previewUnlock.logs;
+        const collectionUnlock = unlockCollectionItem(bossGuild, "avatar-dungeon-victor-sigil");
+        setGuild(collectionUnlock.guild);
+        const collectionLogs = collectionUnlock.logs;
         for (const message of [...collectionLogs].reverse()) {
           prependLog("Collections", message, "success");
         }
+      } else if (result.guildRenownGained > 0 || result.result.goldGained > 0 || result.guildGoldLost > 0) {
+        setGuild(bossGuild);
       }
 
       if (result.result.goldGained > 0) {

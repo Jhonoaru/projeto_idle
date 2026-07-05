@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-03
+Atualizado em: 2026-07-05
 
 ## Stack usada
 
@@ -36,6 +36,7 @@ Atualizado em: 2026-07-03
 - Etapa 23 concluida: Path of Destiny / Wheel real por personagem, com pontos por level, nodes desbloqueaveis, bonus passivos, integracao com atributos/hunts e persistencia SQLite.
 - Etapa 23.5 concluida: QA/correcao do Path of Destiny / Wheel, com normalizacao mais robusta, bloqueio contra spam de unlock/reset e validacao de build.
 - Etapa 24 concluida: Collections real com Outfits, Mounts e Avatars, unlocks guild-wide, selecao por personagem e persistencia SQLite.
+- Etapa 24.5 concluida: QA/correcao de Collections, com validacao de dados, defaults, save/load, painel direito, badge, Store placeholder e build.
 
 Comandos principais:
 
@@ -343,7 +344,43 @@ Limitacoes atuais:
 
 - Sem sprites externos, imagens protegidas, bonus de poder, loja paga, premium, checkout, trade ou online.
 - Bestiary/Daily ainda estao preparados por source, mas sem unlock automatico nesta etapa.
-- Proximo passo sugerido: Etapa 24.5 - QA de Collections.
+- Proximo passo sugerido: Etapa 25 - Daily Reward real.
+
+## Etapa 24.5 - QA de Collections
+
+Validado:
+
+- Catalogo de Collections possui Outfits, Mounts e Avatars com IDs unicos, categorias validas, nome, descricao, rarity, source, preview e requisitos legiveis.
+- Starter cosmetics continuam garantidos por `normalizeCollectionsState` para saves novos e antigos.
+- `guild.collections` aceita undefined, IDs duplicados e IDs removidos do catalogo sem quebrar UI ou persistencia.
+- `character.cosmetics` aceita undefined, slot errado, item bloqueado e item removido, voltando para defaults validos por vocacao.
+- Unlocks permanecem guild-wide em `guild.collections`; selecao ativa continua individual por personagem em `character.cosmetics`.
+- `equipCollectionItem` bloqueia item inexistente, bloqueado e restrito por vocacao, sem alterar outros personagens.
+- Janela Collections exibe abas Outfits/Mounts/Avatars, contadores, preview, rarity/source, requisito, status e botao Equip desabilitado quando necessario.
+- Painel direito e Character Details leem cosmeticos ativos via `getActiveCharacterCosmetics`, com fallback normalizado.
+- Badge lateral usa `newlyUnlockedCollectionItemIds` normalizado e e limpo ao abrir Collections.
+- SQLite salva `guilds.collections_json` e `characters.cosmetics_json` com normalizacao no save e no load.
+- Store segue placeholder: sem compra real, checkout, premium, moeda paga ou unlock funcional.
+- Cosmeticos seguem sem bonus de XP, gold, loot, speed, capacity, supplies, risco de morte ou poder.
+
+Bugs corrigidos:
+
+- Unlock de Collections por quest/boss fazia duas chamadas separadas a `unlockCollectionItem`; agora cada evento calcula guilda e logs a partir do mesmo resultado de unlock, evitando inconsistencias de log/estado em unlocks duplicados.
+- Fallback textual do avatar no painel direito usava `character.name.slice(...)`; agora usa null-safety e fallback `"??"`.
+
+Validacoes executadas:
+
+- Build inicial: `npm.cmd run build` passou.
+- Build final: `npm.cmd run build` passou.
+- Dev server Vite respondeu em `http://127.0.0.1:1420`.
+- QA interativo por navegador embutido nao foi concluido nesta sessao por falha local de permissao (`EPERM` ao acessar AppData antes da conexao do browser).
+
+Limitacoes mantidas:
+
+- Sem loja paga real, premium, checkout, online, sprites externos, assets protegidos ou bonus de poder por cosmetico.
+- Bestiary/Daily/Event ainda ficam como sources planejados, sem novo sistema grande de unlock nesta etapa.
+- QA manual visual completa em 1366x768 ainda deve ser repetida no app desktop.
+- Proximo passo sugerido: Etapa 25 - Daily Reward real.
 
 ## QA visual da Etapa 20.5
 
