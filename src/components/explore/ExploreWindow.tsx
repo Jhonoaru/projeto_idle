@@ -66,6 +66,8 @@ interface ExploreWindowProps {
   onFinishHunt: () => void;
   onFinishQuest: (quest: Quest) => void;
   onFinishTraining: () => void;
+  onOpenInventory: () => void;
+  onOpenQuickSell: () => void;
   onPrepareHunt: (preset: HuntSupplyPreset) => void;
   onSelectBoss: (boss: Boss) => void;
   onSelectHunt: (hunt: HuntArea) => void;
@@ -118,6 +120,8 @@ export function ExploreWindow({
   onFinishHunt,
   onFinishQuest,
   onFinishTraining,
+  onOpenInventory,
+  onOpenQuickSell,
   onPrepareHunt,
   onSelectBoss,
   onSelectHunt,
@@ -180,6 +184,8 @@ export function ExploreWindow({
             character={lastResult?.character}
             characterName={lastResult?.characterName}
             hunt={lastResult?.hunt}
+            onOpenInventory={onOpenInventory}
+            onOpenQuickSell={onOpenQuickSell}
             result={lastResult?.result}
           />
           <HuntList

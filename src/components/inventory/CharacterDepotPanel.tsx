@@ -1,4 +1,5 @@
 import { calculateCapacityUsed } from "../../game-engine/inventory/calculateCapacityUsed";
+import { InventoryGrid } from "./InventoryGrid";
 import { InventoryItemRow } from "./InventoryItemRow";
 import type { Character, InventoryItem } from "../../shared/types";
 
@@ -27,6 +28,7 @@ export function CharacterDepotPanel({
           <strong>{capacityUsed.toFixed(2)} cap</strong>
         </div>
       </div>
+      <InventoryGrid emptySlots={16} items={character.characterDepot} />
       <div className="inventory-list">
         {character.characterDepot.length > 0 ? (
           character.characterDepot.map((inventoryItem) => (

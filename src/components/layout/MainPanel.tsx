@@ -459,6 +459,8 @@ export function MainPanel({
             onFinishHunt={onFinishHunt}
             onFinishQuest={onFinishQuest}
             onFinishTraining={onFinishTraining}
+            onOpenInventory={() => onChangeTab("inventory")}
+            onOpenQuickSell={() => onChangeTab("market")}
             onPrepareHunt={onPrepareHunt}
             onSelectBoss={onSelectBoss}
             onSelectHunt={onSelectHunt}

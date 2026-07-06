@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-05
+Atualizado em: 2026-07-06
 
 ## Stack usada
 
@@ -39,6 +39,7 @@ Atualizado em: 2026-07-05
 - Etapa 24.5 concluida: QA/correcao de Collections, com validacao de dados, defaults, save/load, painel direito, badge, Store placeholder e build.
 - Etapa 25 concluida: Daily Reward real offline/local, com streak, ciclo de 7 dias, Guild Depot, Collections e persistencia SQLite.
 - Etapa 25.5 concluida: QA/correcao do Daily Reward em Tauri/SQLite, com save/load real, claim unico e Guild Depot validado.
+- Etapa 26 concluida: rework visual de Inventario, Loot e Venda Rapida, com slots visuais, tooltips, protecao de venda e Quick Sell seguro.
 
 Comandos principais:
 
@@ -104,6 +105,10 @@ Comandos principais:
 - Save inicial, auto-save, salvar manualmente, recarregar save e resetar save.
 - Market NPC local para venda de itens.
 - Venda de itens do inventario do personagem, depot pessoal do personagem e Guild Depot.
+- Venda Rapida visual com selecao manual, filtros por origem/tipo, total de gold previsto e bloqueio para itens perigosos.
+- Protecao de venda centralizada contra itens locked, quest, containers com conteudo, itens dentro de container, imbuements ativos e itens sem valor.
+- Inventario, Depot do Personagem e Guild Depot agora exibem grade visual de slots com icones textuais, quantidade, badges e tooltip de item.
+- Resultado de hunt mostra loot/supplies/rejeicoes em cards visuais e oferece atalhos para Inventory e Market/Quick Sell.
 - Gold separado entre personagem e guilda.
 - Gold universal da guilda usado por compras, vendas e custos relevantes.
 - Itens travaveis contra venda acidental.
@@ -141,9 +146,12 @@ Limitacoes atuais:
 - Store nao altera save nem aplica bonus nesta etapa.
 - A navegacao antiga por abas ficou escondida visualmente, mas os paineis reais permanecem reaproveitados para evitar regressao.
 - Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
+- O rework de inventario usa icones textuais/CSS autorais; ainda nao ha sprites externos ou pixel art dedicada.
+- Quick Sell seleciona por padrao apenas loot/material comum sem avisos; itens raros, equipaveis, melhorados ou sensiveis exigem selecao manual ou continuam bloqueados.
 
 Proximos passos sugeridos:
 
+- Etapa 26.5 - QA do Inventario, Loot e Venda Rapida.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.

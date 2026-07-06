@@ -4,6 +4,7 @@ import { canMoveItemToContainer } from "../../game-engine/container/canMoveItemT
 import { getContainerContents } from "../../game-engine/container/getContainerContents";
 import { isContainerItem } from "../../game-engine/container/isContainerItem";
 import { CapacityBar } from "./CapacityBar";
+import { InventoryGrid } from "./InventoryGrid";
 import { InventoryItemRow } from "./InventoryItemRow";
 import type { Character, InventoryItem } from "../../shared/types";
 
@@ -56,6 +57,12 @@ export function InventoryPanel({
   return (
     <div className="inventory-panel">
       <CapacityBar used={character.capacityUsed} max={character.capacityMax} />
+      <InventoryGrid
+        emptySlots={24}
+        equippedItemIds={new Set(Object.values(character.equipment).filter(Boolean).map((item) => item.id))}
+        items={visibleItems}
+        onOpenContainer={(container) => setOpenContainerId(container.id)}
+      />
       <div className="container-browser">
         <div className="container-browser-header">
           <div>

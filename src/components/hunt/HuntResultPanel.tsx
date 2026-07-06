@@ -1,4 +1,5 @@
 import { Panel } from "../ui/Panel";
+import { ItemIcon } from "../items/ItemIcon";
 import type { Character, HuntArea, HuntSimulationResult } from "../../shared/types";
 
 interface HuntResultPanelProps {
@@ -6,6 +7,8 @@ interface HuntResultPanelProps {
   character?: Character;
   hunt?: HuntArea;
   result?: HuntSimulationResult;
+  onOpenInventory?: () => void;
+  onOpenQuickSell?: () => void;
 }
 
 export function HuntResultPanel({
@@ -13,6 +16,8 @@ export function HuntResultPanel({
   character,
   hunt,
   result,
+  onOpenInventory,
+  onOpenQuickSell,
 }: HuntResultPanelProps) {
   if (!result || !hunt || !characterName) {
     return null;
@@ -42,6 +47,15 @@ export function HuntResultPanel({
               value={`${character.capacityUsed.toFixed(2)} / ${character.capacityMax.toFixed(0)}`}
             />
           ) : null}
+        </div>
+
+        <div className="hunt-action-buttons">
+          <button onClick={onOpenInventory} type="button">
+            Open Inventory
+          </button>
+          <button disabled={!result.lootItems.length} onClick={onOpenQuickSell} type="button">
+            Quick Sell Loot
+          </button>
         </div>
 
         <div className="result-section">
@@ -95,13 +109,16 @@ export function HuntResultPanel({
         <div className="result-section">
           <h3>Supplies Usados</h3>
           {result.suppliesUsed.length > 0 ? (
-            <ul>
+            <div className="loot-result-grid">
               {result.suppliesUsed.map((supply) => (
-                <li key={supply.itemId}>
-                  {supply.itemName} x{supply.quantityUsed} (-{supply.valueUsed.toLocaleString("en-US")}g)
-                </li>
+                <div className="loot-result-card is-supply" key={supply.itemId}>
+                  <ItemIcon item={{ id: supply.itemId, name: supply.itemName, type: "consumable", rarity: "common", weight: 0, value: 0, stackable: true, description: supply.itemName }} quantity={supply.quantityUsed} />
+                  <strong>{supply.itemName}</strong>
+                  <span>x{supply.quantityUsed}</span>
+                  <em>-{supply.valueUsed.toLocaleString("en-US")}g</em>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p>Nenhum supply consumido.</p>
           )}
@@ -121,13 +138,16 @@ export function HuntResultPanel({
         <div className="result-section">
           <h3>Loot Coletado</h3>
           {result.lootItems.length > 0 ? (
-            <ul>
+            <div className="loot-result-grid">
               {result.lootItems.map((item) => (
-                <li key={item.itemId}>
-                  {item.itemName} x{item.quantity} ({item.weightTotal.toFixed(2)} cap / {item.totalValue.toLocaleString("en-US")}g)
-                </li>
+                <div className={`loot-result-card rarity-${item.rarity}`} key={item.itemId}>
+                  <ItemIcon item={item.item} quantity={item.quantity} />
+                  <strong>{item.itemName}</strong>
+                  <span>x{item.quantity} / {item.weightTotal.toFixed(2)} cap</span>
+                  <em>{item.totalValue.toLocaleString("en-US")}g</em>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p>No notable loot.</p>
           )}
@@ -136,13 +156,16 @@ export function HuntResultPanel({
         {result.rejectedLoot && result.rejectedLoot.length > 0 ? (
           <div className="result-section">
             <h3>Perdido por Capacity</h3>
-            <ul>
+            <div className="loot-result-grid">
               {result.rejectedLoot.map((item) => (
-                <li key={item.itemId}>
-                  {item.itemName} x{item.quantity} ({item.weightTotal.toFixed(2)} cap)
-                </li>
+                <div className={`loot-result-card is-rejected rarity-${item.rarity}`} key={item.itemId}>
+                  <ItemIcon item={item.item} quantity={item.quantity} />
+                  <strong>{item.itemName}</strong>
+                  <span>x{item.quantity}</span>
+                  <em>{item.weightTotal.toFixed(2)} cap</em>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
         ) : null}
 

@@ -6,6 +6,7 @@ import { filterMarketItems } from "../../game-engine/market/filterMarketItems";
 import { getSellableItems } from "../../game-engine/market/getSellableItems";
 import { MarketFilters } from "./MarketFilters";
 import { MarketItemRow } from "./MarketItemRow";
+import { QuickSellWindow } from "./QuickSellWindow";
 import { MarketSourceTabs } from "./MarketSourceTabs";
 import { SellSummaryPanel } from "./SellSummaryPanel";
 import type {
@@ -138,6 +139,11 @@ export function MarketPanel({
       ) : (
         <>
           <MarketSourceTabs activeSource={source} onChangeSource={handleChangeSource} />
+          <QuickSellWindow
+            character={character}
+            guildDepot={guildDepot}
+            onSellItems={onSellItems}
+          />
           <MarketFilters
             category={category}
             onChangeCategory={setCategory}

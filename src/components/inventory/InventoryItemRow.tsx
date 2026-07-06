@@ -1,5 +1,8 @@
 import type { InventoryItem } from "../../shared/types";
 import { getImbuementById } from "../../data/imbuements";
+import { canSellItem } from "../../game-engine/market/canSellItem";
+import { ItemIcon } from "../items/ItemIcon";
+import { ItemTooltip } from "../items/ItemTooltip";
 
 interface InventoryItemRowProps {
   inventoryItem: InventoryItem;
@@ -30,9 +33,14 @@ export function InventoryItemRow({
 }: InventoryItemRowProps) {
   const totalWeight = inventoryItem.item.weight * inventoryItem.quantity;
   const totalValue = inventoryItem.item.value * inventoryItem.quantity;
+  const sellStatus = canSellItem(inventoryItem);
 
   return (
     <article className={`inventory-row rarity-${inventoryItem.item.rarity} ${inventoryItem.locked ? "is-locked" : ""}`.trim()}>
+      <div className="inventory-row-icon">
+        <ItemIcon inventoryItem={inventoryItem} />
+        <ItemTooltip inventoryItem={inventoryItem} sellReason={sellStatus.reason} />
+      </div>
       <div>
         <h3>{formatEnhancedName(inventoryItem)}</h3>
         <p>
@@ -53,6 +61,7 @@ export function InventoryItemRow({
         <span>x{inventoryItem.quantity}</span>
         <span>{totalWeight.toFixed(2)} cap</span>
         <strong>{totalValue.toLocaleString("en-US")}g</strong>
+        {sellStatus.reason ? <em className={`sell-warning is-${sellStatus.warningLevel}`}>{sellStatus.reason}</em> : null}
       </div>
       <div className="inventory-actions">
         {inventoryItem.item.type === "equipment" && onEquip ? (

@@ -1,4 +1,5 @@
 import { calculateCapacityUsed } from "../../game-engine/inventory/calculateCapacityUsed";
+import { InventoryGrid } from "./InventoryGrid";
 import { InventoryItemRow } from "./InventoryItemRow";
 import type { GuildDepot, InventoryItem } from "../../shared/types";
 
@@ -27,6 +28,7 @@ export function GuildDepotPanel({
           <strong>{capacityUsed.toFixed(2)} cap</strong>
         </div>
       </div>
+      <InventoryGrid emptySlots={24} items={depot.items} />
       <div className="inventory-list">
         {depot.items.length > 0 ? (
           depot.items.map((inventoryItem) => (

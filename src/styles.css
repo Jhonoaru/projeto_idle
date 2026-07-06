@@ -1703,6 +1703,40 @@ p {
   color: #aeb7aa;
 }
 
+.loot-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.loot-result-card {
+  display: grid;
+  gap: 5px;
+  min-height: 132px;
+  border: 1px solid #30352f;
+  border-left-width: 3px;
+  border-radius: 7px;
+  padding: 9px;
+  color: #d6d1c4;
+  background: #151a17;
+}
+
+.loot-result-card strong {
+  color: #f1d58c;
+  font-size: 0.84rem;
+}
+
+.loot-result-card span,
+.loot-result-card em {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  font-style: normal;
+}
+
+.loot-result-card.is-rejected {
+  opacity: 0.7;
+}
+
 .inventory-panel {
   display: grid;
   gap: 12px;
@@ -1756,6 +1790,244 @@ p {
 .inventory-list {
   display: grid;
   gap: 8px;
+}
+
+.inventory-grid-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 0.42fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #101411;
+}
+
+.item-slot {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  min-height: 92px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 7px;
+  color: #d6d1c4;
+  background: #151a17;
+  cursor: pointer;
+}
+
+.item-slot.is-selected,
+.quick-sell-card.is-selected {
+  border-color: #7fc77a;
+  background: #162417;
+}
+
+.item-slot.is-empty {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.item-slot > span {
+  width: 100%;
+  overflow: hidden;
+  color: #c7cabc;
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid #3d453b;
+  border-left-width: 3px;
+  border-radius: 7px;
+  color: #f1d58c;
+  background: radial-gradient(circle at 50% 28%, #242a23, #101411 76%);
+  font-weight: 950;
+}
+
+.item-icon-small {
+  width: 42px;
+  height: 42px;
+  font-size: 0.74rem;
+}
+
+.item-icon-medium {
+  width: 54px;
+  height: 54px;
+  font-size: 0.86rem;
+}
+
+.item-icon-large {
+  width: 72px;
+  height: 72px;
+  font-size: 1rem;
+}
+
+.item-icon.is-locked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.item-icon.is-equipped {
+  box-shadow: 0 0 0 1px rgba(216, 185, 106, 0.55), inset 0 0 18px rgba(216, 185, 106, 0.08);
+}
+
+.item-rarity-common { border-left-color: #7f8a7a; }
+.item-rarity-uncommon { border-left-color: #7fc77a; }
+.item-rarity-rare { border-left-color: #67a8e8; }
+.item-rarity-epic { border-left-color: #b47ee8; }
+.item-rarity-legendary { border-left-color: #e6a84c; }
+
+.item-quantity {
+  position: absolute;
+  right: 3px;
+  bottom: 2px;
+  border-radius: 4px;
+  padding: 1px 4px;
+  color: #f6efd8;
+  background: rgba(0, 0, 0, 0.72);
+  font-size: 0.62rem;
+}
+
+.item-badge-row {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  display: flex;
+  gap: 2px;
+}
+
+.item-badge {
+  border: 1px solid rgba(216, 185, 106, 0.55);
+  border-radius: 3px;
+  padding: 0 3px;
+  color: #191711;
+  background: #d8b96a;
+  font-size: 0.52rem;
+  font-style: normal;
+  line-height: 1.3;
+}
+
+.item-tooltip {
+  display: grid;
+  gap: 7px;
+  min-width: 220px;
+  max-width: 280px;
+  padding: 10px;
+  border: 1px solid #6b5732;
+  border-radius: 7px;
+  color: #d6d1c4;
+  background: #101411;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+  text-align: left;
+  z-index: 4;
+}
+
+.item-slot .item-tooltip,
+.quick-sell-card .item-tooltip,
+.market-row-icon .item-tooltip,
+.inventory-row-icon .item-tooltip {
+  position: absolute;
+  left: 70px;
+  top: 0;
+  display: none;
+}
+
+.item-slot:hover .item-tooltip,
+.quick-sell-card:hover .item-tooltip,
+.market-row-icon:hover .item-tooltip,
+.inventory-row-icon:hover .item-tooltip {
+  display: grid;
+}
+
+.inventory-grid-active-tooltip {
+  position: sticky;
+  top: 0;
+}
+
+.item-tooltip > strong {
+  color: #f1d58c;
+  font-size: 0.94rem;
+}
+
+.item-tooltip > span,
+.item-tooltip-grid span,
+.item-tooltip-imbuements span {
+  color: #aeb7aa;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.item-tooltip p,
+.item-tooltip small {
+  margin: 0;
+  color: #c7cabc;
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.item-tooltip-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.item-tooltip-grid div {
+  border: 1px solid #30352f;
+  border-radius: 4px;
+  padding: 5px;
+  background: #151a17;
+}
+
+.item-tooltip-grid strong {
+  display: block;
+  margin-top: 2px;
+  color: #f1d58c;
+  font-size: 0.74rem;
+}
+
+.item-tooltip-status,
+.item-tooltip-imbuements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.item-tooltip-status em,
+.sell-warning,
+.item-tooltip-warning {
+  border: 1px solid #6e5636;
+  border-radius: 999px;
+  padding: 2px 6px;
+  color: #f1d58c;
+  background: #231c14;
+  font-size: 0.68rem;
+  font-style: normal;
+}
+
+.sell-warning.is-danger,
+.item-tooltip-warning {
+  border-color: #8f614d;
+  color: #f0a66f;
+}
+
+.sell-warning.is-warning {
+  border-color: #d8b96a;
 }
 
 .container-browser {
@@ -1826,7 +2098,7 @@ p {
 
 .inventory-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(150px, auto) minmax(170px, auto);
+  grid-template-columns: 64px minmax(0, 1fr) minmax(150px, auto) minmax(170px, auto);
   gap: 10px;
   align-items: center;
   min-height: 72px;
@@ -2004,7 +2276,8 @@ p {
 
 .market-panel,
 .market-list,
-.sell-summary-panel {
+.sell-summary-panel,
+.quick-sell-window {
   display: grid;
   gap: 10px;
 }
@@ -2100,7 +2373,7 @@ p {
 
 .market-row {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(180px, 0.9fr) minmax(120px, auto) minmax(150px, auto);
+  grid-template-columns: 54px minmax(180px, 1fr) minmax(180px, 0.9fr) minmax(120px, auto) minmax(150px, auto);
   gap: 10px;
   align-items: center;
   min-height: 74px;
@@ -2168,6 +2441,115 @@ p {
   color: #9da69a;
   background: #2a302b;
   cursor: not-allowed;
+}
+
+.market-row.is-warning {
+  border-color: rgba(216, 185, 106, 0.48);
+}
+
+.market-row-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.quick-sell-toolbar,
+.quick-sell-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.quick-sell-toolbar select {
+  min-height: 36px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #d6d1c4;
+  background: #101411;
+}
+
+.quick-sell-summary {
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.quick-sell-summary div {
+  min-width: 120px;
+}
+
+.quick-sell-summary span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.quick-sell-summary strong {
+  color: #f1d58c;
+}
+
+.quick-sell-summary button {
+  min-height: 34px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #d6d1c4;
+  background: #151a17;
+  font-weight: 900;
+}
+
+.quick-sell-summary button:first-of-type {
+  border-color: #c9aa62;
+  color: #191711;
+  background: #d8b96a;
+}
+
+.quick-sell-summary button:disabled {
+  border-color: #4b5147;
+  color: #9da69a;
+  background: #2a302b;
+}
+
+.quick-sell-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.quick-sell-card {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  min-height: 132px;
+  border: 1px solid #30352f;
+  border-left-width: 3px;
+  border-radius: 7px;
+  padding: 9px;
+  color: #d6d1c4;
+  background: #151a17;
+  cursor: pointer;
+}
+
+.quick-sell-card.is-blocked {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.quick-sell-card > strong {
+  color: #f1d58c;
+  font-size: 0.84rem;
+}
+
+.quick-sell-card > span,
+.quick-sell-card > small {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  line-height: 1.3;
 }
 
 .quest-panel,
@@ -3376,6 +3758,12 @@ p {
 .collection-card button:disabled {
   cursor: not-allowed;
   opacity: 0.52;
+}
+
+.inventory-row-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
 }
 
 .daily-reward-window {

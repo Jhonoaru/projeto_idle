@@ -1,4 +1,7 @@
 import { calculateSellValue } from "../../game-engine/market/calculateSellValue";
+import { canSellItem } from "../../game-engine/market/canSellItem";
+import { ItemIcon } from "../items/ItemIcon";
+import { ItemTooltip } from "../items/ItemTooltip";
 import type { InventoryItem, SellSource } from "../../shared/types";
 
 interface MarketItemRowProps {
@@ -19,10 +22,15 @@ export function MarketItemRow({
   onToggleLock,
 }: MarketItemRowProps) {
   const value = calculateSellValue(inventoryItem.item, inventoryItem.quantity);
-  const disabled = Boolean(inventoryItem.locked);
+  const sellStatus = canSellItem(inventoryItem);
+  const disabled = !sellStatus.canSell;
 
   return (
-    <article className={`market-row rarity-${inventoryItem.item.rarity} ${disabled ? "is-locked" : ""}`.trim()}>
+    <article className={`market-row rarity-${inventoryItem.item.rarity} ${disabled ? "is-locked" : ""} is-${sellStatus.warningLevel}`.trim()}>
+      <div className="market-row-icon">
+        <ItemIcon inventoryItem={inventoryItem} size="small" />
+        <ItemTooltip inventoryItem={inventoryItem} sellReason={sellStatus.reason} />
+      </div>
       <label>
         <input
           checked={selected}
@@ -37,6 +45,7 @@ export function MarketItemRow({
         <span>{inventoryItem.item.rarity}</span>
         <span>x{inventoryItem.quantity}</span>
         <span>{sourceLabel(source)}</span>
+        {sellStatus.reason ? <span className={`sell-warning is-${sellStatus.warningLevel}`}>{sellStatus.reason}</span> : null}
       </div>
       <div className="market-row-value">
         <span>{value.unitValue.toLocaleString("en-US")}g cada</span>

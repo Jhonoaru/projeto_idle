@@ -2,6 +2,7 @@ import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacit
 import { createInventoryItem } from "../data/inventoryFactory";
 import { getItemById } from "../data/items";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
+import { canSellItem } from "../game-engine/market/canSellItem";
 import { sellItems } from "../game-engine/market/sellItems";
 import type {
   Character,
@@ -84,6 +85,7 @@ export function sellAllByCategory(
 ) {
   return items
     .filter((inventoryItem) => category === "all" || inventoryItem.item.type === category)
+    .filter((inventoryItem) => canSellItem(inventoryItem, items).warningLevel === "none")
     .map((inventoryItem) => inventoryItem.id);
 }
 
