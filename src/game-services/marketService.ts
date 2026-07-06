@@ -17,8 +17,9 @@ export function sellFromCharacterInventory(
   guild: Guild,
   inventoryItemIds: string[],
 ) {
+  const currentGold = normalizeGuildGold(guild.gold);
   const sale = sellItems({
-    sourceItems: character.inventory,
+    sourceItems: Array.isArray(character.inventory) ? character.inventory : [],
     inventoryItemIds,
     source: "character_inventory",
   });
@@ -29,7 +30,7 @@ export function sellFromCharacterInventory(
       inventory: sale.remainingItems,
       capacityUsed: calculateCapacityUsed(sale.remainingItems),
     },
-    guild: { ...guild, gold: guild.gold + sale.result.totalGold },
+    guild: { ...guild, gold: currentGold + sale.result.totalGold },
     result: withDestinationLog(sale.result, character.name, guild.name),
   };
 }
@@ -39,8 +40,9 @@ export function sellFromCharacterDepot(
   guild: Guild,
   inventoryItemIds: string[],
 ) {
+  const currentGold = normalizeGuildGold(guild.gold);
   const sale = sellItems({
-    sourceItems: character.characterDepot,
+    sourceItems: Array.isArray(character.characterDepot) ? character.characterDepot : [],
     inventoryItemIds,
     source: "character_depot",
   });
@@ -50,7 +52,7 @@ export function sellFromCharacterDepot(
       ...character,
       characterDepot: sale.remainingItems,
     },
-    guild: { ...guild, gold: guild.gold + sale.result.totalGold },
+    guild: { ...guild, gold: currentGold + sale.result.totalGold },
     result: withDestinationLog(sale.result, character.name, guild.name),
   };
 }
@@ -60,8 +62,9 @@ export function sellFromGuildDepot(
   guild: Guild,
   inventoryItemIds: string[],
 ) {
+  const currentGold = normalizeGuildGold(guild.gold);
   const sale = sellItems({
-    sourceItems: guildDepot.items,
+    sourceItems: Array.isArray(guildDepot.items) ? guildDepot.items : [],
     inventoryItemIds,
     source: "guild_depot",
   });
@@ -72,7 +75,7 @@ export function sellFromGuildDepot(
       items: sale.remainingItems,
       capacityUsed: calculateCapacityUsed(sale.remainingItems),
     },
-    guild: { ...guild, gold: guild.gold + sale.result.totalGold },
+    guild: { ...guild, gold: currentGold + sale.result.totalGold },
     result: withDestinationLog(sale.result, guild.name),
   };
 }
@@ -132,4 +135,8 @@ function withDestinationLog(
           ]
         : result.logs,
   };
+}
+
+function normalizeGuildGold(value: number) {
+  return Number.isFinite(value) && value > 0 ? value : 0;
 }

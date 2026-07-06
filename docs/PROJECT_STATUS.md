@@ -44,6 +44,7 @@ Atualizado em: 2026-07-06
 - Etapa 27 concluida: Hunt / Combat Scene visual, com personagem central, criaturas ao redor, HP fake, action bar, combat log, loot preview e analyzer integrado ao currentAction.
 - Etapa 27.5 concluida: QA/correcao da Hunt / Combat Scene, com validacao de currentAction, ready state, troca de personagem, intervalos e nao duplicacao visual de recompensa.
 - Etapa 28 concluida: Market visual avancado, com Buy, Sell, Quick Sell integrado, filtros/busca, resumo de transacao, protecoes de venda, compra via `guild.gold` e destino Inventory/Character Depot/Guild Depot.
+- Etapa 28.5 concluida: QA/correcao do Market visual avancado, com validacao de build, smoke de Buy no Vite, reforco contra duplo clique, normalizacao de gold/depot/origens e filtros tolerantes a item invalido.
 
 Comandos principais:
 
@@ -166,14 +167,48 @@ Limitacoes atuais:
 - A venda manual e Quick Sell reutilizam `canSellItem`; itens locked, quest, dentro de container, container com conteudo, imbuement ativo e sem valor ficam bloqueados, enquanto equipment/supplies/rare/upgraded/tier mostram aviso.
 - A comparacao de equipamento no Buy e simples e cobre apenas atributos diretos presentes no item.
 - Na Etapa 28, `npm run tauri:dev` e SQLite real nao foram testados manualmente; a persistencia foi preservada por nao mudar schema e por reaproveitar handlers existentes de compra/venda.
+- Na Etapa 28.5, o smoke interativo foi feito no Vite com mock local; SQLite/Tauri real nao foi clicado manualmente.
+- A ferramenta de browser validou abertura do Market, Buy e renderizacao da Sell tab, mas nao conseguiu disparar uma venda manual por clique mesmo com botao visivel; Sell/Quick Sell foram complementados por leitura de engine/build.
 
 Proximos passos sugeridos:
 
-- Etapa 28.5 - QA do Market visual avancado.
+- Etapa 29 - Reformulacao e correcao de gameplay.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
 - Expandir unlocks de Collections por Bestiary, quests, bosses e eventos locais.
+
+## QA da Etapa 28.5 - Market Visual Avancado
+
+Validado/corrigido:
+
+- `npm.cmd run build` passou antes e depois das correcoes.
+- Market abriu pela Topbar no smoke Vite e exibiu Buy, Sell, Quick Sell, Buyback e Services.
+- Buy tab exibiu cards, saldo de `guild.gold`, Purchase Order, busca/categorias, ItemIcon e ItemTooltip.
+- Compra de Minor Health Potion no mock local reduziu `guild.gold` de 420g para 120g e registrou log de Market purchase.
+- Sell tab renderizou origem Inventory, filtros, Sell Safety, linhas de item, valores e warnings de protecao.
+- Quick Sell foi revisado para manter a mesma logica de `quickSellItems`/`canSellItem` e nao selecionar supplies/equipment por padrao.
+- `buyMarketItem` agora normaliza `guild.gold`, valida destino e tolera `guildDepot.items` ausente antes de aplicar transacao.
+- Venda por `marketService` agora soma gold a partir de valor normalizado e tolera arrays ausentes nas origens.
+- Buy, Sell e Quick Sell receberam trava curta contra duplo clique durante processamento.
+- Sell Summary agora conta apenas IDs ainda vendaveis/visiveis, evitando selecao obsoleta.
+- `filterMarketItems` agora ignora item invalido em vez de quebrar busca/filtro.
+- Fontes de Market e Quick Sell agora toleram inventory/depot ausentes.
+
+Bugs encontrados:
+
+- Venda podia somar em `guild.gold` invalido e propagar `NaN`.
+- Buy bloqueado podia devolver guild com gold invalido sem normalizacao.
+- Sell/Quick Sell podiam liberar o botao no mesmo tick e ficavam mais vulneraveis a clique duplo.
+- Filtro de Market assumia que todo `InventoryItem` tinha `item` valido.
+- Selecionados no Sell podiam contar IDs obsoletos ou bloqueados no resumo.
+
+Limitacoes da QA:
+
+- `npm run tauri:dev` e SQLite real nao foram testados por clique nesta etapa.
+- Save/load real de compra/venda foi validado por leitura do fluxo existente de autosave/handlers, nao por reabrir o app Tauri.
+- O navegador embutido nao conseguiu disparar venda manual por clique no smoke, embora a Sell tab tenha renderizado corretamente; essa validacao fica como prioridade da Etapa 29 ou de um QA Tauri presencial.
+- Filtros de Buy seguem o catalogo atual de `shopItems` (supplies/runes/ammo/containers/utilities); categorias como Weapons/Armor/Accessories/Materials dependem de ampliar catalogo em etapa futura.
 
 ## Etapa 28 - Market visual avancado
 

@@ -9,6 +9,7 @@ interface MarketItemRowProps {
   sourceItems: InventoryItem[];
   source: SellSource;
   selected: boolean;
+  actionsDisabled?: boolean;
   onToggleSelected: (inventoryItemId: string) => void;
   onSellOne: (inventoryItemId: string) => void;
   onToggleLock: (inventoryItemId: string) => void;
@@ -19,6 +20,7 @@ export function MarketItemRow({
   sourceItems,
   source,
   selected,
+  actionsDisabled = false,
   onToggleSelected,
   onSellOne,
   onToggleLock,
@@ -36,7 +38,7 @@ export function MarketItemRow({
       <label>
         <input
           checked={selected}
-          disabled={disabled}
+          disabled={disabled || actionsDisabled}
           onChange={() => onToggleSelected(inventoryItem.id)}
           type="checkbox"
         />
@@ -54,10 +56,10 @@ export function MarketItemRow({
         <strong>{value.totalValue.toLocaleString("en-US")}g</strong>
       </div>
       <div className="market-row-actions">
-        <button onClick={() => onToggleLock(inventoryItem.id)} type="button">
+        <button disabled={actionsDisabled} onClick={() => onToggleLock(inventoryItem.id)} type="button">
           {inventoryItem.locked ? "Destravar" : "Travar"}
         </button>
-        <button disabled={disabled} onClick={() => onSellOne(inventoryItem.id)} type="button">
+        <button disabled={disabled || actionsDisabled} onClick={() => onSellOne(inventoryItem.id)} type="button">
           Vender
         </button>
       </div>

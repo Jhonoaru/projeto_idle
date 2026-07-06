@@ -140,7 +140,7 @@ function MarketBuyTab({
   const totalQuantity = (selectedShopItem?.defaultQuantity ?? 1) * normalizedQuantity;
   const totalCost = (selectedShopItem?.buyPrice ?? 0) * totalQuantity;
   const canAfford = normalizeGold(guild.gold) >= totalCost;
-  const useStatus = selectedItem ? getUseStatus(selectedItem, character) : "Item indisponivel.";
+  const useStatus = selectedItem ? getUseStatus(selectedItem, character) : { canUse: false, message: "Item indisponivel." };
   const equippedItem = selectedItem?.equipmentSlot ? character.equipment[selectedItem.equipmentSlot as EquipmentSlot] : undefined;
 
   useEffect(() => {
@@ -150,7 +150,7 @@ function MarketBuyTab({
   }, [catalog, selectedItemId]);
 
   function buySelected() {
-    if (!selectedShopItem || !selectedItem || !canAfford || isBuyingRef.current) return;
+    if (!selectedShopItem || !selectedItem || !canAfford || !useStatus.canUse || isBuyingRef.current) return;
 
     isBuyingRef.current = true;
     setIsBuying(true);
@@ -158,7 +158,7 @@ function MarketBuyTab({
     window.setTimeout(() => {
       isBuyingRef.current = false;
       setIsBuying(false);
-    }, 0);
+    }, 250);
   }
 
   return (
@@ -218,7 +218,7 @@ function MarketBuyTab({
           ["Gold after", `${Math.max(0, normalizeGold(guild.gold) - totalCost).toLocaleString("en-US")}g`],
           ["Destination", deliveryTargetLabel(deliveryTarget, character.name)],
         ]}
-        warning={!canAfford ? "Gold insuficiente para esta compra." : useStatus}
+        warning={!canAfford ? "Gold insuficiente para esta compra." : useStatus.message}
       >
         {selectedItem ? (
           <div className="market-selected-preview">
@@ -268,7 +268,7 @@ function MarketBuyTab({
 
         {equippedItem ? <ComparisonPreview equippedItem={equippedItem} marketItem={selectedItem} /> : null}
 
-        <button className="market-primary-action" disabled={!selectedItem || !canAfford || isBuying} onClick={buySelected} type="button">
+        <button className="market-primary-action" disabled={!selectedItem || !canAfford || !useStatus.canUse || isBuying} onClick={buySelected} type="button">
           Confirm Buy
         </button>
       </MarketTransactionSummary>
@@ -296,6 +296,8 @@ function MarketSellTab({
   const [rarity, setRarity] = useState<ItemRarity | "all">("all");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isSelling, setIsSelling] = useState(false);
+  const isSellingRef = useRef(false);
   const sourceItems = getSourceItems(source, character, guildDepot);
   const filteredItems = useMemo(
     () =>
@@ -307,8 +309,11 @@ function MarketSellTab({
       }),
     [category, rarity, search, source, sourceItems],
   );
-  const selectedGold = filteredItems
+  const sellableSelectedIds = filteredItems
     .filter((item) => selectedIds.includes(item.id) && canSellItem(item, sourceItems).canSell)
+    .map((item) => item.id);
+  const selectedGold = filteredItems
+    .filter((item) => sellableSelectedIds.includes(item.id))
     .reduce((total, item) => total + calculateInventoryItemSellValue(item).totalValue, 0);
   const protectedCount = sourceItems.filter((item) => !canSellItem(item, sourceItems).canSell).length;
 
@@ -331,10 +336,16 @@ function MarketSellTab({
       return canSellItem(inventoryItem, sourceItems).canSell;
     });
 
-    if (safeIds.length === 0) return;
+    if (safeIds.length === 0 || isSellingRef.current) return;
 
+    isSellingRef.current = true;
+    setIsSelling(true);
     onSellItems(source, safeIds);
     setSelectedIds([]);
+    window.setTimeout(() => {
+      isSellingRef.current = false;
+      setIsSelling(false);
+    }, 250);
   }
 
   return (
@@ -358,7 +369,7 @@ function MarketSellTab({
           setSelectedIds([]);
         }}
         onSellSelected={() => sellAndClear(selectedIds)}
-        selectedCount={selectedIds.length}
+        selectedCount={sellableSelectedIds.length}
         selectedGold={selectedGold}
         source={source}
       />
@@ -380,6 +391,7 @@ function MarketSellTab({
         {filteredItems.length > 0 ? (
           filteredItems.map((inventoryItem) => (
             <MarketItemRow
+              actionsDisabled={isSelling}
               inventoryItem={inventoryItem}
               key={inventoryItem.id}
               onSellOne={(inventoryItemId) => sellAndClear([inventoryItemId])}
@@ -511,9 +523,10 @@ function safeGetItem(itemId?: string) {
 }
 
 function getSourceItems(source: SellSource, character: Character, guildDepot: GuildDepot): InventoryItem[] {
-  if (source === "character_depot") return character.characterDepot;
-  if (source === "guild_depot") return guildDepot.items;
-  return character.inventory.filter((item) => !item.parentContainerId);
+  if (source === "character_depot") return Array.isArray(character.characterDepot) ? character.characterDepot : [];
+  if (source === "guild_depot") return Array.isArray(guildDepot.items) ? guildDepot.items : [];
+  const inventory = Array.isArray(character.inventory) ? character.inventory : [];
+  return inventory.filter((item) => !item.parentContainerId);
 }
 
 function makePreviewInventoryItem(item: Item, quantity: number): InventoryItem {
@@ -537,14 +550,14 @@ function normalizeGold(value: number) {
 
 function getUseStatus(item: Item, character: Character) {
   if (item.levelRequirement && character.level < item.levelRequirement) {
-    return `${character.name} precisa de level ${item.levelRequirement}.`;
+    return { canUse: false, message: `${character.name} precisa de level ${item.levelRequirement}.` };
   }
 
   if (item.vocationRestriction?.length && !item.vocationRestriction.includes(character.vocation)) {
-    return `${character.vocation} nao usa este item.`;
+    return { canUse: false, message: `${character.vocation} nao usa este item.` };
   }
 
-  return "Item valido para compra local offline.";
+  return { canUse: true, message: "Item valido para compra local offline." };
 }
 
 function shopCategoryLabel(category: ShopCategory) {

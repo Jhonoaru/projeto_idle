@@ -48,7 +48,7 @@ export function QuickSellWindow({ character, guildDepot, onSellItems }: QuickSel
     window.setTimeout(() => {
       isSellingRef.current = false;
       setIsSelling(false);
-    }, 0);
+    }, 250);
   }
 
   return (
@@ -123,12 +123,14 @@ export function QuickSellWindow({ character, guildDepot, onSellItems }: QuickSel
 }
 
 function getSourceItems(source: SellSource, character: Character, guildDepot: GuildDepot): InventoryItem[] {
-  if (source === "character_depot") return character.characterDepot;
-  if (source === "guild_depot") return guildDepot.items;
-  return character.inventory.filter((item) => !item.parentContainerId);
+  if (source === "character_depot") return Array.isArray(character.characterDepot) ? character.characterDepot : [];
+  if (source === "guild_depot") return Array.isArray(guildDepot.items) ? guildDepot.items : [];
+  const inventory = Array.isArray(character.inventory) ? character.inventory : [];
+  return inventory.filter((item) => !item.parentContainerId);
 }
 
 function matchesFilter(inventoryItem: InventoryItem, filter: QuickSellFilter, canQuickSell: boolean) {
+  if (!inventoryItem.item) return false;
   if (filter === "safe") return canQuickSell;
   if (filter === "loot") return inventoryItem.item.type === "creature_product";
   if (filter === "materials") return inventoryItem.item.type === "material";
