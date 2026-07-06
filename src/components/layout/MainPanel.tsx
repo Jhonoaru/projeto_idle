@@ -300,10 +300,14 @@ export function MainPanel({
           character={selectedCharacter}
           characters={characters}
           guild={guild}
+          hunts={hunts}
           lastHuntResult={lastResult}
           offlineReport={offlineReport}
+          onCollectHunt={onFinishHunt}
           onOpenAction={() => onChangeTab("action")}
           onOpenExplore={() => onChangeTab("hunts")}
+          onOpenInventory={() => onChangeTab("inventory")}
+          onOpenQuickSell={() => onChangeTab("market")}
           selectedHunt={selectedHunt}
         />
       ) : null}

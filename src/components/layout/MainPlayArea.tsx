@@ -1,5 +1,6 @@
 import { ActionSummaryCard } from "../action/ActionSummaryCard";
 import { CurrentActionBox } from "../character/CurrentActionBox";
+import { HuntScene } from "../hunt-scene/HuntScene";
 import { Panel } from "../ui/Panel";
 import type {
   Character,
@@ -13,6 +14,7 @@ interface MainPlayAreaProps {
   character: Character;
   guild: Guild;
   characters: Character[];
+  hunts: HuntArea[];
   selectedHunt?: HuntArea;
   lastHuntResult?: {
     characterName: string;
@@ -23,22 +25,47 @@ interface MainPlayAreaProps {
   offlineReport?: OfflineCatchUpReport;
   onOpenAction: () => void;
   onOpenExplore: () => void;
+  onOpenInventory: () => void;
+  onOpenQuickSell: () => void;
+  onCollectHunt: () => void;
 }
 
 export function MainPlayArea({
   character,
   guild,
   characters,
+  hunts,
   selectedHunt,
   lastHuntResult,
   offlineReport,
   onOpenAction,
   onOpenExplore,
+  onOpenInventory,
+  onOpenQuickSell,
+  onCollectHunt,
 }: MainPlayAreaProps) {
   const activeCount = characters.filter((entry) => entry.status !== "idle").length;
   const completedOffline = offlineReport?.characterReports.filter(
     (report) => report.readyToResolve,
   ).length ?? 0;
+  const actionHunt = character.currentAction?.type === "hunting"
+    ? hunts.find((hunt) => hunt.id === character.currentAction?.targetId) ?? selectedHunt
+    : undefined;
+
+  if (character.currentAction?.type === "hunting") {
+    return (
+      <div className="main-play-area">
+        <HuntScene
+          character={character}
+          hunt={actionHunt}
+          onCollectHunt={onCollectHunt}
+          onOpenAction={onOpenAction}
+          onOpenInventory={onOpenInventory}
+          onOpenQuickSell={onOpenQuickSell}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="main-play-area">

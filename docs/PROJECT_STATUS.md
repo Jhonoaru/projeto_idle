@@ -41,6 +41,7 @@ Atualizado em: 2026-07-06
 - Etapa 25.5 concluida: QA/correcao do Daily Reward em Tauri/SQLite, com save/load real, claim unico e Guild Depot validado.
 - Etapa 26 concluida: rework visual de Inventario, Loot e Venda Rapida, com slots visuais, tooltips, protecao de venda e Quick Sell seguro.
 - Etapa 26.5 concluida: QA/correcao de Inventario, Loot e Venda Rapida, com validacao de ItemIcon, ItemTooltip, Inventory Grid, Quick Sell e protecoes de venda.
+- Etapa 27 concluida: Hunt / Combat Scene visual, com personagem central, criaturas ao redor, HP fake, action bar, combat log, loot preview e analyzer integrado ao currentAction.
 
 Comandos principais:
 
@@ -110,6 +111,9 @@ Comandos principais:
 - Protecao de venda centralizada contra itens locked, quest, containers com conteudo, itens dentro de container, imbuements ativos e itens sem valor.
 - Inventario, Depot do Personagem e Guild Depot agora exibem grade visual de slots com icones textuais, quantidade, badges e tooltip de item.
 - Resultado de hunt mostra loot/supplies/rejeicoes em cards visuais e oferece atalhos para Inventory e Market/Quick Sell.
+- Hunt Scene visual aparece na Home quando o personagem selecionado esta em `currentAction.type === "hunting"`.
+- Hunt Scene usa simulacao local/fake para criaturas, HP, action bar, loot preview e combat log, sem aplicar recompensa, consumir supplies ou alterar save.
+- Botao Collect Hunt Result da Hunt Scene usa o mesmo fluxo real de finalizacao/coleta de hunt ja existente.
 - Gold separado entre personagem e guilda.
 - Gold universal da guilda usado por compras, vendas e custos relevantes.
 - Itens travaveis contra venda acidental.
@@ -150,10 +154,13 @@ Limitacoes atuais:
 - O rework de inventario usa icones textuais/CSS autorais; ainda nao ha sprites externos ou pixel art dedicada.
 - Quick Sell seleciona por padrao apenas loot/material comum sem avisos; itens raros, equipaveis, melhorados ou sensiveis exigem selecao manual ou continuam bloqueados.
 - Na QA 26.5, o smoke visual foi feito via `npm run dev` com mock local; SQLite/Tauri real nao foi reexecutado nesta etapa.
+- Hunt Scene ainda usa placeholders textuais/CSS para personagem, criaturas e ambiente; nao ha sprites, mapa navegavel, pathfinding ou combate real-time real.
+- Loot preview da Hunt Scene e apenas visual/estimado e nao adiciona itens durante a hunt.
+- Auto-repeat/offline catch-up continuam decididos pelo fluxo real de `currentAction`; a cena apenas mostra estado e badges/resumo.
 
 Proximos passos sugeridos:
 
-- Etapa 27 - Hunt / Combat Scene visual.
+- Etapa 27.5 - QA da Hunt / Combat Scene.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
