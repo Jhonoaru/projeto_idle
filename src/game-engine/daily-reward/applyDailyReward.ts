@@ -15,34 +15,36 @@ export interface AppliedDailyReward {
 
 export function applyDailyReward(
   guild: Guild,
-  guildDepot: GuildDepot,
+  guildDepot: GuildDepot | null | undefined,
   reward: DailyRewardDefinition | undefined,
 ): AppliedDailyReward {
-  if (!reward) return applyGoldFallback(guild, guildDepot, "Daily reward fallback");
+  const safeGuildDepot = normalizeGuildDepot(guildDepot);
+
+  if (!reward) return applyGoldFallback(guild, safeGuildDepot, "Daily reward fallback");
 
   if (reward.rewardType === "gold") {
     const amount = normalizeAmount(reward.goldAmount, DAILY_REWARD_GOLD_FALLBACK);
     return {
       guild: { ...guild, gold: normalizeGuildGold(guild.gold) + amount },
-      guildDepot,
+      guildDepot: safeGuildDepot,
       receivedLabel: `${amount.toLocaleString("en-US")} gold`,
       logs: [`Daily Reward claimed: ${amount.toLocaleString("en-US")} gold.`],
     };
   }
 
   if (reward.rewardType === "item" || reward.rewardType === "supply" || reward.rewardType === "material") {
-    if (!reward.itemId) return applyGoldFallback(guild, guildDepot, reward.label);
+    if (!reward.itemId) return applyGoldFallback(guild, safeGuildDepot, reward.label);
 
     try {
       const item = getItemById(reward.itemId);
       const quantity = normalizeAmount(reward.quantity, 1);
       const dailyItem = createInventoryItem(item.id, quantity, "guildDepot");
-      const items = mergeStackableItems([...guildDepot.items, dailyItem]);
+      const items = mergeStackableItems([...safeGuildDepot.items, dailyItem]);
 
       return {
         guild,
         guildDepot: {
-          ...guildDepot,
+          ...safeGuildDepot,
           items,
           capacityUsed: calculateCapacityUsed(items),
         },
@@ -50,29 +52,29 @@ export function applyDailyReward(
         logs: [`Daily Reward claimed: ${item.name} x${quantity} sent to Guild Depot.`],
       };
     } catch {
-      return applyGoldFallback(guild, guildDepot, reward.label);
+      return applyGoldFallback(guild, safeGuildDepot, reward.label);
     }
   }
 
   if (reward.rewardType === "collection") {
-    if (!reward.collectionItemId) return applyGoldFallback(guild, guildDepot, reward.label);
+    if (!reward.collectionItemId) return applyGoldFallback(guild, safeGuildDepot, reward.label);
 
     try {
       const unlocked = unlockCollectionItem(guild, reward.collectionItemId);
-      if (!unlocked.unlocked) return applyGoldFallback(guild, guildDepot, reward.label);
+      if (!unlocked.unlocked) return applyGoldFallback(guild, safeGuildDepot, reward.label);
 
       return {
         guild: unlocked.guild,
-        guildDepot,
+        guildDepot: safeGuildDepot,
         receivedLabel: reward.label,
         logs: unlocked.logs,
       };
     } catch {
-      return applyGoldFallback(guild, guildDepot, reward.label);
+      return applyGoldFallback(guild, safeGuildDepot, reward.label);
     }
   }
 
-  return applyGoldFallback(guild, guildDepot, reward.label);
+  return applyGoldFallback(guild, safeGuildDepot, reward.label);
 }
 
 function applyGoldFallback(guild: Guild, guildDepot: GuildDepot, label: string): AppliedDailyReward {
@@ -97,4 +99,12 @@ function normalizeGuildGold(value: unknown) {
   const gold = typeof value === "number" ? value : Number(value);
 
   return Number.isFinite(gold) && gold >= 0 ? gold : 0;
+}
+
+function normalizeGuildDepot(guildDepot: GuildDepot | null | undefined): GuildDepot {
+  return {
+    goldStored: guildDepot?.goldStored ?? 0,
+    items: Array.isArray(guildDepot?.items) ? guildDepot.items : [],
+    capacityUsed: guildDepot?.capacityUsed,
+  };
 }

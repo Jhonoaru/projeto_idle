@@ -38,6 +38,7 @@ Atualizado em: 2026-07-05
 - Etapa 24 concluida: Collections real com Outfits, Mounts e Avatars, unlocks guild-wide, selecao por personagem e persistencia SQLite.
 - Etapa 24.5 concluida: QA/correcao de Collections, com validacao de dados, defaults, save/load, painel direito, badge, Store placeholder e build.
 - Etapa 25 concluida: Daily Reward real offline/local, com streak, ciclo de 7 dias, Guild Depot, Collections e persistencia SQLite.
+- Etapa 25.5 concluida: QA/correcao do Daily Reward em Tauri/SQLite, com save/load real, claim unico e Guild Depot validado.
 
 Comandos principais:
 
@@ -429,7 +430,46 @@ Limitacoes atuais:
 - Sem premium daily, pagamento, moeda paga, online, calendario online, anti-cheat de data, anuncios, temporadas, compra de streak ou restore streak.
 - Recompensas sao pequenas e nao aplicam bonus de poder, XP real temporario, gold multiplier, loot multiplier ou vantagem premium.
 - Historico e limitado aos ultimos 20 claims.
-- Proximo passo sugerido: Etapa 25.5 - QA do Daily Reward.
+- Proximo passo sugerido: Etapa 26 - Market visual avancado.
+
+## Etapa 25.5 - QA do Daily Reward em Tauri/SQLite
+
+Validado:
+
+- `npm.cmd run build` passou antes da QA e depois da correcao.
+- `npm.cmd run tauri:dev` compilou o frontend, iniciou Vite em `127.0.0.1:1420`, compilou o target Rust e abriu `guild-hunt-idle.exe`.
+- SQLite real localizado em `C:\Users\jvict\AppData\Roaming\com.jhonoaru.guildhuntidle\guild_hunt_idle.db`.
+- Tabela `guilds` possui `daily_reward_json`; migration e idempotencia foram revisadas no codigo.
+- Save real preservou `guild.gold = 670`, `currentStreak = 1`, `totalClaims = 1`, `cycleDay = 2`, `claimedToday = true` e historico do claim do dia 1.
+- Reabrir o app via Tauri manteve o Daily como claimed today no SQLite, sem reaplicar recompensa automaticamente.
+- Activity Log persistiu mensagens do Daily: recompensa de 250 gold e streak de 1 dia.
+- Guild Depot real permaneceu consistente no banco, com stacks existentes preservados.
+- ItemIds do ciclo foram conferidos em `src/data/items.ts`: `health-potion`, `iron-ore`, `mana-potion` e `old-cloth`.
+- Collection reward `avatar-beast-hunter-sigil` foi conferido em `src/data/collections.ts`.
+- Normalizacao cobre daily undefined, JSON null/invalido via fallback de parse, data invalida, NaN, streak negativo, `cycleDay` invalido e historico limitado a 20 claims.
+
+Bugs encontrados e corrigidos:
+
+- `applyDailyReward` assumia `guildDepot.items` sempre valido. Agora `applyDailyReward` e `claimDailyReward` normalizam um Guild Depot ausente/invalido para um depot vazio seguro antes de aplicar item, fallback, collection ou caminho bloqueado.
+
+Testes feitos:
+
+- Build inicial e build final.
+- Start real com `npm.cmd run tauri:dev`.
+- Consulta direta do SQLite real para schema, `daily_reward_json`, logs e Guild Depot.
+- Validacao por leitura dos fluxos de claim unico, badge Daily, cycle day, streak, fallback de collection e envio ao Guild Depot.
+
+Testes nao feitos:
+
+- Clique manual dentro da janela Tauri nesta sessao; a validacao interativa completa de botao disabled/badge visual deve ser repetida na janela desktop.
+- Simulacao pratica de "amanha" e dia 7 no SQLite real; estes cenarios foram validados por leitura da engine e normalizacao.
+- Claim de recompensa de item/material/collection no Tauri real sem alterar data/estado do save do usuario.
+
+Limitacoes restantes:
+
+- Sem anti-cheat de data local, premium daily, pagamento, online, calendario complexo, temporadas ou restore streak.
+- Daily continua simples e guild-wide.
+- Proximo passo sugerido: Etapa 26 - Market visual avancado.
 
 ## QA visual da Etapa 20.5
 
