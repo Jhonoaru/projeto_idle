@@ -2274,59 +2274,102 @@ p {
   gap: 12px;
 }
 
-.market-panel,
-.market-list,
+.market-window,
+.market-tab-panel,
+.market-item-list,
 .sell-summary-panel,
 .quick-sell-window {
   display: grid;
   gap: 10px;
 }
 
+.market-window {
+  min-height: 560px;
+}
+
+.market-hero,
 .market-heading {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
-  padding: 10px;
-  border: 1px solid #30352f;
+  padding: 12px;
+  border: 1px solid #504536;
   border-radius: 6px;
-  background: #151a17;
-  box-shadow: inset 0 0 0 1px rgba(216, 185, 106, 0.05);
+  background: linear-gradient(135deg, #151914, #201d18 62%, #151914);
+  box-shadow: inset 0 0 0 1px rgba(231, 191, 105, 0.08);
 }
 
+.market-hero span,
 .market-heading span,
-.market-destination span {
+.market-search span,
+.market-destination span,
+.market-summary span,
+.quick-sell-summary span {
   display: block;
   color: #aeb7aa;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
 }
 
+.market-hero strong,
 .market-heading strong,
-.market-destination strong {
+.market-destination strong,
+.market-summary > strong,
+.quick-sell-summary strong {
   display: block;
   margin-top: 4px;
   color: #f1d58c;
 }
 
+.market-hero p,
 .market-heading p {
-  margin-bottom: 0;
+  margin: 4px 0 0;
   color: #c7cabc;
   font-size: 0.84rem;
 }
 
+.market-gold {
+  min-width: 150px;
+  border: 1px solid rgba(216, 185, 106, 0.36);
+  border-radius: 6px;
+  padding: 9px 12px;
+  text-align: right;
+  background: rgba(9, 12, 10, 0.72);
+}
+
+.market-gold strong {
+  font-size: 1.12rem;
+}
+
+.market-tabs,
 .market-source-tabs,
 .market-filters,
-.market-destination-options {
+.market-destination-options,
+.quick-sell-toolbar,
+.quick-sell-summary {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: center;
 }
 
+.market-tabs {
+  padding: 8px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #101411;
+}
+
+.market-tabs button,
 .market-source-tabs button,
+.market-category-stack button,
 .market-destination-options button,
 .sell-summary-panel button,
-.market-row-actions button {
+.market-row-actions button,
+.quick-sell-summary button,
+.market-primary-action,
+.market-quantity-control button {
   min-height: 34px;
   border: 1px solid #30352f;
   border-radius: 6px;
@@ -2337,17 +2380,54 @@ p {
   cursor: pointer;
 }
 
+.market-tabs button.is-selected,
 .market-source-tabs button.is-selected,
+.market-category-stack button.is-selected,
 .market-destination-options button.is-selected {
   border-color: #d8b96a;
   color: #f1d58c;
   background: #242719;
 }
 
+.market-tabs button:disabled,
+.market-row-actions button:disabled,
+.sell-summary-panel button:disabled,
+.quick-sell-summary button:disabled,
+.market-primary-action:disabled {
+  border-color: #4b5147;
+  color: #9da69a;
+  background: #2a302b;
+  cursor: not-allowed;
+}
+
+.market-buy-layout {
+  grid-template-columns: 180px minmax(300px, 1fr) minmax(260px, 320px);
+  align-items: start;
+}
+
+.market-filter-rail,
+.market-summary,
+.market-destination {
+  display: grid;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  background: #151a17;
+}
+
+.market-search {
+  display: grid;
+  gap: 6px;
+}
+
+.market-search input,
 .market-filters input,
-.market-filters select {
+.market-filters select,
+.quick-sell-toolbar select,
+.market-quantity-control input {
   min-height: 36px;
-  min-width: 150px;
+  min-width: 0;
   border: 1px solid #30352f;
   border-radius: 6px;
   padding: 7px 10px;
@@ -2355,25 +2435,167 @@ p {
   background: #101411;
 }
 
-.market-destination {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid #30352f;
-  border-radius: 6px;
-  background: #151a17;
+.market-filters input,
+.market-filters select {
+  min-width: 150px;
 }
 
-.market-panel > .market-source-tabs:first-of-type {
-  padding: 8px;
+.market-category-stack {
+  display: grid;
+  gap: 7px;
+}
+
+.market-item-list {
+  grid-template-columns: repeat(auto-fill, minmax(154px, 1fr));
+  max-height: 480px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.market-item-list-dense {
+  grid-template-columns: 1fr;
+  max-height: 420px;
+}
+
+.market-item-card,
+.quick-sell-card {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  justify-items: start;
+  min-height: 142px;
   border: 1px solid #30352f;
+  border-left-width: 3px;
+  border-radius: 7px;
+  padding: 10px;
+  color: #d6d1c4;
+  background: #151a17;
+  text-align: left;
+  cursor: pointer;
+}
+
+.market-item-card-selected,
+.quick-sell-card.is-selected {
+  border-color: rgba(216, 185, 106, 0.72);
+  background: #222219;
+}
+
+.market-item-card > span,
+.market-item-card > small,
+.market-item-card > em,
+.quick-sell-card > span,
+.quick-sell-card > small {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+  font-style: normal;
+  line-height: 1.3;
+}
+
+.market-item-card > strong,
+.quick-sell-card > strong {
+  color: #f1d58c;
+  font-size: 0.84rem;
+}
+
+.market-summary {
+  position: sticky;
+  top: 0;
+}
+
+.market-summary-grid {
+  display: grid;
+  gap: 7px;
+}
+
+.market-summary-grid div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid #2b302b;
+  padding-bottom: 6px;
+}
+
+.market-summary-grid em {
+  color: #d6d1c4;
+  font-style: normal;
+  font-weight: 800;
+  text-align: right;
+}
+
+.market-warning {
+  margin: 0;
+  border: 1px solid rgba(216, 185, 106, 0.36);
   border-radius: 6px;
+  padding: 8px;
+  color: #f1d58c;
+  background: rgba(216, 185, 106, 0.08);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.market-selected-preview {
+  position: relative;
+  display: grid;
+  justify-items: start;
+}
+
+.market-selected-preview .item-tooltip {
+  left: auto;
+  right: 0;
+}
+
+.market-quantity-control {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
+  gap: 6px;
+}
+
+.market-quantity-control input {
+  text-align: center;
+  font-weight: 900;
+}
+
+.market-primary-action,
+.quick-sell-summary button:first-of-type,
+.sell-summary-panel .hunt-action-buttons button:first-child,
+.market-row-actions button:last-child {
+  border-color: #c9aa62;
+  color: #191711;
+  background: #d8b96a;
+}
+
+.market-comparison {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #2f3b33;
+  border-radius: 6px;
+  padding: 8px;
   background: #101411;
+}
+
+.market-comparison small {
+  color: #c7cabc;
+}
+
+.market-comparison .is-positive {
+  color: #9bd48d;
+}
+
+.market-comparison .is-negative {
+  color: #e58d7e;
+}
+
+.market-sell-toolbar {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.4fr) minmax(280px, 1fr);
+  gap: 10px;
+  align-items: start;
 }
 
 .market-row {
   display: grid;
-  grid-template-columns: 54px minmax(180px, 1fr) minmax(180px, 0.9fr) minmax(120px, auto) minmax(150px, auto);
+  grid-template-columns: 54px minmax(160px, 1fr) minmax(190px, 1fr) minmax(120px, auto) minmax(150px, auto);
   gap: 10px;
   align-items: center;
   min-height: 74px;
@@ -2382,6 +2604,18 @@ p {
   border-left-width: 3px;
   border-radius: 6px;
   background: #151a17;
+}
+
+.market-row.is-locked {
+  opacity: 0.72;
+}
+
+.market-row.is-warning {
+  border-color: rgba(216, 185, 106, 0.48);
+}
+
+.market-row.is-danger {
+  border-color: rgba(197, 91, 74, 0.55);
 }
 
 .market-row label {
@@ -2428,45 +2662,16 @@ p {
   gap: 6px;
 }
 
-.market-row-actions button:last-child,
-.sell-summary-panel .hunt-action-buttons button:first-child {
-  border-color: #c9aa62;
-  color: #191711;
-  background: #d8b96a;
-}
-
-.market-row-actions button:disabled,
-.sell-summary-panel button:disabled {
-  border-color: #4b5147;
-  color: #9da69a;
-  background: #2a302b;
-  cursor: not-allowed;
-}
-
-.market-row.is-warning {
-  border-color: rgba(216, 185, 106, 0.48);
-}
-
 .market-row-icon {
   position: relative;
   display: grid;
   place-items: center;
 }
 
-.quick-sell-toolbar,
-.quick-sell-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.quick-sell-toolbar select {
-  min-height: 36px;
+.sell-summary-panel {
   border: 1px solid #30352f;
   border-radius: 6px;
-  padding: 7px 10px;
-  color: #d6d1c4;
+  padding: 10px;
   background: #101411;
 }
 
@@ -2481,75 +2686,17 @@ p {
   min-width: 120px;
 }
 
-.quick-sell-summary span {
-  display: block;
-  color: #aeb7aa;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-}
-
-.quick-sell-summary strong {
-  color: #f1d58c;
-}
-
-.quick-sell-summary button {
-  min-height: 34px;
-  border: 1px solid #30352f;
-  border-radius: 6px;
-  padding: 7px 10px;
-  color: #d6d1c4;
-  background: #151a17;
-  font-weight: 900;
-}
-
-.quick-sell-summary button:first-of-type {
-  border-color: #c9aa62;
-  color: #191711;
-  background: #d8b96a;
-}
-
-.quick-sell-summary button:disabled {
-  border-color: #4b5147;
-  color: #9da69a;
-  background: #2a302b;
-}
-
 .quick-sell-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
-}
-
-.quick-sell-card {
-  position: relative;
-  display: grid;
-  gap: 5px;
-  justify-items: start;
-  min-height: 132px;
-  border: 1px solid #30352f;
-  border-left-width: 3px;
-  border-radius: 7px;
-  padding: 9px;
-  color: #d6d1c4;
-  background: #151a17;
-  cursor: pointer;
+  max-height: 430px;
+  overflow: auto;
 }
 
 .quick-sell-card.is-blocked {
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-.quick-sell-card > strong {
-  color: #f1d58c;
-  font-size: 0.84rem;
-}
-
-.quick-sell-card > span,
-.quick-sell-card > small {
-  color: #aeb7aa;
-  font-size: 0.72rem;
-  line-height: 1.3;
 }
 
 .quest-panel,
@@ -4651,6 +4798,15 @@ p {
   .hunt-scene-analyzer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .market-buy-layout,
+  .market-sell-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .market-summary {
+    position: static;
+  }
 }
 
 @media (max-width: 920px) {
@@ -4673,6 +4829,16 @@ p {
 
   .hunt-scene-status {
     justify-items: start;
+  }
+
+  .market-hero,
+  .market-row {
+    grid-template-columns: 1fr;
+  }
+
+  .market-gold,
+  .market-row-value {
+    text-align: left;
   }
 
   .hunt-scene-stage {

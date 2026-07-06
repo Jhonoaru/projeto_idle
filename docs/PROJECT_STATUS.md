@@ -43,6 +43,7 @@ Atualizado em: 2026-07-06
 - Etapa 26.5 concluida: QA/correcao de Inventario, Loot e Venda Rapida, com validacao de ItemIcon, ItemTooltip, Inventory Grid, Quick Sell e protecoes de venda.
 - Etapa 27 concluida: Hunt / Combat Scene visual, com personagem central, criaturas ao redor, HP fake, action bar, combat log, loot preview e analyzer integrado ao currentAction.
 - Etapa 27.5 concluida: QA/correcao da Hunt / Combat Scene, com validacao de currentAction, ready state, troca de personagem, intervalos e nao duplicacao visual de recompensa.
+- Etapa 28 concluida: Market visual avancado, com Buy, Sell, Quick Sell integrado, filtros/busca, resumo de transacao, protecoes de venda, compra via `guild.gold` e destino Inventory/Character Depot/Guild Depot.
 
 Comandos principais:
 
@@ -159,14 +160,44 @@ Limitacoes atuais:
 - Loot preview da Hunt Scene e apenas visual/estimado e nao adiciona itens durante a hunt.
 - Auto-repeat/offline catch-up continuam decididos pelo fluxo real de `currentAction`; a cena apenas mostra estado e badges/resumo.
 - Na QA 27.5, `npm run tauri:dev` e SQLite real nao foram reexecutados; o smoke interativo foi feito via `npm run dev` com mock local.
+- Market continua offline/local e sem player market, auction house, trade, premium ou moeda paga.
+- Buyback e Services no Market sao placeholders visuais.
+- A compra do Market usa catalogo local de `src/data/shopItems.ts`, valida quantidade/preco/gold/requisitos e entrega em Inventory, Character Depot ou Guild Depot conforme selecao.
+- A venda manual e Quick Sell reutilizam `canSellItem`; itens locked, quest, dentro de container, container com conteudo, imbuement ativo e sem valor ficam bloqueados, enquanto equipment/supplies/rare/upgraded/tier mostram aviso.
+- A comparacao de equipamento no Buy e simples e cobre apenas atributos diretos presentes no item.
+- Na Etapa 28, `npm run tauri:dev` e SQLite real nao foram testados manualmente; a persistencia foi preservada por nao mudar schema e por reaproveitar handlers existentes de compra/venda.
 
 Proximos passos sugeridos:
 
-- Etapa 28 - Market visual avancado.
+- Etapa 28.5 - QA do Market visual avancado.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
 - Expandir unlocks de Collections por Bestiary, quests, bosses e eventos locais.
+
+## Etapa 28 - Market visual avancado
+
+Implementado:
+
+- Market em janela visual de MMORPG com cabecalho de mercador, saldo de `guild.gold`, abas Buy, Sell e Quick Sell, alem de Buyback/Services como placeholders.
+- Buy tab com busca por nome/tipo/categoria, filtro por categoria, cards compactos com `ItemIcon`, preview com `ItemTooltip`, controle de quantidade e resumo de compra.
+- Compra validada por `buyMarketItem`, bloqueando item/catalogo invalido, quantidade/preco invalidos, gold insuficiente, requisito de level/vocacao e falta de capacity no inventario.
+- Destino da compra selecionavel: Inventory do personagem, Character Depot ou Guild Depot.
+- Sell tab com origem Inventory/Character Depot/Guild Depot, filtros/busca/raridade, lista com `MarketItemRow`, tooltip e motivos de protecao.
+- Quick Sell integrado como aba dedicada, reutilizando a logica segura da Etapa 26.
+- Resumo de venda mostra origem, itens visiveis, protegidos, gold atual e gold apos venda.
+- Visual novo em CSS com cards, trilhos de filtro, resumo lateral, warnings e responsividade para telas menores.
+
+Limitacoes atuais:
+
+- Buyback e Services nao executam transacoes reais.
+- Nao ha market online, player market, auction house, trade, premium ou moeda paga.
+- Comparacao de equipamento e basica.
+- QA manual interativo no Tauri/SQLite ficou para a Etapa 28.5.
+
+Validacao:
+
+- `npm.cmd run build` passou.
 
 ## QA da Etapa 26.5 - Inventario, Loot e Venda Rapida
 

@@ -1,7 +1,5 @@
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
-import { createInventoryItem } from "../data/inventoryFactory";
-import { getItemById } from "../data/items";
-import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
+import { buyMarketItem } from "../game-engine/market/buyMarketItem";
 import { canSellItem } from "../game-engine/market/canSellItem";
 import { sellItems } from "../game-engine/market/sellItems";
 import type {
@@ -98,79 +96,15 @@ export function buyFromNpcShop(
   unitPrice: number,
   deliveryTarget: ShopDeliveryTarget,
 ) {
-  const item = getItemById(itemId);
-  const totalCost = unitPrice * quantity;
-
-  if (guild.gold < totalCost) {
-    return {
-      character,
-      guild,
-      guildDepot,
-      success: false,
-      logs: [`Compra bloqueada: gold insuficiente para ${item.name}.`],
-    };
-  }
-
-  const inventoryItem = createInventoryItem(
+  return buyMarketItem({
+    character,
+    guild,
+    guildDepot,
     itemId,
     quantity,
-    deliveryTarget === "guild_depot" ? "guildDepot" : "character",
-    deliveryTarget === "guild_depot" ? undefined : character.id,
-  );
-
-  if (deliveryTarget === "character_inventory") {
-    const inventory = mergeStackableItems([...character.inventory, inventoryItem]);
-    const capacityUsed = calculateCapacityUsed(inventory);
-
-    if (capacityUsed > character.capacityMax) {
-      return {
-        character,
-        guild,
-        guildDepot,
-        success: false,
-        logs: [`Compra bloqueada: ${character.name} nao tem capacity para ${item.name}.`],
-      };
-    }
-
-    return {
-      character: {
-        ...character,
-        inventory,
-        capacityUsed,
-      },
-      guild: { ...guild, gold: guild.gold - totalCost },
-      guildDepot,
-      success: true,
-      logs: [`Guilda ${guild.name} comprou ${item.name} x${quantity} por ${totalCost.toLocaleString("en-US")}g para ${character.name}.`],
-    };
-  }
-
-  if (deliveryTarget === "character_depot") {
-    return {
-      character: {
-        ...character,
-        characterDepot: mergeStackableItems([...character.characterDepot, inventoryItem]),
-      },
-      guild: { ...guild, gold: guild.gold - totalCost },
-      guildDepot,
-      success: true,
-      logs: [`Guilda ${guild.name} comprou ${item.name} x${quantity} por ${totalCost.toLocaleString("en-US")}g para o Depot de ${character.name}.`],
-    };
-  }
-
-  const depotItems = mergeStackableItems([...guildDepot.items, inventoryItem]);
-
-  return {
-    character,
-    guild: { ...guild, gold: guild.gold - totalCost },
-    guildDepot: {
-      ...guildDepot,
-      items: depotItems,
-      capacityUsed: calculateCapacityUsed(depotItems),
-    },
-    success: true,
-    logs: [`Guilda ${guild.name} comprou ${item.name} x${quantity} por ${totalCost.toLocaleString("en-US")}g para o Guild Depot.`],
-  };
+    unitPrice,
+    deliveryTarget,
+  });
 }
 
 export function toggleInventoryItemLock(items: InventoryItem[], inventoryItemId: string) {
