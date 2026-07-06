@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { getItemById } from "../../data/items";
 import { shopItems } from "../../data/shopItems";
-import { calculateSellValue } from "../../game-engine/market/calculateSellValue";
+import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
 import { filterMarketItems } from "../../game-engine/market/filterMarketItems";
 import { getSellableItems } from "../../game-engine/market/getSellableItems";
+import { ItemIcon } from "../items/ItemIcon";
 import { MarketFilters } from "./MarketFilters";
 import { MarketItemRow } from "./MarketItemRow";
 import { QuickSellWindow } from "./QuickSellWindow";
@@ -73,7 +74,7 @@ export function MarketPanel({
   const selectedGold = filteredItems
     .filter((item) => selectedIds.includes(item.id))
     .reduce(
-      (total, item) => total + calculateSellValue(item.item, item.quantity).totalValue,
+      (total, item) => total + calculateInventoryItemSellValue(item).totalValue,
       0,
     );
 
@@ -176,6 +177,7 @@ export function MarketPanel({
                   onToggleSelected={toggleSelected}
                   selected={selectedIds.includes(inventoryItem.id)}
                   source={source}
+                  sourceItems={sourceItems}
                 />
               ))
             ) : (
@@ -266,6 +268,9 @@ function BuyShop({
 
             return (
               <article className={`market-row rarity-${item.rarity}`} key={shopItem.itemId}>
+                <div className="market-row-icon">
+                  <ItemIcon item={item} quantity={shopItem.defaultQuantity} size="small" />
+                </div>
                 <label>
                   <span>{item.name}</span>
                 </label>

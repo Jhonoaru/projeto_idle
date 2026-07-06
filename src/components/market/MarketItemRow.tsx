@@ -1,4 +1,4 @@
-import { calculateSellValue } from "../../game-engine/market/calculateSellValue";
+import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
 import { canSellItem } from "../../game-engine/market/canSellItem";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
@@ -6,6 +6,7 @@ import type { InventoryItem, SellSource } from "../../shared/types";
 
 interface MarketItemRowProps {
   inventoryItem: InventoryItem;
+  sourceItems: InventoryItem[];
   source: SellSource;
   selected: boolean;
   onToggleSelected: (inventoryItemId: string) => void;
@@ -15,14 +16,15 @@ interface MarketItemRowProps {
 
 export function MarketItemRow({
   inventoryItem,
+  sourceItems,
   source,
   selected,
   onToggleSelected,
   onSellOne,
   onToggleLock,
 }: MarketItemRowProps) {
-  const value = calculateSellValue(inventoryItem.item, inventoryItem.quantity);
-  const sellStatus = canSellItem(inventoryItem);
+  const value = calculateInventoryItemSellValue(inventoryItem);
+  const sellStatus = canSellItem(inventoryItem, sourceItems);
   const disabled = !sellStatus.canSell;
 
   return (

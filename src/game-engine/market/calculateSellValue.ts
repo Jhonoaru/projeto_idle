@@ -7,10 +7,11 @@ export function calculateSellValue(
 ) {
   const multiplier = mode === "simulated_market" ? getStableMarketMultiplier(item.id) : 1;
   const unitValue = Math.max(0, Math.round(item.value * multiplier));
+  const safeQuantity = normalizeQuantity(quantity);
 
   return {
     unitValue,
-    totalValue: unitValue * quantity,
+    totalValue: unitValue * safeQuantity,
   };
 }
 
@@ -18,14 +19,19 @@ export function calculateInventoryItemSellValue(
   inventoryItem: InventoryItem,
   mode: MarketPriceMode = "npc_fixed",
 ) {
-  const base = calculateSellValue(inventoryItem.item, inventoryItem.quantity, mode);
+  const quantity = normalizeQuantity(inventoryItem.quantity);
+  const base = calculateSellValue(inventoryItem.item, quantity, mode);
   const multiplier = 1 + (inventoryItem.upgradeLevel ?? 0) * 0.05 + (inventoryItem.tier ?? 0) * 0.2;
   const unitValue = Math.max(0, Math.round(base.unitValue * multiplier));
 
   return {
     unitValue,
-    totalValue: unitValue * inventoryItem.quantity,
+    totalValue: unitValue * quantity,
   };
+}
+
+function normalizeQuantity(quantity: number) {
+  return Number.isFinite(quantity) && quantity > 0 ? quantity : 0;
 }
 
 function getStableMarketMultiplier(itemId: string) {

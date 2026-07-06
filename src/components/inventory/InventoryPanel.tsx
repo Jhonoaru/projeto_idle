@@ -116,6 +116,7 @@ export function InventoryPanel({
               onToggleLock={onToggleLock}
               moveToContainerTargets={getMoveTargets(inventoryItem)}
               secondaryActionLabel={onSendToGuildDepot ? "Enviar para Guild Depot" : undefined}
+              sourceItems={character.inventory}
             />
           ))
         ) : (

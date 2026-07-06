@@ -40,6 +40,7 @@ Atualizado em: 2026-07-06
 - Etapa 25 concluida: Daily Reward real offline/local, com streak, ciclo de 7 dias, Guild Depot, Collections e persistencia SQLite.
 - Etapa 25.5 concluida: QA/correcao do Daily Reward em Tauri/SQLite, com save/load real, claim unico e Guild Depot validado.
 - Etapa 26 concluida: rework visual de Inventario, Loot e Venda Rapida, com slots visuais, tooltips, protecao de venda e Quick Sell seguro.
+- Etapa 26.5 concluida: QA/correcao de Inventario, Loot e Venda Rapida, com validacao de ItemIcon, ItemTooltip, Inventory Grid, Quick Sell e protecoes de venda.
 
 Comandos principais:
 
@@ -148,14 +149,44 @@ Limitacoes atuais:
 - Em janelas full, o roster lateral e ocultado para priorizar espaco jogavel em 1366x768, mantendo painel direito e menu lateral.
 - O rework de inventario usa icones textuais/CSS autorais; ainda nao ha sprites externos ou pixel art dedicada.
 - Quick Sell seleciona por padrao apenas loot/material comum sem avisos; itens raros, equipaveis, melhorados ou sensiveis exigem selecao manual ou continuam bloqueados.
+- Na QA 26.5, o smoke visual foi feito via `npm run dev` com mock local; SQLite/Tauri real nao foi reexecutado nesta etapa.
 
 Proximos passos sugeridos:
 
-- Etapa 26.5 - QA do Inventario, Loot e Venda Rapida.
+- Etapa 27 - Hunt / Combat Scene visual.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
 - Expandir unlocks de Collections por Bestiary, quests, bosses e eventos locais.
+
+## QA da Etapa 26.5 - Inventario, Loot e Venda Rapida
+
+Validado/corrigido:
+
+- `ItemIcon` renderiza itens do inventario, Market, Quick Sell e Loot Result com fallback visual para slot vazio/desconhecido.
+- `ItemTooltip` mostra tipo, raridade, quantidade, sell value, peso, requisitos, upgrade, tier, imbuements e motivos de protecao de venda.
+- Inventory Grid renderiza slots vazios, itens, quantidades, tooltips e avisos sem `NaN` no smoke visual.
+- Quick Sell abre no modo de venda, seleciona por padrao apenas loot seguro, calcula total, vende o selecionado e atualiza gold/lista no mock local.
+- Market antigo de venda e compra continua renderizando com a nova coluna de icone.
+- O resumo de venda agora usa o mesmo calculo de valor da engine, incluindo upgrade/tier.
+- A UI de Market e Inventory agora passa a lista de origem para `canSellItem`, corrigindo o caso de container com conteudo aparecer como vendavel na interface.
+- `calculateSellValue` e linhas visuais normalizam quantity invalida para evitar `NaN`.
+- Quick Sell recebeu trava simples contra clique duplo no botao Vender.
+- `git diff --check` e `npm run build` passaram apos as correcoes.
+
+Bugs encontrados:
+
+- MarketItemRow calculava protecao de venda sem `sourceItems`, entao container com conteudo podia parecer vendavel na UI mesmo bloqueado pela engine.
+- InventoryItemRow tambem nao tinha contexto completo para sinalizar corretamente container com conteudo.
+- Total selecionado no Market usava calculo simples e podia divergir de itens com upgrade/tier.
+- Quantidade invalida poderia vazar como `NaN` em calculos visuais.
+- Modo Compra do Market ficou sem icone na nova grade de 5 colunas.
+
+Limitacoes da QA:
+
+- Smoke interativo foi feito em `npm run dev`, que usa mock local quando o plugin SQLite do Tauri nao esta disponivel no browser.
+- `npm run tauri:dev` e persistencia SQLite real nao foram reexecutados nesta QA.
+- Daily Reward/Guild Depot/Forge/Imbuements foram validados por leitura/build e pelas protecoes compartilhadas, nao por cliques no app Tauri nesta etapa.
 
 ## QA da Etapa 21.5 - Weapon Proficiency
 

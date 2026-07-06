@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
 import { getQuickSellCandidates, summarizeQuickSellSelection } from "../../game-engine/market/quickSellItems";
@@ -15,6 +15,8 @@ interface QuickSellWindowProps {
 export function QuickSellWindow({ character, guildDepot, onSellItems }: QuickSellWindowProps) {
   const [source, setSource] = useState<SellSource>("character_inventory");
   const [filter, setFilter] = useState<QuickSellFilter>("safe");
+  const [isSelling, setIsSelling] = useState(false);
+  const isSellingRef = useRef(false);
   const sourceItems = getSourceItems(source, character, guildDepot);
   const candidates = useMemo(() => getQuickSellCandidates(sourceItems, source), [source, sourceItems]);
   const filteredCandidates = candidates.filter((candidate) => matchesFilter(candidate.inventoryItem, filter, candidate.canQuickSell));
@@ -37,9 +39,16 @@ export function QuickSellWindow({ character, guildDepot, onSellItems }: QuickSel
   }
 
   function sellSelected() {
-    if (summary.selectedIds.length === 0) return;
+    if (summary.selectedIds.length === 0 || isSellingRef.current) return;
+
+    isSellingRef.current = true;
+    setIsSelling(true);
     onSellItems(source, summary.selectedIds);
     setSelectedIds([]);
+    window.setTimeout(() => {
+      isSellingRef.current = false;
+      setIsSelling(false);
+    }, 0);
   }
 
   return (
@@ -76,7 +85,7 @@ export function QuickSellWindow({ character, guildDepot, onSellItems }: QuickSel
           <span>Total gold</span>
           <strong>{summary.totalGold.toLocaleString("en-US")}g</strong>
         </div>
-        <button disabled={summary.totalGold <= 0} onClick={sellSelected} type="button">
+        <button disabled={summary.totalGold <= 0 || isSelling} onClick={sellSelected} type="button">
           Vender
         </button>
         <button onClick={() => setSelectedIds([])} type="button">
