@@ -30,7 +30,7 @@ export function HuntScene({
   const action = character.currentAction;
   const monsters = getHuntSceneMonsters(hunt);
   const snapshot = useHuntSceneSimulation(character, action, hunt, monsters);
-  const isReady = snapshot.readyToResolve || snapshot.remainingMs <= 0 || snapshot.sceneProgress >= 1;
+  const isReady = snapshot.readyToResolve || snapshot.remainingMs <= 0;
   const displayRemainingMs = isReady ? 0 : snapshot.remainingMs;
   const completedOffline = Boolean(action?.offlineCompletedAt);
 

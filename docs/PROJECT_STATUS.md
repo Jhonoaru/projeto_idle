@@ -42,6 +42,7 @@ Atualizado em: 2026-07-06
 - Etapa 26 concluida: rework visual de Inventario, Loot e Venda Rapida, com slots visuais, tooltips, protecao de venda e Quick Sell seguro.
 - Etapa 26.5 concluida: QA/correcao de Inventario, Loot e Venda Rapida, com validacao de ItemIcon, ItemTooltip, Inventory Grid, Quick Sell e protecoes de venda.
 - Etapa 27 concluida: Hunt / Combat Scene visual, com personagem central, criaturas ao redor, HP fake, action bar, combat log, loot preview e analyzer integrado ao currentAction.
+- Etapa 27.5 concluida: QA/correcao da Hunt / Combat Scene, com validacao de currentAction, ready state, troca de personagem, intervalos e nao duplicacao visual de recompensa.
 
 Comandos principais:
 
@@ -157,10 +158,11 @@ Limitacoes atuais:
 - Hunt Scene ainda usa placeholders textuais/CSS para personagem, criaturas e ambiente; nao ha sprites, mapa navegavel, pathfinding ou combate real-time real.
 - Loot preview da Hunt Scene e apenas visual/estimado e nao adiciona itens durante a hunt.
 - Auto-repeat/offline catch-up continuam decididos pelo fluxo real de `currentAction`; a cena apenas mostra estado e badges/resumo.
+- Na QA 27.5, `npm run tauri:dev` e SQLite real nao foram reexecutados; o smoke interativo foi feito via `npm run dev` com mock local.
 
 Proximos passos sugeridos:
 
-- Etapa 27.5 - QA da Hunt / Combat Scene.
+- Etapa 28 - Market visual avancado.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
@@ -194,6 +196,30 @@ Limitacoes da QA:
 - Smoke interativo foi feito em `npm run dev`, que usa mock local quando o plugin SQLite do Tauri nao esta disponivel no browser.
 - `npm run tauri:dev` e persistencia SQLite real nao foram reexecutados nesta QA.
 - Daily Reward/Guild Depot/Forge/Imbuements foram validados por leitura/build e pelas protecoes compartilhadas, nao por cliques no app Tauri nesta etapa.
+
+## QA da Etapa 27.5 - Hunt / Combat Scene
+
+Validado/corrigido:
+
+- Hunt Scene aparece somente para personagem com `status === "hunting"` e `currentAction.type === "hunting"`.
+- Trocar de personagem em hunt para personagem idle remove a cena, combat log e loot preview visuais.
+- Botao `Collect Hunt Result` nao depende mais de `sceneProgress >= 100%`; agora usa `readyToResolve` ou tempo restante real zerado.
+- Progresso visual passou a ser derivado de forma consistente com o tempo restante, evitando cena 100% com timer ainda rodando.
+- `startedAt`, `endsAt` e `durationMinutes` invalidos recebem fallback seguro para evitar `NaN`.
+- `HuntActionBar` clampa progresso visual em 0..100%.
+- Hook limpa `setInterval` no unmount/troca de action e nao roda para action pronta.
+- Smoke visual via `npm run dev` confirmou cena renderizada, criaturas, HP bars, action bar, analyzer, log, loot preview e ausencia de `NaN`.
+
+Bugs encontrados:
+
+- Em dados inconsistentes do mock, `sceneProgress` podia chegar a 100% enquanto `endsAt` ainda indicava tempo restante, exibindo Collect cedo demais.
+- Cena podia aparecer para `currentAction` hunting mesmo se o status real do personagem nao fosse `hunting`.
+- Datas/horarios invalidos tinham caminho para exibir `NaN` em tempo/progresso.
+
+Limitacoes da QA:
+
+- `npm run tauri:dev`, SQLite real, offline catch-up real e auto-repeat real nao foram testados manualmente nesta etapa.
+- Recompensa duplicada foi validada por leitura do fluxo real (`handleFinishHunt`/guardas de resolucao) e por nao clicar em Collect no smoke web.
 
 ## QA da Etapa 21.5 - Weapon Proficiency
 

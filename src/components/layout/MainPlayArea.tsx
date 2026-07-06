@@ -49,10 +49,10 @@ export function MainPlayArea({
     (report) => report.readyToResolve,
   ).length ?? 0;
   const actionHunt = character.currentAction?.type === "hunting"
-    ? hunts.find((hunt) => hunt.id === character.currentAction?.targetId) ?? selectedHunt
+    ? hunts.find((hunt) => hunt.id === character.currentAction?.targetId)
     : undefined;
 
-  if (character.currentAction?.type === "hunting") {
+  if (character.status === "hunting" && character.currentAction?.type === "hunting") {
     return (
       <div className="main-play-area">
         <HuntScene

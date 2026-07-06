@@ -48,13 +48,21 @@ export function useHuntSceneSimulation(
 
     const interval = window.setInterval(() => setTick((current) => current + 1), 500);
     return () => window.clearInterval(interval);
-  }, [action]);
+  }, [action?.endsAt, action?.readyToResolve, action?.startedAt, action?.targetId, action?.type]);
 
   return useMemo(() => {
-    const totalMs = Math.max(1, (action?.durationMinutes ?? 1) * 60_000);
+    const durationMinutes = Number.isFinite(action?.durationMinutes) && (action?.durationMinutes ?? 0) > 0
+      ? action?.durationMinutes ?? 1
+      : 1;
+    const totalMs = durationMinutes * 60_000;
     const readyToResolve = action?.readyToResolve === true;
-    const elapsedMs = readyToResolve ? totalMs : Math.min(totalMs, getClockElapsedMs(action?.startedAt ?? ""));
-    const remainingMs = readyToResolve ? 0 : Math.max(0, getClockRemainingMs(action?.endsAt ?? ""));
+    const rawRemainingMs = readyToResolve ? 0 : getSafeClockRemainingMs(action?.endsAt);
+    const elapsedFromRemainingMs = Math.max(0, totalMs - rawRemainingMs);
+    const elapsedFromStartedMs = getSafeClockElapsedMs(action?.startedAt);
+    const elapsedMs = readyToResolve
+      ? totalMs
+      : Math.min(totalMs, Math.max(0, Math.min(elapsedFromStartedMs, elapsedFromRemainingMs)));
+    const remainingMs = readyToResolve ? 0 : rawRemainingMs;
     const sceneProgress = clampPercent(elapsedMs / totalMs);
     const cycleMs = 4_500;
     const cyclePosition = readyToResolve ? cycleMs : (elapsedMs + tick * 173) % cycleMs;
@@ -174,4 +182,18 @@ function getVerb(character: Character) {
 function clampPercent(value: number) {
   if (!Number.isFinite(value)) return 0;
   return Math.min(1, Math.max(0, value));
+}
+
+function getSafeClockElapsedMs(startedAt?: string) {
+  if (!startedAt) return 0;
+
+  const elapsedMs = getClockElapsedMs(startedAt);
+  return Number.isFinite(elapsedMs) ? Math.max(0, elapsedMs) : 0;
+}
+
+function getSafeClockRemainingMs(endsAt?: string) {
+  if (!endsAt) return 0;
+
+  const remainingMs = getClockRemainingMs(endsAt);
+  return Number.isFinite(remainingMs) ? Math.max(0, remainingMs) : 0;
 }
