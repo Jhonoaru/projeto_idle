@@ -50,6 +50,7 @@ Atualizado em: 2026-07-08
 - Etapa 30 concluida: rework visual avancado da Hunt / Combat Scene, com terreno estilo MMORPG, criaturas ao redor com ciclo de spawn, hotbar inferior de HP/MP/magias/suporte/loot e janelas de configuracao inspiradas nas referencias enviadas.
 - Etapa 30.5 concluida: QA visual da Hunt Scene, com smoke Vite, correcao de overflow do terreno, correcao do botao fechar dos modais e validacao responsiva em 900px/720px.
 - Etapa 31 concluida: Region Atlas / progressao de regioes, areas e unlocks, com status derivado de level, quests, access keys, hunts e bosses sem criar save/schema novo.
+- Etapa 32 concluida: rework visual do Explorar / Modos de Jogo, com boards de Hunts, Bosses e Quests, busca, cards visuais e paineis reais preservados.
 
 Comandos principais:
 
@@ -216,9 +217,57 @@ Validacao:
 
 - `npm.cmd run build` passou.
 
+## Etapa 32 - Rework visual do Explorar / Modos de Jogo
+
+Status: concluida.
+
+Objetivo:
+
+- Reestruturar a janela `Explorar` para se aproximar de uma tela MMORPG classica de modos de jogo, usando as imagens de referencia como direcao visual.
+- Manter os sistemas reais existentes de hunts, bosses, training e quests.
+- Separar visualmente os boards de selecao dos paineis de acao reais.
+- Nao criar premium, pagamento, online ou monetizacao.
+
+Arquivos alterados:
+
+- `src/components/explore/ExploreWindow.tsx`.
+- `src/styles.css`.
+
+Implementado:
+
+- Header `Modos de jogo` com abas grandes para Hunts, Bosses, Training e Quests.
+- Board visual de Hunts com cards, busca, contador, indicadores de level/acesso/risco e selecao integrada ao `HuntActionPanel`.
+- Board visual de Bosses com cards de contratos, estado locked/available/in progress e painel real `BossPanel` preservado abaixo.
+- Area de Training reorganizada dentro do novo visual, mantendo o `TrainingPanel` e a engine local existentes.
+- Board visual de Quests com cards, busca, status locked/available/current e painel real `QuestPanel` preservado abaixo.
+- Footer estilo client MMORPG com contador, paginacao visual simples e busca.
+- Estilo escuro, bordas metalicas/douradas, cards compactos e responsividade para telas menores.
+
+Regras mantidas:
+
+- Hunts continuam usando `HuntActionPanel`, supplies, presets, auto-repeat e resultado real.
+- Bosses continuam usando party, cooldown, roles e resultado real.
+- Training continua usando o fluxo local/offline existente.
+- Quests continuam usando disponibilidade real, progresso e bloqueios existentes.
+- Cards bloqueados exibem o motivo ou status sem iniciar acao indevida.
+- Nenhum asset externo/protegido foi adicionado.
+
+Validacao:
+
+- `git diff --check` passou.
+- `npm.cmd run build` passou.
+- O servidor local respondeu em `http://127.0.0.1:1420`.
+- QA visual interativo foi tentado no browser embutido, mas a sessao resetou por timeout durante automacao das abas. A validacao final desta etapa ficou por leitura, build e checagem parcial do servidor local.
+
+Limitacoes atuais:
+
+- A paginacao do board e apenas visual nesta etapa; busca e lista filtrada ja funcionam.
+- Os icones das abas e cards usam texto/siglas estilizadas, sem sprites externos.
+- O layout de Training ainda reaproveita o painel atual; pode receber um rework especifico em etapa futura.
+
 Proximo passo sugerido:
 
-- Etapa 29.5 - QA da reformulacao de gameplay inicial.
+- Etapa 32.5 - QA do novo Explorar / Modos de Jogo.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
