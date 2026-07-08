@@ -48,6 +48,7 @@ Atualizado em: 2026-07-08
 - Etapa 29 concluida: reformulacao do gameplay inicial, com Arkon starter level 1, hunts curtas, level gate real, objetivo guiado e correcao do lucro duplicado de loot.
 - Etapa 29.5 concluida: QA de gameplay e balanceamento inicial, com smoke Vite do loop hunt > loot > Quick Sell > compra de supply, Rat Tail garantido e Action Analyzer alinhado ao gold liquido.
 - Etapa 30 concluida: rework visual avancado da Hunt / Combat Scene, com terreno estilo MMORPG, criaturas ao redor com ciclo de spawn, hotbar inferior de HP/MP/magias/suporte/loot e janelas de configuracao inspiradas nas referencias enviadas.
+- Etapa 30.5 concluida: QA visual da Hunt Scene, com smoke Vite, correcao de overflow do terreno, correcao do botao fechar dos modais e validacao responsiva em 900px/720px.
 
 Comandos principais:
 
@@ -178,7 +179,6 @@ Limitacoes atuais:
 
 Proximos passos sugeridos:
 
-- Etapa 30.5 - QA visual da Hunt Scene, hotbar e janelas de configuracao.
 - Etapa 31 - Rework de Progressao de Regiao / Area / Unlocks.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
@@ -245,7 +245,33 @@ Limitacoes da QA:
 
 Proximo passo sugerido:
 
-- Etapa 30 - Rework de Progressao de Regiao / Area / Unlocks.
+- Etapa 30 - Hunt / Combat Scene visual avancada.
+
+## Etapa 30.5 - QA visual da Hunt Scene, hotbar e janelas
+
+Validado/corrigido:
+
+- Build TypeScript/Vite passou antes e depois das correcoes.
+- Vite local abriu em `http://127.0.0.1:1420` e respondeu 200.
+- Hunt starter foi iniciada pelo fluxo real de Explore/Hunts no mock local.
+- Hunt Scene apareceu na Home com personagem central, 3 criaturas, timer de spawn, action bar, loot preview, combat log e hotbar.
+- Hotbar exibiu 5 slots: cura, mana, magias, suporte e loot.
+- As 5 janelas de slot abriram e fecharam por clique, com listas e botoes `Concluir`.
+- Corrigido overflow horizontal do palco causado por patches de terreno rotacionados.
+- Corrigido overflow horizontal do modal causado pelo botao de fechar posicionado para fora da janela.
+- Validado em viewport padrao, 900px e 720px sem scroll horizontal na pagina, palco, hotbar ou modal.
+- Console do navegador nao reportou erros/warnings durante o smoke.
+
+Limitacoes da QA:
+
+- `npm run tauri:dev` e SQLite real nao foram clicados manualmente nesta etapa.
+- O smoke foi feito via `npm run dev` com mock local.
+- A hotbar continua visual/local; ainda nao configura rotacao real, cooldown real ou consumo automatico de potions.
+- A Hunt Scene continua sem sprites externos, mapa navegavel, pathfinding ou combate real-time real.
+
+Proximo passo sugerido:
+
+- Etapa 31 - Rework de Progressao de Regiao / Area / Unlocks.
 
 ## QA da Etapa 28.5 - Market Visual Avancado
 

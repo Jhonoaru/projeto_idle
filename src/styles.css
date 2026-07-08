@@ -3625,16 +3625,16 @@ p {
 }
 
 .terrain-patch-1 {
-  right: -5%;
-  top: -7%;
+  right: 10px;
+  top: 12px;
   width: 34%;
   height: 34%;
   transform: rotate(8deg);
 }
 
 .terrain-patch-2 {
-  left: -7%;
-  bottom: -10%;
+  left: 12px;
+  bottom: 18px;
   width: 38%;
   height: 32%;
   transform: rotate(-10deg);
@@ -3642,7 +3642,7 @@ p {
 
 .terrain-patch-3 {
   right: 5%;
-  bottom: -9%;
+  bottom: 16px;
   width: 25%;
   height: 24%;
   transform: rotate(14deg);
@@ -4043,8 +4043,8 @@ p {
 
 .hunt-slot-close {
   position: absolute;
-  right: -14px;
-  top: -14px;
+  right: 10px;
+  top: 10px;
   display: grid;
   place-items: center;
   width: 36px;
