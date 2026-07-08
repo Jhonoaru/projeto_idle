@@ -548,6 +548,17 @@ export function App() {
     prependLog(result.success ? "Action canceled" : "Action blocked", result.message, result.success ? "neutral" : "warning");
   }
 
+  function handleReturnToCityFromHuntScene() {
+    const result = cancelCurrentAction(selectedCharacter);
+    updateSelectedCharacter(result.character);
+    setActiveTab("home");
+    prependLog(
+      result.success ? "Return to city" : "Action blocked",
+      result.message,
+      result.success ? "neutral" : "warning",
+    );
+  }
+
   function handleStopHuntAutoRepeat() {
     if (selectedCharacter.currentAction?.type !== "hunting" || !selectedCharacter.currentAction.autoRepeat?.enabled) {
       prependLog("Auto-repeat", "Nenhum auto-repeat ativo para parar.", "warning");
@@ -1762,6 +1773,7 @@ export function App() {
           onClearBossCooldown={handleClearBossCooldown}
           onFinishBoss={handleFinishBoss}
           onFinishHunt={handleFinishHunt}
+          onReturnToCity={handleReturnToCityFromHuntScene}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}

@@ -20,6 +20,7 @@ interface HuntSceneProps {
   onOpenAction: () => void;
   onOpenInventory: () => void;
   onOpenQuickSell: () => void;
+  onReturnToCity: () => void;
 }
 
 export function HuntScene({
@@ -29,6 +30,7 @@ export function HuntScene({
   onOpenAction,
   onOpenInventory,
   onOpenQuickSell,
+  onReturnToCity,
 }: HuntSceneProps) {
   const [openSlot, setOpenSlot] = useState<HuntSceneSlotType>();
   const action = character.currentAction;
@@ -127,6 +129,14 @@ export function HuntScene({
         </button>
         <button onClick={onOpenAction} type="button">
           Open Action Details
+        </button>
+        <button
+          className="is-return"
+          disabled={isReady}
+          onClick={onReturnToCity}
+          type="button"
+        >
+          Voltar para Cidade
         </button>
         <button disabled={!isReady} onClick={onOpenQuickSell} type="button">
           Quick Sell After Collect

@@ -24,7 +24,12 @@ const durationOptions = [
   { label: "15 min", value: 15 },
   { label: "30 min", value: 30 },
   { label: "1h", value: 60 },
+  { label: "2h", value: 120 },
+  { label: "4h", value: 240 },
 ];
+
+const minHuntDuration = 1;
+const maxHuntDuration = 480;
 
 interface HuntActionPanelProps {
   character: Character;
@@ -61,6 +66,7 @@ export function HuntActionPanel({
   onPrepareHunt,
   onDeletePreset,
 }: HuntActionPanelProps) {
+  const [durationUnit, setDurationUnit] = useState<"minutes" | "hours">("minutes");
   const [autoRepeatEnabled, setAutoRepeatEnabled] = useState(false);
   const [autoRepeatMode, setAutoRepeatMode] = useState<HuntAutoRepeatMode>("repeat_count");
   const [maxRepeats, setMaxRepeats] = useState(3);
@@ -107,6 +113,17 @@ export function HuntActionPanel({
   const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess, hasLevel);
   const activeAutoRepeat =
     isHuntingSelectedArea && character.currentAction?.autoRepeat?.enabled === true;
+  const customDurationAmount =
+    durationUnit === "hours" ? Number((durationMinutes / 60).toFixed(2)) : durationMinutes;
+
+  function changeDurationFromCustom(amount: number, unit = durationUnit) {
+    onChangeDuration(normalizeDuration(unit === "hours" ? amount * 60 : amount));
+  }
+
+  function selectDurationPreset(duration: number) {
+    setDurationUnit(duration >= 60 ? "hours" : "minutes");
+    onChangeDuration(duration);
+  }
 
   return (
     <Panel title="Hunt Assignment">
@@ -143,17 +160,52 @@ export function HuntActionPanel({
           </div>
         ) : null}
 
-        <div className="duration-row">
-          {durationOptions.map((option) => (
-            <button
-              className={durationMinutes === option.value ? "is-selected" : ""}
-              key={option.value}
-              onClick={() => onChangeDuration(option.value)}
-              type="button"
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="hunt-duration-panel">
+          <div className="hunt-duration-heading">
+            <div>
+              <span>Duration</span>
+              <strong>{formatHuntDuration(durationMinutes)}</strong>
+            </div>
+            <small>Escolha minutos ou horas antes de iniciar a hunt.</small>
+          </div>
+          <div className="duration-row" aria-label="Hunt duration presets">
+            {durationOptions.map((option) => (
+              <button
+                className={durationMinutes === option.value ? "is-selected" : ""}
+                key={option.value}
+                onClick={() => selectDurationPreset(option.value)}
+                type="button"
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+          <div className="hunt-duration-custom">
+            <label>
+              Quantidade
+              <input
+                max={durationUnit === "hours" ? maxHuntDuration / 60 : maxHuntDuration}
+                min={durationUnit === "hours" ? 0.25 : minHuntDuration}
+                onChange={(event) => changeDurationFromCustom(Number(event.target.value))}
+                step={durationUnit === "hours" ? 0.25 : 1}
+                type="number"
+                value={customDurationAmount}
+              />
+            </label>
+            <label>
+              Unidade
+              <select
+                onChange={(event) => {
+                  const nextUnit = event.target.value as "minutes" | "hours";
+                  setDurationUnit(nextUnit);
+                }}
+                value={durationUnit}
+              >
+                <option value="minutes">Minutos</option>
+                <option value="hours">Horas</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div className="supplies-panel">
@@ -322,6 +374,22 @@ function clampRepeats(value: number) {
 
 function clampPercent(value: number) {
   return Math.min(100, Math.max(1, Math.floor(Number.isFinite(value) ? value : 90)));
+}
+
+function normalizeDuration(value: number | string) {
+  const numericValue = typeof value === "string" ? Number(value) : value;
+  if (!Number.isFinite(numericValue)) return minHuntDuration;
+
+  return Math.min(maxHuntDuration, Math.max(minHuntDuration, Math.round(numericValue)));
+}
+
+function formatHuntDuration(durationMinutes: number) {
+  const normalized = normalizeDuration(durationMinutes);
+  if (normalized < 60) return `${normalized} min`;
+
+  const hours = Math.floor(normalized / 60);
+  const minutes = normalized % 60;
+  return minutes > 0 ? `${hours}h ${minutes}min` : `${hours}h`;
 }
 
 function getHuntBlockReason(

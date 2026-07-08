@@ -28,6 +28,7 @@ interface MainPlayAreaProps {
   onOpenInventory: () => void;
   onOpenQuickSell: () => void;
   onCollectHunt: () => void;
+  onReturnToCity: () => void;
 }
 
 export function MainPlayArea({
@@ -43,6 +44,7 @@ export function MainPlayArea({
   onOpenInventory,
   onOpenQuickSell,
   onCollectHunt,
+  onReturnToCity,
 }: MainPlayAreaProps) {
   const activeCount = characters.filter((entry) => entry.status !== "idle").length;
   const completedOffline = offlineReport?.characterReports.filter(
@@ -63,6 +65,7 @@ export function MainPlayArea({
           onOpenAction={onOpenAction}
           onOpenInventory={onOpenInventory}
           onOpenQuickSell={onOpenQuickSell}
+          onReturnToCity={onReturnToCity}
         />
       </div>
     );

@@ -1476,6 +1476,41 @@ p {
   gap: 8px;
 }
 
+.hunt-duration-panel {
+  display: grid;
+  gap: 10px;
+  border: 1px solid #30352f;
+  border-radius: 6px;
+  padding: 10px;
+  background: #101511;
+}
+
+.hunt-duration-heading {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.hunt-duration-heading span {
+  display: block;
+  color: #aeb7aa;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.hunt-duration-heading strong {
+  display: block;
+  margin-top: 3px;
+  color: #f1d58c;
+  font-size: 1.02rem;
+}
+
+.hunt-duration-heading small {
+  color: #c7cabc;
+  text-align: right;
+}
+
 .duration-row button {
   min-width: 72px;
   border: 1px solid #3d453b;
@@ -1490,6 +1525,33 @@ p {
   border-color: #d8b96a;
   color: #f1d58c;
   background: #242719;
+}
+
+.hunt-duration-custom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 180px));
+  gap: 8px;
+}
+
+.hunt-duration-custom label {
+  display: grid;
+  gap: 4px;
+  color: #c7cabc;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.hunt-duration-custom input,
+.hunt-duration-custom select {
+  min-height: 36px;
+  min-width: 0;
+  border: 1px solid #30352f;
+  border-radius: 5px;
+  padding: 8px 10px;
+  color: #f1d58c;
+  background: #0b0f0c;
+  font-weight: 900;
 }
 
 .supplies-panel {
@@ -4285,6 +4347,12 @@ p {
   border-color: #c9aa62;
   color: #191711;
   background: #d8b96a;
+}
+
+.hunt-scene-actions button.is-return {
+  border-color: #7c5b34;
+  color: #ffd998;
+  background: #241911;
 }
 
 .hunt-scene-actions button:disabled {

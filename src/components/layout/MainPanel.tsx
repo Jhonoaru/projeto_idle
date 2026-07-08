@@ -147,6 +147,7 @@ interface MainPanelProps {
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
   onFinishHunt: () => void;
+  onReturnToCity: () => void;
   onStopHuntAutoRepeat: () => void;
   onCreateRecommendedPreset: () => void;
   onPrepareHunt: (preset: HuntSupplyPreset) => void;
@@ -247,6 +248,7 @@ export function MainPanel({
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
+  onReturnToCity,
   onStopHuntAutoRepeat,
   onCreateRecommendedPreset,
   onPrepareHunt,
@@ -310,6 +312,7 @@ export function MainPanel({
           onOpenExplore={() => onChangeTab("hunts")}
           onOpenInventory={() => onChangeTab("inventory")}
           onOpenQuickSell={() => onChangeTab("market")}
+          onReturnToCity={onReturnToCity}
           selectedHunt={selectedHunt}
         />
       ) : null}

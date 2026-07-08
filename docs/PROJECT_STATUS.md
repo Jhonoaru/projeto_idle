@@ -51,6 +51,7 @@ Atualizado em: 2026-07-08
 - Etapa 30.5 concluida: QA visual da Hunt Scene, com smoke Vite, correcao de overflow do terreno, correcao do botao fechar dos modais e validacao responsiva em 900px/720px.
 - Etapa 31 concluida: Region Atlas / progressao de regioes, areas e unlocks, com status derivado de level, quests, access keys, hunts e bosses sem criar save/schema novo.
 - Etapa 32 concluida: rework visual do Explorar / Modos de Jogo, com boards de Hunts, Bosses e Quests, busca, cards visuais e paineis reais preservados.
+- Ajuste pos-Etapa 32: duracao customizavel de hunt em minutos/horas e botao de retorno para cidade dentro da Hunt Scene.
 
 Comandos principais:
 
@@ -268,6 +269,30 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 32.5 - QA do novo Explorar / Modos de Jogo.
+
+## Ajuste pos-Etapa 32 - Duracao de Hunt e retorno para cidade
+
+Status: concluido.
+
+Implementado:
+
+- `HuntActionPanel` agora mostra um painel de duracao com presets rapidos e controle customizado por quantidade + unidade.
+- Duracoes suportadas continuam em minutos internamente, mas a UI permite editar por minutos ou horas.
+- Presets adicionados: 2h e 4h.
+- Duracao customizada e normalizada entre 1 minuto e 8 horas.
+- `HuntScene` agora possui botao `Voltar para Cidade` enquanto a hunt esta em andamento.
+- O retorno usa o cancelamento real da acao, criando viagem de volta para a cidade e retornando a UI para o menu inicial/home.
+- Quando a hunt ja esta pronta para coleta, o botao de retorno fica desabilitado para evitar perder recompensa pronta.
+
+Validacao:
+
+- `git diff --check` passou.
+- `npm.cmd run build` passou.
+
+Limitacoes:
+
+- O retorno para cidade cancela a hunt atual; ele nao coleta recompensa parcial.
+- QA manual clicando no app desktop ainda deve ser feito na Etapa 32.5.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
