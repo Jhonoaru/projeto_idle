@@ -15,7 +15,7 @@ export const monsters = {
     goldMax: 5,
     lootTable: [
       { itemId: "gold-coin", chance: 0.55, minQuantity: 1, maxQuantity: 3 },
-      { itemId: "rat-tail", chance: 0.38, minQuantity: 1, maxQuantity: 2 },
+      { itemId: "rat-tail", chance: 1, minQuantity: 1, maxQuantity: 2 },
       { itemId: "minor-health-potion", chance: 0.025, minQuantity: 1, maxQuantity: 1 },
     ],
   },

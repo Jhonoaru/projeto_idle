@@ -79,7 +79,7 @@ export function simulateHunt({
   );
   const totalGoldGained = goldGained + goldFromLoot;
   const supplyCost = 0;
-  const netProfit = totalGoldGained + totalLootValue;
+  const netProfit = totalGoldGained;
   const mainSkill = getMainSkill(character);
   const skillProgress = calculateSkillProgress(
     mainSkill.name,
@@ -92,9 +92,8 @@ export function simulateHunt({
     `${character.name} hunted in ${hunt.name} for ${effectiveDuration} minutes.`,
     `${character.name} defeated ${killedMonsters} creatures.`,
     `${character.name} gained ${experienceGained.toLocaleString("en-US")} XP.`,
-    `${character.name} ${netProfit >= 0 ? "profited" : "lost"} ${Math.abs(
-      netProfit,
-    ).toLocaleString("en-US")} gold after supplies.`,
+    `${character.name} collected ${totalGoldGained.toLocaleString("en-US")} gold coins.`,
+    `Loot value ${totalLootValue.toLocaleString("en-US")} gold stays in inventory for Market sale.`,
     ...lootItems
       .filter((item) => item.rarity !== "common")
       .map((item) => `${character.name} found ${item.itemName} x${item.quantity}.`),

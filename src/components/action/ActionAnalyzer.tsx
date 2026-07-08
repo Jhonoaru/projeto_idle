@@ -5,6 +5,7 @@ import { calculateMonsterFocusBonuses } from "../../game-engine/monster-focus/ca
 import { calculateDestinyBonuses } from "../../game-engine/destiny/calculateDestinyBonuses";
 import { calculateSupplyUsage } from "../../game-engine/supplies/calculateSupplyUsage";
 import { calculateTrainingGain } from "../../game-engine/progression/calculateTrainingGain";
+import { getItemById } from "../../data/items";
 import { SKILL_LABELS } from "../../shared/constants";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character, GuildBestiaryState, HuntArea, Quest } from "../../shared/types";
@@ -85,9 +86,13 @@ export function ActionAnalyzer({
             .map((usage) => `${usage.itemName} x${Math.ceil(usage.quantityUsed * progress)}`)
             .join(", ") || "Nenhum"
         : "Nenhum";
-      const lootValue = Math.round(goldNow * 1.8);
-      const profit = goldNow + lootValue - supplies;
-      const kills = Math.max(1, Math.round(((action.durationMinutes ?? 0) * progress) * 5));
+      const averageMonsterXp = hunt
+        ? hunt.monsters.reduce((sum, monster) => sum + monster.experience, 0) / Math.max(1, hunt.monsters.length)
+        : 1;
+      const expectedKillsTotal = Math.max(1, Math.round((action.expectedXp ?? 0) / Math.max(1, averageMonsterXp)));
+      const kills = Math.max(1, Math.round(expectedKillsTotal * progress));
+      const lootValue = hunt ? Math.round(kills * estimateLootValuePerKill(hunt)) : 0;
+      const liquidGold = goldNow - supplies;
       const charmBonuses = hunt ? calculateCharmBonusesForHunt(bestiary, hunt) : undefined;
       const focusBonuses = hunt ? calculateMonsterFocusBonuses(character, hunt) : undefined;
       const destinyBonuses = calculateDestinyBonuses(character);
@@ -102,12 +107,12 @@ export function ActionAnalyzer({
         ...common,
         ["XP atual", xpNow.toLocaleString("en-US")],
         ["Gold", goldNow.toLocaleString("en-US")],
-        ["Loot", lootValue.toLocaleString("en-US")],
+        ["Loot est.", lootValue.toLocaleString("en-US")],
         ["Supplies", `-${supplies.toLocaleString("en-US")}`],
         ["Supply list", supplyText],
-        ["Balance", `${profit >= 0 ? "+" : ""}${profit.toLocaleString("en-US")}`],
+        ["Liquid gold", `${liquidGold >= 0 ? "+" : ""}${liquidGold.toLocaleString("en-US")}`],
         ["XP/h", (hunt?.estimatedXpPerHour ?? 0).toLocaleString("en-US")],
-        ["Profit/h", ((hunt?.estimatedGoldPerHour ?? 0) - (hunt?.supplyCostPerHour ?? 0)).toLocaleString("en-US")],
+        ["Liquid/h", ((hunt?.estimatedGoldPerHour ?? 0) - (hunt?.supplyCostPerHour ?? 0)).toLocaleString("en-US")],
         ["Skill", `+${(progress * 1.25).toFixed(2)}%`],
         ["Kills", kills.toLocaleString("en-US")],
         ["Bestiary", estimatedMonsterKills],
@@ -241,4 +246,21 @@ function formatDeathCause(cause: string) {
   if (cause === "boss") return "Boss";
   if (cause === "quest") return "Quest";
   return "Desconhecida";
+}
+
+function estimateLootValuePerKill(hunt: HuntArea) {
+  const totalValue = hunt.monsters.reduce((sum, monster) => {
+    const monsterValue = monster.lootTable.reduce((lootSum, loot) => {
+      if (loot.itemId === "gold-coin") return lootSum;
+
+      const item = getItemById(loot.itemId);
+      const averageQuantity = (loot.minQuantity + loot.maxQuantity) / 2;
+
+      return lootSum + loot.chance * averageQuantity * item.value;
+    }, 0);
+
+    return sum + monsterValue;
+  }, 0);
+
+  return totalValue / Math.max(1, hunt.monsters.length);
 }

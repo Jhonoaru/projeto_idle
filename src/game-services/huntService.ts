@@ -276,7 +276,7 @@ function applyCharmBonusesToResult(
     experienceGained,
     goldGained,
     totalLootValue,
-    netProfit: goldGained + totalLootValue,
+    netProfit: goldGained,
   };
 }
 

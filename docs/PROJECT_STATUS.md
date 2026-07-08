@@ -46,6 +46,7 @@ Atualizado em: 2026-07-08
 - Etapa 28 concluida: Market visual avancado, com Buy, Sell, Quick Sell integrado, filtros/busca, resumo de transacao, protecoes de venda, compra via `guild.gold` e destino Inventory/Character Depot/Guild Depot.
 - Etapa 28.5 concluida: QA/correcao do Market visual avancado, com validacao de build, smoke de Buy no Vite, reforco contra duplo clique, normalizacao de gold/depot/origens e filtros tolerantes a item invalido.
 - Etapa 29 concluida: reformulacao do gameplay inicial, com Arkon starter level 1, hunts curtas, level gate real, objetivo guiado e correcao do lucro duplicado de loot.
+- Etapa 29.5 concluida: QA de gameplay e balanceamento inicial, com smoke Vite do loop hunt > loot > Quick Sell > compra de supply, Rat Tail garantido e Action Analyzer alinhado ao gold liquido.
 
 Comandos principais:
 
@@ -173,7 +174,7 @@ Limitacoes atuais:
 
 Proximos passos sugeridos:
 
-- Etapa 29.5 - QA da reformulacao de gameplay inicial.
+- Etapa 30 - Rework de Progressao de Regiao / Area / Unlocks.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
@@ -209,6 +210,37 @@ Validacao:
 Proximo passo sugerido:
 
 - Etapa 29.5 - QA da reformulacao de gameplay inicial.
+
+## Etapa 29.5 - QA de gameplay e balanceamento inicial
+
+Validado/corrigido:
+
+- Build TypeScript/Vite passou antes e depois das correcoes.
+- Vite local abriu em `http://127.0.0.1:1420` e respondeu 200.
+- Home exibiu Arkon level 1, `guild.gold` 420g e objetivo inicial para starter hunt.
+- Explore/Hunts exibiu `Sewers Below Thaeron` desbloqueada, 1 minuto, sem supplies obrigatorias e risco `Very Safe`.
+- `Cave Spider Cellar` e `Trollwood Camp` mostraram bloqueio por level com motivo claro.
+- Hunt starter iniciou `currentAction`, mostrou Action Analyzer e coletou resultado uma vez.
+- Resultado testado no smoke: +4g liquido, 42 XP e Rat Tail x2 no inventario.
+- Quick Sell vendeu Rat Tail x2 por 4g e nao vendeu Minor Health Potion por padrao.
+- Market Buy comprou Minor Health Potion x10 por 300g, atualizando `guild.gold` e stack do inventario.
+- Sewer Rat agora garante Rat Tail, evitando primeira hunt sem loot vendavel.
+- Logs e `netProfit` da simulacao foram alinhados para gold liquido, mantendo loot como venda posterior.
+- `ActionAnalyzer` agora mostra `Loot est.`, `Liquid gold` e `Liquid/h`, sem somar loot no saldo previsto.
+- Estimativa de kills do Analyzer agora usa XP esperado e XP medio dos monstros, ficando coerente com a hunt starter.
+- Validacao de dados confirmou itemIds e referencias de monstros das hunts.
+- Quests, bosses e training iniciais foram revisados por leitura: quest tutorial level 1 existe, boss inicial fica gated por level/acesso e training nao gera gold/loot.
+
+Limitacoes da QA:
+
+- `npm run tauri:dev` e SQLite real nao foram clicados manualmente nesta etapa.
+- Save/load real foi validado por leitura/build, nao por reabrir o app desktop.
+- Offline catch-up e auto-repeat nao tiveram teste temporal completo; foram revisados por leitura/build.
+- Balanceamento ate level 5/10 ainda precisa de uma sessao longa com save novo.
+
+Proximo passo sugerido:
+
+- Etapa 30 - Rework de Progressao de Regiao / Area / Unlocks.
 
 ## QA da Etapa 28.5 - Market Visual Avancado
 

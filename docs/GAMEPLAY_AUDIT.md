@@ -59,3 +59,55 @@ Revisar o ciclo inicial de gameplay de Guild Hunt Idle para garantir que o jogad
 ## Proximo passo sugerido
 
 - Etapa 29.5 - QA da reformulacao de gameplay inicial.
+
+## QA - Etapa 29.5
+
+Data: 2026-07-08
+
+### Testes feitos
+
+- `git pull` confirmou repositório atualizado.
+- `git status` iniciou limpo.
+- `npm.cmd run build` passou antes e depois das correcoes.
+- `npm.cmd run dev` foi iniciado em Vite e respondeu HTTP 200 em `http://127.0.0.1:1420`.
+- Smoke no navegador com mock local validou Home, Arkon level 1, `guild.gold` 420g, objetivo inicial e botao Explorar.
+- Explore/Hunts mostrou `Sewers Below Thaeron` desbloqueada, 1 minuto, sem supplies obrigatorias e risco `Very Safe`.
+- Explore/Hunts mostrou `Cave Spider Cellar` bloqueada por level 3 e `Trollwood Camp` bloqueada por level 8.
+- Hunt inicial foi iniciada e criou `currentAction` de 1 minuto.
+- Action Analyzer mostrou progresso, XP, gold, loot estimado, supplies, bestiary e status da hunt.
+- Coleta da hunt aplicou recompensa uma vez: +4g liquido, 42 XP e Rat Tail x2 no inventario.
+- Quick Sell selecionou apenas Rat Tail, mantendo Minor Health Potion fora da venda padrao.
+- Venda Rapida vendeu Rat Tail x2 por 4g e aumentou `guild.gold` de 424g para 428g.
+- Market Buy comprou Minor Health Potion x10 por 300g, reduzindo `guild.gold` para 128g e empilhando potion para x13.
+- Leitura de quests confirmou `First Contract` level 1, 5 minutos, reward pequeno e unlock de acesso.
+- Leitura de bosses confirmou boss inicial travado por level 15 e acesso, sem aparecer como obrigacao inicial.
+- Leitura de training confirmou que treino gera skill progress, nao loot/gold indevido, e respeita status bloqueados.
+- Validacao de dados confirmou itemIds de loot/shop/daily/boss existentes e referencias de monstros das hunts validas.
+
+### Bugs encontrados e corrigidos
+
+- Rat Tail ainda era chanceado na primeira hunt. Isso permitia uma primeira run sem loot vendavel, quebrando a demonstracao do loop hunt > loot > sell. Corrigido para drop garantido em Sewer Rat.
+- `simulateHunt` ainda calculava/logava `netProfit` incluindo `totalLootValue`, embora `finishHunt` ja aplicasse apenas gold liquido. Corrigido para logs e resultado base separarem gold coins de loot vendavel.
+- `applyCharmBonusesToResult` recalculava `netProfit` como gold + loot quando havia charm. Corrigido para manter `netProfit` como gold liquido.
+- `ActionAnalyzer` ainda exibia `Balance` e `Profit/h` somando loot estimado, ensinando a economia antiga. Corrigido para `Liquid gold`, `Liquid/h` e `Loot est.` separado.
+- `ActionAnalyzer` estimava kills como 5 por minuto, divergindo da simulacao real starter. Corrigido para estimar kills a partir de XP esperado e XP medio dos monstros.
+
+### Estado final do early game
+
+- O jogador com Arkon level 1 ve objetivo claro para rodar `Sewers Below Thaeron`.
+- A primeira hunt e curta, segura, sem custo obrigatorio e gera XP/gold/loot perceptiveis.
+- O loot comum entra no inventario e precisa ser vendido para virar gold extra.
+- Quick Sell vende apenas loot seguro por padrao.
+- Market permite comprar supply basica com `guild.gold`.
+- A segunda hunt (`Cave Spider Cellar`) aparece como proximo degrau travado por level, com motivo claro.
+
+### Limitacoes da QA
+
+- Smoke interativo foi feito no Vite com mock local; `npm run tauri:dev` e SQLite real nao foram clicados manualmente.
+- Save/load real em SQLite foi validado por leitura do fluxo existente e build, nao por reabrir o app desktop.
+- Offline catch-up e auto-repeat foram revisados por leitura/build, nao por teste temporal completo.
+- QA numerica de longo prazo ate level 5/10 ainda deve ser repetida com save novo no app Tauri.
+
+### Proximo passo sugerido
+
+- Etapa 30 - Rework de Progressao de Regiao / Area / Unlocks.
