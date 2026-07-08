@@ -49,6 +49,10 @@ export function startHunt(
     throw new Error(`${character.name} does not have access for ${hunt.name}.`);
   }
 
+  if (character.level < hunt.minLevel) {
+    throw new Error(`${character.name} precisa estar no level ${hunt.minLevel} para iniciar ${hunt.name}.`);
+  }
+
   const supplyCheck = checkHuntSupplies(character, hunt, durationMinutes);
 
   if (!supplyCheck.hasRequiredSupplies) {
@@ -188,9 +192,7 @@ export function finishHunt(
     deathLogs = death.logs;
   }
 
-  const netProfit = result.died
-    ? result.goldGained - supplyValueUsed - guildGoldLost
-    : result.goldGained + result.totalLootValue - supplyValueUsed;
+  const netProfit = result.goldGained - supplyValueUsed - guildGoldLost;
   const resultWithRejectedLoot = {
     ...result,
     suppliesUsed: supplyConsumption.suppliesUsed,
@@ -212,7 +214,7 @@ export function finishHunt(
       ...focusBonuses.logs,
       ...supplyConsumption.logs,
       ...deathLogs,
-      `Hunt finalizada. Balance apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold.`,
+      `Hunt finalizada. Ouro liquido apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold. Loot fica no inventario para venda.`,
       ...progressionLogs,
       ...masteryProgress.logs,
       ...focusConsumption.logs,

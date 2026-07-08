@@ -123,7 +123,7 @@ export function App() {
   const [saveStatus, setSaveStatus] = useState("Carregando save...");
   const [offlineReport, setOfflineReport] = useState<OfflineCatchUpReport>();
   const [selectedHunt, setSelectedHunt] = useState<HuntArea | undefined>(hunts[0]);
-  const [durationMinutes, setDurationMinutes] = useState(30);
+  const [durationMinutes, setDurationMinutes] = useState(1);
   const [lastHuntResult, setLastHuntResult] = useState<LastHuntResult>();
   const [lastPreparationResult, setLastPreparationResult] = useState<HuntPreparationResult>();
   const [lastTrainingResult, setLastTrainingResult] = useState<TrainingResult>();

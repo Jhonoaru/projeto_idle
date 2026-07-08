@@ -15,6 +15,8 @@ export function HuntCard({ character, hunt, hasAccess, isSelected, onSelect }: H
     hunt.estimatedGoldPerHour - hunt.supplyCostPerHour;
   const focusBonuses = calculateMonsterFocusBonuses(character, hunt);
   const focusSummary = focusBonuses.applied[0];
+  const hasLevel = character.level >= hunt.minLevel;
+  const isLocked = !hasAccess || !hasLevel;
 
   return (
     <article className={`hunt-card ${isSelected ? "is-selected" : ""}`.trim()}>
@@ -42,6 +44,9 @@ export function HuntCard({ character, hunt, hasAccess, isSelected, onSelect }: H
         {!hasAccess ? (
           <p className="locked-copy">Requer acesso: {getAccessName(hunt.requiredAccess)}</p>
         ) : null}
+        {!hasLevel ? (
+          <p className="locked-copy">Requer level {hunt.minLevel}. {character.name} esta no level {character.level}.</p>
+        ) : null}
         <div className="tag-list">
           {hunt.tags.map((tag) => (
             <span key={tag}>{tag}</span>
@@ -50,11 +55,11 @@ export function HuntCard({ character, hunt, hasAccess, isSelected, onSelect }: H
       </div>
       <button
         className="hunt-select-button"
-        disabled={!hasAccess}
+        disabled={isLocked}
         onClick={onSelect}
         type="button"
       >
-        {hasAccess ? "Iniciar Hunt" : "Bloqueado"}
+        {isLocked ? "Bloqueado" : "Iniciar Hunt"}
       </button>
     </article>
   );

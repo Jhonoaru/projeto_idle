@@ -19,10 +19,11 @@ import type {
 } from "../../shared/types";
 
 const durationOptions = [
+  { label: "1 min", value: 1 },
+  { label: "5 min", value: 5 },
   { label: "15 min", value: 15 },
   { label: "30 min", value: 30 },
   { label: "1h", value: 60 },
-  { label: "2h", value: 120 },
 ];
 
 interface HuntActionPanelProps {
@@ -95,13 +96,15 @@ export function HuntActionPanel({
   const risk = calculateHuntRisk(character, selectedHunt);
   const hasAccess =
     !selectedHunt.requiredAccess || character.accessIds.includes(selectedHunt.requiredAccess);
+  const hasLevel = character.level >= selectedHunt.minLevel;
   const isHuntingSelectedArea =
     character.status === "hunting" &&
     character.currentAction?.targetId === selectedHunt.id;
   const supplyCheck = checkHuntSupplies(character, selectedHunt, durationMinutes);
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, selectedHunt);
-  const canStartHunt = character.status === "idle" && hasAccess && supplyCheck.hasRequiredSupplies;
-  const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess);
+  const canStartHunt =
+    character.status === "idle" && hasAccess && hasLevel && supplyCheck.hasRequiredSupplies;
+  const blockReason = getHuntBlockReason(character, selectedHunt, hasAccess, hasLevel);
   const activeAutoRepeat =
     isHuntingSelectedArea && character.currentAction?.autoRepeat?.enabled === true;
 
@@ -119,7 +122,7 @@ export function HuntActionPanel({
           </div>
           <div>
             <span>Death Risk</span>
-            <strong>{hasAccess ? `${Math.round(risk.deathChance * 100)}% / ${risk.label}` : "Locked"}</strong>
+            <strong>{hasAccess && hasLevel ? `${Math.round(risk.deathChance * 100)}% / ${risk.label}` : "Locked"}</strong>
           </div>
           <div>
             <span>Power</span>
@@ -132,6 +135,11 @@ export function HuntActionPanel({
         {!hasAccess ? (
           <div className="hunt-access-warning">
             Requer acesso: {getAccessName(selectedHunt.requiredAccess)}
+          </div>
+        ) : null}
+        {!hasLevel ? (
+          <div className="hunt-access-warning">
+            Requer level {selectedHunt.minLevel}. {character.name} esta no level {character.level}.
           </div>
         ) : null}
 
@@ -320,9 +328,14 @@ function getHuntBlockReason(
   character: Character,
   selectedHunt: HuntArea,
   hasAccess: boolean,
+  hasLevel: boolean,
 ) {
   if (!hasAccess) {
     return `Requer acesso: ${getAccessName(selectedHunt.requiredAccess)}.`;
+  }
+
+  if (!hasLevel) {
+    return `${character.name} precisa estar no level ${selectedHunt.minLevel} para iniciar esta hunt.`;
   }
 
   if (character.status === "hunting") {

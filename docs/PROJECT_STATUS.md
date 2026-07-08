@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-06
+Atualizado em: 2026-07-08
 
 ## Stack usada
 
@@ -45,6 +45,7 @@ Atualizado em: 2026-07-06
 - Etapa 27.5 concluida: QA/correcao da Hunt / Combat Scene, com validacao de currentAction, ready state, troca de personagem, intervalos e nao duplicacao visual de recompensa.
 - Etapa 28 concluida: Market visual avancado, com Buy, Sell, Quick Sell integrado, filtros/busca, resumo de transacao, protecoes de venda, compra via `guild.gold` e destino Inventory/Character Depot/Guild Depot.
 - Etapa 28.5 concluida: QA/correcao do Market visual avancado, com validacao de build, smoke de Buy no Vite, reforco contra duplo clique, normalizacao de gold/depot/origens e filtros tolerantes a item invalido.
+- Etapa 29 concluida: reformulacao do gameplay inicial, com Arkon starter level 1, hunts curtas, level gate real, objetivo guiado e correcao do lucro duplicado de loot.
 
 Comandos principais:
 
@@ -172,11 +173,42 @@ Limitacoes atuais:
 
 Proximos passos sugeridos:
 
-- Etapa 29 - Reformulacao e correcao de gameplay.
+- Etapa 29.5 - QA da reformulacao de gameplay inicial.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
 - Expandir unlocks de Collections por Bestiary, quests, bosses e eventos locais.
+
+## Etapa 29 - Reformulacao e correcao de gameplay
+
+Implementado:
+
+- Audit documentado em `docs/GAMEPLAY_AUDIT.md`.
+- Arkon inicial convertido para starter level 1, idle, sem quest/acesso ja completo, com skills baixas e kit basico.
+- Duracao padrao de hunt reduzida para 1 minuto.
+- Opcoes de hunt ajustadas para 1, 5, 15, 30 e 60 minutos.
+- `Sewers Below Thaeron` ajustada como primeira hunt segura, curta, sem supplies obrigatorias e apenas com Sewer Rat.
+- `Cave Spider Cellar` adicionada como segunda hunt starter, minLevel 3, risk low e supplies opcionais.
+- Sewer Rat e Cave Spider tiveram XP inicial ajustada para suportar ciclos curtos.
+- `startHunt`, Hunt Card e Hunt Action Panel agora bloqueiam hunt por `minLevel`.
+- Resultado de hunt deixou de somar `totalLootValue` diretamente em `guild.gold`.
+- Loot continua indo para inventario e precisa ser vendido no Market/Quick Sell para virar gold.
+- Tela principal ganhou `Next Objective` com proximo passo simples: hunt starter, venda de loot, spider cellar, quest de acesso ou proxima hunt.
+
+Limites atuais:
+
+- QA manual interativo em Tauri/SQLite nao foi executado nesta etapa.
+- Balanceamento numerico ainda precisa de teste em save novo durante a Etapa 29.5.
+- Saves existentes nao sao reescritos para virar starter; a alteracao afeta estado inicial/mock/reset.
+- Sem premium, pagamento, online, anti-cheat de data ou economia multiplayer.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+
+Proximo passo sugerido:
+
+- Etapa 29.5 - QA da reformulacao de gameplay inicial.
 
 ## QA da Etapa 28.5 - Market Visual Avancado
 
