@@ -46,6 +46,7 @@ export function TopBar({
           label="Explorar"
           onClick={() => onOpenTab("hunts")}
         />
+        <GameIconButton active={activeTab === "atlas"} icon="A" label="Atlas" onClick={() => onOpenTab("atlas")} />
         <GameIconButton active={activeTab === "market"} icon="M" label="Market" onClick={() => onOpenTab("market")} />
         <GameIconButton active={activeTab === "forge"} icon="F" label="Forge" onClick={() => onOpenTab("forge")} />
         <GameIconButton active={activeTab === "imbuing"} icon="I" label="Imbuing" onClick={() => onOpenTab("imbuing")} />

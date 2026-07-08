@@ -49,6 +49,7 @@ Atualizado em: 2026-07-08
 - Etapa 29.5 concluida: QA de gameplay e balanceamento inicial, com smoke Vite do loop hunt > loot > Quick Sell > compra de supply, Rat Tail garantido e Action Analyzer alinhado ao gold liquido.
 - Etapa 30 concluida: rework visual avancado da Hunt / Combat Scene, com terreno estilo MMORPG, criaturas ao redor com ciclo de spawn, hotbar inferior de HP/MP/magias/suporte/loot e janelas de configuracao inspiradas nas referencias enviadas.
 - Etapa 30.5 concluida: QA visual da Hunt Scene, com smoke Vite, correcao de overflow do terreno, correcao do botao fechar dos modais e validacao responsiva em 900px/720px.
+- Etapa 31 concluida: Region Atlas / progressao de regioes, areas e unlocks, com status derivado de level, quests, access keys, hunts e bosses sem criar save/schema novo.
 
 Comandos principais:
 
@@ -122,6 +123,8 @@ Comandos principais:
 - Hunt Scene usa simulacao local/fake para criaturas, HP, action bar, loot preview e combat log, sem aplicar recompensa, consumir supplies ou alterar save.
 - Hunt Scene agora tem palco top-down mais proximo de client MMORPG, com personagem central, multiplas criaturas do mesmo tipo quando a hunt e simples, timer de spawn visual e terreno CSS autoral sem assets externos.
 - Hotbar inferior da Hunt Scene mostra HP, MP, slot de cura, mana potion, magias, suporte e loot; clicar nos slots abre janelas locais de selecao/configuracao visual.
+- Region Atlas mostra progresso por cidade/regiao, access keys, hunts, quests e bosses com status `Unlocked`, `In progress`, `Available` ou `Locked`.
+- Region Atlas calcula bloqueios por level, access key e quest usando os dados reais existentes de hunts, quests, bosses e personagem.
 - Botao Collect Hunt Result da Hunt Scene usa o mesmo fluxo real de finalizacao/coleta de hunt ja existente.
 - Gold separado entre personagem e guilda.
 - Gold universal da guilda usado por compras, vendas e custos relevantes.
@@ -166,6 +169,7 @@ Limitacoes atuais:
 - Hunt Scene ainda usa placeholders textuais/CSS para personagem, criaturas e ambiente; nao ha sprites, mapa navegavel, pathfinding ou combate real-time real.
 - Loot preview da Hunt Scene e apenas visual/estimado e nao adiciona itens durante a hunt.
 - Hotbar e janelas de skills/potions da Hunt Scene ainda sao configuracao visual/local; nao alteram rotacao real, cooldowns, consumo automatico de potions ou save.
+- Region Atlas e uma camada derivada/local; nao altera save, nao concede acesso automaticamente e nao substitui os bloqueios reais de Hunt/Quest/Boss.
 - Auto-repeat/offline catch-up continuam decididos pelo fluxo real de `currentAction`; a cena apenas mostra estado e badges/resumo.
 - Na QA 27.5, `npm run tauri:dev` e SQLite real nao foram reexecutados; o smoke interativo foi feito via `npm run dev` com mock local.
 - Market continua offline/local e sem player market, auction house, trade, premium ou moeda paga.
@@ -179,7 +183,7 @@ Limitacoes atuais:
 
 Proximos passos sugeridos:
 
-- Etapa 31 - Rework de Progressao de Regiao / Area / Unlocks.
+- Etapa 31.5 - QA do Region Atlas / Progressao de Unlocks.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.
@@ -272,6 +276,39 @@ Limitacoes da QA:
 Proximo passo sugerido:
 
 - Etapa 31 - Rework de Progressao de Regiao / Area / Unlocks.
+
+## Etapa 31 - Region Atlas / Progressao de Regioes e Unlocks
+
+Implementado:
+
+- Criado engine derivado `buildRegionProgression` para montar progresso por cidade/regiao.
+- Region Atlas usa dados reais de `hunts`, `quests`, `bosses`, `accesses` e do personagem selecionado.
+- Cada marco de progressao pode ser `access`, `hunt`, `quest` ou `boss`.
+- Status calculado sem persistencia nova: `completed`, `active`, `available` ou `locked`.
+- Bloqueios mostram motivos simples: level requerido, access key faltante ou quest faltante.
+- Topbar ganhou botao `Atlas`.
+- MainPanel ganhou aba `Region Atlas`.
+- UI mostra resumo da regiao, barra de progresso, access keys, proximo marco e lista de marcos.
+- Layout responsivo ajustado para janelas full em telas pequenas priorizarem a janela principal.
+
+Limites atuais:
+
+- O Atlas nao concede rewards, access keys ou quest completion; ele apenas mostra o estado real do save.
+- Hunts nao possuem historico persistido de “concluida”, entao aparecem como `Available` quando desbloqueadas.
+- Bosses ainda aparecem como `Available/Locked`; cooldown/derrota historica nao entram no progresso do Atlas nesta etapa.
+- `npm run tauri:dev` e SQLite real nao foram clicados manualmente nesta etapa.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- Smoke Vite abriu Atlas pela topbar.
+- Troca de regiao validada em Thaeron/Eldoria.
+- Viewports padrao, 900px e 720px sem overflow horizontal.
+- Console do navegador sem erros/warnings.
+
+Proximo passo sugerido:
+
+- Etapa 31.5 - QA do Region Atlas / Progressao de Unlocks.
 
 ## QA da Etapa 28.5 - Market Visual Avancado
 

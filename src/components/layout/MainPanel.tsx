@@ -15,6 +15,7 @@ import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
 import { MarketPanel } from "../market/MarketPanel";
 import { QuestPanel } from "../quest/QuestPanel";
+import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
@@ -94,6 +95,7 @@ export type MainPanelTab =
   | "destiny"
   | "collections"
   | "action"
+  | "atlas"
   | "hunts"
   | "inventory"
   | "equipment"
@@ -437,6 +439,17 @@ export function MainPanel({
           />
         ) : null}
 
+        {activeTab === "atlas" ? (
+          <Panel title={`${selectedCharacter.name} Region Progression`}>
+            <RegionProgressionPanel
+              bosses={bosses}
+              character={selectedCharacter}
+              hunts={hunts}
+              quests={quests}
+            />
+          </Panel>
+        ) : null}
+
         {activeTab === "hunts" ? (
           <ExploreWindow
             bestiary={guild.bestiary}
@@ -655,6 +668,7 @@ function getWindowTitle(tab: MainPanelTab) {
     destiny: "Path of Destiny",
     collections: "Collections",
     action: "Current Action",
+    atlas: "Region Atlas",
     hunts: "Explorar / Modos de Jogo",
     inventory: "Inventory & Equipment",
     equipment: "Equipment",
@@ -679,6 +693,7 @@ function getWindowTitle(tab: MainPanelTab) {
 
 function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "hunts") return "Hunts, bosses, training, and quests use the real game systems.";
+  if (tab === "atlas") return "Region, area, access and level progression derived from the local save.";
   if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
   if (tab === "focus") return "Per-character prey contracts with Bestiary targets and temporary hunt bonuses.";
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
@@ -693,6 +708,7 @@ function getWindowIcon(tab: MainPanelTab) {
     character: "D",
     skills: "S",
     blessings: "B",
+    atlas: "A",
     hunts: "E",
     market: "M",
     forge: "F",
