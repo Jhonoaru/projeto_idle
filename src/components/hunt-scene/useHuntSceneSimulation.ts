@@ -10,6 +10,8 @@ export interface HuntSceneCreature {
   monster: Monster;
   position: string;
   hpPercent: number;
+  spawnProgress: number;
+  spawnSeconds: number;
   state: "spawning" | "alive" | "damaged" | "defeated";
 }
 
@@ -28,6 +30,8 @@ export interface HuntSceneSnapshot {
   combatLogLines: string[];
   lootPreviewEvents: HuntSceneLootPreview[];
   attackProgress: number;
+  nextSpawnProgress: number;
+  nextSpawnSeconds: number;
   sceneProgress: number;
   elapsedMs: number;
   remainingMs: number;
@@ -65,18 +69,29 @@ export function useHuntSceneSimulation(
     const remainingMs = readyToResolve ? 0 : rawRemainingMs;
     const sceneProgress = clampPercent(elapsedMs / totalMs);
     const cycleMs = 4_500;
+    const spawnWindowMs = 1_400;
     const cyclePosition = readyToResolve ? cycleMs : (elapsedMs + tick * 173) % cycleMs;
     const cyclePercent = cyclePosition / cycleMs;
     const attackProgress = readyToResolve ? 1 : ((elapsedMs % 1_800) / 1_800);
+    const nextSpawnProgress = readyToResolve ? 1 : clampPercent(cyclePosition / spawnWindowMs);
+    const nextSpawnSeconds = readyToResolve ? 0 : Math.max(0, Math.ceil((spawnWindowMs - Math.min(cyclePosition, spawnWindowMs)) / 1000));
     const safeMonsters = monsters.length > 0 ? monsters : [];
     const activeIndex = safeMonsters.length > 0 ? Math.floor(elapsedMs / cycleMs) % safeMonsters.length : 0;
+    const creatureCount = safeMonsters.length > 0 ? Math.min(6, Math.max(3, safeMonsters.length * 2)) : 0;
 
-    const visibleCreatures = safeMonsters.slice(0, 6).map((monster, index) => {
+    const visibleCreatures = Array.from({ length: creatureCount }).map((_, index) => {
+      const monster = safeMonsters[index % safeMonsters.length];
       const offset = (cyclePercent + index * 0.19) % 1;
+      const spawnProgress = readyToResolve || offset > 0.28
+        ? 1
+        : clampPercent(offset / 0.28);
+      const spawnSeconds = readyToResolve || spawnProgress >= 1
+        ? 0
+        : Math.max(1, Math.ceil((1 - spawnProgress) * (spawnWindowMs / 1000)));
       const hpPercent = readyToResolve ? 0 : Math.max(0, Math.round((1 - offset) * 100));
       const state: HuntSceneCreature["state"] = readyToResolve || hpPercent <= 8
         ? "defeated"
-        : hpPercent > 82
+        : spawnProgress < 1
           ? "spawning"
           : hpPercent < 46
             ? "damaged"
@@ -87,6 +102,8 @@ export function useHuntSceneSimulation(
         monster,
         position: creaturePositions[index % creaturePositions.length],
         hpPercent,
+        spawnProgress,
+        spawnSeconds,
         state,
       };
     });
@@ -102,6 +119,8 @@ export function useHuntSceneSimulation(
       combatLogLines,
       lootPreviewEvents,
       attackProgress,
+      nextSpawnProgress,
+      nextSpawnSeconds,
       sceneProgress,
       elapsedMs,
       remainingMs,

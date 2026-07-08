@@ -3448,9 +3448,9 @@ p {
 .hunt-scene {
   position: relative;
   display: grid;
-  grid-template-rows: auto minmax(300px, 1fr) auto auto minmax(160px, auto) auto;
+  grid-template-rows: auto minmax(360px, 1fr) auto auto auto minmax(150px, auto) auto;
   gap: 10px;
-  min-height: 620px;
+  min-height: 700px;
   overflow: hidden;
   border: 1px solid #6b5732;
   border-radius: 8px;
@@ -3574,12 +3574,166 @@ p {
 
 .hunt-scene-stage {
   position: relative;
-  min-height: 300px;
+  min-height: 360px;
   border: 1px solid rgba(107, 87, 50, 0.7);
   border-radius: 8px;
+  overflow: hidden;
   background:
-    radial-gradient(ellipse at center, rgba(241, 213, 140, 0.12), transparent 34%),
-    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.38));
+    radial-gradient(circle at 50% 48%, rgba(10, 14, 12, 0.28), transparent 22%),
+    radial-gradient(circle at 18% 18%, rgba(117, 155, 149, 0.28), transparent 18%),
+    radial-gradient(circle at 86% 82%, rgba(117, 155, 149, 0.18), transparent 18%),
+    linear-gradient(135deg, #4a2a1b 0 26%, #59331f 26% 42%, #2b2d25 42% 45%, #5b3721 45% 100%);
+  box-shadow: inset 0 0 44px rgba(0, 0, 0, 0.42);
+}
+
+.hunt-stage-terrain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hunt-stage-terrain::before,
+.hunt-stage-terrain::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+}
+
+.hunt-stage-terrain::before {
+  opacity: 0.42;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.035) 0 2px, transparent 2px 36px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0.08) 0 2px, transparent 2px 38px);
+}
+
+.hunt-stage-terrain::after {
+  background:
+    radial-gradient(circle at 14% 78%, rgba(210, 225, 220, 0.58) 0 6px, transparent 7px),
+    radial-gradient(circle at 18% 82%, rgba(210, 225, 220, 0.42) 0 4px, transparent 5px),
+    radial-gradient(circle at 82% 18%, rgba(210, 225, 220, 0.44) 0 5px, transparent 6px),
+    radial-gradient(circle at 78% 22%, rgba(210, 225, 220, 0.34) 0 3px, transparent 4px),
+    radial-gradient(circle at 35% 32%, rgba(32, 20, 14, 0.28) 0 18px, transparent 19px),
+    radial-gradient(circle at 66% 62%, rgba(32, 20, 14, 0.2) 0 22px, transparent 23px);
+}
+
+.terrain-patch {
+  position: absolute;
+  border: 1px solid rgba(134, 207, 216, 0.32);
+  background:
+    linear-gradient(135deg, rgba(123, 214, 222, 0.42), rgba(183, 229, 225, 0.22));
+  box-shadow: inset 0 0 18px rgba(229, 251, 247, 0.12);
+}
+
+.terrain-patch-1 {
+  right: -5%;
+  top: -7%;
+  width: 34%;
+  height: 34%;
+  transform: rotate(8deg);
+}
+
+.terrain-patch-2 {
+  left: -7%;
+  bottom: -10%;
+  width: 38%;
+  height: 32%;
+  transform: rotate(-10deg);
+}
+
+.terrain-patch-3 {
+  right: 5%;
+  bottom: -9%;
+  width: 25%;
+  height: 24%;
+  transform: rotate(14deg);
+}
+
+.terrain-bone,
+.terrain-ring {
+  position: absolute;
+  opacity: 0.62;
+}
+
+.terrain-bone {
+  left: 9%;
+  bottom: 21%;
+  width: 44px;
+  height: 9px;
+  border-radius: 999px;
+  background: #c5c1ae;
+  transform: rotate(-28deg);
+  box-shadow:
+    -8px -3px 0 2px #b7b19e,
+    8px 3px 0 2px #b7b19e;
+}
+
+.terrain-ring {
+  left: 9%;
+  top: 26%;
+  width: 56px;
+  height: 56px;
+  border: 7px dashed rgba(210, 214, 207, 0.68);
+  border-radius: 999px;
+  transform: rotate(-18deg);
+}
+
+.hunt-spawn-timer {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 86px minmax(120px, 220px) 48px;
+  gap: 8px;
+  align-items: center;
+  min-width: 320px;
+  padding: 6px 8px;
+  border: 1px solid #1f2829;
+  border-radius: 999px;
+  background: rgba(9, 15, 16, 0.88);
+  box-shadow: 0 12px 22px rgba(0,0,0,0.38);
+  transform: translateX(-50%);
+}
+
+.hunt-spawn-timer span,
+.hunt-hotbar-health span,
+.hunt-hotbar-mana span,
+.hunt-hotbar-slot small,
+.hunt-slot-window header p,
+.hunt-slot-window header small,
+.hunt-slot-entry small {
+  color: #aeb7aa;
+  font-size: 0.72rem;
+}
+
+.hunt-spawn-timer div,
+.hunt-hotbar-health div,
+.hunt-hotbar-mana div,
+.hunt-scene-spawnbar {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid #30352f;
+  border-radius: 999px;
+  background: #0d100e;
+}
+
+.hunt-spawn-timer i,
+.hunt-hotbar-health i,
+.hunt-hotbar-mana i,
+.hunt-scene-spawnbar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.hunt-spawn-timer i,
+.hunt-scene-spawnbar i {
+  background: linear-gradient(90deg, #2d8bc2, #f1d58c);
+}
+
+.hunt-spawn-timer strong {
+  color: #f1d58c;
+  text-align: right;
 }
 
 .hunt-scene-character {
@@ -3589,6 +3743,7 @@ p {
   display: grid;
   gap: 5px;
   justify-items: center;
+  z-index: 2;
   width: min(170px, 36%);
   transform: translate(-50%, -50%);
   text-align: center;
@@ -3609,18 +3764,31 @@ p {
 }
 
 .hunt-scene-character-core {
+  position: relative;
   display: grid;
   place-items: center;
   width: 82px;
   height: 96px;
   border: 2px solid #d8b96a;
-  border-radius: 44% 44% 36% 36%;
+  border-radius: 46% 46% 38% 38%;
   color: #191711;
   background: linear-gradient(180deg, #f1d58c, #9f7932);
   box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
 }
 
+.hunt-scene-character-core i {
+  position: absolute;
+  left: 12px;
+  top: 52px;
+  width: 58px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(20, 23, 19, 0.32);
+  transform: rotate(18deg);
+}
+
 .hunt-scene-character-core strong {
+  position: relative;
   font-size: 1.25rem;
 }
 
@@ -3650,20 +3818,25 @@ p {
   grid-template-columns: 42px minmax(0, 1fr);
   gap: 7px;
   align-items: center;
-  width: 178px;
-  min-height: 76px;
+  width: 154px;
+  min-height: 70px;
   border: 1px solid #30352f;
   border-left-width: 3px;
-  border-radius: 7px;
+  border-radius: 6px;
   padding: 8px;
   color: #d6d1c4;
-  background: rgba(16, 20, 17, 0.84);
+  background: rgba(10, 14, 13, 0.88);
   box-shadow: 0 10px 18px rgba(0, 0, 0, 0.24);
 }
 
 .hunt-scene-creature.is-active {
   border-color: #d8b96a;
   box-shadow: 0 0 0 1px rgba(216, 185, 106, 0.18), 0 12px 20px rgba(0,0,0,0.3);
+}
+
+.hunt-scene-creature.is-spawning {
+  border-color: rgba(69, 149, 202, 0.88);
+  opacity: 0.86;
 }
 
 .hunt-scene-creature.is-defeated {
@@ -3706,6 +3879,11 @@ p {
   height: 6px;
 }
 
+.hunt-scene-spawnbar {
+  grid-column: 1 / -1;
+  height: 6px;
+}
+
 .pos-top-left { left: 6%; top: 8%; }
 .pos-top-right { right: 6%; top: 8%; }
 .pos-left { left: 3%; top: 42%; }
@@ -3731,6 +3909,291 @@ p {
 }
 
 .hunt-scene-progress strong {
+  color: #f1d58c;
+}
+
+.hunt-scene-actionbar strong {
+  color: #f1d58c;
+  text-align: right;
+}
+
+.hunt-scene-hotbar {
+  display: grid;
+  grid-template-columns: minmax(112px, 0.7fr) minmax(112px, 0.7fr) minmax(0, 2.4fr);
+  gap: 8px;
+  align-items: stretch;
+  border: 1px solid #202a2d;
+  border-radius: 7px;
+  padding: 8px;
+  background: rgba(7, 12, 13, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(216, 185, 106, 0.05);
+}
+
+.hunt-hotbar-health,
+.hunt-hotbar-mana {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  min-height: 66px;
+  padding: 8px;
+  border: 1px solid #273337;
+  border-radius: 5px;
+  background: #12191a;
+}
+
+.hunt-hotbar-health strong,
+.hunt-hotbar-mana strong {
+  color: #f1d58c;
+  font-size: 0.82rem;
+}
+
+.hunt-hotbar-health i {
+  background: linear-gradient(90deg, #21933e, #64d45e);
+}
+
+.hunt-hotbar-mana i {
+  background: linear-gradient(90deg, #2b80d6, #69c9ff);
+}
+
+.hunt-hotbar-slots {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(72px, 1fr));
+  gap: 7px;
+  min-width: 0;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-color: #8f6a31 #0a1011;
+}
+
+.hunt-hotbar-slot {
+  position: relative;
+  display: grid;
+  gap: 3px;
+  min-width: 72px;
+  min-height: 72px;
+  border: 1px solid #273337;
+  border-radius: 5px;
+  padding: 7px;
+  color: #e8e2d4;
+  background: linear-gradient(180deg, #161e20, #0d1213);
+  text-align: left;
+  cursor: pointer;
+}
+
+.hunt-hotbar-slot:hover,
+.hunt-hotbar-slot.is-open {
+  border-color: #d8b96a;
+}
+
+.hunt-hotbar-slot.is-locked {
+  opacity: 0.58;
+}
+
+.hunt-hotbar-slot > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 28px;
+  border: 1px solid #36454a;
+  border-radius: 5px;
+  color: #f1d58c;
+  background: #0b1011;
+  font-size: 0.72rem;
+  font-weight: 950;
+}
+
+.hunt-hotbar-slot strong {
+  color: #f1d58c;
+  font-size: 0.76rem;
+}
+
+.hunt-hotbar-slot em {
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  color: #d6d1c4;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.hunt-slot-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(3, 6, 7, 0.62);
+}
+
+.hunt-slot-window {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto minmax(220px, 1fr) auto;
+  gap: 12px;
+  width: min(620px, 100%);
+  max-height: min(640px, 100%);
+  border: 1px solid #7d6535;
+  border-radius: 7px;
+  padding: 18px;
+  background: linear-gradient(180deg, #09100f, #061617 85%, #07333a);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.55);
+}
+
+.hunt-slot-close {
+  position: absolute;
+  right: -14px;
+  top: -14px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid #b79b62;
+  border-radius: 999px;
+  color: #f1d58c;
+  background: #20262a;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.hunt-slot-window header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+}
+
+.hunt-slot-window h3 {
+  margin: 0;
+  color: #f6f0d6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hunt-slot-window h3 span {
+  margin-left: 8px;
+  color: #e4b54c;
+}
+
+.hunt-slot-window header p {
+  margin: 6px 0 0;
+}
+
+.hunt-slot-rule {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 62px;
+  border: 1px solid #334043;
+  border-radius: 5px;
+  padding: 10px;
+  background: rgba(6, 10, 10, 0.78);
+}
+
+.hunt-slot-rule strong {
+  color: #f6f0d6;
+}
+
+.hunt-slot-rule div {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hunt-slot-rule button,
+.hunt-slot-window footer button {
+  min-height: 34px;
+  border: 1px solid #9c7b43;
+  border-radius: 4px;
+  padding: 7px 13px;
+  color: #f6f0d6;
+  background: linear-gradient(180deg, #2e3738, #141a1b);
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.hunt-slot-rule span {
+  min-width: 58px;
+  border: 1px solid #4b3f28;
+  border-radius: 5px;
+  padding: 8px 10px;
+  color: #f6f0d6;
+  background: #1d2220;
+  text-align: center;
+  font-weight: 950;
+}
+
+.hunt-slot-list {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 0;
+  overflow: auto;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 12px;
+}
+
+.hunt-slot-entry {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(94px, auto);
+  gap: 12px;
+  align-items: center;
+  min-height: 78px;
+  border: 1px solid #334043;
+  border-radius: 0;
+  padding: 8px 12px;
+  color: inherit;
+  background: rgba(6, 11, 11, 0.78);
+  text-align: left;
+}
+
+.hunt-slot-entry > span {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid #34464a;
+  border-radius: 5px;
+  color: #f1d58c;
+  background: #12191a;
+  font-weight: 950;
+}
+
+.hunt-slot-entry strong {
+  color: #f6f0d6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+}
+
+.hunt-slot-entry em {
+  color: #ff4f75;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 950;
+  text-align: right;
+}
+
+.hunt-slot-entry.is-selected {
+  border-color: #d8b96a;
+}
+
+.hunt-slot-entry.is-locked {
+  opacity: 0.52;
+}
+
+.hunt-slot-window footer {
+  display: grid;
+  place-items: center;
+  padding-top: 8px;
+}
+
+.hunt-slot-window footer button {
+  min-width: 200px;
+  min-height: 46px;
   color: #f1d58c;
 }
 
@@ -4795,6 +5258,10 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .hunt-scene-hotbar {
+    grid-template-columns: 1fr;
+  }
+
   .hunt-scene-analyzer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -4829,6 +5296,14 @@ p {
 
   .hunt-scene-status {
     justify-items: start;
+  }
+
+  .hunt-hotbar-slots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .hunt-slot-window {
+    width: min(94vw, 640px);
   }
 
   .market-hero,
@@ -4871,6 +5346,34 @@ p {
 
   .hunt-scene-analyzer {
     grid-template-columns: 1fr;
+  }
+
+  .hunt-spawn-timer {
+    grid-template-columns: 70px minmax(0, 1fr) 42px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .hunt-hotbar-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hunt-slot-window {
+    max-height: 92vh;
+    padding: 18px;
+  }
+
+  .hunt-slot-window header,
+  .hunt-slot-rule,
+  .hunt-slot-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .hunt-slot-rule strong,
+  .hunt-slot-rule .hunt-threshold-control,
+  .hunt-slot-entry em {
+    justify-self: start;
+    text-align: left;
   }
 
   .hunt-scene-stage {

@@ -8,10 +8,11 @@ export function HuntActionBar({ label, progress }: HuntActionBarProps) {
 
   return (
     <div className="hunt-scene-actionbar">
-      <span>{label}</span>
+      <span>Action</span>
       <div>
         <i style={{ width: `${Math.round(safeProgress * 100)}%` }} />
       </div>
+      <strong>{label}</strong>
     </div>
   );
 }

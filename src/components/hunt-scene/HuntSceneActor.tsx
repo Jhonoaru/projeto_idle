@@ -18,6 +18,7 @@ export function HuntSceneActor({ character, actionText }: HuntSceneActorProps) {
     <div className={`hunt-scene-character vocation-${character.vocation.toLowerCase()}`}>
       <span>{character.name}</span>
       <div className="hunt-scene-character-core">
+        <i />
         <strong>{initials || "?"}</strong>
       </div>
       <div className="hunt-scene-hpbar">

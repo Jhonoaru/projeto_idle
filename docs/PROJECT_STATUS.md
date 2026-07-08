@@ -47,6 +47,7 @@ Atualizado em: 2026-07-08
 - Etapa 28.5 concluida: QA/correcao do Market visual avancado, com validacao de build, smoke de Buy no Vite, reforco contra duplo clique, normalizacao de gold/depot/origens e filtros tolerantes a item invalido.
 - Etapa 29 concluida: reformulacao do gameplay inicial, com Arkon starter level 1, hunts curtas, level gate real, objetivo guiado e correcao do lucro duplicado de loot.
 - Etapa 29.5 concluida: QA de gameplay e balanceamento inicial, com smoke Vite do loop hunt > loot > Quick Sell > compra de supply, Rat Tail garantido e Action Analyzer alinhado ao gold liquido.
+- Etapa 30 concluida: rework visual avancado da Hunt / Combat Scene, com terreno estilo MMORPG, criaturas ao redor com ciclo de spawn, hotbar inferior de HP/MP/magias/suporte/loot e janelas de configuracao inspiradas nas referencias enviadas.
 
 Comandos principais:
 
@@ -118,6 +119,8 @@ Comandos principais:
 - Resultado de hunt mostra loot/supplies/rejeicoes em cards visuais e oferece atalhos para Inventory e Market/Quick Sell.
 - Hunt Scene visual aparece na Home quando o personagem selecionado esta em `currentAction.type === "hunting"`.
 - Hunt Scene usa simulacao local/fake para criaturas, HP, action bar, loot preview e combat log, sem aplicar recompensa, consumir supplies ou alterar save.
+- Hunt Scene agora tem palco top-down mais proximo de client MMORPG, com personagem central, multiplas criaturas do mesmo tipo quando a hunt e simples, timer de spawn visual e terreno CSS autoral sem assets externos.
+- Hotbar inferior da Hunt Scene mostra HP, MP, slot de cura, mana potion, magias, suporte e loot; clicar nos slots abre janelas locais de selecao/configuracao visual.
 - Botao Collect Hunt Result da Hunt Scene usa o mesmo fluxo real de finalizacao/coleta de hunt ja existente.
 - Gold separado entre personagem e guilda.
 - Gold universal da guilda usado por compras, vendas e custos relevantes.
@@ -161,6 +164,7 @@ Limitacoes atuais:
 - Na QA 26.5, o smoke visual foi feito via `npm run dev` com mock local; SQLite/Tauri real nao foi reexecutado nesta etapa.
 - Hunt Scene ainda usa placeholders textuais/CSS para personagem, criaturas e ambiente; nao ha sprites, mapa navegavel, pathfinding ou combate real-time real.
 - Loot preview da Hunt Scene e apenas visual/estimado e nao adiciona itens durante a hunt.
+- Hotbar e janelas de skills/potions da Hunt Scene ainda sao configuracao visual/local; nao alteram rotacao real, cooldowns, consumo automatico de potions ou save.
 - Auto-repeat/offline catch-up continuam decididos pelo fluxo real de `currentAction`; a cena apenas mostra estado e badges/resumo.
 - Na QA 27.5, `npm run tauri:dev` e SQLite real nao foram reexecutados; o smoke interativo foi feito via `npm run dev` com mock local.
 - Market continua offline/local e sem player market, auction house, trade, premium ou moeda paga.
@@ -174,7 +178,8 @@ Limitacoes atuais:
 
 Proximos passos sugeridos:
 
-- Etapa 30 - Rework de Progressao de Regiao / Area / Unlocks.
+- Etapa 30.5 - QA visual da Hunt Scene, hotbar e janelas de configuracao.
+- Etapa 31 - Rework de Progressao de Regiao / Area / Unlocks.
 - Separar Forge e Imbuing em subviews dedicadas sem duplicar regra de materiais.
 - Evoluir Wiki/Settings com configuracoes locais reais.
 - Criar uma camada visual de cards mais rica para cada modo do Explorar.

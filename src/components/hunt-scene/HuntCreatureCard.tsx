@@ -22,8 +22,17 @@ export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
       <div className="hunt-creature-token">{meta.symbol}</div>
       <div>
         <strong>{creature.monster.name}</strong>
-        <span>Lv {creature.monster.level}</span>
+        <span>
+          {creature.state === "spawning"
+            ? `Nasce em ${creature.spawnSeconds}s`
+            : `Lv ${creature.monster.level}`}
+        </span>
       </div>
+      {creature.state === "spawning" ? (
+        <div className="hunt-scene-spawnbar">
+          <i style={{ width: `${Math.round(creature.spawnProgress * 100)}%` }} />
+        </div>
+      ) : null}
       <div className="hunt-scene-hpbar">
         <i style={{ width: `${creature.hpPercent}%` }} />
       </div>

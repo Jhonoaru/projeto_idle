@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { getHuntSceneMonsters } from "../../game-engine/hunt-scene/getHuntSceneMonsters";
 import { formatDuration } from "../../shared/time";
 import type { Character, HuntArea } from "../../shared/types";
 import { HuntActionBar } from "./HuntActionBar";
 import { HuntCreatureCard } from "./HuntCreatureCard";
+import { HuntSceneHotbar, type HuntSceneSlotType } from "./HuntSceneHotbar";
 import { HuntSceneActor } from "./HuntSceneActor";
 import { HuntSceneAnalyzer } from "./HuntSceneAnalyzer";
 import { HuntSceneBackground } from "./HuntSceneBackground";
 import { HuntSceneLog } from "./HuntSceneLog";
 import { HuntSceneLootPreview } from "./HuntSceneLootPreview";
+import { HuntSceneSlotWindow } from "./HuntSceneSlotWindow";
 import { useHuntSceneSimulation } from "./useHuntSceneSimulation";
 
 interface HuntSceneProps {
@@ -27,6 +30,7 @@ export function HuntScene({
   onOpenInventory,
   onOpenQuickSell,
 }: HuntSceneProps) {
+  const [openSlot, setOpenSlot] = useState<HuntSceneSlotType>();
   const action = character.currentAction;
   const monsters = getHuntSceneMonsters(hunt);
   const snapshot = useHuntSceneSimulation(character, action, hunt, monsters);
@@ -61,6 +65,18 @@ export function HuntScene({
       </header>
 
       <div className="hunt-scene-stage">
+        <div className="hunt-stage-terrain" aria-hidden="true">
+          <span className="terrain-patch terrain-patch-1" />
+          <span className="terrain-patch terrain-patch-2" />
+          <span className="terrain-patch terrain-patch-3" />
+          <span className="terrain-bone" />
+          <span className="terrain-ring" />
+        </div>
+        <div className="hunt-spawn-timer">
+          <span>Next spawn</span>
+          <div><i style={{ width: `${Math.round(snapshot.nextSpawnProgress * 100)}%` }} /></div>
+          <strong>{snapshot.nextSpawnSeconds > 0 ? `${snapshot.nextSpawnSeconds}s` : "Now"}</strong>
+        </div>
         {snapshot.visibleCreatures.map((creature) => (
           <HuntCreatureCard
             active={snapshot.activeTargetId === creature.id}
@@ -72,6 +88,12 @@ export function HuntScene({
       </div>
 
       <HuntActionBar label={snapshot.actionText} progress={snapshot.attackProgress} />
+      <HuntSceneHotbar
+        character={character}
+        hunt={hunt}
+        onSelectSlot={(slot) => setOpenSlot(slot)}
+        selectedSlot={openSlot}
+      />
 
       <div className="hunt-scene-progress">
         <span>Hunt Progress</span>
@@ -110,6 +132,13 @@ export function HuntScene({
           Quick Sell After Collect
         </button>
       </div>
+      {openSlot ? (
+        <HuntSceneSlotWindow
+          character={character}
+          onClose={() => setOpenSlot(undefined)}
+          slot={openSlot}
+        />
+      ) : null}
     </section>
   );
 }
