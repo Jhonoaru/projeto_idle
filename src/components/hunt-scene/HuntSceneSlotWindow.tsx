@@ -92,7 +92,7 @@ export function HuntSceneSlotWindow({ character, slot, onClose }: HuntSceneSlotW
 
   return (
     <div className="hunt-slot-overlay" role="dialog" aria-label={`${config.title} configuration`}>
-      <div className="hunt-slot-window">
+      <div className="hunt-slot-window" onClick={(event) => event.stopPropagation()}>
         <button className="hunt-slot-close" onClick={onClose} type="button">X</button>
         <header>
           <div>

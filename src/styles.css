@@ -3616,6 +3616,7 @@ p {
 }
 
 .hunt-scene-main {
+  position: relative;
   display: grid;
   grid-template-rows: minmax(520px, 1fr) auto auto auto;
   gap: 8px;
@@ -4134,8 +4135,8 @@ p {
   display: grid;
   grid-template-rows: auto auto minmax(220px, 1fr) auto;
   gap: 12px;
-  width: min(620px, 100%);
-  max-height: min(640px, 100%);
+  width: min(620px, calc(100% - 24px));
+  max-height: min(640px, calc(100% - 24px));
   border: 1px solid #7d6535;
   border-radius: 7px;
   padding: 18px;

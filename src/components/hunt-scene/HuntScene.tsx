@@ -153,15 +153,15 @@ export function HuntScene({
           </div>
           <strong>{Math.round(snapshot.sceneProgress * 100)}%</strong>
         </div>
-      </div>
 
-      {openSlot ? (
-        <HuntSceneSlotWindow
-          character={character}
-          onClose={() => setOpenSlot(undefined)}
-          slot={openSlot}
-        />
-      ) : null}
+        {openSlot ? (
+          <HuntSceneSlotWindow
+            character={character}
+            onClose={() => setOpenSlot(undefined)}
+            slot={openSlot}
+          />
+        ) : null}
+      </div>
     </section>
   );
 }
