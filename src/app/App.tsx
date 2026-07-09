@@ -122,7 +122,7 @@ export function App() {
   const [isLoadingSave, setIsLoadingSave] = useState(true);
   const [saveStatus, setSaveStatus] = useState("Carregando save...");
   const [offlineReport, setOfflineReport] = useState<OfflineCatchUpReport>();
-  const [selectedHunt, setSelectedHunt] = useState<HuntArea | undefined>(hunts[0]);
+  const [selectedHunt, setSelectedHunt] = useState<HuntArea | undefined>();
   const [durationMinutes, setDurationMinutes] = useState(1);
   const [lastHuntResult, setLastHuntResult] = useState<LastHuntResult>();
   const [lastPreparationResult, setLastPreparationResult] = useState<HuntPreparationResult>();
@@ -1757,7 +1757,6 @@ export function App() {
           hunts={hunts}
           quests={quests}
           lastBossResult={lastBossResult}
-          lastPreparationResult={lastPreparationResult}
           lastResult={lastHuntResult}
           lastQuestResult={lastQuestResult}
           lastTrainingResult={lastTrainingResult}
@@ -1765,7 +1764,6 @@ export function App() {
           onAssignCharm={handleAssignCharm}
           onBuyBlessing={handleBuyBlessing}
           onClaimBestiaryReward={handleClaimBestiaryReward}
-          onCreateRecommendedPreset={handleCreateRecommendedPreset}
           onChangeTab={setActiveTab}
           onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
@@ -1779,11 +1777,10 @@ export function App() {
           onApplyForgeImbuement={handleApplyForgeImbuement}
           onReviveCharacter={handleReviveSelectedCharacter}
           onRemoveCharm={handleRemoveCharm}
-          onDeleteHuntPreset={handleDeleteHuntPreset}
           onRemoveForgeImbuements={handleRemoveForgeImbuements}
-          onPrepareHunt={handlePrepareHunt}
           onSelectBoss={handleSelectBoss}
           onSelectHunt={setSelectedHunt}
+          onClearSelectedHunt={() => setSelectedHunt(undefined)}
           onEquipItem={handleEquipItem}
           onMoveInventoryItemOutOfContainer={handleMoveInventoryItemOutOfContainer}
           onMoveInventoryItemToContainer={handleMoveInventoryItemToContainer}

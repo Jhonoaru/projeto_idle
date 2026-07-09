@@ -52,6 +52,7 @@ Atualizado em: 2026-07-08
 - Etapa 31 concluida: Region Atlas / progressao de regioes, areas e unlocks, com status derivado de level, quests, access keys, hunts e bosses sem criar save/schema novo.
 - Etapa 32 concluida: rework visual do Explorar / Modos de Jogo, com boards de Hunts, Bosses e Quests, busca, cards visuais e paineis reais preservados.
 - Ajuste pos-Etapa 32: duracao customizavel de hunt em minutos/horas e botao de retorno para cidade dentro da Hunt Scene.
+- Ajuste pos-Etapa 32.1: Explorar/Hunts agora abre primeiro apenas a lista de hunts; assignment aparece somente apos selecionar uma hunt e foi simplificada para escolher duracao e iniciar.
 
 Comandos principais:
 
@@ -293,6 +294,30 @@ Limitacoes:
 
 - O retorno para cidade cancela a hunt atual; ele nao coleta recompensa parcial.
 - QA manual clicando no app desktop ainda deve ser feito na Etapa 32.5.
+
+## Ajuste pos-Etapa 32.1 - Fluxo simples de Hunts no Explorar
+
+Status: concluido.
+
+Implementado:
+
+- `Explorar > Hunts` nao abre mais com uma hunt pre-selecionada.
+- A tela inicial de Hunts mostra somente o board/lista de hunts para selecionar.
+- Ao clicar em uma hunt, a lista sai da tela e aparece apenas o `Hunt Assignment` simples.
+- `Hunt Assignment` foi reduzido para resumo da hunt, duracao e botao `Iniciar Hunt`.
+- Removidos desse fluxo visual: Supplies, Preparation, Auto-repeat, charms ativos, resultado de hunt e botoes de finalizar simulacao.
+- Adicionado botao `Escolher outra hunt` para voltar ao board.
+- A validacao real de start continua na engine `startHunt`, entao regras de personagem ocupado, level, acesso e supplies ainda protegem a acao.
+
+Validacao:
+
+- `git diff --check` passou.
+- `npm.cmd run build` passou.
+
+Limitacoes:
+
+- Supplies/preparation/auto-repeat continuam existindo no codigo de suporte e engines antigas, mas nao aparecem mais no fluxo principal de Hunts dentro do Explorar.
+- QA manual visual no Tauri desktop ainda deve ser feito.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -64,9 +64,7 @@ import type {
   GuildDepot,
   HuntArea,
   HuntAutoRepeatConfig,
-  HuntPreparationResult,
   HuntSimulationResult,
-  HuntSupplyPreset,
   InventoryItem,
   MarketItemCategory,
   MonsterFocusBonusType,
@@ -125,7 +123,6 @@ interface MainPanelProps {
   selectedBoss?: Boss;
   bossParty: BossParty;
   durationMinutes: number;
-  lastPreparationResult?: HuntPreparationResult;
   lastResult?: LastResultView;
   lastTrainingResult?: TrainingResult;
   lastBossResult?: BossSimulationResult;
@@ -144,14 +141,12 @@ interface MainPanelProps {
   onReloadSave: () => void;
   onResetSave: () => void;
   onSelectHunt: (hunt: HuntArea) => void;
+  onClearSelectedHunt: () => void;
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
   onFinishHunt: () => void;
   onReturnToCity: () => void;
   onStopHuntAutoRepeat: () => void;
-  onCreateRecommendedPreset: () => void;
-  onPrepareHunt: (preset: HuntSupplyPreset) => void;
-  onDeleteHuntPreset: (presetId: string) => void;
   onSendToDepot: (inventoryItem: InventoryItem) => void;
   onSendToCharacterDepot: (inventoryItem: InventoryItem) => void;
   onSendCharacterDepotToInventory: (inventoryItem: InventoryItem) => void;
@@ -231,7 +226,6 @@ export function MainPanel({
   selectedBoss,
   bossParty,
   durationMinutes,
-  lastPreparationResult,
   lastResult,
   lastTrainingResult,
   lastBossResult,
@@ -245,14 +239,12 @@ export function MainPanel({
   onReloadSave,
   onResetSave,
   onSelectHunt,
+  onClearSelectedHunt,
   onChangeDuration,
   onStartHunt,
   onFinishHunt,
   onReturnToCity,
   onStopHuntAutoRepeat,
-  onCreateRecommendedPreset,
-  onPrepareHunt,
-  onDeleteHuntPreset,
   onSendToDepot,
   onSendToCharacterDepot,
   onSendCharacterDepotToInventory,
@@ -455,42 +447,30 @@ export function MainPanel({
 
         {activeTab === "hunts" ? (
           <ExploreWindow
-            bestiary={guild.bestiary}
             bossParty={bossParty}
             bosses={bosses}
             characters={characters}
             character={selectedCharacter}
-            guild={guild}
-            guildDepot={depot}
             durationMinutes={durationMinutes}
             hunts={hunts}
             lastBossResult={lastBossResult}
-            lastPreparationResult={lastPreparationResult}
             lastQuestResult={lastQuestResult}
-            lastResult={lastResult}
             lastTrainingResult={lastTrainingResult}
             onCancelBoss={onCancelBoss}
             onChangeBossPartyRole={onChangeBossPartyRole}
             onChangeDuration={onChangeDuration}
+            onClearSelectedHunt={onClearSelectedHunt}
             onClearBossCooldown={onClearBossCooldown}
-            onCreateRecommendedPreset={onCreateRecommendedPreset}
-            onDeleteHuntPreset={onDeleteHuntPreset}
             onFinishBoss={onFinishBoss}
-            onFinishHunt={onFinishHunt}
             onFinishQuest={onFinishQuest}
             onFinishTraining={onFinishTraining}
-            onOpenInventory={() => onChangeTab("inventory")}
-            onOpenQuickSell={() => onChangeTab("market")}
-            onPrepareHunt={onPrepareHunt}
             onSelectBoss={onSelectBoss}
             onSelectHunt={onSelectHunt}
             onStartBoss={onStartBoss}
             onStartHunt={onStartHunt}
             onStartQuest={onStartQuest}
             onStartTraining={onStartTraining}
-            onStopHuntAutoRepeat={onStopHuntAutoRepeat}
             onToggleBossPartyMember={onToggleBossPartyMember}
-            presets={guild.huntPresets ?? []}
             quests={quests}
             selectedBoss={selectedBoss}
             selectedHunt={selectedHunt}
