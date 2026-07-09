@@ -139,7 +139,7 @@ export function App() {
     members: [{ characterId: mockCharacters[0].id, role: "tank" }],
   });
   const [lastBossResult, setLastBossResult] = useState<BossSimulationResult>();
-  const [activeTab, setActiveTab] = useState<MainPanelTab>("home");
+  const [activeTab, setActiveTab] = useState<MainPanelTab>("character");
   const [selectedCharacterId, setSelectedCharacterId] = useState(
     mockCharacters[0].id,
   );
@@ -278,20 +278,6 @@ export function App() {
     return () => window.clearInterval(interval);
   }, [isLoadingSave]);
 
-  useEffect(() => {
-    if (selectedCharacter.status !== "hunting" || !selectedCharacter.currentAction?.targetId) {
-      return;
-    }
-
-    const currentHunt = hunts.find(
-      (hunt) => hunt.id === selectedCharacter.currentAction?.targetId,
-    );
-
-    if (currentHunt) {
-      setSelectedHunt(currentHunt);
-    }
-  }, [selectedCharacter]);
-
   function updateSelectedCharacter(updatedCharacter: typeof selectedCharacter) {
     setCharacters((currentCharacters) =>
       currentCharacters.map((character) =>
@@ -315,6 +301,13 @@ export function App() {
       },
       ...currentLogs,
     ]);
+  }
+
+  function handleOpenTab(tab: MainPanelTab) {
+    if (tab === "hunts") {
+      setSelectedHunt(undefined);
+    }
+    setActiveTab(tab);
   }
 
   function applyGameState(state: GameStateSnapshot) {
@@ -525,12 +518,13 @@ export function App() {
         };
       }
       updateSelectedCharacter(updatedCharacter);
-      setActiveTab("action");
+      setSelectedHunt(undefined);
+      setActiveTab("home");
       prependLog(
         "Hunt started",
         autoRepeat?.enabled
           ? `Auto-repeat enabled for ${selectedHunt.name}: ${autoRepeat.maxRepeats ?? 3} runs.`
-          : `${selectedCharacter.name} iniciou hunt em ${selectedHunt.name} com supplies suficientes. Acompanhe na aba Acao.`,
+          : `${selectedCharacter.name} iniciou hunt em ${selectedHunt.name}. Acompanhe a cena de combate.`,
         "neutral",
       );
     } catch (error) {
@@ -1726,7 +1720,7 @@ export function App() {
       <TopBar
         activeTab={activeTab}
         guild={guild}
-        onOpenTab={setActiveTab}
+        onOpenTab={handleOpenTab}
         onManualSave={handleManualSave}
         onReloadSave={handleReloadSave}
         onResetSave={handleResetSave}
@@ -1741,7 +1735,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-      <div className="game-layout">
+      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -1764,7 +1758,7 @@ export function App() {
           onAssignCharm={handleAssignCharm}
           onBuyBlessing={handleBuyBlessing}
           onClaimBestiaryReward={handleClaimBestiaryReward}
-          onChangeTab={setActiveTab}
+          onChangeTab={handleOpenTab}
           onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
           onCancelAction={handleCancelAction}
@@ -1825,7 +1819,7 @@ export function App() {
           activeTab={activeTab}
           character={selectedCharacter}
           guild={guild}
-          onOpenTab={setActiveTab}
+          onOpenTab={handleOpenTab}
         />
         <RightCharacterPanel character={selectedCharacter} guild={guild} logs={logs} />
       </div>

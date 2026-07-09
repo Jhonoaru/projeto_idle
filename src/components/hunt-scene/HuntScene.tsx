@@ -18,8 +18,6 @@ interface HuntSceneProps {
   hunt?: HuntArea;
   onCollectHunt: () => void;
   onOpenAction: () => void;
-  onOpenInventory: () => void;
-  onOpenQuickSell: () => void;
   onReturnToCity: () => void;
 }
 
@@ -28,11 +26,10 @@ export function HuntScene({
   hunt,
   onCollectHunt,
   onOpenAction,
-  onOpenInventory,
-  onOpenQuickSell,
   onReturnToCity,
 }: HuntSceneProps) {
   const [openSlot, setOpenSlot] = useState<HuntSceneSlotType>();
+  const [showSceneTools, setShowSceneTools] = useState(false);
   const action = character.currentAction;
   const monsters = getHuntSceneMonsters(hunt);
   const snapshot = useHuntSceneSimulation(character, action, hunt, monsters);
@@ -48,64 +45,40 @@ export function HuntScene({
     <section className={`hunt-scene ${isReady ? "is-ready" : "is-running"}`}>
       <HuntSceneBackground hunt={hunt} />
 
-      <header className="hunt-scene-header">
-        <div>
-          <span className="eyebrow">Hunt Scene</span>
-          <h2>{hunt?.name ?? action.targetName ?? "Unknown Hunt"}</h2>
-          <p>
-            {completedOffline
-              ? "Completed while offline. Rewards are waiting for manual collection."
-              : isReady
-                ? "Hunt completed. Collect through the real hunt flow."
-                : `${character.name} is hunting. Visual combat only, rewards are not applied until collect.`}
-          </p>
-        </div>
-        <div className="hunt-scene-status">
-          <span>{isReady ? "Ready" : "Running"}</span>
-          <strong>{formatDuration(displayRemainingMs)}</strong>
-        </div>
-      </header>
+      <aside className="hunt-scene-side">
+        <header className="hunt-scene-header">
+          <div>
+            <span className="eyebrow">Hunt Scene</span>
+            <h2>{hunt?.name ?? action.targetName ?? "Unknown Hunt"}</h2>
+            <p>
+              {completedOffline
+                ? "Completed while offline. Rewards are waiting for manual collection."
+                : isReady
+                  ? "Hunt completed. Collect through the real hunt flow."
+                  : `${character.name} is hunting. Rewards are applied only on collect.`}
+            </p>
+          </div>
+          <div className="hunt-scene-status">
+            <span>{isReady ? "Ready" : "Running"}</span>
+            <strong>{formatDuration(displayRemainingMs)}</strong>
+          </div>
+        </header>
 
-      <div className="hunt-scene-stage">
-        <div className="hunt-stage-terrain" aria-hidden="true">
-          <span className="terrain-patch terrain-patch-1" />
-          <span className="terrain-patch terrain-patch-2" />
-          <span className="terrain-patch terrain-patch-3" />
-          <span className="terrain-bone" />
-          <span className="terrain-ring" />
+        <div className="hunt-scene-actions">
+          {isReady ? (
+            <button className="is-primary" onClick={onCollectHunt} type="button">
+              Coletar Resultado
+            </button>
+          ) : (
+            <button className="is-danger" onClick={onReturnToCity} type="button">
+              Finalizar Hunt
+            </button>
+          )}
+          <button onClick={onOpenAction} type="button">
+            Detalhes
+          </button>
         </div>
-        <div className="hunt-spawn-timer">
-          <span>Next spawn</span>
-          <div><i style={{ width: `${Math.round(snapshot.nextSpawnProgress * 100)}%` }} /></div>
-          <strong>{snapshot.nextSpawnSeconds > 0 ? `${snapshot.nextSpawnSeconds}s` : "Now"}</strong>
-        </div>
-        {snapshot.visibleCreatures.map((creature) => (
-          <HuntCreatureCard
-            active={snapshot.activeTargetId === creature.id}
-            creature={creature}
-            key={creature.id}
-          />
-        ))}
-        <HuntSceneActor character={character} actionText={snapshot.actionText} />
-      </div>
 
-      <HuntActionBar label={snapshot.actionText} progress={snapshot.attackProgress} />
-      <HuntSceneHotbar
-        character={character}
-        hunt={hunt}
-        onSelectSlot={(slot) => setOpenSlot(slot)}
-        selectedSlot={openSlot}
-      />
-
-      <div className="hunt-scene-progress">
-        <span>Hunt Progress</span>
-        <div>
-          <i style={{ width: `${Math.round(snapshot.sceneProgress * 100)}%` }} />
-        </div>
-        <strong>{Math.round(snapshot.sceneProgress * 100)}%</strong>
-      </div>
-
-      <div className="hunt-scene-bottom">
         <HuntSceneAnalyzer
           character={character}
           elapsedMs={snapshot.elapsedMs}
@@ -114,34 +87,74 @@ export function HuntScene({
           remainingMs={displayRemainingMs}
           totalMs={snapshot.totalMs}
         />
+
+        <div className="hunt-scene-side-tabs">
+          <button disabled type="button">Loot Filter</button>
+          <button type="button">Combat Log</button>
+        </div>
+
         <HuntSceneLootPreview loot={snapshot.lootPreviewEvents} />
         <HuntSceneLog lines={snapshot.combatLogLines} />
+      </aside>
+
+      <div className="hunt-scene-main">
+        <div
+          className="hunt-scene-stage"
+          aria-label="Combat area. Click to toggle scene tools."
+          onClick={() => setShowSceneTools((current) => !current)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setShowSceneTools((current) => !current);
+            }
+          }}
+        >
+          <div className="hunt-stage-terrain" aria-hidden="true">
+            <span className="terrain-patch terrain-patch-1" />
+            <span className="terrain-patch terrain-patch-2" />
+            <span className="terrain-patch terrain-patch-3" />
+            <span className="terrain-bone" />
+            <span className="terrain-ring" />
+          </div>
+          <div className="hunt-spawn-timer">
+            <span>Next spawn</span>
+            <div><i style={{ width: `${Math.round(snapshot.nextSpawnProgress * 100)}%` }} /></div>
+            <strong>{snapshot.nextSpawnSeconds > 0 ? `${snapshot.nextSpawnSeconds}s` : "Now"}</strong>
+          </div>
+          {snapshot.visibleCreatures.map((creature) => (
+            <HuntCreatureCard
+              active={snapshot.activeTargetId === creature.id}
+              creature={creature}
+              key={creature.id}
+            />
+          ))}
+          <HuntSceneActor character={character} actionText={snapshot.actionText} />
+          <div className={`hunt-scene-center-tools ${showSceneTools ? "is-visible" : ""}`.trim()}>
+            <button disabled type="button">Loot Filter</button>
+            <button type="button" onClick={(event) => event.stopPropagation()}>Combat Log</button>
+            <button disabled type="button">Posicionamento</button>
+          </div>
+        </div>
+
+        <HuntActionBar label={snapshot.actionText} progress={snapshot.attackProgress} />
+        <HuntSceneHotbar
+          character={character}
+          hunt={hunt}
+          onSelectSlot={(slot) => setOpenSlot(slot)}
+          selectedSlot={openSlot}
+        />
+
+        <div className="hunt-scene-progress">
+          <span>Hunt Progress</span>
+          <div>
+            <i style={{ width: `${Math.round(snapshot.sceneProgress * 100)}%` }} />
+          </div>
+          <strong>{Math.round(snapshot.sceneProgress * 100)}%</strong>
+        </div>
       </div>
 
-      <div className="hunt-scene-actions">
-        {isReady ? (
-          <button className="is-primary" onClick={onCollectHunt} type="button">
-            Collect Hunt Result
-          </button>
-        ) : null}
-        <button onClick={onOpenInventory} type="button">
-          View Inventory
-        </button>
-        <button onClick={onOpenAction} type="button">
-          Open Action Details
-        </button>
-        <button
-          className="is-return"
-          disabled={isReady}
-          onClick={onReturnToCity}
-          type="button"
-        >
-          Voltar para Cidade
-        </button>
-        <button disabled={!isReady} onClick={onOpenQuickSell} type="button">
-          Quick Sell After Collect
-        </button>
-      </div>
       {openSlot ? (
         <HuntSceneSlotWindow
           character={character}

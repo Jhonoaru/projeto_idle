@@ -63,8 +63,6 @@ export function MainPlayArea({
           hunt={actionHunt}
           onCollectHunt={onCollectHunt}
           onOpenAction={onOpenAction}
-          onOpenInventory={onOpenInventory}
-          onOpenQuickSell={onOpenQuickSell}
           onReturnToCity={onReturnToCity}
         />
       </div>

@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-08
+Atualizado em: 2026-07-09
 
 ## Stack usada
 
@@ -53,6 +53,7 @@ Atualizado em: 2026-07-08
 - Etapa 32 concluida: rework visual do Explorar / Modos de Jogo, com boards de Hunts, Bosses e Quests, busca, cards visuais e paineis reais preservados.
 - Ajuste pos-Etapa 32: duracao customizavel de hunt em minutos/horas e botao de retorno para cidade dentro da Hunt Scene.
 - Ajuste pos-Etapa 32.1: Explorar/Hunts agora abre primeiro apenas a lista de hunts; assignment aparece somente apos selecionar uma hunt e foi simplificada para escolher duracao e iniciar.
+- Ajuste pos-Etapa 32.2: Details virou tela inicial, Explorar sempre abre limpo, iniciar hunt envia direto para a Hunt Scene e o modo combate esconde roster/painel direito com analyzer lateral.
 
 Comandos principais:
 
@@ -318,6 +319,27 @@ Limitacoes:
 
 - Supplies/preparation/auto-repeat continuam existindo no codigo de suporte e engines antigas, mas nao aparecem mais no fluxo principal de Hunts dentro do Explorar.
 - QA manual visual no Tauri desktop ainda deve ser feito.
+
+## Ajuste pos-Etapa 32.2 - Hunt Scene em modo combate
+
+Status: concluido.
+
+Implementado:
+
+- O app agora inicia na aba `Details`, deixando o menu de personagem/atributos como tela inicial.
+- Abrir `Explorar > Hunts` limpa qualquer hunt selecionada anteriormente, entao nao cai direto no `Hunt Assignment`.
+- Ao iniciar uma hunt, a UI vai direto para `home`, onde a Hunt Scene aparece.
+- Enquanto o personagem esta em hunt na `home`, o layout entra em `is-hunt-scene-mode`.
+- Nesse modo, roster, menu lateral de personagem e painel direito ficam escondidos para ampliar a tela de combate.
+- Hunt Scene foi reorganizada em duas areas: analyzer/controles/drops/log na esquerda e combate maior no centro.
+- O bloco antigo que ficava embaixo do combate foi removido do fluxo visual.
+- Adicionados botoes pequenos no centro da cena, exibidos ao clicar na area de combate: Loot Filter placeholder, Combat Log e Posicionamento placeholder.
+- Botao `Finalizar Hunt` na lateral cancela/retorna pela regra real existente; quando a hunt esta pronta, aparece `Coletar Resultado`.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- QA manual visual no app desktop ainda deve ser repetido.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
