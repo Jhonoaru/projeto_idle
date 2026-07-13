@@ -22,6 +22,7 @@ import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
 import { CosmeticShowcaseHall } from "../store/CosmeticShowcaseHall";
 import { TrainingPanel } from "../training/TrainingPanel";
+import { UpdatesHall } from "../updates/UpdatesHall";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
@@ -594,7 +595,7 @@ export function MainPanel({
             onOpenCollections={() => onChangeTab("collections")}
           />
         ) : null}
-        {activeTab === "updates" ? <UpdatesWindow /> : null}
+        {activeTab === "updates" ? <UpdatesHall /> : null}
         {activeTab === "wiki" ? <WikiWindow /> : null}
         {activeTab === "settings" ? (
           <SettingsWindow
@@ -659,6 +660,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
   if (tab === "bestiary") return "Guild creature records, research stages, charm points and active assignments.";
   if (tab === "store") return "Local cosmetic previews with no purchases, premium currency or online services.";
+  if (tab === "updates") return "Installed release notes for local systems, interface revisions and QA milestones.";
   return undefined;
 }
 
@@ -683,17 +685,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function UpdatesWindow() {
-  return (
-    <Panel title="Changelog">
-      <div className="client-info-card">
-        <strong>Etapa 20</strong>
-        <p>Client-style layout, topbar navigation, character side menu, right character panel, and game windows.</p>
-      </div>
-    </Panel>
-  );
 }
 
 function WikiWindow() {

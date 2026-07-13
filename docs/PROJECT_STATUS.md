@@ -75,6 +75,7 @@ Atualizado em: 2026-07-13
 - Etapa 41.5 concluida: QA real do Ranking Hall no Tauri/SQLite, com quatro metricas, selecao, Save/Reload e ausencia de mutacao validados.
 - Etapa 42 concluida: Store reformulado como Cosmetic Showcase local, com 12 previews, filtros, integracao com Collections e nenhuma monetizacao.
 - Etapa 42.5 concluida: QA real do Cosmetic Showcase no Tauri/SQLite, com catalogo, filtros, preview, Collections, Save/Reload e ausencia de monetizacao validados.
+- Etapa 43 concluida: Updates reformulado como Release Archive local, com busca, filtros, dossiers e historico recente do cliente.
 
 Comandos principais:
 
@@ -1520,6 +1521,61 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 43 - Rework de Updates / Changelog Hall local.
+
+## Etapa 43 - Rework de Updates / Changelog Hall local
+
+Status: concluida.
+
+Novo Release Archive:
+
+- Updates deixou o card simples embutido no `MainPanel` e ganhou componente dedicado em `src/components/updates/UpdatesHall.tsx`.
+- A janela usa toda a area central e oculta roster, menu lateral e painel direito.
+- O arquivo e totalmente local, somente leitura e nao baixa patches nem acessa contas ou servicos online.
+- Hero resume release records, sistemas, revisoes de interface e registros de QA.
+- A Etapa 43 aparece como release atual instalada.
+
+Dados e categorias:
+
+- `src/data/clientUpdates.ts` concentra 10 releases reais das Etapas 36 a 43.
+- Cada registro possui etapa, titulo, data, categoria, resumo, highlights e sistemas afetados.
+- Categorias disponiveis: All Releases, Systems, Interface e QA Records.
+- O arquivo inicial possui quatro Systems, quatro Interface e dois QA Records.
+- A busca local cobre etapa, titulo, resumo, highlights e nomes de sistemas.
+
+Lista e dossier:
+
+- Cards mostram categoria, etapa, data, titulo, resumo e estado Current quando aplicavel.
+- Selecionar ou filtrar um registro atualiza o dossier sem navegacao externa.
+- O dossier mostra identidade da release, tres highlights, sistemas incluidos e estado Released locally.
+- Uma ledger inferior resume Foundation, Gameplay, Client Rework e Guild Halls.
+- Nenhum estado de update e persistido no SQLite e nenhuma activity log e criada.
+
+Visual e responsividade:
+
+- O hall segue o estilo MMORPG escuro, metalico e dourado das telas Ranking e Cosmetic Showcase.
+- Layout desktop usa lista e dossier lado a lado; em larguras menores o dossier passa para baixo.
+- Tabs, resumo, cards e eras se reorganizam em duas ou uma coluna nos breakpoints existentes.
+- Nao foram usados assets externos.
+
+Validacao:
+
+- `npm.cmd run build` passou apos a implementacao com 276 modulos.
+- Browser local em 1280x720 confirmou 10 releases, painel amplo e ausencia de overflow horizontal.
+- Filtro QA exibiu dois registros e selecionou Hall of Renown QA no dossier.
+- Busca por `ranking` dentro de QA retornou exatamente um registro.
+- Viewport 390x844 manteve largura interna responsiva e sem overflow horizontal.
+- O unico erro de console foi o fallback esperado do SQLite fora do runtime Tauri.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Release notes sao dados locais curados; ainda nao sao geradas automaticamente por commits ou tags Git.
+- Nao existem download de patch, updater automatico, feed remoto, conta online ou notificacoes persistidas.
+- QA no Tauri/SQLite fica reservado para a etapa de estabilizacao seguinte.
+
+Proximo passo sugerido:
+
+- Etapa 43.5 - QA do Updates Hall no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
