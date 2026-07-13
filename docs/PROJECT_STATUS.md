@@ -72,6 +72,7 @@ Atualizado em: 2026-07-13
 - Etapa 40 concluida: Daily Reward reformulado como Guild Daily Ledger amplo, com calendario de sete dias, dispatch em destaque e historico compacto.
 - Etapa 40.5 concluida: QA real do Daily Reward Hall no Tauri/SQLite, com badge, claim de supply, streak, ciclo, clique duplo e Save/Reload validados.
 - Etapa 41 concluida: Ranking reformulado como Hall of Renown local, com podio, quatro metricas reais, tabela completa e dossier do personagem.
+- Etapa 41.5 concluida: QA real do Ranking Hall no Tauri/SQLite, com quatro metricas, selecao, Save/Reload e ausencia de mutacao validados.
 
 Comandos principais:
 
@@ -1348,6 +1349,67 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 41.5 - QA do Ranking Hall local no Tauri/SQLite.
+
+## Etapa 41.5 - QA do Ranking Hall local
+
+Status: concluida.
+
+Protecao do save:
+
+- O SQLite original recebeu checkpoint e foi copiado byte a byte antes do QA.
+- SHA-256 original: `7f5f9fcd02e2559f25e5399aa6018eebdfe5d8766ddffcf16fd47de51973f217`.
+- `pragma integrity_check` retornou `ok` antes e depois dos testes.
+- As ordens esperadas foram calculadas diretamente das tabelas `characters` e `character_skills`.
+
+Dados reais esperados:
+
+- Experience e Character Level: Ayla, Lyra, Mira, Shen e Arkon.
+- Skill Total: Shen 239, Ayla 224, Lyra 199, Mira 168 e Arkon 53.
+- O save continha cinco aventureiros, level medio 20 e aproximadamente 899.4K XP combinado.
+
+QA real no Tauri:
+
+- `npm.cmd run tauri:dev` iniciou Vite, compilou o target Rust e abriu `guild-hunt-idle.exe`.
+- Ranking abriu em modo amplo sem roster, menu lateral ou painel direito.
+- Experience mostrou Ayla 301,200 XP, Lyra 246,900 XP e Mira 198,400 XP no podio.
+- Skill Total mostrou Shen 239, Ayla 224 e Lyra 199, correspondendo ao SQLite.
+- Combat Power mostrou Mira 743, Lyra 591 e Shen 545.
+- Character Level mostrou Ayla 28, Lyra 26, Mira 24, Shen 22 e Arkon 1 na tabela.
+- A tabela exibiu cidade, status, vocacao e main skill reais de cada personagem.
+- O texto Offline Record confirmou que nao existe leaderboard online conectado.
+
+Selecao e dossier:
+
+- Selecionar Mira pelo podio de Combat Power atualizou Topbar para Mira level 24 e posicao para #1.
+- Selecionar Shen pela tabela de Character Level destacou a linha #4 e atualizou Topbar e dossier.
+- O dossier de Shen mostrou Monk, Thaeron, Level 22, 79% do lider, 152.8K XP, 545 power, 239 skills e uma quest concluida.
+- Trocar metrica ou personagem nao criou logs, rewards, moedas ou progressao paralela.
+
+Save/Reload e read-only:
+
+- Save e Reload foram acionados na janela Tauri e Ranking foi reaberto.
+- Foi criado digest semantico dos campos de guilda, personagem e skills usados pelo Ranking.
+- Digest antes e depois: `2e388d81fcbfae47d3bb131677046394ac3f1a3bfdb486abd05f80c035cc4086`.
+- Os campos de ranking permaneceram exatamente iguais apos interacoes e Save/Reload.
+- Alteracoes normais de metadata/timestamps do Save foram removidas pela restauracao byte a byte.
+
+Restauracao e validacao:
+
+- O runtime Tauri foi encerrado e os sidecars WAL/SHM foram removidos.
+- O save original foi restaurado com os cinco personagens e hash identico ao backup.
+- `npm.cmd run build` passou antes do QA com 273 modulos.
+- Nenhum bug de gameplay ou UI foi encontrado; somente a documentacao foi alterada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Combat Power continua sendo score derivado local, nao rating competitivo persistido.
+- Nao foram criados ranking global, temporadas, recompensas ou integracao online.
+- QA foi executado na janela desktop; responsividade mobile permanece coberta pelos breakpoints e pelo QA visual anterior.
+
+Proximo passo sugerido:
+
+- Etapa 42 - Rework de Store Hall cosmetico local, somente preview e sem pagamento real.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
