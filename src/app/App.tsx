@@ -371,8 +371,15 @@ export function App() {
           await markOfflineCatchUpApplied(database);
         }
       }
-      setSelectedCharacterId(stateToApply.characters[0]?.id ?? selectedCharacterId);
-      setActiveTab("home");
+      const selectedCharacterStillExists = stateToApply.characters.some(
+        (character) => character.id === selectedCharacterId,
+      );
+      setSelectedCharacterId(
+        selectedCharacterStillExists
+          ? selectedCharacterId
+          : (stateToApply.characters[0]?.id ?? mockCharacters[0].id),
+      );
+      setActiveTab("character");
       saveReadyRef.current = true;
       setSaveStatus(loadedState ? "Save carregado." : "Save inicial criado.");
     } catch (error) {
@@ -404,7 +411,7 @@ export function App() {
         ],
       });
       setSelectedCharacterId(resetState.characters[0]?.id ?? mockCharacters[0].id);
-      setActiveTab("home");
+      setActiveTab("character");
       saveReadyRef.current = true;
       setSaveStatus("Save resetado.");
     } catch (error) {

@@ -56,6 +56,7 @@ Atualizado em: 2026-07-13
 - Ajuste pos-Etapa 32.2: Details virou tela inicial, Explorar sempre abre limpo, iniciar hunt envia direto para a Hunt Scene e o modo combate esconde roster/painel direito com analyzer lateral.
 - Etapa 32.5 concluida: QA interativo do novo Explorar/Hunt Scene, com fluxo de selecao, duracao, entrada e saida do combate, modal central e controles contextuais validados.
 - Etapa 33 concluida: rework visual de Details como Character Hall, com selecao de personagem integrada, perfil, atributos, equipamentos, skills e progresso da guilda em uma tela ampla.
+- Etapa 33.5 concluida: QA do Character Hall no Tauri/SQLite, com selecao, Inventory e Save/Reload validados e correcao do retorno indevido para Home.
 
 Comandos principais:
 
@@ -436,6 +437,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 33.5 - QA da tela inicial Details e selecao de personagem no Tauri/SQLite.
+
+## Etapa 33.5 - QA de Details e selecao de personagem no Tauri/SQLite
+
+Status: concluida como QA e estabilizacao.
+
+Validado no runtime Tauri real:
+
+- `npm.cmd run tauri:dev` abriu a janela desktop `Guild Hunt Idle`.
+- O Tauri carregou o banco real em `AppData/Roaming/com.jhonoaru.guildhuntidle/guild_hunt_idle.db` sem usar o fallback do Vite.
+- A tela inicial abriu em `Character Details` com os cinco aventureiros do save.
+- O save carregado mostrou estados reais distintos: Arkon em hunt, Ayla treinando, Mira em quest e Lyra/Shen idle.
+- A selecao de Ayla atualizou nome, level, card selecionado e todos os dados do perfil.
+- O atalho Inventory abriu `Inventory & Equipment` para o personagem selecionado.
+- Save e Reload foram executados no SQLite real sem mensagem de falha.
+- A integridade do banco passou em `PRAGMA integrity_check` com resultado `ok`.
+- As tabelas reais continuaram com uma guilda e cinco personagens, sem migration ou schema novo.
+- Nao houve overflow horizontal no Character Hall durante os fluxos testados.
+
+Bug encontrado e corrigido:
+
+- `Reload` sempre selecionava o primeiro personagem e enviava a interface para `home`, descartando a selecao feita no Character Hall.
+- Agora Reload preserva o personagem selecionado quando ele ainda existe no save e retorna para `Character Details`.
+- Se o personagem selecionado nao existir mais, o fallback continua sendo o primeiro personagem valido.
+- Reset tambem passa a voltar para `Character Details`, mantendo Details como a tela inicial definida para o projeto.
+
+Validacao apos a correcao:
+
+- Ayla foi selecionada no DOM da WebView2 nativa.
+- Inventory abriu para o fluxo selecionado.
+- Depois de Reload, `Character Details` reapareceu com Ayla ainda selecionada e `aria-pressed=true`.
+- Nenhuma mensagem `Falha ao carregar save` apareceu.
+- O save continuou integro e os dados dos cinco personagens permaneceram disponiveis.
+
+Limitacoes da QA:
+
+- Reset nao foi clicado para evitar apagar o save real do usuario; a mudanca de destino foi validada por leitura e build.
+- Nao foram alterados personagens, equipamentos ou economia durante esta QA.
+- A selecao de personagem e estado de navegacao continuam locais da interface; apenas os dados de jogo sao persistidos no SQLite.
+
+Proximo passo sugerido:
+
+- Etapa 34 - Rework visual de Skills e progressao do personagem.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
