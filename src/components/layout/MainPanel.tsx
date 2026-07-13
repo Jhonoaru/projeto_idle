@@ -5,6 +5,7 @@ import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { MonsterFocusHall } from "../bestiary/MonsterFocusHall";
 import { BossPanel } from "../boss/BossPanel";
 import { BlessingsHall } from "../death/BlessingsHall";
+import { CollectionsHall } from "../collections/CollectionsHall";
 import { DestinyHall } from "../destiny/DestinyHall";
 import { ExploreWindow } from "../explore/ExploreWindow";
 import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
@@ -21,11 +22,8 @@ import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
-import { getCollectionItemById, getCollectionItemsByCategory } from "../../data/collections";
+import { getCollectionItemById } from "../../data/collections";
 import { dailyRewards } from "../../data/dailyRewards";
-import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
-import { isCollectionItemUnlocked } from "../../game-engine/collections/isCollectionItemUnlocked";
-import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
 import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
 import { getCurrentDailyReward } from "../../game-engine/daily-reward/getCurrentDailyReward";
 import { getDailyRewardPreview } from "../../game-engine/daily-reward/getDailyRewardPreview";
@@ -36,7 +34,6 @@ import type {
   BossParty,
   BossSimulationResult,
   Character,
-  CollectionCategory,
   EquipmentSlot,
   Guild,
   GuildDepot,
@@ -344,7 +341,7 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "collections" ? (
-          <CollectionsWindow
+          <CollectionsHall
             character={selectedCharacter}
             guild={guild}
             onEquip={onEquipCollectionItem}
@@ -675,124 +672,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function CollectionsWindow({
-  character,
-  guild,
-  onEquip,
-  onMarkSeen,
-}: {
-  character: Character;
-  guild: Guild;
-  onEquip: (itemId: string) => void;
-  onMarkSeen: () => void;
-}) {
-  const [activeCategory, setActiveCategory] = useState<CollectionCategory>("outfit");
-  const collections = normalizeCollectionsState(guild.collections);
-  const activeCosmetics = getActiveCharacterCosmetics(character, collections);
-  const categories: CollectionCategory[] = ["outfit", "mount", "avatar"];
-  const newCount = collections.newlyUnlockedCollectionItemIds.length;
-
-  useEffect(() => {
-    if (newCount > 0) onMarkSeen();
-  }, [newCount, onMarkSeen]);
-
-  const categoryItems = getCollectionItemsByCategory(activeCategory);
-
-  return (
-    <div className="collections-window">
-      <div className="client-summary-grid">
-        <div>
-          <span>Character</span>
-          <strong>{character.name}</strong>
-        </div>
-        <div>
-          <span>Active Outfit</span>
-          <strong>{activeCosmetics.outfit?.name ?? "None"}</strong>
-        </div>
-        <div>
-          <span>Active Mount</span>
-          <strong>{activeCosmetics.mount?.name ?? "None"}</strong>
-        </div>
-        <div>
-          <span>Active Avatar</span>
-          <strong>{activeCosmetics.avatar?.name ?? "None"}</strong>
-        </div>
-      </div>
-
-      <div className="collection-tabs">
-        {categories.map((category) => {
-          const items = getCollectionItemsByCategory(category);
-          const unlocked = items.filter((item) =>
-            collections.unlockedCollectionItemIds.includes(item.id),
-          ).length;
-
-          return (
-            <button
-              className={activeCategory === category ? "is-selected" : ""}
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              type="button"
-            >
-              {formatCollectionCategory(category)} {unlocked}/{items.length}
-            </button>
-          );
-        })}
-      </div>
-
-      <Panel title={formatCollectionCategory(activeCategory)}>
-        <div className="collection-card-grid">
-          {categoryItems.map((item) => {
-            const unlocked = isCollectionItemUnlocked(collections, item.id);
-            const equipped = isCosmeticEquipped(activeCosmetics.cosmetics, item.id);
-            const vocationAllowed = !item.allowedVocations || item.allowedVocations.includes(character.vocation);
-
-            return (
-              <div
-                className={`collection-card rarity-${item.rarity} ${unlocked ? "is-unlocked" : "is-locked"} ${equipped ? "is-equipped" : ""}`.trim()}
-                key={item.id}
-              >
-                <div className="collection-preview">
-                  <strong>{item.previewValue}</strong>
-                </div>
-                <div>
-                  <span>{item.rarity} / {item.unlockSource}</span>
-                  <strong>{item.name}</strong>
-                  <p>{item.description}</p>
-                  <small>
-                    {equipped
-                      ? "Equipped"
-                      : unlocked
-                        ? "Unlocked"
-                        : item.unlockRequirementText ?? "Locked for a future unlock"}
-                  </small>
-                  {item.allowedVocations ? <em>{item.allowedVocations.join(", ")}</em> : null}
-                </div>
-                <button
-                  disabled={!unlocked || equipped || !vocationAllowed}
-                  onClick={() => onEquip(item.id)}
-                  type="button"
-                >
-                  {equipped ? "Equipped" : unlocked && vocationAllowed ? "Equip" : "Locked"}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </Panel>
-    </div>
-  );
-}
-
-function isCosmeticEquipped(cosmetics: ReturnType<typeof getActiveCharacterCosmetics>["cosmetics"], itemId: string) {
-  return cosmetics.activeOutfitId === itemId || cosmetics.activeMountId === itemId || cosmetics.activeAvatarId === itemId;
-}
-
-function formatCollectionCategory(category: CollectionCategory) {
-  if (category === "outfit") return "Outfits";
-  if (category === "mount") return "Mounts";
-  return "Avatars";
 }
 
 function DailyRewardWindow({

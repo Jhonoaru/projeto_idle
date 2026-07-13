@@ -67,6 +67,7 @@ Atualizado em: 2026-07-13
 - Etapa 37.5 concluida: QA real de Bestiary, Charms e Monster Focus no Tauri/SQLite, com persistencia validada e protecao contra duplicacao por clique duplo.
 - Etapa 38 concluida: rework de Path of Destiny / Wheel como hall amplo, com constelacao de nodes, dossier, categorias e ledger de bonus reais.
 - Etapa 38.5 concluida: QA real de Path of Destiny no Tauri/SQLite, com unlock, prerequisitos, bonus, reset, Save/Reload e clique duplo validados.
+- Etapa 39 concluida: Collections Hall amplo com catalogo, busca, filtros, showcase e loadout ativo para Outfits, Mounts e Avatars.
 
 Comandos principais:
 
@@ -1061,6 +1062,74 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 39 - Rework de Collections Hall.
+
+## Etapa 39 - Rework de Collections Hall
+
+Status: concluida.
+
+Guild Wardrobe Hall:
+
+- Collections agora abre como hall amplo e esconde roster, menu lateral e painel direito.
+- Hero mostra guilda, personagem, vocacao, total desbloqueado, conclusao, novos registros e slots ativos.
+- Outfits, Mounts e Avatars ganharam tabs amplas com sigilos e contadores por categoria.
+- O sistema continua guild-wide para unlocks e por personagem para cosmeticos equipados.
+- Nenhum asset externo, monetizacao, compra premium ou nova moeda foi adicionado.
+
+Catalogo:
+
+- Catalogo compacto mostra preview autoral, rarity, source, nome e estado Locked, Unlocked, New ou Equipped.
+- Busca considera nome, descricao e source.
+- Filtros All, Unlocked e Locked funcionam dentro da categoria ativa.
+- Cards locked escondem o preview real e continuam selecionaveis para consultar o requisito.
+- A selecao agora acompanha o filtro; um item removido do resultado nao permanece preso no showcase.
+
+Cosmetic Showcase:
+
+- O item selecionado mostra preview maior, categoria, source, descricao, status, rarity, vocacao e registro de unlock.
+- Equip continua usando `equipCollectionItem` e suas validacoes reais.
+- Itens locked, ja equipados ou de outra vocacao mantem o comando disabled com motivo visivel.
+- Placeholders de store/event permanecem apenas como registros futuros, sem botao de compra.
+
+Active Loadout:
+
+- O rodape mostra Outfit, Mount e Avatar ativos do personagem.
+- RightCharacterPanel e Character Hall continuam consumindo os mesmos dados normalizados.
+- Abrir Collections continua limpando o badge de novos itens pelo fluxo existente.
+
+Arquivos criados:
+
+- `src/components/collections/CollectionsHall.tsx`.
+
+Arquivos alterados:
+
+- `src/components/layout/MainPanel.tsx`.
+- `src/app/App.tsx`.
+- `src/styles.css`.
+- `docs/PROJECT_STATUS.md`.
+
+QA realizado:
+
+- `npm.cmd run build` passou antes e depois da implementacao.
+- Tauri abriu o SQLite real com 14/26 cosmeticos desbloqueados e 54% de conclusao.
+- Outfits mostrou 5/9, Mounts 3/7 e Avatars 6/10.
+- Iron Guard, No Mount e Shield Emblem apareceram corretamente no loadout de Arkon.
+- Busca por `stag` encontrou somente Forest Stag e exibiu seu requisito futuro.
+- Forest Stag permaneceu locked e com Equip disabled.
+- Filtro Unlocked em Mounts mostrou somente os tres mounts starter.
+- A troca de filtro selecionou automaticamente um item ainda visivel.
+- Viewports 1280x800, 760x900 e 500x900 ficaram sem overflow horizontal.
+- Roster, menu lateral e painel direito ficaram ocultos no modo Collections.
+- SQLite final permaneceu `integrity_check: ok`, 674g e SHA-256 `85f157db80a01a07c6f7213b198eb92af5f290fe8ecc54d8698b00230b11c250`.
+
+Limitacoes:
+
+- Esta etapa nao altera catalogo, fontes de unlock, rarity, schema ou regras de equipamento.
+- A troca real de cosmetico e Save/Reload ficam para a Etapa 39.5 com backup/fixture protegida.
+- Previews continuam autorais em CSS/texto; sprites dedicados ficam para uma etapa futura de assets.
+
+Proximo passo sugerido:
+
+- Etapa 39.5 - QA de Collections Hall no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
