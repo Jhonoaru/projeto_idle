@@ -5199,6 +5199,336 @@ p {
   .character-hall-xp { flex-wrap: wrap; }
 }
 
+.game-layout.is-skills-hall-mode .left-panel,
+.game-layout.is-skills-hall-mode .right-character-panel,
+.game-layout.is-skills-hall-mode .character-side-menu {
+  display: none;
+}
+
+.game-layout.is-skills-hall-mode:has(.game-window-full) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.skills-hall {
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+}
+
+.skills-hall-hero,
+.skills-hall-section {
+  border: 1px solid #343a34;
+  background: #101513;
+}
+
+.skills-hall-hero {
+  display: grid;
+  grid-template-columns: 94px minmax(260px, 1.35fr) minmax(360px, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+}
+
+.skills-hall-seal {
+  display: grid;
+  place-items: center;
+  width: 90px;
+  height: 94px;
+  border: 1px solid #b48f48;
+  border-radius: 5px;
+  background: #171c19;
+  box-shadow: inset 0 0 0 3px #0d110f;
+}
+
+.skills-hall-seal span {
+  color: #f0d383;
+  font-family: Georgia, serif;
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.skills-hall-seal small { color: #9ea89f; }
+
+.skills-hall-identity > span,
+.skills-hall-summary span,
+.skills-hall-card-copy > span,
+.skills-hall-section-heading span,
+.skills-hall-mastery-grid article > span {
+  color: #87938a;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.skills-hall-identity h2 {
+  margin: 3px 0 5px;
+  color: #f0d383;
+  font-family: Georgia, serif;
+  font-size: 1.65rem;
+}
+
+.skills-hall-identity p {
+  max-width: 640px;
+  margin: 0;
+  color: #b9c0b7;
+  line-height: 1.45;
+}
+
+.skills-hall-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.skills-hall-tags em {
+  padding: 4px 7px;
+  border: 1px solid #635535;
+  border-radius: 3px;
+  color: #ddc67f;
+  background: #1b1e18;
+  font-size: 0.63rem;
+  font-style: normal;
+  text-transform: uppercase;
+}
+
+.skills-hall-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.skills-hall-summary > div {
+  min-height: 57px;
+  padding: 8px;
+  border: 1px solid #303730;
+  border-top: 3px solid #657b68;
+  background: #151a17;
+}
+
+.skills-hall-summary > div:nth-child(1) { border-top-color: #d2b568; }
+.skills-hall-summary > div:nth-child(2) { border-top-color: #66a9c8; }
+.skills-hall-summary > div:nth-child(3) { border-top-color: #72b276; }
+.skills-hall-summary > div:nth-child(4) { border-top-color: #a17ab0; }
+.skills-hall-summary strong { display: block; margin-top: 5px; color: #e6e4da; }
+
+.skills-hall-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.skills-hall-actions button,
+.skills-hall-training button,
+.skills-hall-link {
+  min-height: 36px;
+  border: 1px solid #6c5833;
+  border-radius: 4px;
+  color: #e7d29a;
+  background: #1a1f1b;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.skills-hall-actions button:first-child {
+  border-color: #c5a354;
+  color: #19150c;
+  background: #d9b963;
+}
+
+.skills-hall-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(270px, 0.65fr);
+  gap: 11px;
+  min-width: 0;
+}
+
+.skills-hall-section {
+  min-width: 0;
+  padding: 11px;
+}
+
+.skills-hall-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 34px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2d332e;
+}
+
+.skills-hall-section-heading strong { color: #f0d383; }
+
+.skills-hall-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.skills-hall-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 8px 10px;
+  min-width: 0;
+  min-height: 122px;
+  padding: 9px;
+  border: 1px solid #303730;
+  border-radius: 5px;
+  background: #151a17;
+}
+
+.skills-hall-card.is-recommended {
+  border-color: #8f7844;
+  background: #1d2119;
+}
+
+.skills-hall-card.is-training {
+  box-shadow: inset 3px 0 #62a8c7;
+}
+
+.skills-hall-card-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid #5d654f;
+  border-radius: 4px;
+  color: #e7d083;
+  background: #0c110f;
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.skills-hall-card-copy { min-width: 0; }
+.skills-hall-card-copy h3 { margin: 2px 0 4px; color: #e7dfc8; font-size: 0.95rem; }
+.skills-hall-card-copy p { margin: 0; color: #89938a; font-size: 0.68rem; line-height: 1.35; }
+.skills-hall-card > strong { color: #f0d383; font-size: 1.45rem; }
+
+.skills-hall-card-progress {
+  grid-column: 1 / -1;
+  height: 7px;
+  overflow: hidden;
+  border: 1px solid #30372f;
+  background: #080c0a;
+}
+
+.skills-hall-card-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #667a53, #d3ba68);
+}
+
+.skills-hall-card > small { color: #879188; font-size: 0.63rem; }
+.skills-hall-card > em {
+  justify-self: end;
+  color: #d6bd72;
+  font-size: 0.61rem;
+  font-style: normal;
+  text-transform: uppercase;
+}
+.skills-hall-card > em.is-active { color: #69b7d7; }
+
+.skills-hall-sidebar {
+  display: grid;
+  align-content: start;
+  gap: 11px;
+  min-width: 0;
+}
+
+.skills-hall-plan {
+  display: grid;
+  gap: 7px;
+}
+
+.skills-hall-plan > div {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 9px;
+  min-height: 61px;
+  padding: 8px;
+  border: 1px solid #303730;
+  background: #151a17;
+}
+
+.skills-hall-plan > div > span {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  border: 1px solid #625331;
+  color: #d8bd71;
+  background: #101411;
+  font-weight: 900;
+}
+
+.skills-hall-plan strong { color: #dcd9cf; font-size: 0.78rem; }
+.skills-hall-plan p { margin: 4px 0 0; color: #879188; font-size: 0.66rem; line-height: 1.35; }
+
+.skills-hall-training {
+  display: grid;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid #303730;
+  background: #151a17;
+}
+
+.skills-hall-training.is-active { border-color: #4f8294; }
+.skills-hall-training > span { color: #879188; font-size: 0.66rem; text-transform: uppercase; }
+.skills-hall-training strong { color: #e7dfc8; }
+.skills-hall-training p { margin: 0; color: #9da69d; font-size: 0.7rem; line-height: 1.4; }
+.skills-hall-training button { margin-top: 3px; }
+
+.skills-hall-mastery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.skills-hall-mastery-grid article {
+  min-width: 0;
+  min-height: 128px;
+  padding: 9px;
+  border: 1px solid #303730;
+  border-top: 3px solid #59635b;
+  background: #151a17;
+}
+
+.skills-hall-mastery-grid article.is-active { border-top-color: #d2b568; }
+.skills-hall-mastery-grid h3 { margin: 4px 0; overflow-wrap: anywhere; color: #ded9c9; font-size: 0.86rem; }
+.skills-hall-mastery-grid strong { color: #f0d383; }
+.skills-hall-mastery-grid article > div { height: 6px; margin: 8px 0 5px; overflow: hidden; background: #080c0a; }
+.skills-hall-mastery-grid article i { display: block; height: 100%; background: #758863; }
+.skills-hall-mastery-grid small { color: #7f8b81; font-size: 0.62rem; }
+.skills-hall-mastery-grid p { margin: 8px 0 0; color: #aeb5ac; font-size: 0.67rem; }
+
+.skills-hall-link {
+  width: 100%;
+  margin-top: 9px;
+}
+
+@media (max-width: 1180px) {
+  .skills-hall-hero { grid-template-columns: 82px minmax(0, 1fr); }
+  .skills-hall-seal { width: 78px; height: 84px; }
+  .skills-hall-summary { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .skills-hall-layout { grid-template-columns: 1fr; }
+  .skills-hall-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .skills-hall-hero,
+  .skills-hall-grid,
+  .skills-hall-sidebar,
+  .skills-hall-mastery-grid { grid-template-columns: 1fr; }
+  .skills-hall-seal { justify-self: center; }
+  .skills-hall-identity { text-align: center; }
+  .skills-hall-tags { justify-content: center; }
+  .skills-hall-summary,
+  .skills-hall-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .skills-hall-card { grid-template-columns: 44px minmax(0, 1fr) auto; }
+}
+
 .game-window-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

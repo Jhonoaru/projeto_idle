@@ -57,6 +57,7 @@ Atualizado em: 2026-07-13
 - Etapa 32.5 concluida: QA interativo do novo Explorar/Hunt Scene, com fluxo de selecao, duracao, entrada e saida do combate, modal central e controles contextuais validados.
 - Etapa 33 concluida: rework visual de Details como Character Hall, com selecao de personagem integrada, perfil, atributos, equipamentos, skills e progresso da guilda em uma tela ampla.
 - Etapa 33.5 concluida: QA do Character Hall no Tauri/SQLite, com selecao, Inventory e Save/Reload validados e correcao do retorno indevido para Home.
+- Etapa 34 concluida: rework visual de Skills como Skill Hall, com progresso real, caminhos da vocacao, plano de desenvolvimento, treinamento atual e resumo de Weapon Proficiency.
 
 Comandos principais:
 
@@ -479,6 +480,56 @@ Limitacoes da QA:
 Proximo passo sugerido:
 
 - Etapa 34 - Rework visual de Skills e progressao do personagem.
+
+## Etapa 34 - Rework visual de Skills e progressao do personagem
+
+Status: concluida.
+
+Arquivos criados:
+
+- `src/components/character/SkillsProgressionPanel.tsx`.
+
+Arquivos alterados:
+
+- `src/app/App.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/styles.css`.
+- `docs/PROJECT_STATUS.md`.
+
+Implementado:
+
+- A aba Skills agora abre um Skill Hall amplo e esconde roster, menu lateral e painel direito para priorizar a progressao do personagem.
+- O perfil mostra vocacao, papel, skill principal, media das skills, soma dos niveis e quantidade de perks ativos.
+- As sete skills reais do personagem aparecem em cards com nivel, progresso e afinidade com os caminhos da vocacao.
+- O plano de desenvolvimento destaca a skill principal, shielding e a Weapon Proficiency ativa.
+- O estado de treino atual mostra skill, duracao e progresso quando o personagem esta treinando.
+- O resumo de Weapon Mastery reutiliza niveis, progresso e perks reais das proficiencias existentes.
+- Os atalhos Training Grounds, Weapon Mastery e Path of Destiny abrem os sistemas reais ja implementados.
+- A troca de aba ou personagem agora restaura o scroll do conteudo para o topo.
+
+QA visual e funcional:
+
+- O Skill Hall foi aberto no Vite com os dados reais do mock local.
+- Em 1280 px, ocupou toda a area util sem manter o painel de personagem duplicado.
+- Em viewport de 760 px, nao houve overflow horizontal e cards, resumo e masteries responderam corretamente.
+- O comando Training Grounds abriu o painel real de Training.
+- O comando Weapon Mastery abriu Weapon Proficiency e o retorno para Skills restaurou o scroll no topo.
+- O console apresentou apenas a falha esperada do plugin SQLite fora do runtime Tauri.
+
+Bugs encontrados e corrigidos:
+
+- O painel direito continuava aparecendo abaixo do Skill Hall porque o seletor usava uma classe incorreta; o modo agora oculta `.right-character-panel`.
+- A posicao de scroll da aba anterior era reutilizada em Skills e podia cortar o topo do perfil; o container agora volta ao inicio ao trocar de aba ou personagem.
+
+Limitacoes:
+
+- Esta etapa altera apresentacao e navegacao; regras, ganho de skill, treino, Weapon Proficiency e save nao foram modificados.
+- Os selos das skills continuam textuais e nao usam sprites ou assets externos.
+- O QA interativo foi feito no Vite. O Tauri/SQLite nao foi reexecutado porque nao houve alteracao de schema, migration ou persistencia.
+
+Proximo passo sugerido:
+
+- Etapa 34.5 - QA de Skills e progressao no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
@@ -6,7 +6,7 @@ import { BossPanel } from "../boss/BossPanel";
 import { DeathPanel } from "../death/DeathPanel";
 import { TempleServicesPanel } from "../death/TempleServicesPanel";
 import { ExploreWindow } from "../explore/ExploreWindow";
-import { SkillList } from "../character/SkillList";
+import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
 import { ForgePanel } from "../forge/ForgePanel";
 import { CharacterDepotPanel } from "../inventory/CharacterDepotPanel";
@@ -290,6 +290,12 @@ export function MainPanel({
   onApplyForgeImbuement,
   onRemoveForgeImbuements,
 }: MainPanelProps) {
+  const tabContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    tabContentRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [activeTab, selectedCharacter.id]);
+
   return (
     <section className="main-panel">
       {activeTab === "home" ? (
@@ -328,11 +334,11 @@ export function MainPanel({
       <GameWindow
         icon={getWindowIcon(activeTab)}
         onClose={() => onChangeTab("home")}
-        size={activeTab === "skills" || activeTab === "blessings" ? "medium" : "full"}
+        size={activeTab === "blessings" ? "medium" : "full"}
         subtitle={getWindowSubtitle(activeTab)}
         title={getWindowTitle(activeTab)}
       >
-      <div className="tab-content client-window-content">
+      <div className="tab-content client-window-content" ref={tabContentRef}>
         {activeTab === "character" ? (
           <CharacterDetails
             character={selectedCharacter}
@@ -344,9 +350,7 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "skills" ? (
-          <Panel title={`${selectedCharacter.name} Skills`}>
-            <SkillList character={selectedCharacter} skills={selectedCharacter.skills} />
-          </Panel>
+          <SkillsProgressionPanel character={selectedCharacter} onOpenTab={onChangeTab} />
         ) : null}
 
         {activeTab === "blessings" ? (
