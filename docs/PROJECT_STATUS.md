@@ -74,6 +74,7 @@ Atualizado em: 2026-07-13
 - Etapa 41 concluida: Ranking reformulado como Hall of Renown local, com podio, quatro metricas reais, tabela completa e dossier do personagem.
 - Etapa 41.5 concluida: QA real do Ranking Hall no Tauri/SQLite, com quatro metricas, selecao, Save/Reload e ausencia de mutacao validados.
 - Etapa 42 concluida: Store reformulado como Cosmetic Showcase local, com 12 previews, filtros, integracao com Collections e nenhuma monetizacao.
+- Etapa 42.5 concluida: QA real do Cosmetic Showcase no Tauri/SQLite, com catalogo, filtros, preview, Collections, Save/Reload e ausencia de monetizacao validados.
 
 Comandos principais:
 
@@ -1469,6 +1470,56 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 42.5 - QA do Cosmetic Showcase no Tauri/SQLite.
+
+## Etapa 42.5 - QA do Cosmetic Showcase no Tauri/SQLite
+
+Status: concluida como QA de estabilizacao, sem alteracao de gameplay.
+
+Fixture e protecao do save:
+
+- O save SQLite original foi copiado antes do teste e validado com `PRAGMA integrity_check`.
+- O fixture desbloqueou somente `outfit-rat-catcher`, mantendo `newlyUnlockedCollectionItemIds` vazio.
+- A vitrine reconheceu 1 dos 12 registros como desbloqueado sem criar estado paralelo.
+- Ao final, o banco original foi restaurado byte a byte com o mesmo SHA-256 e `integrity_check=ok`.
+
+Catalogo, filtros e preview:
+
+- Cosmetic Showcase abriu no Tauri com 12 registros, 1 desbloqueado, 4 previews futuros e Purchases Disabled.
+- Rat Catcher mostrou Collection State como Unlocked e o aviso de que ja estava disponivel no Collections Hall.
+- Outfits + Future mostrou somente Noble Adventurer, totalizando 1/12 visivel.
+- Mounts + Future mostrou Ash Wolf e Merchant Cart, totalizando 2/12 visiveis.
+- Selecionar os cards atualizou o dossier central sem alterar guilda, personagem, inventario ou Collections.
+- Nao apareceram comandos Buy, Purchase ou Checkout, nem precos, premium ou moeda paga.
+
+Integracao com Collections:
+
+- Open Collections navegou para o Aurora Wardrobe Hall real.
+- Collections exibiu 15/26 desbloqueios, 58% de conclusao, zero novos registros e Rat Catcher desbloqueado.
+- O showcase nao duplicou unlock, nao marcou badge novo e nao equipou cosmetico automaticamente.
+
+Save/Reload e somente leitura:
+
+- Save e Reload foram acionados na janela desktop e Store foi reaberto em seguida.
+- O estado persistido manteve 674 gold, 15 unlocks no fixture, Rat Catcher uma unica vez e `newlyUnlockedCollectionItemIds` vazio.
+- Guilda, personagens, inventario e Collections permaneceram semanticamente iguais ao fixture.
+- O unico activity log novo foi o esperado `Save salvo com sucesso`; navegar, filtrar e selecionar previews nao criou logs de gameplay.
+
+Validacao:
+
+- `npm.cmd run build` passou antes do QA com 274 modulos.
+- QA interativo foi executado no runtime Tauri por cliques reais e capturas da janela desktop.
+- Nenhum bug funcional ou visual foi encontrado; somente esta documentacao foi alterada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- O showcase permanece deliberadamente somente leitura; unlock e equip continuam no Collections Hall.
+- Sigilos e silhuetas continuam em CSS/texto, sem assets externos.
+- Responsividade mobile nao foi retestada nesta etapa desktop.
+
+Proximo passo sugerido:
+
+- Etapa 43 - Rework de Updates / Changelog Hall local.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
