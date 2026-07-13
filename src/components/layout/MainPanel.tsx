@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
-import { ActionSummaryCard } from "../action/ActionSummaryCard";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { BossPanel } from "../boss/BossPanel";
 import { DeathPanel } from "../death/DeathPanel";
@@ -137,6 +136,7 @@ interface MainPanelProps {
   offlineReport?: import("../../shared/types").OfflineCatchUpReport;
   saveStatus?: string;
   onChangeTab: (tab: MainPanelTab) => void;
+  onSelectCharacter: (characterId: string) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -235,6 +235,7 @@ export function MainPanel({
   offlineReport,
   saveStatus,
   onChangeTab,
+  onSelectCharacter,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -327,36 +328,19 @@ export function MainPanel({
       <GameWindow
         icon={getWindowIcon(activeTab)}
         onClose={() => onChangeTab("home")}
-        size={activeTab === "character" || activeTab === "skills" || activeTab === "blessings" ? "medium" : "full"}
+        size={activeTab === "skills" || activeTab === "blessings" ? "medium" : "full"}
         subtitle={getWindowSubtitle(activeTab)}
         title={getWindowTitle(activeTab)}
       >
       <div className="tab-content client-window-content">
         {activeTab === "character" ? (
-          <>
-          <CharacterDetails character={selectedCharacter} guild={guild} />
-          {selectedCharacter.status === "dead" ? (
-            <Panel title="Death Report">
-              <DeathPanel character={selectedCharacter} onRevive={onReviveCharacter} />
-            </Panel>
-          ) : null}
-          <Panel title="Temple Services">
-            <TempleServicesPanel
-              character={selectedCharacter}
-              guild={guild}
-              onBuyBlessing={onBuyBlessing}
-            />
-          </Panel>
-          <Panel title="Acao Atual">
-            <ActionSummaryCard
-              character={selectedCharacter}
-              onViewAction={() => onChangeTab("action")}
-            />
-          </Panel>
-          <Panel title="Skills">
-            <SkillList character={selectedCharacter} skills={selectedCharacter.skills} />
-          </Panel>
-          </>
+          <CharacterDetails
+            character={selectedCharacter}
+            characters={characters}
+            guild={guild}
+            onOpenTab={onChangeTab}
+            onSelectCharacter={onSelectCharacter}
+          />
         ) : null}
 
         {activeTab === "skills" ? (

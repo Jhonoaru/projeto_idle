@@ -1735,7 +1735,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""}`.trim()}>
+      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -1773,6 +1773,7 @@ export function App() {
           onRemoveCharm={handleRemoveCharm}
           onRemoveForgeImbuements={handleRemoveForgeImbuements}
           onSelectBoss={handleSelectBoss}
+          onSelectCharacter={setSelectedCharacterId}
           onSelectHunt={setSelectedHunt}
           onClearSelectedHunt={() => setSelectedHunt(undefined)}
           onEquipItem={handleEquipItem}

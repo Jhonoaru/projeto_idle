@@ -55,6 +55,7 @@ Atualizado em: 2026-07-13
 - Ajuste pos-Etapa 32.1: Explorar/Hunts agora abre primeiro apenas a lista de hunts; assignment aparece somente apos selecionar uma hunt e foi simplificada para escolher duracao e iniciar.
 - Ajuste pos-Etapa 32.2: Details virou tela inicial, Explorar sempre abre limpo, iniciar hunt envia direto para a Hunt Scene e o modo combate esconde roster/painel direito com analyzer lateral.
 - Etapa 32.5 concluida: QA interativo do novo Explorar/Hunt Scene, com fluxo de selecao, duracao, entrada e saida do combate, modal central e controles contextuais validados.
+- Etapa 33 concluida: rework visual de Details como Character Hall, com selecao de personagem integrada, perfil, atributos, equipamentos, skills e progresso da guilda em uma tela ampla.
 
 Comandos principais:
 
@@ -384,6 +385,57 @@ Limitacoes da QA:
 Proximo passo sugerido:
 
 - Etapa 33 - Rework visual da tela inicial `Details` e selecao de personagem.
+
+## Etapa 33 - Rework visual de Details e selecao de personagem
+
+Status: concluida.
+
+Objetivo:
+
+- Transformar `Details` em uma tela inicial de gerenciamento da guilda e dos personagens.
+- Permitir selecionar qualquer aventureiro diretamente na tela, sem depender do roster lateral.
+- Reunir informacoes importantes em uma composicao ampla, compacta e inspirada em client MMORPG.
+
+Arquivos alterados:
+
+- `src/app/App.tsx`.
+- `src/components/character/CharacterDetails.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/styles.css`.
+
+Implementado:
+
+- Novo `Character Hall` full-width na aba Details.
+- Roster horizontal da guilda com personagem selecionado, status, level, vocacao e skill principal.
+- Selecao real de personagem conectada ao estado principal do app.
+- Perfil do aventureiro com cidade, status, outfit, mount, HP, mana, stamina e progresso de XP.
+- Atalhos para escolher atividade, abrir Inventory, Skills e Destiny.
+- Resumo de combate com attack, defense, armor, capacity, critico, skill principal, mastery e blessing.
+- Grade compacta dos nove slots de equipamento usando o `ItemIcon` existente.
+- Painel de skills com levels e progresso individual.
+- Guild Record com Destiny, quests, acessos, mortes, gold gerado e bonus de equipamento.
+- No modo Character Hall, roster lateral, menu lateral e painel direito ficam ocultos para entregar toda a largura a tela inicial.
+- Layout responsivo com quatro colunas no desktop, duas em largura intermediaria e uma em viewport compacta.
+
+Validacao:
+
+- `npm.cmd run build` passou.
+- `git diff --check` passou antes da documentacao final.
+- QA interativo no browser confirmou troca de Arkon para Ayla e atualizacao do perfil selecionado.
+- O atalho Inventory abriu `Inventory & Equipment` pelo fluxo real da navegacao.
+- Em 1280 px, o Character Hall ocupou 1219 px sem reservar espaco para os paineis ocultos.
+- Em viewport de 760 px, os paineis foram empilhados em uma coluna e nao houve overflow horizontal.
+- A captura visual compacta confirmou roster legivel, botoes contidos e ausencia de sobreposicao.
+
+Limitacoes:
+
+- Retratos e cosmeticos continuam usando siglas/previews textuais existentes; nao foram adicionados sprites ou assets externos.
+- O QA interativo foi feito no Vite com mock local. O erro de SQLite no console e esperado fora do runtime Tauri.
+- Nenhum schema, migration ou formato de save foi alterado.
+
+Proximo passo sugerido:
+
+- Etapa 33.5 - QA da tela inicial Details e selecao de personagem no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
