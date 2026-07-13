@@ -6731,103 +6731,307 @@ p {
   place-items: center;
 }
 
-.daily-reward-window {
-  display: grid;
-  gap: 12px;
+.game-layout.is-daily-hall-mode .left-panel,
+.game-layout.is-daily-hall-mode .right-character-panel,
+.game-layout.is-daily-hall-mode .character-side-menu {
+  display: none;
 }
 
-.daily-reward-grid {
+.game-layout.is-daily-hall-mode:has(.game-window-full) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.daily-hall {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
+  min-width: 0;
 }
 
-.daily-reward-card {
-  min-height: 170px;
-  padding: 10px;
-  border: 1px solid #30352f;
-  border-radius: 7px;
-  background: #151a17;
+.daily-hall-hero,
+.daily-cycle-board,
+.daily-dispatch-dossier,
+.daily-claim-ledger {
+  min-width: 0;
+  border: 1px solid #3b3b35;
+  background: #101513;
 }
 
-.daily-reward-card.is-current {
-  border-color: #d8b96a;
-  background: #211e13;
+.daily-hall-hero {
+  display: grid;
+  grid-template-columns: 94px minmax(280px, 1fr) minmax(560px, 1.5fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
 }
 
-.daily-reward-card.is-claimed {
-  border-color: rgba(113, 166, 111, 0.65);
-  background: #172217;
+.daily-hall-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 90px;
+  height: 94px;
+  overflow: hidden;
+  border: 1px solid #a68a4b;
+  background: #181d1a;
+  box-shadow: inset 0 0 0 4px #0c100e;
 }
 
-.daily-reward-card span,
-.daily-reward-card em,
-.daily-history-list span,
-.daily-history-list small {
-  display: block;
-  color: #aeb7aa;
-  font-size: 0.72rem;
-  font-style: normal;
+.daily-hall-seal i {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 1px solid #657167;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 8px #171d19, inset 0 0 0 9px #7b7048;
+}
+
+.daily-hall-seal i::before,
+.daily-hall-seal i::after {
+  position: absolute;
+  top: 28px;
+  width: 72px;
+  height: 1px;
+  content: "";
+  background: #6f6644;
+}
+
+.daily-hall-seal i::before { left: -5px; transform: rotate(45deg); }
+.daily-hall-seal i::after { right: -5px; transform: rotate(-45deg); }
+
+.daily-hall-seal span {
+  position: relative;
+  z-index: 1;
+  color: #efd58a;
+  font-family: Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 900;
+}
+
+.daily-hall-identity > span,
+.daily-hall-summary span,
+.daily-section-heading span,
+.daily-cycle-card-topline span,
+.daily-cycle-card-copy small,
+.daily-dispatch-content > div > span,
+.daily-delivery-note span,
+.daily-ledger-list small,
+.daily-streak-rule span {
+  color: #89938d;
+  font-size: 0.64rem;
   text-transform: uppercase;
 }
 
-.daily-reward-card strong {
+.daily-hall-identity h3,
+.daily-section-heading h3,
+.daily-dispatch-content h4 {
+  margin: 3px 0;
+  color: #ead18c;
+  font-family: Georgia, serif;
+  letter-spacing: 0;
+}
+
+.daily-hall-identity p { margin: 0; color: #b8c0ba; }
+
+.daily-hall-summary {
   display: grid;
-  place-items: center;
-  min-height: 42px;
-  margin-top: 8px;
-  border: 1px solid #3b4238;
-  border-radius: 6px;
-  color: #f1d58c;
-  background: #101410;
-  font-size: 0.9rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
 }
 
-.daily-reward-card h3 {
-  margin: 9px 0 0;
-  color: #f1d58c;
-  font-size: 0.9rem;
-}
-
-.daily-reward-card p {
-  margin: 6px 0 0;
-  color: #c8d0c1;
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
-.daily-claim-card {
-  display: grid;
-  gap: 6px;
-}
-
-.daily-claim-card button:disabled {
-  cursor: not-allowed;
-  opacity: 0.58;
-}
-
-.daily-history-list {
-  display: grid;
-  gap: 8px;
-}
-
-.daily-history-list div {
-  display: grid;
-  grid-template-columns: 70px minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
-  min-height: 44px;
-  padding: 8px 10px;
-  border: 1px solid #30352f;
-  border-radius: 6px;
+.daily-hall-summary > div {
+  min-height: 60px;
+  padding: 9px;
+  border: 1px solid #343b36;
+  border-top: 3px solid #7f754b;
   background: #151a17;
 }
 
-.daily-history-list strong {
-  color: #f1d58c;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.daily-hall-summary > div.is-available { border-top-color: #82a76d; }
+.daily-hall-summary > div.is-claimed { border-top-color: #617a82; }
+.daily-hall-summary strong { display: block; margin-top: 7px; color: #efe0b4; font-size: 0.9rem; overflow-wrap: anywhere; }
+
+.daily-cycle-board,
+.daily-dispatch-dossier,
+.daily-claim-ledger { padding: 11px; }
+
+.daily-section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  min-height: 42px;
+  margin-bottom: 9px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #303630;
+}
+
+.daily-section-heading > strong { color: #cbb879; font-size: 0.72rem; }
+
+.daily-cycle-track {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(125px, 1fr));
+  gap: 6px;
+}
+
+.daily-cycle-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 255px;
+  padding: 8px;
+  border: 1px solid #303832;
+  border-top: 3px solid #4b544d;
+  background: #151a17;
+}
+
+.daily-cycle-card.is-current { border-color: #a98c46; background: #1e2018; box-shadow: inset 0 0 0 1px #605331; }
+.daily-cycle-card.is-claimed { border-top-color: #6e9b6a; background: #172019; }
+.daily-cycle-card.is-completed { border-top-color: #5f7462; }
+.daily-cycle-card.is-upcoming { opacity: 0.68; }
+
+.daily-cycle-card-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  align-items: center;
+  min-height: 18px;
+}
+
+.daily-cycle-card-topline em { color: #8f998f; font-size: 0.55rem; font-style: normal; text-transform: uppercase; }
+.daily-cycle-card.is-current .daily-cycle-card-topline em { color: #e0bd63; }
+.daily-cycle-card.is-claimed .daily-cycle-card-topline em,
+.daily-cycle-card.is-completed .daily-cycle-card-topline em { color: #8eb48a; }
+
+.daily-reward-sigil {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 12px auto 10px;
+  border: 1px solid #6b735e;
+  background: #20251f;
+  box-shadow: inset 0 0 0 4px #151a17;
+}
+
+.daily-reward-sigil i { position: absolute; inset: 8px; border: 1px solid #4e5a50; transform: rotate(45deg); }
+.daily-reward-sigil span { position: relative; z-index: 1; color: #dccb87; font-family: Georgia, serif; font-size: 0.8rem; font-weight: 900; }
+.daily-reward-sigil.type-gold { border-radius: 50%; border-color: #92783f; }
+.daily-reward-sigil.type-gold i { border-radius: 50%; transform: none; }
+.daily-reward-sigil.type-supply { border-color: #686d7a; }
+.daily-reward-sigil.type-supply span { color: #b8c8d8; }
+.daily-reward-sigil.type-material { border-color: #7a6f67; }
+.daily-reward-sigil.type-material span { color: #c7b6aa; }
+.daily-reward-sigil.type-collection { border-radius: 50%; border-color: #768b69; }
+.daily-reward-sigil.type-collection i { border-radius: 50%; transform: none; }
+.daily-reward-sigil.type-collection span { color: #a9ca93; }
+.daily-reward-sigil.is-featured { width: 112px; height: 112px; margin: 0; }
+.daily-reward-sigil.is-featured span { font-size: 1.15rem; }
+
+.daily-cycle-card-copy { flex: 1; min-width: 0; }
+.daily-cycle-card-copy h4 { margin: 4px 0; color: #dfcc93; font-family: Georgia, serif; font-size: 0.75rem; line-height: 1.2; overflow-wrap: anywhere; }
+.daily-cycle-card-copy p { margin: 0; color: #9fa9a1; font-size: 0.63rem; line-height: 1.35; }
+
+.daily-cycle-value {
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+  margin-top: 8px;
+  border: 1px solid #3a433b;
+  color: #e3ce8c;
+  background: #0f1411;
+  font-size: 0.72rem;
+}
+
+.daily-hall-lower {
+  display: grid;
+  grid-template-columns: minmax(520px, 1.3fr) minmax(340px, 0.7fr);
+  gap: 9px;
+  align-items: stretch;
+}
+
+.daily-dispatch-dossier.is-ready { border-top: 3px solid #a68945; }
+.daily-dispatch-dossier.is-claimed { border-top: 3px solid #5e7665; }
+
+.daily-dispatch-content {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 134px;
+  padding: 10px;
+  border: 1px solid #303832;
+  background: #151a17;
+}
+
+.daily-dispatch-content h4 { font-size: 1.05rem; }
+.daily-dispatch-content p { margin: 6px 0 10px; color: #b8c0ba; font-size: 0.74rem; line-height: 1.45; }
+.daily-delivery-note { display: flex; gap: 8px; align-items: baseline; }
+.daily-delivery-note strong { color: #d6c89f; font-size: 0.72rem; }
+
+.daily-claim-command {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 8px 14px;
+  border: 1px solid #b08f43;
+  border-radius: 2px;
+  color: #17130d;
+  background: #d0ad58;
+  text-align: left;
+  cursor: pointer;
+}
+
+.daily-claim-command span { font-weight: 900; text-transform: uppercase; }
+.daily-claim-command strong { font-size: 0.72rem; }
+.daily-claim-command:disabled { border-color: #414741; color: #879088; background: #222824; cursor: not-allowed; }
+
+.daily-ledger-list { display: grid; gap: 5px; }
+.daily-ledger-list > div { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 45px; padding: 6px 8px; border: 1px solid #303832; background: #151a17; }
+.daily-ledger-list > div > span { display: grid; place-items: center; width: 24px; height: 24px; border: 1px solid #696344; color: #dac77f; font-family: Georgia, serif; font-size: 0.65rem; }
+.daily-ledger-list strong { display: block; margin-top: 2px; color: #ddcfaa; font-size: 0.7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.daily-ledger-list time { color: #8c978f; font-size: 0.6rem; white-space: nowrap; }
+
+.daily-ledger-empty { display: grid; min-height: 150px; place-content: center; gap: 5px; padding: 12px; border: 1px dashed #3b433c; color: #909a92; text-align: center; }
+.daily-ledger-empty > span { display: grid; place-items: center; width: 44px; height: 44px; margin: 0 auto 4px; border: 1px solid #696344; border-radius: 50%; color: #d8c37b; font-family: Georgia, serif; }
+.daily-ledger-empty strong { color: #d8cca8; }
+.daily-ledger-empty p { margin: 0; font-size: 0.7rem; }
+
+.daily-streak-rule { margin-top: 7px; padding: 8px; border: 1px solid #343b36; border-left: 3px solid #687e70; background: #151a17; }
+.daily-streak-rule p { margin: 4px 0 0; color: #aeb7b0; font-size: 0.67rem; line-height: 1.4; }
+
+@media (max-width: 1180px) {
+  .daily-hall-hero { grid-template-columns: 90px minmax(0, 1fr); }
+  .daily-hall-summary { grid-column: 1 / -1; }
+  .daily-cycle-track { grid-template-columns: repeat(4, minmax(140px, 1fr)); }
+  .daily-cycle-card:last-child { grid-column: span 2; }
+}
+
+@media (max-width: 820px) {
+  .daily-hall-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .daily-cycle-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .daily-cycle-card:last-child { grid-column: auto; }
+  .daily-hall-lower { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .daily-hall-hero { grid-template-columns: 1fr; text-align: center; }
+  .daily-hall-seal { justify-self: center; }
+  .daily-hall-summary,
+  .daily-cycle-track { grid-template-columns: 1fr; }
+  .daily-section-heading { align-items: start; flex-direction: column; }
+  .daily-cycle-card { min-height: 220px; }
+  .daily-dispatch-content { grid-template-columns: 1fr; text-align: center; }
+  .daily-reward-sigil.is-featured { justify-self: center; }
+  .daily-delivery-note { justify-content: center; }
+  .daily-claim-command { align-items: start; flex-direction: column; }
+  .daily-ledger-list > div { grid-template-columns: 26px minmax(0, 1fr); }
+  .daily-ledger-list time { grid-column: 2; }
 }
 
 .destiny-grid {

@@ -6,6 +6,7 @@ import { MonsterFocusHall } from "../bestiary/MonsterFocusHall";
 import { BossPanel } from "../boss/BossPanel";
 import { BlessingsHall } from "../death/BlessingsHall";
 import { CollectionsHall } from "../collections/CollectionsHall";
+import { DailyRewardHall } from "../daily/DailyRewardHall";
 import { DestinyHall } from "../destiny/DestinyHall";
 import { ExploreWindow } from "../explore/ExploreWindow";
 import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
@@ -23,11 +24,6 @@ import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
 import { getCollectionItemById } from "../../data/collections";
-import { dailyRewards } from "../../data/dailyRewards";
-import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
-import { getCurrentDailyReward } from "../../game-engine/daily-reward/getCurrentDailyReward";
-import { getDailyRewardPreview } from "../../game-engine/daily-reward/getDailyRewardPreview";
-import { normalizeDailyRewardState } from "../../game-engine/daily-reward/normalizeDailyRewardState";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
   Boss,
@@ -580,7 +576,7 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "daily" ? (
-          <DailyRewardWindow guild={guild} onClaim={onClaimDailyReward} />
+          <DailyRewardHall guild={guild} onClaim={onClaimDailyReward} />
         ) : null}
         {activeTab === "ranking" ? <RankingWindow characters={characters} /> : null}
         {activeTab === "store" ? <StoreWindow /> : null}
@@ -672,102 +668,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function DailyRewardWindow({
-  guild,
-  onClaim,
-}: {
-  guild: Guild;
-  onClaim: () => void;
-}) {
-  const dailyReward = normalizeDailyRewardState(guild.dailyReward);
-  const currentReward = getCurrentDailyReward(dailyReward);
-  const canClaim = canClaimDailyReward(dailyReward);
-  const latestClaim = dailyReward.claimHistory.at(-1);
-  const latestClaimedToday = dailyReward.claimedToday ? latestClaim : undefined;
-
-  return (
-    <div className="daily-reward-window">
-      <div className="client-summary-grid">
-        <div>
-          <span>Status</span>
-          <strong>{canClaim ? "Available today" : "Already claimed today"}</strong>
-        </div>
-        <div>
-          <span>Current Streak</span>
-          <strong>{dailyReward.currentStreak} day{dailyReward.currentStreak === 1 ? "" : "s"}</strong>
-        </div>
-        <div>
-          <span>Total Claims</span>
-          <strong>{dailyReward.totalClaims}</strong>
-        </div>
-        <div>
-          <span>{canClaim ? "Reward" : "Next Reward"}</span>
-          <strong>{currentReward?.label ?? "Gold fallback"}</strong>
-        </div>
-      </div>
-
-      <Panel title="Seven Day Cycle">
-        <div className="daily-reward-grid">
-          {dailyRewards.map((reward) => {
-            const status = getDailyRewardCardStatus(reward.day, dailyReward.cycleDay, latestClaimedToday?.day);
-
-            return (
-              <div className={`daily-reward-card is-${status}`} key={reward.day}>
-                <span>Day {reward.day}</span>
-                <strong>{getDailyRewardPreview(reward)}</strong>
-                <em>{status}</em>
-                <h3>{reward.label}</h3>
-                <p>{reward.description}</p>
-              </div>
-            );
-          })}
-        </div>
-      </Panel>
-
-      <Panel title="Claim">
-        <div className="client-info-card daily-claim-card">
-          <strong>{currentReward?.label ?? "Daily Reward"}</strong>
-          <p>{currentReward?.description ?? "Fallback gold if reward data is unavailable."}</p>
-          <button
-            className="action-command-button"
-            disabled={!canClaim}
-            onClick={onClaim}
-            type="button"
-          >
-            {canClaim ? "Claim Reward" : "Claimed Today"}
-          </button>
-        </div>
-      </Panel>
-
-      <Panel title="Recent Claims">
-        {dailyReward.claimHistory.length > 0 ? (
-          <div className="daily-history-list">
-            {[...dailyReward.claimHistory].reverse().slice(0, 6).map((claim) => (
-              <div key={`${claim.claimedAt}-${claim.day}`}>
-                <span>Day {claim.day}</span>
-                <strong>{claim.label}</strong>
-                <small>{new Date(claim.claimedAt).toLocaleDateString("en-US")}</small>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="client-info-card">
-            <strong>No claims yet</strong>
-            <p>Claim the available reward to start the guild streak.</p>
-          </div>
-        )}
-      </Panel>
-    </div>
-  );
-}
-
-function getDailyRewardCardStatus(day: number, cycleDay: number, claimedTodayDay?: number) {
-  if (claimedTodayDay === day) return "claimed";
-  if (cycleDay === day) return "current";
-
-  return "upcoming";
 }
 
 function RankingWindow({ characters }: { characters: Character[] }) {

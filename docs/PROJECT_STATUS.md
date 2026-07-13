@@ -69,6 +69,7 @@ Atualizado em: 2026-07-13
 - Etapa 38.5 concluida: QA real de Path of Destiny no Tauri/SQLite, com unlock, prerequisitos, bonus, reset, Save/Reload e clique duplo validados.
 - Etapa 39 concluida: Collections Hall amplo com catalogo, busca, filtros, showcase e loadout ativo para Outfits, Mounts e Avatars.
 - Etapa 39.5 concluida: QA real de Collections Hall no Tauri/SQLite, com badge, equip dos tres slots, Save/Reload e clique duplo validados.
+- Etapa 40 concluida: Daily Reward reformulado como Guild Daily Ledger amplo, com calendario de sete dias, dispatch em destaque e historico compacto.
 
 Comandos principais:
 
@@ -1188,6 +1189,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 40 - Rework de Daily Reward Hall.
+
+## Etapa 40 - Rework de Daily Reward Hall
+
+Status: concluida.
+
+Novo Guild Daily Ledger:
+
+- Daily Reward deixou o painel generico embutido no `MainPanel` e ganhou componente dedicado em `src/components/daily/DailyRewardHall.tsx`.
+- O hall usa toda a area central e esconde roster, menu lateral e painel direito enquanto estiver aberto.
+- Hero mostra status diario, streak atual, total de claims e `guild.gold` real.
+- Calendario exibe os sete dias simultaneamente com tipo, sigilo, descricao, valor e estado current/completed/claimed/upcoming.
+- A recompensa atual ganhou dossier proprio com destino de entrega real: Guild Treasury, Guild Depot ou Collections.
+- Botao de claim mostra o valor antes do resgate e muda para estado disabled depois do claim.
+- Historico mostra ate sete claims recentes e informa o limite persistido de 20 registros.
+- A regra de streak ficou visivel sem adicionar compra, premium, restore ou monetizacao.
+
+Integracoes preservadas:
+
+- `onClaimDailyReward` e a engine da Etapa 25 continuam sendo a unica rota de resgate.
+- Streak, `cycleDay`, claim unico local, fallback de gold, Guild Depot e Collections nao tiveram regra alterada.
+- Badge da Topbar continua derivado de `canClaimDailyReward`.
+- Save mapper, repository e schema SQLite nao precisaram de mudanca.
+- Nenhuma recompensa, preco ou dado de balanceamento foi alterado.
+
+Validacao:
+
+- `npm.cmd run build` passou com 272 modulos.
+- Browser local validou abertura do hall, sete cards, ausencia de overflow horizontal em 1280x720 e rolagem interna da janela.
+- Claim no mock local atualizou status para claimed, marcou Day 1, avancou o proximo dispatch para Day 2 e desabilitou o botao.
+- Breakpoints de 1180px, 820px e 520px foram adicionados e revisados por leitura; o controlador visual nao aplicou viewport mobile real nesta etapa.
+- O erro de SQLite observado no browser e esperado fora do runtime Tauri e acionou corretamente o mock local.
+- Permanece somente o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Claim, badge e Save/Reload ainda precisam de reteste no runtime Tauri com fixture SQLite protegida.
+- O hall usa sigilos CSS e texto, sem assets externos ou protegidos.
+- O ciclo permanece simples em sete dias e sem anti-cheat de relogio local.
+
+Proximo passo sugerido:
+
+- Etapa 40.5 - QA do Daily Reward Hall no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
