@@ -66,6 +66,7 @@ Atualizado em: 2026-07-13
 - Etapa 37 concluida: Hunting Research Hall conectando Bestiary, dossiers, Charms e Monster Focus em telas amplas.
 - Etapa 37.5 concluida: QA real de Bestiary, Charms e Monster Focus no Tauri/SQLite, com persistencia validada e protecao contra duplicacao por clique duplo.
 - Etapa 38 concluida: rework de Path of Destiny / Wheel como hall amplo, com constelacao de nodes, dossier, categorias e ledger de bonus reais.
+- Etapa 38.5 concluida: QA real de Path of Destiny no Tauri/SQLite, com unlock, prerequisitos, bonus, reset, Save/Reload e clique duplo validados.
 
 Comandos principais:
 
@@ -1010,6 +1011,56 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 38.5 - QA de Path of Destiny / Wheel no Tauri/SQLite.
+
+## Etapa 38.5 - QA de Path of Destiny / Wheel
+
+Status: concluida.
+
+Fixture protegida:
+
+- O SQLite original foi copiado byte a byte antes do teste.
+- A fixture temporaria colocou Arkon no level 80, com 15 Destiny Points, path vazio e 10.000g.
+- A acao atual foi neutralizada somente na fixture para impedir interferencia do offline catch-up.
+- Nenhum dado da fixture permaneceu no save principal.
+
+QA funcional:
+
+- `Adventurer's Will`, `Battle Instinct` e `Shield Discipline` foram desbloqueados em sequencia.
+- Cada unlock recebeu dois eventos no mesmo tick e consumiu apenas um ponto.
+- O estado persistido ficou com 3 pontos gastos, 12 disponiveis e os tres IDs na ordem correta.
+- O ledger exibiu Health +2%, Attack +2% e Defense +3%.
+- Atributos derivados foram recalculados depois de cada unlock e persistidos no SQLite.
+- `Last Defender` permaneceu bloqueado por `Missing prerequisite` enquanto `Heavy Training` nao estava ativo.
+- Save/Reload restaurou os tres nodes, os 12 pontos e os bonus ativos.
+
+Reset e duplicacao:
+
+- Reset calculou o custo real de 3.000g para tres nodes.
+- Dois eventos no mesmo tick abriram um unico dialogo, descontaram gold uma vez e criaram um unico log.
+- A guilda ficou com 7.000g na fixture, path vazio e 15 pontos disponiveis.
+- Outro Save/Reload confirmou que o reset persistiu.
+- O QA encontrou que o segundo evento de unlock/reset era bloqueado corretamente, mas criava um log `Destiny blocked` desnecessario.
+- `src/app/App.tsx` agora ignora silenciosamente o evento repetido coberto pelo lock, sem esconder erros reais da engine.
+
+Restauracao e validacao:
+
+- O save original foi reaberto no Tauri com Guilda Aurora, Arkon level 1 e 674g.
+- SQLite final permaneceu `integrity_check: ok`.
+- O arquivo final corresponde ao backup com SHA-256 `85f157db80a01a07c6f7213b198eb92af5f290fe8ecc54d8698b00230b11c250`.
+- O backup temporario foi removido apos a confirmacao do hash.
+- `npm.cmd run build` passou antes e depois da correcao com 270 modulos.
+- Nao existem scripts separados de test, lint ou typecheck no `package.json`.
+- Permanece apenas o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- O teste cobriu a rota inicial e o primeiro node Guardian; os demais nodes usam a mesma engine e ficam sujeitos ao balanceamento futuro.
+- Nao foram alterados custos, bonus, pontos por level, schema ou regras de progressao.
+- Reset continua exigindo confirmacao nativa e gold da guilda.
+
+Proximo passo sugerido:
+
+- Etapa 39 - Rework de Collections Hall.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

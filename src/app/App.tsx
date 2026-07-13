@@ -1319,7 +1319,6 @@ export function App() {
   function handleUnlockDestinyNode(nodeId: string) {
     const resolutionKey = `unlock-${selectedCharacter.id}-${nodeId}`;
     if (resolvingDestinyRef.current.has(resolutionKey)) {
-      prependLog("Destiny blocked", "Destiny node is already being unlocked.", "warning");
       return;
     }
 
@@ -1345,7 +1344,6 @@ export function App() {
   function handleResetDestinyPath() {
     const resolutionKey = `reset-${selectedCharacter.id}`;
     if (resolvingDestinyRef.current.has(resolutionKey)) {
-      prependLog("Destiny blocked", "Path reset is already being processed.", "warning");
       return;
     }
 
