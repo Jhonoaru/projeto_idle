@@ -15,6 +15,7 @@ import {
   markSaveLoaded,
   resetSave,
   saveGameState,
+  waitForPendingSaves,
   type GameStateSnapshot,
 } from "../database/saveGameRepository";
 import { bosses } from "../data/bosses";
@@ -324,6 +325,7 @@ export function App() {
     }
 
     try {
+      setSaveStatus("Salvando...");
       await saveGameState(database, { guild, characters, depot, logs });
       setSaveStatus("Save salvo com sucesso.");
       prependLog("Save", "Save salvo com sucesso.", "success");
@@ -342,6 +344,8 @@ export function App() {
 
     try {
       saveReadyRef.current = false;
+      setSaveStatus("Carregando save...");
+      await waitForPendingSaves();
       const loadedState = await loadGameState(database);
       const metadata = await loadSaveMetadata(database);
       const catchUp = loadedState
@@ -402,6 +406,8 @@ export function App() {
 
     try {
       saveReadyRef.current = false;
+      setSaveStatus("Resetando save...");
+      await waitForPendingSaves();
       const resetState = await resetSave(database);
       applyGameState({
         ...resetState,
@@ -1835,13 +1841,15 @@ export function App() {
   );
 }
 
+let logEntrySequence = 0;
+
 function createLogEntry(
   title: string,
   message: string,
   tone: ActivityLogEntry["tone"],
 ): ActivityLogEntry {
   return {
-    id: `log-${Date.now()}`,
+    id: `log-${Date.now()}-${logEntrySequence++}`,
     timestamp: new Date().toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",

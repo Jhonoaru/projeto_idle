@@ -27,6 +27,7 @@ export function TopBar({
   onResetSave,
 }: TopBarProps) {
   const dailyAvailable = canClaimDailyReward(guild.dailyReward);
+  const saveBusy = Boolean(saveStatus?.endsWith("..."));
 
   return (
     <header className="top-bar">
@@ -71,9 +72,9 @@ export function TopBar({
         </div>
         <div className="save-controls" aria-label="Save controls">
           <span>{saveStatus ?? "SQLite local"}</span>
-          <button onClick={onManualSave} title="Save now" type="button">Save</button>
-          <button onClick={onReloadSave} title="Reload local save" type="button">Reload</button>
-          <button onClick={onResetSave} title="Reset local save" type="button">Reset</button>
+          <button disabled={saveBusy} onClick={onManualSave} title="Save now" type="button">Save</button>
+          <button disabled={saveBusy} onClick={onReloadSave} title="Reload local save" type="button">Reload</button>
+          <button disabled={saveBusy} onClick={onResetSave} title="Reset local save" type="button">Reset</button>
         </div>
       </div>
     </header>

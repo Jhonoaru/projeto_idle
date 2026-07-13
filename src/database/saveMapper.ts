@@ -240,13 +240,39 @@ export function mapLog(row: LogRow): ActivityLogEntry {
 
 function mapSkills(characterId: string, skillRows: SkillRow[]): SkillSet {
   const characterSkillRows = skillRows.filter((row) => row.character_id === characterId);
+  const defaultSkills = mockCharacters.find((character) => character.id === characterId)?.skills;
+  const hasBelowBaselineSkill = characterSkillRows.some((row) => {
+    const baseline = defaultSkills?.[row.skill_name as SkillName];
+    return baseline ? row.level < baseline.level : false;
+  });
   const getSkill = (skillName: SkillName) => {
     const row = characterSkillRows.find((entry) => entry.skill_name === skillName);
+    const baseline = defaultSkills?.[skillName];
+
+    if (!row) {
+      return baseline ?? { name: skillName, level: 10, progressPercent: 0 };
+    }
+
+    const looksLikeLegacyFallback =
+      hasBelowBaselineSkill &&
+      row.level === 10 &&
+      row.progress_percent === 0 &&
+      baseline &&
+      baseline.level !== 10;
+
+    if (baseline && (row.level < baseline.level || looksLikeLegacyFallback)) {
+      return baseline;
+    }
+
+    const progressPercent =
+      baseline && row.level === baseline.level
+        ? Math.max(row.progress_percent, baseline.progressPercent)
+        : row.progress_percent;
 
     return {
       name: skillName,
-      level: row?.level ?? 10,
-      progressPercent: row?.progress_percent ?? 0,
+      level: row.level,
+      progressPercent,
     };
   };
 

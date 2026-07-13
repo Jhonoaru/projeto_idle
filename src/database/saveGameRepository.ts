@@ -47,6 +47,8 @@ export interface SaveMetadataSnapshot {
   lastOfflineCatchupAt?: string | null;
 }
 
+let pendingSave: Promise<void> = Promise.resolve();
+
 export function createInitialGameState(): GameStateSnapshot {
   return {
     guild: mockGuild,
@@ -71,18 +73,38 @@ export async function loadGameState(db: Database): Promise<GameStateSnapshot | n
     db.select<LogRow[]>("SELECT * FROM activity_logs ORDER BY created_at DESC LIMIT 80"),
   ]);
 
+  const mappedCharacters = characterRows.map((row) =>
+    mapCharacter(row, skillRows, inventoryRows, guild),
+  );
+  const missingDefaultCharacters = mockCharacters.filter(
+    (defaultCharacter) => !mappedCharacters.some((character) => character.id === defaultCharacter.id),
+  );
+  const partialDefaultSave = missingDefaultCharacters.length > 0;
+  const characters = [
+    ...mockCharacters.map(
+      (defaultCharacter) =>
+        mappedCharacters.find((character) => character.id === defaultCharacter.id) ?? defaultCharacter,
+    ),
+    ...mappedCharacters.filter(
+      (character) => !mockCharacters.some((defaultCharacter) => defaultCharacter.id === character.id),
+    ),
+  ];
+  const savedDepotItems = inventoryRows
+    .filter((row) => row.owner_type === OWNER_TYPES.guildDepot)
+    .map(mapInventoryItem);
+  const savedLogs = logRows.map(mapLog);
+  const restoredLogs = partialDefaultSave
+    ? [...savedLogs, ...mockLogs.filter((log) => !savedLogs.some((savedLog) => savedLog.id === log.id))]
+    : savedLogs;
+
   return {
     guild,
-    characters: characterRows.map((row) =>
-      mapCharacter(row, skillRows, inventoryRows, guild),
-    ),
+    characters,
     depot: {
       goldStored: 0,
-      items: inventoryRows
-        .filter((row) => row.owner_type === OWNER_TYPES.guildDepot)
-        .map(mapInventoryItem),
+      items: partialDefaultSave && savedDepotItems.length === 0 ? mockDepot.items : savedDepotItems,
     },
-    logs: logRows.map(mapLog),
+    logs: dedupeLogs(restoredLogs),
   };
 }
 
@@ -123,7 +145,17 @@ export async function markOfflineCatchUpApplied(db: Database, now = new Date().t
   );
 }
 
-export async function saveGameState(db: Database, state: GameStateSnapshot) {
+export function saveGameState(db: Database, state: GameStateSnapshot) {
+  const saveOperation = pendingSave.then(() => persistGameState(db, state));
+  pendingSave = saveOperation.catch(() => undefined);
+  return saveOperation;
+}
+
+export async function waitForPendingSaves() {
+  await pendingSave;
+}
+
+async function persistGameState(db: Database, state: GameStateSnapshot) {
   const now = new Date().toISOString();
 
   await clearSaveTables(db);
@@ -134,7 +166,7 @@ export async function saveGameState(db: Database, state: GameStateSnapshot) {
   }
 
   await saveGuildDepot(db, state.guild.id, state.depot, now);
-  await saveLogs(db, state.guild.id, state.logs.slice(0, 80), now);
+  await saveLogs(db, state.guild.id, dedupeLogs(state.logs).slice(0, 80), now);
   await db.execute(
     `INSERT OR REPLACE INTO save_metadata (
       id,
@@ -161,7 +193,6 @@ export async function saveGameState(db: Database, state: GameStateSnapshot) {
 
 export async function resetSave(db: Database): Promise<GameStateSnapshot> {
   const initialState = createInitialGameState();
-  await clearSaveTables(db);
   await saveGameState(db, initialState);
   return initialState;
 }
@@ -419,4 +450,14 @@ async function saveLogs(
 
 function stringifyNullable(value: unknown) {
   return value ? JSON.stringify(value) : null;
+}
+
+function dedupeLogs(logs: ActivityLogEntry[]) {
+  const seenIds = new Set<string>();
+
+  return logs.filter((log) => {
+    if (!log.id || seenIds.has(log.id)) return false;
+    seenIds.add(log.id);
+    return true;
+  });
 }

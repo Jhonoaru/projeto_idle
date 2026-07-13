@@ -657,6 +657,55 @@ Proximo passo sugerido:
 
 - Etapa 35.5 - QA de Training Grounds e Weapon Proficiency no Tauri/SQLite.
 
+## Etapa 35.5 - QA de Training Grounds e Weapon Proficiency no Tauri/SQLite
+
+Status: concluida com QA real e correcoes de persistencia.
+
+Validacoes no Tauri:
+
+- O app nativo carregou o save SQLite real, sem fallback para os mocks.
+- Lyra abriu Training Grounds com Magic 61, progresso 27%, sete skills e quatro programas Offline habilitados.
+- Com 674g, os programas Exercise de 2.000g, 4.000g e 8.000g permaneceram corretamente desabilitados.
+- A selecao de Shielding atualizou disciplina, selo e dados dos programas sem iniciar treino.
+- Ayla carregou a sessao real `Distance drills`, Distance 82 e progresso 64%; novos programas ficaram bloqueados enquanto ocupada.
+- Weapon Proficiency mostrou oito trilhas, Wand como mastery ativa de Lyra e os filtros Magic e Equipped funcionando.
+- A finalizacao simulada nao foi acionada para preservar a progressao do save usado no QA.
+
+Bugs encontrados e corrigidos:
+
+- Save e Reload podiam executar ao mesmo tempo; Reload conseguia ler as tabelas entre o `DELETE` e a reinsercao dos registros.
+- Saves agora entram em uma fila unica e Reload/Reset aguardam qualquer escrita pendente.
+- Save, Reload e Reset ficam desabilitados enquanto uma operacao de persistencia esta em andamento.
+- Uma carga parcial dos personagens padrao agora restaura personagens, skills basais e Guild Depot ausentes sem remover personagens personalizados.
+- Skills ausentes ou abaixo do baseline conhecido dos personagens padrao sao normalizadas na carga de saves parciais/legados.
+- O offline catch-up podia criar varios logs com o mesmo id no mesmo milissegundo; os novos ids usam sequencia local.
+- Logs duplicados sao deduplicados na carga e antes da escrita, evitando chave repetida no React e `UNIQUE constraint failed` no SQLite.
+
+Recuperacao e persistencia:
+
+- O QA reproduziu a corrida e deixou o banco momentaneamente com dois personagens; a nova normalizacao recuperou os cinco personagens padrao e seus dados basais.
+- Apos a recuperacao, o banco ficou com `integrity_check: ok`, 1 guilda, 5 personagens, 35 skills, 26 itens e nenhum id de log duplicado.
+- Save/Reload controlado manteve os cinco personagens, Ayla em Training e Distance 82/64%.
+- O hash do arquivo mudou por causa da recuperacao e dos saves de validacao; o estado funcional foi conferido por consultas SQLite e carga no app.
+
+Arquivos alterados:
+
+- `src/app/App.tsx`.
+- `src/components/layout/TopBar.tsx`.
+- `src/database/saveGameRepository.ts`.
+- `src/database/saveMapper.ts`.
+- `docs/PROJECT_STATUS.md`.
+
+Limitacoes:
+
+- O plugin SQL usado pelo projeto nao expoe transacao explicita nesta camada; a fila protege operacoes concorrentes dentro do app, mas encerramento forcado durante uma escrita ainda nao tem garantia transacional completa.
+- A restauracao automatica usa baseline apenas para os cinco personagens padrao; dados historicos personalizados ausentes de um banco ja truncado nao podem ser reconstruidos.
+- Nenhum ganho de skill, gasto de gold ou conclusao de treino foi aplicado durante este QA.
+
+Proximo passo sugerido:
+
+- Etapa 36 - continuar o rework dos sistemas de progressao do personagem.
+
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
 Validado/corrigido:
