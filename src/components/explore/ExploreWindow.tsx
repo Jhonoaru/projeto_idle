@@ -30,6 +30,7 @@ interface ExploreWindowProps {
   character: Character;
   durationMinutes: number;
   hunts: HuntArea[];
+  guildGold: number;
   lastBossResult?: BossSimulationResult;
   lastQuestResult?: {
     success: boolean;
@@ -48,6 +49,7 @@ interface ExploreWindowProps {
   onFinishBoss: () => void;
   onFinishQuest: (quest: Quest) => void;
   onFinishTraining: () => void;
+  onOpenSkills: () => void;
   onClearSelectedHunt: () => void;
   onSelectBoss: (boss: Boss) => void;
   onSelectHunt: (hunt: HuntArea) => void;
@@ -77,6 +79,7 @@ export function ExploreWindow({
   character,
   durationMinutes,
   hunts,
+  guildGold,
   lastBossResult,
   lastQuestResult,
   lastTrainingResult,
@@ -90,6 +93,7 @@ export function ExploreWindow({
   onFinishBoss,
   onFinishQuest,
   onFinishTraining,
+  onOpenSkills,
   onClearSelectedHunt,
   onSelectBoss,
   onSelectHunt,
@@ -233,8 +237,10 @@ export function ExploreWindow({
           />
           <TrainingPanel
             character={character}
+            guildGold={guildGold}
             lastResult={lastTrainingResult}
             onFinishTraining={onFinishTraining}
+            onOpenSkills={onOpenSkills}
             onStartTraining={onStartTraining}
           />
         </div>

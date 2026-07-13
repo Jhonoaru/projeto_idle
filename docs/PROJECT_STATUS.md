@@ -59,6 +59,7 @@ Atualizado em: 2026-07-13
 - Etapa 33.5 concluida: QA do Character Hall no Tauri/SQLite, com selecao, Inventory e Save/Reload validados e correcao do retorno indevido para Home.
 - Etapa 34 concluida: rework visual de Skills como Skill Hall, com progresso real, caminhos da vocacao, plano de desenvolvimento, treinamento atual e resumo de Weapon Proficiency.
 - Etapa 34.5 concluida: QA do Skill Hall no Tauri/SQLite, com navegacao, troca de personagem, save/reload e normalizacao de treinos legados sem `targetSkill`.
+- Etapa 35 concluida: rework visual de Training Grounds e Weapon Proficiency, com halls amplos, filtros, programas de treino, custos, equipamento ativo e trilhas de perks.
 
 Comandos principais:
 
@@ -583,6 +584,78 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 35 - Rework visual de Weapon Proficiency e Training Grounds.
+
+## Etapa 35 - Rework visual de Weapon Proficiency e Training Grounds
+
+Status: concluida.
+
+Training Grounds:
+
+- Nova tela ampla com perfil, disciplina selecionada, progresso, gold da guilda e status atual.
+- Seletor visual das sete skills com level, progresso e destaque dos caminhos recomendados pela vocacao.
+- Programas separados em Offline e Exercise por controle segmentado.
+- Duracao, custo e ganho esperado continuam calculados pelos dados e engine reais existentes.
+- Exercise Training fica desabilitado quando `guild.gold` nao cobre o custo.
+- Personagem ocupado nao pode trocar skill nem iniciar outro programa.
+- Sessao ativa mostra label, horario, disciplina e acao de finalizar o treino simulado.
+- O painel continua disponivel tanto pelo Skill Hall quanto pelo modo Training de Explorar.
+
+Weapon Proficiency:
+
+- Novo Mastery Hall amplo com equipamento principal, offhand, soma de levels e perks desbloqueados.
+- Loadout ativo mostra as masteries equipadas e os bonus percentuais aplicados no momento.
+- Filtros All, Equipped, Melee, Ranged, Magic e Defense.
+- Oito trilhas reais de mastery com level, XP, progresso e marcos de perks nos levels 2, 5 e 10.
+- Masteries do equipamento atual recebem destaque visual sem alterar as regras de bonus.
+
+Navegacao e layout:
+
+- Training e Weapon Proficiency escondem roster, menu lateral e painel direito para usar toda a area do client.
+- Ambos possuem retorno direto ao Skill Hall.
+- Trocas de aba/personagem agora restauram tambem o scroll global da pagina, evitando abrir uma nova tela no meio em viewports compactos.
+- Novos subtitulos e icones T/P foram adicionados ao GameWindow.
+
+QA visual no Vite:
+
+- Arkon abriu Training com Sword selecionada, quatro programas Offline e sete skills.
+- A selecao de Distance atualizou selo, resumo, custos e ganhos esperados.
+- Com 420g, os tres programas Exercise de 2.000g, 4.000g e 8.000g ficaram desabilitados.
+- Ayla abriu com `Distance drills`, Distance 82 e todos os novos inicios bloqueados durante a sessao ativa.
+- Mastery Hall exibiu oito masteries para Arkon e duas masteries no filtro Equipped: Sword e Shield.
+- Ayla exibiu Bow Mastery como equipamento ativo e nenhum shield.
+- Em viewport de 760 px, Training e Mastery responderam sem overflow horizontal.
+- O console apresentou somente a falha esperada do plugin SQLite fora do runtime Tauri.
+
+Bugs encontrados e corrigidos durante o QA:
+
+- O badge de bonus vazio herdava o estilo quadrado dos codigos de mastery e quebrava o texto; o seletor CSS foi restringido aos cards de equipamento.
+- A navegacao compacta preservava o scroll global da tela anterior; o MainPanel agora restaura o documento e o conteudo interno ao topo.
+
+Arquivos criados:
+
+- `src/components/character/WeaponProficiencyPanel.tsx`.
+
+Arquivos alterados:
+
+- `src/app/App.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/components/explore/ExploreWindow.tsx`.
+- `src/components/training/TrainingPanel.tsx`.
+- `src/components/training/TrainingOptionCard.tsx`.
+- `src/components/training/TrainingResultPanel.tsx`.
+- `src/styles.css`.
+- `docs/PROJECT_STATUS.md`.
+
+Limitacoes:
+
+- Nenhuma regra de ganho, custo, nivel, perk, save ou schema foi alterada nesta etapa visual.
+- Os halls usam selos textuais e CSS; nao foram adicionados sprites ou assets externos.
+- A finalizacao de treino nao foi clicada no QA para nao aplicar progressao durante a validacao visual.
+- O Tauri/SQLite real fica para a Etapa 35.5.
+
+Proximo passo sugerido:
+
+- Etapa 35.5 - QA de Training Grounds e Weapon Proficiency no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

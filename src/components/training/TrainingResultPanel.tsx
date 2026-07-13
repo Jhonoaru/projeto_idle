@@ -9,7 +9,7 @@ export function TrainingResultPanel({ result }: TrainingResultPanelProps) {
   if (!result) return null;
 
   return (
-    <div className="training-result-panel">
+    <section className="training-result-panel">
       <div className="result-title-row">
         <strong>{SKILL_LABELS[result.targetSkill]}</strong>
         <span>{result.trainingType}</span>
@@ -33,6 +33,6 @@ export function TrainingResultPanel({ result }: TrainingResultPanelProps) {
           <strong>{result.cost.toLocaleString("en-US")}g</strong>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

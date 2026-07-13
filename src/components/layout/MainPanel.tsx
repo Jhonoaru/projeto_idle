@@ -7,6 +7,7 @@ import { DeathPanel } from "../death/DeathPanel";
 import { TempleServicesPanel } from "../death/TempleServicesPanel";
 import { ExploreWindow } from "../explore/ExploreWindow";
 import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
+import { WeaponProficiencyPanel } from "../character/WeaponProficiencyPanel";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
 import { ForgePanel } from "../forge/ForgePanel";
 import { CharacterDepotPanel } from "../inventory/CharacterDepotPanel";
@@ -41,16 +42,6 @@ import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-e
 import { canUnlockDestinyNode } from "../../game-engine/destiny/canUnlockDestinyNode";
 import { getDestinyResetCost } from "../../game-engine/destiny/resetDestinyPath";
 import { getVisibleDestinyNodes, normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
-import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
-import {
-  WEAPON_PROFICIENCY_LABELS,
-  WEAPON_PROFICIENCY_PERKS,
-  WEAPON_PROFICIENCY_TYPES,
-} from "../../game-engine/weapon-proficiency/weaponProficiencyDefinitions";
-import {
-  getWeaponProficiencyProgressPercent,
-  normalizeWeaponProficiencies,
-} from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
   Boss,
@@ -294,6 +285,7 @@ export function MainPanel({
 
   useEffect(() => {
     tabContentRef.current?.scrollTo({ top: 0, left: 0 });
+    window.scrollTo({ top: 0, left: 0 });
   }, [activeTab, selectedCharacter.id]);
 
   return (
@@ -380,7 +372,7 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "proficiency" ? (
-          <WeaponProficiencyWindow character={selectedCharacter} />
+          <WeaponProficiencyPanel character={selectedCharacter} onOpenSkills={() => onChangeTab("skills")} />
         ) : null}
 
         {activeTab === "focus" ? (
@@ -440,6 +432,7 @@ export function MainPanel({
             characters={characters}
             character={selectedCharacter}
             durationMinutes={durationMinutes}
+            guildGold={guild.gold}
             hunts={hunts}
             lastBossResult={lastBossResult}
             lastQuestResult={lastQuestResult}
@@ -452,6 +445,7 @@ export function MainPanel({
             onFinishBoss={onFinishBoss}
             onFinishQuest={onFinishQuest}
             onFinishTraining={onFinishTraining}
+            onOpenSkills={() => onChangeTab("skills")}
             onSelectBoss={onSelectBoss}
             onSelectHunt={onSelectHunt}
             onStartBoss={onStartBoss}
@@ -552,14 +546,14 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "training" ? (
-          <Panel title={`${selectedCharacter.name} Training`}>
           <TrainingPanel
             character={selectedCharacter}
+            guildGold={guild.gold}
             lastResult={lastTrainingResult}
             onFinishTraining={onFinishTraining}
+            onOpenSkills={() => onChangeTab("skills")}
             onStartTraining={onStartTraining}
           />
-          </Panel>
         ) : null}
 
         {activeTab === "quests" ? (
@@ -670,6 +664,8 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
+  if (tab === "training") return "Choose a discipline, duration and local training program.";
+  if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "store") return "Client-style preview for a future system.";
   return undefined;
 }
@@ -678,6 +674,8 @@ function getWindowIcon(tab: MainPanelTab) {
   const icons: Partial<Record<MainPanelTab, string>> = {
     character: "D",
     skills: "S",
+    training: "T",
+    proficiency: "P",
     blessings: "B",
     atlas: "A",
     hunts: "E",
@@ -811,73 +809,6 @@ function formatCollectionCategory(category: CollectionCategory) {
   if (category === "outfit") return "Outfits";
   if (category === "mount") return "Mounts";
   return "Avatars";
-}
-
-function WeaponProficiencyWindow({ character }: { character: Character }) {
-  const proficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
-  const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
-  const activeShieldType = getEquippedWeaponProficiencyType(character.equipment.offhand);
-
-  return (
-    <div className="weapon-proficiency-window">
-      <div className="client-summary-grid">
-        <div>
-          <span>Main mastery</span>
-          <strong>{activeWeaponType ? WEAPON_PROFICIENCY_LABELS[activeWeaponType] : "None"}</strong>
-        </div>
-        <div>
-          <span>Shield mastery</span>
-          <strong>{activeShieldType === "shield" ? "Shield Mastery" : "None"}</strong>
-        </div>
-      </div>
-
-      <div className="weapon-proficiency-grid">
-        {WEAPON_PROFICIENCY_TYPES.map((type) => {
-          const progress = proficiencies[type];
-          const progressPercent = Math.round(getWeaponProficiencyProgressPercent(progress));
-          const perks = WEAPON_PROFICIENCY_PERKS[type];
-          const isActive = type === activeWeaponType || type === activeShieldType;
-
-          return (
-            <div
-              className={`weapon-proficiency-card ${isActive ? "is-active" : ""}`.trim()}
-              key={type}
-            >
-              <div className="weapon-proficiency-heading">
-                <div>
-                  <span>{isActive ? "Equipped" : "Mastery"}</span>
-                  <strong>{WEAPON_PROFICIENCY_LABELS[type]}</strong>
-                </div>
-                <em>Lv {progress.level}</em>
-              </div>
-              <div className="level-progress-track" aria-hidden="true">
-                <span style={{ width: `${progressPercent}%` }} />
-              </div>
-              <p>
-                {progress.experience.toLocaleString("en-US")} XP /{" "}
-                {progress.level >= 20
-                  ? "Max level"
-                  : `${progress.experienceToNextLevel.toLocaleString("en-US")} to next`}
-              </p>
-              <div className="weapon-perk-list">
-                {perks.map((perk) => {
-                  const unlocked = progress.unlockedPerkIds.includes(perk.id);
-
-                  return (
-                    <div className={unlocked ? "is-unlocked" : ""} key={perk.id}>
-                      <span>Level {perk.requiredLevel}</span>
-                      <strong>{perk.name}</strong>
-                      <small>{unlocked ? "Unlocked" : "Locked"} / {perk.description}</small>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
 }
 
 function MonsterFocusWindow({
