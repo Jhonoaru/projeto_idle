@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-44",
+    stage: "Stage 44",
+    title: "Guild Field Codex",
+    date: "2026-07-13",
+    category: "interface",
+    summary: "Wiki became a searchable local reference built from the installed vocations, hunts, bosses, quests and system rules.",
+    highlights: [
+      "Thirty-four records cover adventurers, exploration, progression and guild services.",
+      "Category filters, keyword search and selectable dossiers organize the client knowledge base.",
+      "The codex is read-only, works offline and does not modify the SQLite save.",
+    ],
+    systems: ["Wiki", "Game data", "Client navigation"],
+    featured: true,
+  },
+  {
     id: "stage-43",
     stage: "Stage 43",
     title: "Release Archive",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The archive is bundled locally and does not download patches or contact online services.",
     ],
     systems: ["Updates", "Client navigation", "Local archive"],
-    featured: true,
   },
   {
     id: "stage-42",

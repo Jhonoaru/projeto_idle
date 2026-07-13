@@ -9286,6 +9286,242 @@ p {
 .updates-era-ledger p { margin: 4px 0 0; color: #9da79f; font-size: 0.63rem; line-height: 1.35; }
 .updates-empty { display: grid; min-height: 180px; place-content: center; border: 1px dashed #394139; color: #929c94; text-align: center; }
 
+.game-layout.is-codex-hall-mode .left-panel,
+.game-layout.is-codex-hall-mode .right-character-panel,
+.game-layout.is-codex-hall-mode .character-side-menu {
+  display: none;
+}
+
+.game-layout.is-codex-hall-mode:has(.game-window-full) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.codex-hall {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.codex-hall-hero,
+.codex-category-tabs,
+.codex-index-board,
+.codex-entry-dossier,
+.codex-route-ledger {
+  min-width: 0;
+  border: 1px solid #3b3b35;
+  background: #101513;
+}
+
+.codex-hall-hero {
+  display: grid;
+  grid-template-columns: 94px minmax(280px, 1fr) minmax(560px, 1.5fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+}
+
+.codex-hall-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 90px;
+  height: 94px;
+  overflow: hidden;
+  border: 1px solid #9f8448;
+  background: #191d1a;
+  box-shadow: inset 0 0 0 4px #0c100e;
+}
+
+.codex-hall-seal i,
+.codex-hall-seal i::before,
+.codex-hall-seal i::after {
+  position: absolute;
+  content: "";
+}
+
+.codex-hall-seal i {
+  width: 58px;
+  height: 66px;
+  border: 1px solid #647068;
+  background: #20251f;
+  clip-path: polygon(50% 0, 94% 14%, 88% 82%, 50% 100%, 12% 82%, 6% 14%);
+}
+
+.codex-hall-seal i::before { top: 15px; left: 12px; width: 32px; height: 1px; background: #8d7a48; box-shadow: 0 10px 0 #8d7a48, 0 20px 0 #8d7a48; }
+.codex-hall-seal i::after { top: 13px; left: 27px; width: 1px; height: 40px; background: #4f5e56; }
+.codex-hall-seal span { position: relative; z-index: 1; color: #efd58a; font-family: Georgia, serif; font-size: 1.25rem; font-weight: 900; }
+
+.codex-hall-identity > span,
+.codex-hall-summary span,
+.codex-section-heading span,
+.codex-fact-grid span,
+.codex-guidance > span,
+.codex-related-systems > span,
+.codex-record-status > span {
+  color: #89938d;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+}
+
+.codex-hall-identity h3,
+.codex-section-heading h3,
+.codex-dossier-identity h3 {
+  margin: 3px 0;
+  color: #ead18c;
+  font-family: Georgia, serif;
+  letter-spacing: 0;
+}
+
+.codex-hall-identity p { margin: 0; color: #b8c0ba; }
+
+.codex-hall-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.codex-hall-summary > div,
+.codex-fact-grid > div {
+  min-width: 0;
+  min-height: 60px;
+  padding: 9px;
+  border: 1px solid #343b36;
+  border-top: 3px solid #77764e;
+  background: #151a17;
+}
+
+.codex-hall-summary strong,
+.codex-fact-grid strong { display: block; margin-top: 7px; color: #efe0b4; font-size: 0.86rem; overflow-wrap: anywhere; }
+
+.codex-local-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 44px;
+  padding: 7px 10px;
+  border: 1px solid #455249;
+  border-left: 4px solid #78906f;
+  color: #aeb8b0;
+  background: #151c18;
+}
+
+.codex-local-banner span { color: #a7c193; font-size: 0.63rem; text-transform: uppercase; }
+.codex-local-banner strong { font-size: 0.7rem; font-weight: 500; }
+.codex-local-banner em { color: #dac77d; font-size: 0.65rem; font-style: normal; font-weight: 900; text-transform: uppercase; }
+
+.codex-category-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.codex-category-tabs button { display: grid; grid-template-columns: 42px minmax(0, 1fr); grid-template-rows: auto auto; gap: 2px 9px; align-items: center; min-width: 0; min-height: 60px; padding: 8px 10px; border: 0; border-right: 1px solid #303630; color: #aab2ac; background: transparent; text-align: left; cursor: pointer; }
+.codex-category-tabs button:last-child { border-right: 0; }
+.codex-category-tabs button.is-active { color: #ecd38d; background: #1a211c; box-shadow: inset 0 -3px 0 #a88d4c; }
+.codex-category-tabs button > span { grid-row: 1 / 3; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #657067; color: #d7c77f; background: #20251f; font-family: Georgia, serif; font-size: 0.58rem; font-weight: 900; }
+.codex-category-tabs strong { min-width: 0; overflow: hidden; font-family: Georgia, serif; font-size: 0.78rem; text-overflow: ellipsis; white-space: nowrap; }
+.codex-category-tabs small { color: #7f8a82; font-size: 0.56rem; text-transform: uppercase; }
+
+.codex-hall-workspace { display: grid; grid-template-columns: minmax(600px, 1.42fr) minmax(360px, 0.75fr); gap: 9px; align-items: stretch; }
+.codex-index-board,
+.codex-entry-dossier,
+.codex-route-ledger { padding: 11px; }
+
+.codex-section-heading { display: flex; justify-content: space-between; gap: 12px; align-items: end; min-height: 42px; margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px solid #303630; }
+.codex-section-heading > strong { max-width: 48%; color: #c0b37f; font-size: 0.68rem; text-align: right; }
+
+.codex-search-field { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; min-height: 40px; margin-bottom: 8px; padding: 5px 8px; border: 1px solid #303832; background: #131815; }
+.codex-search-field span { color: #869188; font-size: 0.61rem; text-transform: uppercase; }
+.codex-search-field input { width: 100%; min-height: 28px; padding: 4px 8px; border: 1px solid #39423b; border-radius: 2px; color: #d8ddd8; background: #0e1311; font: inherit; }
+
+.codex-entry-list { display: grid; gap: 6px; max-height: 505px; padding: 2px; overflow-y: auto; }
+.codex-entry-card { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px; align-items: center; min-width: 0; min-height: 80px; padding: 8px; border: 1px solid #303832; border-left: 3px solid #7c7048; border-radius: 2px; color: #cbd0ca; background: #151a17; text-align: left; cursor: pointer; }
+.codex-entry-card.is-adventurers { border-left-color: #657e84; }
+.codex-entry-card.is-exploration { border-left-color: #758c68; }
+.codex-entry-card.is-progression { border-left-color: #846f91; }
+.codex-entry-card.is-services { border-left-color: #8d754c; }
+.codex-entry-card.is-selected { outline: 2px solid #c5a958; outline-offset: -2px; background: #1c211b; }
+.codex-entry-card > i { display: grid; place-items: center; width: 48px; height: 52px; border: 1px solid #687168; color: #dccb87; background: #20251f; font-family: Georgia, serif; font-size: 0.66rem; font-style: normal; font-weight: 900; }
+.codex-entry-card > span { min-width: 0; }
+.codex-entry-card small { display: block; overflow: hidden; color: #829087; font-size: 0.56rem; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.codex-entry-card strong { display: block; margin: 4px 0; color: #e2d09a; font-size: 0.78rem; }
+.codex-entry-card p { margin: 0; color: #9da79f; font-size: 0.66rem; line-height: 1.35; }
+.codex-entry-card > em { align-self: start; padding: 4px 6px; border: 1px solid #3c453e; color: #aa9a65; background: #111613; font-size: 0.54rem; font-style: normal; text-transform: uppercase; }
+
+.codex-entry-dossier { display: flex; flex-direction: column; }
+.codex-dossier-identity { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 11px; align-items: center; padding: 11px; border: 1px solid #343b36; background: #151a17; }
+.codex-dossier-identity > span { display: grid; place-items: center; width: 74px; height: 78px; border: 1px solid #776943; color: #e2c978; background: #20231d; font-family: Georgia, serif; font-size: 0.82rem; font-weight: 900; }
+.codex-dossier-identity.is-adventurers > span { color: #8fb0b8; border-color: #506d73; }
+.codex-dossier-identity.is-exploration > span { color: #a2bd8c; border-color: #5f754f; }
+.codex-dossier-identity.is-progression > span { color: #c2a4ca; border-color: #705c76; }
+.codex-dossier-identity small { color: #89938d; font-size: 0.6rem; text-transform: uppercase; }
+.codex-dossier-identity p { margin: 5px 0 0; color: #b9c0ba; font-size: 0.7rem; line-height: 1.4; }
+
+.codex-fact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.codex-fact-grid > div { min-height: 54px; border-top-width: 1px; }
+.codex-fact-grid strong { font-size: 0.72rem; }
+
+.codex-guidance,
+.codex-related-systems,
+.codex-record-status { margin-top: 8px; padding: 10px; border: 1px solid #303830; background: #151a17; }
+.codex-guidance { display: grid; gap: 6px; }
+.codex-guidance article { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; align-items: center; min-height: 46px; padding: 6px; border: 1px solid #303832; background: #111613; }
+.codex-guidance article i { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid #657067; color: #d9c77e; font-size: 0.65rem; font-style: normal; font-weight: 900; }
+.codex-guidance article p { margin: 0; color: #b7beb8; font-size: 0.67rem; line-height: 1.4; }
+.codex-related-systems > div { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.codex-related-systems strong { padding: 5px 7px; border: 1px solid #475149; color: #cfc6a0; background: #1c211d; font-size: 0.61rem; }
+.codex-record-status { display: grid; gap: 4px; margin-top: auto; border-left: 3px solid #748b69; }
+.codex-record-status strong { color: #d9ca94; font-size: 0.76rem; }
+.codex-record-status small { color: #939e96; font-size: 0.64rem; line-height: 1.35; }
+
+.codex-route-ledger > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.codex-route-ledger article { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 8px; min-height: 72px; padding: 8px; border: 1px solid #303832; background: #151a17; }
+.codex-route-ledger article > span { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #657067; color: #d8c77e; font-family: Georgia, serif; font-size: 0.65rem; font-weight: 900; }
+.codex-route-ledger article strong { color: #ddcfa5; font-size: 0.72rem; }
+.codex-route-ledger article p { margin: 4px 0 0; color: #9da79f; font-size: 0.63rem; line-height: 1.35; }
+.codex-empty { display: grid; min-height: 180px; place-content: center; border: 1px dashed #394139; color: #929c94; text-align: center; }
+
+@media (max-width: 1180px) {
+  .codex-hall-hero { grid-template-columns: 90px minmax(0, 1fr); }
+  .codex-hall-summary { grid-column: 1 / -1; }
+  .codex-hall-workspace { grid-template-columns: 1fr; }
+  .codex-entry-dossier { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .codex-entry-dossier > .codex-section-heading,
+  .codex-record-status { grid-column: 1 / -1; }
+  .codex-fact-grid { margin-top: 0; }
+  .codex-guidance { grid-row: span 2; margin-top: 0; }
+  .codex-related-systems { margin-top: 0; }
+}
+
+@media (max-width: 850px) {
+  .codex-hall-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .codex-category-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .codex-category-tabs button { border-bottom: 1px solid #303630; }
+  .codex-category-tabs button:nth-child(2n) { border-right: 0; }
+  .codex-category-tabs button:last-child { grid-column: 1 / -1; }
+  .codex-entry-dossier { grid-template-columns: 1fr; }
+  .codex-entry-dossier > .codex-section-heading,
+  .codex-record-status { grid-column: auto; }
+  .codex-guidance { grid-row: auto; }
+  .codex-route-ledger > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .codex-hall-hero { grid-template-columns: 1fr; text-align: center; }
+  .codex-hall-seal { justify-self: center; }
+  .codex-hall-summary,
+  .codex-category-tabs,
+  .codex-fact-grid,
+  .codex-route-ledger > div { grid-template-columns: 1fr; }
+  .codex-category-tabs button:last-child { grid-column: auto; }
+  .codex-category-tabs button { border-right: 0; }
+  .codex-local-banner { grid-template-columns: 1fr; text-align: center; }
+  .codex-section-heading { align-items: start; flex-direction: column; }
+  .codex-section-heading > strong { max-width: none; text-align: left; }
+  .codex-search-field { grid-template-columns: 1fr; }
+  .codex-entry-card { grid-template-columns: 48px minmax(0, 1fr); }
+  .codex-entry-card > i { width: 44px; height: 48px; }
+  .codex-entry-card > em { display: none; }
+  .codex-dossier-identity { grid-template-columns: 1fr; text-align: center; }
+  .codex-dossier-identity > span { justify-self: center; }
+}
+
 @media (max-width: 1180px) {
   .updates-hall-hero { grid-template-columns: 90px minmax(0, 1fr); }
   .updates-hall-summary { grid-column: 1 / -1; }

@@ -23,6 +23,7 @@ import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
 import { CosmeticShowcaseHall } from "../store/CosmeticShowcaseHall";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { UpdatesHall } from "../updates/UpdatesHall";
+import { GuildCodexHall } from "../wiki/GuildCodexHall";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
@@ -596,7 +597,7 @@ export function MainPanel({
           />
         ) : null}
         {activeTab === "updates" ? <UpdatesHall /> : null}
-        {activeTab === "wiki" ? <WikiWindow /> : null}
+        {activeTab === "wiki" ? <GuildCodexHall /> : null}
         {activeTab === "settings" ? (
           <SettingsWindow
             onManualSave={onManualSave}
@@ -661,6 +662,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "bestiary") return "Guild creature records, research stages, charm points and active assignments.";
   if (tab === "store") return "Local cosmetic previews with no purchases, premium currency or online services.";
   if (tab === "updates") return "Installed release notes for local systems, interface revisions and QA milestones.";
+  if (tab === "wiki") return "Local field reference for adventurers, exploration, progression and guild services.";
   return undefined;
 }
 
@@ -685,21 +687,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function WikiWindow() {
-  return (
-    <Panel title="Guild Wiki">
-      <div className="client-placeholder-grid">
-        {["Hunts", "Supplies", "Auto-repeat", "Bless", "Bestiary", "Forge", "Imbuing"].map((entry) => (
-          <div className="client-info-card" key={entry}>
-            <strong>{entry}</strong>
-            <p>Local guide entry planned for a future content pass.</p>
-          </div>
-        ))}
-      </div>
-    </Panel>
-  );
 }
 
 function SettingsWindow({

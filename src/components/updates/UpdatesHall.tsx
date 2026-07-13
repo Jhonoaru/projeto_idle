@@ -165,7 +165,7 @@ export function UpdatesHall() {
           <EraEntry code="I" title="Foundation" range="Stages 1-20" text="Core guild management, persistence and first client layout." />
           <EraEntry code="II" title="Gameplay" range="Stages 21-29" text="Collections, rewards, market, combat and balance passes." />
           <EraEntry code="III" title="Client Rework" range="Stages 30-35" text="Explore, hunt scene, character, skills and training halls." />
-          <EraEntry code="IV" title="Guild Halls" range="Stages 36-42" text="Blessings, research, destiny, collections, daily, ranking and showcase." />
+          <EraEntry code="IV" title="Guild Halls" range="Stages 36-44" text="Blessings, research, destiny, collections, ledgers, archive and field codex." />
         </div>
       </section>
     </div>
@@ -200,4 +200,3 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
     .format(new Date(`${value}T00:00:00Z`));
 }
-

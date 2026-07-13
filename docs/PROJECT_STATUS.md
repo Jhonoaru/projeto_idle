@@ -77,6 +77,7 @@ Atualizado em: 2026-07-13
 - Etapa 42.5 concluida: QA real do Cosmetic Showcase no Tauri/SQLite, com catalogo, filtros, preview, Collections, Save/Reload e ausencia de monetizacao validados.
 - Etapa 43 concluida: Updates reformulado como Release Archive local, com busca, filtros, dossiers e historico recente do cliente.
 - Etapa 43.5 concluida: QA real do Updates Hall no Tauri/SQLite, com filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
+- Etapa 44 concluida: Wiki reformulada como Guild Field Codex local, com 34 registros derivados dos dados reais, busca, categorias e dossiers.
 
 Comandos principais:
 
@@ -1614,6 +1615,62 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 44 - Rework de Wiki / Guild Codex local.
+
+## Etapa 44 - Rework de Wiki / Guild Codex local
+
+Status: concluida.
+
+Novo Guild Field Codex:
+
+- Wiki deixou o placeholder simples embutido no `MainPanel` e ganhou componente dedicado em `src/components/wiki/GuildCodexHall.tsx`.
+- A janela usa toda a area central e oculta roster, menu lateral e painel direito.
+- O codex e totalmente local, somente leitura e nao altera o save SQLite.
+- Hero resume quantidade total de registros, vocacoes, field records e guias de sistema.
+- A Etapa 44 foi adicionada como release atual no arquivo local de Updates.
+
+Dados e categorias:
+
+- `src/data/guildCodex.ts` combina oito guias curados com registros derivados de `vocations`, `hunts`, `bosses` e `quests`.
+- O catalogo inicial possui 34 registros: cinco Adventurers, 22 Exploration, quatro Progression e tres Guild Services.
+- Categorias disponiveis: All Records, Adventurers, Exploration, Progression e Guild Services.
+- Hunts mostram level, risco, XP/h, economia, criaturas e supplies a partir das definicoes reais.
+- Bosses mostram level, party, risco, cooldown, duracao, rewards e acessos reais.
+- Quests mostram level, duracao, etapas, rewards e access unlock real.
+- Vocacoes mostram role, skills principais, crescimento por level e multiplicadores reais.
+
+Indice e dossier:
+
+- A busca cobre titulo, subtitulo, resumo, facts, field guidance, sistemas relacionados e keywords.
+- Cards mostram sigilo, categoria, contexto, titulo, resumo e estado Start here quando aplicavel.
+- Selecionar ou filtrar atualiza automaticamente o dossier sem navegacao externa.
+- O dossier exibe identidade, quatro facts, tres orientacoes e sistemas relacionados.
+- Uma ledger inferior sugere a rota Command, Explore, Research e Advance.
+
+Visual e responsividade:
+
+- O hall segue o estilo MMORPG escuro, metalico e dourado dos halls recentes.
+- Layout desktop usa indice e dossier lado a lado; abaixo de 1180px o dossier passa para baixo.
+- Em `390x844`, hero, tabs, facts e ledger usam uma coluna sem overflow horizontal.
+- Nao foram usados assets externos.
+
+Validacao:
+
+- `npm.cmd run build` passou durante a implementacao com 278 modulos.
+- Browser local em 1280x720 confirmou 34 registros, cinco categorias e ausencia dos paineis laterais.
+- Filtro Exploration com busca por `sewer` retornou quatro registros e selecionou Sewers Below Thaeron.
+- Viewport 390x844 manteve largura interna responsiva e sem overflow horizontal.
+- O unico erro de console foi o fallback esperado do SQLite fora do runtime Tauri.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Textos explicativos dos oito guias de sistema continuam curados manualmente.
+- O codex ainda nao possui favoritos, historico de leitura ou links diretos para abrir outros halls.
+- QA de Save/Reload no Tauri/SQLite fica reservado para a etapa de estabilizacao seguinte.
+
+Proximo passo sugerido:
+
+- Etapa 44.5 - QA do Guild Codex no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
