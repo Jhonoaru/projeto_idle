@@ -71,6 +71,7 @@ Atualizado em: 2026-07-13
 - Etapa 39.5 concluida: QA real de Collections Hall no Tauri/SQLite, com badge, equip dos tres slots, Save/Reload e clique duplo validados.
 - Etapa 40 concluida: Daily Reward reformulado como Guild Daily Ledger amplo, com calendario de sete dias, dispatch em destaque e historico compacto.
 - Etapa 40.5 concluida: QA real do Daily Reward Hall no Tauri/SQLite, com badge, claim de supply, streak, ciclo, clique duplo e Save/Reload validados.
+- Etapa 41 concluida: Ranking reformulado como Hall of Renown local, com podio, quatro metricas reais, tabela completa e dossier do personagem.
 
 Comandos principais:
 
@@ -1290,6 +1291,63 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 41 - Rework de Ranking Hall local.
+
+## Etapa 41 - Rework de Ranking Hall local
+
+Status: concluida.
+
+Novo Hall of Renown:
+
+- Ranking deixou a lista simples embutida no `MainPanel` e ganhou componente dedicado em `src/components/ranking/LocalRankingHall.tsx`.
+- O hall usa toda a area central e esconde roster, menu lateral e painel direito enquanto estiver aberto.
+- Hero mostra quantidade de aventureiros, nivel medio, XP combinado e posicao do personagem selecionado.
+- A interface declara explicitamente que a classificacao e offline e usa somente personagens do save local.
+
+Metricas reais:
+
+- Experience usa `character.experience`.
+- Character Level usa `character.level`, com XP como desempate.
+- Combat Power deriva de attack, defense, armor, health e mana ja calculados no personagem.
+- Skill Total soma os sete niveis permanentes de combat skills.
+- Todos os rankings usam desempate deterministico por XP, level e nome.
+
+Interface:
+
+- Podio apresenta os tres primeiros colocados com primeiro lugar elevado e hierarquia visual propria.
+- Tabela completa mostra rank, aventureiro, cidade/status, vocacao, level, main skill e valor da metrica.
+- Selecionar entrada no podio ou tabela troca o personagem ativo da guilda.
+- Dossier lateral mostra rank, score relativo ao lider, XP, combat power, skill total e quests concluidas.
+- Abas compactas alternam as quatro metricas sem alterar ou persistir dados extras.
+- Breakpoints reorganizam hero, abas, podio, tabela e dossier em telas menores.
+
+Integracoes preservadas:
+
+- Ranking e calculado diretamente de `characters`; nenhum schema, repository ou save mapper foi alterado.
+- Nao existe leaderboard online, conta externa, temporada, premio de ranking ou monetizacao.
+- Trocar o personagem pelo hall reutiliza `onSelectCharacter` e os fluxos existentes do app.
+- Topbar continua abrindo Ranking pelo mesmo tab local.
+
+Validacao:
+
+- `npm.cmd run build` passou com 273 modulos.
+- Browser local validou os cinco personagens, podio, tabela e ausencia de overflow horizontal em 1280x720.
+- Experience colocou Ayla em primeiro com 301,200 XP.
+- Combat Power colocou Mira em primeiro com 743 power.
+- Skill Total colocou Shen em primeiro com 239 levels.
+- Character Level colocou Ayla em primeiro no level 28.
+- Selecionar Shen atualizou o dossier para Monk, Eldenroot, rank #4 na metrica de level e 79% do score lider.
+- O unico erro do console foi o fallback esperado do plugin SQLite fora do runtime Tauri.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Combat Power e uma comparacao local de atributos atuais, nao um rating competitivo persistido.
+- Nao ha historico de temporadas, ranking global, ranking entre guildas ou recompensas de colocacao.
+- O breakpoint mobile foi revisado por CSS, mas nao recebeu screenshot em viewport mobile real nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 41.5 - QA do Ranking Hall local no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

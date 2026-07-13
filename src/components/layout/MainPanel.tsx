@@ -18,6 +18,7 @@ import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
 import { MarketPanel } from "../market/MarketPanel";
 import { QuestPanel } from "../quest/QuestPanel";
+import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
@@ -578,7 +579,14 @@ export function MainPanel({
         {activeTab === "daily" ? (
           <DailyRewardHall guild={guild} onClaim={onClaimDailyReward} />
         ) : null}
-        {activeTab === "ranking" ? <RankingWindow characters={characters} /> : null}
+        {activeTab === "ranking" ? (
+          <LocalRankingHall
+            characters={characters}
+            guild={guild}
+            onSelectCharacter={onSelectCharacter}
+            selectedCharacter={selectedCharacter}
+          />
+        ) : null}
         {activeTab === "store" ? <StoreWindow /> : null}
         {activeTab === "updates" ? <UpdatesWindow /> : null}
         {activeTab === "wiki" ? <WikiWindow /> : null}
@@ -639,6 +647,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
+  if (tab === "ranking") return "Offline standings calculated only from adventurers in the current guild save.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
@@ -668,24 +677,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function RankingWindow({ characters }: { characters: Character[] }) {
-  const ranked = [...characters].sort((a, b) => b.experience - a.experience);
-
-  return (
-    <Panel title="Experience Ranking">
-      <div className="ranking-list">
-        {ranked.map((character, index) => (
-          <div key={character.id}>
-            <span>#{index + 1}</span>
-            <strong>{character.name}</strong>
-            <em>Level {character.level} / {character.experience.toLocaleString("en-US")} XP</em>
-          </div>
-        ))}
-      </div>
-    </Panel>
-  );
 }
 
 function StoreWindow() {
