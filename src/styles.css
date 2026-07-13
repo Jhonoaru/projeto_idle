@@ -6637,153 +6637,306 @@ p {
   border-color: #d8b96a;
 }
 
-.destiny-window {
-  display: grid;
-  gap: 12px;
+.game-layout.is-destiny-hall-mode .left-panel,
+.game-layout.is-destiny-hall-mode .right-character-panel,
+.game-layout.is-destiny-hall-mode .character-side-menu {
+  display: none;
 }
 
-.destiny-layout {
-  display: grid;
-  grid-template-columns: minmax(420px, 1.2fr) minmax(280px, 0.8fr);
-  gap: 12px;
-  align-items: start;
+.game-layout.is-destiny-hall-mode:has(.game-window-full) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.destiny-wheel {
+.destiny-hall {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.destiny-hall-hero,
+.destiny-path-board,
+.destiny-node-dossier,
+.destiny-bonus-ledger {
+  border: 1px solid #3b3a34;
+  background: #101513;
+}
+
+.destiny-hall-hero {
+  display: grid;
+  grid-template-columns: 94px minmax(260px, 1fr) minmax(500px, 1.45fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+}
+
+.destiny-hall-seal {
   position: relative;
-  min-height: 430px;
+  display: grid;
+  place-items: center;
+  width: 90px;
+  height: 94px;
   overflow: hidden;
-  border: 1px solid #30352f;
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(216, 185, 106, 0.12), transparent 34%),
-    linear-gradient(135deg, #111612, #171c18);
+  border: 1px solid #a28749;
+  background: #191b18;
+  box-shadow: inset 0 0 0 4px #0c100e;
 }
 
-.destiny-links {
+.destiny-hall-seal i,
+.destiny-hall-seal i::before,
+.destiny-hall-seal i::after {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+  content: "";
+  border: 1px solid #596b63;
+  border-radius: 50%;
 }
 
-.destiny-links line {
-  stroke: #3b4238;
-  stroke-width: 1.1;
+.destiny-hall-seal i { width: 66px; height: 66px; }
+.destiny-hall-seal i::before { inset: 9px; }
+.destiny-hall-seal i::after { inset: 20px; border-color: #927b46; }
+
+.destiny-hall-seal span {
+  position: relative;
+  z-index: 1;
+  color: #efd58a;
+  font-family: Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 900;
 }
 
-.destiny-links line.is-unlocked {
-  stroke: #d8b96a;
-  stroke-width: 1.5;
+.destiny-hall-identity > span,
+.destiny-hall-summary span,
+.destiny-section-heading span,
+.destiny-dossier-stats span,
+.destiny-dossier-bonus span,
+.destiny-dossier-prerequisites span {
+  color: #89938d;
+  font-size: 0.66rem;
+  text-transform: uppercase;
 }
 
-.destiny-node {
-  position: absolute;
-  width: 94px;
-  min-height: 66px;
-  transform: translate(-50%, -50%);
-  padding: 8px;
-  border: 1px solid #3b4238;
-  border-radius: 8px;
+.destiny-hall-identity h3,
+.destiny-section-heading h3,
+.destiny-dossier-identity h3 {
+  margin: 3px 0;
+  color: #ead18c;
+  font-family: Georgia, serif;
+  letter-spacing: 0;
+}
+
+.destiny-hall-identity p { margin: 0; color: #b8c0ba; }
+
+.destiny-hall-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.destiny-hall-summary > div {
+  min-height: 60px;
+  padding: 9px;
+  border: 1px solid #343b36;
+  border-top: 3px solid #7f754b;
   background: #151a17;
-  color: #e9e1c4;
-  text-align: center;
+}
+
+.destiny-hall-summary strong {
+  display: block;
+  margin-top: 7px;
+  color: #efe0b4;
+  font-size: 1rem;
+}
+
+.destiny-hall-workspace {
+  display: grid;
+  grid-template-columns: minmax(620px, 1.55fr) minmax(320px, 0.75fr);
+  gap: 9px;
+  align-items: stretch;
+}
+
+.destiny-path-board,
+.destiny-node-dossier,
+.destiny-bonus-ledger { min-width: 0; padding: 11px; }
+
+.destiny-section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  min-height: 42px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #303630;
+}
+
+.destiny-section-heading > strong { color: #cbb879; font-size: 0.76rem; }
+
+.destiny-category-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  min-height: 30px;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid #303630;
+  background: #141916;
+}
+
+.destiny-category-legend span { display: inline-flex; gap: 5px; align-items: center; color: #aeb6af; font-size: 0.64rem; text-transform: uppercase; }
+.destiny-category-legend i { width: 8px; height: 8px; border: 1px solid currentColor; background: #252b27; }
+.destiny-category-legend .is-core { color: #d1b969; }
+.destiny-category-legend .is-offense { color: #c77d68; }
+.destiny-category-legend .is-defense { color: #79a2ad; }
+.destiny-category-legend .is-utility { color: #83a270; }
+.destiny-category-legend .is-vocation { color: #b594bd; }
+
+.destiny-constellation {
+  position: relative;
+  min-height: 535px;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid #303830;
+  background-color: #0d120f;
+  background-image:
+    linear-gradient(#171d18 1px, transparent 1px),
+    linear-gradient(90deg, #171d18 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.destiny-constellation::before,
+.destiny-constellation::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+  border: 1px solid #343c35;
+  border-radius: 50%;
+}
+
+.destiny-constellation::before { inset: 11% 21%; }
+.destiny-constellation::after { inset: 25% 34%; border-color: #625a3e; }
+
+.destiny-constellation-links { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.destiny-constellation-links line { stroke: #485048; stroke-width: 0.55; vector-effect: non-scaling-stroke; }
+.destiny-constellation-links line.is-unlocked { stroke: #d1b25f; stroke-width: 1.6; }
+
+.destiny-constellation-node {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+  width: 144px;
+  min-height: 54px;
+  transform: translate(-50%, -50%);
+  padding: 5px 7px;
+  border: 1px solid #3a423b;
+  border-radius: 2px;
+  color: #d5d8d2;
+  background: #151a17;
+  text-align: left;
   cursor: pointer;
 }
 
-.destiny-node span {
-  display: block;
-  color: #aeb7aa;
-  font-size: 0.62rem;
-  text-transform: uppercase;
-}
+.destiny-constellation-node.is-major { width: 158px; min-height: 62px; border-width: 2px; }
+.destiny-constellation-node.is-locked { opacity: 0.52; }
+.destiny-constellation-node.is-available { border-color: #799b6b; background: #182019; box-shadow: inset 3px 0 0 #799b6b; }
+.destiny-constellation-node.is-unlocked { border-color: #a88c49; background: #201f17; box-shadow: inset 3px 0 0 #c7a954; }
+.destiny-constellation-node.is-selected { outline: 2px solid #d4b65f; outline-offset: 2px; }
 
-.destiny-node strong {
-  display: block;
-  margin-top: 4px;
-  color: #f1d58c;
-  font-size: 0.76rem;
-  line-height: 1.15;
-}
-
-.destiny-node.is-medium {
-  width: 112px;
-}
-
-.destiny-node.is-major {
-  width: 128px;
-  min-height: 78px;
-  border-width: 2px;
-}
-
-.destiny-node.is-locked {
-  opacity: 0.56;
-}
-
-.destiny-node.is-available {
-  border-color: #7fae74;
-  box-shadow: 0 0 0 1px rgba(127, 174, 116, 0.22);
-}
-
-.destiny-node.is-unlocked {
-  border-color: #d8b96a;
-  background: #211e13;
-}
-
-.destiny-node.is-selected {
-  outline: 2px solid #d8b96a;
-  outline-offset: 2px;
-}
-
-.destiny-details {
+.destiny-node-sigil {
   display: grid;
-  gap: 10px;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #657067;
+  border-radius: 50%;
+  color: #d6c680;
+  background: #222722;
+  font-family: Georgia, serif;
+  font-size: 0.7rem;
+  font-weight: 900;
 }
 
-.destiny-details > span,
-.destiny-detail-grid span {
-  color: #aeb7aa;
-  font-size: 0.72rem;
-  text-transform: uppercase;
+.destiny-constellation-node.is-offense .destiny-node-sigil { color: #d28a74; border-color: #775047; }
+.destiny-constellation-node.is-defense .destiny-node-sigil { color: #83b0b8; border-color: #4a6970; }
+.destiny-constellation-node.is-utility .destiny-node-sigil { color: #92b17d; border-color: #52684b; }
+.destiny-constellation-node.is-vocation .destiny-node-sigil { color: #c5a3cc; border-color: #705b76; }
+.destiny-node-copy { min-width: 0; }
+.destiny-node-copy strong { display: block; color: #e6d39c; font-size: 0.72rem; line-height: 1.15; overflow-wrap: anywhere; }
+.destiny-node-copy small { display: block; margin-top: 4px; color: #849088; font-size: 0.58rem; text-transform: uppercase; }
+
+.destiny-node-dossier { display: flex; flex-direction: column; }
+.destiny-dossier-identity { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 11px; align-items: center; padding: 11px; border: 1px solid #343b36; background: #151a17; }
+.destiny-dossier-identity > span { display: grid; place-items: center; width: 70px; height: 74px; border: 1px solid #776943; color: #e2c978; background: #20231d; font-family: Georgia, serif; font-size: 1.15rem; font-weight: 900; }
+.destiny-dossier-identity.is-offense > span { color: #d28a74; border-color: #775047; }
+.destiny-dossier-identity.is-defense > span { color: #83b0b8; border-color: #4a6970; }
+.destiny-dossier-identity.is-utility > span { color: #92b17d; border-color: #52684b; }
+.destiny-dossier-identity.is-vocation > span { color: #c5a3cc; border-color: #705b76; }
+.destiny-dossier-identity small { color: #89938d; text-transform: uppercase; }
+.destiny-dossier-identity p { margin: 5px 0 0; color: #b9c0ba; font-size: 0.72rem; line-height: 1.4; }
+
+.destiny-dossier-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.destiny-dossier-stats > div { min-height: 56px; padding: 8px; border: 1px solid #303830; background: #151a17; }
+.destiny-dossier-stats strong { display: block; margin-top: 5px; color: #dfd2aa; font-size: 0.75rem; overflow-wrap: anywhere; }
+
+.destiny-dossier-bonus,
+.destiny-dossier-prerequisites { display: grid; gap: 5px; margin-top: 7px; padding: 9px; border: 1px solid #303830; background: #151a17; }
+.destiny-dossier-bonus { border-left: 3px solid #8a9e63; }
+.destiny-dossier-bonus strong { color: #d9c67e; }
+.destiny-dossier-prerequisites strong { color: #bfc6bf; font-size: 0.73rem; line-height: 1.35; }
+
+.destiny-unlock-command,
+.destiny-reset-command { width: 100%; min-height: 40px; border-radius: 2px; font-weight: 900; cursor: pointer; }
+.destiny-unlock-command { margin-top: 8px; border: 1px solid #b08f43; color: #17130d; background: #d0ad58; }
+.destiny-reset-command { margin-top: auto; border: 1px solid #614442; color: #d7b6aa; background: #211817; }
+.destiny-unlock-command:disabled,
+.destiny-reset-command:disabled { border-color: #414741; color: #747d76; background: #222824; cursor: not-allowed; }
+
+.destiny-bonus-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 6px; }
+.destiny-bonus-grid > div:not(.destiny-empty-state) { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; align-items: center; min-height: 54px; padding: 7px; border: 1px solid #303830; background: #151a17; }
+.destiny-bonus-grid > div > span:first-child { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #637064; color: #d7c67d; background: #20251f; font-size: 0.65rem; font-weight: 900; }
+.destiny-bonus-grid small { display: block; color: #879189; font-size: 0.61rem; text-transform: uppercase; }
+.destiny-bonus-grid strong { display: block; margin-top: 3px; color: #e7d69f; }
+.destiny-bonus-grid .is-offense { box-shadow: inset 3px 0 0 #8a5448; }
+.destiny-bonus-grid .is-defense { box-shadow: inset 3px 0 0 #507680; }
+.destiny-bonus-grid .is-utility { box-shadow: inset 3px 0 0 #5d774f; }
+.destiny-bonus-grid .is-vocation { box-shadow: inset 3px 0 0 #705b76; }
+.destiny-bonus-grid .is-core { box-shadow: inset 3px 0 0 #917a44; }
+
+.destiny-empty-state { display: grid; gap: 5px; min-height: 72px; place-content: center; padding: 12px; border: 1px dashed #3a423b; color: #8f9991; text-align: center; }
+.destiny-empty-state strong { color: #ddd0aa; }
+
+@media (max-width: 1120px) {
+  .destiny-hall-hero { grid-template-columns: 90px minmax(0, 1fr); }
+  .destiny-hall-summary { grid-column: 1 / -1; }
+  .destiny-hall-workspace { grid-template-columns: 1fr; }
+  .destiny-node-dossier { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .destiny-node-dossier > .destiny-section-heading { grid-column: 1 / -1; }
+  .destiny-dossier-stats { margin-top: 0; }
+  .destiny-unlock-command,
+  .destiny-reset-command { margin-top: 0; }
 }
 
-.destiny-details > strong,
-.destiny-detail-grid strong {
-  color: #f1d58c;
+@media (max-width: 720px) {
+  .destiny-hall-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .destiny-constellation { display: grid; gap: 6px; min-height: 0; padding: 8px; }
+  .destiny-constellation::before,
+  .destiny-constellation::after,
+  .destiny-constellation-links { display: none; }
+  .destiny-constellation-node,
+  .destiny-constellation-node.is-major { position: static; width: 100%; min-height: 54px; transform: none; }
+  .destiny-node-dossier { grid-template-columns: 1fr; }
+  .destiny-node-dossier > .destiny-section-heading { grid-column: auto; }
 }
 
-.destiny-details p {
-  margin: 0;
-  color: #c8d0c1;
-  line-height: 1.45;
-}
-
-.destiny-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.destiny-detail-grid div {
-  min-height: 58px;
-  padding: 9px;
-  border: 1px solid #30352f;
-  border-radius: 6px;
-  background: #151a17;
-}
-
-.destiny-reset-button {
-  padding: 9px 12px;
-  border: 1px solid #4a3434;
-  border-radius: 6px;
-  background: #201616;
-  color: #e9c7b6;
-}
-
-.destiny-reset-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+@media (max-width: 520px) {
+  .destiny-hall-hero { grid-template-columns: 1fr; text-align: center; }
+  .destiny-hall-seal { justify-self: center; }
+  .destiny-hall-summary,
+  .destiny-dossier-stats { grid-template-columns: 1fr; }
+  .destiny-section-heading { align-items: start; flex-direction: column; }
+  .destiny-dossier-identity { grid-template-columns: 1fr; text-align: center; }
+  .destiny-dossier-identity > span { justify-self: center; }
 }
 
 .ranking-list {

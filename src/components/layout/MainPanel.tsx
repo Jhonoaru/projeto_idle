@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { MonsterFocusHall } from "../bestiary/MonsterFocusHall";
 import { BossPanel } from "../boss/BossPanel";
 import { BlessingsHall } from "../death/BlessingsHall";
+import { DestinyHall } from "../destiny/DestinyHall";
 import { ExploreWindow } from "../explore/ExploreWindow";
 import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
 import { WeaponProficiencyPanel } from "../character/WeaponProficiencyPanel";
@@ -29,11 +30,6 @@ import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDail
 import { getCurrentDailyReward } from "../../game-engine/daily-reward/getCurrentDailyReward";
 import { getDailyRewardPreview } from "../../game-engine/daily-reward/getDailyRewardPreview";
 import { normalizeDailyRewardState } from "../../game-engine/daily-reward/normalizeDailyRewardState";
-import { destinyNodes, getDestinyNodeById } from "../../data/destinyNodes";
-import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-engine/destiny/calculateDestinyBonuses";
-import { canUnlockDestinyNode } from "../../game-engine/destiny/canUnlockDestinyNode";
-import { getDestinyResetCost } from "../../game-engine/destiny/resetDestinyPath";
-import { getVisibleDestinyNodes, normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
   Boss,
@@ -372,7 +368,7 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "destiny" ? (
-          <DestinyWindow
+          <DestinyHall
             character={selectedCharacter}
             onReset={onResetDestinyPath}
             onUnlock={onUnlockDestinyNode}
@@ -797,183 +793,6 @@ function formatCollectionCategory(category: CollectionCategory) {
   if (category === "outfit") return "Outfits";
   if (category === "mount") return "Mounts";
   return "Avatars";
-}
-
-function DestinyWindow({
-  character,
-  onUnlock,
-  onReset,
-}: {
-  character: Character;
-  onUnlock: (nodeId: string) => void;
-  onReset: () => void;
-}) {
-  const destiny = normalizeDestinyState(character);
-  const visibleNodes = useMemo(
-    () => getVisibleDestinyNodes(character.vocation),
-    [character.vocation],
-  );
-  const [selectedNodeId, setSelectedNodeId] = useState(
-    visibleNodes[0]?.id ?? destinyNodes[0]?.id ?? "",
-  );
-  const selectedNode =
-    visibleNodes.find((node) => node.id === selectedNodeId) ??
-    visibleNodes[0] ??
-    destinyNodes[0];
-  const unlockStatus = selectedNode
-    ? canUnlockDestinyNode({ ...character, destiny }, selectedNode.id)
-    : { canUnlock: false, reason: "No node selected." };
-  const activeBonuses = calculateDestinyBonuses({ ...character, destiny });
-  const resetCost = getDestinyResetCost({ ...character, destiny });
-
-  useEffect(() => {
-    if (!visibleNodes.some((node) => node.id === selectedNodeId)) {
-      setSelectedNodeId(visibleNodes[0]?.id ?? "");
-    }
-  }, [character.id, selectedNodeId, visibleNodes]);
-
-  return (
-    <div className="destiny-window">
-      <div className="client-summary-grid">
-        <div>
-          <span>Character</span>
-          <strong>{character.name}</strong>
-        </div>
-        <div>
-          <span>Vocation</span>
-          <strong>{character.vocation}</strong>
-        </div>
-        <div>
-          <span>Level</span>
-          <strong>{character.level}</strong>
-        </div>
-        <div>
-          <span>Destiny Points</span>
-          <strong>
-            {destiny.availablePoints} available / {destiny.totalEarnedPoints} earned
-          </strong>
-        </div>
-      </div>
-
-      <div className="destiny-layout">
-        <Panel title="Path of Destiny">
-          <div className="destiny-wheel" role="list">
-            <svg aria-hidden="true" className="destiny-links" viewBox="0 0 100 100">
-              {visibleNodes.flatMap((node) =>
-                node.prerequisiteNodeIds
-                  .map((requiredId) => {
-                    const prerequisite = visibleNodes.find((candidate) => candidate.id === requiredId);
-                    if (!prerequisite) return null;
-
-                    return (
-                      <line
-                        className={
-                          destiny.unlockedNodeIds.includes(node.id) &&
-                          destiny.unlockedNodeIds.includes(prerequisite.id)
-                            ? "is-unlocked"
-                            : ""
-                        }
-                        key={`${requiredId}-${node.id}`}
-                        x1={prerequisite.position.x}
-                        x2={node.position.x}
-                        y1={prerequisite.position.y}
-                        y2={node.position.y}
-                      />
-                    );
-                  })
-                  .filter(Boolean),
-              )}
-            </svg>
-            {visibleNodes.map((node) => {
-              const status = destiny.unlockedNodeIds.includes(node.id)
-                ? "unlocked"
-                : canUnlockDestinyNode({ ...character, destiny }, node.id).canUnlock
-                  ? "available"
-                  : "locked";
-
-              return (
-                <button
-                  className={`destiny-node is-${node.shape} is-${node.category} is-${status} ${selectedNode.id === node.id ? "is-selected" : ""}`.trim()}
-                  key={node.id}
-                  onClick={() => setSelectedNodeId(node.id)}
-                  role="listitem"
-                  style={{ left: `${node.position.x}%`, top: `${node.position.y}%` }}
-                  type="button"
-                >
-                  <span>{node.shape}</span>
-                  <strong>{node.name}</strong>
-                </button>
-              );
-            })}
-          </div>
-        </Panel>
-
-        <Panel title="Node Details">
-          {selectedNode ? (
-            <div className="destiny-details">
-              <span>{selectedNode.category} / {selectedNode.shape}</span>
-              <strong>{selectedNode.name}</strong>
-              <p>{selectedNode.description}</p>
-              <div className="destiny-detail-grid">
-                <div>
-                  <span>Cost</span>
-                  <strong>{selectedNode.cost}</strong>
-                </div>
-                <div>
-                  <span>Required Level</span>
-                  <strong>{selectedNode.requiredLevel}</strong>
-                </div>
-                <div>
-                  <span>Vocation</span>
-                  <strong>{selectedNode.allowedVocations?.join(", ") ?? "Any"}</strong>
-                </div>
-                <div>
-                  <span>Status</span>
-                  <strong>
-                    {destiny.unlockedNodeIds.includes(selectedNode.id)
-                      ? "Unlocked"
-                      : unlockStatus.reason}
-                  </strong>
-                </div>
-              </div>
-              <p>
-                Bonus: {formatDestinyBonusSummary(selectedNode.bonus)}
-              </p>
-              <p>
-                Prerequisites:{" "}
-                {selectedNode.prerequisiteNodeIds
-                  .map((nodeId) => getDestinyNodeById(nodeId)?.name ?? nodeId)
-                  .join(", ") || "None"}
-              </p>
-              <button
-                className="action-command-button"
-                disabled={!unlockStatus.canUnlock}
-                onClick={() => onUnlock(selectedNode.id)}
-                type="button"
-              >
-                Unlock Node
-              </button>
-              <button
-                className="destiny-reset-button"
-                disabled={resetCost <= 0}
-                onClick={onReset}
-                type="button"
-              >
-                Reset Path ({resetCost.toLocaleString("en-US")}g)
-              </button>
-            </div>
-          ) : null}
-        </Panel>
-      </div>
-
-      <Panel title="Active Destiny Bonuses">
-        <div className="client-info-card">
-          <strong>{destiny.unlockedNodeIds.length} node(s) unlocked</strong>
-          <p>{formatDestinyBonusSummary(activeBonuses)}</p>
-        </div>
-      </Panel>
-    </div>
-  );
 }
 
 function DailyRewardWindow({

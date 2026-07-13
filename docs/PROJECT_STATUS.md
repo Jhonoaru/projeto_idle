@@ -65,6 +65,7 @@ Atualizado em: 2026-07-13
 - Etapa 36.5 concluida: QA real de compra, protecao, consumo, revive e persistencia das Blessings no Tauri/SQLite.
 - Etapa 37 concluida: Hunting Research Hall conectando Bestiary, dossiers, Charms e Monster Focus em telas amplas.
 - Etapa 37.5 concluida: QA real de Bestiary, Charms e Monster Focus no Tauri/SQLite, com persistencia validada e protecao contra duplicacao por clique duplo.
+- Etapa 38 concluida: rework de Path of Destiny / Wheel como hall amplo, com constelacao de nodes, dossier, categorias e ledger de bonus reais.
 
 Comandos principais:
 
@@ -949,6 +950,66 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 38 - Rework de Path of Destiny / Wheel.
+
+## Etapa 38 - Rework de Path of Destiny / Wheel
+
+Status: concluida.
+
+Destiny Hall:
+
+- Path of Destiny agora abre como hall amplo e esconde roster, menu lateral e painel direito.
+- Hero identifica personagem, vocacao, level e cidade, alem de pontos disponiveis, gastos, ganhos, conclusao e nodes desbloqueados.
+- A wheel anterior foi substituida por `Constellation of Paths`, um mapa autoral com conexoes reais de prerequisito.
+- Os dez nodes visiveis de cada vocacao usam os dados e posicoes logicas existentes, com layout de apresentacao proprio para evitar colisoes.
+- Estados locked, available, unlocked e selected possuem leitura visual distinta.
+- Categorias Core, Offense, Defense, Utility e Vocation possuem legenda e sigilos proprios sem assets externos.
+
+Node Dossier:
+
+- O node selecionado mostra descricao, shape, categoria, status, custo, level, vocacao, efeito passivo e prerequisitos.
+- O comando de unlock continua usando `canUnlockDestinyNode` e `unlockDestinyNode` reais.
+- Reset continua usando custo real de 1.000g por node e confirmacao existente no App.
+- Nodes bloqueados mostram o motivo retornado pela engine e mantem o comando disabled.
+
+Destiny Bonus Ledger:
+
+- Bonus ativos agora aparecem em blocos individuais para health, ataque, magia, distance, fist, defesa, XP, gold, loot, supplies, capacity, risk e crit.
+- O ledger usa `calculateDestinyBonuses`, incluindo os limites defensivos ja existentes para supplies e death risk.
+- Sem nodes ativos, a tela mostra um empty state orientando o primeiro unlock no level 10.
+
+Arquivos criados:
+
+- `src/components/destiny/DestinyHall.tsx`.
+
+Arquivos alterados:
+
+- `src/components/layout/MainPanel.tsx`.
+- `src/app/App.tsx`.
+- `src/styles.css`.
+- `docs/PROJECT_STATUS.md`.
+
+QA realizado:
+
+- `npm.cmd run build` passou antes e depois da implementacao.
+- O Tauri abriu o Destiny Hall usando o SQLite real de Arkon level 1.
+- Dez nodes da rota Guardian foram renderizados sem sobreposicao.
+- A selecao de `Last Defender` atualizou dossier, custo, level, vocacao, bonus e prerequisito.
+- Roster, menu lateral e painel direito ficaram ocultos no modo Destiny.
+- Viewports 1280x800, 760x900 e 640x900 ficaram sem overflow horizontal.
+- Abaixo de 720px, o mapa troca de posicionamento absoluto para uma lista vertical sem colisoes.
+- Console ficou sem erros.
+- Unlock e Reset permaneceram disabled no save level 1 e nao foram executados.
+- SQLite final permaneceu `integrity_check: ok`, 674g e SHA-256 `20578374af2506e3838be37069943da5e7a03795a8f2516ecb2392f026d42658`.
+
+Limitacoes:
+
+- Esta etapa nao muda pontos por level, custos, bonus, prerequisitos, schema ou balanceamento.
+- O save atual nao possui Destiny Points; unlock/reset real com Save/Reload fica para a Etapa 38.5 com fixture temporaria protegida.
+- Os sigilos sao autorais e gerados por CSS/texto; sprites dedicados continuam fora do escopo.
+
+Proximo passo sugerido:
+
+- Etapa 38.5 - QA de Path of Destiny / Wheel no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
