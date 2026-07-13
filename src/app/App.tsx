@@ -19,7 +19,7 @@ import {
   type GameStateSnapshot,
 } from "../database/saveGameRepository";
 import { bosses } from "../data/bosses";
-import { getBlessingById } from "../data/blessings";
+import { getActiveBlessings, getBlessingById } from "../data/blessings";
 import { addMonsterKillsToBestiary } from "../game-engine/bestiary/addMonsterKillsToBestiary";
 import { resolveAutoRepeatAfterHunt } from "../game-engine/auto-repeat/resolveAutoRepeatAfterHunt";
 import { assignCharmToMonster } from "../game-engine/bestiary/assignCharmToMonster";
@@ -157,6 +157,7 @@ export function App() {
   const resolvingActionRef = useRef(new Set<string>());
   const resolvingDestinyRef = useRef(new Set<string>());
   const claimingDailyRewardRef = useRef(false);
+  const buyingBlessingRef = useRef(false);
 
   useEffect(() => {
     let canceled = false;
@@ -705,6 +706,8 @@ export function App() {
   }
 
   function handleBuyBlessing(blessingId: string) {
+    if (buyingBlessingRef.current) return;
+
     const blessing = getBlessingById(blessingId);
 
     if (!blessing) {
@@ -717,8 +720,15 @@ export function App() {
       return;
     }
 
-    if ((selectedCharacter.blessings ?? []).length > 0) {
-      prependLog("Temple Services", `${selectedCharacter.name} ja possui uma bless ativa.`, "warning");
+    const activeBlessings = getActiveBlessings(selectedCharacter.blessings);
+
+    if (activeBlessings.some((activeBlessing) => activeBlessing.domain === "Legacy")) {
+      prependLog("Temple Services", `${selectedCharacter.name} possui uma bless legada ativa.`, "warning");
+      return;
+    }
+
+    if ((selectedCharacter.blessings ?? []).includes(blessing.id)) {
+      prependLog("Temple Services", `${selectedCharacter.name} ja possui ${blessing.name}.`, "warning");
       return;
     }
 
@@ -727,19 +737,27 @@ export function App() {
       return;
     }
 
-    updateSelectedCharacter({
-      ...selectedCharacter,
-      blessings: [blessing.id],
-    });
-    setGuild((currentGuild) => ({
-      ...currentGuild,
-      gold: currentGuild.gold - blessing.price,
-    }));
-    prependLog(
-      "Temple Services",
-      `${selectedCharacter.name} recebeu ${blessing.name}. Gold da guilda reduzido em ${blessing.price.toLocaleString("en-US")}.`,
-      "success",
-    );
+    buyingBlessingRef.current = true;
+
+    try {
+      updateSelectedCharacter({
+        ...selectedCharacter,
+        blessings: [...(selectedCharacter.blessings ?? []), blessing.id],
+      });
+      setGuild((currentGuild) => ({
+        ...currentGuild,
+        gold: Math.max(0, currentGuild.gold - blessing.price),
+      }));
+      prependLog(
+        "Temple Services",
+        `${selectedCharacter.name} recebeu ${blessing.name}. Gold da guilda reduzido em ${blessing.price.toLocaleString("en-US")}.`,
+        "success",
+      );
+    } finally {
+      window.setTimeout(() => {
+        buyingBlessingRef.current = false;
+      }, 0);
+    }
   }
 
   function handleCreateRecommendedPreset() {
@@ -1748,7 +1766,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""}`.trim()}>
+      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}

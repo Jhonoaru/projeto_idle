@@ -1,6 +1,7 @@
 import { GameIconButton } from "../ui/GameIconButton";
 import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
 import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
+import { blessings } from "../../data/blessings";
 import type { Character, Guild } from "../../shared/types";
 import type { MainPanelTab } from "./MainPanel";
 
@@ -46,7 +47,10 @@ export function CharacterSideMenu({
 }
 
 function getBadge(tab: MainPanelTab, character: Character, guild: Guild) {
-  if (tab === "blessings") return character.blessings?.length ? "ON" : "0/1";
+  if (tab === "blessings") {
+    const activeCount = blessings.filter((blessing) => character.blessings?.includes(blessing.id)).length;
+    return `${activeCount}/${blessings.length}`;
+  }
   if (tab === "focus") {
     const activeCount = character.monsterFocus?.slots?.filter((slot) => slot.status === "active").length ?? 0;
     return activeCount > 0 ? `${activeCount}` : undefined;

@@ -3,8 +3,7 @@ import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { BossPanel } from "../boss/BossPanel";
-import { DeathPanel } from "../death/DeathPanel";
-import { TempleServicesPanel } from "../death/TempleServicesPanel";
+import { BlessingsHall } from "../death/BlessingsHall";
 import { ExploreWindow } from "../explore/ExploreWindow";
 import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
 import { WeaponProficiencyPanel } from "../character/WeaponProficiencyPanel";
@@ -326,7 +325,7 @@ export function MainPanel({
       <GameWindow
         icon={getWindowIcon(activeTab)}
         onClose={() => onChangeTab("home")}
-        size={activeTab === "blessings" ? "medium" : "full"}
+        size="full"
         subtitle={getWindowSubtitle(activeTab)}
         title={getWindowTitle(activeTab)}
       >
@@ -346,20 +345,13 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "blessings" ? (
-          <>
-            {selectedCharacter.status === "dead" ? (
-              <Panel title="Death Report">
-                <DeathPanel character={selectedCharacter} onRevive={onReviveCharacter} />
-              </Panel>
-            ) : null}
-            <Panel title="Temple Services">
-              <TempleServicesPanel
-                character={selectedCharacter}
-                guild={guild}
-                onBuyBlessing={onBuyBlessing}
-              />
-            </Panel>
-          </>
+          <BlessingsHall
+            character={selectedCharacter}
+            guild={guild}
+            onBackToCharacter={() => onChangeTab("character")}
+            onBuyBlessing={onBuyBlessing}
+            onRevive={onReviveCharacter}
+          />
         ) : null}
 
         {activeTab === "collections" ? (
@@ -666,6 +658,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
+  if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
   if (tab === "store") return "Client-style preview for a future system.";
   return undefined;
 }

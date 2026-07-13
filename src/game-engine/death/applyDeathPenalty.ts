@@ -1,6 +1,6 @@
 import { experienceToNextLevel } from "../progression/experienceTable";
 import { createDeathState } from "./createDeathState";
-import { getActiveBlessing } from "./getActiveBlessing";
+import { getActiveBlessings } from "../../data/blessings";
 import { calculateDeathPenalty } from "./calculateDeathPenalty";
 import type {
   Character,
@@ -27,12 +27,12 @@ export function applyDeathPenalty({
   sourceName,
   city,
 }: ApplyDeathPenaltyInput): { character: Character; goldLost: number; logs: string[] } {
-  const blessing = getActiveBlessing(character);
+  const activeBlessings = getActiveBlessings(character.blessings);
   const { penalty, recoverySeconds } = calculateDeathPenalty(
     character,
     guildGold,
     risk,
-    blessing,
+    activeBlessings,
   );
   const deathState = createDeathState({
     cause,
@@ -42,9 +42,10 @@ export function applyDeathPenalty({
     penalty,
     recoverySeconds,
   });
-  const blessings = blessing?.consumedOnDeath
-    ? (character.blessings ?? []).filter((blessingId) => blessingId !== blessing.id)
-    : character.blessings ?? [];
+  const consumedBlessingIds = new Set(penalty.consumedBlessingIds ?? []);
+  const blessings = (character.blessings ?? []).filter(
+    (blessingId) => !consumedBlessingIds.has(blessingId),
+  );
   const experience = Math.max(0, character.experience - penalty.experienceLost);
   const updatedCharacter: Character = {
     ...character,
@@ -60,8 +61,8 @@ export function applyDeathPenalty({
   const logs = [
     `${character.name} morreu${sourceName ? ` em ${sourceName}` : ""}.`,
     `${character.name} perdeu ${penalty.experienceLost.toLocaleString("en-US")} XP e ${penalty.goldLost.toLocaleString("en-US")} gold.`,
-    ...(blessing
-      ? [`${blessing.name} reduziu as penalidades em ${blessing.protectionPercent}%.`]
+    ...(activeBlessings.length > 0
+      ? [`${activeBlessings.map((blessing) => blessing.name).join(", ")} reduziram as penalidades em ${penalty.blessProtectionPercent ?? 0}%.`]
       : []),
     `${character.name} foi levado para ${deathState.templeName}.`,
   ];

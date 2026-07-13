@@ -7227,3 +7227,318 @@ p {
     min-height: 420px;
   }
 }
+
+.game-layout.is-blessings-hall-mode .left-panel,
+.game-layout.is-blessings-hall-mode .right-character-panel,
+.game-layout.is-blessings-hall-mode .character-side-menu {
+  display: none;
+}
+
+.game-layout.is-blessings-hall-mode:has(.game-window-full) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.blessings-hall {
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+}
+
+.blessings-hall-hero,
+.blessings-hall-board,
+.blessings-temple-record,
+.blessings-hall-death {
+  border: 1px solid #39372f;
+  background: #101513;
+}
+
+.blessings-hall-hero {
+  display: grid;
+  grid-template-columns: 94px minmax(240px, 1fr) minmax(430px, 1.25fr);
+  gap: 16px;
+  align-items: center;
+  padding: 14px;
+}
+
+.blessings-hall-seal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 90px;
+  height: 94px;
+  overflow: hidden;
+  border: 1px solid #ad8c4b;
+  background: #171a17;
+  box-shadow: inset 0 0 0 4px #0c100e;
+}
+
+.blessings-hall-seal span {
+  position: relative;
+  z-index: 1;
+  color: #efd386;
+  font-family: Georgia, serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+}
+
+.blessings-hall-seal i {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 1px solid #665b3d;
+  transform: rotate(45deg);
+}
+
+.blessings-hall-identity > span,
+.blessings-hall-summary span,
+.blessings-hall-board > header span,
+.blessing-card-copy > span,
+.blessing-card-protection span,
+.blessings-temple-record span {
+  color: #89938b;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.blessings-hall-identity h3,
+.blessings-hall-board h3,
+.blessings-temple-record h3 {
+  margin: 3px 0;
+  color: #f1d486;
+  font-family: Georgia, serif;
+  letter-spacing: 0;
+}
+
+.blessings-hall-identity p {
+  margin: 0 0 9px;
+  color: #bdc2ba;
+}
+
+.blessings-hall-identity button {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #695a38;
+  border-radius: 4px;
+  color: #e4cf96;
+  background: #1a1e1b;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.blessings-hall-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.blessings-hall-summary > div,
+.blessings-temple-record > div > div {
+  min-height: 62px;
+  padding: 9px;
+  border: 1px solid #343a34;
+  border-top: 3px solid #89733f;
+  background: #151a17;
+}
+
+.blessings-hall-summary strong,
+.blessings-temple-record strong {
+  display: block;
+  margin-top: 7px;
+  color: #efe1b8;
+  font-size: 1rem;
+}
+
+.blessings-hall-death {
+  padding: 10px;
+  border-color: #703a35;
+}
+
+.blessings-legacy-notice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #665331;
+  color: #d8c695;
+  background: #1b1a14;
+}
+
+.blessings-legacy-notice span { color: #aeb4aa; }
+
+.blessings-hall-board { padding: 12px; }
+
+.blessings-hall-board > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  min-height: 44px;
+  margin-bottom: 11px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #2e332f;
+}
+
+.blessings-hall-board > header strong { color: #d7bd75; }
+
+.blessings-card-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.blessing-card {
+  display: grid;
+  grid-template-rows: 22px 104px minmax(112px, 1fr) 42px 30px 38px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #333934;
+  background: #141917;
+}
+
+.blessing-card.is-active {
+  border-color: #b4934d;
+  box-shadow: inset 0 3px 0 #c8a957;
+}
+
+.blessing-card-rank {
+  color: #777f78;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.blessing-card-sigil {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 92px;
+  justify-self: center;
+  overflow: hidden;
+  border: 1px solid #766747;
+  background: #302d25;
+  box-shadow: inset 0 0 0 4px #1b1c18;
+}
+
+.blessing-card-sigil::before,
+.blessing-card-sigil::after {
+  content: "";
+  position: absolute;
+  width: 52px;
+  border-top: 1px solid currentColor;
+  opacity: 0.42;
+  transform: rotate(38deg);
+}
+
+.blessing-card-sigil::after { transform: rotate(-38deg); }
+.blessing-card-sigil span { position: relative; z-index: 1; font-family: Georgia, serif; font-size: 1.2rem; font-weight: 900; }
+.blessing-card-sigil i { position: absolute; width: 38px; height: 38px; border: 1px solid currentColor; border-radius: 50%; opacity: 0.7; }
+.blessing-sigil-1 { color: #89a96c; }
+.blessing-sigil-2 { color: #c77858; }
+.blessing-sigil-3 { color: #d2b45f; }
+.blessing-sigil-4 { color: #75a6b2; }
+
+.blessing-card-copy {
+  min-width: 0;
+  padding-top: 7px;
+  text-align: center;
+}
+
+.blessing-card-copy h4 {
+  min-height: 36px;
+  margin: 4px 0 5px;
+  color: #e6d29a;
+  font-family: Georgia, serif;
+  font-size: 0.86rem;
+  letter-spacing: 0;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.blessing-card-copy p {
+  margin: 0;
+  color: #929b94;
+  font-size: 0.67rem;
+  line-height: 1.35;
+}
+
+.blessing-card-protection {
+  display: grid;
+  place-content: center;
+  border-top: 1px solid #2b302c;
+  text-align: center;
+}
+
+.blessing-card-protection strong { margin-top: 3px; color: #cdd8bd; }
+
+.blessing-card-price {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  color: #f1d077;
+}
+
+.blessing-card-price span {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border: 1px solid #b58d30;
+  border-radius: 50%;
+  color: #f4d46c;
+  font-size: 0.62rem;
+  background: #594818;
+}
+
+.blessing-card button {
+  min-width: 0;
+  min-height: 36px;
+  padding: 5px;
+  border: 1px solid #c79732;
+  border-radius: 3px;
+  color: #17130d;
+  background: #d5aa4d;
+  font-size: 0.7rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.blessing-card button:disabled {
+  border-color: #404640;
+  color: #777f78;
+  background: #222824;
+  cursor: not-allowed;
+}
+
+.blessing-card button.is-owned {
+  border-color: #58704d;
+  color: #bad3ad;
+  background: #1d2c20;
+}
+
+.blessings-temple-record { padding: 12px; }
+.blessings-temple-record > header { margin-bottom: 9px; }
+.blessings-temple-record > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+
+@media (max-width: 1320px) {
+  .blessings-card-grid { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .blessings-hall-hero { grid-template-columns: 90px minmax(0, 1fr); }
+  .blessings-hall-summary { grid-column: 1 / -1; }
+  .blessings-card-grid { grid-template-columns: repeat(2, minmax(150px, 1fr)); }
+  .blessings-temple-record > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 560px) {
+  .blessings-hall-hero { grid-template-columns: 1fr; text-align: center; }
+  .blessings-hall-seal { justify-self: center; }
+  .blessings-hall-summary,
+  .blessings-card-grid,
+  .blessings-temple-record > div { grid-template-columns: 1fr; }
+  .blessings-hall-board > header { align-items: start; flex-direction: column; }
+}

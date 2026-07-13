@@ -15,7 +15,8 @@ import {
   normalizeWeaponProficiencies,
 } from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { getAccessName } from "../../data/accesses";
-import { getBlessingById } from "../../data/blessings";
+import { getActiveBlessings } from "../../data/blessings";
+import { calculateBlessingsProtection } from "../../game-engine/death/calculateBlessProtection";
 import type { Character, EquipmentSlot, Guild, Skill } from "../../shared/types";
 
 type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings";
@@ -58,7 +59,8 @@ export function CharacterDetails({
   const destiny = normalizeDestinyState(character);
   const destinyBonuses = calculateDestinyBonuses(character);
   const activeCosmetics = getActiveCharacterCosmetics(character, guild.collections);
-  const activeBlessing = getBlessingById(character.blessings?.[0]);
+  const activeBlessings = getActiveBlessings(character.blessings);
+  const blessingProtection = Math.round(calculateBlessingsProtection(activeBlessings) * 100);
   const mainSkill = getMainSkill(character);
   const capacityPercent = Math.min(100, Math.round((character.capacityUsed / Math.max(1, character.capacityMax)) * 100));
 
@@ -170,7 +172,12 @@ export function CharacterDetails({
                 : "None"}
             />
             <Detail label="Mastery perks" value={masteryBonuses.activePerks.join(" / ") || "None"} />
-            <Detail label="Blessing" value={activeBlessing?.name ?? "None"} />
+            <Detail
+              label="Blessings"
+              value={activeBlessings.length > 0
+                ? `${activeBlessings.length} active / ${blessingProtection}% protection`
+                : "None"}
+            />
           </dl>
         </section>
 

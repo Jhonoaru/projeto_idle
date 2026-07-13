@@ -485,12 +485,16 @@ export interface DeathPenalty {
   itemsLostValue: number;
   skillProgressLost?: Partial<Record<SkillName, number>>;
   blessProtected: boolean;
+  blessProtectionPercent?: number;
+  consumedBlessingIds?: string[];
   lostItems?: InventoryItem[];
 }
 
 export interface Blessing {
   id: string;
   name: string;
+  sigil: string;
+  domain: string;
   description: string;
   price: number;
   protectionPercent: number;

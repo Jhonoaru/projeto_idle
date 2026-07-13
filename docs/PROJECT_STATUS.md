@@ -60,6 +60,8 @@ Atualizado em: 2026-07-13
 - Etapa 34 concluida: rework visual de Skills como Skill Hall, com progresso real, caminhos da vocacao, plano de desenvolvimento, treinamento atual e resumo de Weapon Proficiency.
 - Etapa 34.5 concluida: QA do Skill Hall no Tauri/SQLite, com navegacao, troca de personagem, save/reload e normalizacao de treinos legados sem `targetSkill`.
 - Etapa 35 concluida: rework visual de Training Grounds e Weapon Proficiency, com halls amplos, filtros, programas de treino, custos, equipamento ativo e trilhas de perks.
+- Etapa 35.5 concluida: QA real de Training Grounds/Weapon Proficiency e correcao da corrida entre Save e Reload no SQLite.
+- Etapa 36 concluida: Blessings Hall com sete bencaos cumulativas, protecao de morte, Temple Record e compatibilidade com saves antigos.
 
 Comandos principais:
 
@@ -705,6 +707,72 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 36 - continuar o rework dos sistemas de progressao do personagem.
+
+## Etapa 36 - Blessings, Death e Temple Hall
+
+Status: concluida.
+
+Blessings Hall:
+
+- Blessings agora abre como hall amplo e esconde roster, menu lateral e painel direito.
+- A tela segue a composicao compacta da referencia enviada, mas usa nomes, sigilos e CSS autorais sem assets externos.
+- O topo mostra personagem, templo atual, quantidade ativa, protecao total e `guild.gold`.
+- Sete cards exibem dominio, descricao, protecao, preco e estado de compra.
+- Temple Record mostra templo, personagem, mortes, estado atual e item loss desabilitado.
+- Personagem morto ve o Death Report e o botao real de revive dentro do proprio hall.
+
+Regras:
+
+- Sete bencaos autorais: Dawn's Insight, Phoenix Ember, Solar Covenant, Spirit Ward, Aether Embrace, Mountain Heart e Vanguard Blood.
+- Cada bencao custa 2.000g e concede 10% de reducao nas penalidades locais de XP/gold.
+- As bencaos sao cumulativas ate o limite conservador de 70%.
+- Cada bencao pode ser comprada uma vez por personagem e todas as que protegerem uma morte sao consumidas.
+- Compra usa somente `guild.gold`; nao existe Store, premium, moeda paga ou compra online.
+- Compra duplicada por clique rapido e bloqueada por lock local e pela verificacao do id ja ativo.
+
+Compatibilidade e persistencia:
+
+- O array existente `character.blessings` continua sendo salvo no mesmo `blessings_json` do SQLite; nenhuma migration foi necessaria.
+- IDs antigos Adventurer's Blessing, Guardian Spirit e Temple Pact continuam reconhecidos com sua protecao original.
+- Uma bencao legada ativa bloqueia novas compras ate ser consumida, evitando misturar regras antigas e novas.
+- DeathPenalty agora pode registrar percentual protegido e ids das bencaos consumidas; saves antigos continuam validos porque os campos sao opcionais.
+- Character Hall mostra quantidade ativa e protecao total; badge lateral usa formato `0/7`.
+
+QA realizado:
+
+- `npm.cmd run build` passou antes e depois da implementacao.
+- Tauri abriu com o save SQLite real e o Blessings Hall carregou sem fallback.
+- Em 1280x800, a tela exibiu sete cards, 0/7, 0% e 674g sem overflow horizontal ou erros de console.
+- Em viewport 760x900, os cards responderam em duas colunas e a largura ficou em 699/699 px, sem overflow.
+- Com 674g, todos os cards de 2.000g ficaram corretamente desabilitados como `Insufficient gold`.
+- Checagem direta da engine confirmou sete ids unicos, 10% com uma bencao e 70% com as sete.
+- Nenhuma compra, morte, consumo de bencao ou alteracao de gold foi aplicada ao save principal durante o QA visual.
+
+Arquivos criados:
+
+- `src/components/death/BlessingsHall.tsx`.
+
+Arquivos principais alterados:
+
+- `src/data/blessings.ts`.
+- `src/shared/types.ts`.
+- `src/game-engine/death/`.
+- `src/app/App.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/components/layout/CharacterSideMenu.tsx`.
+- `src/components/character/CharacterDetails.tsx`.
+- `src/components/death/DeathPanel.tsx`.
+- `src/styles.css`.
+
+Limitacoes:
+
+- Item loss e perda real de skill continuam desabilitados; a protecao atua nas penalidades de XP e gold ja existentes.
+- A compra e o consumo real com sete bencaos devem ser exercitados no Tauri com um save de QA financiado na Etapa 36.5.
+- Nao foi criado sistema de resgate, Store, premium ou compra automatica de bencaos.
+
+Proximo passo sugerido:
+
+- Etapa 36.5 - QA de Blessings, Death e Temple Hall no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

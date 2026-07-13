@@ -56,7 +56,9 @@ export function DeathPanel({ character, onRevive }: DeathPanelProps) {
         />
         <DeathStat
           label="Bless"
-          value={deathState.penalty.blessProtected ? "Protegeu" : "Nenhuma"}
+          value={deathState.penalty.blessProtected
+            ? `${deathState.penalty.blessProtectionPercent ?? 0}% protegido`
+            : "Nenhuma"}
         />
       </div>
 

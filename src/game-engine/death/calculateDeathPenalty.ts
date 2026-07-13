@@ -1,5 +1,5 @@
 import { experienceForLevel } from "../progression/experienceTable";
-import { calculateBlessProtection } from "./calculateBlessProtection";
+import { calculateBlessingsProtection } from "./calculateBlessProtection";
 import type { Blessing, Character, DeathPenalty, HuntRisk } from "../../shared/types";
 
 type DeathRisk = HuntRisk;
@@ -16,10 +16,10 @@ export function calculateDeathPenalty(
   character: Character,
   guildGold: number,
   risk: DeathRisk,
-  blessing?: Blessing,
+  activeBlessings: Blessing[] = [],
 ): { penalty: DeathPenalty; recoverySeconds: number } {
   const rule = penaltyByRisk[risk] ?? penaltyByRisk.medium;
-  const protection = calculateBlessProtection(blessing);
+  const protection = calculateBlessingsProtection(activeBlessings);
   const penaltyMultiplier = 1 - protection;
   const levelFloor = experienceForLevel(character.level);
   const rawExperienceLost = Math.floor(character.experience * rule.xpPercent);
@@ -37,7 +37,11 @@ export function calculateDeathPenalty(
       experienceLost,
       goldLost,
       itemsLostValue: 0,
-      blessProtected: Boolean(blessing),
+      blessProtected: protection > 0,
+      blessProtectionPercent: Math.round(protection * 100),
+      consumedBlessingIds: activeBlessings
+        .filter((blessing) => blessing.consumedOnDeath)
+        .map((blessing) => blessing.id),
       lostItems: [],
     },
     recoverySeconds: rule.recoverySeconds,
