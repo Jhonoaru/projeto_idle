@@ -1,4 +1,5 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { normalizeCharacterAction } from "../game-engine/action/normalizeCharacterAction";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
@@ -36,6 +37,7 @@ function createCharacter(
 ): Character {
   const characterWithProficiencies = {
     ...character,
+    currentAction: normalizeCharacterAction(character.currentAction, character.skills),
     weaponProficiencies: normalizeWeaponProficiencies(character.weaponProficiencies),
     monsterFocus: normalizeMonsterFocusState(character.monsterFocus),
     destiny: normalizeDestinyState(character),

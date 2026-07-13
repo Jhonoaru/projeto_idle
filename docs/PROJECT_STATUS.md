@@ -58,6 +58,7 @@ Atualizado em: 2026-07-13
 - Etapa 33 concluida: rework visual de Details como Character Hall, com selecao de personagem integrada, perfil, atributos, equipamentos, skills e progresso da guilda em uma tela ampla.
 - Etapa 33.5 concluida: QA do Character Hall no Tauri/SQLite, com selecao, Inventory e Save/Reload validados e correcao do retorno indevido para Home.
 - Etapa 34 concluida: rework visual de Skills como Skill Hall, com progresso real, caminhos da vocacao, plano de desenvolvimento, treinamento atual e resumo de Weapon Proficiency.
+- Etapa 34.5 concluida: QA do Skill Hall no Tauri/SQLite, com navegacao, troca de personagem, save/reload e normalizacao de treinos legados sem `targetSkill`.
 
 Comandos principais:
 
@@ -530,6 +531,58 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 34.5 - QA de Skills e progressao no Tauri/SQLite.
+
+## Etapa 34.5 - QA de Skills e progressao no Tauri/SQLite
+
+Status: concluida como QA e estabilizacao.
+
+Validado no runtime Tauri real:
+
+- `npm.cmd run tauri:dev` abriu a janela desktop `Guild Hunt Idle` usando a WebView2 nativa.
+- O SQLite real carregou uma guilda e cinco personagens sem usar o fallback do Vite.
+- Arkon abriu o Skill Hall com sete skills, quatro resumos de mastery, Sword 10 como skill principal e sem overflow horizontal.
+- A troca para Ayla atualizou perfil, vocacao, skill principal, cards recomendados e estado de treinamento.
+- Training Grounds abriu o painel real de Training e selecionou Distance para a sessao ativa.
+- Weapon Mastery abriu Weapon Proficiency com os dados reais da personagem.
+- Path of Destiny abriu a wheel real da personagem.
+- Current Action abriu Ayla, Ranger, level 28, status Training e a acao `Distance drills`.
+- Save e Reload foram executados sem erro da WebView ou mensagem de falha no carregamento.
+- Apos reiniciar o Tauri, o save carregou novamente e o treino de Ayla continuou associado a Distance.
+
+Bug encontrado e corrigido:
+
+- Acoes de treino antigas podiam ter `type: training` e label, mas nao possuir `targetSkill`.
+- O Skill Hall mostrava `Target: Unknown skill`, nao destacava o card treinado e o servico nao conseguiria finalizar esse treino legado.
+- `normalizeCharacterAction` agora recupera o alvo pelo label/targetName e usa a maior skill como fallback seguro.
+- A normalizacao e aplicada no mapper SQLite e nos personagens default, sem migration ou mudanca de schema.
+- O Save gravou `targetSkill: distance` na acao real de Ayla, removendo a ambiguidade nos proximos loads.
+
+Integridade do save:
+
+- `PRAGMA integrity_check` retornou `ok`.
+- O banco permaneceu com uma guilda e cinco personagens.
+- Nenhuma hunt, quest, treino, reward ou progressao foi finalizada durante a QA.
+- Reset nao foi executado.
+
+Arquivos criados:
+
+- `src/game-engine/action/normalizeCharacterAction.ts`.
+
+Arquivos alterados:
+
+- `src/database/saveMapper.ts`.
+- `src/data/mockCharacters.ts`.
+- `docs/PROJECT_STATUS.md`.
+
+Limitacoes:
+
+- A selecao visual de personagem nao e persistida entre reinicios; o app continua iniciando no primeiro personagem e isso e comportamento atual esperado.
+- A inferencia textual existe apenas para recuperar saves legados; novas acoes continuam gravando `targetSkill` diretamente.
+- O aviso de bundle acima de 500 kB permanece no build e nao afeta esta QA.
+
+Proximo passo sugerido:
+
+- Etapa 35 - Rework visual de Weapon Proficiency e Training Grounds.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

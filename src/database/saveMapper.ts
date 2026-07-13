@@ -1,6 +1,7 @@
 import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
+import { normalizeCharacterAction } from "../game-engine/action/normalizeCharacterAction";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { normalizeCollectionsState } from "../game-engine/collections/normalizeCollectionsState";
@@ -11,6 +12,7 @@ import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/
 import type {
   ActivityLogEntry,
   Character,
+  CharacterAction,
   EquipmentSlot,
   EquippedItems,
   Guild,
@@ -163,6 +165,12 @@ export function mapCharacter(
     weaponProficiencies,
     destiny,
   });
+  const currentAction = normalizeCharacterAction(
+    row.current_action_json
+      ? parseJson<CharacterAction | undefined>(row.current_action_json, undefined)
+      : undefined,
+    skills,
+  );
 
   return {
     id: row.id,
@@ -186,9 +194,7 @@ export function mapCharacter(
     questProgress: parseJson(row.quest_progress_json, []),
     skills,
     attributes,
-    currentAction: row.current_action_json
-      ? parseJson(row.current_action_json, undefined)
-      : undefined,
+    currentAction,
     deathState: row.death_state_json
       ? parseJson(row.death_state_json, undefined)
       : undefined,
