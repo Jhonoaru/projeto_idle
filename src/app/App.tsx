@@ -157,6 +157,7 @@ export function App() {
   const resolvingActionRef = useRef(new Set<string>());
   const resolvingDestinyRef = useRef(new Set<string>());
   const resolvingResearchRef = useRef(new Set<string>());
+  const resolvingCollectionsRef = useRef(new Set<string>());
   const claimingDailyRewardRef = useRef(false);
   const buyingBlessingRef = useRef(false);
 
@@ -1386,6 +1387,10 @@ export function App() {
   }
 
   function handleEquipCollectionItem(itemId: string) {
+    const resolutionKey = `equip-collection-${selectedCharacter.id}-${itemId}`;
+    if (resolvingCollectionsRef.current.has(resolutionKey)) return;
+    resolvingCollectionsRef.current.add(resolutionKey);
+
     try {
       const updatedCharacter = equipCollectionItem(selectedCharacter, guild, itemId);
       updateSelectedCharacter(updatedCharacter);
@@ -1396,6 +1401,8 @@ export function App() {
         error instanceof Error ? error.message : "Cosmetic cannot be equipped.",
         "warning",
       );
+    } finally {
+      window.setTimeout(() => resolvingCollectionsRef.current.delete(resolutionKey), 0);
     }
   }
 

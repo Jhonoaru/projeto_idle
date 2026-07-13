@@ -68,6 +68,7 @@ Atualizado em: 2026-07-13
 - Etapa 38 concluida: rework de Path of Destiny / Wheel como hall amplo, com constelacao de nodes, dossier, categorias e ledger de bonus reais.
 - Etapa 38.5 concluida: QA real de Path of Destiny no Tauri/SQLite, com unlock, prerequisitos, bonus, reset, Save/Reload e clique duplo validados.
 - Etapa 39 concluida: Collections Hall amplo com catalogo, busca, filtros, showcase e loadout ativo para Outfits, Mounts e Avatars.
+- Etapa 39.5 concluida: QA real de Collections Hall no Tauri/SQLite, com badge, equip dos tres slots, Save/Reload e clique duplo validados.
 
 Comandos principais:
 
@@ -1130,6 +1131,63 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 39.5 - QA de Collections Hall no Tauri/SQLite.
+
+## Etapa 39.5 - QA de Collections Hall
+
+Status: concluida.
+
+Fixture protegida:
+
+- O SQLite original foi copiado byte a byte antes do QA.
+- Rat Catcher foi adicionado temporariamente como unlock novo e `newlyUnlockedCollectionItemIds` recebeu seu ID.
+- A fixture preservou o loadout inicial de Arkon: Iron Guard, No Mount e Shield Emblem.
+- WAL/SHM foram removidos antes do reteste final para garantir isolamento completo da fixture.
+
+Badge e Collections:
+
+- O menu lateral mostrou badge `1` antes de abrir Collections.
+- Abrir o hall limpou o badge sem remover Rat Catcher dos unlocks.
+- Save/Reload persistiu `newlyUnlockedCollectionItemIds` vazio.
+- O catalogo temporario mostrou 15/26 cosmeticos e Rat Catcher como unlocked.
+
+Equip e persistencia:
+
+- Outfit foi alterado de Iron Guard para Rat Catcher.
+- Mount foi alterado de No Mount para Old Mule.
+- Avatar foi alterado de Shield Emblem para Sword Emblem.
+- Active Loadout atualizou os tres slots imediatamente.
+- Save/Reload restaurou Rat Catcher, Old Mule e Sword Emblem no Tauri e no SQLite.
+- Apprentice Mystic permaneceu disabled para Guardian com motivo `Different vocation`.
+- Noble Adventurer permaneceu locked e sem possibilidade de compra/equip.
+
+Correcao de clique duplo:
+
+- Dois eventos no mesmo tick equipavam apenas um estado final, mas geravam dois logs identicos.
+- `src/app/App.tsx` agora usa lock por personagem/item durante `handleEquipCollectionItem`.
+- O reteste enviou clique duplo para Outfit, Mount e Avatar e registrou exatamente tres logs de Collections, um por slot.
+- Erros reais de item inexistente, locked ou vocacao invalida continuam tratados pela engine.
+
+Restauracao e validacao:
+
+- O save original foi reaberto no Tauri com Arkon level 1 e 674g.
+- Collections voltou para 14 unlocks starter, sem flags novas.
+- Loadout original voltou para Iron Guard, No Mount e Shield Emblem.
+- SQLite final permaneceu `integrity_check: ok`.
+- SHA-256 final: `7f5f9fcd02e2559f25e5399aa6018eebdfe5d8766ddffcf16fd47de51973f217`.
+- O backup temporario foi removido apos a verificacao.
+- `npm.cmd run build` passou antes e depois da correcao com 271 modulos.
+- Nao existem scripts separados de test, lint ou typecheck no `package.json`.
+- Permanece somente o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Unlocks por quest, boss e Daily ja usam a engine real, mas nao foram repetidos nesta fixture.
+- Store/event continuam placeholders sem compra real.
+- Catalogo, rarity, fontes de unlock e schema nao foram alterados.
+
+Proximo passo sugerido:
+
+- Etapa 40 - Rework de Daily Reward Hall.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
