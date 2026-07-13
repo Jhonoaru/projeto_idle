@@ -76,6 +76,7 @@ Atualizado em: 2026-07-13
 - Etapa 42 concluida: Store reformulado como Cosmetic Showcase local, com 12 previews, filtros, integracao com Collections e nenhuma monetizacao.
 - Etapa 42.5 concluida: QA real do Cosmetic Showcase no Tauri/SQLite, com catalogo, filtros, preview, Collections, Save/Reload e ausencia de monetizacao validados.
 - Etapa 43 concluida: Updates reformulado como Release Archive local, com busca, filtros, dossiers e historico recente do cliente.
+- Etapa 43.5 concluida: QA real do Updates Hall no Tauri/SQLite, com filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
 
 Comandos principais:
 
@@ -1576,6 +1577,43 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 43.5 - QA do Updates Hall no Tauri/SQLite.
+
+## Etapa 43.5 - QA do Updates Hall no Tauri/SQLite
+
+Status: concluida.
+
+Validacao no Tauri:
+
+- O app desktop foi aberto com o SQLite real e operado por cliques reais na janela Tauri.
+- Updates abriu como hall amplo, sem roster, menu lateral ou painel direito ocupando a area do arquivo.
+- O resumo exibiu 10 releases, quatro Systems, quatro Interface, dois QA Records e Current: Stage 43.
+- O filtro QA exibiu `2/10` registros e selecionou Hall of Renown QA no dossier.
+- A busca por `ranking` dentro do filtro QA exibiu exatamente `1/10` registro.
+- Save, Reload e a reabertura de Updates restauraram All Releases, busca vazia, `10/10` visiveis e Stage 43 selecionada.
+
+Validacao do SQLite:
+
+- `PRAGMA integrity_check` retornou `ok` antes e depois do fluxo.
+- Guilda, cinco personagens, 35 skills e 26 linhas de inventario permaneceram semanticamente identicos ao backup.
+- `guild.gold` permaneceu em 674g e Updates nao criou activity logs.
+- O Save manual adicionou somente o log esperado `Save salvo com sucesso.`; os 10 logs anteriores foram preservados.
+- `save_metadata` atualizou apenas timestamps tecnicos esperados durante load/save.
+- Ao final, o banco original foi restaurado byte por byte, com SHA-256 `7f5f9fcd02e2559f25e5399aa6018eebdfe5d8766ddffcf16fd47de51973f217`.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado.
+- Nenhum arquivo de codigo precisou ser alterado; somente esta documentacao foi atualizada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Release notes continuam locais e curadas manualmente, sem updater ou feed remoto.
+- A validacao foi desktop no Tauri; a responsividade mobile ja havia sido coberta na Etapa 43 pelo browser local.
+
+Proximo passo sugerido:
+
+- Etapa 44 - Rework de Wiki / Guild Codex local.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
