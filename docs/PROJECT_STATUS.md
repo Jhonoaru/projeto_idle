@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-09
+Atualizado em: 2026-07-13
 
 ## Stack usada
 
@@ -54,6 +54,7 @@ Atualizado em: 2026-07-09
 - Ajuste pos-Etapa 32: duracao customizavel de hunt em minutos/horas e botao de retorno para cidade dentro da Hunt Scene.
 - Ajuste pos-Etapa 32.1: Explorar/Hunts agora abre primeiro apenas a lista de hunts; assignment aparece somente apos selecionar uma hunt e foi simplificada para escolher duracao e iniciar.
 - Ajuste pos-Etapa 32.2: Details virou tela inicial, Explorar sempre abre limpo, iniciar hunt envia direto para a Hunt Scene e o modo combate esconde roster/painel direito com analyzer lateral.
+- Etapa 32.5 concluida: QA interativo do novo Explorar/Hunt Scene, com fluxo de selecao, duracao, entrada e saida do combate, modal central e controles contextuais validados.
 
 Comandos principais:
 
@@ -340,6 +341,49 @@ Validacao:
 
 - `npm.cmd run build` passou.
 - QA manual visual no app desktop ainda deve ser repetido.
+
+## Etapa 32.5 - QA do novo Explorar e Hunt Scene
+
+Status: concluida.
+
+Validado no browser embutido com Vite:
+
+- O app inicia em `Character Details`, com personagem, atributos e roster visiveis.
+- `Explorar` abre na lista de Hunts sem selecionar automaticamente uma hunt e sem mostrar `Hunt Assignment`.
+- A lista inicial exibiu 8 hunts e nao gerou overflow horizontal.
+- Selecionar `Sewers Below Thaeron` substitui o board pelo assignment simplificado.
+- O assignment mostra apenas resumo, duracao e inicio; Supplies, Preparation e Auto-repeat nao aparecem nesse fluxo.
+- A duracao de 5 minutos foi selecionada e preservada ao iniciar.
+- `Iniciar Hunt` abre diretamente a Hunt Scene.
+- Durante o combate, roster, menu lateral de personagem e painel direito ficam escondidos.
+- O analyzer permanece na esquerda e a area central de combate usa o espaco restante, sem o bloco inferior antigo.
+- A janela de Cura abriu no centro exato da area de combate, fora do analyzer e sem ultrapassar a viewport.
+- Os botoes centrais ficam invisiveis e sem interacao ate o clique na cena; depois do clique, aparecem e aceitam interacao.
+- `Finalizar Hunt` fecha o modo de combate e coloca o personagem em viagem de retorno.
+- Nenhum overflow horizontal foi encontrado durante entrada, modal ou saida do combate.
+
+Medicoes do modal de Cura:
+
+- Largura: 620 px no viewport testado.
+- Diferenca entre o centro do modal e o centro da area de combate: 0 px.
+- Limite esquerdo do modal: 486 px; limite direito do analyzer: 323 px.
+
+Validacao tecnica:
+
+- `git pull` informou repositorio atualizado.
+- `npm.cmd run build` passou antes da QA.
+- Vite respondeu HTTP 200 em `http://127.0.0.1:1420`.
+- O unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin ao executar no browser Vite.
+
+Limitacoes da QA:
+
+- SQLite/save real nao foi validado nesta rodada porque o teste interativo ocorreu fora do runtime Tauri.
+- Nao foi aguardado o encerramento natural dos 5 minutos; a saida foi testada com `Finalizar Hunt`.
+- Loot Filter e Posicionamento continuam placeholders desabilitados, conforme escopo atual.
+
+Proximo passo sugerido:
+
+- Etapa 33 - Rework visual da tela inicial `Details` e selecao de personagem.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
