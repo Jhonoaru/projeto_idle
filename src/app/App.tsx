@@ -156,6 +156,7 @@ export function App() {
   const charactersRef = useRef(characters);
   const resolvingActionRef = useRef(new Set<string>());
   const resolvingDestinyRef = useRef(new Set<string>());
+  const resolvingResearchRef = useRef(new Set<string>());
   const claimingDailyRewardRef = useRef(false);
   const buyingBlessingRef = useRef(false);
 
@@ -811,6 +812,9 @@ export function App() {
   }
 
   function handleClaimBestiaryReward(monsterId: string) {
+    const resolutionKey = `claim-bestiary-${monsterId}`;
+    if (!beginResearchResolution(resolutionKey)) return;
+
     try {
       const result = claimBestiaryReward(guild.bestiary, monsterId);
       setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
@@ -819,10 +823,15 @@ export function App() {
       }
     } catch (error) {
       prependLog("Bestiary", error instanceof Error ? error.message : "Reward blocked.", "warning");
+    } finally {
+      endResearchResolution(resolutionKey);
     }
   }
 
   function handleUnlockCharm(charmId: string) {
+    const resolutionKey = `unlock-charm-${charmId}`;
+    if (!beginResearchResolution(resolutionKey)) return;
+
     try {
       const result = unlockCharm(guild.bestiary, charmId);
       setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
@@ -831,10 +840,15 @@ export function App() {
       }
     } catch (error) {
       prependLog("Charms", error instanceof Error ? error.message : "Charm blocked.", "warning");
+    } finally {
+      endResearchResolution(resolutionKey);
     }
   }
 
   function handleAssignCharm(charmId: string, monsterId: string) {
+    const resolutionKey = `assign-charm-${charmId}-${monsterId}`;
+    if (!beginResearchResolution(resolutionKey)) return;
+
     try {
       const result = assignCharmToMonster(guild.bestiary, charmId, monsterId);
       setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
@@ -843,10 +857,15 @@ export function App() {
       }
     } catch (error) {
       prependLog("Charms", error instanceof Error ? error.message : "Assign blocked.", "warning");
+    } finally {
+      endResearchResolution(resolutionKey);
     }
   }
 
   function handleRemoveCharm(monsterId: string) {
+    const resolutionKey = `remove-charm-${monsterId}`;
+    if (!beginResearchResolution(resolutionKey)) return;
+
     try {
       const result = removeCharmFromMonster(guild.bestiary, monsterId);
       setGuild((currentGuild) => ({ ...currentGuild, bestiary: result.bestiary }));
@@ -855,7 +874,19 @@ export function App() {
       }
     } catch (error) {
       prependLog("Charms", error instanceof Error ? error.message : "Remove blocked.", "warning");
+    } finally {
+      endResearchResolution(resolutionKey);
     }
+  }
+
+  function beginResearchResolution(resolutionKey: string) {
+    if (resolvingResearchRef.current.has(resolutionKey)) return false;
+    resolvingResearchRef.current.add(resolutionKey);
+    return true;
+  }
+
+  function endResearchResolution(resolutionKey: string) {
+    window.setTimeout(() => resolvingResearchRef.current.delete(resolutionKey), 0);
   }
 
   function handleUpgradeForgeItem(inventoryItem: InventoryItem) {
@@ -1205,6 +1236,9 @@ export function App() {
     monsterId: string,
     bonusType: MonsterFocusBonusType,
   ) {
+    const resolutionKey = `activate-focus-${selectedCharacter.id}-${slotIndex}`;
+    if (!beginResearchResolution(resolutionKey)) return;
+
     try {
       const updatedCharacter = activateMonsterFocus(selectedCharacter, guild.bestiary, {
         slotIndex,
@@ -1223,31 +1257,43 @@ export function App() {
         error instanceof Error ? error.message : "Monster Focus nao pode ser ativado.",
         "warning",
       );
+    } finally {
+      endResearchResolution(resolutionKey);
     }
   }
 
   function handleClearMonsterFocus(slotIndex: number) {
-    updateSelectedCharacter(clearMonsterFocusSlot(selectedCharacter, slotIndex));
-    prependLog(
-      "Monster Focus",
-      `${selectedCharacter.name} limpou o slot ${slotIndex + 1}.`,
-      "neutral",
-    );
+    const resolutionKey = `clear-focus-${selectedCharacter.id}-${slotIndex}`;
+    if (!beginResearchResolution(resolutionKey)) return;
+
+    try {
+      updateSelectedCharacter(clearMonsterFocusSlot(selectedCharacter, slotIndex));
+      prependLog(
+        "Monster Focus",
+        `${selectedCharacter.name} limpou o slot ${slotIndex + 1}.`,
+        "neutral",
+      );
+    } finally {
+      endResearchResolution(resolutionKey);
+    }
   }
 
   function handleRerollMonsterFocus(slotIndex: number) {
-    const cost = getMonsterFocusRerollCost(selectedCharacter, slotIndex);
-
-    if (guild.gold < cost) {
-      prependLog(
-        "Monster Focus blocked",
-        `Guilda ${guild.name} nao possui gold suficiente para reroll (${cost.toLocaleString("en-US")}g).`,
-        "warning",
-      );
-      return;
-    }
+    const resolutionKey = `reroll-focus-${selectedCharacter.id}-${slotIndex}`;
+    if (!beginResearchResolution(resolutionKey)) return;
 
     try {
+      const cost = getMonsterFocusRerollCost(selectedCharacter, slotIndex);
+
+      if (guild.gold < cost) {
+        prependLog(
+          "Monster Focus blocked",
+          `Guilda ${guild.name} nao possui gold suficiente para reroll (${cost.toLocaleString("en-US")}g).`,
+          "warning",
+        );
+        return;
+      }
+
       const result = rerollMonsterFocusBonus(selectedCharacter, slotIndex);
       updateSelectedCharacter(result.character);
       setGuild((currentGuild) => ({
@@ -1265,6 +1311,8 @@ export function App() {
         error instanceof Error ? error.message : "Monster Focus nao pode ser rerolled.",
         "warning",
       );
+    } finally {
+      endResearchResolution(resolutionKey);
     }
   }
 

@@ -64,6 +64,7 @@ Atualizado em: 2026-07-13
 - Etapa 36 concluida: Blessings Hall com sete bencaos cumulativas, protecao de morte, Temple Record e compatibilidade com saves antigos.
 - Etapa 36.5 concluida: QA real de compra, protecao, consumo, revive e persistencia das Blessings no Tauri/SQLite.
 - Etapa 37 concluida: Hunting Research Hall conectando Bestiary, dossiers, Charms e Monster Focus em telas amplas.
+- Etapa 37.5 concluida: QA real de Bestiary, Charms e Monster Focus no Tauri/SQLite, com persistencia validada e protecao contra duplicacao por clique duplo.
 
 Comandos principais:
 
@@ -902,6 +903,52 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 37.5 - QA de Bestiary, Charms e Monster Focus no Tauri/SQLite.
+
+## Etapa 37.5 - QA de Bestiary, Charms e Monster Focus
+
+Status: concluida.
+
+Cobertura realizada:
+
+- Foi criado um backup byte a byte do SQLite principal antes do QA.
+- Uma fixture temporaria carregou quatro criaturas nos stages Started, Revealed e Completed, 50 charm points e os tres slots reais de Monster Focus.
+- Claim de Sewer Rat concedeu 5 pontos uma unica vez e permaneceu claimed apos Save/Reload.
+- Scholar consumiu 20 pontos, foi atribuido a Sewer Rat e persistiu corretamente.
+- Monster Focus foi ativado para Cave Spider, rerolled por 250g e persistiu com bonus de loot, 8%, 10 cargas e `rerollCount: 1`.
+- Remove de charm e Clear de Focus persistiram, sem duplicar logs ou estado.
+- A interface recarregada mostrou 4.750g, 35 charm points, charm/assignment e contrato ativos antes da limpeza final da fixture.
+
+Correcao encontrada no QA:
+
+- Cliques duplos no mesmo tick podiam executar handlers de Bestiary/Charms/Monster Focus duas vezes antes do rerender.
+- No reroll, isso descontava 250g duas vezes enquanto o estado visual avancava apenas uma vez; logs das demais acoes tambem eram duplicados.
+- `src/app/App.tsx` agora usa locks curtos por operacao para claim, unlock, assign, remove, activate, clear e reroll.
+- As validacoes da engine continuam sendo a segunda camada de protecao; o lock cobre especificamente a janela entre eventos consecutivos e o rerender do React.
+
+Validacao SQLite e save:
+
+- O reteste agressivo enviou dois cliques no mesmo tick para cada acao critica.
+- O banco registrou uma ocorrencia por acao, gold final de teste em 4.750g, 35 charm points e `integrity_check: ok`.
+- Save/Reload preservou claim, unlock, assignment, contrato e reroll.
+- O save original foi reaberto no Tauri com Guilda Aurora, Arkon e 674g.
+- Ao final, o SQLite original foi restaurado com SHA-256 `20578374af2506e3838be37069943da5e7a03795a8f2516ecb2392f026d42658` e o backup temporario foi removido.
+
+Comandos e testes:
+
+- `npm.cmd run build` passou com TypeScript e Vite; 269 modulos foram transformados.
+- `npm.cmd run tauri:dev` foi usado para o QA interativo no WebView nativo com SQLite real.
+- Nao existem scripts `test`, `lint` ou `typecheck` separados no `package.json`.
+- O build mantem apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Slots 2 e 3 de Monster Focus continuam bloqueados por design.
+- O QA usa fixture local controlada; nenhum schema, balanceamento, sistema online ou monetizacao foi adicionado.
+- Anti-cheat de alteracao manual do SQLite permanece fora do escopo offline/local.
+
+Proximo passo sugerido:
+
+- Etapa 38 - Rework de Path of Destiny / Wheel.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
