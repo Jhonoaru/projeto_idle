@@ -70,6 +70,7 @@ Atualizado em: 2026-07-13
 - Etapa 39 concluida: Collections Hall amplo com catalogo, busca, filtros, showcase e loadout ativo para Outfits, Mounts e Avatars.
 - Etapa 39.5 concluida: QA real de Collections Hall no Tauri/SQLite, com badge, equip dos tres slots, Save/Reload e clique duplo validados.
 - Etapa 40 concluida: Daily Reward reformulado como Guild Daily Ledger amplo, com calendario de sete dias, dispatch em destaque e historico compacto.
+- Etapa 40.5 concluida: QA real do Daily Reward Hall no Tauri/SQLite, com badge, claim de supply, streak, ciclo, clique duplo e Save/Reload validados.
 
 Comandos principais:
 
@@ -1231,6 +1232,64 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 40.5 - QA do Daily Reward Hall no Tauri/SQLite.
+
+## Etapa 40.5 - QA do Daily Reward Hall
+
+Status: concluida.
+
+Fixture protegida:
+
+- O SQLite original recebeu checkpoint e foi copiado byte a byte antes do QA.
+- SHA-256 original: `7f5f9fcd02e2559f25e5399aa6018eebdfe5d8766ddffcf16fd47de51973f217`.
+- A fixture definiu o ultimo claim como ontem, streak 4, total 4, `cycleDay` 2 e um registro anterior no historico.
+- Nao havia Health Potion no Guild Depot antes do teste.
+
+QA real no Tauri:
+
+- `npm.cmd run tauri:dev` iniciou Vite, compilou o target Rust e abriu `guild-hunt-idle.exe`.
+- A janela Tauri mostrou badge `!` no Daily antes do claim.
+- O hall abriu com status Available, streak 4, total 4, Day 1 Complete e Day 2 Current.
+- Health Supply Crate exibiu `HP x5` e destino Guild Depot.
+- Foi enviado clique duplo real ao botao Claim Guild Reward.
+- Exatamente um claim foi aplicado: streak 5, total 5, `cycleDay` 3 e `claimedToday = true`.
+- Day 2 passou para Claimed, Day 3 passou para Current e o dossier mudou para Return Tomorrow.
+- O botao mudou para Reward Claimed Today, ficou disabled e informou disponibilidade amanha.
+- O badge da Topbar desapareceu imediatamente.
+- O historico passou de 1/20 para 2/20 com Health Supply Crate no topo.
+
+SQLite e persistencia:
+
+- Guild Depot recebeu exatamente cinco Health Potions em um unico stack valido.
+- `guild.gold` permaneceu 674 porque a recompensa testada era supply.
+- Activity Log persistiu exatamente dois registros: entrega de Health Potion x5 e streak de 5 dias.
+- Nao houve log, item, historico ou incremento duplicado apos o clique duplo.
+- Save e Reload foram acionados na janela Tauri.
+- Apos Reload, streak 5, total 5, `cycleDay` 3, historico 2/20 e cinco potions continuaram persistidos.
+- `pragma integrity_check` permaneceu `ok` antes, durante e depois do QA.
+
+Restauracao:
+
+- O runtime Tauri foi encerrado e os sidecars WAL/SHM foram removidos.
+- O save original foi restaurado com 674g, streak 1, total 1, `cycleDay` 2 e o historico original.
+- SHA-256 restaurado corresponde exatamente ao backup original.
+- Nenhum dado da fixture permaneceu no save do usuario.
+
+Validacao tecnica:
+
+- `npm.cmd run build` passou antes do QA com 272 modulos.
+- Nenhum bug de gameplay ou UI foi encontrado nesta etapa; somente a documentacao foi alterada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+- Nao existem scripts separados de test, lint ou typecheck no `package.json`.
+
+Limitacoes:
+
+- O QA real cobriu a recompensa de supply do Dia 2; gold, material e Collections continuam cobertos pela engine e pelo QA anterior, mas nao foram reaplicados nesta fixture.
+- A virada pratica do Dia 7 para o Dia 1 nao foi repetida no Tauri nesta etapa.
+- O sistema continua usando data local, sem anti-cheat, premium, pagamento ou online.
+
+Proximo passo sugerido:
+
+- Etapa 41 - Rework de Ranking Hall local.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
