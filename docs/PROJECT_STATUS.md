@@ -73,6 +73,7 @@ Atualizado em: 2026-07-13
 - Etapa 40.5 concluida: QA real do Daily Reward Hall no Tauri/SQLite, com badge, claim de supply, streak, ciclo, clique duplo e Save/Reload validados.
 - Etapa 41 concluida: Ranking reformulado como Hall of Renown local, com podio, quatro metricas reais, tabela completa e dossier do personagem.
 - Etapa 41.5 concluida: QA real do Ranking Hall no Tauri/SQLite, com quatro metricas, selecao, Save/Reload e ausencia de mutacao validados.
+- Etapa 42 concluida: Store reformulado como Cosmetic Showcase local, com 12 previews, filtros, integracao com Collections e nenhuma monetizacao.
 
 Comandos principais:
 
@@ -1410,6 +1411,64 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 42 - Rework de Store Hall cosmetico local, somente preview e sem pagamento real.
+
+## Etapa 42 - Rework de Store Hall cosmetico local
+
+Status: concluida.
+
+Novo Cosmetic Showcase:
+
+- Store deixou o placeholder simples embutido no `MainPanel` e ganhou componente dedicado em `src/components/store/CosmeticShowcaseHall.tsx`.
+- A janela passou a se chamar Cosmetic Showcase e usa toda a area central sem roster, menu lateral ou painel direito.
+- O hall funciona como arquivo de preview local, sem precos, checkout, moeda paga, compra ou servico online.
+- Hero mostra quantidade de registros, unlocks do showcase, previews futuros e Purchases Disabled.
+- Banner permanente informa que nenhum item pode ser comprado e oferece somente o comando Open Collections.
+
+Catalogo:
+
+- Showcase lista os 12 cosmeticos nao-starter existentes em `src/data/collections.ts`.
+- Quatro Outfits, quatro Mounts e quatro Avatars usam os mesmos IDs e dados reais de Collections.
+- Filtros por categoria alternam All Records, Outfits, Mounts e Avatars.
+- Filtros de fonte alternam all, earnable e future.
+- Itens earnable distinguem Bestiary, Quest, Boss e Achievement.
+- Itens futuros distinguem Future Store e Future Event, sempre como Preview only.
+- Estado Unlocked vem diretamente de `guild.collections`; nenhum estado paralelo foi criado.
+
+Preview e integracao:
+
+- Selecionar um card atualiza sigilo, nome, raridade, descricao, categoria e fonte.
+- Dossier informa Collection state, compatibilidade de vocacao, tipo de acesso e Payment Not Available.
+- Requisitos usam `unlockRequirementText` existente.
+- Open Collections e Open Collections Hall navegam para o Wardrobe Hall real.
+- Unlock e equip continuam exclusivamente sob responsabilidade do sistema Collections.
+
+Politica sem monetizacao:
+
+- O hall declara No payment, No power, No online e Collections owns unlocks.
+- Nao existem botoes Buy, Purchase ou Checkout.
+- Nao foram adicionados premium, saldo pago, pagamento real, anuncios, boosts ou vantagens de gameplay.
+- `guild.gold` e o placeholder Cosmetic da Topbar nao sao consumidos pelo showcase.
+
+Validacao:
+
+- `npm.cmd run build` passou com 274 modulos.
+- Browser local validou 12 registros, quatro previews futuros e ausencia de overflow horizontal em 1280x720.
+- Future mostrou 4/12; Outfits + Future mostrou 1/12; Mounts + Future mostrou 2/12.
+- Ash Wolf e Merchant Cart apareceram no filtro correto e selecionar Merchant Cart atualizou o preview.
+- A arvore acessivel continha zero botoes Buy, Purchase ou Checkout.
+- Open Collections navegou corretamente ao Wardrobe Hall.
+- Os unicos erros do console foram os fallbacks esperados do SQLite fora do runtime Tauri.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Store continua sendo apenas uma vitrine; nenhum item futuro pode ser obtido nela.
+- Sigilos e silhuetas continuam produzidos por CSS e texto, sem assets externos.
+- Breakpoints mobile foram revisados por CSS, sem screenshot mobile real nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 42.5 - QA do Cosmetic Showcase no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

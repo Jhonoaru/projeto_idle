@@ -20,11 +20,11 @@ import { MarketPanel } from "../market/MarketPanel";
 import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
+import { CosmeticShowcaseHall } from "../store/CosmeticShowcaseHall";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
-import { getCollectionItemById } from "../../data/collections";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type {
   Boss,
@@ -587,7 +587,13 @@ export function MainPanel({
             selectedCharacter={selectedCharacter}
           />
         ) : null}
-        {activeTab === "store" ? <StoreWindow /> : null}
+        {activeTab === "store" ? (
+          <CosmeticShowcaseHall
+            character={selectedCharacter}
+            guild={guild}
+            onOpenCollections={() => onChangeTab("collections")}
+          />
+        ) : null}
         {activeTab === "updates" ? <UpdatesWindow /> : null}
         {activeTab === "wiki" ? <WikiWindow /> : null}
         {activeTab === "settings" ? (
@@ -630,7 +636,7 @@ function getWindowTitle(tab: MainPanelTab) {
     bestiary: "Hunting Research / Bestiary",
     daily: "Daily Reward",
     ranking: "Local Ranking",
-    store: "Store",
+    store: "Cosmetic Showcase",
     updates: "Updates",
     wiki: "Wiki",
     settings: "Settings",
@@ -652,7 +658,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
   if (tab === "bestiary") return "Guild creature records, research stages, charm points and active assignments.";
-  if (tab === "store") return "Client-style preview for a future system.";
+  if (tab === "store") return "Local cosmetic previews with no purchases, premium currency or online services.";
   return undefined;
 }
 
@@ -677,33 +683,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function StoreWindow() {
-  const storeItems = ["outfit-noble-adventurer", "mount-merchant-cart"]
-    .map((itemId) => getCollectionItemById(itemId))
-    .filter(Boolean);
-
-  return (
-    <Panel title="Cosmetic Store">
-      <div className="client-placeholder-grid">
-        <div className="client-info-card">
-          <strong>Cosmetics</strong>
-          <p>Cosmetic store planned for future versions.</p>
-        </div>
-        {storeItems.map((item) => (
-          <div className="client-info-card" key={item?.id}>
-            <strong>{item?.name}</strong>
-            <p>{item?.unlockRequirementText ?? "Future store placeholder. No purchase is available."}</p>
-          </div>
-        ))}
-        <div className="client-info-card">
-          <strong>Boosts</strong>
-          <p>Future placeholder only; progression is not pay-gated.</p>
-        </div>
-      </div>
-    </Panel>
-  );
 }
 
 function UpdatesWindow() {
