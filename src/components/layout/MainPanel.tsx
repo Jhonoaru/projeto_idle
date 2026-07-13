@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
 import { ActionPanel } from "../action/ActionPanel";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
+import { MonsterFocusHall } from "../bestiary/MonsterFocusHall";
 import { BossPanel } from "../boss/BossPanel";
 import { BlessingsHall } from "../death/BlessingsHall";
 import { ExploreWindow } from "../explore/ExploreWindow";
@@ -28,14 +29,6 @@ import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDail
 import { getCurrentDailyReward } from "../../game-engine/daily-reward/getCurrentDailyReward";
 import { getDailyRewardPreview } from "../../game-engine/daily-reward/getDailyRewardPreview";
 import { normalizeDailyRewardState } from "../../game-engine/daily-reward/normalizeDailyRewardState";
-import {
-  monsterFocusBonusDescriptions,
-  monsterFocusBonusLabels,
-  monsterFocusBonusTypes,
-} from "../../data/monsterFocus";
-import { getAvailableFocusMonsters } from "../../game-engine/monster-focus/getAvailableFocusMonsters";
-import { getMonsterFocusRerollCost } from "../../game-engine/monster-focus/rerollMonsterFocusBonus";
-import { normalizeMonsterFocusState } from "../../game-engine/monster-focus/normalizeMonsterFocusState";
 import { destinyNodes, getDestinyNodeById } from "../../data/destinyNodes";
 import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-engine/destiny/calculateDestinyBonuses";
 import { canUnlockDestinyNode } from "../../game-engine/destiny/canUnlockDestinyNode";
@@ -368,11 +361,12 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "focus" ? (
-          <MonsterFocusWindow
+          <MonsterFocusHall
             character={selectedCharacter}
             guild={guild}
             onActivate={onActivateMonsterFocus}
             onClear={onClearMonsterFocus}
+            onOpenBestiary={() => onChangeTab("bestiary")}
             onReroll={onRerollMonsterFocus}
           />
         ) : null}
@@ -581,15 +575,15 @@ export function MainPanel({
         ) : null}
 
         {activeTab === "bestiary" ? (
-          <Panel title="Guild Bestiary">
-            <BestiaryPanel
-              guild={guild}
-              onAssignCharm={onAssignCharm}
-              onClaimReward={onClaimBestiaryReward}
-              onRemoveCharm={onRemoveCharm}
-              onUnlockCharm={onUnlockCharm}
-            />
-          </Panel>
+          <BestiaryPanel
+            character={selectedCharacter}
+            guild={guild}
+            onAssignCharm={onAssignCharm}
+            onClaimReward={onClaimBestiaryReward}
+            onOpenFocus={() => onChangeTab("focus")}
+            onRemoveCharm={onRemoveCharm}
+            onUnlockCharm={onUnlockCharm}
+          />
         ) : null}
 
         {activeTab === "daily" ? (
@@ -621,7 +615,7 @@ function getWindowTitle(tab: MainPanelTab) {
     skills: "Skills",
     blessings: "Blessings",
     proficiency: "Weapon Proficiency",
-    focus: "Monster Focus",
+    focus: "Hunting Research / Monster Focus",
     destiny: "Path of Destiny",
     collections: "Collections",
     action: "Current Action",
@@ -636,7 +630,7 @@ function getWindowTitle(tab: MainPanelTab) {
     training: "Training",
     quests: "Quests",
     bosses: "Bosses",
-    bestiary: "Bestiary & Charms",
+    bestiary: "Hunting Research / Bestiary",
     daily: "Daily Reward",
     ranking: "Local Ranking",
     store: "Store",
@@ -652,13 +646,14 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "hunts") return "Hunts, bosses, training, and quests use the real game systems.";
   if (tab === "atlas") return "Region, area, access and level progression derived from the local save.";
   if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
-  if (tab === "focus") return "Per-character prey contracts with Bestiary targets and temporary hunt bonuses.";
+  if (tab === "focus") return "Personal target contracts, field studies and temporary hunt bonuses.";
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
+  if (tab === "bestiary") return "Guild creature records, research stages, charm points and active assignments.";
   if (tab === "store") return "Client-style preview for a future system.";
   return undefined;
 }
@@ -802,192 +797,6 @@ function formatCollectionCategory(category: CollectionCategory) {
   if (category === "outfit") return "Outfits";
   if (category === "mount") return "Mounts";
   return "Avatars";
-}
-
-function MonsterFocusWindow({
-  character,
-  guild,
-  onActivate,
-  onClear,
-  onReroll,
-}: {
-  character: Character;
-  guild: Guild;
-  onActivate: (slotIndex: number, monsterId: string, bonusType: MonsterFocusBonusType) => void;
-  onClear: (slotIndex: number) => void;
-  onReroll: (slotIndex: number) => void;
-}) {
-  const focus = normalizeMonsterFocusState(character.monsterFocus);
-  const knownMonsters = getAvailableFocusMonsters(guild.bestiary);
-  const [selectedSlotIndex, setSelectedSlotIndex] = useState(0);
-  const [selectedMonsterId, setSelectedMonsterId] = useState(
-    knownMonsters[0]?.monsterId ?? "",
-  );
-  const [selectedBonusType, setSelectedBonusType] = useState<MonsterFocusBonusType>("experience");
-  const selectedSlot = focus.slots[selectedSlotIndex] ?? focus.slots[0];
-  const canActivate =
-    Boolean(selectedMonsterId) &&
-    (selectedSlot?.status === "empty" || selectedSlot?.status === "expired");
-
-  useEffect(() => {
-    if (!focus.slots[selectedSlotIndex] || focus.slots[selectedSlotIndex].status === "locked") {
-      setSelectedSlotIndex(focus.slots.find((slot) => slot.status !== "locked")?.slotIndex ?? 0);
-    }
-  }, [character.id, focus.slots, selectedSlotIndex]);
-
-  useEffect(() => {
-    if (knownMonsters.length === 0) {
-      if (selectedMonsterId !== "") setSelectedMonsterId("");
-      return;
-    }
-
-    if (!knownMonsters.some((monster) => monster.monsterId === selectedMonsterId)) {
-      setSelectedMonsterId(knownMonsters[0]?.monsterId ?? "");
-    }
-  }, [knownMonsters, selectedMonsterId]);
-
-  return (
-    <div className="monster-focus-window">
-      <div className="client-summary-grid">
-        <div>
-          <span>Character</span>
-          <strong>{character.name}</strong>
-        </div>
-        <div>
-          <span>Known targets</span>
-          <strong>{knownMonsters.length}</strong>
-        </div>
-        <div>
-          <span>Reroll cost</span>
-          <strong>
-            {selectedSlot?.status === "active"
-              ? `${getMonsterFocusRerollCost(character, selectedSlot.slotIndex).toLocaleString("en-US")}g`
-              : "-"}
-          </strong>
-        </div>
-      </div>
-
-      <Panel title="Focus Slots">
-        <div className="monster-focus-slots">
-          {focus.slots.map((slot) => (
-            <button
-              className={`monster-focus-slot is-${slot.status} ${selectedSlotIndex === slot.slotIndex ? "is-selected" : ""}`.trim()}
-              disabled={slot.status === "locked"}
-              key={slot.slotIndex}
-              onClick={() => setSelectedSlotIndex(slot.slotIndex)}
-              type="button"
-            >
-              <span>Slot {slot.slotIndex + 1}</span>
-              <strong>{formatFocusSlotTitle(slot, knownMonsters)}</strong>
-              <small>{formatFocusSlotDetail(slot)}</small>
-            </button>
-          ))}
-        </div>
-      </Panel>
-
-      {selectedSlot?.status === "active" ? (
-        <Panel title="Active Contract">
-          <div className="monster-focus-active">
-            <div>
-              <span>Target</span>
-              <strong>{formatFocusSlotTitle(selectedSlot, knownMonsters)}</strong>
-            </div>
-            <div>
-              <span>Bonus</span>
-              <strong>
-                {selectedSlot.bonusType ? monsterFocusBonusLabels[selectedSlot.bonusType] : "-"}
-              </strong>
-            </div>
-            <div>
-              <span>Power</span>
-              <strong>{selectedSlot.bonusPercent ?? 0}%</strong>
-            </div>
-            <div>
-              <span>Remaining</span>
-              <strong>{selectedSlot.remainingHunts ?? 0}/10</strong>
-            </div>
-            <div className="hunt-action-buttons">
-              <button onClick={() => onReroll(selectedSlot.slotIndex)} type="button">
-                Reroll Bonus
-              </button>
-              <button onClick={() => onClear(selectedSlot.slotIndex)} type="button">
-                Clear
-              </button>
-            </div>
-          </div>
-        </Panel>
-      ) : null}
-
-      <Panel title="Activate Focus">
-        {knownMonsters.length > 0 ? (
-          <div className="monster-focus-activate">
-            <label>
-              <span>Known creature</span>
-              <select
-                onChange={(event) => setSelectedMonsterId(event.target.value)}
-                value={selectedMonsterId}
-              >
-                {knownMonsters.map((monster) => (
-                  <option key={monster.monsterId} value={monster.monsterId}>
-                    {monster.monsterName} - {monster.stage} - {monster.kills} kills
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="monster-focus-bonus-grid">
-              {monsterFocusBonusTypes.map((type) => (
-                <button
-                  className={selectedBonusType === type ? "is-selected" : ""}
-                  key={type}
-                  onClick={() => setSelectedBonusType(type)}
-                  type="button"
-                >
-                  <strong>{monsterFocusBonusLabels[type]}</strong>
-                  <span>{monsterFocusBonusDescriptions[type]}</span>
-                </button>
-              ))}
-            </div>
-            <button
-              className="action-command-button"
-              disabled={!canActivate}
-              onClick={() =>
-                onActivate(selectedSlot?.slotIndex ?? 0, selectedMonsterId, selectedBonusType)
-              }
-              type="button"
-            >
-              {selectedSlot?.status === "active" ? "Clear Slot First" : "Activate Focus"}
-            </button>
-          </div>
-        ) : (
-          <div className="client-info-card">
-            <strong>No known creatures yet</strong>
-            <p>Discover creatures through hunts to unlock Monster Focus targets.</p>
-          </div>
-        )}
-      </Panel>
-    </div>
-  );
-}
-
-function formatFocusSlotTitle(
-  slot: ReturnType<typeof normalizeMonsterFocusState>["slots"][number],
-  knownMonsters: ReturnType<typeof getAvailableFocusMonsters>,
-) {
-  if (slot.status === "locked") return "Locked";
-  if (slot.status === "empty") return "Empty";
-  if (!slot.monsterId) return "Invalid target";
-
-  return knownMonsters.find((monster) => monster.monsterId === slot.monsterId)?.monsterName ?? slot.monsterId;
-}
-
-function formatFocusSlotDetail(
-  slot: ReturnType<typeof normalizeMonsterFocusState>["slots"][number],
-) {
-  if (slot.status === "locked") return "Future slot";
-  if (slot.status === "empty") return "Ready for a target";
-  if (!slot.bonusType) return "Invalid bonus";
-
-  return `${monsterFocusBonusLabels[slot.bonusType]} / ${slot.bonusPercent ?? 0}% / ${slot.remainingHunts ?? 0} hunts`;
 }
 
 function DestinyWindow({

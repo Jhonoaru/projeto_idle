@@ -63,6 +63,7 @@ Atualizado em: 2026-07-13
 - Etapa 35.5 concluida: QA real de Training Grounds/Weapon Proficiency e correcao da corrida entre Save e Reload no SQLite.
 - Etapa 36 concluida: Blessings Hall com sete bencaos cumulativas, protecao de morte, Temple Record e compatibilidade com saves antigos.
 - Etapa 36.5 concluida: QA real de compra, protecao, consumo, revive e persistencia das Blessings no Tauri/SQLite.
+- Etapa 37 concluida: Hunting Research Hall conectando Bestiary, dossiers, Charms e Monster Focus em telas amplas.
 
 Comandos principais:
 
@@ -830,6 +831,77 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 37 - Rework de Bestiary e Monster Focus Hall.
+
+## Etapa 37 - Bestiary e Monster Focus Hall
+
+Status: concluida.
+
+Hunting Research Hall:
+
+- Bestiary e Monster Focus agora compartilham uma linguagem visual de pesquisa de caca.
+- As duas telas abrem em modo amplo e escondem roster, menu lateral e painel direito.
+- Abas internas permitem alternar diretamente entre `Bestiary Registry` e `Monster Focus`.
+- A navegacao preserva o personagem selecionado e usa os estados reais da guilda/personagem.
+- Nao foram adicionados assets externos, nomes protegidos ou monetizacao.
+
+Bestiary Registry:
+
+- Hero mostra guilda, criaturas vistas, registros completos e charm points.
+- Registry ganhou busca por criatura e filtros All, Started, Revealed e Completed.
+- Cards compactos mostram sigilo autoral, stage, kills, progresso, reward e charm ativo.
+- Creature Dossier mostra identidade, classificacao, progresso, thresholds, reward, XP, gold e knowledge state.
+- Charm Cabinet mostra os cinco charms reais, custo, lock/unlock e assignment para a criatura selecionada.
+- Claim Reward continua usando a callback e as protecoes reais existentes.
+
+Monster Focus:
+
+- Hero mostra personagem, alvos conhecidos, contratos ativos e `guild.gold`.
+- Os tres slots reais aparecem como Hunter Assignments; somente o slot 1 permanece desbloqueado nesta etapa.
+- Target Archive substitui o select generico por cards das criaturas conhecidas no Bestiary.
+- Field Doctrine mostra os cinco bonus reais: XP, loot, gold, supplies e risk.
+- Percentuais continuam 10%, 8%, 8%, 6% e 5%, conforme a configuracao existente.
+- Active Contract mostra alvo, bonus, poder, hunts restantes, custo de reroll e Clear.
+- Activate, reroll e clear continuam usando as funcoes reais e persistencia existente.
+
+Arquivos criados:
+
+- `src/components/bestiary/MonsterFocusHall.tsx`.
+
+Arquivos principais alterados:
+
+- `src/components/bestiary/BestiaryPanel.tsx`.
+- `src/components/bestiary/BestiaryMonsterCard.tsx`.
+- `src/components/bestiary/BestiaryDetails.tsx`.
+- `src/components/bestiary/CharmCard.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/app/App.tsx`.
+- `src/styles.css`.
+
+QA realizado:
+
+- `npm.cmd run build` passou antes e depois da implementacao.
+- Tauri carregou o SQLite real com Sewer Rat em `started`, 3/100 kills e 0 charm points.
+- Busca por `dragon` mostrou empty state; busca por `rat` encontrou Sewer Rat.
+- Filtro Completed ficou vazio e All restaurou o registro.
+- Bestiary exibiu os cinco charms existentes sem habilitar unlock indevido.
+- Monster Focus reconheceu um alvo, exibiu tres slots, dois bloqueados e cinco bonus.
+- O comando Activate ficou habilitado para o slot vazio e o alvo conhecido, mas nao foi clicado.
+- Navegacao Bestiary > Focus > Bestiary funcionou sem voltar ao menu principal.
+- Desktop 1280x800 e viewport 760x900 ficaram sem overflow horizontal.
+- Um problema de compressao do dossier por regra CSS antiga foi encontrado e corrigido durante o QA.
+- Console ficou sem erros.
+- SQLite final permaneceu `integrity_check: ok`, 674g, Sewer Rat com 3 kills, zero charms e zero contratos ativos.
+
+Limitacoes:
+
+- Esta etapa nao altera thresholds, rewards, charm points, bonus, cargas, custos ou schema.
+- Sigilos de criaturas/charms sao textuais e autorais; sprites reais continuam para uma etapa futura de assets.
+- O save usado possui apenas Sewer Rat conhecido, portanto grids com muitas criaturas ficam para a Etapa 37.5.
+- Claim, unlock, assign, activate, reroll e clear nao foram executados para preservar o save principal.
+
+Proximo passo sugerido:
+
+- Etapa 37.5 - QA de Bestiary, Charms e Monster Focus no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

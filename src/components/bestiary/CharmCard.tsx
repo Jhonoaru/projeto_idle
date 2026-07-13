@@ -24,14 +24,16 @@ export function CharmCard({
   onRemove,
 }: CharmCardProps) {
   const assignLabel = selectedMonsterName ? "Assign" : "Select creature";
+  const sigil = charm.type === "defense" ? "DF" : charm.type === "supply" ? "SP" : charm.type.slice(0, 2).toUpperCase();
 
   return (
-    <div className="charm-card">
+    <div className={`charm-card ${isUnlocked ? "is-unlocked" : "is-locked"} ${isAssignedToSelected ? "is-assigned" : ""}`.trim()}>
+      <span className={`charm-card-sigil is-${charm.type}`}>{sigil}</span>
       <div>
         <span>{charm.type}</span>
         <strong>{charm.name}</strong>
         <p>{charm.description}</p>
-        <em>{isUnlocked ? "Unlocked" : `${charm.unlockCost} charm points`}</em>
+        <em>{isAssignedToSelected ? `Assigned to ${selectedMonsterName}` : isUnlocked ? "Unlocked" : `${charm.unlockCost} charm points`}</em>
       </div>
       {!isUnlocked ? (
         <button disabled={!canUnlock} onClick={onUnlock} type="button">Unlock</button>

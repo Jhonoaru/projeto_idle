@@ -1766,7 +1766,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""}`.trim()}>
+      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}

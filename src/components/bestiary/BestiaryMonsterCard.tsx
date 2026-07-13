@@ -26,6 +26,7 @@ export function BestiaryMonsterCard({
   const percent = Math.min(100, Math.max(0, Math.round((progress.kills / threshold.completeKills) * 100)));
   const canClaim = progress.stage === "completed" && !progress.charmPointsClaimed;
   const displayName = monster?.name ?? progress.monsterName ?? "Unknown Creature";
+  const sigil = displayName.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div
@@ -37,16 +38,19 @@ export function BestiaryMonsterCard({
         if (event.key === "Enter" || event.key === " ") onSelect();
       }}
     >
-      <div>
-        <span>{progress.stage}</span>
-        <strong>{displayName}</strong>
-        <em>{progress.kills.toLocaleString("en-US")} / {threshold.completeKills.toLocaleString("en-US")}</em>
+      <div className="bestiary-card-heading">
+        <span className="bestiary-card-sigil">{sigil}</span>
+        <div>
+          <span>{progress.stage}</span>
+          <strong>{displayName}</strong>
+          <em>{progress.kills.toLocaleString("en-US")} / {threshold.completeKills.toLocaleString("en-US")} kills</em>
+        </div>
       </div>
       <div className="bestiary-progress-track" aria-hidden="true">
         <span style={{ width: `${percent}%` }} />
       </div>
       <div className="bestiary-card-footer">
-        <span>{progress.charmPointsClaimed ? "Reward claimed" : `${threshold.charmPointsReward} charm pts`}</span>
+        <span>{progress.charmPointsClaimed ? "Reward claimed" : `${threshold.charmPointsReward} pts`}</span>
         <span>{activeCharm ? charmName ?? activeCharm.charmId : "No charm"}</span>
       </div>
       {canClaim ? (
