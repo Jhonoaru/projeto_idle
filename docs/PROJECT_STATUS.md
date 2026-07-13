@@ -62,6 +62,7 @@ Atualizado em: 2026-07-13
 - Etapa 35 concluida: rework visual de Training Grounds e Weapon Proficiency, com halls amplos, filtros, programas de treino, custos, equipamento ativo e trilhas de perks.
 - Etapa 35.5 concluida: QA real de Training Grounds/Weapon Proficiency e correcao da corrida entre Save e Reload no SQLite.
 - Etapa 36 concluida: Blessings Hall com sete bencaos cumulativas, protecao de morte, Temple Record e compatibilidade com saves antigos.
+- Etapa 36.5 concluida: QA real de compra, protecao, consumo, revive e persistencia das Blessings no Tauri/SQLite.
 
 Comandos principais:
 
@@ -773,6 +774,62 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 36.5 - QA de Blessings, Death e Temple Hall no Tauri/SQLite.
+
+## Etapa 36.5 - QA de Blessings, Death e Temple Hall no Tauri/SQLite
+
+Status: concluida sem bug funcional novo.
+
+Protecao do save:
+
+- O app estava encerrado antes da preparacao do QA.
+- O SQLite original recebeu `wal_checkpoint(TRUNCATE)` e passou em `integrity_check: ok`.
+- Foi criado backup fora do repositorio com SHA-256 `3302b920bc0cb750ff3f148eb850cfd765032cc1431dbe69b7fe33a6a2083081`.
+- A copia de trabalho foi financiada temporariamente de 674g para 14.674g.
+- Ao final, sidecars WAL/SHM de QA foram removidos e o arquivo original foi restaurado byte a byte.
+- O hash restaurado ficou identico ao hash pre-QA, com 674g, cinco personagens e nenhuma bencao ativa.
+- Uma carga fria final no Tauri confirmou o save restaurado e console sem erros.
+
+Compras e persistencia:
+
+- Lyra comprou as sete bencaos reais pelo Blessings Hall.
+- O total avancou de 0/7 para 7/7 e a protecao avancou de 0% para 70%.
+- `guild.gold` caiu exatamente de 14.674g para 674g.
+- O segundo card recebeu dois cliques imediatos; apenas uma compra foi aplicada e nao houve oitava cobranca.
+- Os sete botoes mudaram para `Active`.
+- Save/Reload persistiu os sete ids em `blessings_json`, 7/7, 70% e 674g.
+- O Reload retornou ao Character Hall conforme a navegacao atual; reabrir Blessings mostrou os mesmos dados.
+
+Morte e consumo:
+
+- A engine foi executada com risco deadly e as sete bencaos ativas.
+- Sem bencaos, o cenario calculou perda de 13.876 XP e 500g.
+- Com 70% de protecao, a perda caiu para 4.162 XP e 150g.
+- O DeathPenalty registrou `blessProtectionPercent: 70` e os sete ids em `consumedBlessingIds`.
+- O personagem resultante ficou `dead`, sem bencaos restantes e no Greenport Temple.
+- Os logs listaram morte, perdas, as sete bencaos utilizadas e o templo de retorno.
+
+Death Report e revive:
+
+- Um Death State controlado, com recovery ja vencido, foi gravado apenas na copia de QA do SQLite.
+- O Blessings Hall mostrou Greenport Temple, `70% protegido`, recovery disponivel e botao `Reviver no Templo` habilitado.
+- O revive real removeu o Death Report, limpou `deathState`, manteve 0/7 e retornou Lyra para `Idle`.
+- Save/Reload persistiu o estado revivido sem erros de console.
+
+Validacoes tecnicas:
+
+- `npm.cmd run build` passou antes e depois do QA.
+- Tauri e SQLite reais foram usados nas compras, Save/Reload e revive.
+- Nenhuma alteracao de codigo foi necessaria nesta etapa; somente esta documentacao foi atualizada.
+
+Limitacoes mantidas:
+
+- A morte foi validada diretamente na engine e por fixture controlada no SQLite; nao foi necessario repetir hunts ate obter um roll aleatorio de morte.
+- Item loss e perda real de skill continuam desabilitados por design.
+- Store, premium, compra automatica e online continuam fora do escopo.
+
+Proximo passo sugerido:
+
+- Etapa 37 - Rework de Bestiary e Monster Focus Hall.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
