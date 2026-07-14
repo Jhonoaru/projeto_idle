@@ -1831,6 +1831,50 @@ Proximo passo sugerido:
 
 - Etapa 46.5 - QA da primeira sessao no Tauri/SQLite.
 
+## Etapa 46.5 - QA da primeira sessao no Tauri/SQLite
+
+Status: concluida.
+
+QA funcional no Tauri real:
+
+- `npm.cmd run tauri:dev` iniciou Vite, compilou o target Rust e abriu `guild-hunt-idle.exe` com o plugin SQLite ativo.
+- O save real carregou 674 gold, cinco aventureiros e Arkon em hunt; o briefing mostrou `Resolve the current action`, `Field assignment` concluida e progresso `1/3`.
+- `View action` abriu o `Action Analyzer` da hunt real.
+- Trocar para Ayla em training recalculou o briefing imediatamente para `View action` com progresso `3/3`.
+- Lyra idle mostrou `Push the next unlocked hunt`; o CTA abriu Explore com Sewers Below Thaeron disponivel.
+- Um fixture temporario de primeiro login mostrou Arkon idle, `Run the first field assignment`, CTA `Choose starter hunt` e progresso `0/3`.
+- O CTA inicial abriu Explore diretamente na lista de Hunts.
+- Um fixture com Rat Tail pendente mostrou `Settle the field loot`, CTA `Open Quick Sell` e progresso `1/3`.
+- Quick Sell vendeu Rat Tail x6 por 12 gold e criou os logs reais de `Market sale`.
+- O briefing avancou para `Register the First Contract`, CTA `Open quests` e progresso `2/3`.
+- `Open quests` abriu a tela de Quests com `First Contract` level 1 disponivel.
+- `Reload` manteve 686 gold, Rat Tail removido, logs de venda e briefing em `2/3` no fixture.
+
+Protecao e validacao do SQLite:
+
+- O banco original foi copiado com o Tauri fechado antes de qualquer fixture.
+- `PRAGMA integrity_check` retornou `ok` antes, durante e depois dos testes.
+- O fixture persistido confirmou 686 gold, zero linhas de Rat Tail para Arkon e dois logs `Market sale`.
+- Ao final, o banco protegido foi restaurado byte a byte; o SHA-256 do arquivo restaurado ficou identico ao backup.
+- O save final voltou a 674 gold, cinco personagens, 35 skills, 26 itens, dez logs e uma linha de metadata.
+- Arkon voltou ao estado original: level 1, 126 XP e hunt ativa.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia do Guild Briefing foi encontrado.
+- Nenhum arquivo de codigo precisou ser alterado; somente esta documentacao foi atualizada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- O estado de personagem morto e o CTA de recuperacao nao foram montados como fixture nesta rodada.
+- `First Contract` foi validado como destino disponivel, mas nao foi concluido para evitar ampliar desnecessariamente a mutacao temporaria do save.
+- A automacao interagiu diretamente com o DOM do WebView2 do processo Tauri; a janela estava em outro desktop virtual durante parte do QA.
+
+Proximo passo sugerido:
+
+- Etapa 47 - Jornada inicial guiada e contratos de progressao.
+
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
 Validado/corrigido:
