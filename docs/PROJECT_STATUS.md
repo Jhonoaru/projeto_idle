@@ -80,6 +80,7 @@ Atualizado em: 2026-07-14
 - Etapa 44 concluida: Wiki reformulada como Guild Field Codex local, com 34 registros derivados dos dados reais, busca, categorias e dossiers.
 - Etapa 44.5 concluida: QA real do Guild Codex no Tauri/SQLite, com catalogo, filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
 - Etapa 45 concluida: Settings reformulado como console local, com densidade, escala de texto, reducao de movimento, paineis opcionais, tela inicial e restauracao da ultima tela.
+- Etapa 45.5 concluida: QA real do Settings no Tauri/SQLite, com preferencias, reinicio, tela inicial, Save/Reload e restauracao do banco original validados.
 
 Comandos principais:
 
@@ -1749,6 +1750,45 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 45.5 - QA do Settings no Tauri/SQLite.
+
+## Etapa 45.5 - QA do Settings no Tauri/SQLite
+
+Status: concluida.
+
+QA funcional no Tauri real:
+
+- `npm.cmd run tauri:dev` iniciou Vite, compilou o target Rust e abriu `guild-hunt-idle.exe`.
+- Settings abriu em modo amplo com o save real carregado: 674 gold e cinco aventureiros.
+- Compact, escala 110%, Reduce motion, Show activity feed e Topbar save controls responderam sem quebrar o layout.
+- `Save now` gravou o save real e `Reload save` voltou ao Character Hall mantendo as preferencias locais.
+- Fechar e reabrir o Tauri preservou densidade, escala, movimento reduzido e paineis opcionais.
+- Configurar Guild Codex como tela inicial fez o app reabrir diretamente na Wiki.
+- Restore client defaults voltou para Comfortable, 100%, movimento normal, Activity e controles da Topbar ativos, com Character Hall como tela inicial.
+
+QA de SQLite:
+
+- O banco original foi protegido antes dos cliques com backup SQLite consistente.
+- `PRAGMA integrity_check` retornou `ok` antes e depois do fluxo.
+- O teste preservou 674 gold, cinco personagens, 35 skills e 26 linhas de inventario.
+- O log criado por `Save now` e timestamps tecnicos foram removidos ao restaurar o banco protegido.
+- A comparacao final de todas as colunas e linhas confirmou igualdade semantica entre o SQLite restaurado e o backup: dez logs e uma linha de metadata originais.
+- Preferencias do client permaneceram fora do banco da guilda, conforme o modelo da Etapa 45.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado.
+- Nenhum arquivo de codigo precisou ser alterado; somente esta documentacao foi atualizada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- O efeito visual de ocultar Activity foi confirmado pelo estado do controle e pelo QA browser anterior; o Character Hall amplo nao renderiza o painel direito durante essa verificacao Tauri.
+- Restore last screen nao foi repetido no Tauri; a tela inicial explicita e a persistencia apos reinicio foram exercitadas diretamente.
+- As preferencias continuam locais por instalacao, sem sincronizacao entre dispositivos.
+
+Proximo passo sugerido:
+
+- Etapa 46 - Polimento geral do client e primeira sessao.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
