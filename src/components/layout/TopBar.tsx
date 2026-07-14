@@ -10,6 +10,7 @@ interface TopBarProps {
   selectedCharacter: Character;
   activeTab: MainPanelTab;
   saveStatus?: string;
+  showSaveControls?: boolean;
   onOpenTab: (tab: MainPanelTab) => void;
   onManualSave?: () => void;
   onReloadSave?: () => void;
@@ -21,6 +22,7 @@ export function TopBar({
   selectedCharacter,
   activeTab,
   saveStatus,
+  showSaveControls = true,
   onOpenTab,
   onManualSave,
   onReloadSave,
@@ -70,12 +72,14 @@ export function TopBar({
           <button onClick={() => onOpenTab("wiki")} title="Open wiki" type="button">Wiki</button>
           <button onClick={() => onOpenTab("settings")} title="Open settings" type="button">Settings</button>
         </div>
-        <div className="save-controls" aria-label="Save controls">
-          <span>{saveStatus ?? "SQLite local"}</span>
-          <button disabled={saveBusy} onClick={onManualSave} title="Save now" type="button">Save</button>
-          <button disabled={saveBusy} onClick={onReloadSave} title="Reload local save" type="button">Reload</button>
-          <button disabled={saveBusy} onClick={onResetSave} title="Reset local save" type="button">Reset</button>
-        </div>
+        {showSaveControls ? (
+          <div className="save-controls" aria-label="Save controls">
+            <span>{saveStatus ?? "SQLite local"}</span>
+            <button disabled={saveBusy} onClick={onManualSave} title="Save now" type="button">Save</button>
+            <button disabled={saveBusy} onClick={onReloadSave} title="Reload local save" type="button">Reload</button>
+            <button disabled={saveBusy} onClick={onResetSave} title="Reset local save" type="button">Reset</button>
+          </div>
+        ) : null}
       </div>
     </header>
   );

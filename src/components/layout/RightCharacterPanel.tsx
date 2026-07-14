@@ -16,6 +16,7 @@ interface RightCharacterPanelProps {
   character: Character;
   guild: Guild;
   logs: ActivityLogEntry[];
+  showActivityFeed?: boolean;
 }
 
 const equipmentSlots: EquipmentSlot[] = [
@@ -30,7 +31,12 @@ const equipmentSlots: EquipmentSlot[] = [
   "backpack",
 ];
 
-export function RightCharacterPanel({ character, guild, logs }: RightCharacterPanelProps) {
+export function RightCharacterPanel({
+  character,
+  guild,
+  logs,
+  showActivityFeed = true,
+}: RightCharacterPanelProps) {
   const xpPreview = getEstimatedExperiencePreview(character);
   const levelProgress = Math.round(xpPreview.levelProgressPercent);
   const capacityPercent = Math.min(
@@ -112,9 +118,11 @@ export function RightCharacterPanel({ character, guild, logs }: RightCharacterPa
         </div>
       </Panel>
 
-      <Panel title="Activity">
-        <ActivityLog logs={logs.slice(0, 8)} />
-      </Panel>
+      {showActivityFeed ? (
+        <Panel title="Activity">
+          <ActivityLog logs={logs.slice(0, 8)} />
+        </Panel>
+      ) : null}
     </aside>
   );
 }

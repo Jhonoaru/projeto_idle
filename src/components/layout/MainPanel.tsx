@@ -21,6 +21,7 @@ import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
 import { CosmeticShowcaseHall } from "../store/CosmeticShowcaseHall";
+import { SettingsHall } from "../settings/SettingsHall";
 import { TrainingPanel } from "../training/TrainingPanel";
 import { UpdatesHall } from "../updates/UpdatesHall";
 import { GuildCodexHall } from "../wiki/GuildCodexHall";
@@ -28,6 +29,7 @@ import { GameWindow } from "../ui/GameWindow";
 import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
 import type { TrainingResult } from "../../game-services/trainingService";
+import type { ClientPreferences } from "../../client-preferences/clientPreferences";
 import type {
   Boss,
   BossParty,
@@ -110,11 +112,14 @@ interface MainPanelProps {
   depot: GuildDepot;
   offlineReport?: import("../../shared/types").OfflineCatchUpReport;
   saveStatus?: string;
+  clientPreferences: ClientPreferences;
   onChangeTab: (tab: MainPanelTab) => void;
+  onChangeClientPreferences: (updates: Partial<ClientPreferences>) => void;
   onSelectCharacter: (characterId: string) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
+  onResetClientPreferences: () => void;
   onSelectHunt: (hunt: HuntArea) => void;
   onClearSelectedHunt: () => void;
   onChangeDuration: (durationMinutes: number) => void;
@@ -209,11 +214,14 @@ export function MainPanel({
   depot,
   offlineReport,
   saveStatus,
+  clientPreferences,
   onChangeTab,
+  onChangeClientPreferences,
   onSelectCharacter,
   onManualSave,
   onReloadSave,
   onResetSave,
+  onResetClientPreferences,
   onSelectHunt,
   onClearSelectedHunt,
   onChangeDuration,
@@ -599,10 +607,13 @@ export function MainPanel({
         {activeTab === "updates" ? <UpdatesHall /> : null}
         {activeTab === "wiki" ? <GuildCodexHall /> : null}
         {activeTab === "settings" ? (
-          <SettingsWindow
+          <SettingsHall
+            onChange={onChangeClientPreferences}
             onManualSave={onManualSave}
             onReloadSave={onReloadSave}
+            onResetPreferences={onResetClientPreferences}
             onResetSave={onResetSave}
+            preferences={clientPreferences}
             saveStatus={saveStatus}
           />
         ) : null}
@@ -663,6 +674,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "store") return "Local cosmetic previews with no purchases, premium currency or online services.";
   if (tab === "updates") return "Installed release notes for local systems, interface revisions and QA milestones.";
   if (tab === "wiki") return "Local field reference for adventurers, exploration, progression and guild services.";
+  if (tab === "settings") return "Device-only client preferences kept separate from the SQLite guild save.";
   return undefined;
 }
 
@@ -687,32 +699,6 @@ function getWindowIcon(tab: MainPanelTab) {
   };
 
   return icons[tab];
-}
-
-function SettingsWindow({
-  saveStatus,
-  onManualSave,
-  onReloadSave,
-  onResetSave,
-}: {
-  saveStatus?: string;
-  onManualSave: () => void;
-  onReloadSave: () => void;
-  onResetSave: () => void;
-}) {
-  return (
-    <Panel title="Settings">
-      <div className="client-info-card settings-save-card">
-        <strong>{saveStatus ?? "SQLite local save"}</strong>
-        <p>Local save controls for this offline client.</p>
-        <div className="settings-command-row">
-          <button onClick={onManualSave} type="button">Save now</button>
-          <button onClick={onReloadSave} type="button">Reload save</button>
-          <button onClick={onResetSave} type="button">Reset save</button>
-        </div>
-      </div>
-    </Panel>
-  );
 }
 
 function PlaceholderCards({

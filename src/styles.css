@@ -9557,3 +9557,347 @@ p {
   .updates-dossier-identity { grid-template-columns: 1fr; text-align: center; }
   .updates-dossier-identity > span { justify-self: center; }
 }
+
+html[data-client-text-scale="90"] { font-size: 14.4px; }
+html[data-client-text-scale="100"] { font-size: 16px; }
+html[data-client-text-scale="110"] { font-size: 17.6px; }
+
+html[data-client-density="compact"] .game-shell { padding: 6px; }
+html[data-client-density="compact"] .top-bar { gap: 6px; margin-bottom: 6px; padding: 7px; }
+html[data-client-density="compact"] .game-layout { gap: 6px; }
+html[data-client-density="compact"] .game-window-header,
+html[data-client-density="compact"] .game-window-body,
+html[data-client-density="compact"] .panel { padding: 8px; }
+html[data-client-density="compact"] .right-character-panel,
+html[data-client-density="compact"] .main-panel { gap: 6px; }
+
+html[data-client-motion="reduced"] *,
+html[data-client-motion="reduced"] *::before,
+html[data-client-motion="reduced"] *::after {
+  scroll-behavior: auto !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+.game-layout.is-settings-hall-mode .left-panel,
+.game-layout.is-settings-hall-mode .right-character-panel,
+.game-layout.is-settings-hall-mode .character-side-menu {
+  display: none;
+}
+
+.game-layout.is-settings-hall-mode:has(.game-window-full) {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 1680px;
+}
+
+.settings-hall {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.settings-hall-hero {
+  display: grid;
+  grid-template-columns: 90px minmax(260px, 1fr) minmax(420px, 0.9fr);
+  gap: 18px;
+  align-items: center;
+  min-height: 126px;
+  padding: 16px;
+  border: 1px solid #414940;
+  background: #111613;
+}
+
+.settings-hall-sigil {
+  display: grid;
+  place-items: center;
+  width: 82px;
+  height: 82px;
+  border: 1px solid #9e844e;
+  color: #f1d58c;
+  background: #1a211d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.settings-hall-title > span,
+.settings-section-heading > span,
+.settings-save-status > span,
+.settings-local-profile > span {
+  display: block;
+  color: #92b8ad;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.settings-hall-title h2 {
+  margin: 4px 0;
+  color: #f1d58c;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.75rem;
+}
+
+.settings-hall-title p,
+.settings-save-status p,
+.settings-local-profile p {
+  margin: 0;
+  color: #bec7bd;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.settings-hall-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.settings-hall-summary > div {
+  min-height: 64px;
+  padding: 10px;
+  border-top: 3px solid #80704b;
+  background: #18201c;
+}
+
+.settings-hall-summary span {
+  display: block;
+  color: #8f9e94;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.settings-hall-summary strong {
+  display: block;
+  margin-top: 8px;
+  color: #e5d29b;
+  font-size: 0.88rem;
+}
+
+.settings-hall-notice {
+  display: grid;
+  grid-template-columns: 10px max-content minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid #35443d;
+  background: #131b17;
+}
+
+.settings-hall-notice > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c88a58;
+}
+
+.settings-hall-notice > span.is-ready {
+  background: #68b88b;
+  box-shadow: 0 0 0 3px rgba(104, 184, 139, 0.12);
+}
+
+.settings-hall-notice strong { color: #d8e0d8; font-size: 0.78rem; }
+.settings-hall-notice p { margin: 0; color: #9faaa2; font-size: 0.74rem; }
+
+.settings-hall-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settings-hall-section {
+  min-width: 0;
+  border: 1px solid #394139;
+  background: #111613;
+}
+
+.settings-section-heading {
+  padding: 12px 14px;
+  border-bottom: 1px solid #333b35;
+  background: #171d19;
+}
+
+.settings-section-heading h3 {
+  margin: 3px 0 0;
+  color: #ead18d;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 70px;
+  padding: 11px 14px;
+  border-bottom: 1px solid #29312c;
+}
+
+.settings-row > div:first-child > strong {
+  display: block;
+  color: #dce2db;
+  font-size: 0.82rem;
+}
+
+.settings-row > div:first-child > span {
+  display: block;
+  max-width: 480px;
+  margin-top: 4px;
+  color: #89958e;
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.settings-row select {
+  min-width: 180px;
+  min-height: 34px;
+  border: 1px solid #536057;
+  border-radius: 4px;
+  padding: 5px 28px 5px 9px;
+  color: #ece4cf;
+  background: #18201c;
+}
+
+.settings-row select:disabled { opacity: 0.48; }
+
+.settings-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(68px, 1fr);
+  gap: 4px;
+}
+
+.settings-segmented button,
+.settings-save-actions button,
+.settings-secondary-command {
+  min-height: 34px;
+  border: 1px solid #4a554d;
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: #bdc6bd;
+  background: #18201c;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.settings-segmented button.is-active {
+  border-color: #c5a75f;
+  color: #f3d98f;
+  background: #292719;
+}
+
+.settings-toggle-row {
+  position: relative;
+  cursor: pointer;
+}
+
+.settings-toggle-row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.settings-toggle {
+  position: relative;
+  width: 42px;
+  height: 22px;
+  border: 1px solid #526058;
+  border-radius: 999px;
+  background: #1b211d;
+}
+
+.settings-toggle i {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #87928b;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.settings-toggle-row input:checked + .settings-toggle {
+  border-color: #aa9158;
+  background: #302b19;
+}
+
+.settings-toggle-row input:checked + .settings-toggle i {
+  transform: translateX(20px);
+  background: #e3c66f;
+}
+
+.settings-toggle-row input:focus-visible + .settings-toggle {
+  outline: 2px solid #86afa4;
+  outline-offset: 2px;
+}
+
+.settings-local-profile,
+.settings-save-status {
+  padding: 14px;
+}
+
+.settings-local-profile strong,
+.settings-save-status strong {
+  display: block;
+  margin: 5px 0;
+  color: #e9d28f;
+}
+
+.settings-secondary-command { margin-top: 12px; }
+
+.settings-save-vault {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.8fr);
+}
+
+.settings-save-vault .settings-section-heading { grid-column: 1 / -1; }
+
+.settings-save-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  align-content: center;
+  padding: 14px;
+}
+
+.settings-save-actions button:first-child {
+  border-color: #b89a56;
+  color: #f0d486;
+}
+
+.settings-save-actions button.is-danger {
+  border-color: #83564f;
+  color: #e5aaa0;
+  background: #251917;
+}
+
+.settings-save-actions button:disabled { cursor: not-allowed; opacity: 0.45; }
+
+@media (max-width: 1100px) {
+  .settings-hall-hero { grid-template-columns: 82px minmax(0, 1fr); }
+  .settings-hall-summary { grid-column: 1 / -1; }
+  .settings-hall-grid { grid-template-columns: 1fr; }
+  .settings-save-vault { grid-column: auto; }
+}
+
+@media (max-width: 700px) {
+  .settings-hall-hero { grid-template-columns: 1fr; text-align: center; }
+  .settings-hall-sigil { justify-self: center; }
+  .settings-hall-summary { grid-template-columns: 1fr; }
+  .settings-hall-notice { grid-template-columns: 10px minmax(0, 1fr); }
+  .settings-hall-notice p { grid-column: 1 / -1; }
+  .settings-row { grid-template-columns: 1fr; }
+  .settings-row select { width: 100%; }
+  .settings-toggle-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .settings-save-vault { grid-template-columns: 1fr; }
+  .settings-save-actions { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 450px) {
+  .settings-segmented { grid-auto-flow: row; grid-auto-columns: 1fr; }
+}

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-45",
+    stage: "Stage 45",
+    title: "Local Client Settings",
+    date: "2026-07-14",
+    category: "interface",
+    summary: "Settings became a dedicated local console for presentation, startup behavior and SQLite save controls.",
+    highlights: [
+      "Density, text scale, reduced motion and optional shell panels apply immediately.",
+      "Startup screen and last-view restoration are stored only on the current device.",
+      "Client preferences remain separate from guild progression and the SQLite save.",
+    ],
+    systems: ["Settings", "Client preferences", "Local storage"],
+    featured: true,
+  },
+  {
     id: "stage-44",
     stage: "Stage 44",
     title: "Guild Field Codex",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The codex is read-only, works offline and does not modify the SQLite save.",
     ],
     systems: ["Wiki", "Game data", "Client navigation"],
-    featured: true,
   },
   {
     id: "stage-43",

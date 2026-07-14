@@ -6,6 +6,16 @@ import { MainPanel, type MainPanelTab } from "../components/layout/MainPanel";
 import { RightCharacterPanel } from "../components/layout/RightCharacterPanel";
 import { TopBar } from "../components/layout/TopBar";
 import { OfflineReportPanel } from "../components/offline/OfflineReportPanel";
+import {
+  DEFAULT_CLIENT_PREFERENCES,
+  applyClientPreferences,
+  loadClientPreferences,
+  loadLastClientView,
+  normalizeClientPreferences,
+  saveClientPreferences,
+  saveLastClientView,
+  type ClientPreferences,
+} from "../client-preferences/clientPreferences";
 import { initDatabase } from "../database/db";
 import {
   createInitialGameState,
@@ -140,7 +150,12 @@ export function App() {
     members: [{ characterId: mockCharacters[0].id, role: "tank" }],
   });
   const [lastBossResult, setLastBossResult] = useState<BossSimulationResult>();
-  const [activeTab, setActiveTab] = useState<MainPanelTab>("character");
+  const [clientPreferences, setClientPreferences] = useState(loadClientPreferences);
+  const [activeTab, setActiveTab] = useState<MainPanelTab>(() =>
+    clientPreferences.restoreLastView
+      ? (loadLastClientView() ?? clientPreferences.startupView)
+      : clientPreferences.startupView,
+  );
   const [selectedCharacterId, setSelectedCharacterId] = useState(
     mockCharacters[0].id,
   );
@@ -160,6 +175,15 @@ export function App() {
   const resolvingCollectionsRef = useRef(new Set<string>());
   const claimingDailyRewardRef = useRef(false);
   const buyingBlessingRef = useRef(false);
+
+  useEffect(() => {
+    applyClientPreferences(clientPreferences);
+    saveClientPreferences(clientPreferences);
+  }, [clientPreferences]);
+
+  useEffect(() => {
+    saveLastClientView(activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     let canceled = false;
@@ -312,6 +336,14 @@ export function App() {
       setSelectedHunt(undefined);
     }
     setActiveTab(tab);
+  }
+
+  function handleChangeClientPreferences(updates: Partial<ClientPreferences>) {
+    setClientPreferences((current) => normalizeClientPreferences({ ...current, ...updates }));
+  }
+
+  function handleResetClientPreferences() {
+    setClientPreferences(DEFAULT_CLIENT_PREFERENCES);
   }
 
   function applyGameState(state: GameStateSnapshot) {
@@ -1810,6 +1842,7 @@ export function App() {
         onResetSave={handleResetSave}
         saveStatus={saveStatus}
         selectedCharacter={selectedCharacter}
+        showSaveControls={clientPreferences.showTopbarSaveControls}
       />
       <OfflineReportPanel
         report={offlineReport}
@@ -1819,7 +1852,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""}`.trim()}>
+      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -1830,6 +1863,7 @@ export function App() {
           bossParty={bossParty}
           bosses={bosses}
           characters={characters}
+          clientPreferences={clientPreferences}
           depot={depot}
           durationMinutes={durationMinutes}
           hunts={hunts}
@@ -1843,6 +1877,7 @@ export function App() {
           onBuyBlessing={handleBuyBlessing}
           onClaimBestiaryReward={handleClaimBestiaryReward}
           onChangeTab={handleOpenTab}
+          onChangeClientPreferences={handleChangeClientPreferences}
           onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
           onCancelAction={handleCancelAction}
@@ -1879,6 +1914,7 @@ export function App() {
           onManualSave={handleManualSave}
           onReloadSave={handleReloadSave}
           onResetSave={handleResetSave}
+          onResetClientPreferences={handleResetClientPreferences}
           onRerollMonsterFocus={handleRerollMonsterFocus}
           onStartBoss={handleStartBoss}
           onStartHunt={handleStartHunt}
@@ -1906,7 +1942,12 @@ export function App() {
           guild={guild}
           onOpenTab={handleOpenTab}
         />
-        <RightCharacterPanel character={selectedCharacter} guild={guild} logs={logs} />
+        <RightCharacterPanel
+          character={selectedCharacter}
+          guild={guild}
+          logs={logs}
+          showActivityFeed={clientPreferences.showActivityFeed}
+        />
       </div>
     </GameShell>
   );

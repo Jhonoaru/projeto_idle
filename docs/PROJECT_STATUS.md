@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-13
+Atualizado em: 2026-07-14
 
 ## Stack usada
 
@@ -79,6 +79,7 @@ Atualizado em: 2026-07-13
 - Etapa 43.5 concluida: QA real do Updates Hall no Tauri/SQLite, com filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
 - Etapa 44 concluida: Wiki reformulada como Guild Field Codex local, com 34 registros derivados dos dados reais, busca, categorias e dossiers.
 - Etapa 44.5 concluida: QA real do Guild Codex no Tauri/SQLite, com catalogo, filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
+- Etapa 45 concluida: Settings reformulado como console local, com densidade, escala de texto, reducao de movimento, paineis opcionais, tela inicial e restauracao da ultima tela.
 
 Comandos principais:
 
@@ -1710,6 +1711,44 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 45 - Rework de Settings / preferencias locais do client.
+
+## Etapa 45 - Rework de Settings / preferencias locais do client
+
+Status: concluida.
+
+Settings local:
+
+- Settings agora abre como hall amplo, sem roster, menu lateral ou painel direito.
+- Preferencias de densidade, escala de texto, reducao de movimento, Activity e controles de save aplicam imediatamente.
+- O jogador pode escolher Character Hall, Explore ou Guild Codex como tela inicial.
+- A restauracao opcional da ultima tela usa somente rotas seguras do client.
+- Save, Reload e Reset da guilda continuam disponiveis em uma area separada e usam os handlers SQLite existentes.
+
+Modelo e persistencia:
+
+- `src/client-preferences/clientPreferences.ts` centraliza tipos, defaults, normalizacao e acesso defensivo ao `localStorage`.
+- Preferencias do client e ultima tela usam chaves locais versionadas e nao entram no save da guilda.
+- Dados invalidos, storage indisponivel ou preferencia antiga recebem defaults seguros sem quebrar a inicializacao.
+- Nenhum tipo de gameplay, schema, migration ou repository SQLite foi alterado.
+- A Etapa 45 foi adicionada como release atual no arquivo local de Updates.
+
+QA executado:
+
+- `npm run build` passou durante a implementacao.
+- Settings foi aberto no browser local e os controles de densidade, escala, movimento, Activity e Topbar foram exercitados.
+- Reload preservou as preferencias; Restore client defaults reativou os controles e paineis padrao.
+- O layout foi revisado em desktop e em viewport de 390x844, sem overflow horizontal.
+- O erro de `invoke` do plugin SQL observado no Vite e esperado fora do runtime Tauri; o mock local foi carregado.
+
+Limitacoes:
+
+- O QA interativo desta etapa foi feito no Vite/browser, nao no executavel Tauri.
+- A persistencia SQLite da guilda nao mudou e nao foi modificada durante os testes das preferencias locais.
+- As preferencias sao locais por instalacao e nao sincronizam entre dispositivos.
+
+Proximo passo sugerido:
+
+- Etapa 45.5 - QA do Settings no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
