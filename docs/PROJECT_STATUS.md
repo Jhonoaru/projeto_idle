@@ -78,6 +78,7 @@ Atualizado em: 2026-07-13
 - Etapa 43 concluida: Updates reformulado como Release Archive local, com busca, filtros, dossiers e historico recente do cliente.
 - Etapa 43.5 concluida: QA real do Updates Hall no Tauri/SQLite, com filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
 - Etapa 44 concluida: Wiki reformulada como Guild Field Codex local, com 34 registros derivados dos dados reais, busca, categorias e dossiers.
+- Etapa 44.5 concluida: QA real do Guild Codex no Tauri/SQLite, com catalogo, filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
 
 Comandos principais:
 
@@ -1671,6 +1672,44 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 44.5 - QA do Guild Codex no Tauri/SQLite.
+
+## Etapa 44.5 - QA do Guild Codex no Tauri/SQLite
+
+Status: concluida.
+
+QA funcional no Tauri real:
+
+- `npm.cmd run tauri:dev` abriu o client desktop usando o save SQLite real da guilda.
+- A Topbar abriu o Guild Field Codex em modo amplo, sem roster, menu lateral ou painel direito.
+- O hall exibiu os 34 registros esperados: cinco vocacoes, 22 field records e sete system guides.
+- As cinco categorias renderizaram corretamente; o filtro Exploration mostrou seus 22 registros.
+- A busca por `sewer` retornou quatro resultados e selecionou automaticamente o dossier Sewers Below Thaeron.
+- O dossier exibiu categoria, resumo, facts e orientacoes coerentes com o registro selecionado.
+- Save/Reload retornou o Codex para All Records, busca vazia, 34/34 visiveis e dossier Guild Command.
+
+QA de persistencia:
+
+- O banco original foi protegido antes dos cliques e comparado semanticamente antes e depois do fluxo.
+- Abrir, filtrar, pesquisar e selecionar registros nao alterou guilda, personagens, skills, inventario ou activity logs.
+- Save/Reload preservou 674 gold, cinco personagens, 35 skills, 26 linhas de inventario e dez logs.
+- Somente timestamps tecnicos de `save_metadata` foram atualizados durante o teste, como esperado.
+- `PRAGMA integrity_check` retornou `ok` antes e depois do fluxo.
+- Ao final, o SQLite original foi restaurado com SHA-256 `7F5F9FCD02E2559F25E5399AA6018EEBDFE5D8766DDFFCF16FD47DE51973F217`.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia do Guild Codex foi encontrado.
+- Nenhum arquivo de codigo precisou ser alterado; somente esta documentacao foi atualizada.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- O QA interativo foi realizado no viewport desktop do Tauri; a responsividade mobile ja havia sido validada no browser local durante a Etapa 44.
+- Textos dos oito guias curados continuam locais e manuais, sem favoritos, historico ou links diretos para outros halls.
+
+Proximo passo sugerido:
+
+- Etapa 45 - Rework de Settings / preferencias locais do client.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
