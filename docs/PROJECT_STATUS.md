@@ -1790,6 +1790,47 @@ Proximo passo sugerido:
 
 - Etapa 46 - Polimento geral do client e primeira sessao.
 
+## Etapa 46 - Polimento geral do client e primeira sessao
+
+Status: concluida.
+
+Guild Briefing:
+
+- Character Hall ganhou uma faixa de comando com uma unica proxima acao clara para o personagem selecionado.
+- O ciclo inicial mostra tres marcos: primeira hunt curta, venda do loot e conclusao de `First Contract`.
+- O CTA abre diretamente Hunts, Quick Sell, Quests, Action ou Blessings/recuperacao conforme o estado real.
+- Personagens ocupados apontam para a acao atual; personagens mortos apontam para recuperacao; personagens avancados recebem a proxima hunt como ordem operacional.
+- A Home legada reutiliza a mesma regra e nao pode divergir do Character Hall.
+
+Modelo e compatibilidade:
+
+- `src/game-engine/onboarding/getGuildBriefing.ts` concentra a derivacao de progresso e da proxima rota.
+- Progresso usa level, bestiary, inventario, quests concluidas, status atual e logs de venda ja persistidos.
+- Nenhum campo de tutorial, migration, schema ou repository SQLite foi adicionado.
+- Saves antigos recebem o briefing automaticamente a partir dos dados que ja possuem.
+- A Etapa 46 foi adicionada como release atual no arquivo local de Updates.
+
+QA executado:
+
+- `npm.cmd run build` passou antes e depois do refinamento do Activity Log.
+- Browser local abriu o starter Arkon level 1 com `Run the first field assignment` e progresso 0/3.
+- O CTA `Choose starter hunt` abriu Explore diretamente na lista de Hunts com Sewers Below Thaeron disponivel.
+- Ayla em training mudou a ordem para `Resolve the current action` com CTA `View action`.
+- Em 1440x1000, o briefing ocupou 1379x132 sem overflow horizontal ou interno.
+- Em 720x980, comando, CTA e tres marcos reorganizaram em coluna sem overflow horizontal.
+- O unico erro de console foi o `invoke` esperado do plugin SQL no Vite fora do runtime Tauri; o mock local foi usado.
+
+Limitacoes:
+
+- O QA interativo desta etapa foi feito no Vite/browser, nao no executavel Tauri.
+- O marco de venda depende do log `Market sale` ou da ausencia de loot vendavel apos experiencia de campo; logs antigos removidos podem ser inferidos pelo estado atual.
+- O briefing orienta o loop existente e nao adiciona tutorial narrado, recompensas extras, bloqueios artificiais ou alteracao de balanceamento.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 46.5 - QA da primeira sessao no Tauri/SQLite.
+
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
 Validado/corrigido:

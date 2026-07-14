@@ -2,6 +2,7 @@ import { ActionSummaryCard } from "../action/ActionSummaryCard";
 import { CurrentActionBox } from "../character/CurrentActionBox";
 import { HuntScene } from "../hunt-scene/HuntScene";
 import { Panel } from "../ui/Panel";
+import { getGuildBriefing } from "../../game-engine/onboarding/getGuildBriefing";
 import type {
   Character,
   Guild,
@@ -24,9 +25,11 @@ interface MainPlayAreaProps {
   };
   offlineReport?: OfflineCatchUpReport;
   onOpenAction: () => void;
+  onOpenBlessings: () => void;
   onOpenExplore: () => void;
   onOpenInventory: () => void;
   onOpenQuickSell: () => void;
+  onOpenQuests: () => void;
   onCollectHunt: () => void;
   onReturnToCity: () => void;
 }
@@ -40,9 +43,11 @@ export function MainPlayArea({
   lastHuntResult,
   offlineReport,
   onOpenAction,
+  onOpenBlessings,
   onOpenExplore,
   onOpenInventory,
   onOpenQuickSell,
+  onOpenQuests,
   onCollectHunt,
   onReturnToCity,
 }: MainPlayAreaProps) {
@@ -53,7 +58,14 @@ export function MainPlayArea({
   const actionHunt = character.currentAction?.type === "hunting"
     ? hunts.find((hunt) => hunt.id === character.currentAction?.targetId)
     : undefined;
-  const nextObjective = getNextObjective(character, selectedHunt, lastHuntResult);
+  const nextObjective = getGuildBriefing(character, guild, selectedHunt);
+  const openNextObjective = {
+    action: onOpenAction,
+    blessings: onOpenBlessings,
+    hunts: onOpenExplore,
+    market: onOpenQuickSell,
+    quests: onOpenQuests,
+  }[nextObjective.route];
 
   if (character.status === "hunting" && character.currentAction?.type === "hunting") {
     return (
@@ -96,8 +108,8 @@ export function MainPlayArea({
           <div className="client-info-card">
             <strong>{nextObjective.title}</strong>
             <p>{nextObjective.description}</p>
-            <button onClick={nextObjective.action === "sell" ? onOpenQuickSell : onOpenExplore} type="button">
-              {nextObjective.action === "sell" ? "Open Quick Sell" : "Open Explore"}
+            <button onClick={openNextObjective} type="button">
+              {nextObjective.actionLabel}
             </button>
           </div>
         </Panel>
@@ -163,75 +175,4 @@ export function MainPlayArea({
       </div>
     </div>
   );
-}
-
-function getNextObjective(
-  character: Character,
-  selectedHunt?: HuntArea,
-  lastHuntResult?: {
-    characterName: string;
-    character: Character;
-    hunt: HuntArea;
-    result: HuntSimulationResult;
-  },
-) {
-  if (character.status === "dead") {
-    return {
-      title: "Recover the adventurer",
-      description: `${character.name} is down. Revive before sending the next action.`,
-      action: "explore",
-    };
-  }
-
-  if (character.status !== "idle") {
-    return {
-      title: "Resolve the current action",
-      description: `${character.name} is ${character.status}. Finish or collect the action before assigning a new one.`,
-      action: "explore",
-    };
-  }
-
-  const hasSellableLoot = character.inventory.some((entry) =>
-    ["creature_product", "material", "misc"].includes(entry.item.type) && !entry.locked,
-  );
-
-  if (hasSellableLoot || (lastHuntResult?.character.id === character.id && lastHuntResult.result.lootItems.length > 0)) {
-    return {
-      title: "Sell common loot",
-      description: "Convert creature products and materials into guild gold before buying the next supplies.",
-      action: "sell",
-    };
-  }
-
-  if (character.level < 3) {
-    return {
-      title: "Run the starter hunt",
-      description: "Start a short Sewers Below Thaeron hunt to get the first XP, gold coins, and rat tails.",
-      action: "explore",
-    };
-  }
-
-  if (character.level < 5) {
-    return {
-      title: "Move into spiders",
-      description: "Try Cave Spider Cellar, then sell silk and fangs to fund more supplies.",
-      action: "explore",
-    };
-  }
-
-  if (!character.accessIds.includes("thaeron-sewers-access")) {
-    return {
-      title: "Complete First Contract",
-      description: "Unlock Thaeron access so bosses and later hunts have a clean progression path.",
-      action: "explore",
-    };
-  }
-
-  return {
-    title: "Push the next unlocked hunt",
-    description: selectedHunt
-      ? `Prepare supplies and run ${selectedHunt.name}, then sell loot after the result.`
-      : "Choose a hunt, prepare supplies, then sell loot after the result.",
-    action: "explore",
-  };
 }

@@ -1867,6 +1867,7 @@ export function App() {
           depot={depot}
           durationMinutes={durationMinutes}
           hunts={hunts}
+          logs={logs}
           quests={quests}
           lastBossResult={lastBossResult}
           lastResult={lastHuntResult}

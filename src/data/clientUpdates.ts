@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-46",
+    stage: "Stage 46",
+    title: "Guild Opening Briefing",
+    date: "2026-07-14",
+    category: "interface",
+    summary: "Character Hall now turns real guild progress into a concise next assignment for new and returning adventurers.",
+    highlights: [
+      "Opening assignments connect the first hunt, loot sale and introductory contract.",
+      "The primary command routes directly to Hunt, Quick Sell, Quests, Action or recovery.",
+      "Guidance is derived from existing save data and adds no tutorial flags or SQLite migration.",
+    ],
+    systems: ["Character Hall", "First session", "Client navigation"],
+    featured: true,
+  },
+  {
     id: "stage-45",
     stage: "Stage 45",
     title: "Local Client Settings",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Client preferences remain separate from guild progression and the SQLite save.",
     ],
     systems: ["Settings", "Client preferences", "Local storage"],
-    featured: true,
   },
   {
     id: "stage-44",

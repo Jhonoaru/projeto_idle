@@ -34,6 +34,7 @@ import type {
   Boss,
   BossParty,
   BossSimulationResult,
+  ActivityLogEntry,
   Character,
   EquipmentSlot,
   Guild,
@@ -92,6 +93,7 @@ interface MainPanelProps {
   selectedCharacter: Character;
   characters: Character[];
   guild: Guild;
+  logs: ActivityLogEntry[];
   hunts: HuntArea[];
   quests: Quest[];
   bosses: Boss[];
@@ -199,6 +201,7 @@ export function MainPanel({
   selectedCharacter,
   characters,
   guild,
+  logs,
   hunts,
   quests,
   bosses,
@@ -292,9 +295,11 @@ export function MainPanel({
           offlineReport={offlineReport}
           onCollectHunt={onFinishHunt}
           onOpenAction={() => onChangeTab("action")}
+          onOpenBlessings={() => onChangeTab("blessings")}
           onOpenExplore={() => onChangeTab("hunts")}
           onOpenInventory={() => onChangeTab("inventory")}
           onOpenQuickSell={() => onChangeTab("market")}
+          onOpenQuests={() => onChangeTab("quests")}
           onReturnToCity={onReturnToCity}
           selectedHunt={selectedHunt}
         />
@@ -328,6 +333,7 @@ export function MainPanel({
             character={selectedCharacter}
             characters={characters}
             guild={guild}
+            logs={logs}
             onOpenTab={onChangeTab}
             onSelectCharacter={onSelectCharacter}
           />

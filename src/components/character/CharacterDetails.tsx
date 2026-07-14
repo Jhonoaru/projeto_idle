@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { GuildBriefing } from "./GuildBriefing";
 import { ItemIcon } from "../items/ItemIcon";
 import { CHARACTER_STATUS_LABELS, SKILL_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
@@ -17,14 +18,15 @@ import {
 import { getAccessName } from "../../data/accesses";
 import { getActiveBlessings } from "../../data/blessings";
 import { calculateBlessingsProtection } from "../../game-engine/death/calculateBlessProtection";
-import type { Character, EquipmentSlot, Guild, Skill } from "../../shared/types";
+import type { ActivityLogEntry, Character, EquipmentSlot, Guild, Skill } from "../../shared/types";
 
-type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings";
+type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings" | "market" | "quests";
 
 interface CharacterDetailsProps {
   character: Character;
   characters: Character[];
   guild: Guild;
+  logs: ActivityLogEntry[];
   onOpenTab: (tab: CharacterRoute) => void;
   onSelectCharacter: (characterId: string) => void;
 }
@@ -45,6 +47,7 @@ export function CharacterDetails({
   character,
   characters,
   guild,
+  logs,
   onOpenTab,
   onSelectCharacter,
 }: CharacterDetailsProps) {
@@ -146,6 +149,8 @@ export function CharacterDetails({
           <button onClick={() => onOpenTab("destiny")} type="button">Destiny</button>
         </div>
       </section>
+
+      <GuildBriefing character={character} guild={guild} logs={logs} onNavigate={onOpenTab} />
 
       <div className="character-hall-content">
         <section className="character-hall-section character-hall-overview">
