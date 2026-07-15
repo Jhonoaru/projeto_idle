@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-48",
+    stage: "Stage 48",
+    title: "Guild Career Ledger",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "The Hall of Renown now records guild-wide achievements and career ranks from permanent local save data.",
+    highlights: [
+      "Eighteen milestones cover growth, contracts, hunting, mastery, Collections and legacy.",
+      "Five career ranks turn recorded achievements into a clear long-term guild trajectory.",
+      "Career points are read-only, cannot be spent and require no claim, migration or online service.",
+    ],
+    systems: ["Hall of Renown", "Achievements", "Guild progression"],
+    featured: true,
+  },
+  {
     id: "stage-47",
     stage: "Stage 47",
     title: "Guild Journey Ledger",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Guild Briefing routes eligible adventurers into the next contract without adding save fields or a SQLite migration.",
     ],
     systems: ["Quests", "Guild progression", "Guild Briefing"],
-    featured: true,
   },
   {
     id: "stage-46",

@@ -85,6 +85,7 @@ Atualizado em: 2026-07-14
 - Etapa 46.5 concluida: QA real do Guild Briefing no Tauri/SQLite, incluindo fixtures de hunt, venda e First Contract com restauracao integral do banco.
 - Etapa 47 concluida: quests agora formam uma jornada guiada de dez contratos em tres capitulos, com prerequisitos nomeados, proximo objetivo e progresso da guilda.
 - Etapa 47.5 concluida: QA real da jornada no Tauri/SQLite, com dois contratos persistidos, compatibilidade de quest antiga, unlock de Collections corrigido e banco original restaurado.
+- Etapa 48 concluida: Hall of Renown ganhou Career Ledger com 18 achievements automaticos, seis categorias, cinco ranks e progresso derivado do save.
 
 Comandos principais:
 
@@ -1976,6 +1977,57 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 48 - Guild Achievements e marcos de carreira.
+
+## Etapa 48 - Guild Achievements e marcos de carreira
+
+Status: concluida.
+
+Career Ledger:
+
+- O Hall of Renown agora alterna entre `Roster Standings` e `Career Ledger` sem remover o ranking local existente.
+- O catalogo possui 18 achievements em seis categorias: Guild Growth, Contracts, Hunting, Mastery, Collections e Legacy.
+- Cada record possui tier bronze, silver ou gold, sigil, objetivo, progresso atual e pontos de carreira.
+- O dossier lateral mostra descricao, categoria, tier, valor atual, alvo e percentual do record selecionado.
+- Filtros por categoria mostram contagem concluida e total sem esconder o resumo geral da carreira.
+
+Ranks e metricas:
+
+- Cinco ranks formam a progressao: Apprentice Company, Chartered Guild, Proven Vanguard, Renowned Banner e Legendary Company.
+- O catalogo distribui 930 pontos maximos; pontos sao somente um registro local e nao podem ser gastos.
+- As metricas usam roster, levels combinados, XP combinado, contratos unicos, acessos unicos, kills, Bestiary concluido, maior skill, Collections, Daily claims, renown e guild.gold.
+- Contratos e acessos sao deduplicados entre personagens para evitar contar o mesmo marco varias vezes.
+- Valores invalidos, negativos ou NaN sao normalizados para zero na engine.
+
+Persistencia e compatibilidade:
+
+- Achievements sao derivados de campos permanentes que ja existem no SQLite.
+- Nenhum campo de Guild, tabela, migration, mapper ou repository persistente foi adicionado.
+- Saves antigos recebem automaticamente os records correspondentes ao progresso ja salvo.
+- Nao existe claim, recompensa de gold, moeda paga, premium, ranking online ou log artificial de unlock.
+- O Guild Codex e o arquivo local de Updates foram atualizados com o Career Ledger.
+
+QA executado:
+
+- `npm.cmd run build` passou durante a implementacao.
+- O browser local manteve o Roster Standings funcional e abriu o Career Ledger pela nova navegacao.
+- O mock da Guilda Aurora calculou 8/18 records, 295/930 pontos e rank `Chartered Guild`.
+- O proximo rank foi calculado como `Proven Vanguard`, faltando 55 pontos.
+- Filtro Hunting mostrou exatamente tres records e atualizou o dossier para `First Field Marks`.
+- Selecionar `Studied Quarry` atualizou status e progresso para `In progress / 0%`.
+- Em 1440x1000, o workspace usou duas colunas e nao apresentou overflow horizontal.
+- Em 760x900, categorias, cards e dossier passaram para uma coluna sem overflow horizontal.
+- O unico erro de console foi o `invoke` esperado do plugin SQL no Vite fora do runtime Tauri; o mock local foi usado.
+
+Limitacoes:
+
+- O QA interativo desta etapa foi feito no Vite/browser, nao no executavel Tauri.
+- A captura compacta expirou no controlador do browser; breakpoints, dimensoes e ausencia de overflow foram validados diretamente pelo DOM.
+- Achievements acompanham apenas metricas duraveis ja persistidas; historicos removidos do Activity Log nao sao usados como fonte.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 48.5 - QA do Career Ledger no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import { getMainSkill } from "../../game-engine/character/getMainSkill";
+import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
+import { GuildCareerLedger } from "./GuildCareerLedger";
 import type { Character, Guild, Skill } from "../../shared/types";
 
 interface LocalRankingHallProps {
@@ -58,6 +60,7 @@ export function LocalRankingHall({
   selectedCharacter,
   onSelectCharacter,
 }: LocalRankingHallProps) {
+  const [activeView, setActiveView] = useState<"standings" | "career">("standings");
   const [activeMetric, setActiveMetric] = useState<RankingMetric>("experience");
   const definition = metricDefinitions[activeMetric];
   const ranked = useMemo(
@@ -70,6 +73,7 @@ export function LocalRankingHall({
     ? Math.round(characters.reduce((total, character) => total + character.level, 0) / characters.length)
     : 0;
   const totalExperience = characters.reduce((total, character) => total + character.experience, 0);
+  const career = useMemo(() => getGuildCareer(guild, characters), [characters, guild]);
 
   return (
     <div className="ranking-hall">
@@ -81,17 +85,40 @@ export function LocalRankingHall({
         <div className="ranking-hall-identity">
           <span>Local guild chronicle</span>
           <h3>{guild.name} Hall of Renown</h3>
-          <p>Offline standings calculated from the adventurers in this save.</p>
+          <p>{activeView === "standings"
+            ? "Offline standings calculated from the adventurers in this save."
+            : "Permanent career milestones derived from the guild's local record."}</p>
         </div>
         <div className="ranking-hall-summary">
-          <SummaryStat label="Adventurers" value={`${characters.length}`} />
-          <SummaryStat label="Average level" value={`${averageLevel}`} />
-          <SummaryStat label="Combined XP" value={compactNumber(totalExperience)} />
-          <SummaryStat label="Your position" value={selectedRank > 0 ? `#${selectedRank}` : "Unranked"} />
+          {activeView === "standings" ? (
+            <>
+              <SummaryStat label="Adventurers" value={`${characters.length}`} />
+              <SummaryStat label="Average level" value={`${averageLevel}`} />
+              <SummaryStat label="Combined XP" value={compactNumber(totalExperience)} />
+              <SummaryStat label="Your position" value={selectedRank > 0 ? `#${selectedRank}` : "Unranked"} />
+            </>
+          ) : (
+            <>
+              <SummaryStat label="Career rank" value={career.rank.title} />
+              <SummaryStat label="Recorded" value={`${career.unlockedCount}/${career.totalCount}`} />
+              <SummaryStat label="Career points" value={`${career.points}`} />
+              <SummaryStat label="Next rank" value={career.nextRank?.title ?? "Maximum"} />
+            </>
+          )}
         </div>
       </section>
 
-      <nav className="ranking-metric-tabs" aria-label="Ranking metric">
+      <nav className="renown-view-tabs" aria-label="Hall of Renown views">
+        <button aria-pressed={activeView === "standings"} onClick={() => setActiveView("standings")} type="button">
+          <span>R</span><strong>Roster Standings</strong><small>Compare permanent character records.</small>
+        </button>
+        <button aria-pressed={activeView === "career"} onClick={() => setActiveView("career")} type="button">
+          <span>C</span><strong>Career Ledger</strong><small>Review guild-wide achievements and ranks.</small>
+        </button>
+      </nav>
+
+      <div className="ranking-view" hidden={activeView !== "standings"}>
+        <nav className="ranking-metric-tabs" aria-label="Ranking metric">
         {metrics.map((metric) => {
           const metricDefinition = metricDefinitions[metric];
           return (
@@ -107,9 +134,9 @@ export function LocalRankingHall({
             </button>
           );
         })}
-      </nav>
+        </nav>
 
-      <section className="ranking-podium-board">
+        <section className="ranking-podium-board">
         <header className="ranking-section-heading">
           <div>
             <span>Guild podium</span>
@@ -134,9 +161,9 @@ export function LocalRankingHall({
         ) : (
           <div className="ranking-empty">No adventurers available for the local ranking.</div>
         )}
-      </section>
+        </section>
 
-      <div className="ranking-hall-lower">
+        <div className="ranking-hall-lower">
         <section className="ranking-standings-board">
           <header className="ranking-section-heading">
             <div>
@@ -218,7 +245,10 @@ export function LocalRankingHall({
             <p>This hall compares only characters stored in the current guild save. No online leaderboard is connected.</p>
           </div>
         </aside>
+        </div>
       </div>
+
+      {activeView === "career" ? <GuildCareerLedger characters={characters} guild={guild} /> : null}
     </div>
   );
 }

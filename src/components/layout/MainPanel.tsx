@@ -654,7 +654,7 @@ function getWindowTitle(tab: MainPanelTab) {
     bosses: "Bosses",
     bestiary: "Hunting Research / Bestiary",
     daily: "Daily Reward",
-    ranking: "Local Ranking",
+    ranking: "Hall of Renown",
     store: "Cosmetic Showcase",
     updates: "Updates",
     wiki: "Wiki",
@@ -672,7 +672,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
-  if (tab === "ranking") return "Offline standings calculated only from adventurers in the current guild save.";
+  if (tab === "ranking") return "Local roster standings and guild career milestones derived from the current save.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";

@@ -218,6 +218,49 @@ export interface Guild {
   dailyReward?: DailyRewardState;
 }
 
+export type GuildAchievementCategory =
+  | "growth"
+  | "contracts"
+  | "hunting"
+  | "mastery"
+  | "collections"
+  | "legacy";
+
+export type GuildAchievementTier = "bronze" | "silver" | "gold";
+
+export type GuildAchievementMetric =
+  | "roster_size"
+  | "combined_level"
+  | "combined_experience"
+  | "completed_contracts"
+  | "unlocked_accesses"
+  | "monster_kills"
+  | "completed_bestiary_entries"
+  | "highest_skill"
+  | "collection_unlocks"
+  | "daily_claims"
+  | "guild_renown"
+  | "guild_gold";
+
+export interface GuildAchievementDefinition {
+  id: string;
+  title: string;
+  description: string;
+  category: GuildAchievementCategory;
+  tier: GuildAchievementTier;
+  metric: GuildAchievementMetric;
+  target: number;
+  points: number;
+  sigil: string;
+}
+
+export interface GuildAchievementProgress {
+  definition: GuildAchievementDefinition;
+  current: number;
+  progressPercent: number;
+  unlocked: boolean;
+}
+
 export interface CollectionItem {
   id: string;
   category: CollectionCategory;
