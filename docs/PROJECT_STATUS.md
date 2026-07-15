@@ -84,6 +84,7 @@ Atualizado em: 2026-07-14
 - Etapa 46 concluida: primeira sessao ganhou Guild Briefing derivado do save, tres marcos iniciais e comandos diretos para a proxima acao.
 - Etapa 46.5 concluida: QA real do Guild Briefing no Tauri/SQLite, incluindo fixtures de hunt, venda e First Contract com restauracao integral do banco.
 - Etapa 47 concluida: quests agora formam uma jornada guiada de dez contratos em tres capitulos, com prerequisitos nomeados, proximo objetivo e progresso da guilda.
+- Etapa 47.5 concluida: QA real da jornada no Tauri/SQLite, com dois contratos persistidos, compatibilidade de quest antiga, unlock de Collections corrigido e banco original restaurado.
 
 Comandos principais:
 
@@ -1925,6 +1926,56 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 47.5 - QA da jornada guiada no Tauri/SQLite.
+
+## Etapa 47.5 - QA da jornada guiada no Tauri/SQLite
+
+Status: concluida com duas correcoes reais.
+
+QA funcional no Tauri real:
+
+- `npm.cmd run tauri:dev` iniciou Vite, compilou o target Rust e abriu `guild-hunt-idle.exe` com o plugin SQLite ativo.
+- Lyra carregou com `Cellar Survey` como proximo contrato e progresso `1/10`.
+- Iniciar o contrato mudou Lyra para `Questing` e abriu diretamente o `Action Analyzer`.
+- `Save` e `Reload` preservaram `quest_progress_json`, `current_action_json`, timestamps e o estado `Questing`.
+- Concluir `Cellar Survey` avancou o ledger para `Sewer Clearance` com progresso `2/10`.
+- Concluir `Sewer Clearance` avancou para `Trollwood Supply Line` com progresso `3/10`.
+- O Guild Briefing abriu a jornada diretamente no proximo contrato elegivel.
+- A `Mudrot Investigation` antiga da Mira continuou `in progress` e coletavel mesmo sem os novos prerequisitos anteriores.
+- O reload final do fixture nao produziu erros de console no WebView2.
+
+Bugs encontrados e corrigidos:
+
+- `Expedition Command` era truncado na aba do terceiro capitulo em 1280x800; o titulo agora quebra em duas linhas sem overflow.
+- Qualquer quest concluida liberava `Cave Delver`; o unlock agora ocorre apenas em quest do tipo `access`.
+- `Cellar Survey`, do tipo tutorial, foi concluida sem liberar o outfit.
+- `Sewer Clearance`, do tipo access, liberou `Cave Delver` e atualizou o badge de Collections.
+
+Validacao do SQLite:
+
+- O banco original foi copiado com o Tauri fechado e protegido pelo SHA-256 `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- `PRAGMA integrity_check` retornou `ok` antes, durante e depois dos testes.
+- O fixture persistiu os dois contratos concluidos, 1.344 gold, 15 renown, 247.800 XP para Lyra e `outfit-cave-delver` desbloqueado.
+- O processo Tauri foi encerrado antes da restauracao; sidecars WAL/SHM do fixture foram removidos com o banco fechado.
+- O arquivo original foi restaurado byte a byte e seu SHA-256 final ficou identico ao backup.
+- O save final voltou a 674 gold, 12 renown, cinco personagens, 35 skills, 26 itens, dez logs e uma linha de metadata.
+- Lyra voltou idle somente com `First Contract` concluido, sem quest progress e sem `Cave Delver` desbloqueado.
+
+Validacao tecnica:
+
+- `npm.cmd run build` passou antes do QA.
+- O build final passou depois das correcoes.
+- `git diff --check` nao encontrou erros de whitespace.
+- Permanece apenas o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Foram concluidos os tres primeiros contratos da cadeia; os capitulos avancados foram validados por dados, estados e compatibilidade, nao por uma campanha completa.
+- Cenarios de falha e morte em quest nao foram forçados nesta rodada.
+- O QA visual foi realizado na janela Tauri de 1280x800; os breakpoints menores ja haviam sido validados no browser durante a Etapa 47.
+
+Proximo passo sugerido:
+
+- Etapa 48 - Guild Achievements e marcos de carreira.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

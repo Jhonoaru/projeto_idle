@@ -1669,14 +1669,14 @@ export function App() {
         renown: guild.renown + result.guildRenownGained,
         gold: Math.max(0, guild.gold + result.goldGained - result.guildGoldLost),
       };
-      if (result.result.success) {
+      if (result.result.success && quest.type === "access") {
         const collectionUnlock = unlockCollectionItem(questGuild, "outfit-cave-delver");
         setGuild(collectionUnlock.guild);
         const collectionLogs = collectionUnlock.logs;
         for (const message of [...collectionLogs].reverse()) {
           prependLog("Collections", message, "success");
         }
-      } else if (result.guildRenownGained > 0 || result.goldGained > 0 || result.guildGoldLost > 0) {
+      } else if (result.result.success || result.guildRenownGained > 0 || result.goldGained > 0 || result.guildGoldLost > 0) {
         setGuild(questGuild);
       }
 

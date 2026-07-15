@@ -3178,10 +3178,9 @@ p {
 
 .quest-chapter-tabs strong {
   grid-column: 1;
-  overflow: hidden;
   color: #e5d39d;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.15;
+  white-space: normal;
 }
 
 .quest-chapter-tabs small {
