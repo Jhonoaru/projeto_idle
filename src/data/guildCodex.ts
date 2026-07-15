@@ -26,6 +26,27 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "guild-contracts-board",
+    category: "services",
+    code: "CB",
+    title: "Guild Contracts Board",
+    subtitle: "Local support expeditions",
+    summary: "Dispatch small support teams on timed guild-wide assignments for modest gold, renown and material rewards.",
+    facts: [
+      { label: "Postings", value: "6 contracts" },
+      { label: "Active limit", value: "1 expedition" },
+      { label: "Team", value: "1-3 adventurers" },
+      { label: "Rewards", value: "Guild / Depot" },
+    ],
+    guidance: [
+      "Career Points and Headquarters levels unlock harder postings while team power determines the displayed success chance.",
+      "The outcome roll is persisted at dispatch time, so reloading the local save cannot reroll an expedition.",
+      "Support assignments do not interrupt personal hunts, training or quests; completed reports require manual collection.",
+    ],
+    relatedSystems: ["Guild Headquarters", "Career Ledger", "Guild Depot", "Activity Log"],
+    keywords: ["contract", "expedition", "dispatch", "support team", "report", "guild depot"],
+  },
+  {
     id: "guild-headquarters",
     category: "services",
     code: "HQ",

@@ -91,6 +91,7 @@ Atualizado em: 2026-07-15
 - Etapa 49.5 concluida: QA real de Guild Titles no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, Save/Reload e ausencia de bonus validados.
 - Etapa 50 concluida: Guild Headquarters adicionou quatro facilities locais, upgrades com guild.gold, requisitos de carreira e bonus pequenos integrados.
 - Etapa 50.5 concluida: QA real de Guild Headquarters no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, bonus, Save/Reload e restauracao integral validados.
+- Etapa 51 concluida: Guild Contracts Board adicionou seis expedicoes locais, equipes de apoio, resultados persistidos e recompensas no Guild Depot.
 
 Comandos principais:
 
@@ -2271,6 +2272,75 @@ Resultado:
 Proximo passo sugerido:
 
 - Etapa 51 - Guild Contracts Board e expedicoes locais.
+
+## Etapa 51 - Guild Contracts Board e expedicoes locais
+
+Status: concluida.
+
+Quadro e contratos:
+
+- Nova tela ampla `Guild Contracts Board`, acessivel por Character Details e pelo menu lateral.
+- O quadro possui Supply Route Survey, Sewer Ledger Audit, Iron Road Escort, Marsh Recovery Detail, Northern Cache Search e Vanguard Frontier Survey.
+- Cada posting mostra regiao, risco, duracao, custo, tamanho da equipe, poder recomendado e recompensas.
+- Career Points e total de levels do Headquarters desbloqueiam contratos mais avancados.
+- Apenas uma expedicao guild-wide pode permanecer ativa por vez.
+
+Equipe e resolucao:
+
+- O jogador seleciona de um a tres aventureiros de apoio; personagens mortos nao podem participar.
+- Team power usa level, attack power e defense power permanentes do roster.
+- A chance de sucesso fica entre 35% e 95% e responde ao poder recomendado de cada contrato.
+- O `outcomeRoll` e calculado deterministicamente e salvo no momento do dispatch; Save/Reload nao pode rerrolar o resultado.
+- Equipes de apoio nao alteram `Character.status` e nao interrompem hunts, training, quests ou boss actions pessoais.
+
+Economia e recompensas:
+
+- Dispatch consome `guild.gold` imediatamente e nunca usa moeda premium.
+- Sucesso concede pequenas quantidades de `guild.gold`, renown e um material real.
+- Old Cloth, Rat Tail, Iron Ore e Enchanted Dust usam itemIds existentes e seguem para o Guild Depot.
+- `capacityUsed` do Guild Depot e recalculado apos a recompensa.
+- Falha nao concede recompensa e nao devolve o custo do dispatch.
+
+Persistencia e seguranca:
+
+- `Guild` recebeu `expeditions`, contendo expedicao ativa, historico limitado aos ultimos 12 reports e totais de conclusao/sucesso.
+- Migration aditiva cria `guilds.expeditions_json` com default `{}`.
+- Saves antigos recebem estado vazio sem perder guilda, roster, inventarios ou logs.
+- ContractId, datas, equipe, chance, roll, custos, historico e contadores sao normalizados no load/save.
+- Clique duplo e spam de dispatch/collect sao bloqueados no App e novamente validados pela engine.
+
+UI:
+
+- Hero mostra status do board, reports concluidos, Career Points e Headquarters levels.
+- Dispatch ativo mostra equipe, progresso, countdown e chance persistida.
+- Dossier exibe briefing, recompensas, checkboxes da equipe, team power e readiness.
+- Historico diferencia sucesso e falha e resume gold/renown recebidos.
+- Layout segue o client MMORPG escuro, sem assets externos, monetizacao ou online.
+
+QA executado:
+
+- `npm.cmd run build` passou durante a implementacao.
+- Save legado sem `headquarters_json` e `expeditions_json` recebeu as duas migrations no Tauri e carregou o board vazio.
+- Testes deterministas cobriram estado invalido, contract inexistente, equipe morta/insuficiente, gold insuficiente, requisito de Headquarters, dispatch duplicado e coleta antecipada.
+- Clique duplo no primeiro dispatch gerou um custo de 40g, um active run e um activity log; gold passou de 674g para 634g.
+- Save/Reload preservou equipe Ayla/Lyra, 1.192 team power, 95% de chance e o mesmo `outcomeRoll`.
+- Sucesso concedeu 110g, 1 renown e Old Cloth x2; gold foi para 744g e o stack do Guild Depot passou de 18 para 20.
+- Segundo dispatch foi forçado ao ramo de falha no fixture de QA: gold ficou em 704g, sem recompensa, com report `No reward`.
+- Historico, totais, Activity Log e SQLite permaneceram sem duplicacao.
+- WebView2 em 1280x800 e 860x700 nao apresentou overflow horizontal ou erro de console.
+- Banco original restaurado ao SHA-256 `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`, integridade `ok`, 1 guilda, 5 personagens, 35 skills, 26 itens, 10 logs e sem sidecars.
+
+Limitacoes atuais:
+
+- Existem seis contratos fixos e apenas uma expedicao simultanea.
+- Nao ha cancelamento/recall; o report fica disponivel para coleta quando o timer termina.
+- Expedicoes nao concedem XP pessoal, skill progress, loot aleatorio ou acesso regional.
+- Nao ha calendario online, temporadas, premium, pagamento, aceleracao ou anti-cheat de relogio.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 51.5 - QA do Guild Contracts Board no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

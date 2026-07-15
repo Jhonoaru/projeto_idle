@@ -56,6 +56,8 @@ import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
 import { equipGuildTitle, getGuildIdentity, getPersistedGuildTitle } from "../game-engine/achievements/getGuildIdentity";
 import { getHeadquartersBonuses } from "../game-engine/headquarters/getHeadquartersBonuses";
 import { upgradeGuildFacility } from "../game-engine/headquarters/upgradeGuildFacility";
+import { startGuildExpedition } from "../game-engine/expeditions/startGuildExpedition";
+import { finishGuildExpedition } from "../game-engine/expeditions/finishGuildExpedition";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -188,6 +190,8 @@ export function App() {
   const claimingDailyRewardRef = useRef(false);
   const buyingBlessingRef = useRef(false);
   const upgradingFacilityRef = useRef(false);
+  const dispatchingExpeditionRef = useRef(false);
+  const completingExpeditionRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -374,6 +378,39 @@ export function App() {
     );
     window.setTimeout(() => {
       upgradingFacilityRef.current = false;
+    }, 250);
+  }
+
+  function handleStartGuildExpedition(contractId: string, assignedCharacterIds: string[]) {
+    if (dispatchingExpeditionRef.current) return;
+    dispatchingExpeditionRef.current = true;
+    const result = startGuildExpedition(guild, characters, contractId, assignedCharacterIds);
+    if (result.success) setGuild(result.guild);
+    prependLog(
+      result.success ? "Expedition dispatched" : "Expedition blocked",
+      result.message,
+      result.success ? "success" : "warning",
+    );
+    window.setTimeout(() => {
+      dispatchingExpeditionRef.current = false;
+    }, 250);
+  }
+
+  function handleCompleteGuildExpedition() {
+    if (completingExpeditionRef.current) return;
+    completingExpeditionRef.current = true;
+    const result = finishGuildExpedition(guild, depot);
+    if (result.success) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
+    prependLog(
+      result.success ? (result.succeeded ? "Expedition completed" : "Expedition returned") : "Expedition blocked",
+      result.message,
+      result.success && result.succeeded ? "success" : result.success ? "neutral" : "warning",
+    );
+    window.setTimeout(() => {
+      completingExpeditionRef.current = false;
     }, 250);
   }
 
@@ -1907,7 +1944,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
+        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "contracts" ? "is-contracts-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -1966,6 +2003,8 @@ export function App() {
           onEquipCollectionItem={handleEquipCollectionItem}
           onEquipGuildTitle={handleEquipGuildTitle}
           onUpgradeGuildFacility={handleUpgradeGuildFacility}
+          onStartGuildExpedition={handleStartGuildExpedition}
+          onCompleteGuildExpedition={handleCompleteGuildExpedition}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

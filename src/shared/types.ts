@@ -218,6 +218,7 @@ export interface Guild {
   dailyReward?: DailyRewardState;
   careerIdentity?: GuildCareerIdentity;
   headquarters?: GuildHeadquartersState;
+  expeditions?: GuildExpeditionState;
 }
 
 export type GuildFacilityId = "war_room" | "training_yard" | "quartermaster" | "contract_archive";
@@ -236,6 +237,59 @@ export interface GuildFacilityDefinition {
   bonusPerLevel: number;
   upgradeCosts: readonly number[];
   careerPointRequirements: readonly number[];
+}
+
+export type GuildContractRisk = "routine" | "guarded" | "dangerous";
+
+export interface GuildContractDefinition {
+  id: string;
+  name: string;
+  region: string;
+  description: string;
+  sigil: string;
+  risk: GuildContractRisk;
+  durationMinutes: number;
+  dispatchCost: number;
+  minimumCareerPoints: number;
+  minimumHeadquartersLevels: number;
+  minimumTeamSize: number;
+  maximumTeamSize: number;
+  recommendedPower: number;
+  rewardGold: number;
+  rewardRenown: number;
+  rewardItemId?: string;
+  rewardItemQuantity?: number;
+}
+
+export interface GuildExpeditionRun {
+  id: string;
+  contractId: string;
+  startedAt: string;
+  endsAt: string;
+  assignedCharacterIds: string[];
+  teamPower: number;
+  successChance: number;
+  outcomeRoll: number;
+  dispatchCost: number;
+}
+
+export interface GuildExpeditionHistoryEntry {
+  id: string;
+  contractId: string;
+  completedAt: string;
+  assignedCharacterIds: string[];
+  success: boolean;
+  goldGained: number;
+  renownGained: number;
+  itemId?: string;
+  itemQuantity?: number;
+}
+
+export interface GuildExpeditionState {
+  activeExpedition?: GuildExpeditionRun;
+  history: GuildExpeditionHistoryEntry[];
+  totalCompleted: number;
+  totalSucceeded: number;
 }
 
 export interface GuildCareerIdentity {

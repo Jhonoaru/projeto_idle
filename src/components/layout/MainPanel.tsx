@@ -18,6 +18,7 @@ import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
 import { MarketPanel } from "../market/MarketPanel";
 import { GuildHeadquartersHall } from "../headquarters/GuildHeadquartersHall";
+import { GuildContractsBoard } from "../contracts/GuildContractsBoard";
 import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
@@ -65,6 +66,7 @@ export type MainPanelTab =
   | "home"
   | "character"
   | "headquarters"
+  | "contracts"
   | "skills"
   | "blessings"
   | "proficiency"
@@ -122,6 +124,8 @@ interface MainPanelProps {
   onSelectCharacter: (characterId: string) => void;
   onEquipGuildTitle: (titleId: string | null) => void;
   onUpgradeGuildFacility: (facilityId: import("../../shared/types").GuildFacilityId) => void;
+  onStartGuildExpedition: (contractId: string, assignedCharacterIds: string[]) => void;
+  onCompleteGuildExpedition: () => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -227,6 +231,8 @@ export function MainPanel({
   onSelectCharacter,
   onEquipGuildTitle,
   onUpgradeGuildFacility,
+  onStartGuildExpedition,
+  onCompleteGuildExpedition,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -608,6 +614,14 @@ export function MainPanel({
             onUpgradeFacility={onUpgradeGuildFacility}
           />
         ) : null}
+        {activeTab === "contracts" ? (
+          <GuildContractsBoard
+            characters={characters}
+            guild={guild}
+            onCompleteExpedition={onCompleteGuildExpedition}
+            onStartExpedition={onStartGuildExpedition}
+          />
+        ) : null}
         {activeTab === "ranking" ? (
           <LocalRankingHall
             characters={characters}
@@ -649,6 +663,7 @@ function getWindowTitle(tab: MainPanelTab) {
     home: "Guild Hunt Idle",
     character: "Character Details",
     headquarters: "Guild Headquarters",
+    contracts: "Guild Contracts Board",
     skills: "Skills",
     blessings: "Blessings",
     proficiency: "Weapon Proficiency",
@@ -689,6 +704,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
   if (tab === "ranking") return "Local roster standings and guild career milestones derived from the current save.";
   if (tab === "headquarters") return "Guild-wide facilities, construction costs and small local progression bonuses.";
+  if (tab === "contracts") return "Local support expeditions with fixed outcomes, small rewards and SQLite persistence.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
@@ -704,6 +720,7 @@ function getWindowIcon(tab: MainPanelTab) {
   const icons: Partial<Record<MainPanelTab, string>> = {
     character: "D",
     headquarters: "H",
+    contracts: "C",
     skills: "S",
     training: "T",
     proficiency: "P",

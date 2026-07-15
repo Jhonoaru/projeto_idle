@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-51",
+    stage: "Stage 51",
+    title: "Guild Contracts Board",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "Guild-wide support teams can now run timed local expeditions with fixed outcomes and small rewards.",
+    highlights: [
+      "Six contracts use Career Points, Headquarters levels, team power and guild gold to gate dispatches.",
+      "Outcome rolls are stored when the expedition begins, preventing Save/Reload from rerolling success.",
+      "Successful reports grant modest gold, renown and real materials delivered safely to the Guild Depot.",
+    ],
+    systems: ["Guild Contracts", "Expeditions", "Guild Depot"],
+    featured: true,
+  },
+  {
     id: "stage-50-5",
     stage: "Stage 50.5",
     title: "Guild Headquarters QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Malformed states, capped bonuses, responsive layouts and integrations with hunts, training, quests and the Market NPC were verified.",
     ],
     systems: ["Guild Headquarters", "SQLite QA", "Economy"],
-    featured: true,
   },
   {
     id: "stage-50",

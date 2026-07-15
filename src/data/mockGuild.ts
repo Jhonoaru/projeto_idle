@@ -40,4 +40,9 @@ export const mockGuild: Guild = {
     facilityLevels: { war_room: 0, training_yard: 0, quartermaster: 0, contract_archive: 0 },
     totalInvestedGold: 0,
   },
+  expeditions: {
+    history: [],
+    totalCompleted: 0,
+    totalSucceeded: 0,
+  },
 };
