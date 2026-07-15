@@ -50,4 +50,10 @@ export const mockGuild: Guild = {
     activeSpecialistId: null,
     totalSpentGold: 0,
   },
+  treasury: {
+    reservedGold: 0,
+    totalDeposited: 0,
+    totalWithdrawn: 0,
+    transactions: [],
+  },
 };

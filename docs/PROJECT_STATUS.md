@@ -95,6 +95,7 @@ Atualizado em: 2026-07-15
 - Etapa 51.5 concluida: QA real do Contracts Board corrigiu active runs corrompidos e validou migration, anti-reroll, duplicacao, historico e restauracao integral.
 - Etapa 52 concluida: Guild Staff adicionou quatro especialistas permanentes, um posto ativo, bonus limitados em expedicoes e persistencia SQLite.
 - Etapa 52.5 concluida: QA real do Guild Staff validou migration, contratacao, snapshot de dispatch, duplicacao, JSON corrompido e restauracao integral.
+- Etapa 53 concluida: Guild Treasury adicionou reserva protegida, transferencias sem taxa, ledger local e persistencia SQLite.
 
 Comandos principais:
 
@@ -2512,6 +2513,59 @@ Resultado e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 53 - Guild Treasury e ledger economico local.
+
+## Etapa 53 - Guild Treasury e ledger economico local
+
+Status: concluida.
+
+Modelo e regras:
+
+- `Guild.treasury` guarda `reservedGold`, totais historicos de deposito/saque e as 30 transferencias mais recentes.
+- `guild.gold` continua sendo o saldo gastavel; depositar apenas move gold para a reserva protegida.
+- Sacar devolve gold reservado ao saldo gastavel sem taxa, premio, juros ou renda passiva.
+- Cada lancamento guarda id deterministico, direcao, valor inteiro, saldo reservado posterior e data ISO local persistida.
+- A soma `guild.gold + treasury.reservedGold` permanece inalterada em toda transferencia valida.
+- Valores fracionarios, negativos, `NaN`, saldos insuficientes, overflow e operacao duplicada sao bloqueados sem mutacao.
+- Campos monetarios do Treasury e JSON antigos invalidos sao normalizados para defaults finitos e nao negativos.
+
+UI e integracoes:
+
+- Novo `Guild Treasury Hall` amplo, acessivel pelo menu lateral e pelo Character Details.
+- O hero mostra saldo gastavel, reserva, patrimonio total e quantidade de lancamentos.
+- Controle segmentado alterna entre Deposit e Withdraw, com input numerico, presets 100/500/1.000g e Max.
+- Preview mostra o saldo reservado projetado antes da confirmacao.
+- Ledger lista direcao, data, valor e saldo posterior; totais lifetime permanecem mesmo quando o historico e limitado.
+- Topbar reflete imediatamente o saldo gastavel e Activity Log registra sucesso ou bloqueio.
+- A tela participa da restauracao opcional da ultima view e esconde os paineis laterais para usar a area ampla.
+
+Persistencia:
+
+- Migration aditiva cria `guilds.treasury_json` com default `{}`.
+- Save/load sempre normaliza o JSON antes de mapear ou persistir.
+- Saves antigos sem Treasury recebem reserva 0g, totais 0g e ledger vazio.
+- Reset mock tambem inicia com o estado completo e seguro.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite.
+- Teste executavel da engine validou deposito 300g, saque 125g, total preservado em 1.000g, bloqueios e ledger com duas entradas.
+- Vite abriu o Hall e uma transferencia de 100g alterou `420/0` para `320/100` com uma entrada.
+- Clique duplo seguinte gerou apenas mais um deposito: `220/200` e duas entradas, sem terceira aplicacao.
+- Saque de 100g retornou para `320/100`, manteve patrimonio 420g e atualizou lifetime para 200g depositados / 100g sacados.
+- Layout desktop em 1440x900 e DOM mobile em 375px ficaram sem overflow horizontal.
+- A captura desktop foi inspecionada; a captura mobile falhou por timeout do navegador, embora dimensoes e fluxo mobile tenham sido validados no DOM.
+- O Vite standalone usou o fallback mock, pois nao possui o runtime SQL do Tauri; QA interativo real de migration/Save/Reload fica para a Etapa 53.5.
+
+Limitacoes atuais:
+
+- Ledger limitado aos 30 lancamentos mais recentes, com totais lifetime separados.
+- Sem categorias, notas editaveis, metas, permissoes, juros, taxas, renda passiva, moeda nova, premium, pagamento ou online.
+- A reserva protege apenas contra gastos normais que usam `guild.gold`; nao existe sistema de autorizacao por membro.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 53.5 - QA do Guild Treasury no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -26,6 +26,27 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "guild-treasury",
+    category: "services",
+    code: "GT",
+    title: "Guild Treasury",
+    subtitle: "Protected local gold reserve",
+    summary: "Move existing guild gold into a protected reserve and review the guild's recent local transfer ledger.",
+    facts: [
+      { label: "Currency", value: "Guild gold" },
+      { label: "Transfer fee", value: "None" },
+      { label: "Ledger", value: "30 recent entries" },
+      { label: "Income", value: "None" },
+    ],
+    guidance: [
+      "Deposited gold is excluded from ordinary guild purchases until it is withdrawn to spendable funds.",
+      "Deposits and withdrawals preserve total guild holdings; the Treasury does not generate interest or passive income.",
+      "The local ledger stores the amount, direction, date and reserve balance of each valid transfer.",
+    ],
+    relatedSystems: ["Guild Gold", "Activity Log", "SQLite Save"],
+    keywords: ["treasury", "vault", "reserve", "gold", "deposit", "withdraw", "ledger"],
+  },
+  {
     id: "guild-staff",
     category: "services",
     code: "GS",

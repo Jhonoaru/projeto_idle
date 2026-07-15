@@ -20,7 +20,7 @@ import { getActiveBlessings } from "../../data/blessings";
 import { calculateBlessingsProtection } from "../../game-engine/death/calculateBlessProtection";
 import type { ActivityLogEntry, Character, EquipmentSlot, Guild, Skill } from "../../shared/types";
 
-type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings" | "market" | "quests" | "headquarters" | "contracts" | "staff";
+type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings" | "market" | "quests" | "headquarters" | "contracts" | "staff" | "treasury";
 
 interface CharacterDetailsProps {
   character: Character;
@@ -150,6 +150,7 @@ export function CharacterDetails({
           <button onClick={() => onOpenTab("headquarters")} type="button">Guild Hall</button>
           <button onClick={() => onOpenTab("contracts")} type="button">Contracts</button>
           <button onClick={() => onOpenTab("staff")} type="button">Staff</button>
+          <button onClick={() => onOpenTab("treasury")} type="button">Treasury</button>
         </div>
       </section>
 

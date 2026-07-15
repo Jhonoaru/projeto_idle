@@ -220,6 +220,24 @@ export interface Guild {
   headquarters?: GuildHeadquartersState;
   expeditions?: GuildExpeditionState;
   staff?: GuildStaffState;
+  treasury?: GuildTreasuryState;
+}
+
+export type GuildTreasuryTransactionType = "deposit" | "withdrawal";
+
+export interface GuildTreasuryTransaction {
+  id: string;
+  type: GuildTreasuryTransactionType;
+  amount: number;
+  balanceAfter: number;
+  createdAt: string;
+}
+
+export interface GuildTreasuryState {
+  reservedGold: number;
+  totalDeposited: number;
+  totalWithdrawn: number;
+  transactions: GuildTreasuryTransaction[];
 }
 
 export type GuildFacilityId = "war_room" | "training_yard" | "quartermaster" | "contract_archive";

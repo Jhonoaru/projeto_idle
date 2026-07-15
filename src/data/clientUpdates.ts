@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-53",
+    stage: "Stage 53",
+    title: "Guild Treasury and Local Ledger",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "The guild can protect part of its existing gold in a local reserve and review a persistent transfer ledger.",
+    highlights: [
+      "Deposits and withdrawals move gold between spendable guild funds and the protected reserve without creating currency.",
+      "A thirty-entry ledger records direction, amount, timestamp and reserve balance while lifetime totals remain available.",
+      "Invalid values, insufficient funds and duplicate operations are blocked by the engine and the interface.",
+    ],
+    systems: ["Guild Treasury", "Guild Gold", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-52-5",
     stage: "Stage 52.5",
     title: "Guild Staff QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Duty changes did not alter an active expedition; invalid JSON recovered safely and the original database was restored exactly.",
     ],
     systems: ["Guild Staff", "Guild Contracts", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-52",
