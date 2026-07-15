@@ -88,6 +88,7 @@ Atualizado em: 2026-07-15
 - Etapa 48 concluida: Hall of Renown ganhou Career Ledger com 18 achievements automaticos, seis categorias, cinco ranks e progresso derivado do save.
 - Etapa 48.5 concluida: QA real do Career Ledger no Tauri/SQLite, com filtros, dossiers, Save/Reload, integridade semantica e restauracao integral do banco validados.
 - Etapa 49 concluida: Guild Identity adicionou 12 titulos locais derivados da carreira, banner preview, equip seguro, topbar e persistencia SQLite.
+- Etapa 49.5 concluida: QA real de Guild Titles no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, Save/Reload e ausencia de bonus validados.
 
 Comandos principais:
 
@@ -2110,6 +2111,52 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 49.5 - QA de Guild Titles e Career Identity no Tauri/SQLite.
+
+## Etapa 49.5 - QA de Guild Titles e Career Identity no Tauri/SQLite
+
+Status: concluida.
+
+Migration e compatibilidade:
+
+- O baseline real era um save anterior a Etapa 49, sem a coluna `career_identity_json`.
+- O Tauri aplicou a migration aditiva, preservou todas as tabelas e inicializou a identidade como `{"activeTitleId":null}`.
+- Um fixture com `activeTitleId` inexistente carregou sem erro, nao apareceu na topbar nem no banner e foi limpo para `null` no Save seguinte.
+- `PRAGMA integrity_check` retornou `ok` durante a migration, durante os testes e apos a restauracao.
+
+UI e regras:
+
+- All Titles mostrou 12 registros, Available mostrou 5 e Locked mostrou 7 no save da Guilda Aurora.
+- `Wardens of the Roads` permaneceu bloqueado e o comando Equip ficou disabled.
+- `Contract Keepers` foi equipado uma unica vez mesmo com clique duplo rapido.
+- O titulo apareceu imediatamente no banner e na topbar e permaneceu ativo depois de Save/Reload.
+- Unequip tambem resistiu a clique duplo, removeu o titulo da topbar e persistiu depois do Reload.
+- Cada acao valida gerou apenas um Activity Log; nao houve duplicacao de identidade ou log.
+
+Regressao e ausencia de bonus:
+
+- Guilda, cinco personagens, 35 skills e 26 itens permaneceram byte-equivalentes semanticamente ao baseline nos campos de gameplay.
+- Gold, renown, attributes, levels, XP, quests, accesses, Bestiary, Collections, Daily, inventarios e equipamentos nao mudaram ao equipar ou remover titulo.
+- Roster Standings permaneceu com 5 aventureiros e 899.4K combined XP.
+- Career Ledger permaneceu com rank `Chartered Guild`, 8/18 records e 295/930 pontos.
+- Guild Identity permaneceu com 5/12 titulos disponiveis e 295 career points.
+
+QA visual e runtime:
+
+- O WebView2 real em 1280x800 nao apresentou overflow horizontal, sobreposicao incoerente ou texto de titulo fora dos cards.
+- Filtros, cards, banner, dossier, topbar e comandos permaneceram legiveis.
+- Nenhum console error ou page error foi registrado nos fluxos finais.
+- Nenhum bug de implementacao foi encontrado; esta etapa alterou apenas a documentacao.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB no build.
+
+Protecao do banco:
+
+- O save original foi copiado antes dos testes e restaurado apos encerrar toda a arvore do Tauri.
+- O SHA-256 final voltou a `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- As contagens finais voltaram a 1 guilda, 5 personagens, 35 skills, 26 itens e 10 logs, sem arquivos `-wal` ou `-shm`.
+
+Proximo passo sugerido:
+
+- Etapa 50 - Guild Headquarters e facilities locais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
