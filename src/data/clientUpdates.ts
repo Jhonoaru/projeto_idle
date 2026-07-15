@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-51-5",
+    stage: "Stage 51.5",
+    title: "Guild Contracts Board QA",
+    date: "2026-07-15",
+    category: "qa",
+    summary: "Contracts migration, anti-reroll, team limits, history and rewards passed controlled Tauri and SQLite validation.",
+    highlights: [
+      "Corrupted active runs now reject inverted dates and invalid team sizes while success chance remains clamped from 35% to 95%.",
+      "Double dispatch and double collection produced one cost, one reward and one log across Save and Reload.",
+      "History capped at twelve reports, invalid JSON recovered safely and the original legacy database was restored exactly.",
+    ],
+    systems: ["Guild Contracts", "SQLite QA", "Save integrity"],
+    featured: true,
+  },
+  {
     id: "stage-51",
     stage: "Stage 51",
     title: "Guild Contracts Board",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Successful reports grant modest gold, renown and real materials delivered safely to the Guild Depot.",
     ],
     systems: ["Guild Contracts", "Expeditions", "Guild Depot"],
-    featured: true,
   },
   {
     id: "stage-50-5",

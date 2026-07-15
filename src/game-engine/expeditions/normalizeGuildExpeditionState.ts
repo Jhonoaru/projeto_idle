@@ -25,19 +25,21 @@ export function normalizeGuildExpeditionState(value: unknown): GuildExpeditionSt
 function normalizeActiveExpedition(value: unknown): GuildExpeditionRun | undefined {
   if (!value || typeof value !== "object") return undefined;
   const candidate = value as Partial<GuildExpeditionRun>;
-  if (!candidate.contractId || !getGuildContract(candidate.contractId)) return undefined;
+  const contract = candidate.contractId ? getGuildContract(candidate.contractId) : undefined;
+  if (!contract) return undefined;
   if (!isValidDate(candidate.startedAt) || !isValidDate(candidate.endsAt)) return undefined;
+  if (Date.parse(candidate.endsAt) <= Date.parse(candidate.startedAt)) return undefined;
   const assignedCharacterIds = normalizeCharacterIds(candidate.assignedCharacterIds);
-  if (assignedCharacterIds.length === 0) return undefined;
+  if (assignedCharacterIds.length < contract.minimumTeamSize || assignedCharacterIds.length > contract.maximumTeamSize) return undefined;
 
   return {
-    id: typeof candidate.id === "string" && candidate.id ? candidate.id : `expedition-${candidate.contractId}-${Date.parse(candidate.startedAt!)}`,
-    contractId: candidate.contractId,
+    id: typeof candidate.id === "string" && candidate.id ? candidate.id : `expedition-${contract.id}-${Date.parse(candidate.startedAt!)}`,
+    contractId: contract.id,
     startedAt: candidate.startedAt!,
     endsAt: candidate.endsAt!,
     assignedCharacterIds,
     teamPower: normalizeInteger(candidate.teamPower),
-    successChance: Math.min(95, Math.max(5, normalizeInteger(candidate.successChance))),
+    successChance: Math.min(95, Math.max(35, normalizeInteger(candidate.successChance))),
     outcomeRoll: normalizeRoll(candidate.outcomeRoll),
     dispatchCost: normalizeInteger(candidate.dispatchCost),
   };

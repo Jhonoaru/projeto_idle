@@ -11,7 +11,8 @@ export function startGuildExpedition(guild: Guild, characters: Character[], cont
   const availability = getGuildContractAvailability(contract, guild, characters);
   if (!availability.available) return blocked(guild, availability.reasons[0]);
 
-  const uniqueIds = [...new Set(assignedCharacterIds)].filter((characterId) => {
+  const safeAssignedCharacterIds = Array.isArray(assignedCharacterIds) ? assignedCharacterIds : [];
+  const uniqueIds = [...new Set(safeAssignedCharacterIds)].filter((characterId) => {
     const character = characters.find((entry) => entry.id === characterId);
     return character && character.status !== "dead";
   });

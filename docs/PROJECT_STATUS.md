@@ -92,6 +92,7 @@ Atualizado em: 2026-07-15
 - Etapa 50 concluida: Guild Headquarters adicionou quatro facilities locais, upgrades com guild.gold, requisitos de carreira e bonus pequenos integrados.
 - Etapa 50.5 concluida: QA real de Guild Headquarters no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, bonus, Save/Reload e restauracao integral validados.
 - Etapa 51 concluida: Guild Contracts Board adicionou seis expedicoes locais, equipes de apoio, resultados persistidos e recompensas no Guild Depot.
+- Etapa 51.5 concluida: QA real do Contracts Board corrigiu active runs corrompidos e validou migration, anti-reroll, duplicacao, historico e restauracao integral.
 
 Comandos principais:
 
@@ -2341,6 +2342,57 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 51.5 - QA do Guild Contracts Board no Tauri/SQLite.
+
+## Etapa 51.5 - QA do Guild Contracts Board no Tauri/SQLite
+
+Status: concluida com dois hardenings reais.
+
+Correcoes aplicadas:
+
+- Active runs carregados agora mantem `successChance` estritamente entre 35% e 95%, igual a engine de dispatch.
+- `endsAt` anterior ou igual a `startedAt` invalida a expedicao corrompida em vez de liberar coleta imediata.
+- Equipes persistidas abaixo do minimo ou acima do maximo do contrato invalidam o active run.
+- Chamada defensiva sem array de `assignedCharacterIds` retorna bloqueio seguro em vez de lancar excecao.
+- Team power continua finito quando level, attack power ou defense power chegam corrompidos como `NaN`/infinito.
+
+Matriz da engine:
+
+- Estado ausente voltou para historico vazio e contadores zero.
+- Chances -20 e 999 foram normalizadas para 35 e 95.
+- Datas invertidas e Vanguard Frontier Survey com apenas um membro foram descartados.
+- Vinte reports validos foram limitados aos doze primeiros; totais ficaram coerentes em 12 conclusoes e 6 sucessos no fixture.
+- Equipe `null` retornou o bloqueio de minimo de membros sem quebrar o app.
+- Atributos invalidos produziram team power seguro e chance finita.
+
+QA no Tauri/SQLite:
+
+- Save original sem `headquarters_json` e `expeditions_json` recebeu migrations aditivas e carregou com integridade `ok`.
+- O board migrado mostrou seis postings, 0 conclusoes, dois contratos iniciais disponiveis e locks por Career/Headquarters nos demais.
+- Iron Road Escort exibiu `Requires 1 Headquarters Level` e manteve Dispatch disabled.
+- Checkboxes da equipe respeitaram limite 2/2 e recalcularam team power ao trocar Ayla por Mira.
+- Clique duplo em Dispatch gerou um unico active run, custo de 40g, um log e gold 674g -> 634g.
+- Equipe Lyra/Mira, run ID, 95% de chance e `outcomeRoll` 0.11879142071120441 permaneceram identicos apos Reload.
+- Clique duplo em Collect gerou uma unica recompensa, um log, 110g, 1 renown e Old Cloth x2.
+- O historico injetado com 15 reports exibiu/regravou somente 12, preservando `totalCompleted` 15 e `totalSucceeded` 8.
+- `expeditions_json` sintaticamente invalido voltou ao estado 0/0 sem erro de console.
+- Layout em 1280x800 e 860x700 permaneceu sem overflow horizontal.
+
+Protecao do banco:
+
+- Toda a arvore Tauri foi encerrada antes da restauracao.
+- SHA-256 final voltou a `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- Integridade final `ok`, com 1 guilda, 5 personagens, 35 skills, 26 itens, 10 logs e zero sidecars.
+- O banco original continua legitimamente legado, sem `expeditions_json`; a migration sera reaplicada na proxima abertura.
+
+Limitacoes mantidas:
+
+- Seis contratos fixos, uma expedicao simultanea e coleta manual.
+- Sem cancelamento, XP pessoal, loot aleatorio, premium, online ou anti-cheat de relogio.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 52 - Guild Staff e specialists locais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
