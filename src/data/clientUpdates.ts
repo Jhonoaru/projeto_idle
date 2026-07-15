@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-52-5",
+    stage: "Stage 52.5",
+    title: "Guild Staff QA",
+    date: "2026-07-15",
+    category: "qa",
+    summary: "Staff migration, hiring, duty snapshots and expedition bonuses passed controlled Tauri and SQLite validation.",
+    highlights: [
+      "A legacy save gained staff_json without losing guild, roster, inventory, skills or activity records.",
+      "Double hiring, dispatch and collection produced one cost, one state transition and one activity entry each.",
+      "Duty changes did not alter an active expedition; invalid JSON recovered safely and the original database was restored exactly.",
+    ],
+    systems: ["Guild Staff", "Guild Contracts", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-52",
     stage: "Stage 52",
     title: "Guild Staff and Local Specialists",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The assigned specialist is stored with each dispatch, preventing duty changes from altering an active expedition.",
     ],
     systems: ["Guild Staff", "Guild Headquarters", "Guild Contracts"],
-    featured: true,
   },
   {
     id: "stage-51-5",

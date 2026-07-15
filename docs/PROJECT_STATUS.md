@@ -94,6 +94,7 @@ Atualizado em: 2026-07-15
 - Etapa 51 concluida: Guild Contracts Board adicionou seis expedicoes locais, equipes de apoio, resultados persistidos e recompensas no Guild Depot.
 - Etapa 51.5 concluida: QA real do Contracts Board corrigiu active runs corrompidos e validou migration, anti-reroll, duplicacao, historico e restauracao integral.
 - Etapa 52 concluida: Guild Staff adicionou quatro especialistas permanentes, um posto ativo, bonus limitados em expedicoes e persistencia SQLite.
+- Etapa 52.5 concluida: QA real do Guild Staff validou migration, contratacao, snapshot de dispatch, duplicacao, JSON corrompido e restauracao integral.
 
 Comandos principais:
 
@@ -2456,6 +2457,61 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 52.5 - QA do Guild Staff no Tauri/SQLite.
+
+## Etapa 52.5 - QA do Guild Staff no Tauri/SQLite
+
+Status: concluida sem regressao funcional encontrada.
+
+Cobertura da engine:
+
+- Estado ausente, `null`, IDs desconhecidos, duplicatas, active specialist nao contratado e investimento invalido voltaram a defaults seguros.
+- Requisitos de facility, Career Points e `guild.gold` bloquearam contratacoes invalidas com mensagens corretas.
+- Contratacao repetida nao debitou gold novamente e designacao de especialista nao contratado foi recusada.
+- Limpar um posto ativo funcionou uma vez; segunda tentativa foi bloqueada sem mutacao.
+- Descontos negativos e `NaN` voltaram a zero; desconto externo extremo foi limitado a 25%.
+- Field Medic persistiu no run e elevou a recompensa do fixture de 1 para 2 renown sem alterar gold.
+
+Migration e contratacao no Tauri/SQLite:
+
+- O save original nao possuia `career_identity_json`, `headquarters_json`, `expeditions_json` nem `staff_json`.
+- O Tauri criou todas as colunas aditivas e preservou 1 guilda, 5 personagens, 35 skills, 26 itens e 10 logs.
+- Staff iniciou em 0/4, posto vazio e 0g investidos.
+- Clique duplo no War Room criou um unico level, um debito de 250g e um log; gold passou de 674g para 424g.
+- Clique duplo em contratar Mara Veld criou um unico contratado, um debito de 250g e um log; gold passou para 174g.
+- O primeiro contratado entrou automaticamente em servico e o Hall mostrou 1/4, Scout Captain e 250g investidos.
+
+Integracao com Guild Contracts:
+
+- Equipe reduzida para somente Arkon exibiu 102 power e 60% de chance, incluindo os 5 pontos da Scout Captain.
+- Clique duplo em Dispatch gerou um active run, custo de 40g, um log e gold 174g -> 134g.
+- Run persistiu `specialistId: scout_captain`, team power 102, chance 60% e o mesmo `outcomeRoll`.
+- Limpar o posto durante a expedicao nao alterou o run; Save/Reload continuou exibindo Mara Veld vinculada e chance de 60%.
+- Coleta por clique duplo gerou um unico report de falha, sem reward ou refund, mantendo `specialistId` no historico.
+- Staff, dispatch e coleta produziram exatamente um log cada, sem duplicacao.
+
+JSON e interface:
+
+- `staff_json` sintaticamente invalido voltou a 0/4, posto vazio e 0g investidos sem erro de console.
+- Save regravou o estado normalizado como JSON valido.
+- Staff Hall mostrou quatro cards, requisitos, dossier, notice de expedicao e comandos de duty corretos.
+- Layout em 1280x800 e 960x700 permaneceu sem overflow horizontal; cards e dossier mantiveram dimensoes estaveis.
+
+Protecao do banco:
+
+- Toda a arvore do Tauri e do WebView2 foi encerrada antes da restauracao definitiva.
+- SHA-256 final voltou a `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- Integridade final `ok`, com 1 guilda, 5 personagens, 35 skills, 26 itens, 10 logs e zero sidecars.
+- O banco original continua legitimamente legado, sem `staff_json`; a migration sera reaplicada na proxima abertura.
+
+Resultado e limitacoes:
+
+- Nenhum arquivo de gameplay precisou de correcao nesta QA.
+- Permanecem quatro especialistas fixos, um posto ativo e ausencia de salarios, demissao, niveis, premium ou online.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 53 - Guild Treasury e ledger economico local.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
