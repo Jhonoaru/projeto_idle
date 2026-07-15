@@ -14,7 +14,7 @@ export function getQuestAvailability(character: Character, quests: Quest[]) {
 
       if (progress) {
         status = "in_progress";
-      } else if (canStartQuest(character, quest).canStart) {
+      } else if (canStartQuest(character, quest, quests).canStart) {
         status = "available";
       }
     }

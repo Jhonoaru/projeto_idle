@@ -6,6 +6,8 @@ interface QuestCardProps {
   quest: Quest;
   status: QuestStatus;
   isCurrent: boolean;
+  isFeatured?: boolean;
+  questCatalog: Quest[];
   reason?: string;
   onStart: (quest: Quest) => void;
   onFinish: (quest: Quest) => void;
@@ -16,6 +18,8 @@ export function QuestCard({
   quest,
   status,
   isCurrent,
+  isFeatured,
+  questCatalog,
   reason,
   onStart,
   onFinish,
@@ -25,12 +29,18 @@ export function QuestCard({
   const canFinish = status === "in_progress" && isCurrent;
   const statusText = getStatusText(status);
   const blockReason = getQuestBlockReason(character, status, reason);
+  const requiredQuestNames = (quest.requiredQuestIds ?? []).map(
+    (questId) => questCatalog.find((entry) => entry.id === questId)?.name ?? questId,
+  );
 
   return (
-    <article className={`quest-card quest-${status}`}>
+    <article className={`quest-card quest-${status} ${isFeatured ? "is-next" : ""}`.trim()}>
       <div>
         <div className="quest-title-row">
-          <h3>{quest.name}</h3>
+          <div>
+            <span className="quest-contract-type">{quest.type.replace("_", " ")}</span>
+            <h3>{quest.name}</h3>
+          </div>
           <span className={`risk risk-${quest.risk}`}>{quest.risk}</span>
         </div>
         <p>{quest.description}</p>
@@ -38,12 +48,20 @@ export function QuestCard({
           <span>{quest.city}</span>
           <span>Lv {quest.requiredLevel}</span>
           <span>{quest.totalDurationMinutes} min</span>
-          <span>{quest.type}</span>
+          <span>{quest.steps.length} step{quest.steps.length === 1 ? "" : "s"}</span>
           <span>{statusText}</span>
           <span>{unlockedAccess ?? "No access"}</span>
         </div>
         <p className={`quest-status-badge quest-status-${status}`}>{statusText}</p>
         {blockReason ? <p className="action-block-reason">{blockReason}</p> : null}
+        {requiredQuestNames.length > 0 ? (
+          <p className="quest-prerequisite">After: {requiredQuestNames.join(" / ")}</p>
+        ) : null}
+        <div className="quest-reward-strip">
+          <span>{quest.rewards.gold?.toLocaleString("en-US") ?? 0}g</span>
+          <span>{quest.rewards.experience?.toLocaleString("en-US") ?? 0} XP</span>
+          <span>{quest.rewards.renown ?? 0} renown</span>
+        </div>
         <div className="tag-list">
           {quest.tags.map((tag) => (
             <span key={tag}>{tag}</span>
@@ -51,12 +69,15 @@ export function QuestCard({
         </div>
       </div>
       <div className="quest-actions">
-        <button disabled={!canStart} onClick={() => onStart(quest)} type="button">
-          Iniciar Quest
-        </button>
-        <button disabled={!canFinish} onClick={() => onFinish(quest)} type="button">
-          Finalizar Quest
-        </button>
+        {canFinish ? (
+          <button onClick={() => onFinish(quest)} type="button">Collect contract</button>
+        ) : status === "completed" ? (
+          <span className="quest-recorded">Recorded</span>
+        ) : (
+          <button disabled={!canStart} onClick={() => onStart(quest)} type="button">
+            {status === "locked" ? "Requirements pending" : "Start contract"}
+          </button>
+        )}
       </div>
     </article>
   );

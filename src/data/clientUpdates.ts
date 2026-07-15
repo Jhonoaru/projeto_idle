@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-47",
+    stage: "Stage 47",
+    title: "Guild Journey Ledger",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "Quests now form a guided guild journey with named prerequisites, chapter progress and a clear next contract.",
+    highlights: [
+      "Ten contracts are organized into Guild Registration, Thaeron Fieldwork and Expedition Command.",
+      "The quest ledger highlights the next assignment, rewards, access unlocks and blocking requirements.",
+      "Guild Briefing routes eligible adventurers into the next contract without adding save fields or a SQLite migration.",
+    ],
+    systems: ["Quests", "Guild progression", "Guild Briefing"],
+    featured: true,
+  },
+  {
     id: "stage-46",
     stage: "Stage 46",
     title: "Guild Opening Briefing",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Guidance is derived from existing save data and adds no tutorial flags or SQLite migration.",
     ],
     systems: ["Character Hall", "First session", "Client navigation"],
-    featured: true,
   },
   {
     id: "stage-45",

@@ -81,6 +81,9 @@ Atualizado em: 2026-07-14
 - Etapa 44.5 concluida: QA real do Guild Codex no Tauri/SQLite, com catalogo, filtros, busca, dossier, Save/Reload e ausencia de mutacao de gameplay validados.
 - Etapa 45 concluida: Settings reformulado como console local, com densidade, escala de texto, reducao de movimento, paineis opcionais, tela inicial e restauracao da ultima tela.
 - Etapa 45.5 concluida: QA real do Settings no Tauri/SQLite, com preferencias, reinicio, tela inicial, Save/Reload e restauracao do banco original validados.
+- Etapa 46 concluida: primeira sessao ganhou Guild Briefing derivado do save, tres marcos iniciais e comandos diretos para a proxima acao.
+- Etapa 46.5 concluida: QA real do Guild Briefing no Tauri/SQLite, incluindo fixtures de hunt, venda e First Contract com restauracao integral do banco.
+- Etapa 47 concluida: quests agora formam uma jornada guiada de dez contratos em tres capitulos, com prerequisitos nomeados, proximo objetivo e progresso da guilda.
 
 Comandos principais:
 
@@ -1874,6 +1877,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 47 - Jornada inicial guiada e contratos de progressao.
+
+## Etapa 47 - Jornada inicial guiada e contratos de progressao
+
+Status: concluida.
+
+Jornada da guilda:
+
+- O Quest Ledger agora organiza dez contratos em tres capitulos: `Guild Registration`, `Thaeron Fieldwork` e `Expedition Command`.
+- Cada capitulo mostra faixa de level, progresso proprio e os contratos na ordem narrativa.
+- O comando superior destaca o proximo contrato real; contratos concluidos, ativos, disponiveis e bloqueados possuem acoes distintas.
+- O dossier lateral resume level, duracao, risco e recompensa do proximo objetivo, junto do registro de acessos ja liberados.
+- Prerequisitos agora exibem o nome do contrato anterior em vez de IDs internos.
+
+Contratos e progressao:
+
+- Foram adicionados `Cellar Survey`, `Trollwood Supply Line` e `Broodmother Writ` com recompensas pequenas de gold, XP e renown.
+- A cadeia completa conecta `First Contract`, os acessos de Thaeron, o primeiro boss e as permissoes de Ancient Crypt, Khazgrim e Ember Dragon Nest.
+- O Guild Briefing aponta para o proximo contrato quando o personagem cumpre o level; abaixo do level, direciona para Hunts para preparacao.
+- Quests ja concluidas em saves antigos continuam concluidas mesmo quando a nova cadeia possui prerequisitos anteriores.
+
+Persistencia e compatibilidade:
+
+- A jornada deriva `completedQuestIds`, `questProgress`, `currentAction`, level e acessos que ja existiam no save.
+- Nenhum tipo persistido, schema, migration, mapper ou repository SQLite foi alterado.
+- Saves antigos recebem a ordem guiada automaticamente, sem reset de progresso e sem flag de tutorial.
+- A Etapa 47 foi adicionada como release atual no arquivo local de Updates.
+
+QA executado:
+
+- `npm.cmd run build` passou antes e depois da implementacao.
+- Browser local mostrou dez contratos e tres capitulos, com `First Contract` como proximo objetivo do starter Arkon.
+- Motivos de bloqueio por level e o nome do contrato anterior foram exibidos corretamente.
+- Trocar para `Thaeron Fieldwork` mostrou os tres contratos esperados na ordem correta.
+- `Start contract` iniciou `First Contract` e mudou diretamente para o `Action Analyzer`.
+- Em 1440x1000, o painel ocupou a area disponivel sem overflow horizontal.
+- Em 760x900, capitulos, contratos e dossier foram reorganizados em uma coluna sem overflow horizontal.
+- O unico erro de console foi o `invoke` esperado do plugin SQL no Vite fora do runtime Tauri; o mock local foi usado.
+
+Limitacoes:
+
+- O QA interativo desta etapa foi feito no Vite/browser, nao no executavel Tauri.
+- O ciclo completo de dez contratos nao foi concluido interativamente nesta rodada; encadeamento e estados foram validados por dados, engine, UI e build.
+- Os contratos usam a apresentacao textual e os icones internos atuais; nao foram adicionados assets externos.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 47.5 - QA da jornada guiada no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

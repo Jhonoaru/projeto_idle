@@ -1,4 +1,6 @@
 import type { ActivityLogEntry, Character, Guild, HuntArea } from "../../shared/types";
+import { quests } from "../../data/quests";
+import { getQuestJourney, type QuestJourneyEntry } from "../quest/getQuestJourney";
 
 export type GuildBriefingRoute = "action" | "blessings" | "hunts" | "market" | "quests";
 
@@ -37,6 +39,7 @@ export function getGuildBriefing(
   const hasRecordedSale = logs.some((entry) => entry.title === "Market sale");
   const hasSettledFirstLoot = hasRecordedSale || (hasCompletedFieldRun && !hasSellableLoot);
   const hasCompletedFirstContract = character.completedQuestIds.includes("quest-first-contract");
+  const nextJourneyEntry = getQuestJourney(character, quests).nextEntry;
   const steps: GuildBriefingStep[] = [
     {
       id: "field-run",
@@ -63,6 +66,7 @@ export function getGuildBriefing(
     hasCompletedFieldRun,
     hasCompletedFirstContract,
     hasSellableLoot,
+    nextJourneyEntry,
     selectedHunt,
   });
 
@@ -78,12 +82,14 @@ function getCurrentCommand({
   hasCompletedFieldRun,
   hasCompletedFirstContract,
   hasSellableLoot,
+  nextJourneyEntry,
   selectedHunt,
 }: {
   character: Character;
   hasCompletedFieldRun: boolean;
   hasCompletedFirstContract: boolean;
   hasSellableLoot: boolean;
+  nextJourneyEntry?: QuestJourneyEntry;
   selectedHunt?: HuntArea;
 }): Pick<GuildBriefing, "title" | "description" | "actionLabel" | "route"> {
   if (character.status === "dead") {
@@ -131,12 +137,21 @@ function getCurrentCommand({
     };
   }
 
-  if (character.level < 3) {
+  if (nextJourneyEntry && character.level < nextJourneyEntry.quest.requiredLevel) {
     return {
-      title: "Build field experience",
-      description: "Continue short sewer assignments until Cave Spider Cellar becomes available at level 3.",
+      title: `Prepare for ${nextJourneyEntry.quest.name}`,
+      description: `Continue field assignments until level ${nextJourneyEntry.quest.requiredLevel}, then return to the journey ledger.`,
       actionLabel: "Open hunts",
       route: "hunts",
+    };
+  }
+
+  if (nextJourneyEntry) {
+    return {
+      title: `Accept ${nextJourneyEntry.quest.name}`,
+      description: "The next progression contract is ready in the guild journey ledger.",
+      actionLabel: "Open journey",
+      route: "quests",
     };
   }
 

@@ -1,6 +1,6 @@
 import type { Character, Quest } from "../../shared/types";
 
-export function canStartQuest(character: Character, quest: Quest) {
+export function canStartQuest(character: Character, quest: Quest, questCatalog: Quest[] = []) {
   if (character.status !== "idle") {
     return { canStart: false, reason: `${character.name} is ${character.status}.` };
   }
@@ -18,7 +18,8 @@ export function canStartQuest(character: Character, quest: Quest) {
   );
 
   if (missingQuest) {
-    return { canStart: false, reason: `requires quest ${missingQuest}.` };
+    const requiredQuestName = questCatalog.find((entry) => entry.id === missingQuest)?.name ?? missingQuest;
+    return { canStart: false, reason: `requires contract ${requiredQuestName}.` };
   }
 
   if (character.completedQuestIds.includes(quest.id)) {
