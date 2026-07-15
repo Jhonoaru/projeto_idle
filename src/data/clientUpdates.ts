@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-49",
+    stage: "Stage 49",
+    title: "Guild Titles and Career Identity",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "Career achievements now unlock local guild titles that can be equipped across the client.",
+    highlights: [
+      "Twelve identities are earned through specific Career Ledger records or career point thresholds.",
+      "Guild Identity provides availability filters, banner previews, title dossiers and equip controls.",
+      "The equipped title persists in SQLite and grants no stats, currency, premium access or online status.",
+    ],
+    systems: ["Hall of Renown", "Guild Identity", "Achievements"],
+    featured: true,
+  },
+  {
     id: "stage-48",
     stage: "Stage 48",
     title: "Guild Career Ledger",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Career points are read-only, cannot be spent and require no claim, migration or online service.",
     ],
     systems: ["Hall of Renown", "Achievements", "Guild progression"],
-    featured: true,
   },
   {
     id: "stage-47",

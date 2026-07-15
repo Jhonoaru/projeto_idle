@@ -179,20 +179,21 @@ const systemEntries: GuildCodexEntry[] = [
     code: "GL",
     title: "Guild Ledgers",
     subtitle: "Daily, Collections and local records",
-    summary: "Account-wide halls track daily rewards, cosmetic unlocks, local ranking, career milestones and installed client releases.",
+    summary: "Account-wide halls track daily rewards, cosmetic unlocks, local ranking, career milestones, guild titles and installed client releases.",
     facts: [
       { label: "Daily", value: "7-day cycle" },
       { label: "Collections", value: "Guild unlocks" },
-      { label: "Ranking", value: "Roster and career ledger" },
+      { label: "Ranking", value: "Roster, career and identity" },
       { label: "Updates", value: "Local archive" },
     ],
     guidance: [
       "Daily Reward allows one local claim per day, advances a seven-day cycle and resets streak after missed days.",
       "Collections unlocks belong to the guild while outfit, mount and avatar selections belong to each character.",
-      "Ranking, Career Ledger and Updates are read-only local halls; they do not contact leaderboards, accounts or patch services.",
+      "Career achievements unlock cosmetic guild titles; the equipped identity grants no combat bonus or premium benefit.",
+      "Ranking, Career Ledger, Guild Identity and Updates remain fully local and do not contact leaderboards, accounts or patch services.",
     ],
-    relatedSystems: ["Daily Reward", "Collections", "Ranking", "Career Ledger", "Updates"],
-    keywords: ["daily", "collection", "ranking", "achievement", "career", "updates", "cosmetic"],
+    relatedSystems: ["Daily Reward", "Collections", "Ranking", "Career Ledger", "Guild Identity", "Updates"],
+    keywords: ["daily", "collection", "ranking", "achievement", "career", "title", "identity", "updates", "cosmetic"],
   },
 ];
 

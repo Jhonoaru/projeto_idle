@@ -53,6 +53,7 @@ import { clearNewCollectionFlags } from "../game-engine/collections/clearNewColl
 import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
 import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
+import { equipGuildTitle, getGuildIdentity, getPersistedGuildTitle } from "../game-engine/achievements/getGuildIdentity";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -127,6 +128,10 @@ interface LastHuntResult {
 export function App() {
   const [guild, setGuild] = useState(mockGuild);
   const [characters, setCharacters] = useState(mockCharacters);
+  const activeGuildTitle = useMemo(
+    () => getGuildIdentity(guild, characters).activeTitle?.definition.title,
+    [characters, guild],
+  );
   const [depot, setDepot] = useState(mockDepot);
   const [logs, setLogs] = useState<ActivityLogEntry[]>(mockLogs);
   const [database, setDatabase] = useState<Awaited<ReturnType<typeof initDatabase>>>();
@@ -329,6 +334,24 @@ export function App() {
       },
       ...currentLogs,
     ]);
+  }
+
+  function handleEquipGuildTitle(titleId: string | null) {
+    const updatedGuild = equipGuildTitle(guild, characters, titleId);
+    if (updatedGuild === guild) {
+      prependLog("Guild identity", "This title is not available in the current Career Ledger.", "warning");
+      return;
+    }
+
+    setGuild(updatedGuild);
+    const equippedTitle = getPersistedGuildTitle(updatedGuild);
+    prependLog(
+      "Guild identity",
+      equippedTitle
+        ? `${equippedTitle.title} is now displayed by ${updatedGuild.name}.`
+        : `${updatedGuild.name} is no longer displaying a career title.`,
+      "success",
+    );
   }
 
   function handleOpenTab(tab: MainPanelTab) {
@@ -1836,6 +1859,7 @@ export function App() {
       <TopBar
         activeTab={activeTab}
         guild={guild}
+        guildTitle={activeGuildTitle}
         onOpenTab={handleOpenTab}
         onManualSave={handleManualSave}
         onReloadSave={handleReloadSave}
@@ -1909,6 +1933,7 @@ export function App() {
           onActivateMonsterFocus={handleActivateMonsterFocus}
           onClearMonsterFocus={handleClearMonsterFocus}
           onEquipCollectionItem={handleEquipCollectionItem}
+          onEquipGuildTitle={handleEquipGuildTitle}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

@@ -118,6 +118,7 @@ interface MainPanelProps {
   onChangeTab: (tab: MainPanelTab) => void;
   onChangeClientPreferences: (updates: Partial<ClientPreferences>) => void;
   onSelectCharacter: (characterId: string) => void;
+  onEquipGuildTitle: (titleId: string | null) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -221,6 +222,7 @@ export function MainPanel({
   onChangeTab,
   onChangeClientPreferences,
   onSelectCharacter,
+  onEquipGuildTitle,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -599,6 +601,7 @@ export function MainPanel({
           <LocalRankingHall
             characters={characters}
             guild={guild}
+            onEquipGuildTitle={onEquipGuildTitle}
             onSelectCharacter={onSelectCharacter}
             selectedCharacter={selectedCharacter}
           />

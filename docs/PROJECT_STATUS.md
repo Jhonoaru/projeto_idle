@@ -87,6 +87,7 @@ Atualizado em: 2026-07-15
 - Etapa 47.5 concluida: QA real da jornada no Tauri/SQLite, com dois contratos persistidos, compatibilidade de quest antiga, unlock de Collections corrigido e banco original restaurado.
 - Etapa 48 concluida: Hall of Renown ganhou Career Ledger com 18 achievements automaticos, seis categorias, cinco ranks e progresso derivado do save.
 - Etapa 48.5 concluida: QA real do Career Ledger no Tauri/SQLite, com filtros, dossiers, Save/Reload, integridade semantica e restauracao integral do banco validados.
+- Etapa 49 concluida: Guild Identity adicionou 12 titulos locais derivados da carreira, banner preview, equip seguro, topbar e persistencia SQLite.
 
 Comandos principais:
 
@@ -2062,6 +2063,53 @@ QA visual:
 Proximo passo sugerido:
 
 - Etapa 49 - Guild Titles e identidade de carreira derivados dos achievements.
+
+## Etapa 49 - Guild Titles e identidade de carreira
+
+Status: concluida.
+
+Modelo e desbloqueios:
+
+- O Hall of Renown ganhou a terceira visao `Guild Identity`, preservando Roster Standings e Career Ledger.
+- O catalogo possui 12 titulos proprios, sem assets externos: nove dependem de achievements especificos e tres exigem 350, 600 ou 850 career points.
+- Cada titulo possui sigil, categoria, descricao e requisito explicito; filtros separam All Titles, Available e Locked.
+- A engine recalcula disponibilidade a partir do Career Ledger e rejeita IDs inexistentes, bloqueados ou inconsistentes.
+- O save real da Guilda Aurora desbloqueou cinco titulos: The Chartered, Seasoned Company, Contract Keepers, Disciplined Company e Recognized Banner.
+
+Identidade e interface:
+
+- O banner preview mostra guilda, titulo equipado, descricao, career rank, titulos disponiveis e career points.
+- O dossier mostra categoria, requisito, estado, nameplate preview e comandos Equip/Unequip.
+- O titulo equipado aparece na topbar junto ao nome da guilda e atualiza imediatamente.
+- Titulos sao cosmeticos locais: nao concedem atributos, gold, moeda paga, premium, ranking online ou recompensa resgatavel.
+
+Persistencia e compatibilidade:
+
+- `Guild` recebeu `careerIdentity` com apenas `activeTitleId`; o estado antigo ou invalido normaliza para nenhum titulo.
+- A migration aditiva cria `guilds.career_identity_json` com default seguro `{}`.
+- Mapper, repository, mock inicial e autosave persistem a identidade sem alterar os dados derivados dos achievements.
+- A topbar valida novamente o titulo equipado contra os requisitos atuais antes de exibi-lo.
+
+QA executado:
+
+- `npm.cmd run build` passou apos a implementacao.
+- O Tauri real abriu o save antigo, aplicou a migration e exibiu 12 titulos, sendo 5 disponiveis e 7 bloqueados.
+- `Wardens of the Roads` permaneceu bloqueado e seu botao Equip ficou disabled.
+- O filtro Available mostrou exatamente cinco titulos.
+- `Contract Keepers` foi equipado, apareceu no banner e na topbar e permaneceu ativo apos Reload.
+- A coluna SQLite persistiu `{"activeTitleId":"title-contract-keepers"}` e `PRAGMA integrity_check` retornou `ok`.
+- O WebView2 em 1280x800 nao apresentou overflow horizontal ou sobreposicao incoerente; nenhum erro de console/page error foi registrado no fluxo final.
+- O banco real foi restaurado ao SHA-256 original `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`, sem arquivos `-wal` ou `-shm`.
+
+Limitacoes:
+
+- Titulos usam sigils tipograficos e cores do client; nao ha editor livre de brasao ou upload de imagem.
+- A identidade pertence a guilda inteira, nao a personagens individuais.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 49.5 - QA de Guild Titles e Career Identity no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -216,6 +216,27 @@ export interface Guild {
   huntPresets?: HuntSupplyPreset[];
   collections?: GuildCollectionsState;
   dailyReward?: DailyRewardState;
+  careerIdentity?: GuildCareerIdentity;
+}
+
+export interface GuildCareerIdentity {
+  activeTitleId: string | null;
+}
+
+export interface GuildTitleDefinition {
+  id: string;
+  title: string;
+  description: string;
+  sigil: string;
+  category: GuildAchievementCategory;
+  requiredAchievementId?: string;
+  minimumCareerPoints?: number;
+}
+
+export interface GuildTitleProgress {
+  definition: GuildTitleDefinition;
+  unlocked: boolean;
+  requirementLabel: string;
 }
 
 export type GuildAchievementCategory =

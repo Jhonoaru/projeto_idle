@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { getMainSkill } from "../../game-engine/character/getMainSkill";
 import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
 import { GuildCareerLedger } from "./GuildCareerLedger";
+import { GuildIdentityHall } from "./GuildIdentityHall";
 import type { Character, Guild, Skill } from "../../shared/types";
 
 interface LocalRankingHallProps {
@@ -9,6 +10,7 @@ interface LocalRankingHallProps {
   guild: Guild;
   selectedCharacter: Character;
   onSelectCharacter: (characterId: string) => void;
+  onEquipGuildTitle: (titleId: string | null) => void;
 }
 
 type RankingMetric = "experience" | "level" | "power" | "skills";
@@ -59,8 +61,9 @@ export function LocalRankingHall({
   guild,
   selectedCharacter,
   onSelectCharacter,
+  onEquipGuildTitle,
 }: LocalRankingHallProps) {
-  const [activeView, setActiveView] = useState<"standings" | "career">("standings");
+  const [activeView, setActiveView] = useState<"standings" | "career" | "identity">("standings");
   const [activeMetric, setActiveMetric] = useState<RankingMetric>("experience");
   const definition = metricDefinitions[activeMetric];
   const ranked = useMemo(
@@ -87,7 +90,9 @@ export function LocalRankingHall({
           <h3>{guild.name} Hall of Renown</h3>
           <p>{activeView === "standings"
             ? "Offline standings calculated from the adventurers in this save."
-            : "Permanent career milestones derived from the guild's local record."}</p>
+            : activeView === "career"
+              ? "Permanent career milestones derived from the guild's local record."
+              : "Equip a local title earned through the guild's permanent career."}</p>
         </div>
         <div className="ranking-hall-summary">
           {activeView === "standings" ? (
@@ -97,12 +102,19 @@ export function LocalRankingHall({
               <SummaryStat label="Combined XP" value={compactNumber(totalExperience)} />
               <SummaryStat label="Your position" value={selectedRank > 0 ? `#${selectedRank}` : "Unranked"} />
             </>
-          ) : (
+          ) : activeView === "career" ? (
             <>
               <SummaryStat label="Career rank" value={career.rank.title} />
               <SummaryStat label="Recorded" value={`${career.unlockedCount}/${career.totalCount}`} />
               <SummaryStat label="Career points" value={`${career.points}`} />
               <SummaryStat label="Next rank" value={career.nextRank?.title ?? "Maximum"} />
+            </>
+          ) : (
+            <>
+              <SummaryStat label="Career rank" value={career.rank.title} />
+              <SummaryStat label="Career points" value={`${career.points}`} />
+              <SummaryStat label="Identity" value="Local title" />
+              <SummaryStat label="Bonuses" value="Cosmetic only" />
             </>
           )}
         </div>
@@ -114,6 +126,9 @@ export function LocalRankingHall({
         </button>
         <button aria-pressed={activeView === "career"} onClick={() => setActiveView("career")} type="button">
           <span>C</span><strong>Career Ledger</strong><small>Review guild-wide achievements and ranks.</small>
+        </button>
+        <button aria-pressed={activeView === "identity"} onClick={() => setActiveView("identity")} type="button">
+          <span>I</span><strong>Guild Identity</strong><small>Equip titles earned from career records.</small>
         </button>
       </nav>
 
@@ -249,6 +264,9 @@ export function LocalRankingHall({
       </div>
 
       {activeView === "career" ? <GuildCareerLedger characters={characters} guild={guild} /> : null}
+      {activeView === "identity" ? (
+        <GuildIdentityHall characters={characters} guild={guild} onEquipTitle={onEquipGuildTitle} />
+      ) : null}
     </div>
   );
 }

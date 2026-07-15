@@ -35,4 +35,5 @@ export const mockGuild: Guild = {
     newlyUnlockedCollectionItemIds: [],
   },
   dailyReward: createDefaultDailyRewardState(),
+  careerIdentity: { activeTitleId: null },
 };

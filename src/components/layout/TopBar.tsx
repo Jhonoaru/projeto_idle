@@ -11,6 +11,7 @@ interface TopBarProps {
   activeTab: MainPanelTab;
   saveStatus?: string;
   showSaveControls?: boolean;
+  guildTitle?: string;
   onOpenTab: (tab: MainPanelTab) => void;
   onManualSave?: () => void;
   onReloadSave?: () => void;
@@ -23,6 +24,7 @@ export function TopBar({
   activeTab,
   saveStatus,
   showSaveControls = true,
+  guildTitle,
   onOpenTab,
   onManualSave,
   onReloadSave,
@@ -37,7 +39,7 @@ export function TopBar({
         <span>{GAME_TITLE}</span>
         <h1>Guild Hunt</h1>
         <p>
-          Guilda {guild.name} / {selectedCharacter.name} / Level {selectedCharacter.level}
+          Guilda {guild.name}{guildTitle ? `, ${guildTitle}` : ""} / {selectedCharacter.name} / Level {selectedCharacter.level}
         </p>
       </div>
 
