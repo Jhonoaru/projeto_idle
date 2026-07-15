@@ -45,4 +45,9 @@ export const mockGuild: Guild = {
     totalCompleted: 0,
     totalSucceeded: 0,
   },
+  staff: {
+    hiredSpecialistIds: [],
+    activeSpecialistId: null,
+    totalSpentGold: 0,
+  },
 };

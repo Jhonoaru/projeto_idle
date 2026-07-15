@@ -6,6 +6,8 @@ import { calculateExpeditionSuccessChance, calculateExpeditionTeamPower, getGuil
 import { getGuildExpeditionRemainingMs } from "../../game-engine/expeditions/finishGuildExpedition";
 import { normalizeGuildExpeditionState } from "../../game-engine/expeditions/normalizeGuildExpeditionState";
 import { getHeadquartersRank } from "../../game-engine/headquarters/getHeadquartersBonuses";
+import { applyDispatchDiscount, getGuildStaffBonuses } from "../../game-engine/staff/getGuildStaffBonuses";
+import { getGuildSpecialist } from "../../data/guildSpecialists";
 import type { Character, Guild, GuildContractDefinition } from "../../shared/types";
 
 interface GuildContractsBoardProps {
@@ -30,6 +32,11 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
   const availability = getGuildContractAvailability(selectedContract, guild, characters);
   const teamPower = calculateExpeditionTeamPower(characters, assignedCharacterIds);
   const successChance = calculateExpeditionSuccessChance(teamPower, selectedContract.recommendedPower);
+  const staffBonuses = getGuildStaffBonuses(guild.staff);
+  const projectedSuccessChance = Math.min(95, successChance + staffBonuses.successChancePoints);
+  const dispatchCost = applyDispatchDiscount(selectedContract.dispatchCost, staffBonuses.dispatchDiscountPercent);
+  const projectedGold = Math.floor(selectedContract.rewardGold * (1 + staffBonuses.expeditionGoldPercent / 100));
+  const projectedRenown = selectedContract.rewardRenown + staffBonuses.expeditionRenown;
   const active = expeditions.activeExpedition;
   const activeContract = active ? getGuildContract(active.contractId) : undefined;
   const remainingMs = active ? getGuildExpeditionRemainingMs(guild, new Date(clock)) : 0;
@@ -64,7 +71,7 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
   }
 
   const teamReady = assignedCharacterIds.length >= selectedContract.minimumTeamSize && assignedCharacterIds.length <= selectedContract.maximumTeamSize;
-  const canDispatch = !active && availability.available && teamReady && guild.gold >= selectedContract.dispatchCost;
+  const canDispatch = !active && availability.available && teamReady && guild.gold >= dispatchCost;
 
   return (
     <div className="contracts-board">
@@ -90,6 +97,7 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
             <span>{activeContract.region}</span>
             <h3>{activeContract.name}</h3>
             <p>{active.assignedCharacterIds.map((characterId) => characters.find((character) => character.id === characterId)?.name ?? "Unknown").join(" / ")}</p>
+            <small>{getGuildSpecialist(active.specialistId)?.name ?? "No specialist assigned"}</small>
           </div>
           <div className="contracts-active-progress">
             <div><span>Progress</span><strong>{progressPercent}%</strong></div>
@@ -133,10 +141,10 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
             <div><span>{selectedContract.region}</span><strong>{formatDuration(selectedContract.durationMinutes)}</strong><small>{selectedContract.description}</small></div>
           </div>
           <div className="contracts-order-grid">
-            <Summary label="Dispatch cost" value={`${selectedContract.dispatchCost.toLocaleString("en-US")}g`} />
+            <Summary label="Dispatch cost" value={`${dispatchCost.toLocaleString("en-US")}g`} />
             <Summary label="Recommended" value={`${selectedContract.recommendedPower} power`} />
-            <Summary label="Gold reward" value={`${selectedContract.rewardGold.toLocaleString("en-US")}g`} />
-            <Summary label="Renown" value={`+${selectedContract.rewardRenown}`} />
+            <Summary label="Gold reward" value={`${projectedGold.toLocaleString("en-US")}g`} />
+            <Summary label="Renown" value={`+${projectedRenown}`} />
           </div>
           <div className="contracts-material-reward">
             <span>Guild Depot reward</span>
@@ -161,10 +169,11 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
           </section>
           <div className="contracts-readiness">
             <div><span>Team power</span><strong>{teamPower} / {selectedContract.recommendedPower}</strong></div>
-            <div><span>Projected success</span><strong>{successChance}%</strong></div>
+            <div><span>Projected success</span><strong>{projectedSuccessChance}%</strong></div>
           </div>
+          <div className="contracts-specialist"><span>Specialist on duty</span><strong>{staffBonuses.specialist ? `${staffBonuses.specialist.name} / ${staffBonuses.specialist.bonusLabel}` : "None assigned"}</strong></div>
           <button className="contracts-dispatch-button" disabled={!canDispatch} onClick={() => onStartExpedition(selectedContract.id, assignedCharacterIds)} type="button">
-            {active ? "Expedition Already Active" : !availability.available ? availability.reasons[0] : !teamReady ? `Select ${selectedContract.minimumTeamSize}-${selectedContract.maximumTeamSize} Adventurers` : guild.gold < selectedContract.dispatchCost ? `Requires ${selectedContract.dispatchCost.toLocaleString("en-US")}g` : "Dispatch Expedition"}
+            {active ? "Expedition Already Active" : !availability.available ? availability.reasons[0] : !teamReady ? `Select ${selectedContract.minimumTeamSize}-${selectedContract.maximumTeamSize} Adventurers` : guild.gold < dispatchCost ? `Requires ${dispatchCost.toLocaleString("en-US")}g` : "Dispatch Expedition"}
           </button>
           <small className="contracts-local-note">Outcome is fixed when dispatched and cannot be rerolled by Save/Reload. No premium, payment or online service is used.</small>
         </aside>

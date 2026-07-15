@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-52",
+    stage: "Stage 52",
+    title: "Guild Staff and Local Specialists",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "The guild can now hire permanent local specialists and assign one officer to support future expeditions.",
+    highlights: [
+      "Four specialists use existing Headquarters facilities, Career Points and guild gold as hiring requirements.",
+      "One active duty post grants a capped success, dispatch cost, expedition gold or renown bonus.",
+      "The assigned specialist is stored with each dispatch, preventing duty changes from altering an active expedition.",
+    ],
+    systems: ["Guild Staff", "Guild Headquarters", "Guild Contracts"],
+    featured: true,
+  },
+  {
     id: "stage-51-5",
     stage: "Stage 51.5",
     title: "Guild Contracts Board QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "History capped at twelve reports, invalid JSON recovered safely and the original legacy database was restored exactly.",
     ],
     systems: ["Guild Contracts", "SQLite QA", "Save integrity"],
-    featured: true,
   },
   {
     id: "stage-51",

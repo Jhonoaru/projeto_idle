@@ -58,6 +58,7 @@ import { getHeadquartersBonuses } from "../game-engine/headquarters/getHeadquart
 import { upgradeGuildFacility } from "../game-engine/headquarters/upgradeGuildFacility";
 import { startGuildExpedition } from "../game-engine/expeditions/startGuildExpedition";
 import { finishGuildExpedition } from "../game-engine/expeditions/finishGuildExpedition";
+import { assignGuildSpecialist, hireGuildSpecialist } from "../game-engine/staff/manageGuildStaff";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -112,6 +113,7 @@ import type {
   HuntSimulationResult,
   EquipmentSlot,
   GuildFacilityId,
+  GuildSpecialistId,
   InventoryItem,
   MarketItemCategory,
   MonsterFocusBonusType,
@@ -192,6 +194,7 @@ export function App() {
   const upgradingFacilityRef = useRef(false);
   const dispatchingExpeditionRef = useRef(false);
   const completingExpeditionRef = useRef(false);
+  const managingStaffRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -412,6 +415,24 @@ export function App() {
     window.setTimeout(() => {
       completingExpeditionRef.current = false;
     }, 250);
+  }
+
+  function handleHireGuildSpecialist(specialistId: GuildSpecialistId) {
+    if (managingStaffRef.current) return;
+    managingStaffRef.current = true;
+    const result = hireGuildSpecialist(guild, characters, specialistId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Specialist hired" : "Staff request blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { managingStaffRef.current = false; }, 250);
+  }
+
+  function handleAssignGuildSpecialist(specialistId: GuildSpecialistId | null) {
+    if (managingStaffRef.current) return;
+    managingStaffRef.current = true;
+    const result = assignGuildSpecialist(guild, specialistId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Staff duty changed" : "Staff request blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { managingStaffRef.current = false; }, 250);
   }
 
   function handleOpenTab(tab: MainPanelTab) {
@@ -1944,7 +1965,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "contracts" ? "is-contracts-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
+        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "contracts" ? "is-contracts-hall-mode" : ""} ${activeTab === "staff" ? "is-staff-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -2005,6 +2026,8 @@ export function App() {
           onUpgradeGuildFacility={handleUpgradeGuildFacility}
           onStartGuildExpedition={handleStartGuildExpedition}
           onCompleteGuildExpedition={handleCompleteGuildExpedition}
+          onHireGuildSpecialist={handleHireGuildSpecialist}
+          onAssignGuildSpecialist={handleAssignGuildSpecialist}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

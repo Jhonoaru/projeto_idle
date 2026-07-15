@@ -1,4 +1,5 @@
 import { getGuildContract } from "../../data/guildContracts";
+import { getGuildSpecialist } from "../../data/guildSpecialists";
 import type { GuildExpeditionHistoryEntry, GuildExpeditionRun, GuildExpeditionState } from "../../shared/types";
 
 export function createDefaultGuildExpeditionState(): GuildExpeditionState {
@@ -42,6 +43,7 @@ function normalizeActiveExpedition(value: unknown): GuildExpeditionRun | undefin
     successChance: Math.min(95, Math.max(35, normalizeInteger(candidate.successChance))),
     outcomeRoll: normalizeRoll(candidate.outcomeRoll),
     dispatchCost: normalizeInteger(candidate.dispatchCost),
+    specialistId: getGuildSpecialist(candidate.specialistId)?.id,
   };
 }
 
@@ -59,6 +61,7 @@ function normalizeHistoryEntry(value: unknown): GuildExpeditionHistoryEntry | un
     renownGained: normalizeInteger(candidate.renownGained),
     itemId: typeof candidate.itemId === "string" ? candidate.itemId : undefined,
     itemQuantity: normalizeInteger(candidate.itemQuantity) || undefined,
+    specialistId: getGuildSpecialist(candidate.specialistId)?.id,
   };
 }
 

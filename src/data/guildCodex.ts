@@ -26,6 +26,27 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "guild-staff",
+    category: "services",
+    code: "GS",
+    title: "Guild Staff",
+    subtitle: "Permanent local specialists",
+    summary: "Hire four Headquarters specialists and assign one duty officer to support the next guild expedition.",
+    facts: [
+      { label: "Candidates", value: "4 specialists" },
+      { label: "Active limit", value: "1 duty post" },
+      { label: "Currency", value: "Guild gold" },
+      { label: "Scope", value: "Future dispatches" },
+    ],
+    guidance: [
+      "Facilities and Career Points unlock candidates; hiring is permanent and immediately deducts the listed guild gold retainer.",
+      "Scout Captain improves success chance, Provisioner lowers dispatch cost, Guild Envoy improves gold and Field Medic adds renown.",
+      "The duty officer is stored when an expedition begins, so assigning another specialist never changes an active report.",
+    ],
+    relatedSystems: ["Guild Headquarters", "Career Ledger", "Guild Contracts", "Activity Log"],
+    keywords: ["staff", "specialist", "officer", "hire", "duty", "retainer", "expedition bonus"],
+  },
+  {
     id: "guild-contracts-board",
     category: "services",
     code: "CB",

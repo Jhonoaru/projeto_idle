@@ -5,6 +5,7 @@ import { mergeStackableItems } from "../inventory/mergeStackableItems";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
 import type { Guild, GuildDepot } from "../../shared/types";
 import { normalizeGuildExpeditionState } from "./normalizeGuildExpeditionState";
+import { getGuildSpecialistBonuses } from "../staff/getGuildStaffBonuses";
 
 export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new Date()) {
   const safeDepot = { ...depot, items: Array.isArray(depot?.items) ? depot.items : [] };
@@ -18,6 +19,9 @@ export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new
   if (resolvedAt.getTime() < Date.parse(active.endsAt)) return blocked(guild, safeDepot, `${contract.name} is still in progress.`);
 
   const succeeded = active.outcomeRoll < active.successChance / 100;
+  const staffBonuses = getGuildSpecialistBonuses(active.specialistId);
+  const rewardGold = Math.floor(contract.rewardGold * (1 + staffBonuses.expeditionGoldPercent / 100));
+  const rewardRenown = contract.rewardRenown + staffBonuses.expeditionRenown;
   const rewardItem = contract.rewardItemId ? items[contract.rewardItemId] : undefined;
   const itemQuantity = succeeded && rewardItem ? Math.max(1, contract.rewardItemQuantity ?? 1) : 0;
   const rewardedItems = itemQuantity > 0
@@ -30,10 +34,11 @@ export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new
     completedAt: resolvedAt.toISOString(),
     assignedCharacterIds: active.assignedCharacterIds,
     success: succeeded,
-    goldGained: succeeded ? contract.rewardGold : 0,
-    renownGained: succeeded ? contract.rewardRenown : 0,
+    goldGained: succeeded ? rewardGold : 0,
+    renownGained: succeeded ? rewardRenown : 0,
     itemId: itemQuantity > 0 ? rewardItem?.id : undefined,
     itemQuantity: itemQuantity || undefined,
+    specialistId: active.specialistId,
   };
   const updatedExpeditions = {
     activeExpedition: undefined,
@@ -56,7 +61,7 @@ export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new
     depot: rewardedDepot,
     historyEntry,
     message: succeeded
-      ? `${contract.name} completed: +${contract.rewardGold.toLocaleString("en-US")}g, +${contract.rewardRenown} renown${rewardItem ? `, ${rewardItem.name} x${itemQuantity}` : ""}.`
+      ? `${contract.name} completed: +${rewardGold.toLocaleString("en-US")}g, +${rewardRenown} renown${rewardItem ? `, ${rewardItem.name} x${itemQuantity}` : ""}${staffBonuses.specialist ? ` with ${staffBonuses.specialist.name} on duty` : ""}.`
       : `${contract.name} returned without rewards. The dispatch cost was not recovered.`,
   };
 }

@@ -10988,3 +10988,95 @@ html[data-client-motion="reduced"] *::after {
 @media (max-width: 450px) {
   .settings-segmented { grid-auto-flow: row; grid-auto-columns: 1fr; }
 }
+
+/* Guild Staff Hall */
+.game-layout.is-staff-hall-mode .left-panel,
+.game-layout.is-staff-hall-mode .right-character-panel,
+.game-layout.is-staff-hall-mode .character-side-menu { display: none; }
+.game-layout.is-staff-hall-mode:has(.game-window-full) { grid-template-columns: minmax(0, 1fr); }
+
+.staff-hall { display: grid; gap: 10px; min-width: 0; }
+.staff-hero,
+.staff-roster,
+.staff-dossier,
+.staff-dispatch-notice { min-width: 0; border: 1px solid #3d4038; background: #101513; }
+.staff-hero { display: grid; grid-template-columns: 104px minmax(280px, 1fr) minmax(500px, 1.25fr); gap: 15px; align-items: center; min-height: 126px; padding: 14px; }
+.staff-crest { display: grid; place-items: center; align-content: center; gap: 7px; width: 100px; height: 106px; border: 1px solid #8b7444; color: #efd58a; background: #20251f; clip-path: polygon(50% 0, 92% 18%, 84% 82%, 50% 100%, 16% 82%, 8% 18%); }
+.staff-crest i { font-family: Georgia, serif; font-size: 1.7rem; font-style: normal; font-weight: 900; }
+.staff-crest span { color: #9aa39c; font-size: 0.58rem; }
+.staff-identity > span,
+.staff-summary span,
+.staff-requirements span,
+.staff-assignment > span,
+.staff-dispatch-notice > span { color: #89938d; font-size: 0.57rem; text-transform: uppercase; }
+.staff-identity h3 { margin: 4px 0; color: #ead18c; font-family: Georgia, serif; font-size: 1.18rem; }
+.staff-identity p { max-width: 620px; margin: 0; color: #9fa9a1; font-size: 0.68rem; line-height: 1.45; }
+.staff-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #303832; }
+.staff-summary > div { min-width: 0; min-height: 64px; padding: 9px; border-right: 1px solid #303832; background: #151a17; }
+.staff-summary > div:last-child { border-right: 0; }
+.staff-summary strong,
+.staff-requirements strong { display: block; margin-top: 7px; overflow: hidden; color: #dfce97; font-size: 0.66rem; text-overflow: ellipsis; white-space: nowrap; }
+.staff-dispatch-notice { display: grid; grid-template-columns: 140px minmax(240px, 1fr) minmax(280px, 0.8fr); gap: 12px; align-items: center; padding: 10px 13px; border-left: 3px solid #8e7848; }
+.staff-dispatch-notice strong { color: #deca8d; font-size: 0.68rem; }
+.staff-dispatch-notice small { color: #8f9b92; font-size: 0.59rem; text-align: right; }
+.staff-workspace { display: grid; grid-template-columns: minmax(620px, 1.35fr) minmax(390px, 0.72fr); gap: 9px; align-items: start; min-width: 0; }
+.staff-roster,
+.staff-dossier { padding: 11px; }
+.staff-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.staff-card { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 9px; align-items: center; min-width: 0; min-height: 106px; padding: 9px; border: 1px solid #343c36; border-left: 3px solid #69736b; color: #b8c0ba; background: #151a17; text-align: left; cursor: pointer; }
+.staff-card[aria-pressed="true"] { outline: 2px solid #b99a4e; outline-offset: -2px; background: #1d211b; }
+.staff-card.is-active { border-left-color: #86a26e; }
+.staff-card > i,
+.staff-profile > i { display: grid; place-items: center; border: 1px solid #807047; color: #e1cc89; background: #202620; font-family: Georgia, serif; font-style: normal; font-weight: 900; clip-path: polygon(50% 0, 93% 19%, 84% 82%, 50% 100%, 16% 82%, 7% 19%); }
+.staff-card > i { width: 56px; height: 66px; }
+.staff-card span { min-width: 0; }
+.staff-card small,
+.staff-card strong,
+.staff-card em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.staff-card small { color: #829087; font-size: 0.54rem; text-transform: uppercase; }
+.staff-card strong { margin: 4px 0; color: #dfcf9b; font-family: Georgia, serif; font-size: 0.76rem; }
+.staff-card em { color: #9fb69f; font-size: 0.59rem; font-style: normal; }
+.staff-card > b { min-width: 68px; padding: 6px; border: 1px solid #414a43; color: #cfbc80; background: #111613; font-size: 0.57rem; text-align: center; text-transform: uppercase; }
+.staff-dossier { display: flex; flex-direction: column; min-height: 100%; }
+.staff-profile { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 11px; align-items: center; min-height: 118px; padding: 9px; border: 1px solid #303832; background: #151a17; }
+.staff-profile > i { width: 84px; height: 94px; font-size: 1.05rem; }
+.staff-profile span,
+.staff-profile strong,
+.staff-profile small { display: block; }
+.staff-profile span { color: #89958c; font-size: 0.58rem; text-transform: uppercase; }
+.staff-profile strong { margin: 5px 0; color: #afc7a7; font-size: 0.72rem; }
+.staff-profile small { color: #9fa9a1; font-size: 0.62rem; line-height: 1.45; }
+.staff-requirements { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 7px; border: 1px solid #303832; }
+.staff-requirements > div { min-width: 0; min-height: 58px; padding: 8px; border-right: 1px solid #303832; background: #151a17; }
+.staff-requirements > div:last-child { border-right: 0; }
+.staff-assignment { margin-top: 7px; padding: 10px; border: 1px solid #3b443d; background: #121814; }
+.staff-assignment strong,
+.staff-assignment small { display: block; }
+.staff-assignment strong { margin: 5px 0; color: #ddc98d; font-size: 0.68rem; }
+.staff-assignment small { color: #89958d; font-size: 0.58rem; line-height: 1.4; }
+.staff-command,
+.staff-clear-command { min-height: 40px; margin-top: 7px; border: 1px solid #a88a48; color: #f0d792; background: #2a3329; font-family: Georgia, serif; font-weight: 900; cursor: pointer; }
+.staff-command:disabled { border-color: #3b433c; color: #717a73; background: #171c18; cursor: not-allowed; }
+.staff-clear-command { border-color: #626b63; color: #b9c1ba; background: #181e1b; }
+.staff-local-note { margin-top: 8px; color: #7f8a82; font-size: 0.55rem; line-height: 1.4; }
+.contracts-specialist { display: flex; justify-content: space-between; gap: 10px; margin-top: 7px; padding: 8px; border: 1px solid #3c453e; background: #121814; }
+.contracts-specialist span { color: #89938d; font-size: 0.57rem; text-transform: uppercase; }
+.contracts-specialist strong { color: #c9ba83; font-size: 0.61rem; text-align: right; }
+
+@media (max-width: 1100px) {
+  .staff-hero { grid-template-columns: 92px minmax(0, 1fr); }
+  .staff-summary { grid-column: 1 / -1; }
+  .staff-workspace { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 700px) {
+  .staff-hero { grid-template-columns: 1fr; text-align: center; }
+  .staff-crest { justify-self: center; }
+  .staff-summary,
+  .staff-card-grid,
+  .staff-requirements { grid-template-columns: 1fr; }
+  .staff-summary > div,
+  .staff-requirements > div { border-right: 0; border-bottom: 1px solid #303832; }
+  .staff-dispatch-notice { grid-template-columns: 1fr; }
+  .staff-dispatch-notice small { text-align: left; }
+}

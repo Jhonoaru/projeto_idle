@@ -6,6 +6,9 @@ export type ClientStartupView = (typeof CLIENT_STARTUP_VIEWS)[number];
 
 export const CLIENT_RESTORABLE_VIEWS = [
   "character",
+  "headquarters",
+  "contracts",
+  "staff",
   "skills",
   "blessings",
   "proficiency",

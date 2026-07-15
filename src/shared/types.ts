@@ -219,6 +219,7 @@ export interface Guild {
   careerIdentity?: GuildCareerIdentity;
   headquarters?: GuildHeadquartersState;
   expeditions?: GuildExpeditionState;
+  staff?: GuildStaffState;
 }
 
 export type GuildFacilityId = "war_room" | "training_yard" | "quartermaster" | "contract_archive";
@@ -237,6 +238,35 @@ export interface GuildFacilityDefinition {
   bonusPerLevel: number;
   upgradeCosts: readonly number[];
   careerPointRequirements: readonly number[];
+}
+
+export type GuildSpecialistId = "scout_captain" | "provisioner" | "guild_envoy" | "field_medic";
+
+export type GuildSpecialistBonusType =
+  | "expedition_success"
+  | "dispatch_discount"
+  | "expedition_gold"
+  | "expedition_renown";
+
+export interface GuildStaffState {
+  hiredSpecialistIds: GuildSpecialistId[];
+  activeSpecialistId: GuildSpecialistId | null;
+  totalSpentGold: number;
+}
+
+export interface GuildSpecialistDefinition {
+  id: GuildSpecialistId;
+  name: string;
+  title: string;
+  description: string;
+  sigil: string;
+  bonusType: GuildSpecialistBonusType;
+  bonusValue: number;
+  bonusLabel: string;
+  hireCost: number;
+  minimumCareerPoints: number;
+  requiredFacilityId: GuildFacilityId;
+  requiredFacilityLevel: number;
 }
 
 export type GuildContractRisk = "routine" | "guarded" | "dangerous";
@@ -271,6 +301,7 @@ export interface GuildExpeditionRun {
   successChance: number;
   outcomeRoll: number;
   dispatchCost: number;
+  specialistId?: GuildSpecialistId;
 }
 
 export interface GuildExpeditionHistoryEntry {
@@ -283,6 +314,7 @@ export interface GuildExpeditionHistoryEntry {
   renownGained: number;
   itemId?: string;
   itemQuantity?: number;
+  specialistId?: GuildSpecialistId;
 }
 
 export interface GuildExpeditionState {

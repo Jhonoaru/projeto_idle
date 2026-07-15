@@ -2,6 +2,7 @@ import { getGuildContract } from "../../data/guildContracts";
 import type { Character, Guild } from "../../shared/types";
 import { calculateExpeditionSuccessChance, calculateExpeditionTeamPower, getGuildContractAvailability } from "./getGuildContractAvailability";
 import { normalizeGuildExpeditionState } from "./normalizeGuildExpeditionState";
+import { applyDispatchDiscount, getGuildStaffBonuses } from "../staff/getGuildStaffBonuses";
 
 export function startGuildExpedition(guild: Guild, characters: Character[], contractId: string, assignedCharacterIds: string[], now = new Date()) {
   const contract = getGuildContract(contractId);
@@ -19,13 +20,15 @@ export function startGuildExpedition(guild: Guild, characters: Character[], cont
   if (uniqueIds.length < contract.minimumTeamSize) return blocked(guild, `${contract.name} requires at least ${contract.minimumTeamSize} support adventurer${contract.minimumTeamSize === 1 ? "" : "s"}.`);
   if (uniqueIds.length > contract.maximumTeamSize) return blocked(guild, `${contract.name} accepts at most ${contract.maximumTeamSize} support adventurers.`);
 
+  const staffBonuses = getGuildStaffBonuses(guild.staff);
+  const dispatchCost = applyDispatchDiscount(contract.dispatchCost, staffBonuses.dispatchDiscountPercent);
   const currentGold = Number.isFinite(guild.gold) ? Math.max(0, Math.floor(guild.gold)) : 0;
-  if (currentGold < contract.dispatchCost) return blocked(guild, `${contract.name} requires ${contract.dispatchCost.toLocaleString("en-US")}g to dispatch.`);
+  if (currentGold < dispatchCost) return blocked(guild, `${contract.name} requires ${dispatchCost.toLocaleString("en-US")}g to dispatch.`);
   const startedAt = new Date(now);
   if (!Number.isFinite(startedAt.getTime())) return blocked(guild, "Invalid expedition start time.");
   const endsAt = new Date(startedAt.getTime() + contract.durationMinutes * 60_000);
   const teamPower = calculateExpeditionTeamPower(characters, uniqueIds);
-  const successChance = calculateExpeditionSuccessChance(teamPower, contract.recommendedPower);
+  const successChance = Math.min(95, calculateExpeditionSuccessChance(teamPower, contract.recommendedPower) + staffBonuses.successChancePoints);
   const id = `expedition-${contract.id}-${startedAt.getTime()}`;
   const activeExpedition = {
     id,
@@ -36,14 +39,15 @@ export function startGuildExpedition(guild: Guild, characters: Character[], cont
     teamPower,
     successChance,
     outcomeRoll: deterministicRoll(`${guild.id}-${id}-${uniqueIds.slice().sort().join("-")}`),
-    dispatchCost: contract.dispatchCost,
+    dispatchCost,
+    specialistId: staffBonuses.specialist?.id,
   };
 
   return {
     success: true,
-    guild: { ...guild, gold: currentGold - contract.dispatchCost, expeditions: { ...expeditions, activeExpedition } },
+    guild: { ...guild, gold: currentGold - dispatchCost, expeditions: { ...expeditions, activeExpedition } },
     activeExpedition,
-    message: `${contract.name} dispatched for ${contract.dispatchCost.toLocaleString("en-US")}g with ${successChance}% success chance.`,
+    message: `${contract.name} dispatched for ${dispatchCost.toLocaleString("en-US")}g with ${successChance}% success chance${staffBonuses.specialist ? ` under ${staffBonuses.specialist.name}` : ""}.`,
   };
 }
 

@@ -93,6 +93,7 @@ Atualizado em: 2026-07-15
 - Etapa 50.5 concluida: QA real de Guild Headquarters no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, bonus, Save/Reload e restauracao integral validados.
 - Etapa 51 concluida: Guild Contracts Board adicionou seis expedicoes locais, equipes de apoio, resultados persistidos e recompensas no Guild Depot.
 - Etapa 51.5 concluida: QA real do Contracts Board corrigiu active runs corrompidos e validou migration, anti-reroll, duplicacao, historico e restauracao integral.
+- Etapa 52 concluida: Guild Staff adicionou quatro especialistas permanentes, um posto ativo, bonus limitados em expedicoes e persistencia SQLite.
 
 Comandos principais:
 
@@ -2393,6 +2394,68 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 52 - Guild Staff e specialists locais.
+
+## Etapa 52 - Guild Staff e specialists locais
+
+Status: concluida.
+
+Especialistas:
+
+- Scout Captain Mara Veld custa 250g, requer War Room level 1 e concede +5 pontos de chance em novas expedicoes.
+- Guild Provisioner Oren Vale custa 500g, requer Quartermaster level 1 e 100 Career Points, reduzindo dispatch em 10%.
+- Guild Envoy Elira Sorn custa 900g, requer Contract Archive level 2 e 200 Career Points, aumentando gold de sucesso em 10%.
+- Field Medic Brother Cael custa 1.200g, requer Training Yard level 2 e 300 Career Points, adicionando 1 renown ao sucesso.
+
+Regras e seguranca:
+
+- Contratacoes sao permanentes, guild-wide e pagas somente com `guild.gold`.
+- Apenas um especialista contratado pode ocupar o posto ativo; o posto tambem pode ser deixado vazio.
+- O primeiro especialista contratado entra em servico automaticamente.
+- Cada dispatch salva o `specialistId`, custo e chance efetivos; trocar o posto depois nao altera uma expedicao ativa.
+- Runs antigos sem especialista continuam sem bonus na coleta, mesmo que um oficial seja designado posteriormente.
+- Chance final continua limitada a 95% e desconto de dispatch possui teto defensivo de 25%.
+- IDs invalidos, listas duplicadas, active specialist nao contratado, gold investido negativo e `NaN` voltam a um estado seguro.
+- Clique duplo em contratar/designar e bloqueado no App e novamente validado pela engine.
+
+UI e integracoes:
+
+- Nova tela ampla `Guild Staff`, acessivel pelo menu lateral e Character Details.
+- Headquarters, Contracts e Staff agora participam da restauracao opcional da ultima tela do cliente.
+- Hero resume contratados, oficial de servico, investimento e Career Points.
+- Quadro apresenta quatro candidatos; dossier mostra retainer, facility, carreira, bonus e estado da designacao.
+- Expedicao ativa informa qual especialista foi congelado naquele dispatch.
+- Contracts Board mostra custo, chance, gold e renown projetados com o oficial atual.
+- Activity Log registra contratacoes, alteracoes de posto e bloqueios sem criar moeda ou recurso novo.
+
+Persistencia:
+
+- `Guild.staff` guarda `hiredSpecialistIds`, `activeSpecialistId` e `totalSpentGold`.
+- Migration aditiva cria `guilds.staff_json` com default `{}`.
+- Save/load normaliza o estado e mantem compatibilidade com bancos anteriores.
+- `specialistId` tambem persiste no active run e no report historico da expedicao.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite.
+- Matriz SSR do Vite validou normalizacao, requisito de facility, contratacao, bloqueio duplicado, designacao e quatro tipos de bonus.
+- Scout Captain foi salvo no dispatch e elevou a chance do fixture para 60%.
+- Guild Provisioner reduziu o dispatch inicial de 40g para 36g.
+- Guild Envoy elevou a recompensa de sucesso de 110g para 121g.
+- Expedicao iniciada sem especialista continuou em 110g apos um Envoy ser designado, confirmando ausencia de bonus retroativo.
+- Staff Hall abriu no Vite com quatro cards, requisitos e comandos corretos.
+- Layout em 1280x720 e 860x700 permaneceu sem overflow horizontal.
+- SQLite/Tauri interativo fica reservado para a Etapa 52.5; o Vite standalone usa o fallback mock porque nao possui o runtime SQL do Tauri.
+
+Limitacoes atuais:
+
+- Quatro especialistas fixos e apenas um posto ativo.
+- Sem salarios recorrentes, demissao, cooldown de troca, arvore de talentos ou nivel de especialista.
+- Sem premium, pagamento, online, aceleracao ou moeda nova.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 52.5 - QA do Guild Staff no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
