@@ -90,6 +90,7 @@ Atualizado em: 2026-07-15
 - Etapa 49 concluida: Guild Identity adicionou 12 titulos locais derivados da carreira, banner preview, equip seguro, topbar e persistencia SQLite.
 - Etapa 49.5 concluida: QA real de Guild Titles no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, Save/Reload e ausencia de bonus validados.
 - Etapa 50 concluida: Guild Headquarters adicionou quatro facilities locais, upgrades com guild.gold, requisitos de carreira e bonus pequenos integrados.
+- Etapa 50.5 concluida: QA real de Guild Headquarters no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, bonus, Save/Reload e restauracao integral validados.
 
 Comandos principais:
 
@@ -2216,6 +2217,60 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 50.5 - QA de Guild Headquarters e facilities no Tauri/SQLite.
+
+## Etapa 50.5 - QA de Guild Headquarters e facilities no Tauri/SQLite
+
+Status: concluida sem regressao funcional encontrada.
+
+Cobertura da engine:
+
+- Estado `headquarters` ausente retorna as quatro facilities em level 0 e investimento 0.
+- Levels negativos, fracionarios, textuais, acima de 3 e valores `NaN` foram normalizados para o intervalo seguro.
+- Os cinco ranks foram conferidos nos totais 0, 1, 4, 8 e 12.
+- Upgrade valido, gold insuficiente, career points insuficientes, facility desconhecida e level maximo foram testados.
+- Bonus maximos permaneceram limitados a +3% hunt XP, +6% training progress, -6% NPC prices e +3% quest XP.
+
+QA no Tauri/SQLite:
+
+- O save original ainda nao possuia `headquarters_json`; a coluna foi removida no banco de teste e recriada pela migration ao reiniciar o Tauri.
+- A migration preservou 1 guilda, 5 personagens, 35 skills, 26 itens e os demais dados existentes.
+- O save migrado abriu como `Aurora Founding Lodge`, 0/12 levels, 0g investidos e quatro facilities inativas.
+- JSON sintaticamente invalido voltou ao estado default sem quebrar o carregamento.
+- JSON valido com levels -2, 1.9, 9 e `"2"` foi normalizado para 0, 1, 3 e 2; Save regravou somente valores seguros.
+- Clique duplo no Quartermaster criou exatamente um upgrade, um debito de 150g e um activity log.
+- O estado mudou de 674g para 524g, `Guild Outpost`, 1/12 levels, 150g investidos e -2% de NPC prices.
+- Save/Reload preservou gold, level, rank, investimento e bonus.
+- O proximo level exibiu corretamente o bloqueio `Requires 750g`.
+
+Integracoes validadas:
+
+- Market NPC exibiu `Quartermaster -2%`; Minor Health Potion x10 mudou de 300g para 290g, com unit price de 29g e saldo previsto de 234g.
+- Hunt de 60 minutos mudou de 2.400 para 2.472 XP com +3%; a finalizacao mudou 42 para 43 XP e manteve gold e loot iguais.
+- Training de 60 minutos mudou de 8.39% para 8.89% com +6%.
+- First Contract mudou de 120 para 124 XP com +3%.
+- Bonus negativos e `NaN` voltaram a zero; percentuais externos acima do limite foram cortados em 25% pelos services.
+
+QA visual:
+
+- WebView2 validado em 1280x800 e 860x700 sem overflow horizontal.
+- Hero, ledger, quatro facility cards, dossier, custos e bloqueios permaneceram legiveis nos dois tamanhos.
+- Nao foram encontrados erros de console durante o fluxo principal.
+
+Protecao do banco:
+
+- Toda a arvore do Tauri foi encerrada antes da restauracao.
+- O banco original voltou ao SHA-256 `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- A integridade final voltou a `ok`, com 1 guilda, 5 personagens, 35 skills, 26 itens e 10 logs, sem sidecars.
+- O backup original permanece legitimamente sem `headquarters_json`; a migration aditiva sera aplicada novamente na proxima abertura.
+
+Resultado:
+
+- Nenhum arquivo de gameplay precisou de correcao nesta QA.
+- Permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 51 - Guild Contracts Board e expedicoes locais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

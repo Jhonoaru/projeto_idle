@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-50-5",
+    stage: "Stage 50.5",
+    title: "Guild Headquarters QA",
+    date: "2026-07-15",
+    category: "qa",
+    summary: "Headquarters migration, upgrades, bonuses and SQLite persistence passed controlled desktop validation.",
+    highlights: [
+      "A legacy save without headquarters_json migrated to a safe Founding Lodge without losing existing guild data.",
+      "Double-click protection produced one Quartermaster level, one 150g debit and one activity entry across Save and Reload.",
+      "Malformed states, capped bonuses, responsive layouts and integrations with hunts, training, quests and the Market NPC were verified.",
+    ],
+    systems: ["Guild Headquarters", "SQLite QA", "Economy"],
+    featured: true,
+  },
+  {
     id: "stage-50",
     stage: "Stage 50",
     title: "Guild Headquarters",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Career point requirements, SQLite persistence and strict upgrade validation keep construction compatible with old saves.",
     ],
     systems: ["Guild Headquarters", "Guild progression", "Economy"],
-    featured: true,
   },
   {
     id: "stage-49",
