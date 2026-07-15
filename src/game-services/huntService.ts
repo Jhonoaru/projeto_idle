@@ -40,6 +40,7 @@ export function startHunt(
   character: Character,
   hunt: HuntArea,
   durationMinutes: number,
+  headquartersXpBonusPercent = 0,
 ): Character {
   if (blockedStatuses.includes(character.status)) {
     throw new Error(`${character.name} cannot start a hunt while ${character.status}.`);
@@ -78,7 +79,10 @@ export function startHunt(
       targetId: hunt.id,
       targetName: hunt.name,
       risk: hunt.risk,
-      expectedXp: Math.round((hunt.estimatedXpPerHour / 60) * durationMinutes),
+      expectedXp: Math.round(
+        (hunt.estimatedXpPerHour / 60) * durationMinutes *
+        (1 + normalizeHeadquartersBonus(headquartersXpBonusPercent) / 100),
+      ),
       expectedGold: Math.round((hunt.estimatedGoldPerHour / 60) * durationMinutes),
     },
   };
@@ -90,6 +94,7 @@ export function finishHunt(
   durationMinutes: number,
   guildGold = 0,
   bestiary?: GuildBestiaryState,
+  headquartersXpBonusPercent = 0,
 ): { character: Character; result: HuntSimulationResult; guildGoldLost: number } {
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
   const imbuementBonuses = calculateActiveImbuementBonuses(character);
@@ -109,7 +114,8 @@ export function finishHunt(
       (1 + imbuementBonuses.xpBonusPercent / 100) *
       (1 + proficiencyBonuses.bonus.xpBonusPercent / 100) *
       (1 + (destinyBonuses.xpBonusPercent ?? 0) / 100) *
-      focusBonuses.experienceMultiplier,
+      focusBonuses.experienceMultiplier *
+      (1 + normalizeHeadquartersBonus(headquartersXpBonusPercent) / 100),
   );
   result.goldGained = Math.round(result.goldGained * (1 + (destinyBonuses.goldBonusPercent ?? 0) / 100) * focusBonuses.goldMultiplier);
   result.totalLootValue = Math.round(result.totalLootValue * (1 + (destinyBonuses.lootBonusPercent ?? 0) / 100) * focusBonuses.lootMultiplier);
@@ -211,6 +217,9 @@ export function finishHunt(
       ...(proficiencyBonuses.bonus.xpBonusPercent > 0 ? [`Weapon proficiency bonus applied: +${proficiencyBonuses.bonus.xpBonusPercent}% XP.`] : []),
       ...(proficiencyBonuses.bonus.supplyReductionPercent > 0 ? [`Weapon proficiency bonus available: up to -${proficiencyBonuses.bonus.supplyReductionPercent}% supplies by type.`] : []),
       ...formatDestinyLogs(destinyBonuses),
+      ...(normalizeHeadquartersBonus(headquartersXpBonusPercent) > 0
+        ? [`Headquarters bonus applied: +${normalizeHeadquartersBonus(headquartersXpBonusPercent)}% hunt XP.`]
+        : []),
       ...focusBonuses.logs,
       ...supplyConsumption.logs,
       ...deathLogs,
@@ -278,6 +287,10 @@ function applyCharmBonusesToResult(
     totalLootValue,
     netProfit: goldGained,
   };
+}
+
+function normalizeHeadquartersBonus(value: number) {
+  return Number.isFinite(value) ? Math.min(25, Math.max(0, Math.floor(value))) : 0;
 }
 
 function formatTime(date: Date) {

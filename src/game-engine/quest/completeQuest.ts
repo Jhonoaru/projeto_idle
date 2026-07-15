@@ -1,8 +1,12 @@
 import { addExperience } from "../progression/addExperience";
 import type { Character, Quest } from "../../shared/types";
 
-export function completeQuest(character: Character, quest: Quest) {
-  const withExperience = addExperience(character, quest.rewards.experience ?? 0);
+export function completeQuest(character: Character, quest: Quest, xpBonusPercent = 0) {
+  const safeBonusPercent = Number.isFinite(xpBonusPercent)
+    ? Math.min(25, Math.max(0, Math.floor(xpBonusPercent)))
+    : 0;
+  const experienceGained = Math.round((quest.rewards.experience ?? 0) * (1 + safeBonusPercent / 100));
+  const withExperience = addExperience(character, experienceGained);
   const accessIds =
     quest.unlocksAccess && !withExperience.character.accessIds.includes(quest.unlocksAccess)
       ? [...withExperience.character.accessIds, quest.unlocksAccess]
@@ -29,5 +33,6 @@ export function completeQuest(character: Character, quest: Quest) {
       currentAction: undefined,
     },
     levelResult: withExperience.result,
+    experienceGained,
   };
 }

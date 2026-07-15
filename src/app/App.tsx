@@ -54,6 +54,8 @@ import { equipCollectionItem } from "../game-engine/collections/equipCollectionI
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
 import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
 import { equipGuildTitle, getGuildIdentity, getPersistedGuildTitle } from "../game-engine/achievements/getGuildIdentity";
+import { getHeadquartersBonuses } from "../game-engine/headquarters/getHeadquartersBonuses";
+import { upgradeGuildFacility } from "../game-engine/headquarters/upgradeGuildFacility";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -107,6 +109,7 @@ import type {
   HuntSupplyPreset,
   HuntSimulationResult,
   EquipmentSlot,
+  GuildFacilityId,
   InventoryItem,
   MarketItemCategory,
   MonsterFocusBonusType,
@@ -131,6 +134,10 @@ export function App() {
   const activeGuildTitle = useMemo(
     () => getGuildIdentity(guild, characters).activeTitle?.definition.title,
     [characters, guild],
+  );
+  const headquartersBonuses = useMemo(
+    () => getHeadquartersBonuses(guild.headquarters),
+    [guild.headquarters],
   );
   const [depot, setDepot] = useState(mockDepot);
   const [logs, setLogs] = useState<ActivityLogEntry[]>(mockLogs);
@@ -180,6 +187,7 @@ export function App() {
   const resolvingCollectionsRef = useRef(new Set<string>());
   const claimingDailyRewardRef = useRef(false);
   const buyingBlessingRef = useRef(false);
+  const upgradingFacilityRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -352,6 +360,21 @@ export function App() {
         : `${updatedGuild.name} is no longer displaying a career title.`,
       "success",
     );
+  }
+
+  function handleUpgradeGuildFacility(facilityId: GuildFacilityId) {
+    if (upgradingFacilityRef.current) return;
+    upgradingFacilityRef.current = true;
+    const result = upgradeGuildFacility(guild, characters, facilityId);
+    if (result.success) setGuild(result.guild);
+    prependLog(
+      result.success ? "Headquarters upgraded" : "Headquarters blocked",
+      result.message,
+      result.success ? "success" : "warning",
+    );
+    window.setTimeout(() => {
+      upgradingFacilityRef.current = false;
+    }, 250);
   }
 
   function handleOpenTab(tab: MainPanelTab) {
@@ -567,6 +590,7 @@ export function App() {
         selectedCharacter,
         selectedHunt,
         durationMinutes,
+        headquartersBonuses.huntXpBonusPercent,
       );
       if (autoRepeat?.enabled) {
         const now = new Date().toISOString();
@@ -685,6 +709,7 @@ export function App() {
         activeDuration,
         guild.gold,
         guild.bestiary,
+        headquartersBonuses.huntXpBonusPercent,
       );
       const bestiaryUpdate = addMonsterKillsToBestiary(guild.bestiary, result.monsterKills ?? []);
       result.bestiaryLogs = bestiaryUpdate.logs;
@@ -1585,6 +1610,7 @@ export function App() {
         targetSkill,
         trainingDurationMinutes,
         cost,
+        headquartersBonuses.trainingProgressBonusPercent,
       );
       updateSelectedCharacter(updatedCharacter);
       if (trainingType === "exercise") {
@@ -1682,7 +1708,12 @@ export function App() {
     let resolved = false;
 
     try {
-      const result = finishQuest(selectedCharacter, quest, guild.gold);
+      const result = finishQuest(
+        selectedCharacter,
+        quest,
+        guild.gold,
+        headquartersBonuses.questXpBonusPercent,
+      );
       resolved = true;
       updateSelectedCharacter(result.character);
       setLastQuestResult(result.result);
@@ -1876,7 +1907,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-      <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
+        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -1934,6 +1965,7 @@ export function App() {
           onClearMonsterFocus={handleClearMonsterFocus}
           onEquipCollectionItem={handleEquipCollectionItem}
           onEquipGuildTitle={handleEquipGuildTitle}
+          onUpgradeGuildFacility={handleUpgradeGuildFacility}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

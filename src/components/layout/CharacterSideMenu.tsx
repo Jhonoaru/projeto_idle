@@ -14,6 +14,7 @@ interface CharacterSideMenuProps {
 
 const menuItems: Array<{ tab: MainPanelTab; label: string; icon: string }> = [
   { tab: "character", label: "Details", icon: "D" },
+  { tab: "headquarters", label: "Guild", icon: "H" },
   { tab: "skills", label: "Skills", icon: "S" },
   { tab: "blessings", label: "Bless", icon: "B" },
   { tab: "proficiency", label: "Weapons", icon: "W" },

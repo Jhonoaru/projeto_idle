@@ -26,6 +26,27 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "guild-headquarters",
+    category: "services",
+    code: "HQ",
+    title: "Guild Headquarters",
+    subtitle: "Permanent local facilities",
+    summary: "Guild gold and career progress fund four capped facilities with small bonuses for established gameplay loops.",
+    facts: [
+      { label: "Facilities", value: "4 wings" },
+      { label: "Maximum", value: "Level 3 each" },
+      { label: "Currency", value: "Guild gold" },
+      { label: "Requirements", value: "Career points" },
+    ],
+    guidance: [
+      "War Room improves hunt XP, Training Yard improves training progress, Quartermaster discounts the Market NPC and Contract Archive improves quest XP.",
+      "Every upgrade validates current level, career points and guild gold before changing the local save.",
+      "Headquarters has no premium currency, online timer, paid acceleration or uncapped multiplier.",
+    ],
+    relatedSystems: ["Career Ledger", "Hunts", "Training", "Market", "Quests"],
+    keywords: ["headquarters", "facility", "upgrade", "war room", "training yard", "quartermaster", "archive"],
+  },
+  {
     id: "guild-command",
     category: "progression",
     code: "HQ",

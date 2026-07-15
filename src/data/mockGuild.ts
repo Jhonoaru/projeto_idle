@@ -36,4 +36,8 @@ export const mockGuild: Guild = {
   },
   dailyReward: createDefaultDailyRewardState(),
   careerIdentity: { activeTitleId: null },
+  headquarters: {
+    facilityLevels: { war_room: 0, training_yard: 0, quartermaster: 0, contract_archive: 0 },
+    totalInvestedGold: 0,
+  },
 };

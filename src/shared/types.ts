@@ -217,6 +217,25 @@ export interface Guild {
   collections?: GuildCollectionsState;
   dailyReward?: DailyRewardState;
   careerIdentity?: GuildCareerIdentity;
+  headquarters?: GuildHeadquartersState;
+}
+
+export type GuildFacilityId = "war_room" | "training_yard" | "quartermaster" | "contract_archive";
+
+export interface GuildHeadquartersState {
+  facilityLevels: Record<GuildFacilityId, number>;
+  totalInvestedGold: number;
+}
+
+export interface GuildFacilityDefinition {
+  id: GuildFacilityId;
+  name: string;
+  description: string;
+  sigil: string;
+  bonusLabel: string;
+  bonusPerLevel: number;
+  upgradeCosts: readonly number[];
+  careerPointRequirements: readonly number[];
 }
 
 export interface GuildCareerIdentity {

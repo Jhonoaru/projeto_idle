@@ -52,7 +52,7 @@ export function startQuest(character: Character, quest: Quest) {
   };
 }
 
-export function finishQuest(character: Character, quest: Quest, guildGold = 0) {
+export function finishQuest(character: Character, quest: Quest, guildGold = 0, headquartersXpBonusPercent = 0) {
   if (character.status !== "questing" || character.currentAction?.targetId !== quest.id) {
     throw new Error(`${character.name} nao esta fazendo ${quest.name}.`);
   }
@@ -110,10 +110,16 @@ export function finishQuest(character: Character, quest: Quest, guildGold = 0) {
     };
   }
 
-  const completed = completeQuest(character, quest);
+  const completed = completeQuest(character, quest, headquartersXpBonusPercent);
+  const safeHeadquartersBonus = Number.isFinite(headquartersXpBonusPercent)
+    ? Math.min(25, Math.max(0, Math.floor(headquartersXpBonusPercent)))
+    : 0;
   const logs = [
     `${character.name} completou ${quest.name}.`,
     ...(quest.unlocksAccess ? [`${character.name} liberou ${quest.unlocksAccess}.`] : []),
+    ...(safeHeadquartersBonus > 0
+      ? [`Headquarters bonus applied: +${safeHeadquartersBonus}% quest XP (${completed.experienceGained.toLocaleString("en-US")} XP total).`]
+      : []),
     ...(completed.levelResult.levelsGained > 0
       ? [
           `${character.name} avancou do level ${completed.levelResult.oldLevel} para ${completed.levelResult.newLevel}.`,

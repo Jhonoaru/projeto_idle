@@ -4,6 +4,7 @@ import { shopItems, type ShopItem } from "../../data/shopItems";
 import { canSellItem } from "../../game-engine/market/canSellItem";
 import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
 import { filterMarketItems } from "../../game-engine/market/filterMarketItems";
+import { getHeadquartersBonuses } from "../../game-engine/headquarters/getHeadquartersBonuses";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
 import { MarketFilters } from "./MarketFilters";
@@ -58,6 +59,7 @@ export function MarketPanel({
   onBuyItem,
 }: MarketPanelProps) {
   const [mode, setMode] = useState<MarketMode>("buy");
+  const headquartersDiscount = getHeadquartersBonuses(guild.headquarters).npcPriceDiscountPercent;
 
   return (
     <div className="market-window">
@@ -70,6 +72,7 @@ export function MarketPanel({
         <div className="market-gold">
           <span>Guild Gold</span>
           <strong>{normalizeGold(guild.gold).toLocaleString("en-US")}g</strong>
+          {headquartersDiscount > 0 ? <small>Quartermaster -{headquartersDiscount}%</small> : null}
         </div>
       </header>
 
@@ -89,6 +92,7 @@ export function MarketPanel({
         <MarketBuyTab
           character={character}
           guild={guild}
+          npcDiscountPercent={headquartersDiscount}
           onBuyItem={onBuyItem}
         />
       ) : null}
@@ -120,10 +124,12 @@ export function MarketPanel({
 function MarketBuyTab({
   character,
   guild,
+  npcDiscountPercent,
   onBuyItem,
 }: {
   character: Character;
   guild: Guild;
+  npcDiscountPercent: number;
   onBuyItem: MarketPanelProps["onBuyItem"];
 }) {
   const [shopCategory, setShopCategory] = useState<ShopCategory | "all">("all");
@@ -138,7 +144,8 @@ function MarketBuyTab({
   const selectedItem = safeGetItem(selectedShopItem?.itemId);
   const normalizedQuantity = normalizeQuantity(quantity);
   const totalQuantity = (selectedShopItem?.defaultQuantity ?? 1) * normalizedQuantity;
-  const totalCost = (selectedShopItem?.buyPrice ?? 0) * totalQuantity;
+  const discountedUnitPrice = applyNpcDiscount(selectedShopItem?.buyPrice ?? 0, npcDiscountPercent);
+  const totalCost = discountedUnitPrice * totalQuantity;
   const canAfford = normalizeGold(guild.gold) >= totalCost;
   const useStatus = selectedItem ? getUseStatus(selectedItem, character) : { canUse: false, message: "Item indisponivel." };
   const equippedItem = selectedItem?.equipmentSlot ? character.equipment[selectedItem.equipmentSlot as EquipmentSlot] : undefined;
@@ -154,7 +161,7 @@ function MarketBuyTab({
 
     isBuyingRef.current = true;
     setIsBuying(true);
-    onBuyItem(selectedShopItem.itemId, totalQuantity, selectedShopItem.buyPrice, deliveryTarget);
+    onBuyItem(selectedShopItem.itemId, totalQuantity, discountedUnitPrice, deliveryTarget);
     window.setTimeout(() => {
       isBuyingRef.current = false;
       setIsBuying(false);
@@ -185,7 +192,7 @@ function MarketBuyTab({
             const item = safeGetItem(shopItem.itemId);
             if (!item) return null;
             const selected = shopItem.itemId === selectedShopItem?.itemId;
-            const bundleCost = shopItem.buyPrice * shopItem.defaultQuantity;
+            const bundleCost = applyNpcDiscount(shopItem.buyPrice, npcDiscountPercent) * shopItem.defaultQuantity;
 
             return (
               <button
@@ -213,7 +220,7 @@ function MarketBuyTab({
           ["Item", selectedItem?.name ?? "Unavailable"],
           ["Bundle", `x${selectedShopItem?.defaultQuantity ?? 0}`],
           ["Bundles", normalizedQuantity],
-          ["Unit price", `${(selectedShopItem?.buyPrice ?? 0).toLocaleString("en-US")}g`],
+          ["Unit price", `${discountedUnitPrice.toLocaleString("en-US")}g`],
           ["Total", `${totalCost.toLocaleString("en-US")}g`],
           ["Gold after", `${Math.max(0, normalizeGold(guild.gold) - totalCost).toLocaleString("en-US")}g`],
           ["Destination", deliveryTargetLabel(deliveryTarget, character.name)],
@@ -546,6 +553,14 @@ function normalizeQuantity(value: number) {
 
 function normalizeGold(value: number) {
   return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function applyNpcDiscount(unitPrice: number, discountPercent: number) {
+  const safePrice = Number.isFinite(unitPrice) ? Math.max(0, Math.floor(unitPrice)) : 0;
+  const safeDiscount = Number.isFinite(discountPercent)
+    ? Math.min(25, Math.max(0, Math.floor(discountPercent)))
+    : 0;
+  return Math.max(1, Math.round(safePrice * (1 - safeDiscount / 100)));
 }
 
 function getUseStatus(item: Item, character: Character) {

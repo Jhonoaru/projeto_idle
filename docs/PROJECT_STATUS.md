@@ -89,6 +89,7 @@ Atualizado em: 2026-07-15
 - Etapa 48.5 concluida: QA real do Career Ledger no Tauri/SQLite, com filtros, dossiers, Save/Reload, integridade semantica e restauracao integral do banco validados.
 - Etapa 49 concluida: Guild Identity adicionou 12 titulos locais derivados da carreira, banner preview, equip seguro, topbar e persistencia SQLite.
 - Etapa 49.5 concluida: QA real de Guild Titles no Tauri/SQLite, com migration de save antigo, normalizacao, clique duplo, Save/Reload e ausencia de bonus validados.
+- Etapa 50 concluida: Guild Headquarters adicionou quatro facilities locais, upgrades com guild.gold, requisitos de carreira e bonus pequenos integrados.
 
 Comandos principais:
 
@@ -2157,6 +2158,64 @@ Protecao do banco:
 Proximo passo sugerido:
 
 - Etapa 50 - Guild Headquarters e facilities locais.
+
+## Etapa 50 - Guild Headquarters e facilities locais
+
+Status: concluida.
+
+Facilities e progressao:
+
+- A sede guild-wide possui War Room, Training Yard, Quartermaster e Contract Archive.
+- Cada facility vai do level 0 ao 3, totalizando 12 niveis e cinco ranks visuais da sede: Founding Lodge, Guild Outpost, Established Hall, Guild Stronghold e Grand Headquarters.
+- Upgrades usam apenas `guild.gold`; nao existe moeda nova, premium, pagamento real, timer pago ou aceleracao online.
+- Level 1 nao exige career points, level 2 exige 150 e level 3 exige 350; custos individuais permanecem visiveis antes da confirmacao.
+- A engine bloqueia facility inexistente, level maximo, gold insuficiente, career points insuficientes e valores invalidos.
+- Clique duplo e spam sao protegidos no App para evitar debito ou log duplicado.
+
+Bonus reais e limitados:
+
+- War Room concede +1% de hunt XP por level, ate +3%.
+- Training Yard concede +2% de training progress por level, ate +6%.
+- Quartermaster reduz precos do Market NPC em 2% por level, ate 6%, com valor descontado exibido e pago.
+- Contract Archive concede +1% de quest XP por level, ate +3%.
+- Percentuais sao normalizados, aplicados em pontos unicos dos services e registrados nos logs de hunt/quest quando ativos.
+- Nenhuma facility altera death risk, loot rarity, item drop, gold de venda, premium ou ranking online.
+
+UI e navegacao:
+
+- `Guild Hall` foi adicionado aos comandos de Character Details e `Guild` ao menu lateral.
+- O hall amplo mostra rank da sede, 12 niveis totais, gold investido, guild gold, career points e ledger dos quatro bonus.
+- Cards exibem facility, sigil, level e trilha de construcao; o dossier mostra beneficio atual, proximo bonus, custo e requisito.
+- O botao Upgrade explica quando esta bloqueado por gold, career points ou level maximo.
+
+Persistencia e compatibilidade:
+
+- `Guild` recebeu `headquarters` com `facilityLevels` e `totalInvestedGold`.
+- A migration aditiva cria `guilds.headquarters_json` com default `{}`; saves antigos normalizam todas as facilities para level 0.
+- Mapper, repository, mock inicial e autosave persistem a sede sem alterar as demais estruturas.
+- Levels invalidos, negativos, NaN ou acima de 3 sao normalizados para o intervalo seguro.
+
+QA executado:
+
+- `npm.cmd run build` passou durante a implementacao.
+- O Tauri real abriu o save antigo, aplicou a migration e mostrou `Aurora Founding Lodge`, 0/12 levels e quatro facilities.
+- Quartermaster recebeu level 1 com clique duplo: ocorreu um unico debito de 150g, um unico log e gold passou de 674g para 524g.
+- O hall mudou para `Guild Outpost`, mostrou 1/12 levels, 150g investidos e bonus NPC de -2%.
+- O Market NPC exibiu `Quartermaster -2%` e recalculou catalogo, unit price, total e gold restante.
+- Save/Reload preservou facility, total investido, gold, rank e bonus.
+- Checks deterministas nos modulos reais confirmaram treino 2.46 -> 2.61 com +6%, hunt 1200 -> 1236 com +3% e quest 120 -> 124 com +3%.
+- O WebView2 em 1280x800 nao apresentou overflow horizontal ou sobreposicao incoerente no workspace.
+- O banco real foi restaurado ao SHA-256 original `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`, com integridade `ok`, 5 personagens, 35 skills, 26 itens, 10 logs e sem sidecars.
+
+Limitacoes:
+
+- Headquarters possui quatro facilities fixas; nao ha construcao livre, decoracao arrastavel ou mapa 3D.
+- Bonus afetam apenas recompensas concluidas depois do upgrade; resultados antigos nao sao recalculados.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 50.5 - QA de Guild Headquarters e facilities no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

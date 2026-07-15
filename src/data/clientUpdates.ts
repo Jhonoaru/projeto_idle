@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-50",
+    stage: "Stage 50",
+    title: "Guild Headquarters",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "Guild gold can now fund permanent local facilities with small, capped progression bonuses.",
+    highlights: [
+      "War Room, Training Yard, Quartermaster and Contract Archive each support three upgrade levels.",
+      "Facilities improve hunt XP, training progress, NPC prices and quest XP without adding a new currency.",
+      "Career point requirements, SQLite persistence and strict upgrade validation keep construction compatible with old saves.",
+    ],
+    systems: ["Guild Headquarters", "Guild progression", "Economy"],
+    featured: true,
+  },
+  {
     id: "stage-49",
     stage: "Stage 49",
     title: "Guild Titles and Career Identity",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The equipped title persists in SQLite and grants no stats, currency, premium access or online status.",
     ],
     systems: ["Hall of Renown", "Guild Identity", "Achievements"],
-    featured: true,
   },
   {
     id: "stage-48",
