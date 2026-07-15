@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-14
+Atualizado em: 2026-07-15
 
 ## Stack usada
 
@@ -86,6 +86,7 @@ Atualizado em: 2026-07-14
 - Etapa 47 concluida: quests agora formam uma jornada guiada de dez contratos em tres capitulos, com prerequisitos nomeados, proximo objetivo e progresso da guilda.
 - Etapa 47.5 concluida: QA real da jornada no Tauri/SQLite, com dois contratos persistidos, compatibilidade de quest antiga, unlock de Collections corrigido e banco original restaurado.
 - Etapa 48 concluida: Hall of Renown ganhou Career Ledger com 18 achievements automaticos, seis categorias, cinco ranks e progresso derivado do save.
+- Etapa 48.5 concluida: QA real do Career Ledger no Tauri/SQLite, com filtros, dossiers, Save/Reload, integridade semantica e restauracao integral do banco validados.
 
 Comandos principais:
 
@@ -2028,6 +2029,39 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 48.5 - QA do Career Ledger no Tauri/SQLite.
+
+## Etapa 48.5 - QA do Career Ledger no Tauri/SQLite
+
+Status: concluida.
+
+Validacao no runtime real:
+
+- O executavel Tauri foi aberto com o save SQLite real da Guilda Aurora, sem mock de browser.
+- O Roster Standings permaneceu funcional e o Career Ledger abriu pela navegacao do Hall of Renown.
+- O save real calculou rank `Chartered Guild`, 8/18 records, 295/930 pontos e 55 pontos ate `Proven Vanguard`.
+- As categorias exibiram Guild Growth 3/3, Contracts 1/3, Hunting 0/3, Mastery 2/3, Collections 1/3 e Legacy 1/3.
+- O filtro Hunting mostrou exatamente `First Field Marks`, `Hunter's Ledger` e `Studied Quarry`.
+- O dossier de `Studied Quarry` mostrou `In progress`, 0/1 e 0%; `Chartered Company` mostrou `Recorded`, 5/5 e 100%.
+- Save e Reload preservaram rank, pontos e contagem sem erros de console ou page errors.
+
+SQLite e seguranca do save:
+
+- O banco original foi copiado antes do QA e protegido por SHA-256.
+- O snapshot semantico de guilda, personagens e skills permaneceu identico antes e depois do Save/Reload: `692A045BF47D4094019F25C4D9AD50A3C007E43E70214DE84A686D3A20E3DA11`.
+- `PRAGMA integrity_check` retornou `ok` durante o QA e depois da restauracao.
+- O banco foi restaurado ao SHA-256 original `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`, sem arquivos `-wal` ou `-shm` remanescentes.
+- As contagens finais voltaram a 1 guilda, 5 personagens, 35 skills, 26 itens, 10 logs e 1 registro de metadata.
+
+QA visual:
+
+- A captura real do WebView2 em 1280x800 nao apresentou overflow horizontal, sobreposicao incoerente ou truncamento nos titulos dos achievements.
+- Cards, filtros e dossier permaneceram legiveis dentro do workspace com scroll vertical interno.
+- Nenhum bug de implementacao foi encontrado; esta etapa alterou apenas a documentacao.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB no build.
+
+Proximo passo sugerido:
+
+- Etapa 49 - Guild Titles e identidade de carreira derivados dos achievements.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
