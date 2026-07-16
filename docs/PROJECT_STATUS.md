@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-15
+Atualizado em: 2026-07-16
 
 ## Stack usada
 
@@ -100,6 +100,7 @@ Atualizado em: 2026-07-15
 - Etapa 54 concluida: Guild Projects adicionou tres obras locais em fases, custos reais, recompensas pequenas e persistencia SQLite.
 - Etapa 54.5 concluida: QA real do Guild Projects validou migration, fases, clique duplo, conclusao, Collections, JSON corrompido e restauracao integral.
 - Etapa 55 concluida: Guild Recruitment Board adicionou tres candidatos locais, contratos permanentes e novos personagens persistentes no roster.
+- Etapa 55.5 concluida: QA real do Guild Recruitment validou contrato unico, character completo, Save/Reload, bloqueios, responsividade e restauracao integral.
 
 Comandos principais:
 
@@ -2776,6 +2777,54 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 55.5 - QA do Guild Recruitment no Tauri/SQLite.
+
+## Etapa 55.5 - QA do Guild Recruitment no Tauri/SQLite
+
+Status: concluida.
+
+Recrutamento real:
+
+- O save original abriu no Tauri com 674g, 12 renown, cinco personagens, 35 skills, 26 itens e dez logs.
+- Clique duplo em Tessa Vale aplicou um unico contrato de 300g: `guild.gold` 674g -> 374g e roster 5 -> 6.
+- Foi criada uma unica linha `recruit-tessa-vale`, Guardian level 4, idle em Thaeron, stamina 42h, 800 XP e 700 XP ate o proximo level.
+- Sete skills foram persistidas, incluindo Sword 18 e Shielding 16, todas com progresso inicial 0.
+- Equipment persistiu Worn Sword, Wooden Shield e Leather Armor; inventory persistiu Minor Health Potion x2.
+- Activity Log recebeu exatamente uma entrada `Adventurer recruited`.
+- Renown, Treasury, Guild Depot e inventarios dos cinco personagens anteriores permaneceram intocados.
+
+Save, reload e bloqueios:
+
+- Save/Reload manteve 374g, um unico Tessa, sete skills, quatro itens e um log de recrutamento.
+- Depois do reload, Tessa apareceu selecionada no Character Details e marcada como `Recruited` no board.
+- Nova tentativa no candidato ja recrutado nao alterou gold, roster ou logs.
+- Corin ficou `Locked` por saldo insuficiente apos o primeiro contrato, com requisito visivel `Requires 650g`.
+- Fixture temporaria com oito personagens e 5.000g confirmou que roster 8/8 bloqueia Corin mesmo com gold e Career Points suficientes.
+- A tentativa em roster cheio preservou 5.000g e nao criou `recruit-corin-fletch`.
+
+UI e responsividade:
+
+- Recruitment abriu pelo Character Details e exibiu roster, Career Points, disponibilidade, candidatos, loadouts e requisitos corretos.
+- Character Details mostrou seis membros depois do contrato, com atributos derivados, equipment, skills e inventory de Tessa.
+- O hall foi validado em 960x700 sem overflow horizontal e com rolagem vertical funcional.
+- O estado 8/8 apresentou candidatos bloqueados e a mensagem `Guild roster is full (8/8)`.
+
+Restauracao e comandos:
+
+- `npm.cmd run build` passou com TypeScript e Vite antes da QA.
+- `npm.cmd run tauri:dev` abriu o executavel desktop real do projeto.
+- O backup temporario passou em `PRAGMA integrity_check` com resultado `ok` e manteve 5 personagens, 35 skills, 26 itens e dez logs.
+- O banco original foi restaurado byte a byte com SHA-256 `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- Nao restaram processo do projeto, backup temporario, `-wal` ou `-shm`.
+
+Limitacoes do QA:
+
+- Corin e Elis nao foram efetivamente recrutados; seus bloqueios e dossiers foram validados pela mesma engine e interface.
+- Candidato inexistente e timestamp invalido foram revisados na engine, sem fixture interativa dedicada.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 56 - Party Formations e Guild Squads locais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

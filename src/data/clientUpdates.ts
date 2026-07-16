@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-55-5",
+    stage: "Stage 55.5",
+    title: "Guild Recruitment QA",
+    date: "2026-07-16",
+    category: "qa",
+    summary: "Recruitment contracts, complete character persistence, roster limits and database restoration passed controlled desktop validation.",
+    highlights: [
+      "A double click created Tessa once, spent exactly 300 guild gold and persisted her seven skills, equipment, inventory and activity entry.",
+      "Save and Reload preserved the new member; duplicate, insufficient-gold and full-roster attempts produced no mutation.",
+      "The 960x700 hall remained responsive and the original SQLite database was restored with an identical SHA-256 hash.",
+    ],
+    systems: ["Guild Recruitment", "Character Roster", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-55",
     stage: "Stage 55",
     title: "Local Guild Recruitment",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The new Recruitment Board integrates with Character Details, Activity Log, view restoration and the Guild Field Codex.",
     ],
     systems: ["Guild Recruitment", "Character Roster", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-54-5",
