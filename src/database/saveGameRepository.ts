@@ -8,6 +8,7 @@ import { normalizeGuildHeadquarters } from "../game-engine/headquarters/normaliz
 import { normalizeGuildExpeditionState } from "../game-engine/expeditions/normalizeGuildExpeditionState";
 import { normalizeGuildStaffState } from "../game-engine/staff/normalizeGuildStaffState";
 import { normalizeGuildTreasuryState } from "../game-engine/treasury/normalizeGuildTreasuryState";
+import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGuildProjectsState";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { mockCharacters } from "../data/mockCharacters";
@@ -228,9 +229,10 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       expeditions_json,
       staff_json,
       treasury_json,
+      projects_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
     [
       guild.id,
       guild.name,
@@ -247,6 +249,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       JSON.stringify(normalizeGuildExpeditionState(guild.expeditions)),
       JSON.stringify(normalizeGuildStaffState(guild.staff)),
       JSON.stringify(normalizeGuildTreasuryState(guild.treasury)),
+      JSON.stringify(normalizeGuildProjectsState(guild.projects)),
       now,
       now,
     ],

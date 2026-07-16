@@ -18,6 +18,7 @@ const menuItems: Array<{ tab: MainPanelTab; label: string; icon: string }> = [
   { tab: "contracts", label: "Contracts", icon: "C" },
   { tab: "staff", label: "Staff", icon: "S" },
   { tab: "treasury", label: "Treasury", icon: "G" },
+  { tab: "projects", label: "Projects", icon: "P" },
   { tab: "skills", label: "Skills", icon: "S" },
   { tab: "blessings", label: "Bless", icon: "B" },
   { tab: "proficiency", label: "Weapons", icon: "W" },

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-54",
+    stage: "Stage 54",
+    title: "Local Guild Projects",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "The guild can now fund three permanent local works in phases using spendable gold and Guild Depot materials.",
+    highlights: [
+      "Field Supply Station, Cartographers' Archive and Founders' Monument form a prerequisite-based project chain.",
+      "Each phase atomically consumes listed gold and unlocked Depot materials; character inventories and Treasury reserves remain untouched.",
+      "Completion grants modest renown and one local collection cosmetic without passive income or gameplay power.",
+    ],
+    systems: ["Guild Projects", "Guild Depot", "Collections"],
+    featured: true,
+  },
+  {
     id: "stage-53-5",
     stage: "Stage 53.5",
     title: "Guild Treasury QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Invalid JSON recovered safely, thirty-five entries normalized to thirty and the original database was restored exactly.",
     ],
     systems: ["Guild Treasury", "SQLite QA", "Save integrity"],
-    featured: true,
   },
   {
     id: "stage-53",

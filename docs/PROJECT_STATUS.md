@@ -97,6 +97,7 @@ Atualizado em: 2026-07-15
 - Etapa 52.5 concluida: QA real do Guild Staff validou migration, contratacao, snapshot de dispatch, duplicacao, JSON corrompido e restauracao integral.
 - Etapa 53 concluida: Guild Treasury adicionou reserva protegida, transferencias sem taxa, ledger local e persistencia SQLite.
 - Etapa 53.5 concluida: QA real do Guild Treasury validou migration, transferencias, duplicacao, Save/Reload, ledger, JSON corrompido e restauracao integral.
+- Etapa 54 concluida: Guild Projects adicionou tres obras locais em fases, custos reais, recompensas pequenas e persistencia SQLite.
 
 Comandos principais:
 
@@ -2616,6 +2617,68 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 54 - Guild Projects locais.
+
+## Etapa 54 - Guild Projects locais
+
+Status: concluida.
+
+Projetos e progressao:
+
+- Field Supply Station possui tres fases por 500g, 6 Old Cloth e 4 Iron Ore no total; recompensa +5 renown e Quartermaster Seal.
+- Cartographers' Archive requer o primeiro projeto e 100 Career Points; custa 950g, 10 Old Cloth, 5 Iron Ore e 1 Enchanted Dust; recompensa +8 renown e Guild Cartographer.
+- Founders' Monument requer o Archive e 250 Career Points; custa 1.900g, 18 Iron Ore, 10 Old Cloth e 3 Enchanted Dust; recompensa +12 renown e Founders' Mark.
+- Cada fase e financiada separadamente e a conclusao permanece guild-wide.
+- Projeto concluido, prerequisito ausente e Career Points insuficientes sao bloqueados sem mutacao.
+
+Economia e seguranca:
+
+- Fases usam somente `guild.gold` gastavel; a reserva do Treasury nunca e consumida.
+- Materiais sao retirados exclusivamente do Guild Depot.
+- Stacks locked, quest items e inventarios/depots pessoais dos personagens sao ignorados.
+- Custo e materiais sao validados antes da mutacao, evitando pagamento parcial.
+- Clique duplo e bloqueado no App; a engine revalida fase, saldo, materiais, carreira e prerequisitos.
+- Cosmético ja desbloqueado concede fallback fixo de +2 renown, sem duplicar Collection.
+- Totais de gold investido, materiais doados, renown e contadores usam inteiros finitos com teto seguro.
+
+UI e integracoes:
+
+- Novo Guild Projects Hall amplo, acessivel pelo menu lateral e Character Details.
+- Hero resume obras concluidas, Career Points, gold investido e materiais doados.
+- Works Register mostra a cadeia, progresso e requisitos; dossier exibe as tres fases, custo atual, disponibilidade do Depot e recompensa.
+- Activity Log registra fase, conclusao, bloqueio e novo Collection unlock sem spam.
+- Novos cosmeticos locais: Quartermaster Seal, Guild Cartographer e Founders' Mark.
+- Projects participa da restauracao opcional da ultima view e tambem possui entrada no Guild Field Codex e Updates.
+
+Persistencia:
+
+- `Guild.projects` guarda progresso por projeto, conclusoes e totais de contribuicao.
+- Migration aditiva cria `guilds.projects_json` com default `{}`.
+- Saves antigos recebem progresso vazio, zero projetos concluidos e totais 0.
+- Save/load remove IDs desconhecidos, duplicatas e valores invalidos, limita fases ao tamanho real e recalcula `totalCompleted`.
+- Guild Depot e Collections continuam persistidos pelos repositorios existentes.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite.
+- Matriz executavel concluiu as tres fases da Field Supply Station por exatamente 500g e 10 materiais.
+- Stacks finais passaram de Old Cloth 18 -> 12 e Iron Ore 12 -> 8; renown subiu +5 e Quartermaster Seal foi desbloqueado.
+- Projeto seguinte sem prerequisito, material locked e novo pagamento em projeto concluido foram bloqueados.
+- Vite confirmou clique duplo aplicando somente a primeira fase: 100g e 2 Old Cloth.
+- Segunda fase custou 150g e 2 Iron Ore; terceira ficou disabled com mensagem `Requires 250g` quando o mock ficou com 170g.
+- Layout em 1440x900 e DOM mobile em 375px ficaram sem overflow horizontal.
+- Console mostrou apenas o fallback esperado do SQLite fora do runtime Tauri.
+
+Limitacoes atuais:
+
+- Tres projetos fixos, tres fases cada e cadeia linear.
+- Sem contribuicao parcial, cancelamento, reembolso, projetos temporizados, votacao, permissoes ou projetos repetiveis.
+- Sem bonus passivo, renda, premium, pagamento, moeda nova ou online.
+- QA interativo completo de migration, Save/Reload e conclusao no Tauri fica para a Etapa 54.5.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 54.5 - QA do Guild Projects no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

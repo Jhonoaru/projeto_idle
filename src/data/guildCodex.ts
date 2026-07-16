@@ -26,6 +26,27 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "guild-projects",
+    category: "services",
+    code: "GP",
+    title: "Guild Projects",
+    subtitle: "Permanent local works",
+    summary: "Fund three phased guild commissions with spendable gold and materials held safely in the Guild Depot.",
+    facts: [
+      { label: "Projects", value: "3 permanent works" },
+      { label: "Phases", value: "3 per project" },
+      { label: "Materials", value: "Guild Depot only" },
+      { label: "Rewards", value: "Renown / cosmetic" },
+    ],
+    guidance: [
+      "Each phase is paid atomically; locked stacks, quest items, character inventories and Treasury reserves are never consumed.",
+      "Field Supply Station opens the chain, followed by the Cartographers' Archive at 100 Career Points and Founders' Monument at 250.",
+      "Completed projects are permanent local records. They provide modest renown and cosmetics, never passive income or combat power.",
+    ],
+    relatedSystems: ["Guild Depot", "Career Ledger", "Collections", "Activity Log"],
+    keywords: ["project", "works", "construction", "donation", "materials", "phase", "monument", "archive"],
+  },
+  {
     id: "guild-treasury",
     category: "services",
     code: "GT",

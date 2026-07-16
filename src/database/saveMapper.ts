@@ -11,6 +11,7 @@ import { normalizeGuildHeadquarters } from "../game-engine/headquarters/normaliz
 import { normalizeGuildExpeditionState } from "../game-engine/expeditions/normalizeGuildExpeditionState";
 import { normalizeGuildStaffState } from "../game-engine/staff/normalizeGuildStaffState";
 import { normalizeGuildTreasuryState } from "../game-engine/treasury/normalizeGuildTreasuryState";
+import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGuildProjectsState";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
@@ -44,6 +45,7 @@ export interface GuildRow {
   expeditions_json?: string | null;
   staff_json?: string | null;
   treasury_json?: string | null;
+  projects_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -138,6 +140,9 @@ export function mapGuild(row: GuildRow): Guild {
     ),
     treasury: normalizeGuildTreasuryState(
       row.treasury_json ? parseJson(row.treasury_json, undefined) : undefined,
+    ),
+    projects: normalizeGuildProjectsState(
+      row.projects_json ? parseJson(row.projects_json, undefined) : undefined,
     ),
   };
 }

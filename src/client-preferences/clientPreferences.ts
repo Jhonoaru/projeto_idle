@@ -10,6 +10,7 @@ export const CLIENT_RESTORABLE_VIEWS = [
   "contracts",
   "staff",
   "treasury",
+  "projects",
   "skills",
   "blessings",
   "proficiency",

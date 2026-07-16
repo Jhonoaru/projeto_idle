@@ -56,4 +56,10 @@ export const mockGuild: Guild = {
     totalWithdrawn: 0,
     transactions: [],
   },
+  projects: {
+    progress: [],
+    totalCompleted: 0,
+    totalInvestedGold: 0,
+    totalDonatedMaterials: 0,
+  },
 };

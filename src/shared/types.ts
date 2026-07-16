@@ -221,6 +221,44 @@ export interface Guild {
   expeditions?: GuildExpeditionState;
   staff?: GuildStaffState;
   treasury?: GuildTreasuryState;
+  projects?: GuildProjectsState;
+}
+
+export interface GuildProjectMaterialRequirement {
+  itemId: string;
+  quantity: number;
+}
+
+export interface GuildProjectPhaseDefinition {
+  name: string;
+  description: string;
+  goldCost: number;
+  materials: GuildProjectMaterialRequirement[];
+}
+
+export interface GuildProjectDefinition {
+  id: string;
+  name: string;
+  description: string;
+  sigil: string;
+  minimumCareerPoints: number;
+  prerequisiteProjectId?: string;
+  phases: GuildProjectPhaseDefinition[];
+  rewardRenown: number;
+  rewardCollectionItemId: string;
+}
+
+export interface GuildProjectProgress {
+  projectId: string;
+  completedPhases: number;
+  completedAt?: string;
+}
+
+export interface GuildProjectsState {
+  progress: GuildProjectProgress[];
+  totalCompleted: number;
+  totalInvestedGold: number;
+  totalDonatedMaterials: number;
 }
 
 export type GuildTreasuryTransactionType = "deposit" | "withdrawal";

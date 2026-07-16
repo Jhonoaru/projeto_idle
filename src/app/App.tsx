@@ -60,6 +60,7 @@ import { startGuildExpedition } from "../game-engine/expeditions/startGuildExped
 import { finishGuildExpedition } from "../game-engine/expeditions/finishGuildExpedition";
 import { assignGuildSpecialist, hireGuildSpecialist } from "../game-engine/staff/manageGuildStaff";
 import { depositGuildGold, withdrawGuildGold } from "../game-engine/treasury/transferGuildTreasuryGold";
+import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectPhase";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -198,6 +199,7 @@ export function App() {
   const completingExpeditionRef = useRef(false);
   const managingStaffRef = useRef(false);
   const transferringTreasuryGoldRef = useRef(false);
+  const fundingGuildProjectRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -445,6 +447,19 @@ export function App() {
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Treasury transfer" : "Treasury request blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { transferringTreasuryGoldRef.current = false; }, 250);
+  }
+
+  function handleFundGuildProjectPhase(projectId: string) {
+    if (fundingGuildProjectRef.current) return;
+    fundingGuildProjectRef.current = true;
+    const result = fundGuildProjectPhase(guild, depot, characters, projectId);
+    if (result.success) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
+    prependLog(result.success ? (result.completed ? "Guild project completed" : "Guild project funded") : "Guild project blocked", result.message, result.success ? "success" : "warning");
+    if (result.collectionUnlockedName) prependLog("Collection unlocked", `${result.collectionUnlockedName} joined the guild collection.`, "success");
+    window.setTimeout(() => { fundingGuildProjectRef.current = false; }, 250);
   }
 
   function handleOpenTab(tab: MainPanelTab) {
@@ -1977,7 +1992,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
-        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "contracts" ? "is-contracts-hall-mode" : ""} ${activeTab === "staff" ? "is-staff-hall-mode" : ""} ${activeTab === "treasury" ? "is-treasury-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
+        <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "contracts" ? "is-contracts-hall-mode" : ""} ${activeTab === "staff" ? "is-staff-hall-mode" : ""} ${activeTab === "treasury" ? "is-treasury-hall-mode" : ""} ${activeTab === "projects" ? "is-projects-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}
           selectedCharacterId={selectedCharacter.id}
@@ -2041,6 +2056,7 @@ export function App() {
           onHireGuildSpecialist={handleHireGuildSpecialist}
           onAssignGuildSpecialist={handleAssignGuildSpecialist}
           onTransferGuildTreasuryGold={handleTransferGuildTreasuryGold}
+          onFundGuildProjectPhase={handleFundGuildProjectPhase}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}
