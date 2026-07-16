@@ -96,6 +96,7 @@ Atualizado em: 2026-07-15
 - Etapa 52 concluida: Guild Staff adicionou quatro especialistas permanentes, um posto ativo, bonus limitados em expedicoes e persistencia SQLite.
 - Etapa 52.5 concluida: QA real do Guild Staff validou migration, contratacao, snapshot de dispatch, duplicacao, JSON corrompido e restauracao integral.
 - Etapa 53 concluida: Guild Treasury adicionou reserva protegida, transferencias sem taxa, ledger local e persistencia SQLite.
+- Etapa 53.5 concluida: QA real do Guild Treasury validou migration, transferencias, duplicacao, Save/Reload, ledger, JSON corrompido e restauracao integral.
 
 Comandos principais:
 
@@ -2566,6 +2567,55 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 53.5 - QA do Guild Treasury no Tauri/SQLite.
+
+## Etapa 53.5 - QA do Guild Treasury no Tauri/SQLite
+
+Status: concluida sem regressao funcional encontrada.
+
+Cobertura da engine:
+
+- Estado ausente, `null`, objeto vazio, `NaN`, negativos, strings invalidas e historico ausente voltaram a defaults seguros.
+- Entradas sem id, tipo conhecido, valor positivo ou data valida foram descartadas sem quebrar o estado.
+- Deposito e saque preservaram o patrimonio total; saldo insuficiente, fracao, zero, infinito e overflow foram bloqueados.
+- Repeticao com o mesmo id temporal foi recusada sem mutacao.
+- Fixture com 35 transferencias reteve as 30 mais recentes e preservou o total lifetime de depositos.
+
+Migration e transferencias no Tauri/SQLite:
+
+- O save original tinha 674g e nao possuia `career_identity_json`, `headquarters_json`, `expeditions_json`, `staff_json` nem `treasury_json`.
+- O Tauri adicionou todas as colunas pendentes e iniciou Treasury com 0g reservado, totais 0g e ledger vazio.
+- Migration preservou 1 guilda, 5 personagens, 35 skills, 26 itens, 10 logs e uma linha de metadata.
+- Clique duplo em Deposit 100g produziu um unico debito: saldo gastavel 674g -> 574g, reserva 0g -> 100g, uma transacao e um log.
+- Clique duplo em Withdraw 100g produziu um unico saque: saldo gastavel voltou a 674g, reserva voltou a 0g e apenas uma segunda transacao/log foi criada.
+- O patrimonio permaneceu 674g durante deposito, saque e reload.
+- Save/Reload preservou duas entradas, lifetime 100g/100g e integridade SQLite `ok`, sem reaplicar transferencias.
+
+Normalizacao e interface:
+
+- `treasury_json` sintaticamente invalido foi carregado como estado vazio e regravado automaticamente como JSON valido.
+- Fixture de 35 entradas foi persistida com 30, mantendo `totalDeposited=1000`, `totalWithdrawn=650` e patrimonio 674g.
+- Treasury Hall real exibiu saldos, patrimonio, `30/30`, controles e ledger no WebView Tauri.
+- Captura maximizada confirmou a composicao ampla sem paineis laterais.
+- Em 960x700, hero, quatro saldos e workspace permaneceram sem overflow horizontal; o conteudo inferior usa scroll vertical normal.
+- Nenhum arquivo de gameplay precisou de correcao nesta QA.
+
+Protecao do banco:
+
+- Backup byte a byte foi criado fora do repositorio antes da primeira abertura do Tauri.
+- SHA-256 original e final: `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- Banco final voltou a 674g, integridade `ok`, 1 guilda, 5 personagens, 35 skills, 26 itens, 10 logs e uma metadata.
+- O banco original permanece legitimamente legado, sem `treasury_json`; a migration sera reaplicada na proxima abertura.
+- Nao restaram processos do projeto, backup temporario, `-wal` ou `-shm`.
+
+Limitacoes mantidas:
+
+- Ledger limitado a 30 entradas com totais lifetime separados.
+- Sem metas, categorias, permissoes, juros, taxas, renda passiva, premium, pagamento, moeda nova ou online.
+- Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 54 - Guild Projects locais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

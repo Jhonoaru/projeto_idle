@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-53-5",
+    stage: "Stage 53.5",
+    title: "Guild Treasury QA",
+    date: "2026-07-15",
+    category: "qa",
+    summary: "Treasury migration, transfers, ledger limits and SQLite recovery passed controlled desktop validation.",
+    highlights: [
+      "A legacy save gained treasury_json while guild, roster, skills, inventory, activity and total holdings remained intact.",
+      "Double deposit and withdrawal produced one transfer and one log each; Save and Reload preserved the complete ledger.",
+      "Invalid JSON recovered safely, thirty-five entries normalized to thirty and the original database was restored exactly.",
+    ],
+    systems: ["Guild Treasury", "SQLite QA", "Save integrity"],
+    featured: true,
+  },
+  {
     id: "stage-53",
     stage: "Stage 53",
     title: "Guild Treasury and Local Ledger",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Invalid values, insufficient funds and duplicate operations are blocked by the engine and the interface.",
     ],
     systems: ["Guild Treasury", "Guild Gold", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-52-5",
