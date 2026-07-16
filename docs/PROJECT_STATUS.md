@@ -99,6 +99,7 @@ Atualizado em: 2026-07-15
 - Etapa 53.5 concluida: QA real do Guild Treasury validou migration, transferencias, duplicacao, Save/Reload, ledger, JSON corrompido e restauracao integral.
 - Etapa 54 concluida: Guild Projects adicionou tres obras locais em fases, custos reais, recompensas pequenas e persistencia SQLite.
 - Etapa 54.5 concluida: QA real do Guild Projects validou migration, fases, clique duplo, conclusao, Collections, JSON corrompido e restauracao integral.
+- Etapa 55 concluida: Guild Recruitment Board adicionou tres candidatos locais, contratos permanentes e novos personagens persistentes no roster.
 
 Comandos principais:
 
@@ -2723,6 +2724,58 @@ Limitacoes do QA:
 Proximo passo sugerido:
 
 - Etapa 55 - Guild Recruitment Board local.
+
+## Etapa 55 - Guild Recruitment Board local
+
+Status: concluida.
+
+Modelo e candidatos:
+
+- Recruitment e guild-wide e usa o roster existente como fonte de verdade, sem criar novo estado paralelo ou coluna SQLite.
+- Tessa Vale e uma Guardian level 4 por 300g e sem requisito de carreira.
+- Corin Fletch e um Ranger level 7 por 650g e requer 100 Career Points.
+- Elis Dawn e uma Warden level 10 por 1.100g e requer 250 Career Points.
+- Cada candidato possui nome, vocation, level, cidade, skills, equipamento e supplies iniciais fixos.
+- O roster possui limite conservador de oito aventureiros.
+
+Engine e seguranca:
+
+- O contrato desconta apenas `guild.gold` gastavel; Treasury, Depot e inventarios existentes permanecem intocados.
+- Candidato inexistente, ja recrutado, roster cheio, Career Points insuficientes, gold insuficiente e timestamp invalido sao bloqueados sem mutacao.
+- Recrutamento valido cria Character completo com atributos derivados, XP coerente com o level, stamina, skills, equipment, inventory e defaults vazios de progresso.
+- IDs deterministas impedem duplicacao apos Save/Reload e o App possui trava adicional contra clique duplo.
+- Novos membros entram idle, sem quests concluidas, acessos, boss cooldowns, depot pessoal ou bonus ocultos.
+
+UI e integracoes:
+
+- Novo Recruitment Board amplo, acessivel pelo menu lateral e pelo Character Details.
+- Hero mostra roster, Career Points, candidatos disponiveis e contratos concluidos.
+- Applicant Register mostra os tres candidatos e status Available, Locked ou Recruited.
+- Dossier mostra role, cidade, custo, requisito, starter loadout e disciplinas iniciais.
+- Ao recrutar, o novo personagem vira a selecao atual e aparece imediatamente no roster, painel direito e sistemas existentes.
+- Activity Log registra um unico contrato valido ou o motivo do bloqueio.
+- Recruitment participa da restauracao opcional da ultima view, Updates e Guild Field Codex.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite apos a correcao tipada de `SkillSet`.
+- Smoke Vite abriu o Recruitment Board com 5/8 membros, 295 Career Points e Tessa disponivel por 300g.
+- Clique duplo recrutou Tessa uma unica vez: `guild.gold` 420g -> 120g e roster 5 -> 6.
+- O botao mudou para `Already Recruited`, ficou disabled e o Activity Log recebeu uma unica entrada.
+- Tessa virou a personagem selecionada com level 4, Sword 18, Shielding 16, equipamento basico e Minor Health Potion x2.
+- Character Details/Home mostrou seis personagens e todos os dados do novo membro.
+- Em viewport de 375px, `scrollWidth` permaneceu igual ao viewport e o hall nao gerou overflow horizontal.
+
+Limitacoes atuais:
+
+- Tres candidatos fixos e permanentes, sem refresh, reroll, despedida, renomear, customizacao ou recrutamento procedural.
+- Sem premium, pagamento, moeda nova, slots pagos, online ou multiplayer.
+- Persistencia real de novo personagem, skills e itens no Tauri/SQLite fica para a Etapa 55.5.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 55.5 - QA do Guild Recruitment no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

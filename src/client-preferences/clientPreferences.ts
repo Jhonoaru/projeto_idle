@@ -11,6 +11,7 @@ export const CLIENT_RESTORABLE_VIEWS = [
   "staff",
   "treasury",
   "projects",
+  "recruitment",
   "skills",
   "blessings",
   "proficiency",

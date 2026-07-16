@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-55",
+    stage: "Stage 55",
+    title: "Local Guild Recruitment",
+    date: "2026-07-15",
+    category: "systems",
+    summary: "The guild can now sign three fixed local applicants and grow its persistent roster to eight adventurers.",
+    highlights: [
+      "Tessa Vale, Corin Fletch and Elis Dawn have fixed vocations, levels, skills, loadouts, costs and Career Point requirements.",
+      "Recruitment atomically spends guild gold, blocks duplicate contracts and creates a complete character in the existing roster save.",
+      "The new Recruitment Board integrates with Character Details, Activity Log, view restoration and the Guild Field Codex.",
+    ],
+    systems: ["Guild Recruitment", "Character Roster", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-54-5",
     stage: "Stage 54.5",
     title: "Guild Projects QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Invalid JSON recovered safely, the 960x700 layout stayed within the viewport and the original database was restored exactly.",
     ],
     systems: ["Guild Projects", "Collections", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-54",

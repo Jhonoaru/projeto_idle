@@ -22,6 +22,7 @@ import { GuildContractsBoard } from "../contracts/GuildContractsBoard";
 import { GuildStaffHall } from "../staff/GuildStaffHall";
 import { GuildTreasuryHall } from "../treasury/GuildTreasuryHall";
 import { GuildProjectsHall } from "../projects/GuildProjectsHall";
+import { GuildRecruitmentBoard } from "../recruitment/GuildRecruitmentBoard";
 import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
@@ -75,6 +76,7 @@ export type MainPanelTab =
   | "staff"
   | "treasury"
   | "projects"
+  | "recruitment"
   | "skills"
   | "blessings"
   | "proficiency"
@@ -138,6 +140,7 @@ interface MainPanelProps {
   onAssignGuildSpecialist: (specialistId: GuildSpecialistId | null) => void;
   onTransferGuildTreasuryGold: (type: GuildTreasuryTransactionType, amount: number) => void;
   onFundGuildProjectPhase: (projectId: string) => void;
+  onRecruitGuildCandidate: (candidateId: string) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -249,6 +252,7 @@ export function MainPanel({
   onAssignGuildSpecialist,
   onTransferGuildTreasuryGold,
   onFundGuildProjectPhase,
+  onRecruitGuildCandidate,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -652,6 +656,9 @@ export function MainPanel({
         {activeTab === "projects" ? (
           <GuildProjectsHall characters={characters} depot={depot} guild={guild} onFundPhase={onFundGuildProjectPhase} />
         ) : null}
+        {activeTab === "recruitment" ? (
+          <GuildRecruitmentBoard characters={characters} guild={guild} onRecruit={onRecruitGuildCandidate} />
+        ) : null}
         {activeTab === "ranking" ? (
           <LocalRankingHall
             characters={characters}
@@ -697,6 +704,7 @@ function getWindowTitle(tab: MainPanelTab) {
     staff: "Guild Staff",
     treasury: "Guild Treasury",
     projects: "Guild Projects",
+    recruitment: "Guild Recruitment Board",
     skills: "Skills",
     blessings: "Blessings",
     proficiency: "Weapon Proficiency",
@@ -741,6 +749,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "staff") return "Permanent local specialists with one active duty post and capped expedition bonuses.";
   if (tab === "treasury") return "Protected local reserves and a persistent ledger for the guild's existing gold.";
   if (tab === "projects") return "Permanent local works funded in phases with guild gold and Guild Depot materials.";
+  if (tab === "recruitment") return "Fixed local applicants, permanent roster places and modest guild-funded contracts.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
@@ -760,6 +769,7 @@ function getWindowIcon(tab: MainPanelTab) {
     staff: "S",
     treasury: "G",
     projects: "P",
+    recruitment: "R",
     skills: "S",
     training: "T",
     proficiency: "P",

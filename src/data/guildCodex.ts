@@ -26,6 +26,27 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "guild-recruitment",
+    category: "services",
+    code: "GR",
+    title: "Guild Recruitment",
+    subtitle: "Permanent local applicants",
+    summary: "Review three fixed applicants and add new low-level adventurers to a roster of at most eight members.",
+    facts: [
+      { label: "Applicants", value: "3 permanent candidates" },
+      { label: "Roster limit", value: "8 adventurers" },
+      { label: "Currency", value: "Guild gold" },
+      { label: "Refresh", value: "None" },
+    ],
+    guidance: [
+      "Each applicant has a fixed vocation, level, skill profile, starter loadout, contract cost and Career Point requirement.",
+      "A recruited character is stored as an ordinary roster member, so skills, equipment, inventory and future progress use the existing SQLite save.",
+      "Contracts are permanent and cannot be repeated. There are no random rerolls, premium slots, online services or paid currency.",
+    ],
+    relatedSystems: ["Character Hall", "Career Ledger", "Guild Gold", "SQLite Save"],
+    keywords: ["recruit", "recruitment", "applicant", "candidate", "roster", "adventurer", "contract"],
+  },
+  {
     id: "guild-projects",
     category: "services",
     code: "GP",
