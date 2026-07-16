@@ -98,6 +98,7 @@ Atualizado em: 2026-07-15
 - Etapa 53 concluida: Guild Treasury adicionou reserva protegida, transferencias sem taxa, ledger local e persistencia SQLite.
 - Etapa 53.5 concluida: QA real do Guild Treasury validou migration, transferencias, duplicacao, Save/Reload, ledger, JSON corrompido e restauracao integral.
 - Etapa 54 concluida: Guild Projects adicionou tres obras locais em fases, custos reais, recompensas pequenas e persistencia SQLite.
+- Etapa 54.5 concluida: QA real do Guild Projects validou migration, fases, clique duplo, conclusao, Collections, JSON corrompido e restauracao integral.
 
 Comandos principais:
 
@@ -2679,6 +2680,49 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 54.5 - QA do Guild Projects no Tauri/SQLite.
+
+## Etapa 54.5 - QA do Guild Projects no Tauri/SQLite
+
+Status: concluida.
+
+Migration e persistencia:
+
+- O save legado abriu no Tauri e recebeu `projects_json` com estado vazio valido, preservando 674g, 12 renown, guilda, cinco personagens e inventarios existentes.
+- A primeira fase da Field Supply Station persistiu imediatamente e permaneceu em 1/3 depois de Save/Reload.
+- Clique duplo no financiamento aplicou uma unica fase: 674g -> 574g e Old Cloth do Guild Depot 18 -> 16.
+- Um `projects_json` propositalmente corrompido foi normalizado e regravado com progresso e totais zerados, sem quebrar o app.
+
+Conclusao e integracoes:
+
+- Uma fixture temporaria colocou a Field Supply Station em 2/3 para validar a conclusao no Tauri.
+- A fase final consumiu exatamente 250g, 4 Old Cloth e 2 Iron Ore do Guild Depot.
+- Renown subiu de 12 para 17, o projeto foi marcado como 3/3 e os totais ficaram em 500g e 10 materiais.
+- Quartermaster Seal entrou em `unlockedCollectionItemIds` e `newlyUnlockedCollectionItemIds`.
+- O inventario pessoal da Lyra permaneceu com 9 Old Cloth, confirmando que materiais de personagens nao sao consumidos.
+- O Activity Log recebeu uma entrada de conclusao e uma de Collection, sem duplicacao.
+
+UI e responsividade:
+
+- Guild Projects abriu pelo Character Details e exibiu corretamente carreira, cadeia, fases, custos, materiais e recompensas.
+- A tela concluida foi validada em 960x700 sem overflow horizontal; a rolagem vertical permaneceu funcional.
+- O estado recuperado de JSON invalido abriu normalmente no Tauri.
+
+Restauracao e validacao final:
+
+- `npm.cmd run build` passou com TypeScript e Vite antes do QA.
+- O banco original foi protegido fora do repositorio e restaurado byte a byte ao final.
+- SHA-256 original e final: `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D`.
+- Nao restaram processos do projeto, backup temporario, `-wal` ou `-shm`.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Limitacoes do QA:
+
+- A conclusao real foi exercitada na Field Supply Station; os dois projetos seguintes continuam cobertos pela mesma engine e pelas validacoes executaveis da Etapa 54.
+- Nao foi feita uma sessao manual prolongada em todas as resolucoes e sistemas paralelos.
+
+Proximo passo sugerido:
+
+- Etapa 55 - Guild Recruitment Board local.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

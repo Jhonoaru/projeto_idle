@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-54-5",
+    stage: "Stage 54.5",
+    title: "Guild Projects QA",
+    date: "2026-07-15",
+    category: "qa",
+    summary: "Project migration, phased funding, completion rewards and SQLite recovery passed controlled desktop validation.",
+    highlights: [
+      "A legacy save gained projects_json without losing guild gold, renown, roster or inventory data.",
+      "Double funding applied one phase; completion consumed only Guild Depot materials and unlocked the Quartermaster Seal once.",
+      "Invalid JSON recovered safely, the 960x700 layout stayed within the viewport and the original database was restored exactly.",
+    ],
+    systems: ["Guild Projects", "Collections", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-54",
     stage: "Stage 54",
     title: "Local Guild Projects",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Completion grants modest renown and one local collection cosmetic without passive income or gameplay power.",
     ],
     systems: ["Guild Projects", "Guild Depot", "Collections"],
-    featured: true,
   },
   {
     id: "stage-53-5",
