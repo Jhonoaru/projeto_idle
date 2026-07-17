@@ -1,8 +1,7 @@
 import { createInventoryItem } from "../../data/inventoryFactory";
 import { items as itemCatalog } from "../../data/items";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
-import { mergeStackableItems } from "../inventory/mergeStackableItems";
-import type { Guild, GuildDepot } from "../../shared/types";
+import type { Guild, GuildDepot, InventoryItem } from "../../shared/types";
 import { getSalvageAvailability } from "./getSalvageAvailability";
 import { normalizeGuildCraftingState } from "./normalizeGuildCraftingState";
 
@@ -19,9 +18,8 @@ export function salvageEquipment(guild: Guild, depot: GuildDepot, inventoryItemI
     return entry.quantity > 1 ? [{ ...entry, quantity: entry.quantity - 1 }] : [];
   });
   for (const material of availability.recoveredMaterials) {
-    items.push(createInventoryItem(material.itemId, material.quantity, "guildDepot"));
+    items = addRecoveredMaterial(items, material.itemId, material.quantity);
   }
-  items = mergeStackableItems(items);
 
   const crafting = normalizeGuildCraftingState(guild.crafting);
   const recoveredTotal = availability.recoveredMaterials.reduce((sum, entry) => sum + entry.quantity, 0);
@@ -56,6 +54,22 @@ export function salvageEquipment(guild: Guild, depot: GuildDepot, inventoryItemI
 
 function safeAdd(left: number, right: number) {
   return Math.min(Number.MAX_SAFE_INTEGER, left + right);
+}
+
+function addRecoveredMaterial(items: InventoryItem[], itemId: string, quantity: number) {
+  const stackIndex = items.findIndex((entry) => (
+    entry.itemId === itemId
+    && entry.item.stackable
+    && entry.location === "guildDepot"
+    && !entry.ownerCharacterId
+    && !entry.parentContainerId
+    && !entry.locked
+  ));
+  if (stackIndex < 0) return [...items, createInventoryItem(itemId, quantity, "guildDepot")];
+
+  return items.map((entry, index) => index === stackIndex
+    ? { ...entry, quantity: safeAdd(entry.quantity, quantity) }
+    : entry);
 }
 
 function blocked(guild: Guild, depot: GuildDepot, message: string) {

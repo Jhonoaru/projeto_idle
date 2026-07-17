@@ -116,6 +116,7 @@ Atualizado em: 2026-07-17
 - Etapa 62 concluida: Guild Workbench offline adicionou 19 receitas, quatro ranks, consumo do Guild Depot, entrega segura e historico persistente no SQLite.
 - Etapa 62.5 concluida: QA real validou receitas, ranks, consumo transacional, clique duplo, filtros, responsividade e dois Save/Reload no Tauri/SQLite.
 - Etapa 63 concluida: Salvage offline adicionou recuperacao deterministica de materiais, protecoes de equipamento, confirmacao dupla e ledger persistente no SQLite.
+- Etapa 63.5 concluida: QA real corrigiu merge com stacks locked e validou dados corrompidos, clique duplo, responsividade e dois reloads Tauri/SQLite.
 
 Comandos principais:
 
@@ -3554,6 +3555,51 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 63.5 - QA do Salvage offline no Tauri/SQLite.
+
+## Etapa 63.5 - QA do Salvage offline no Tauri/SQLite
+
+Status: concluida.
+
+Baseline e matriz da engine:
+
+- `git pull`, `git status` e `npm.cmd run build` passaram antes dos testes.
+- A matriz ampliada executou 40 verificacoes de seis retornos, quinze bloqueios, economia, capacidade, replay, historico e ausencia de mutacao.
+- Upgrade e tier negativos, `NaN` ou fracionarios agora bloqueiam; imbuements malformados tambem nao permitem desmontagem.
+- Item ausente, quantidade zero/fracionaria, timestamp invalido, material, Artifact, container, locked, nested, upgrade, tier e imbuement bloquearam sem alterar inputs.
+- Brass Shield retornou exatamente dois Iron Ore, sem alterar guild gold nem os contadores anteriores do Guild Workbench.
+
+Bug encontrado e corrigido:
+
+- O empilhamento generico podia juntar material recuperado a uma stack locked existente, deixando a recompensa protegida e indisponivel para uso.
+- O Salvage agora procura somente uma stack destravada, na raiz do Guild Depot e sem owner de personagem.
+- Se todas as stacks equivalentes estiverem locked ou em containers, uma nova stack destravada e criada.
+- A correcao ficou restrita ao fluxo de recuperacao e nao mudou o comportamento dos demais sistemas de inventario.
+
+Interface:
+
+- O primeiro clique permaneceu apenas como `Prepare Salvage`; o segundo confirmou a operacao.
+- Duplo clique real na confirmacao gerou uma ordem, dois materiais e um unico Activity Log.
+- Estados vazio, elegivel, selecionado e ledger atualizaram sem selecao presa depois da remocao do item.
+- Viewports 1280x800, 960x700, 700x700 e 430x760 ficaram sem overflow no painel, resumo, protecoes, retorno ou botao.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` gerou executavel, MSI e NSIS com a correcao.
+- A primeira abertura migrou o save antigo e adicionou os defaults de Salvage ao `crafting_json` sem alterar 674g.
+- A fixture manteve 12 Iron Ore locked e criou uma stack separada com dois Iron Ore destravados apos consumir um Brass Shield.
+- Duas aberturas completas preservaram duas stacks, uma ordem, dois materiais recuperados e um log sem merge indevido ou duplicacao.
+- `PRAGMA integrity_check` permaneceu `ok` e o save real voltou ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- Tauri foi encerrado antes da restauracao; backup temporario, WAL e SHM foram removidos.
+
+Resultado e limites:
+
+- Nenhum problema funcional restante foi encontrado no escopo do Salvage offline.
+- Nao ha salvage em massa, recuperacao de trofeus, itens equipados, selecao de quantidade ou reroll de atributos.
+- Permanece somente o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 64 - Upgrades da guilda com materiais de hunts antigas.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

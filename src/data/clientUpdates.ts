@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-63-5",
+    stage: "Stage 63.5",
+    title: "Guild Salvage QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Protected stacks, malformed equipment data, duplicate confirmation and SQLite reloads passed expanded salvage validation.",
+    highlights: [
+      "Recovered materials now merge only into an unlocked root stack, preserving locked resources and creating a usable stack when every match is protected.",
+      "Invalid negative or fractional progression values and malformed imbuement data block salvage without changing guild, depot or history.",
+      "Forty engine checks, responsive browser QA and two Tauri reloads preserved one transaction before the original save was restored byte for byte.",
+    ],
+    systems: ["Salvage QA", "Guild Depot", "Tauri QA", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-63",
     stage: "Stage 63",
     title: "Offline Guild Salvage",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Two-step confirmation, one-unit transactions and a persistent 20-entry recovery ledger prevent accidental or duplicate recovery.",
     ],
     systems: ["Salvage", "Guild Depot", "Forge", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-62-5",

@@ -8,8 +8,13 @@ export function getSalvageAvailability(depot: GuildDepot, inventoryItemId: strin
   if (inventoryItem.locked) return blocked(inventoryItem, "Unlock this equipment before salvage.");
   if (inventoryItem.parentContainerId) return blocked(inventoryItem, "Move this equipment out of its container first.");
   if (inventoryItem.item.isContainer) return blocked(inventoryItem, "Containers cannot be salvaged.");
-  if ((inventoryItem.upgradeLevel ?? 0) > 0) return blocked(inventoryItem, "Upgraded equipment is protected from salvage.");
-  if ((inventoryItem.tier ?? 0) > 0) return blocked(inventoryItem, "Tiered equipment is protected from salvage.");
+  const upgradeLevel = inventoryItem.upgradeLevel ?? 0;
+  const tier = inventoryItem.tier ?? 0;
+  if (!Number.isSafeInteger(upgradeLevel) || upgradeLevel < 0) return blocked(inventoryItem, "Equipment upgrade data is invalid.");
+  if (!Number.isSafeInteger(tier) || tier < 0) return blocked(inventoryItem, "Equipment tier data is invalid.");
+  if (inventoryItem.imbuements !== undefined && !Array.isArray(inventoryItem.imbuements)) return blocked(inventoryItem, "Equipment imbuement data is invalid.");
+  if (upgradeLevel > 0) return blocked(inventoryItem, "Upgraded equipment is protected from salvage.");
+  if (tier > 0) return blocked(inventoryItem, "Tiered equipment is protected from salvage.");
   if ((inventoryItem.imbuements?.length ?? 0) > 0) return blocked(inventoryItem, "Remove imbuements before salvage.");
   if (inventoryItem.item.rarity === "legendary" || inventoryItem.item.equipmentFamily === "artifact") {
     return blocked(inventoryItem, "Legendary Artifacts cannot be salvaged.");
