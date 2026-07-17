@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-68-5",
+    stage: "Stage 68.5",
+    title: "Logistics Alerts QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Readiness transitions, review guards, malformed saves, Activity Log delivery and compact layouts passed expanded Logistics Alerts validation.",
+    highlights: [
+      "Fifty-six engine checks covered malformed JSON, three pins, review, repin, all Project phases, completion and readiness returning later.",
+      "The badge, review banner, highlighted card and single Activity Log entry passed browser validation without duplicate effects from rapid clicks.",
+      "Three native reload scenarios normalized a legacy save, preserved reviewed guards and restored the original SQLite byte for byte.",
+    ],
+    systems: ["Logistics Alerts QA", "Activity Log", "Responsive UI", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-68",
     stage: "Stage 68",
     title: "Logistics Readiness Alerts",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Legacy saves normalize safely and local SQLite persists notification guards without reserving resources or starting transactions.",
     ],
     systems: ["Logistics Alerts", "Campaign Pinboard", "Activity Log", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-67-5",

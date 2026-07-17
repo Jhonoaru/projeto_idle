@@ -126,6 +126,7 @@ Atualizado em: 2026-07-17
 - Etapa 67 concluida: Campaign Pinboard adiciona tres prioridades persistentes, ordenacao manual e progresso material focado sem reservar recursos.
 - Etapa 67.5 concluida: QA ampliada validou transicoes, conclusao, dados corrompidos, clique duplo, tres viewports reais e duas cargas Tauri.
 - Etapa 68 concluida: prioridades prontas agora geram badge, banner revisavel e Activity Log uma vez por revisao do objetivo, com persistencia SQLite.
+- Etapa 68.5 concluida: QA ampliada validou 56 cenarios, alertas independentes, review, layouts compactos, JSON quebrado e tres cargas Tauri/SQLite.
 
 Comandos principais:
 
@@ -4171,6 +4172,53 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 68.5 - QA dos Logistics Alerts no Tauri/SQLite.
+
+## Etapa 68.5 - QA dos Logistics Alerts no Tauri/SQLite
+
+Status: concluida sem bug funcional novo.
+
+Matriz de engine e mapper:
+
+- Um harness temporario passou em 56/56 checks e foi removido depois da validacao.
+- Defaults, null, campos ausentes, tipos invalidos, espacos, duplicatas, guards orfaos e limite de tres pins normalizaram com seguranca.
+- `mapGuild` recuperou `logistics_json` quebrado, carregou save legado sem o campo e preservou JSON valido.
+- Duas prioridades prontas geraram dois unreads; a prioridade bloqueada permaneceu silenciosa.
+- Sync repetido, review repetido e estado pronto revisado preservaram identidade sem emitir efeito adicional.
+- Unpin removeu somente o guard associado e repin de uma ordem pronta gerou uma transicao nova.
+- Field Supply Station foi acompanhado pelas tres fases; fases 2 e 3 geraram um alerta cada e a conclusao limpou guards/unreads sem alerta falso.
+- Perder prontidao removeu o guard; recuperar prontidao e mudar `targetLabel` geraram alertas novos conforme a revisao atual.
+
+QA visual e responsivo:
+
+- Fixar Field Supply Station exibiu banner, badge `1`, um card unread e uma entrada `Logistics priority ready`.
+- Dois cliques consecutivos em `Mark reviewed` removeram banner/badge e criaram somente um log de review.
+- Noble Adventurer gerou um alerta independente depois do primeiro objetivo ter sido revisado.
+- O layout desktop permaneceu em 1280/1280 px, sem overflow horizontal.
+- Viewports reais de iframe em 960, 700 e 430 px mantiveram `scrollWidth === clientWidth`.
+- Em 430 px, o alerta ocupou 342 px dentro de 415 px uteis e manteve o comando de review disponivel.
+- O frontend web apresentou somente o fallback esperado do plugin SQLite fora do Tauri.
+
+Tauri e SQLite:
+
+- O SQLite original recebeu backup byte a byte com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- A primeira carga nativa migrou o save legado e recuperou `{broken` para os tres arrays vazios, sem Activity Log indevido.
+- Uma fixture ruidosa misturou espacos, duplicata, numero, seis pins e guards orfaos.
+- A carga seguinte preservou Field Supply Station ja notificada, anunciou somente Noble Adventurer e manteve Contract Archive bloqueada em silencio.
+- O estado final ficou com tres pins, dois guards/unreads e exatamente um novo Activity Log.
+- Um segundo reload manteve o hash semantico `08D04F950D2CCC1159CA19E7F8B17A76766081B76345831C699E75ADC78CCB7E` e nao duplicou o log.
+- Uma carga com os dois guards revisados preservou `unreadReadyKeys: []` sem reativar notificacoes.
+- `integrity_check` permaneceu `ok`; o banco original foi restaurado com hash identico e sem WAL, SHM ou backup restante.
+
+Validacoes tecnicas:
+
+- `npm.cmd run build` passou no baseline com 354 modulos.
+- Nenhum arquivo de engine, UI, schema ou persistencia precisou de correcao nesta etapa.
+- O fluxo visual foi exercitado no frontend; migrations, normalizacao, autosave e reload foram exercitados no executavel Tauri.
+- Permanece somente o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 69 - Campaign Operations Dashboard.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
