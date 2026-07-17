@@ -118,6 +118,7 @@ Atualizado em: 2026-07-17
 - Etapa 63 concluida: Salvage offline adicionou recuperacao deterministica de materiais, protecoes de equipamento, confirmacao dupla e ledger persistente no SQLite.
 - Etapa 63.5 concluida: QA real corrigiu merge com stacks locked e validou dados corrompidos, clique duplo, responsividade e dois reloads Tauri/SQLite.
 - Etapa 64 concluida: as 12 melhorias da Headquarters agora exigem gold, Career Points e materiais reais de hunts antigas consumidos no Guild Depot.
+- Etapa 64.5 concluida: QA real liberou o Depot no menu, corrigiu o breakpoint intermediario e validou transferencia, upgrade unico e dois reloads Tauri/SQLite.
 
 Comandos principais:
 
@@ -3663,6 +3664,61 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 64.5 - QA dos upgrades materiais da Headquarters no Tauri/SQLite.
+
+## Etapa 64.5 - QA dos upgrades materiais da Headquarters no Tauri/SQLite
+
+Status: concluida.
+
+Baseline e regressao da engine:
+
+- `git pull`, `git status` e `npm.cmd run build` passaram antes da QA.
+- Uma matriz adicional executou 43 verificacoes com os 12 upgrades em sequencia, todos os nove tipos de material e quatro bonus finais.
+- As facilities chegaram a 12/12 consumindo exatamente 21.850g e 138 materiais.
+- Bonus maximos permaneceram Hunt XP +3%, Training +6%, NPC discount -6% e Quest XP +3%.
+- Todas as stacks locked e nested mantiveram suas quantidades; uma nova tentativa em facility maxed foi bloqueada sem mutacao.
+- O carregamento legado de headquarters sem `totalInvestedMaterials` continuou normalizando para zero.
+
+Bugs encontrados e corrigidos:
+
+- A tela `Depot` ja existia, mas estava acessivel somente por uma barra legada escondida; materiais guardados no Depot Pessoal nao podiam voltar ao fluxo normal.
+- `Depot` agora possui comando permanente no menu lateral, ao lado de Collections e Bag.
+- Entre 921 e 1180 px, a regra especifica de `game-window-full` sobrepunha o breakpoint e mantinha tres colunas, comprimindo cada botao lateral para aproximadamente 11 px.
+- O layout full agora usa uma coluna nesse intervalo; abaixo de 920 px continua ocultando os paineis auxiliares conforme o comportamento existente.
+
+Fluxo visual completo:
+
+- Ayla foi selecionada e Spider Silk x10 saiu do Depot Pessoal para o Inventory.
+- O mesmo stack foi enviado do Inventory ao Guild Depot pela acao real existente.
+- Contract Archive passou a mostrar Old Cloth 18/8 e Spider Silk 10/3, com gold e Career Points suficientes.
+- Duplo clique em `Upgrade to Level 1` executou uma unica transacao: 420g para 220g, Old Cloth 18 para 10 e Spider Silk 10 para 7.
+- Materials Donated foi para 11, Quest XP para +1% e apenas um Activity Log foi criado.
+
+Responsividade:
+
+- Depot e Guild Hall foram revisados em 1280x800, 960x700, 700x700 e 430x760.
+- O viewport de 960 px passou de tres colunas `503/72/330` para uma coluna de 925 px.
+- Nao houve overflow horizontal da pagina e o comando Depot permaneceu disponivel no menu ou por retorno da janela full.
+- Release Archive nao apresentou erros inesperados; no Vite permanece apenas o fallback SQLite esperado fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` gerou executavel, MSI e NSIS com as correcoes.
+- A migration de save antigo manteve integridade e adicionou o contador material default.
+- Uma fixture equivalente ao upgrade visual preservou Contract Archive level 1, 474g, Old Cloth x10, Spider Silk x7, 11 materiais doados e um log.
+- Duas aberturas completas mantiveram exatamente um upgrade sem reaplicar consumo ou bonus.
+- `PRAGMA integrity_check` permaneceu `ok`.
+- O save real foi restaurado ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`; backup, WAL e SHM foram removidos.
+
+Resultado e limites:
+
+- Nenhum problema funcional restante foi encontrado no escopo dos upgrades materiais.
+- A transferencia do Depot Pessoal ainda ocorre em duas etapas intencionais: Depot para Inventory e Inventory para Guild Depot.
+- A sede ainda nao abre automaticamente a hunt que fornece um material faltante.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 65 - Resource Planner e rastreamento de materiais de hunt.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

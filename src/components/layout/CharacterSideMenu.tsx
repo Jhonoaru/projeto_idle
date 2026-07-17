@@ -26,6 +26,7 @@ const menuItems: Array<{ tab: MainPanelTab; label: string; icon: string }> = [
   { tab: "focus", label: "Focus", icon: "F" },
   { tab: "destiny", label: "Destiny", icon: "P" },
   { tab: "collections", label: "Collect", icon: "C" },
+  { tab: "depot", label: "Depot", icon: "D" },
   { tab: "inventory", label: "Bag", icon: "I" },
   { tab: "bestiary", label: "Bestiary", icon: "M" },
 ];

@@ -9948,6 +9948,10 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .game-layout:has(.game-window-full) {
+    grid-template-columns: 1fr;
+  }
+
   .character-side-menu {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-rows: auto;

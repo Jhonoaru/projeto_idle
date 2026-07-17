@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-64-5",
+    stage: "Stage 64.5",
+    title: "Headquarters Materials QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "The full personal depot to Headquarters upgrade route passed controlled browser, engine and SQLite validation.",
+    highlights: [
+      "A previously unreachable Depot screen now has a permanent side-menu command, allowing stored character materials to return to Inventory and the Guild Depot.",
+      "The 921-1180px full-window layout now collapses to one column instead of compressing the character menu into unreadable buttons.",
+      "A double click upgraded Contract Archive once, consumed exact stacks and preserved one bonus, ledger entry and Activity Log through two Tauri reloads.",
+    ],
+    systems: ["Headquarters QA", "Depot", "Responsive UI", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-64",
     stage: "Stage 64",
     title: "Hunt-Funded Headquarters",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The Guild Hall previews exact counts, tracks lifetime donated materials and preserves the existing capped Hunt, Training, NPC and Quest bonuses.",
     ],
     systems: ["Headquarters", "Guild Depot", "Hunt Materials", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-63-5",
