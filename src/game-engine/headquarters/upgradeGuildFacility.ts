@@ -1,8 +1,9 @@
 import { getGuildFacility } from "../../data/guildFacilities";
 import { items as itemCatalog } from "../../data/items";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
+import { consumeGuildDepotMaterialItems, getAvailableGuildDepotMaterialQuantity } from "../inventory/guildDepotMaterials";
 import { getGuildCareer } from "../achievements/getGuildCareer";
-import type { Character, Guild, GuildDepot, GuildFacilityId, GuildFacilityMaterialRequirement, InventoryItem } from "../../shared/types";
+import type { Character, Guild, GuildDepot, GuildFacilityId, GuildFacilityMaterialRequirement } from "../../shared/types";
 import { normalizeGuildHeadquarters } from "./normalizeGuildHeadquarters";
 
 export function getGuildFacilityUpgradeAvailability(guild: Guild, depot: GuildDepot, characters: Character[], facilityId: GuildFacilityId) {
@@ -83,36 +84,10 @@ export function upgradeGuildFacility(guild: Guild, depot: GuildDepot, characters
   };
 }
 
-export function getAvailableGuildDepotMaterialQuantity(depot: GuildDepot, itemId: string) {
-  return depot.items
-    .filter((entry) => isConsumableRootMaterial(entry, itemId))
-    .reduce((sum, entry) => safeAdd(sum, normalizeInteger(entry.quantity)), 0);
-}
-
 function consumeMaterials(depot: GuildDepot, requirements: readonly GuildFacilityMaterialRequirement[]) {
   let items = depot.items;
-  for (const requirement of requirements) items = consumeMaterial(items, requirement.itemId, requirement.quantity);
+  for (const requirement of requirements) items = consumeGuildDepotMaterialItems(items, requirement.itemId, requirement.quantity);
   return { ...depot, items, capacityUsed: calculateCapacityUsed(items) };
-}
-
-function consumeMaterial(items: InventoryItem[], itemId: string, quantity: number) {
-  let remaining = quantity;
-  return items.flatMap((entry) => {
-    if (remaining <= 0 || !isConsumableRootMaterial(entry, itemId)) return [entry];
-    const available = normalizeInteger(entry.quantity);
-    const consumed = Math.min(remaining, available);
-    remaining -= consumed;
-    return available > consumed ? [{ ...entry, quantity: available - consumed }] : [];
-  });
-}
-
-function isConsumableRootMaterial(entry: InventoryItem, itemId: string) {
-  return entry.itemId === itemId
-    && entry.location === "guildDepot"
-    && !entry.ownerCharacterId
-    && !entry.parentContainerId
-    && !entry.locked
-    && entry.item.type !== "quest";
 }
 
 function normalizeInteger(value: unknown) {

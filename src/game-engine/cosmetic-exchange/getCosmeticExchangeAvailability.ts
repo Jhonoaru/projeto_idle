@@ -3,6 +3,7 @@ import type { CosmeticExchangeDefinition } from "../../data/cosmeticExchanges";
 import { getItemById } from "../../data/items";
 import type { Character, Guild, GuildDepot } from "../../shared/types";
 import { isCollectionItemUnlocked } from "../collections/isCollectionItemUnlocked";
+import { getAvailableGuildDepotMaterialQuantity } from "../inventory/guildDepotMaterials";
 
 export function getCosmeticExchangeAvailability(
   exchange: CosmeticExchangeDefinition,
@@ -15,9 +16,7 @@ export function getCosmeticExchangeAvailability(
   const alreadyUnlocked = isCollectionItemUnlocked(guild.collections, exchange.collectionItemId);
   const safeGold = normalizeInteger(guild.gold);
   const materialBalances = exchange.materials.map((requirement) => {
-    const available = (Array.isArray(depot?.items) ? depot.items : [])
-      .filter((item) => item.itemId === requirement.itemId && !item.locked)
-      .reduce((sum, item) => sum + normalizeInteger(item.quantity), 0);
+    const available = getAvailableGuildDepotMaterialQuantity(depot, requirement.itemId);
     return {
       ...requirement,
       name: getItemById(requirement.itemId)?.name ?? requirement.itemId,

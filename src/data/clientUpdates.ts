@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-66",
+    stage: "Stage 66",
+    title: "Guild Logistics Board",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "Permanent Headquarters, Project and Wardrobe goals now share one derived campaign ledger with real material demand and hunt routes.",
+    highlights: [
+      "Eleven initial objectives are grouped by system, readiness and blocker while combined demand explains that resources remain unreserved.",
+      "One strict Guild Depot rule now aligns Headquarters, Projects and Wardrobe counting and consumption for root, unlocked, guild-owned stacks.",
+      "System and hunt commands open the exact destination, including automatic selection of an idle qualified adventurer for recovery routes.",
+    ],
+    systems: ["Guild Logistics", "Campaign Objectives", "Guild Depot", "Hunt Routing"],
+    featured: true,
+  },
+  {
     id: "stage-65-5",
     stage: "Stage 65.5",
     title: "Resource Planner QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Trollwood tracking ignored busy adventurers, selected idle Lyra and opened Hunt Assignment cleanly across desktop and compact layouts.",
     ],
     systems: ["Resource Planner QA", "Headquarters", "Hunt Routing", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-65",

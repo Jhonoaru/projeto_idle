@@ -24,6 +24,7 @@ import { GuildStaffHall } from "../staff/GuildStaffHall";
 import { GuildTreasuryHall } from "../treasury/GuildTreasuryHall";
 import { GuildProjectsHall } from "../projects/GuildProjectsHall";
 import { GuildRecruitmentBoard } from "../recruitment/GuildRecruitmentBoard";
+import { GuildLogisticsBoard } from "../logistics/GuildLogisticsBoard";
 import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
@@ -77,6 +78,7 @@ export type MainPanelTab =
   | "staff"
   | "treasury"
   | "projects"
+  | "logistics"
   | "recruitment"
   | "skills"
   | "blessings"
@@ -678,6 +680,15 @@ export function MainPanel({
         {activeTab === "projects" ? (
           <GuildProjectsHall characters={characters} depot={depot} guild={guild} onFundPhase={onFundGuildProjectPhase} />
         ) : null}
+        {activeTab === "logistics" ? (
+          <GuildLogisticsBoard
+            characters={characters}
+            depot={depot}
+            guild={guild}
+            onOpenSystem={onChangeTab}
+            onTrackHunt={onOpenTrackedHunt}
+          />
+        ) : null}
         {activeTab === "recruitment" ? (
           <GuildRecruitmentBoard characters={characters} guild={guild} onRecruit={onRecruitGuildCandidate} />
         ) : null}
@@ -729,6 +740,7 @@ function getWindowTitle(tab: MainPanelTab) {
     staff: "Guild Staff",
     treasury: "Guild Treasury",
     projects: "Guild Projects",
+    logistics: "Guild Logistics Board",
     recruitment: "Guild Recruitment Board",
     skills: "Skills",
     blessings: "Blessings",
@@ -774,6 +786,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "staff") return "Permanent local specialists with one active duty post and capped expedition bonuses.";
   if (tab === "treasury") return "Protected local reserves and a persistent ledger for the guild's existing gold.";
   if (tab === "projects") return "Permanent local works funded in phases with guild gold and Guild Depot materials.";
+  if (tab === "logistics") return "Campaign-wide material demand, permanent objectives and real hunt recovery routes.";
   if (tab === "recruitment") return "Fixed local applicants, permanent roster places and modest guild-funded contracts.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
@@ -794,6 +807,7 @@ function getWindowIcon(tab: MainPanelTab) {
     staff: "S",
     treasury: "G",
     projects: "P",
+    logistics: "L",
     recruitment: "R",
     skills: "S",
     training: "T",

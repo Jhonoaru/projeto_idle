@@ -121,6 +121,7 @@ Atualizado em: 2026-07-17
 - Etapa 64.5 concluida: QA real liberou o Depot no menu, corrigiu o breakpoint intermediario e validou transferencia, upgrade unico e dois reloads Tauri/SQLite.
 - Etapa 65 concluida: Resource Planner deriva metas dos upgrades, compara o Guild Depot e abre fontes reais de hunt com um aventureiro apto.
 - Etapa 65.5 concluida: QA ampliada validou 33 cenarios, save legado, duas aberturas Tauri, rota de farm e responsividade sem encontrar regressao funcional.
+- Etapa 66 concluida: Guild Logistics Board centraliza Headquarters, Projects e Wardrobe, unifica stacks elegiveis e abre sistemas ou hunts reais.
 
 Comandos principais:
 
@@ -3845,6 +3846,93 @@ Resultado e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 66 - Guild Logistics Board e objetivos de campanha.
+
+## Etapa 66 - Guild Logistics Board e objetivos de campanha
+
+Status: concluida.
+
+Arquivos criados:
+
+- `src/game-engine/inventory/guildDepotMaterials.ts`.
+- `src/game-engine/logistics/getMaterialHuntSources.ts`.
+- `src/game-engine/logistics/buildGuildLogisticsPlan.ts`.
+- `src/components/logistics/GuildLogisticsBoard.tsx`.
+
+Arquivos principais alterados:
+
+- `src/app/App.tsx`.
+- `src/components/character/CharacterDetails.tsx`.
+- `src/components/layout/CharacterSideMenu.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/components/projects/GuildProjectsHall.tsx`.
+- `src/game-engine/headquarters/buildHeadquartersResourcePlan.ts`.
+- `src/game-engine/headquarters/upgradeGuildFacility.ts`.
+- `src/game-engine/projects/fundGuildProjectPhase.ts`.
+- `src/game-engine/cosmetic-exchange/getCosmeticExchangeAvailability.ts`.
+- `src/game-engine/cosmetic-exchange/exchangeCosmetic.ts`.
+- `src/styles.css`.
+- `src/data/clientUpdates.ts`.
+
+Escopo do board:
+
+- Nova rota `logistics`, acessivel pelo Character Hall e pelo menu lateral quando ele esta visivel.
+- O board e totalmente derivado de `guild`, `characters` e `depot`; nao adiciona estado ou schema SQLite.
+- Headquarters gera uma ordem para o proximo nivel de cada facility ainda incompleta.
+- Guild Projects gera uma ordem para a fase atual de cada projeto ainda incompleto, incluindo prerequisitos futuros como locks visiveis.
+- Wardrobe gera uma ordem para cada exchange cuja Collection ainda nao foi desbloqueada.
+- Workbench nao foi agregado porque suas receitas sao escolhas sob demanda e somar todas criaria uma necessidade falsa.
+
+Modelo de objetivos:
+
+- Cada ordem possui categoria, destino, titulo, alvo, custo em gold, materiais, blockers e status `Ready`, `Need Materials`, `Need Gold` ou `Locked`.
+- Ordens prontas aparecem primeiro; materiais e locks continuam visiveis para planejamento de longo prazo.
+- O resumo mostra ordens ativas, prontas, deficit agregado e soma informativa dos custos listados.
+- A demanda combinada agrega requisitos por item e limita cobertura a `min(disponivel, necessario)`.
+- Recursos nao sao reservados; cada transacao continua independente e o proprio board explica essa regra.
+
+Regra unificada do Guild Depot:
+
+- Headquarters, Projects e Wardrobe agora compartilham `getAvailableGuildDepotMaterialQuantity` e `consumeGuildDepotMaterialItems`.
+- Somente stacks `guildDepot`, na raiz, sem owner de personagem, desbloqueados, inteiros e nao quest contam ou sao consumidos.
+- A regra anterior de Projects e Wardrobe podia contar/consumir nested ou entradas com ownership incompativel; essa divergencia foi corrigida.
+- Availability, UI e transacao real agora usam a mesma definicao de material elegivel.
+- O Resource Planner da Headquarters passou a reutilizar tambem o modulo compartilhado de fontes de hunt.
+
+Interface e navegacao:
+
+- Hero resume a campanha e o ledger material exibe sete recursos no save inicial.
+- Filtros `All Orders`, `Headquarters`, `Projects` e `Wardrobe` atualizam a fila e normalizam a selecao.
+- O dossier mostra gold, linhas materiais, blockers, fontes de hunt e o comando do sistema responsavel.
+- `Open Headquarters`, `Open Guild Projects` e `Open Wardrobe` levam aos halls existentes.
+- `Open Hunt` preserva a fonte escolhida, seleciona um aventureiro ocioso apto e abre Hunt Assignment.
+- Fontes bloqueadas por level, access ou roster ocupado permanecem visiveis com comando desabilitado.
+
+Validacao:
+
+- Build intermediario passou com 351 modulos.
+- O save mock inicial exibiu 11 ordens: 4 Headquarters, 3 Projects e 4 Wardrobe.
+- Duas ordens estavam prontas, os custos listados somaram 2.100g e a demanda material ficou 28/62, com deficit 34.
+- A fila classificou 2 `Ready`, 6 `Need Materials` e 3 `Locked`.
+- Projects filtrou tres ordens e mostrou o prerequisito de Cartographers' Archive.
+- Wardrobe filtrou quatro ordens, reconheceu Noble Adventurer como gold-only e abriu o hall correto.
+- Trollwood Camp selecionou Lyra ociosa level 26 e abriu Hunt Assignment sem bloqueio por acao.
+- Financiar `Clear the Annex` consumiu 100g e Old Cloth x2; a ordem avancou para `Reinforce the Shelves`, 150g e Iron Ore x2.
+- O recalculo manteve cobertura 28/62 corretamente: consumo e nova demanda se compensaram sem inflar progresso.
+- Uma matriz temporaria executou 33/33 checks de totais, categorias, statuses, stacks protegidos, transacoes, campanha completa, normalizacao e imutabilidade.
+- Nested Project/Wardrobe foram bloqueados; stacks root foram consumidos exatamente e locked/nested permaneceram intactos.
+- Em 1280, 960, 700 e 430 px nao houve overflow horizontal na pagina ou no board.
+
+Limitacoes atuais:
+
+- A demanda combinada nao reserva recursos nem define prioridade automatica entre ordens.
+- Nao existe pin persistente, notificacao de material completo ou dispatch automatico.
+- Workbench, Forge, Imbuements e receitas escolhidas ainda nao entram no board global.
+- Chances sao valores brutos das loot tables e nao estimativas de tempo.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 66.5 - QA do Guild Logistics Board no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

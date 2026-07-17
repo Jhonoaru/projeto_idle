@@ -19,6 +19,7 @@ const menuItems: Array<{ tab: MainPanelTab; label: string; icon: string }> = [
   { tab: "staff", label: "Staff", icon: "S" },
   { tab: "treasury", label: "Treasury", icon: "G" },
   { tab: "projects", label: "Projects", icon: "P" },
+  { tab: "logistics", label: "Logistics", icon: "L" },
   { tab: "recruitment", label: "Recruit", icon: "R" },
   { tab: "skills", label: "Skills", icon: "S" },
   { tab: "blessings", label: "Bless", icon: "B" },

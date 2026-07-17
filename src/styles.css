@@ -12466,3 +12466,152 @@ html[data-client-motion="reduced"] *::after {
     grid-template-columns: 1fr;
   }
 }
+
+.game-layout.is-logistics-board-mode .left-panel,
+.game-layout.is-logistics-board-mode .right-character-panel,
+.game-layout.is-logistics-board-mode .character-side-menu { display: none; }
+.game-layout.is-logistics-board-mode:has(.game-window-full) { grid-template-columns: minmax(0, 1fr); }
+
+.logistics-board { display: grid; gap: 10px; min-width: 0; }
+.logistics-hero,
+.logistics-material-ledger,
+.logistics-orders,
+.logistics-dossier { min-width: 0; border: 1px solid #3b3b35; background: #101513; }
+.logistics-hero { display: grid; grid-template-columns: 104px minmax(280px, 1fr) minmax(500px, 1.15fr); gap: 15px; align-items: center; min-height: 126px; padding: 14px; }
+.logistics-seal { display: grid; place-items: center; align-content: center; gap: 7px; width: 100px; height: 106px; border: 1px solid #806c3e; color: #efd58a; background: #1b2420; clip-path: polygon(50% 0, 92% 18%, 84% 82%, 50% 100%, 16% 82%, 8% 18%); }
+.logistics-seal i { font-family: Georgia, serif; font-size: 1.65rem; font-style: normal; font-weight: 900; }
+.logistics-seal span { color: #9aa79f; font-size: 0.58rem; }
+.logistics-identity > span,
+.logistics-summary span,
+.logistics-cost-strip span { color: #89938d; font-size: 0.57rem; text-transform: uppercase; }
+.logistics-identity h3 { margin: 4px 0; color: #ead18c; font-family: Georgia, serif; font-size: 1.2rem; }
+.logistics-identity p { margin: 0; color: #9fa9a1; font-size: 0.68rem; line-height: 1.45; }
+.logistics-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #303832; }
+.logistics-summary > div { min-width: 0; min-height: 64px; padding: 9px; border-right: 1px solid #303832; background: #151a17; }
+.logistics-summary > div:last-child { border-right: 0; }
+.logistics-summary strong { display: block; margin-top: 7px; overflow: hidden; color: #dfce97; font-size: 0.72rem; text-overflow: ellipsis; white-space: nowrap; }
+.logistics-summary .is-positive strong { color: #91b997; }
+.logistics-summary .is-alert strong { color: #d69a70; }
+
+.logistics-material-ledger { padding: 10px; }
+.logistics-material-ledger > header { display: flex; justify-content: space-between; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid #303832; }
+.logistics-material-ledger > header span { color: #a9955f; font-size: 0.59rem; text-transform: uppercase; }
+.logistics-material-ledger > header strong { color: #89938d; font-size: 0.57rem; }
+.logistics-material-ledger > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
+.logistics-material-ledger article { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 50px; padding: 6px; border: 1px solid #343c36; border-left: 3px solid #8a5942; background: #151a17; }
+.logistics-material-ledger article.is-ready { border-left-color: #66876c; }
+.logistics-material-ledger article span { min-width: 0; }
+.logistics-material-ledger article strong,
+.logistics-material-ledger article small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logistics-material-ledger article strong { color: #d8cc9d; font-size: 0.62rem; }
+.logistics-material-ledger article small { margin-top: 3px; color: #7f8981; font-size: 0.52rem; }
+.logistics-material-ledger article b { color: #d69a70; font-size: 0.56rem; white-space: nowrap; }
+.logistics-material-ledger article.is-ready b { color: #91b997; }
+.logistics-material-ledger > small { display: block; margin-top: 7px; color: #768178; font-size: 0.54rem; }
+
+.logistics-workspace { display: grid; grid-template-columns: minmax(430px, 0.82fr) minmax(570px, 1.18fr); gap: 9px; align-items: start; min-width: 0; }
+.logistics-orders,
+.logistics-dossier { padding: 11px; }
+.logistics-filters { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 8px; }
+.logistics-filters button { min-height: 31px; border: 1px solid #384139; color: #879188; background: #151a17; font-family: Georgia, serif; font-size: 0.56rem; font-weight: 700; text-transform: uppercase; cursor: pointer; }
+.logistics-filters button[aria-pressed="true"] { border-color: #9a8247; color: #ead28e; background: #24271e; }
+.logistics-order-list { display: grid; gap: 5px; margin-top: 7px; }
+.logistics-order-list > button { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-width: 0; min-height: 72px; padding: 7px; border: 1px solid #343c36; border-left: 3px solid #6e5940; color: #bcc4bd; background: #151a17; text-align: left; cursor: pointer; }
+.logistics-order-list > button.is-ready { border-left-color: #66876c; }
+.logistics-order-list > button.is-materials { border-left-color: #8a5942; }
+.logistics-order-list > button.is-locked { opacity: 0.82; }
+.logistics-order-list > button[aria-pressed="true"] { outline: 2px solid #9b8248; outline-offset: -2px; background: #20251f; }
+.logistics-order-list > button > i { display: grid; place-items: center; width: 44px; height: 52px; border: 1px solid #6d756e; color: #dcc780; background: #20251f; font-family: Georgia, serif; font-size: 0.72rem; font-style: normal; font-weight: 900; clip-path: polygon(50% 0, 94% 18%, 86% 80%, 50% 100%, 14% 80%, 6% 18%); }
+.logistics-order-list > button > span { min-width: 0; }
+.logistics-order-list small,
+.logistics-order-list strong,
+.logistics-order-list em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logistics-order-list small { color: #7f8981; font-size: 0.5rem; text-transform: uppercase; }
+.logistics-order-list strong { margin: 4px 0; color: #d8cc9d; font-family: Georgia, serif; font-size: 0.69rem; }
+.logistics-order-list em { color: #929c94; font-size: 0.55rem; font-style: normal; }
+.logistics-order-list > button > b { min-width: 84px; padding: 5px; border: 1px solid #3c443e; color: #d2966e; background: #111613; font-size: 0.52rem; text-align: center; text-transform: uppercase; }
+.logistics-order-list > button.is-ready > b { color: #91b997; }
+
+.logistics-dossier > header,
+.logistics-hunt-sources > header { display: flex; justify-content: space-between; gap: 8px; padding-bottom: 7px; border-bottom: 1px solid #303832; }
+.logistics-dossier > header span,
+.logistics-hunt-sources > header span { color: #89938d; font-size: 0.55rem; text-transform: uppercase; }
+.logistics-dossier > header strong,
+.logistics-hunt-sources > header strong { color: #dfce97; font-size: 0.64rem; }
+.logistics-order-profile { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 102px; margin-top: 8px; padding: 9px; border: 1px solid #303832; background: #151a17; }
+.logistics-order-profile > i { display: grid; place-items: center; width: 70px; height: 78px; border: 1px solid #8d7848; color: #e1cc88; background: #20251f; font-family: Georgia, serif; font-style: normal; font-weight: 900; clip-path: polygon(50% 0, 94% 17%, 86% 80%, 50% 100%, 14% 80%, 6% 17%); }
+.logistics-order-profile span { color: #89938d; font-size: 0.54rem; text-transform: uppercase; }
+.logistics-order-profile h3 { margin: 4px 0; color: #dfcf9d; font-family: Georgia, serif; font-size: 0.9rem; }
+.logistics-order-profile p { margin: 0; color: #9ba59d; font-size: 0.62rem; line-height: 1.4; }
+.logistics-cost-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 7px; border: 1px solid #303832; }
+.logistics-cost-strip > div { min-width: 0; padding: 7px 8px; border-right: 1px solid #303832; background: #151a17; }
+.logistics-cost-strip > div:last-child { border-right: 0; }
+.logistics-cost-strip strong,
+.logistics-cost-strip small { display: block; margin-top: 4px; }
+.logistics-cost-strip strong { color: #dfce97; font-size: 0.67rem; }
+.logistics-cost-strip small { color: #7f8981; font-size: 0.51rem; }
+.logistics-cost-strip .is-ready strong { color: #91b997; }
+.logistics-cost-strip .is-materials strong,
+.logistics-cost-strip .is-gold strong { color: #d69a70; }
+.logistics-material-requirements { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 7px; }
+.logistics-material-requirements > button { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 52px; padding: 6px; border: 1px solid #343c36; color: #bec6bf; background: #151a17; text-align: left; cursor: pointer; }
+.logistics-material-requirements > button[aria-pressed="true"] { outline: 2px solid #9b8248; outline-offset: -2px; background: #20251f; }
+.logistics-material-requirements span { min-width: 0; }
+.logistics-material-requirements strong,
+.logistics-material-requirements small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logistics-material-requirements strong { color: #d8cc9d; font-size: 0.61rem; }
+.logistics-material-requirements small { margin-top: 3px; color: #7f8981; font-size: 0.5rem; }
+.logistics-material-requirements b { color: #d69a70; font-size: 0.54rem; white-space: nowrap; }
+.logistics-material-requirements .is-ready b { color: #91b997; }
+.logistics-blockers { display: grid; gap: 3px; margin-top: 7px; padding: 7px; border: 1px solid #5a4438; color: #d39876; background: #1e1714; }
+.logistics-blockers small { font-size: 0.54rem; }
+.logistics-no-materials { margin-top: 7px; padding: 12px; border: 1px solid #344038; color: #91b997; background: #151a17; font-size: 0.62rem; text-align: center; }
+.logistics-hunt-sources { margin-top: 7px; border: 1px solid #303832; background: #111613; }
+.logistics-hunt-sources > header { padding: 7px 8px; }
+.logistics-hunt-sources article { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 8px; border-bottom: 1px solid #2d342f; }
+.logistics-hunt-sources article:last-child { border-bottom: 0; }
+.logistics-hunt-sources article > div:last-child { display: grid; justify-items: end; gap: 4px; }
+.logistics-hunt-sources article span,
+.logistics-hunt-sources article strong,
+.logistics-hunt-sources article small { display: block; }
+.logistics-hunt-sources article span { color: #7f8981; font-size: 0.5rem; text-transform: uppercase; }
+.logistics-hunt-sources article strong { margin: 3px 0; color: #d8cc9d; font-family: Georgia, serif; font-size: 0.66rem; }
+.logistics-hunt-sources article small { color: #929c94; font-size: 0.53rem; }
+.logistics-hunt-sources article em { color: #d2966e; font-size: 0.51rem; font-style: normal; white-space: nowrap; }
+.logistics-hunt-sources article.is-ready em { color: #91b997; }
+.logistics-hunt-sources article button { min-width: 84px; min-height: 27px; border: 1px solid #9a8247; color: #ead28e; background: #24271e; font-family: Georgia, serif; font-size: 0.54rem; font-weight: 700; cursor: pointer; }
+.logistics-hunt-sources article button:disabled { border-color: #39413b; color: #6f7971; background: #171c18; cursor: not-allowed; }
+.logistics-hunt-sources > p { margin: 0; padding: 14px; color: #818c84; font-size: 0.6rem; text-align: center; }
+.logistics-open-system { width: 100%; min-height: 38px; margin-top: 7px; border: 1px solid #a88a48; color: #f0d792; background: #2a3329; font-family: Georgia, serif; font-weight: 900; cursor: pointer; }
+.logistics-empty { display: grid; place-items: center; min-height: 240px; color: #879188; text-align: center; }
+.logistics-empty strong { color: #a7c7a8; font-family: Georgia, serif; }
+.logistics-empty span { font-size: 0.62rem; }
+
+@media (max-width: 1180px) {
+  .logistics-hero { grid-template-columns: 104px minmax(0, 1fr); }
+  .logistics-summary { grid-column: 1 / -1; }
+  .logistics-workspace { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .logistics-summary,
+  .logistics-material-ledger > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .logistics-summary > div:nth-child(2n) { border-right: 0; }
+}
+@media (max-width: 520px) {
+  .logistics-hero { grid-template-columns: 1fr; text-align: center; }
+  .logistics-seal { justify-self: center; }
+  .logistics-summary,
+  .logistics-material-ledger > div,
+  .logistics-filters,
+  .logistics-cost-strip,
+  .logistics-material-requirements { grid-template-columns: 1fr; text-align: left; }
+  .logistics-summary > div,
+  .logistics-cost-strip > div { border-right: 0; border-bottom: 1px solid #303832; }
+  .logistics-material-ledger > header { align-items: flex-start; flex-direction: column; }
+  .logistics-order-list > button { grid-template-columns: 46px minmax(0, 1fr); }
+  .logistics-order-list > button > b { grid-column: 2; justify-self: start; }
+  .logistics-order-profile { grid-template-columns: 1fr; text-align: center; }
+  .logistics-order-profile > i { justify-self: center; }
+  .logistics-hunt-sources article { grid-template-columns: 1fr; }
+  .logistics-hunt-sources article > div:last-child { grid-template-columns: minmax(0, 1fr) auto; align-items: center; justify-items: start; }
+}

@@ -1,21 +1,13 @@
 import { guildFacilities } from "../../data/guildFacilities";
-import { hunts } from "../../data/hunts";
 import { items } from "../../data/items";
-import type { Character, GuildDepot, HuntArea } from "../../shared/types";
+import type { Character, GuildDepot } from "../../shared/types";
+import { getAvailableGuildDepotMaterialQuantity } from "../inventory/guildDepotMaterials";
+import { getMaterialHuntSources, type MaterialHuntSource } from "../logistics/getMaterialHuntSources";
 import { normalizeGuildHeadquarters } from "./normalizeGuildHeadquarters";
-import { getAvailableGuildDepotMaterialQuantity } from "./upgradeGuildFacility";
 
 export type HeadquartersResourcePlanMode = "next" | "completion";
 
-export interface HeadquartersResourceSource {
-  hunt: HuntArea;
-  monsterNames: string[];
-  bestDropChance: number;
-  quantityRange: string;
-  readyCharacterNames: string[];
-  status: "ready" | "busy" | "level" | "access";
-  statusLabel: string;
-}
+export type HeadquartersResourceSource = MaterialHuntSource;
 
 export interface HeadquartersResourcePlanEntry {
   itemId: string;
@@ -68,7 +60,7 @@ export function buildHeadquartersResourcePlan(
         required,
         available,
         missing: Math.max(0, required - available),
-        sources: getResourceSources(itemId, characters),
+        sources: getMaterialHuntSources(itemId, characters),
       };
     })
     .sort((left, right) => Number(right.missing > 0) - Number(left.missing > 0) || left.name.localeCompare(right.name));
@@ -84,54 +76,6 @@ export function buildHeadquartersResourcePlan(
     missingMaterials: Math.max(0, requiredMaterials - coveredMaterials),
     entries,
   };
-}
-
-function getResourceSources(itemId: string, characters: Character[]): HeadquartersResourceSource[] {
-  return hunts.flatMap((hunt) => {
-    const drops = hunt.monsters.flatMap((monster) => monster.lootTable
-      .filter((drop) => drop.itemId === itemId)
-      .map((drop) => ({ monster, drop })));
-    if (drops.length === 0) return [];
-
-    const eligibleCharacters = characters.filter((character) => (
-      character.level >= hunt.minLevel
-      && (!hunt.requiredAccess || character.accessIds.includes(hunt.requiredAccess))
-    ));
-    const readyCharacters = eligibleCharacters.filter((character) => character.status === "idle" && !character.currentAction);
-    const hasLevel = characters.some((character) => character.level >= hunt.minLevel);
-    const status: HeadquartersResourceSource["status"] = readyCharacters.length > 0
-      ? "ready"
-      : eligibleCharacters.length > 0
-        ? "busy"
-        : hasLevel && hunt.requiredAccess ? "access" : "level";
-    const minimum = Math.min(...drops.map(({ drop }) => drop.minQuantity));
-    const maximum = Math.max(...drops.map(({ drop }) => drop.maxQuantity));
-
-    return [{
-      hunt,
-      monsterNames: [...new Set(drops.map(({ monster }) => monster.name))],
-      bestDropChance: Math.max(...drops.map(({ drop }) => normalizeChance(drop.chance))),
-      quantityRange: minimum === maximum ? `${minimum}` : `${minimum}-${maximum}`,
-      readyCharacterNames: readyCharacters.map((character) => character.name),
-      status,
-      statusLabel: status === "ready"
-        ? `Ready: ${readyCharacters.map((character) => character.name).join(", ")}`
-        : status === "busy"
-          ? "Eligible adventurers are busy"
-        : status === "access"
-          ? "Access required"
-          : `Requires level ${hunt.minLevel}`,
-    }];
-  }).sort((left, right) => (
-    Number(right.status === "ready") - Number(left.status === "ready")
-    || right.bestDropChance - left.bestDropChance
-    || left.hunt.minLevel - right.hunt.minLevel
-  ));
-}
-
-function normalizeChance(value: unknown) {
-  const parsed = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(parsed) ? Math.min(1, Math.max(0, parsed)) : 0;
 }
 
 function safeAdd(left: number, right: number) {

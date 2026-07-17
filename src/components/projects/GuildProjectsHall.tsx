@@ -4,6 +4,7 @@ import { getGuildProject, guildProjects } from "../../data/guildProjects";
 import { items } from "../../data/items";
 import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
 import { getGuildProjectAvailability } from "../../game-engine/projects/fundGuildProjectPhase";
+import { getAvailableGuildDepotMaterialQuantity } from "../../game-engine/inventory/guildDepotMaterials";
 import { normalizeGuildProjectsState } from "../../game-engine/projects/normalizeGuildProjectsState";
 import type { Character, Guild, GuildDepot, GuildProjectDefinition } from "../../shared/types";
 
@@ -71,7 +72,7 @@ export function GuildProjectsHall({ characters, depot, guild, onFundPhase }: Gui
               <div className="projects-requirements">
                 <Requirement label="Guild gold" value={`${currentPhase.goldCost.toLocaleString("en-US")}g`} ready={guild.gold >= currentPhase.goldCost} />
                 {currentPhase.materials.map((requirement) => {
-                  const available = countAvailable(depot, requirement.itemId);
+                  const available = getAvailableGuildDepotMaterialQuantity(depot, requirement.itemId);
                   return <Requirement key={requirement.itemId} label={items[requirement.itemId]?.name ?? requirement.itemId} value={`${available}/${requirement.quantity}`} ready={available >= requirement.quantity} />;
                 })}
               </div>
@@ -104,10 +105,6 @@ function Summary({ label, value }: { label: string; value: string }) {
 
 function Requirement({ label, value, ready }: { label: string; value: string; ready: boolean }) {
   return <div className={ready ? "is-ready" : "is-missing"}><span>{label}</span><strong>{value}</strong></div>;
-}
-
-function countAvailable(depot: GuildDepot, itemId: string) {
-  return depot.items.filter((item) => item.itemId === itemId && !item.locked && item.item.type !== "quest").reduce((sum, item) => sum + Math.max(0, item.quantity), 0);
 }
 
 function formatDate(value?: string) {

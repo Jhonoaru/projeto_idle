@@ -3,7 +3,8 @@ import { getGuildProject } from "../../data/guildProjects";
 import { getGuildCareer } from "../achievements/getGuildCareer";
 import { unlockCollectionItem } from "../collections/unlockCollectionItem";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
-import type { Character, Guild, GuildDepot, GuildProjectMaterialRequirement, InventoryItem } from "../../shared/types";
+import { consumeGuildDepotMaterialItems, getAvailableGuildDepotMaterialQuantity } from "../inventory/guildDepotMaterials";
+import type { Character, Guild, GuildDepot, GuildProjectMaterialRequirement } from "../../shared/types";
 import { normalizeGuildProjectsState } from "./normalizeGuildProjectsState";
 
 export function fundGuildProjectPhase(guild: Guild, depot: GuildDepot, characters: Character[], projectId: string, now = new Date()) {
@@ -92,7 +93,7 @@ function isProjectComplete(state: ReturnType<typeof normalizeGuildProjectsState>
 
 function getMissingMaterials(depot: GuildDepot, requirements: GuildProjectMaterialRequirement[]) {
   return requirements.flatMap((requirement) => {
-    const available = depot.items.filter((item) => item.itemId === requirement.itemId && !item.locked && item.item.type !== "quest").reduce((sum, item) => sum + Math.max(0, item.quantity), 0);
+    const available = getAvailableGuildDepotMaterialQuantity(depot, requirement.itemId);
     const missing = Math.max(0, requirement.quantity - available);
     const name = depot.items.find((item) => item.itemId === requirement.itemId)?.item.name ?? requirement.itemId;
     return missing > 0 ? [{ itemId: requirement.itemId, name, quantity: missing, available }] : [];
@@ -101,18 +102,8 @@ function getMissingMaterials(depot: GuildDepot, requirements: GuildProjectMateri
 
 function consumeDepotMaterials(depot: GuildDepot, requirements: GuildProjectMaterialRequirement[]): GuildDepot {
   let items = depot.items;
-  for (const requirement of requirements) items = consume(items, requirement.itemId, requirement.quantity);
+  for (const requirement of requirements) items = consumeGuildDepotMaterialItems(items, requirement.itemId, requirement.quantity);
   return { ...depot, items, capacityUsed: calculateCapacityUsed(items) };
-}
-
-function consume(items: InventoryItem[], itemId: string, quantity: number) {
-  let remaining = quantity;
-  return items.flatMap((item) => {
-    if (remaining <= 0 || item.itemId !== itemId || item.locked || item.item.type === "quest") return [item];
-    const used = Math.min(remaining, Math.max(0, item.quantity));
-    remaining -= used;
-    return item.quantity > used ? [{ ...item, quantity: item.quantity - used }] : [];
-  });
 }
 
 function normalizeInteger(value: unknown) {

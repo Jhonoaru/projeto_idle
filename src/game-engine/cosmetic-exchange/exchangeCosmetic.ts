@@ -1,8 +1,9 @@
 import { getCollectionItemById } from "../../data/collections";
 import { getCosmeticExchange } from "../../data/cosmeticExchanges";
-import type { Character, Guild, GuildDepot, InventoryItem } from "../../shared/types";
+import type { Character, Guild, GuildDepot } from "../../shared/types";
 import { unlockCollectionItem } from "../collections/unlockCollectionItem";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
+import { consumeGuildDepotMaterialItems } from "../inventory/guildDepotMaterials";
 import { getCosmeticExchangeAvailability } from "./getCosmeticExchangeAvailability";
 
 export function exchangeCosmetic(
@@ -18,7 +19,7 @@ export function exchangeCosmetic(
   if (!availability.available) return blocked(guild, depot, availability.reasons[0] ?? "Cosmetic exchange is unavailable.");
 
   let items = Array.isArray(depot.items) ? depot.items : [];
-  for (const material of exchange.materials) items = consume(items, material.itemId, material.quantity);
+  for (const material of exchange.materials) items = consumeGuildDepotMaterialItems(items, material.itemId, material.quantity);
 
   const paidGuild = { ...guild, gold: normalizeInteger(guild.gold) - exchange.goldCost };
   const unlocked = unlockCollectionItem(paidGuild, collectionItemId);
@@ -30,16 +31,6 @@ export function exchangeCosmetic(
     depot: { ...depot, items, capacityUsed: calculateCapacityUsed(items) },
     message: `${collectionItem?.name ?? collectionItemId} unlocked through ${exchange.label}.`,
   };
-}
-
-function consume(items: InventoryItem[], itemId: string, quantity: number) {
-  let remaining = quantity;
-  return items.flatMap((item) => {
-    if (remaining <= 0 || item.itemId !== itemId || item.locked) return [item];
-    const used = Math.min(remaining, normalizeInteger(item.quantity));
-    remaining -= used;
-    return item.quantity > used ? [{ ...item, quantity: item.quantity - used }] : [];
-  });
 }
 
 function normalizeInteger(value: unknown) {
