@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-58-5",
+    stage: "Stage 58.5",
+    title: "Wardrobe Exchange QA",
+    date: "2026-07-16",
+    category: "qa",
+    summary: "Single-charge exchanges, blocked trophy costs, Collections and SQLite restoration passed controlled desktop validation.",
+    highlights: [
+      "Noble Adventurer spent 350 guild gold once, raised the wardrobe to 15/29 and created one persistent Collection record.",
+      "Save and Reload preserved the unlock while a missing Dragon Ember kept Ash Wolf disabled without changing the Guild Depot.",
+      "SQLite integrity remained healthy and the original database, WAL and SHM were restored with matching SHA-256 hashes.",
+    ],
+    systems: ["Wardrobe Exchange", "Collections", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-58",
     stage: "Stage 58",
     title: "Offline Cosmetic Exchange",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Duplicate clicks cannot charge twice, and the Store shows exact resources, quest requirements and collection status.",
     ],
     systems: ["Wardrobe Exchange", "Collections", "Guild Depot"],
-    featured: true,
   },
   {
     id: "stage-57-5",

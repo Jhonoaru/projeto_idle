@@ -106,6 +106,7 @@ Atualizado em: 2026-07-16
 - Etapa 57 concluida: Bazar Rotativo Offline com seis ofertas deterministicas por janela de dez minutos, compras unicas via `guild.gold`, itens reais, raridade Relic e persistencia SQLite.
 - Etapa 57.5 concluida: QA real do Bazar no Tauri/SQLite validou migration, compra unica, Guild Depot, Save/Reload, responsividade e restauracao integral do banco.
 - Etapa 58 concluida: Wardrobe Exchange offline com quatro trocas cosmeticas reais, custos em gold/trofeus/quest, Collections, Guild Depot e protecao contra duplicacao.
+- Etapa 58.5 concluida: QA real da Wardrobe Exchange validou cobranca unica, bloqueio por trofeu, Collections, Save/Reload e restauracao integral do SQLite.
 
 Comandos principais:
 
@@ -3054,6 +3055,47 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 58.5 - QA da Wardrobe Exchange no Tauri/SQLite.
+
+## Etapa 58.5 - QA da Wardrobe Exchange no Tauri/SQLite
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e `npm.cmd run build` foram executados antes do QA; o repositorio estava sincronizado e limpo.
+- O save original possuia Aurora com 674g, 14/29 cosmetics, cinco personagens, 26 itens e dez Activity Logs.
+- O Guild Depot continha Iron Ore x12, Old Cloth x18, Enchanted Dust x2 e Brass Shield x1; nenhum material de troca foi fabricado para o teste.
+- DB, WAL e SHM foram copiados antes da abertura do Tauri. O banco principal tinha SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Troca e protecoes:
+
+- `npm.cmd run tauri:dev` abriu o executavel real com SQLite, sem fallback para mock.
+- Noble Adventurer estava disponivel por 350g; o comando reduziu `guild.gold` de 674g para 324g e elevou o guarda-roupa de 14/29 para 15/29.
+- Um segundo clique no mesmo ponto encontrou `Already Unlocked` desabilitado: o SQLite manteve 324g, um unico ID Noble e um unico Activity Log `Wardrobe exchange`.
+- Collections mostrou Noble Adventurer como `Unlocked`; abrir o hall limpou `newlyUnlockedCollectionItemIds` sem remover o unlock.
+- Ash Wolf mostrou `Dragon Ember 0/1`, status `Missing Guild Depot trophies` e comando desabilitado; nenhum item ou gold foi alterado.
+
+Save/Reload e SQLite:
+
+- Save e Reload preservaram 324g, 15/29 cosmetics e Noble Adventurer desbloqueado uma unica vez.
+- O banco testado permaneceu com cinco personagens, 26 itens e os quatro stacks originais do Guild Depot.
+- `PRAGMA integrity_check` retornou `ok` antes da troca, depois da troca e antes da restauracao.
+
+Restauracao:
+
+- O Tauri e o servidor Vite foram encerrados antes de restaurar os arquivos.
+- DB, WAL e SHM foram sobrescritos pelos backups e terminaram com hashes SHA-256 identicos aos originais.
+- O save restaurado voltou a 674g, 14/29 cosmetics, zero Noble Adventurer, cinco personagens, 26 itens e dez logs.
+- As tres copias temporarias e a pasta de backup foram removidas.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado nesta etapa.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 59 - Progressao de raridades e tiers visuais dos itens.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
