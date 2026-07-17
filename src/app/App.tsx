@@ -53,6 +53,7 @@ import { clearNewCollectionFlags } from "../game-engine/collections/clearNewColl
 import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
 import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
+import { exchangeCosmetic } from "../game-engine/cosmetic-exchange/exchangeCosmetic";
 import { equipGuildTitle, getGuildIdentity, getPersistedGuildTitle } from "../game-engine/achievements/getGuildIdentity";
 import { getHeadquartersBonuses } from "../game-engine/headquarters/getHeadquartersBonuses";
 import { upgradeGuildFacility } from "../game-engine/headquarters/upgradeGuildFacility";
@@ -205,6 +206,7 @@ export function App() {
   const fundingGuildProjectRef = useRef(false);
   const recruitingGuildMemberRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
+  const exchangingCosmeticRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -1593,6 +1595,26 @@ export function App() {
     setGuild((currentGuild) => clearNewCollectionFlags(currentGuild));
   }
 
+  function handleExchangeCosmetic(collectionItemId: string) {
+    if (exchangingCosmeticRef.current) return;
+    exchangingCosmeticRef.current = true;
+
+    try {
+      const result = exchangeCosmetic(guild, depot, characters, collectionItemId);
+      setGuild(result.guild);
+      setDepot(result.depot);
+      prependLog(
+        result.success ? "Wardrobe exchange" : "Exchange blocked",
+        result.message,
+        result.success ? "success" : "warning",
+      );
+    } finally {
+      window.setTimeout(() => {
+        exchangingCosmeticRef.current = false;
+      }, 250);
+    }
+  }
+
   function handleClaimDailyReward() {
     if (claimingDailyRewardRef.current) {
       prependLog("Daily blocked", "Daily Reward claim is already being processed.", "warning");
@@ -2110,6 +2132,7 @@ export function App() {
           onActivateMonsterFocus={handleActivateMonsterFocus}
           onClearMonsterFocus={handleClearMonsterFocus}
           onEquipCollectionItem={handleEquipCollectionItem}
+          onExchangeCosmetic={handleExchangeCosmetic}
           onEquipGuildTitle={handleEquipGuildTitle}
           onUpgradeGuildFacility={handleUpgradeGuildFacility}
           onStartGuildExpedition={handleStartGuildExpedition}

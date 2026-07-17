@@ -184,6 +184,7 @@ interface MainPanelProps {
   onClearMonsterFocus: (slotIndex: number) => void;
   onRerollMonsterFocus: (slotIndex: number) => void;
   onEquipCollectionItem: (itemId: string) => void;
+  onExchangeCosmetic: (collectionItemId: string) => void;
   onMarkCollectionsSeen: () => void;
   onUnlockDestinyNode: (nodeId: string) => void;
   onResetDestinyPath: () => void;
@@ -283,6 +284,7 @@ export function MainPanel({
   onClearMonsterFocus,
   onRerollMonsterFocus,
   onEquipCollectionItem,
+  onExchangeCosmetic,
   onMarkCollectionsSeen,
   onUnlockDestinyNode,
   onResetDestinyPath,
@@ -680,7 +682,10 @@ export function MainPanel({
         {activeTab === "store" ? (
           <CosmeticShowcaseHall
             character={selectedCharacter}
+            characters={characters}
+            depot={depot}
             guild={guild}
+            onExchangeCosmetic={onExchangeCosmetic}
             onOpenCollections={() => onChangeTab("collections")}
           />
         ) : null}
@@ -735,7 +740,7 @@ function getWindowTitle(tab: MainPanelTab) {
     bestiary: "Hunting Research / Bestiary",
     daily: "Daily Reward",
     ranking: "Hall of Renown",
-    store: "Cosmetic Showcase",
+    store: "Wardrobe Exchange",
     updates: "Updates",
     wiki: "Wiki",
     settings: "Settings",
@@ -763,7 +768,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
   if (tab === "bestiary") return "Guild creature records, research stages, charm points and active assignments.";
-  if (tab === "store") return "Outfits, mounts, avatars and future cosmetic exchanges for the local guild collection.";
+  if (tab === "store") return "Offline cosmetic exchanges using guild gold, boss trophies and quest progress.";
   if (tab === "updates") return "Installed release notes for local systems, interface revisions and QA milestones.";
   if (tab === "wiki") return "Local field reference for adventurers, exploration, progression and guild services.";
   if (tab === "settings") return "Device-only client preferences kept separate from the SQLite guild save.";

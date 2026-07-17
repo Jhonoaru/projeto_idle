@@ -10,15 +10,15 @@ export const collectionItems: CollectionItem[] = [
   outfit("outfit-cave-delver", "Cave Delver", "Heavy cloth, lamp hooks, and dust-stained boots.", "quest", "CD", 120, undefined, "Complete an early access quest."),
   outfit("outfit-bandit-breaker", "Bandit Breaker", "A rough adventurer style earned by breaking ambushes.", "boss", "BB", 130, undefined, "Defeat a bandit boss encounter."),
   outfit("outfit-guild-cartographer", "Guild Cartographer", "A practical map keeper's coat earned by completing the Cartographers' Archive.", "achievement", "GC", 140, undefined, "Complete the Cartographers' Archive guild project."),
-  outfit("outfit-noble-adventurer", "Noble Adventurer", "A polished formal style planned for a future guild wardrobe exchange.", "store_placeholder", "NA", 900, undefined, "Planned cosmetic exchange using guild gold or gameplay trophies."),
+  outfit("outfit-noble-adventurer", "Noble Adventurer", "A polished formal style commissioned from the guild tailor.", "store_placeholder", "NA", 900, undefined, "Exchange 350 guild gold in the Wardrobe Exchange."),
 
   mount("mount-none", "No Mount", "Travel on foot.", "starter", "-", 10),
   mount("mount-old-mule", "Old Mule", "A stubborn mule used by practical caravans.", "starter", "Mule", 20),
   mount("mount-brown-pony", "Brown Pony", "A steady pony for local roads.", "starter", "Pony", 30),
   mount("mount-forest-stag", "Forest Stag", "A quiet stag from elder woodland paths.", "achievement", "Stag", 110, "Future achievement unlock."),
   mount("mount-cave-boar", "Cave Boar", "A compact beast with more courage than grace.", "bestiary", "Boar", 120, "Future Bestiary unlock."),
-  mount("mount-ash-wolf", "Ash Wolf", "A smoke-gray wolf mount planned for future events.", "event_placeholder", "Wolf", 130, "Future event placeholder."),
-  mount("mount-merchant-cart", "Merchant Cart", "A small cart for showing guild prosperity.", "store_placeholder", "Cart", 900, "Planned cosmetic exchange using guild gold or gameplay trophies."),
+  mount("mount-ash-wolf", "Ash Wolf", "A smoke-gray wolf bonded through an Ember Matriarch trophy exchange.", "event_placeholder", "Wolf", 130, "Exchange a Dragon Ember in the Wardrobe Exchange."),
+  mount("mount-merchant-cart", "Merchant Cart", "A small trade cart earned through a Khazgrim trophy contract.", "store_placeholder", "Cart", 900, "Exchange 250 guild gold and two Dwarf Badges in the Wardrobe Exchange."),
 
   avatar("avatar-recruit-emblem", "Recruit Emblem", "A simple badge for new adventurers.", "starter", "R", 10),
   avatar("avatar-sword-emblem", "Sword Emblem", "A blade mark for martial characters.", "starter", "S", 20, ["Guardian"]),
@@ -31,7 +31,7 @@ export const collectionItems: CollectionItem[] = [
   avatar("avatar-golden-guild-sigil", "Golden Guild Sigil", "A bright guild mark planned for future achievements.", "achievement", "GG", 140, undefined, "Future guild achievement unlock."),
   avatar("avatar-quartermaster-seal", "Quartermaster Seal", "A supply station seal earned through permanent guild work.", "achievement", "QS", 145, undefined, "Complete the Field Supply Station guild project."),
   avatar("avatar-founders-mark", "Founders' Mark", "A restrained memorial mark for a guild with lasting local works.", "achievement", "FM", 146, undefined, "Complete the Founders' Monument guild project."),
-  avatar("avatar-ancient-rune-sigil", "Ancient Rune Sigil", "A rune mark planned for future events.", "event_placeholder", "AR", 150, undefined, "Future event placeholder."),
+  avatar("avatar-ancient-rune-sigil", "Ancient Rune Sigil", "A rune mark inscribed from recovered crypt dust.", "event_placeholder", "AR", 150, undefined, "Complete the Crypt Permission quest and exchange two Enchanted Dust."),
 ];
 
 export function getCollectionItemById(itemId?: string) {

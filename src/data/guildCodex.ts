@@ -40,8 +40,8 @@ const systemEntries: GuildCodexEntry[] = [
     ],
     guidance: [
       "The roster, economy, activities, rewards and timers belong to one private campaign.",
-      "The NPC Market handles fixed purchases and Quick Sell; a future rotating bazaar will generate local offers without player listings.",
-      "The Store direction is a guild wardrobe where cosmetics are earned or exchanged for gold, boss trophies and quest items.",
+      "The NPC Market handles fixed purchases and Quick Sell; the rotating bazaar generates deterministic local offers without player listings.",
+      "The Wardrobe Exchange unlocks permanent Collection cosmetics for guild gold, boss trophies and completed quest work.",
     ],
     relatedSystems: ["Character Roster", "NPC Market", "Collections", "SQLite Save"],
     keywords: ["offline", "single player", "campaign", "local", "sqlite", "market", "wardrobe"],

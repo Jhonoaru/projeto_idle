@@ -1,6 +1,8 @@
 import { GameCurrencyPill } from "../ui/GameCurrencyPill";
 import { GameIconButton } from "../ui/GameIconButton";
 import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
+import { collectionItems } from "../../data/collections";
+import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
 import type { Character, Guild } from "../../shared/types";
 import { GAME_TITLE } from "../../shared/constants";
 import type { MainPanelTab } from "./MainPanel";
@@ -31,6 +33,7 @@ export function TopBar({
   onResetSave,
 }: TopBarProps) {
   const dailyAvailable = canClaimDailyReward(guild.dailyReward);
+  const unlockedCosmetics = normalizeCollectionsState(guild.collections).unlockedCollectionItemIds.length;
   const saveBusy = Boolean(saveStatus?.endsWith("..."));
 
   return (
@@ -68,7 +71,7 @@ export function TopBar({
 
       <div className="client-top-right" aria-label="Client utilities">
         <GameCurrencyPill label="Gold" value={`${guild.gold.toLocaleString("en-US")}g`} />
-        <GameCurrencyPill label="Cosmetic" tone="future" value="0" />
+        <GameCurrencyPill label="Wardrobe" value={`${unlockedCosmetics}/${collectionItems.length}`} />
         <div className="client-utility-buttons">
           <button onClick={() => onOpenTab("updates")} title="Open updates" type="button">Updates</button>
           <button onClick={() => onOpenTab("wiki")} title="Open wiki" type="button">Wiki</button>

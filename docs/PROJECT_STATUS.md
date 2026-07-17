@@ -105,6 +105,7 @@ Atualizado em: 2026-07-16
 - Etapa 56.5 concluida: QA no Tauri/SQLite confirmou Store, Codex, Market NPC e Updates, alem de corrigir a perda de timestamps do Activity Log no autosave.
 - Etapa 57 concluida: Bazar Rotativo Offline com seis ofertas deterministicas por janela de dez minutos, compras unicas via `guild.gold`, itens reais, raridade Relic e persistencia SQLite.
 - Etapa 57.5 concluida: QA real do Bazar no Tauri/SQLite validou migration, compra unica, Guild Depot, Save/Reload, responsividade e restauracao integral do banco.
+- Etapa 58 concluida: Wardrobe Exchange offline com quatro trocas cosmeticas reais, custos em gold/trofeus/quest, Collections, Guild Depot e protecao contra duplicacao.
 
 Comandos principais:
 
@@ -3012,6 +3013,47 @@ Resultado:
 Proximo passo sugerido:
 
 - Etapa 58 - Cosmetic Exchange Offline na Store.
+
+## Etapa 58 - Cosmetic Exchange Offline na Store
+
+Status: concluida.
+
+Modelo e catalogo:
+
+- A antiga vitrine da Store virou `Wardrobe Exchange`, sem moeda premium, pagamento, conta online ou bonus de poder.
+- `src/data/cosmeticExchanges.ts` define quatro trocas ligadas a IDs reais de Collections e itens existentes.
+- Noble Adventurer custa 350g; Merchant Cart custa 250g e dois Dwarf Badges; Ash Wolf custa um Dragon Ember; Ancient Rune Sigil exige dois Enchanted Dust e a quest Crypt Permission concluida por algum personagem.
+- A Topbar deixou de mostrar a moeda cosmetica ficticia e agora exibe a contagem real do guarda-roupa desbloqueado.
+
+Engine e protecoes:
+
+- `getCosmeticExchangeAvailability` valida registro, unlock anterior, gold, materiais nao bloqueados no Guild Depot e quest da guilda.
+- `exchangeCosmetic` valida todos os requisitos antes de consumir qualquer recurso, desconta materiais e gold em uma unica resolucao e usa `unlockCollectionItem` para o registro permanente.
+- Cosmeticos ja desbloqueados, IDs invalidos, gold invalido, materiais insuficientes e stacks bloqueadas nao geram consumo parcial.
+- A protecao React bloqueia resolucoes simultaneas; o botao permanece no layout como `Already Unlocked`, evitando que um segundo clique atravesse para outro comando.
+
+Persistencia e integracao:
+
+- Unlocks continuam em `guild.collections` e materiais continuam no Guild Depot, ambos ja persistidos pelo SQLite existente; nenhuma migration nova foi necessaria.
+- Collections recebe `newlyUnlockedCollectionItemIds`, mantendo o badge e permitindo equipar o visual pelo fluxo existente.
+- Activity Log recebe uma unica entrada de sucesso ou bloqueio por tentativa processada.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite; permaneceu apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- Smoke no Vite abriu a Store com 420g, 14/29 cosmetics, quatro exchanges e custos/requisitos visiveis.
+- Duplo clique em Noble Adventurer descontou 350g uma unica vez, deixou 70g, elevou o guarda-roupa para 15/29 e manteve a Store aberta com `Already Unlocked` desabilitado.
+- O layout foi verificado em 960x700 e 760x700 sem overflow horizontal; em 760px os comandos passam para uma coluna.
+
+Limitacoes atuais:
+
+- O smoke desta implementacao usou o mock local do Vite; Save/Reload no SQLite real e restauracao controlada do banco ficam para a Etapa 58.5.
+- Os cosmetics usam os sigilos CSS/textuais existentes; sprites e assets visuais dedicados continuam para uma etapa futura.
+- O catalogo inicial possui quatro trocas fixas e nao tem rotacao, eventos sazonais ou compra premium.
+
+Proximo passo sugerido:
+
+- Etapa 58.5 - QA da Wardrobe Exchange no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

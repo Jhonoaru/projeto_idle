@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-58",
+    stage: "Stage 58",
+    title: "Offline Cosmetic Exchange",
+    date: "2026-07-16",
+    category: "systems",
+    summary: "The guild wardrobe now exchanges local gold, boss trophies and quest progress for permanent Collection unlocks.",
+    highlights: [
+      "Four real exchanges unlock an outfit, two mounts and an avatar without premium currency, payment or online services.",
+      "Costs are validated and consumed atomically from guild gold and the Guild Depot before Collections records the unlock.",
+      "Duplicate clicks cannot charge twice, and the Store shows exact resources, quest requirements and collection status.",
+    ],
+    systems: ["Wardrobe Exchange", "Collections", "Guild Depot"],
+    featured: true,
+  },
+  {
     id: "stage-57-5",
     stage: "Stage 57.5",
     title: "Offline Bazaar QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Reload preserved the acquired offer, the 960x700 layout stayed within the viewport and the original database was restored byte for byte.",
     ],
     systems: ["Rotating Bazaar", "SQLite QA", "Guild Depot"],
-    featured: true,
   },
   {
     id: "stage-57",

@@ -193,8 +193,7 @@ function formatCollectionCategory(category: CollectionCategory) {
 }
 
 function formatUnlockSource(source: CollectionUnlockSource) {
-  if (source === "store_placeholder") return "future store";
-  if (source === "event_placeholder") return "future event";
+  if (source === "store_placeholder" || source === "event_placeholder") return "wardrobe exchange";
   return source;
 }
 
