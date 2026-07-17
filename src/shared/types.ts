@@ -256,8 +256,13 @@ export interface Guild {
   staff?: GuildStaffState;
   treasury?: GuildTreasuryState;
   projects?: GuildProjectsState;
+  logistics?: GuildLogisticsState;
   bazaar?: GuildBazaarState;
   crafting?: GuildCraftingState;
+}
+
+export interface GuildLogisticsState {
+  pinnedObjectiveIds: string[];
 }
 
 export interface CraftingRecipeDefinition {

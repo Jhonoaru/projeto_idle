@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-67",
+    stage: "Stage 67",
+    title: "Campaign Priority Pinboard",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "The Guild Logistics Board now keeps up to three persistent campaign priorities with focused material progress and manual ordering.",
+    highlights: [
+      "Pin, unpin, Up and Down commands are idempotent, capped at three priorities and persisted guild-wide in local SQLite.",
+      "Stable Headquarters and Project ids let a pin follow the same permanent objective across its levels or phases until completion.",
+      "Pinned demand remains informational: no gold or material is reserved and no hunt or transaction starts automatically.",
+    ],
+    systems: ["Campaign Pinboard", "Guild Logistics", "SQLite", "Priority Planning"],
+    featured: true,
+  },
+  {
     id: "stage-66-5",
     stage: "Stage 66.5",
     title: "Guild Logistics QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Filters, Wardrobe routing and Trollwood recovery with idle Lyra passed at 1280, 960, 700 and 430 px without horizontal overflow.",
     ],
     systems: ["Guild Logistics QA", "Guild Depot", "Campaign Routing", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-66",

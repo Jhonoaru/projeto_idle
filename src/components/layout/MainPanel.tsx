@@ -38,6 +38,7 @@ import { Panel } from "../ui/Panel";
 import { MainPlayArea } from "./MainPlayArea";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type { ClientPreferences } from "../../client-preferences/clientPreferences";
+import type { GuildLogisticsPinAction } from "../../game-engine/logistics/updateGuildLogisticsPin";
 import type {
   Boss,
   BossParty,
@@ -144,6 +145,7 @@ interface MainPanelProps {
   onTransferGuildTreasuryGold: (type: GuildTreasuryTransactionType, amount: number) => void;
   onFundGuildProjectPhase: (projectId: string) => void;
   onRecruitGuildCandidate: (candidateId: string) => void;
+  onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -265,6 +267,7 @@ export function MainPanel({
   onTransferGuildTreasuryGold,
   onFundGuildProjectPhase,
   onRecruitGuildCandidate,
+  onUpdateGuildLogisticsPin,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -687,6 +690,7 @@ export function MainPanel({
             guild={guild}
             onOpenSystem={onChangeTab}
             onTrackHunt={onOpenTrackedHunt}
+            onUpdatePin={onUpdateGuildLogisticsPin}
           />
         ) : null}
         {activeTab === "recruitment" ? (

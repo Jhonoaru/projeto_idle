@@ -63,6 +63,7 @@ import { assignGuildSpecialist, hireGuildSpecialist } from "../game-engine/staff
 import { depositGuildGold, withdrawGuildGold } from "../game-engine/treasury/transferGuildTreasuryGold";
 import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectPhase";
 import { recruitGuildCandidate } from "../game-engine/recruitment/recruitGuildCandidate";
+import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
 import { purchaseBazaarOffer } from "../game-engine/bazaar/purchaseBazaarOffer";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
@@ -211,6 +212,7 @@ export function App() {
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
   const salvagingEquipmentRef = useRef(false);
+  const updatingLogisticsPinRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -487,6 +489,15 @@ export function App() {
     }
     prependLog(result.success ? "Adventurer recruited" : "Recruitment blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { recruitingGuildMemberRef.current = false; }, 250);
+  }
+
+  function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
+    if (updatingLogisticsPinRef.current) return;
+    updatingLogisticsPinRef.current = true;
+    const result = updateGuildLogisticsPin(guild, objectiveId, action, activeObjectiveIds);
+    if (result.changed) setGuild(result.guild);
+    prependLog(result.changed ? "Campaign pinboard updated" : "Campaign pinboard unchanged", result.message, result.changed ? "success" : "warning");
+    window.setTimeout(() => { updatingLogisticsPinRef.current = false; }, 150);
   }
 
   function handleOpenTab(tab: MainPanelTab) {
@@ -2189,6 +2200,7 @@ export function App() {
           onTransferGuildTreasuryGold={handleTransferGuildTreasuryGold}
           onFundGuildProjectPhase={handleFundGuildProjectPhase}
           onRecruitGuildCandidate={handleRecruitGuildCandidate}
+          onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

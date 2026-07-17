@@ -7,9 +7,11 @@ import {
   type GuildLogisticsObjective,
 } from "../../game-engine/logistics/buildGuildLogisticsPlan";
 import type { Character, Guild, GuildDepot, HuntArea } from "../../shared/types";
+import { MAX_GUILD_LOGISTICS_PINS } from "../../game-engine/logistics/normalizeGuildLogisticsState";
+import type { GuildLogisticsPinAction } from "../../game-engine/logistics/updateGuildLogisticsPin";
 import { ItemIcon } from "../items/ItemIcon";
 
-type LogisticsFilter = "all" | GuildLogisticsCategory;
+type LogisticsFilter = "all" | "pinned" | GuildLogisticsCategory;
 
 interface GuildLogisticsBoardProps {
   characters: Character[];
@@ -17,19 +19,26 @@ interface GuildLogisticsBoardProps {
   guild: Guild;
   onOpenSystem: (destination: GuildLogisticsDestination) => void;
   onTrackHunt: (hunt: HuntArea) => void;
+  onUpdatePin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
 }
 
 const filters: Array<{ id: LogisticsFilter; label: string }> = [
   { id: "all", label: "All Orders" },
+  { id: "pinned", label: "Pinned" },
   { id: "headquarters", label: "Headquarters" },
   { id: "projects", label: "Projects" },
   { id: "wardrobe", label: "Wardrobe" },
 ];
 
-export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, onTrackHunt }: GuildLogisticsBoardProps) {
+export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, onTrackHunt, onUpdatePin }: GuildLogisticsBoardProps) {
   const plan = useMemo(() => buildGuildLogisticsPlan(guild, depot, characters), [characters, depot, guild]);
   const [filter, setFilter] = useState<LogisticsFilter>("all");
-  const filteredObjectives = filter === "all" ? plan.objectives : plan.objectives.filter((objective) => objective.category === filter);
+  const filteredObjectives = filter === "all"
+    ? plan.objectives
+    : filter === "pinned"
+      ? plan.pinnedObjectives
+      : plan.objectives.filter((objective) => objective.category === filter);
+  const activeObjectiveIds = plan.objectives.map((objective) => objective.id);
   const [selectedObjectiveId, setSelectedObjectiveId] = useState(plan.objectives[0]?.id ?? "");
   const selectedObjective = filteredObjectives.find((objective) => objective.id === selectedObjectiveId) ?? filteredObjectives[0];
   const [selectedMaterialId, setSelectedMaterialId] = useState(selectedObjective?.materials[0]?.itemId ?? "");
@@ -64,6 +73,37 @@ export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, on
         </div>
       </section>
 
+      <section className="logistics-pinboard">
+        <header>
+          <div><span>Guild campaign focus</span><h3>Priority Pinboard</h3></div>
+          <strong>{plan.pinnedObjectives.length}/{MAX_GUILD_LOGISTICS_PINS} pinned</strong>
+        </header>
+        <div className="logistics-pin-summary">
+          <span>Focused material progress</span>
+          <strong>{plan.pinnedCoveredMaterials}/{plan.pinnedRequiredMaterials}</strong>
+          <small>{plan.pinnedMissingMaterials > 0 ? `${plan.pinnedMissingMaterials} still missing` : plan.pinnedObjectives.length > 0 ? "Pinned materials ready" : "Pin an order to focus its demand"}</small>
+        </div>
+        <div className="logistics-pin-slots">
+          {Array.from({ length: MAX_GUILD_LOGISTICS_PINS }, (_, index) => {
+            const objective = plan.pinnedObjectives[index];
+            return objective ? (
+              <article key={objective.id} className={`is-${objective.status}`}>
+                <button onClick={() => selectObjective(objective)} type="button">
+                  <i>{index + 1}</i>
+                  <span><small>{categoryLabel(objective.category)}</small><strong>{objective.title}</strong><em>{statusLabel(objective.status)}</em></span>
+                </button>
+                <div>
+                  <button aria-label={`Move ${objective.title} up`} disabled={index === 0} onClick={() => onUpdatePin(objective.id, "up", activeObjectiveIds)} title="Move priority up" type="button">Up</button>
+                  <button aria-label={`Move ${objective.title} down`} disabled={index === plan.pinnedObjectives.length - 1} onClick={() => onUpdatePin(objective.id, "down", activeObjectiveIds)} title="Move priority down" type="button">Down</button>
+                  <button aria-label={`Unpin ${objective.title}`} onClick={() => onUpdatePin(objective.id, "unpin", activeObjectiveIds)} title="Remove from pinboard" type="button">Unpin</button>
+                </div>
+              </article>
+            ) : <div className="logistics-pin-empty" key={`empty-${index}`}><i>{index + 1}</i><span>Open priority slot</span></div>;
+          })}
+        </div>
+        <small>Pins define display priority only. They never reserve gold or materials and do not start activities automatically.</small>
+      </section>
+
       <section className="logistics-material-ledger">
         <header><span>Combined material demand</span><strong>{plan.coveredMaterials}/{plan.requiredMaterials} covered by eligible Guild Depot stacks</strong></header>
         <div>
@@ -89,9 +129,9 @@ export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, on
           </div>
           <div className="logistics-order-list">
             {filteredObjectives.map((objective) => (
-              <button aria-pressed={objective.id === selectedObjective?.id} className={`is-${objective.status}`} key={objective.id} onClick={() => selectObjective(objective)} type="button">
+              <button aria-pressed={objective.id === selectedObjective?.id} className={`is-${objective.status}${objective.isPinned ? " is-pinned" : ""}`} key={objective.id} onClick={() => selectObjective(objective)} type="button">
                 <i>{categorySigil(objective.category)}</i>
-                <span><small>{categoryLabel(objective.category)} / {objective.targetLabel}</small><strong>{objective.title}</strong><em>{objective.subtitle}</em></span>
+                <span><small>{objective.priority ? `Priority ${objective.priority} / ` : ""}{categoryLabel(objective.category)} / {objective.targetLabel}</small><strong>{objective.title}</strong><em>{objective.subtitle}</em></span>
                 <b>{statusLabel(objective.status)}</b>
               </button>
             ))}
@@ -101,7 +141,19 @@ export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, on
         <aside className="logistics-dossier">
           {selectedObjective ? (
             <>
-              <header><span>Selected order</span><strong>{selectedObjective.targetLabel}</strong></header>
+              <header className="logistics-dossier-heading">
+                <span>Selected order</span>
+                <div>
+                  <strong>{selectedObjective.targetLabel}</strong>
+                  <button
+                    aria-pressed={selectedObjective.isPinned}
+                    disabled={!selectedObjective.isPinned && plan.pinnedObjectives.length >= MAX_GUILD_LOGISTICS_PINS}
+                    onClick={() => onUpdatePin(selectedObjective.id, selectedObjective.isPinned ? "unpin" : "pin", activeObjectiveIds)}
+                    title={selectedObjective.isPinned ? "Remove from priority pinboard" : "Add to priority pinboard"}
+                    type="button"
+                  >{selectedObjective.isPinned ? "Unpin" : "Pin order"}</button>
+                </div>
+              </header>
               <div className="logistics-order-profile">
                 <i>{categorySigil(selectedObjective.category)}</i>
                 <div><span>{categoryLabel(selectedObjective.category)}</span><h3>{selectedObjective.title}</h3><p>{selectedObjective.description}</p></div>

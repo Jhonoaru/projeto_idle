@@ -123,6 +123,7 @@ Atualizado em: 2026-07-17
 - Etapa 65.5 concluida: QA ampliada validou 33 cenarios, save legado, duas aberturas Tauri, rota de farm e responsividade sem encontrar regressao funcional.
 - Etapa 66 concluida: Guild Logistics Board centraliza Headquarters, Projects e Wardrobe, unifica stacks elegiveis e abre sistemas ou hunts reais.
 - Etapa 66.5 concluida: QA ampliada validou 39 cenarios, rotas do board, responsividade, duas cargas Tauri e restauracao exata do SQLite.
+- Etapa 67 concluida: Campaign Pinboard adiciona tres prioridades persistentes, ordenacao manual e progresso material focado sem reservar recursos.
 
 Comandos principais:
 
@@ -3986,6 +3987,75 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 67 - Campaign Pinboard e prioridades logisticas.
+
+## Etapa 67 - Campaign Pinboard e prioridades logisticas
+
+Status: concluida.
+
+Modelo persistente:
+
+- `GuildLogisticsState` guarda ate tres `pinnedObjectiveIds` em ordem de prioridade.
+- O novo campo `logistics_json` pertence a guilda e recebe `{ pinnedObjectiveIds: [] }` em saves antigos.
+- Normalizacao remove ids vazios, duplicados, tipos invalidos e entradas alem do limite de tres.
+- Headquarters e Projects passaram a usar ids estaveis por facility/projeto, permitindo que o pin acompanhe niveis ou fases seguintes.
+- Objetivos concluidos ou inexistentes nao aparecem no pinboard nem ocupam limite durante a proxima operacao.
+
+Regras do pinboard:
+
+- `Pin order` adiciona a ordem selecionada; o quarto pin fica bloqueado.
+- `Unpin`, `Up` e `Down` alteram somente a lista ordenada de prioridades.
+- Operacoes repetidas sao idempotentes e um lock curto na interface protege cliques consecutivos antes do rerender.
+- Pins aparecem primeiro na fila global e o filtro `Pinned` mostra somente as prioridades ativas.
+- Pins nao reservam gold ou materiais, nao financiam objetivos e nao iniciam hunts automaticamente.
+
+Interface:
+
+- O novo `Priority Pinboard` mostra tres slots fixos, categoria, status e numero de prioridade.
+- O resumo focado agrega cobertura, necessidade e deficit material apenas das ordens fixadas.
+- A fila identifica `Priority 1..3`, enquanto o dossier permite pin/unpin da ordem selecionada.
+- Controles Up/Down respeitam os extremos e ficam desabilitados quando nao ha movimento valido.
+- Regras responsivas empilham resumo e slots antes de comprimir textos ou comandos.
+
+Arquivos criados:
+
+- `src/game-engine/logistics/normalizeGuildLogisticsState.ts`.
+- `src/game-engine/logistics/updateGuildLogisticsPin.ts`.
+
+Arquivos principais alterados:
+
+- `src/shared/types.ts`.
+- `src/game-engine/logistics/buildGuildLogisticsPlan.ts`.
+- `src/components/logistics/GuildLogisticsBoard.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/app/App.tsx`.
+- `src/database/migrations.ts`.
+- `src/database/saveMapper.ts`.
+- `src/database/saveGameRepository.ts`.
+- `src/data/mockGuild.ts`.
+- `src/styles.css`.
+- `src/data/clientUpdates.ts`.
+
+Validacao realizada:
+
+- `npm.cmd run build` passou com 353 modulos.
+- Uma matriz temporaria passou em 25/25 checks de normalizacao, limite, duplicacao, reordenacao, unpin, ids obsoletos, fase seguinte, agregacao e mapper SQLite.
+- O frontend confirmou 0/3, pin de tres ordens, bloqueio do quarto, prioridade manual, filtro com tres resultados e progresso focado 10/13.
+- A composicao desktop do pinboard, fila e dossier foi inspecionada visualmente sem sobreposicao.
+- O console web mostrou apenas o fallback esperado do plugin SQLite fora do Tauri.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- A migration criou `logistics_json`; dois pins sobreviveram a duas cargas nativas com 674g, 26 itens, dez logs e `integrity_check: ok`.
+- O SQLite original foi restaurado byte por byte com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes atuais:
+
+- Nao ha notificacao quando uma prioridade fica pronta nem limpeza gravada imediatamente ao concluir uma ordem; pins inativos sao ignorados e limpos na proxima edicao.
+- O pinboard nao inclui Workbench, Forge, Imbuements ou receitas sob demanda.
+- O teste visual desta etapa cobriu o viewport desktop; a matriz responsiva completa fica para o QA dedicado.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 67.5 - QA do Campaign Pinboard no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

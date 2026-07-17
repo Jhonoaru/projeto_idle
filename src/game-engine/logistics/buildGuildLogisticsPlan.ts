@@ -11,6 +11,7 @@ import { getAvailableGuildDepotMaterialQuantity } from "../inventory/guildDepotM
 import { getGuildProjectAvailability } from "../projects/fundGuildProjectPhase";
 import { normalizeGuildProjectsState } from "../projects/normalizeGuildProjectsState";
 import { getMaterialHuntSources, type MaterialHuntSource } from "./getMaterialHuntSources";
+import { normalizeGuildLogisticsState } from "./normalizeGuildLogisticsState";
 
 export type GuildLogisticsCategory = "headquarters" | "projects" | "wardrobe";
 export type GuildLogisticsStatus = "ready" | "materials" | "gold" | "locked";
@@ -37,6 +38,8 @@ export interface GuildLogisticsObjective {
   materials: GuildLogisticsMaterial[];
   blockers: string[];
   status: GuildLogisticsStatus;
+  isPinned: boolean;
+  priority: number | null;
 }
 
 export interface GuildLogisticsPlan {
@@ -47,14 +50,24 @@ export interface GuildLogisticsPlan {
   coveredMaterials: number;
   missingMaterials: number;
   materialTotals: GuildLogisticsMaterial[];
+  pinnedObjectives: GuildLogisticsObjective[];
+  pinnedRequiredMaterials: number;
+  pinnedCoveredMaterials: number;
+  pinnedMissingMaterials: number;
 }
 
 export function buildGuildLogisticsPlan(guild: Guild, depot: GuildDepot, characters: Character[]): GuildLogisticsPlan {
-  const objectives = [
+  const rawObjectives = [
     ...buildHeadquartersObjectives(guild, depot, characters),
     ...buildProjectObjectives(guild, depot, characters),
     ...buildWardrobeObjectives(guild, depot, characters),
-  ].sort((left, right) => statusOrder(left.status) - statusOrder(right.status) || left.title.localeCompare(right.title));
+  ];
+  const pins = normalizeGuildLogisticsState(guild.logistics).pinnedObjectiveIds;
+  const objectives = rawObjectives.map((objective) => {
+    const pinIndex = pins.indexOf(objective.id);
+    return { ...objective, isPinned: pinIndex >= 0, priority: pinIndex >= 0 ? pinIndex + 1 : null };
+  }).sort((left, right) => pinOrder(left, right) || statusOrder(left.status) - statusOrder(right.status) || left.title.localeCompare(right.title));
+  const pinnedObjectives = objectives.filter((objective) => objective.isPinned);
   const requirements = new Map<string, number>();
   for (const objective of objectives) {
     for (const material of objective.materials) {
@@ -66,6 +79,9 @@ export function buildGuildLogisticsPlan(guild: Guild, depot: GuildDepot, charact
     .sort((left, right) => Number(right.missing > 0) - Number(left.missing > 0) || left.name.localeCompare(right.name));
   const requiredMaterials = sum(materialTotals.map((entry) => entry.required));
   const coveredMaterials = sum(materialTotals.map((entry) => Math.min(entry.required, entry.available)));
+  const pinnedTotals = aggregateMaterials(pinnedObjectives, depot, characters);
+  const pinnedRequiredMaterials = sum(pinnedTotals.map((entry) => entry.required));
+  const pinnedCoveredMaterials = sum(pinnedTotals.map((entry) => Math.min(entry.required, entry.available)));
 
   return {
     objectives,
@@ -75,6 +91,10 @@ export function buildGuildLogisticsPlan(guild: Guild, depot: GuildDepot, charact
     coveredMaterials,
     missingMaterials: Math.max(0, requiredMaterials - coveredMaterials),
     materialTotals,
+    pinnedObjectives,
+    pinnedRequiredMaterials,
+    pinnedCoveredMaterials,
+    pinnedMissingMaterials: Math.max(0, pinnedRequiredMaterials - pinnedCoveredMaterials),
   };
 }
 
@@ -86,7 +106,7 @@ function buildHeadquartersObjectives(guild: Guild, depot: GuildDepot, characters
     const availability = getGuildFacilityUpgradeAvailability(guild, depot, characters, facility.id);
     const materials = availability.materials.map((entry) => createMaterial(entry.itemId, entry.quantity, depot, characters));
     return [{
-      id: `headquarters-${facility.id}-${currentLevel + 1}`,
+      id: `headquarters-${facility.id}`,
       category: "headquarters" as const,
       destination: "headquarters" as const,
       title: facility.name,
@@ -97,6 +117,8 @@ function buildHeadquartersObjectives(guild: Guild, depot: GuildDepot, characters
       materials,
       blockers: availability.reasons,
       status: getStatus(availability.available, availability.reasons, materials),
+      isPinned: false,
+      priority: null,
     }];
   });
 }
@@ -110,7 +132,7 @@ function buildProjectObjectives(guild: Guild, depot: GuildDepot, characters: Cha
     const availability = getGuildProjectAvailability(guild, depot, characters, project.id);
     const materials = phase.materials.map((entry) => createMaterial(entry.itemId, entry.quantity, depot, characters));
     return [{
-      id: `project-${project.id}-${completedPhases + 1}`,
+      id: `project-${project.id}`,
       category: "projects" as const,
       destination: "projects" as const,
       title: project.name,
@@ -121,6 +143,8 @@ function buildProjectObjectives(guild: Guild, depot: GuildDepot, characters: Cha
       materials,
       blockers: availability.reasons,
       status: getStatus(availability.available, availability.reasons, materials),
+      isPinned: false,
+      priority: null,
     }];
   });
 }
@@ -143,6 +167,8 @@ function buildWardrobeObjectives(guild: Guild, depot: GuildDepot, characters: Ch
       materials,
       blockers: availability.reasons,
       status: getStatus(availability.available, availability.reasons, materials),
+      isPinned: false,
+      priority: null,
     }];
   });
 }
@@ -169,6 +195,21 @@ function getStatus(available: boolean, reasons: string[], materials: GuildLogist
 
 function statusOrder(status: GuildLogisticsStatus) {
   return { ready: 0, materials: 1, gold: 2, locked: 3 }[status];
+}
+
+function pinOrder(left: GuildLogisticsObjective, right: GuildLogisticsObjective) {
+  if (left.priority !== null && right.priority !== null) return left.priority - right.priority;
+  if (left.priority !== null) return -1;
+  if (right.priority !== null) return 1;
+  return 0;
+}
+
+function aggregateMaterials(objectives: GuildLogisticsObjective[], depot: GuildDepot, characters: Character[]) {
+  const requirements = new Map<string, number>();
+  for (const objective of objectives) {
+    for (const material of objective.materials) requirements.set(material.itemId, safeAdd(requirements.get(material.itemId) ?? 0, material.required));
+  }
+  return [...requirements.entries()].map(([itemId, required]) => createMaterial(itemId, required, depot, characters));
 }
 
 function sum(values: number[]) {
