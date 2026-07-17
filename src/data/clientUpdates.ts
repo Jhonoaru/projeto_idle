@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-66-5",
+    stage: "Stage 66.5",
+    title: "Guild Logistics QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Campaign objectives, protected depot stacks, destination routing, responsive layouts and read-only SQLite behavior passed expanded validation.",
+    highlights: [
+      "Thirty-nine deterministic checks covered totals, ordering, protected resources, exact transactions, malformed state and complete campaigns.",
+      "Two native loads kept an identical semantic save after the known legacy Headquarters normalization, then the original SQLite was restored byte for byte.",
+      "Filters, Wardrobe routing and Trollwood recovery with idle Lyra passed at 1280, 960, 700 and 430 px without horizontal overflow.",
+    ],
+    systems: ["Guild Logistics QA", "Guild Depot", "Campaign Routing", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-66",
     stage: "Stage 66",
     title: "Guild Logistics Board",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "System and hunt commands open the exact destination, including automatic selection of an idle qualified adventurer for recovery routes.",
     ],
     systems: ["Guild Logistics", "Campaign Objectives", "Guild Depot", "Hunt Routing"],
-    featured: true,
   },
   {
     id: "stage-65-5",

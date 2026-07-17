@@ -122,6 +122,7 @@ Atualizado em: 2026-07-17
 - Etapa 65 concluida: Resource Planner deriva metas dos upgrades, compara o Guild Depot e abre fontes reais de hunt com um aventureiro apto.
 - Etapa 65.5 concluida: QA ampliada validou 33 cenarios, save legado, duas aberturas Tauri, rota de farm e responsividade sem encontrar regressao funcional.
 - Etapa 66 concluida: Guild Logistics Board centraliza Headquarters, Projects e Wardrobe, unifica stacks elegiveis e abre sistemas ou hunts reais.
+- Etapa 66.5 concluida: QA ampliada validou 39 cenarios, rotas do board, responsividade, duas cargas Tauri e restauracao exata do SQLite.
 
 Comandos principais:
 
@@ -3933,6 +3934,58 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 66.5 - QA do Guild Logistics Board no Tauri/SQLite.
+
+## Etapa 66.5 - QA do Guild Logistics Board no Tauri/SQLite
+
+Status: concluida sem bug funcional novo.
+
+Protecao do save:
+
+- O SQLite real passou em `integrity_check: ok` antes e depois das validacoes.
+- O arquivo original recebeu backup fora do repositorio com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- O save inicial continha uma guilda, cinco personagens, 26 itens, dez activity logs e 674g.
+- A primeira abertura nativa normalizou apenas `headquarters.totalInvestedMaterials` do save legado para zero.
+- Uma segunda abertura manteve o mesmo hash semantico `2265D60C104B2FC3AF9AC8A8A551D273A4B1852DAFFE03508569F978B4B387BE`, sem duplicar itens, logs ou alterar gold.
+- Ao final, o banco original foi restaurado byte por byte com o mesmo SHA-256; nenhum WAL ou SHM permaneceu ao lado do save.
+
+Matriz de engine:
+
+- Um harness temporario executou 39/39 checks deterministas e foi removido depois do QA.
+- O plano inicial confirmou 11 objetivos, sendo quatro Headquarters, tres Projects e quatro Wardrobe.
+- A classificacao confirmou dois `Ready`, seis `Need Materials`, tres `Locked`, 2.100g listados e cobertura de 28/62 materiais.
+- Todos os sete materiais demandados resolveram pelo menos uma fonte real de hunt.
+- Apenas stacks root, unlocked, guild-owned e seguras foram contadas; locked, nested e ownership de personagem ficaram protegidos.
+- Financiar `Clear the Annex` consumiu exatamente 100g e Old Cloth x2, avancou para Iron Ore e preservou a cobertura correta de 28/62.
+- Uma transacao com apenas material protegido foi bloqueada sem criar novo objeto ou efeito parcial.
+- A troca Wardrobe gold-only custou exatamente 350g, sumiu da fila apos unlock e bloqueou repeticao sem novo gasto.
+- Campanha completa retornou plano vazio; roster vazio bloqueou todas as rotas por level e estado malformado foi normalizado sem `NaN`.
+
+QA visual e navegacao:
+
+- O board exibiu os mesmos 11 objetivos, dois prontos, 34 materiais faltantes, 2.100g e cobertura 28/62.
+- Filtros Projects e Wardrobe mostraram exatamente tres e quatro ordens; Noble Adventurer foi reconhecido como gold-only.
+- `Open Wardrobe` abriu o hall correto e o fechamento retornou ao Character Hall.
+- `Open Hunt` em Field Supply Station abriu Trollwood Camp, selecionou Lyra ociosa level 26 e chegou ao Hunt Assignment.
+- Em 1280, 960, 700 e 430 px nao houve overflow horizontal da pagina ou do Guild Logistics Board.
+- O console do navegador registrou somente a falha esperada do plugin SQLite fora do Tauri, seguida pelo uso do mock local.
+
+Validacoes tecnicas:
+
+- `npm.cmd run build` passou antes e depois do QA com 351 modulos.
+- `npm.cmd run tauri:build` gerou o executavel release e os instaladores MSI e NSIS sem erro.
+- O executavel Tauri release foi aberto duas vezes contra o SQLite real, com encerramento gracioso e conteudo estavel.
+- Nenhum arquivo de gameplay, schema ou persistencia precisou ser alterado nesta etapa.
+
+Limitacoes mantidas:
+
+- Os cliques de interface foram exercitados no frontend Vite; o load e a estabilidade do SQLite foram verificados no executavel Tauri.
+- O board continua derivado e read-only, sem reserva de recursos, prioridade persistente ou dispatch automatico.
+- Workbench, Forge, Imbuements e receitas escolhidas continuam fora do ledger global.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 67 - Campaign Pinboard e prioridades logisticas.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
