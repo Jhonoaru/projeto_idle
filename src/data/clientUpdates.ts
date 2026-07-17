@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-68",
+    stage: "Stage 68",
+    title: "Logistics Readiness Alerts",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "Pinned campaign orders now announce readiness once per objective revision with a local badge, review banner and Activity Log entry.",
+    highlights: [
+      "Ready transitions create one guild-wide unread alert while reviewed or unchanged priorities remain quiet across reloads.",
+      "The Logistics badge, Pinboard banner and highlighted priority clear together through Mark reviewed without changing the objective itself.",
+      "Legacy saves normalize safely and local SQLite persists notification guards without reserving resources or starting transactions.",
+    ],
+    systems: ["Logistics Alerts", "Campaign Pinboard", "Activity Log", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-67-5",
     stage: "Stage 67.5",
     title: "Campaign Pinboard QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Tauri normalized malformed logistics JSON once, retained an identical semantic hash on reload and left the original SQLite restored byte for byte.",
     ],
     systems: ["Campaign Pinboard QA", "Responsive UI", "Tauri QA", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-67",

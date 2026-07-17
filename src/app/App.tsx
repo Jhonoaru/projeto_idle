@@ -64,6 +64,8 @@ import { depositGuildGold, withdrawGuildGold } from "../game-engine/treasury/tra
 import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectPhase";
 import { recruitGuildCandidate } from "../game-engine/recruitment/recruitGuildCandidate";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
+import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
+import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
 import { purchaseBazaarOffer } from "../game-engine/bazaar/purchaseBazaarOffer";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
@@ -213,6 +215,7 @@ export function App() {
   const craftingEquipmentRef = useRef(false);
   const salvagingEquipmentRef = useRef(false);
   const updatingLogisticsPinRef = useRef(false);
+  const acknowledgingLogisticsAlertsRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -293,6 +296,24 @@ export function App() {
 
     return () => window.clearTimeout(timeout);
   }, [characters, database, depot, guild, isLoadingSave, logs]);
+
+  useEffect(() => {
+    if (isLoadingSave) return;
+    const plan = buildGuildLogisticsPlan(guild, depot, characters);
+    const result = syncGuildLogisticsAlerts(guild, plan.objectives);
+    if (!result.changed) return;
+    setGuild(result.guild);
+    if (result.newlyReadyObjectives.length === 0) return;
+    const names = result.newlyReadyObjectives.map((objective) => `${objective.title} (${objective.targetLabel})`);
+    setLogs((currentLogs) => [
+      createLogEntry(
+        "Logistics priority ready",
+        `${names.join(", ")} ${names.length === 1 ? "is" : "are"} ready for review.`,
+        "success",
+      ),
+      ...currentLogs,
+    ]);
+  }, [characters, depot, guild, isLoadingSave]);
 
   useEffect(() => {
     charactersRef.current = characters;
@@ -498,6 +519,17 @@ export function App() {
     if (result.changed) setGuild(result.guild);
     prependLog(result.changed ? "Campaign pinboard updated" : "Campaign pinboard unchanged", result.message, result.changed ? "success" : "warning");
     window.setTimeout(() => { updatingLogisticsPinRef.current = false; }, 150);
+  }
+
+  function handleAcknowledgeGuildLogisticsAlerts() {
+    if (acknowledgingLogisticsAlertsRef.current) return;
+    acknowledgingLogisticsAlertsRef.current = true;
+    const nextGuild = acknowledgeGuildLogisticsAlerts(guild);
+    if (nextGuild !== guild) {
+      setGuild(nextGuild);
+      prependLog("Logistics priorities reviewed", "Ready campaign priorities were marked as reviewed.", "neutral");
+    }
+    window.setTimeout(() => { acknowledgingLogisticsAlertsRef.current = false; }, 150);
   }
 
   function handleOpenTab(tab: MainPanelTab) {
@@ -2201,6 +2233,7 @@ export function App() {
           onFundGuildProjectPhase={handleFundGuildProjectPhase}
           onRecruitGuildCandidate={handleRecruitGuildCandidate}
           onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
+          onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

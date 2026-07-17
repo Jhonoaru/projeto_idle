@@ -9,6 +9,8 @@ import {
 import type { Character, Guild, GuildDepot, HuntArea } from "../../shared/types";
 import { MAX_GUILD_LOGISTICS_PINS } from "../../game-engine/logistics/normalizeGuildLogisticsState";
 import type { GuildLogisticsPinAction } from "../../game-engine/logistics/updateGuildLogisticsPin";
+import { getGuildLogisticsObjectiveAlertKey, getGuildLogisticsUnreadCount } from "../../game-engine/logistics/syncGuildLogisticsAlerts";
+import { normalizeGuildLogisticsState } from "../../game-engine/logistics/normalizeGuildLogisticsState";
 import { ItemIcon } from "../items/ItemIcon";
 
 type LogisticsFilter = "all" | "pinned" | GuildLogisticsCategory;
@@ -20,6 +22,7 @@ interface GuildLogisticsBoardProps {
   onOpenSystem: (destination: GuildLogisticsDestination) => void;
   onTrackHunt: (hunt: HuntArea) => void;
   onUpdatePin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
+  onAcknowledgeAlerts: () => void;
 }
 
 const filters: Array<{ id: LogisticsFilter; label: string }> = [
@@ -30,7 +33,7 @@ const filters: Array<{ id: LogisticsFilter; label: string }> = [
   { id: "wardrobe", label: "Wardrobe" },
 ];
 
-export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, onTrackHunt, onUpdatePin }: GuildLogisticsBoardProps) {
+export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, onTrackHunt, onUpdatePin, onAcknowledgeAlerts }: GuildLogisticsBoardProps) {
   const plan = useMemo(() => buildGuildLogisticsPlan(guild, depot, characters), [characters, depot, guild]);
   const [filter, setFilter] = useState<LogisticsFilter>("all");
   const filteredObjectives = filter === "all"
@@ -39,6 +42,9 @@ export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, on
       ? plan.pinnedObjectives
       : plan.objectives.filter((objective) => objective.category === filter);
   const activeObjectiveIds = plan.objectives.map((objective) => objective.id);
+  const logisticsState = normalizeGuildLogisticsState(guild.logistics);
+  const unreadCount = getGuildLogisticsUnreadCount(guild);
+  const unreadObjectives = plan.pinnedObjectives.filter((objective) => logisticsState.unreadReadyKeys.includes(getGuildLogisticsObjectiveAlertKey(objective)));
   const [selectedObjectiveId, setSelectedObjectiveId] = useState(plan.objectives[0]?.id ?? "");
   const selectedObjective = filteredObjectives.find((objective) => objective.id === selectedObjectiveId) ?? filteredObjectives[0];
   const [selectedMaterialId, setSelectedMaterialId] = useState(selectedObjective?.materials[0]?.itemId ?? "");
@@ -78,6 +84,15 @@ export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, on
           <div><span>Guild campaign focus</span><h3>Priority Pinboard</h3></div>
           <strong>{plan.pinnedObjectives.length}/{MAX_GUILD_LOGISTICS_PINS} pinned</strong>
         </header>
+        {unreadCount > 0 ? (
+          <div className="logistics-ready-alert" role="status">
+            <div>
+              <strong>{unreadCount} {unreadCount === 1 ? "priority is" : "priorities are"} ready</strong>
+              <span>{unreadObjectives.map((objective) => objective.title).join(" / ") || "Review the current campaign priorities."}</span>
+            </div>
+            <button onClick={onAcknowledgeAlerts} type="button">Mark reviewed</button>
+          </div>
+        ) : null}
         <div className="logistics-pin-summary">
           <span>Focused material progress</span>
           <strong>{plan.pinnedCoveredMaterials}/{plan.pinnedRequiredMaterials}</strong>
@@ -87,7 +102,7 @@ export function GuildLogisticsBoard({ characters, depot, guild, onOpenSystem, on
           {Array.from({ length: MAX_GUILD_LOGISTICS_PINS }, (_, index) => {
             const objective = plan.pinnedObjectives[index];
             return objective ? (
-              <article key={objective.id} className={`is-${objective.status}`}>
+              <article key={objective.id} className={`is-${objective.status}${logisticsState.unreadReadyKeys.includes(getGuildLogisticsObjectiveAlertKey(objective)) ? " is-unread" : ""}`}>
                 <button onClick={() => selectObjective(objective)} type="button">
                   <i>{index + 1}</i>
                   <span><small>{categoryLabel(objective.category)}</small><strong>{objective.title}</strong><em>{statusLabel(objective.status)}</em></span>

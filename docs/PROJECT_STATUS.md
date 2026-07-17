@@ -125,6 +125,7 @@ Atualizado em: 2026-07-17
 - Etapa 66.5 concluida: QA ampliada validou 39 cenarios, rotas do board, responsividade, duas cargas Tauri e restauracao exata do SQLite.
 - Etapa 67 concluida: Campaign Pinboard adiciona tres prioridades persistentes, ordenacao manual e progresso material focado sem reservar recursos.
 - Etapa 67.5 concluida: QA ampliada validou transicoes, conclusao, dados corrompidos, clique duplo, tres viewports reais e duas cargas Tauri.
+- Etapa 68 concluida: prioridades prontas agora geram badge, banner revisavel e Activity Log uma vez por revisao do objetivo, com persistencia SQLite.
 
 Comandos principais:
 
@@ -4108,6 +4109,68 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 68 - Logistics Alerts e notificacoes de campanha.
+
+## Etapa 68 - Logistics Alerts e notificacoes de campanha
+
+Status: concluida.
+
+Modelo e regras:
+
+- `GuildLogisticsState` agora persiste `notifiedReadyKeys` e `unreadReadyKeys` junto aos tres pins existentes.
+- Cada chave combina id estavel e revisao atual (`targetLabel`), permitindo novo alerta quando um Project avanca de fase ou uma facility avanca de level.
+- Uma prioridade gera alerta somente na transicao para `ready`; permanecer pronta, abrir o board ou recarregar o save nao duplica a notificacao.
+- Se a ordem deixar de estar pronta, seu guard atual e removido e uma futura volta a `ready` pode anunciar novamente.
+- Unpin e limpeza de objetivo inativo removem somente os alertas associados; reordenar preserva todos os estados.
+- Normalizacao limita guards a vinte, nao lidos aos tres pins e recupera arrays ausentes, invalidos ou inconsistentes.
+
+Interface e integracoes:
+
+- O menu lateral mostra badge numerico em Logistics quando ha prioridades prontas nao revisadas.
+- O Pinboard mostra banner com quantidade, nomes e comando `Mark reviewed`.
+- Cards nao lidos recebem destaque sutil sem alterar o status real da ordem.
+- Revisar limpa apenas o estado nao lido; o objetivo continua fixado e pronto.
+- Cada nova transicao registra uma unica entrada `Logistics priority ready` no Activity Log.
+- Locks curtos protegem pin/unpin/reorder e review contra cliques consecutivos antes do rerender.
+
+Arquivos criados:
+
+- `src/game-engine/logistics/syncGuildLogisticsAlerts.ts`.
+
+Arquivos principais alterados:
+
+- `src/shared/types.ts`.
+- `src/game-engine/logistics/normalizeGuildLogisticsState.ts`.
+- `src/game-engine/logistics/updateGuildLogisticsPin.ts`.
+- `src/components/logistics/GuildLogisticsBoard.tsx`.
+- `src/components/layout/CharacterSideMenu.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/app/App.tsx`.
+- `src/data/mockGuild.ts`.
+- `src/data/clientUpdates.ts`.
+- `src/styles.css`.
+
+Validacao realizada:
+
+- Harness temporario passou em 34/34 checks de normalizacao, idempotencia, review, fases, perda/retorno de prontidao, dois pins, reordenacao e unpin.
+- No frontend, fixar Field Supply Station mostrou badge e banner; review removeu ambos e dois cliques geraram somente um log.
+- Noble Adventurer pronta gerou um novo alerta independente depois da primeira prioridade ser revisada.
+- Viewports reais de iframe em 960, 700 e 430 px ficaram sem overflow horizontal; o banner movel manteve texto e comando dentro de 415 px uteis.
+- `npm.cmd run build` passou com 354 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Um save legado sem `logistics_json` recebeu a migration oficial e normalizou os novos arrays vazios.
+- Fixture nativa com Field Supply Station pronta gravou uma chave unread e um Activity Log; a segunda carga manteve exatamente um alerta/log.
+- `integrity_check` permaneceu `ok` e o SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes atuais:
+
+- Alertas existem somente para prioridades fixadas; ordens prontas fora do pinboard nao geram ruido.
+- Review nao financia, conclui, reserva recursos ou inicia hunts; todo fluxo continua manual e offline.
+- Nao ha notificacao do sistema operacional, som, toast global ou automacao em background.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 68.5 - QA dos Logistics Alerts no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

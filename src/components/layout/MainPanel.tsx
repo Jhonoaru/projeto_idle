@@ -146,6 +146,7 @@ interface MainPanelProps {
   onFundGuildProjectPhase: (projectId: string) => void;
   onRecruitGuildCandidate: (candidateId: string) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
+  onAcknowledgeGuildLogisticsAlerts: () => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -268,6 +269,7 @@ export function MainPanel({
   onFundGuildProjectPhase,
   onRecruitGuildCandidate,
   onUpdateGuildLogisticsPin,
+  onAcknowledgeGuildLogisticsAlerts,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -691,6 +693,7 @@ export function MainPanel({
             onOpenSystem={onChangeTab}
             onTrackHunt={onOpenTrackedHunt}
             onUpdatePin={onUpdateGuildLogisticsPin}
+            onAcknowledgeAlerts={onAcknowledgeGuildLogisticsAlerts}
           />
         ) : null}
         {activeTab === "recruitment" ? (

@@ -4,6 +4,7 @@ import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestin
 import { blessings } from "../../data/blessings";
 import type { Character, Guild } from "../../shared/types";
 import type { MainPanelTab } from "./MainPanel";
+import { getGuildLogisticsUnreadCount } from "../../game-engine/logistics/syncGuildLogisticsAlerts";
 
 interface CharacterSideMenuProps {
   character: Character;
@@ -70,6 +71,10 @@ function getBadge(tab: MainPanelTab, character: Character, guild: Guild) {
   if (tab === "collections") {
     const newCount = normalizeCollectionsState(guild.collections).newlyUnlockedCollectionItemIds.length;
     return newCount > 0 ? `${newCount}` : undefined;
+  }
+  if (tab === "logistics") {
+    const unreadCount = getGuildLogisticsUnreadCount(guild);
+    return unreadCount > 0 ? `${unreadCount}` : undefined;
   }
   return undefined;
 }

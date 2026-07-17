@@ -263,6 +263,8 @@ export interface Guild {
 
 export interface GuildLogisticsState {
   pinnedObjectiveIds: string[];
+  notifiedReadyKeys: string[];
+  unreadReadyKeys: string[];
 }
 
 export interface CraftingRecipeDefinition {

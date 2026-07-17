@@ -64,7 +64,7 @@ export const mockGuild: Guild = {
     totalInvestedGold: 0,
     totalDonatedMaterials: 0,
   },
-  logistics: { pinnedObjectiveIds: [] },
+  logistics: { pinnedObjectiveIds: [], notifiedReadyKeys: [], unreadReadyKeys: [] },
   bazaar: normalizeGuildBazaarState(undefined, "guild-aurora"),
   crafting: {
     totalCrafts: 0,
