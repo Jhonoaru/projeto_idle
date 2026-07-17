@@ -100,7 +100,7 @@ export function GuildHeadquartersHall({ characters, guild, onUpgradeFacility }: 
           >
             {maxed ? "Maximum Level" : !careerReady ? `Requires ${requiredPoints} Career Points` : !canAfford ? `Requires ${upgradeCost?.toLocaleString("en-US")}g` : `Upgrade to Level ${selectedLevel + 1}`}
           </button>
-          <small className="headquarters-local-note">Facilities are guild-wide, offline and capped. No premium currency or real payment is used.</small>
+          <small className="headquarters-local-note">Facilities are permanent, guild-wide and capped for this local campaign.</small>
         </aside>
       </div>
     </div>

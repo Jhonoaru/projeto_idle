@@ -10,7 +10,7 @@ export const collectionItems: CollectionItem[] = [
   outfit("outfit-cave-delver", "Cave Delver", "Heavy cloth, lamp hooks, and dust-stained boots.", "quest", "CD", 120, undefined, "Complete an early access quest."),
   outfit("outfit-bandit-breaker", "Bandit Breaker", "A rough adventurer style earned by breaking ambushes.", "boss", "BB", 130, undefined, "Defeat a bandit boss encounter."),
   outfit("outfit-guild-cartographer", "Guild Cartographer", "A practical map keeper's coat earned by completing the Cartographers' Archive.", "achievement", "GC", 140, undefined, "Complete the Cartographers' Archive guild project."),
-  outfit("outfit-noble-adventurer", "Noble Adventurer", "A polished formal style planned for a future cosmetic store.", "store_placeholder", "NA", 900, undefined, "Future store placeholder. No purchase is available."),
+  outfit("outfit-noble-adventurer", "Noble Adventurer", "A polished formal style planned for a future guild wardrobe exchange.", "store_placeholder", "NA", 900, undefined, "Planned cosmetic exchange using guild gold or gameplay trophies."),
 
   mount("mount-none", "No Mount", "Travel on foot.", "starter", "-", 10),
   mount("mount-old-mule", "Old Mule", "A stubborn mule used by practical caravans.", "starter", "Mule", 20),
@@ -18,7 +18,7 @@ export const collectionItems: CollectionItem[] = [
   mount("mount-forest-stag", "Forest Stag", "A quiet stag from elder woodland paths.", "achievement", "Stag", 110, "Future achievement unlock."),
   mount("mount-cave-boar", "Cave Boar", "A compact beast with more courage than grace.", "bestiary", "Boar", 120, "Future Bestiary unlock."),
   mount("mount-ash-wolf", "Ash Wolf", "A smoke-gray wolf mount planned for future events.", "event_placeholder", "Wolf", 130, "Future event placeholder."),
-  mount("mount-merchant-cart", "Merchant Cart", "A small cart for showing guild prosperity.", "store_placeholder", "Cart", 900, "Future store placeholder. No purchase is available."),
+  mount("mount-merchant-cart", "Merchant Cart", "A small cart for showing guild prosperity.", "store_placeholder", "Cart", 900, "Planned cosmetic exchange using guild gold or gameplay trophies."),
 
   avatar("avatar-recruit-emblem", "Recruit Emblem", "A simple badge for new adventurers.", "starter", "R", 10),
   avatar("avatar-sword-emblem", "Sword Emblem", "A blade mark for martial characters.", "starter", "S", 20, ["Guardian"]),

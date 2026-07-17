@@ -149,7 +149,7 @@ export function UpdatesHall() {
               <div className="updates-record-status">
                 <span>Archive state</span>
                 <strong>Released locally</strong>
-                <small>Part of the installed client and available without online services.</small>
+                <small>Bundled with the installed client and available throughout the local campaign.</small>
               </div>
             </>
           ) : null}

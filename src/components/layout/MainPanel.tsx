@@ -754,7 +754,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";
   if (tab === "bestiary") return "Guild creature records, research stages, charm points and active assignments.";
-  if (tab === "store") return "Local cosmetic previews with no purchases, premium currency or online services.";
+  if (tab === "store") return "Outfits, mounts, avatars and future cosmetic exchanges for the local guild collection.";
   if (tab === "updates") return "Installed release notes for local systems, interface revisions and QA milestones.";
   if (tab === "wiki") return "Local field reference for adventurers, exploration, progression and guild services.";
   if (tab === "settings") return "Device-only client preferences kept separate from the SQLite guild save.";

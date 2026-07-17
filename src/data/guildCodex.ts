@@ -26,6 +26,28 @@ export interface GuildCodexEntry {
 
 const systemEntries: GuildCodexEntry[] = [
   {
+    id: "offline-campaign",
+    category: "services",
+    code: "OF",
+    title: "Offline Guild Campaign",
+    subtitle: "Private single-player progression",
+    summary: "Every guild system runs from the installed client and the local SQLite campaign save.",
+    facts: [
+      { label: "Players", value: "1 guild manager" },
+      { label: "Save", value: "Local SQLite" },
+      { label: "Economy", value: "NPCs / local bazaar" },
+      { label: "Accounts", value: "None" },
+    ],
+    guidance: [
+      "The roster, economy, activities, rewards and timers belong to one private campaign.",
+      "The NPC Market handles fixed purchases and Quick Sell; a future rotating bazaar will generate local offers without player listings.",
+      "The Store direction is a guild wardrobe where cosmetics are earned or exchanged for gold, boss trophies and quest items.",
+    ],
+    relatedSystems: ["Character Roster", "NPC Market", "Collections", "SQLite Save"],
+    keywords: ["offline", "single player", "campaign", "local", "sqlite", "market", "wardrobe"],
+    featured: true,
+  },
+  {
     id: "guild-recruitment",
     category: "services",
     code: "GR",
@@ -41,7 +63,7 @@ const systemEntries: GuildCodexEntry[] = [
     guidance: [
       "Each applicant has a fixed vocation, level, skill profile, starter loadout, contract cost and Career Point requirement.",
       "A recruited character is stored as an ordinary roster member, so skills, equipment, inventory and future progress use the existing SQLite save.",
-      "Contracts are permanent and cannot be repeated. There are no random rerolls, premium slots, online services or paid currency.",
+      "Contracts are permanent and cannot be repeated; each successful contract becomes an ordinary saved roster member.",
     ],
     relatedSystems: ["Character Hall", "Career Ledger", "Guild Gold", "SQLite Save"],
     keywords: ["recruit", "recruitment", "applicant", "candidate", "roster", "adventurer", "contract"],
@@ -146,7 +168,7 @@ const systemEntries: GuildCodexEntry[] = [
     guidance: [
       "War Room improves hunt XP, Training Yard improves training progress, Quartermaster discounts the Market NPC and Contract Archive improves quest XP.",
       "Every upgrade validates current level, career points and guild gold before changing the local save.",
-      "Headquarters has no premium currency, online timer, paid acceleration or uncapped multiplier.",
+      "Headquarters facilities are permanent campaign upgrades with fixed costs, modest bonuses and strict level caps.",
     ],
     relatedSystems: ["Career Ledger", "Hunts", "Training", "Market", "Quests"],
     keywords: ["headquarters", "facility", "upgrade", "war room", "training yard", "quartermaster", "archive"],
@@ -171,7 +193,6 @@ const systemEntries: GuildCodexEntry[] = [
     ],
     relatedSystems: ["Character Details", "Explore", "SQLite save"],
     keywords: ["starter", "home", "roster", "gold", "save"],
-    featured: true,
   },
   {
     id: "hunt-cycle",
@@ -315,8 +336,8 @@ const systemEntries: GuildCodexEntry[] = [
     guidance: [
       "Daily Reward allows one local claim per day, advances a seven-day cycle and resets streak after missed days.",
       "Collections unlocks belong to the guild while outfit, mount and avatar selections belong to each character.",
-      "Career achievements unlock cosmetic guild titles; the equipped identity grants no combat bonus or premium benefit.",
-      "Ranking, Career Ledger, Guild Identity and Updates remain fully local and do not contact leaderboards, accounts or patch services.",
+      "Career achievements unlock cosmetic guild titles; the equipped identity grants no combat or economy bonus.",
+      "Ranking, Career Ledger, Guild Identity and Updates read only the current private campaign records.",
     ],
     relatedSystems: ["Daily Reward", "Collections", "Ranking", "Career Ledger", "Guild Identity", "Updates"],
     keywords: ["daily", "collection", "ranking", "achievement", "career", "title", "identity", "updates", "cosmetic"],

@@ -101,6 +101,7 @@ Atualizado em: 2026-07-16
 - Etapa 54.5 concluida: QA real do Guild Projects validou migration, fases, clique duplo, conclusao, Collections, JSON corrompido e restauracao integral.
 - Etapa 55 concluida: Guild Recruitment Board adicionou tres candidatos locais, contratos permanentes e novos personagens persistentes no roster.
 - Etapa 55.5 concluida: QA real do Guild Recruitment validou contrato unico, character completo, Save/Reload, bloqueios, responsividade e restauracao integral.
+- Etapa 56 concluida: direcao consolidada como campanha single-player totalmente offline, com economia NPC/local e Store direcionada a visuais conquistados por gameplay.
 
 Comandos principais:
 
@@ -2824,7 +2825,52 @@ Limitacoes do QA:
 
 Proximo passo sugerido:
 
-- Etapa 56 - Party Formations e Guild Squads locais.
+- Etapa 56.5 - QA da consolidacao offline e dos textos de economia/Store.
+
+## Etapa 56 - Consolidacao da campanha totalmente offline
+
+Status: concluida.
+
+Direcao de produto:
+
+- Guild Hunt Idle passa a ter uma unica direcao oficial: campanha privada single-player, com o jogador gerenciando uma guilda local.
+- Roster, economia, acoes temporizadas, recompensas, progresso e configuracoes continuam persistidos no SQLite instalado.
+- Nao existe conta, servidor, sincronizacao em nuvem, leaderboard remoto, troca entre jogadores ou Market de listings.
+- O Market NPC permanece como loja fixa para compra, venda e Quick Sell.
+- O antigo espaco conceitual de Market online foi substituido pela previsao de um Bazar Rotativo local, gerado pelo proprio jogo.
+
+Store e visuais futuros:
+
+- A Store foi reposicionada como arquivo/guarda-roupa da guilda para Outfits, Mounts e Avatars.
+- Visuais futuros poderao ser obtidos com `guild.gold`, trofeus de bosses, itens de quests e outras conquistas locais.
+- Cosmetics continuam integrados ao Collections e nao concedem ataque, defesa, XP, loot ou outro poder de gameplay.
+- Esta etapa altera apenas direcao, nomenclatura e documentacao; trocas cosmeticas ainda nao foram implementadas.
+
+Compatibilidade e limpeza:
+
+- Nenhuma tabela, coluna, migration ou formato de save foi alterado.
+- O estado TypeScript nao utilizado `completed_online` foi removido do fluxo de conclusao offline.
+- O tipo obsoleto `ShopPaymentSource` foi removido; compras existentes continuam usando `guild.gold`.
+- Textos ativos de Recruitment, Headquarters, Treasury, Ranking, Identity, Updates, Wiki e contratos agora descrevem positivamente a campanha local.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite; permaneceu apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- Smoke no Vite confirmou Store/Wardrobe com 15 registros, futura troca por gold/trofeus e regras sem poder de gameplay.
+- Store e Codex foram verificados em 960x700 sem overflow horizontal ou textos cortados.
+- O Codex destacou `Offline Guild Campaign`, economia `NPCs / local bazaar`, um guild manager e save local SQLite.
+- O smoke web usa mock local porque o plugin SQLite existe apenas no Tauri; nenhuma operacao de escrita foi executada.
+
+Limitacoes atuais:
+
+- O Bazar Rotativo ainda nao possui ofertas, RNG, intervalo de dez minutos ou persistencia de rotacao.
+- A Store ainda e um preview; custos, requisitos e confirmacao de troca ficam para uma etapa propria.
+- Party Formations e Guild Squads permanecem como possibilidade futura, mas deixaram de ser o objetivo desta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 56.5 - QA da consolidacao offline e dos textos de economia/Store.
+- Depois do QA: Etapa 57 - Bazar Rotativo Offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
@@ -3376,9 +3422,9 @@ Limitacoes mantidas:
 
 ## Decisoes de design
 
-- A versao 1.0 deve ser offline.
-- O futuro online deve ser separado do save offline.
-- O save offline nao deve ser competitivo.
+- O jogo e uma campanha single-player totalmente offline.
+- Nenhum modo online, conta remota ou economia entre jogadores esta planejado.
+- O save local nao e competitivo.
 - A interface deve parecer um client MMORPG/Tibia-like proprio, nao um dashboard corporativo.
 - O visual atual usa paineis densos, bordas discretas, fundo escuro, tons metalicos/verdes e destaques dourados.
 - Nao usar nomes oficiais protegidos de Tibia.
@@ -3422,7 +3468,8 @@ Limitacoes mantidas:
 - Melhorias no depot e economia.
 - Mais quests, hunts, monstros, itens, equipamentos e regioes.
 - Balanceamento de risco, XP, gold, loot, capacity e progresso de skills.
-- Separacao futura entre modo offline e qualquer modo online.
+- Bazar Rotativo Offline com ofertas locais persistentes e renovacao controlada.
+- Guarda-roupa cosmetico com trocas por gold, trofeus de bosses e itens de quests.
 
 ## Cuidados para nao quebrar o projeto
 

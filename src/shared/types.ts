@@ -149,9 +149,6 @@ export type SellDestination = "character_gold" | "guild_gold";
 
 export type ShopCategory = "potions" | "runes" | "ammo" | "containers" | "utilities";
 
-/** @deprecated Market purchases now always use guild.gold. */
-export type ShopPaymentSource = "character_gold" | "guild_gold";
-
 export type ShopDeliveryTarget = "character_inventory" | "character_depot" | "guild_depot";
 
 export type CollectionCategory =

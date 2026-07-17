@@ -67,7 +67,7 @@ export function GuildTreasuryHall({ guild, onTransfer }: GuildTreasuryHallProps)
           <button className="treasury-command" disabled={!validAmount} onClick={() => onTransfer(mode, parsedAmount)} type="button">
             {mode === "deposit" ? "Deposit into Reserve" : "Withdraw to Guild Funds"}
           </button>
-          <small className="treasury-local-note">Transfers have no fee, interest, premium currency or online service. The reserve does not generate income.</small>
+          <small className="treasury-local-note">Transfers have no fee or interest. The local reserve protects existing gold and never generates income.</small>
         </section>
 
         <section className="treasury-ledger">

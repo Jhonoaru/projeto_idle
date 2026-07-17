@@ -92,7 +92,7 @@ export function GuildStaffHall({ characters, guild, onAssignSpecialist, onHireSp
             </button>
           )}
           {staff.activeSpecialistId ? <button className="staff-clear-command" onClick={() => onAssignSpecialist(null)} type="button">Clear Active Post</button> : null}
-          <small className="staff-local-note">Staff is guild-wide, offline and permanent. There is no payroll timer, premium currency, payment or online service.</small>
+          <small className="staff-local-note">Staff is permanent, guild-wide and stored entirely in the current campaign.</small>
         </aside>
       </div>
     </div>

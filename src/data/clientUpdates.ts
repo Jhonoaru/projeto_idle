@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-56",
+    stage: "Stage 56",
+    title: "Offline Campaign Consolidation",
+    date: "2026-07-16",
+    category: "systems",
+    summary: "Guild Hunt Idle now has one explicit direction: a private single-player campaign persisted entirely in local SQLite.",
+    highlights: [
+      "Remaining future online Market language was replaced by an offline NPC economy and a planned local rotating bazaar.",
+      "The Store direction now focuses on outfits, mounts and avatars earned with guild gold, boss trophies or quest items.",
+      "Unused online completion and payment-source types were removed without changing the database schema or existing saves.",
+    ],
+    systems: ["Offline Campaign", "NPC Market", "Cosmetic Wardrobe"],
+    featured: true,
+  },
+  {
     id: "stage-55-5",
     stage: "Stage 55.5",
     title: "Guild Recruitment QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The 960x700 hall remained responsive and the original SQLite database was restored with an identical SHA-256 hash.",
     ],
     systems: ["Guild Recruitment", "Character Roster", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-55",

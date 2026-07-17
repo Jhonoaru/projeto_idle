@@ -63,21 +63,21 @@ export function CosmeticShowcaseHall({ character, guild, onOpenCollections }: Co
       <section className="store-hall-hero">
         <div className="store-hall-seal" aria-hidden="true"><i /><span>S</span></div>
         <div className="store-hall-identity">
-          <span>Local cosmetic showcase</span>
-          <h3>{guild.name} Preview Archive</h3>
-          <p>Inspect cosmetic records without payments, premium currency or online services.</p>
+          <span>Guild wardrobe archive</span>
+          <h3>{guild.name} Wardrobe Archive</h3>
+          <p>Preview outfits, mounts and avatars tied to achievements, bosses, quests and future local exchanges.</p>
         </div>
         <div className="store-hall-summary">
           <SummaryStat label="Showcase records" value={`${showcaseItems.length}`} />
           <SummaryStat label="Unlocked" value={`${unlockedShowcaseCount}`} />
-          <SummaryStat label="Future previews" value={`${futureCount}`} />
-          <SummaryStat label="Purchases" value="Disabled" tone="disabled" />
+          <SummaryStat label="Future concepts" value={`${futureCount}`} />
+          <SummaryStat label="Acquisition" value="Gameplay only" />
         </div>
       </section>
 
       <div className="store-safety-banner">
-        <span>Preview-only archive</span>
-        <strong>No item can be purchased here. Gameplay unlocks continue through Collections.</strong>
+        <span>Cosmetic progression</span>
+        <strong>Guild appearances live in Collections and never add combat power.</strong>
         <button onClick={onOpenCollections} type="button">Open Collections</button>
       </div>
 
@@ -164,7 +164,7 @@ export function CosmeticShowcaseHall({ character, guild, onOpenCollections }: Co
                 <SummaryStat label="Collection state" value={selectedUnlocked ? "Unlocked" : "Locked"} />
                 <SummaryStat label="Character" value={selectedVocationAllowed ? "Compatible" : "Different vocation"} />
                 <SummaryStat label="Access" value={selectedFuture ? "Preview only" : "Gameplay source"} />
-                <SummaryStat label="Payment" value="Not available" />
+                <SummaryStat label="Future exchange" value={selectedFuture ? "Gold / trophies" : "Gameplay reward"} />
               </div>
               <div className={`store-access-record ${selectedUnlocked ? "is-unlocked" : selectedFuture ? "is-future" : ""}`}>
                 <span>{selectedUnlocked ? "Collection record" : selectedFuture ? "Future concept" : "Unlock requirement"}</span>
@@ -182,13 +182,13 @@ export function CosmeticShowcaseHall({ character, guild, onOpenCollections }: Co
 
       <section className="store-policy-ledger">
         <header className="store-section-heading">
-          <div><span>Archive policy</span><h3>Local-Only Showcase</h3></div>
-          <strong>No monetization</strong>
+          <div><span>Wardrobe direction</span><h3>Single-Player Cosmetic Rules</h3></div>
+          <strong>Gameplay-earned</strong>
         </header>
         <div>
-          <PolicyEntry code="01" title="No payment" text="No cards, checkout, paid currency or real-money transactions." />
+          <PolicyEntry code="01" title="Gameplay rewards" text="Future exchanges may use guild gold, boss trophies or quest items earned in this campaign." />
           <PolicyEntry code="02" title="No power" text="Cosmetics do not add attack, defense, XP or loot bonuses." />
-          <PolicyEntry code="03" title="No online" text="The archive reads only the current local guild save." />
+          <PolicyEntry code="03" title="Local collection" text="Every unlock and equipped appearance remains in the SQLite guild save." />
           <PolicyEntry code="04" title="Collections owns unlocks" text="Equip and unlock state remain inside the existing Collections system." />
         </div>
       </section>
@@ -219,7 +219,7 @@ function formatCategory(category: CollectionCategory) {
 }
 
 function formatSource(source: CollectionUnlockSource) {
-  if (source === "store_placeholder") return "Future store";
+  if (source === "store_placeholder") return "Future wardrobe";
   if (source === "event_placeholder") return "Future event";
   return source.charAt(0).toUpperCase() + source.slice(1);
 }

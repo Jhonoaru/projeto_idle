@@ -175,7 +175,7 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
           <button className="contracts-dispatch-button" disabled={!canDispatch} onClick={() => onStartExpedition(selectedContract.id, assignedCharacterIds)} type="button">
             {active ? "Expedition Already Active" : !availability.available ? availability.reasons[0] : !teamReady ? `Select ${selectedContract.minimumTeamSize}-${selectedContract.maximumTeamSize} Adventurers` : guild.gold < dispatchCost ? `Requires ${dispatchCost.toLocaleString("en-US")}g` : "Dispatch Expedition"}
           </button>
-          <small className="contracts-local-note">Outcome is fixed when dispatched and cannot be rerolled by Save/Reload. No premium, payment or online service is used.</small>
+          <small className="contracts-local-note">Outcome is fixed when dispatched, stored in this campaign and cannot be rerolled by Save/Reload.</small>
         </aside>
       </div>
 

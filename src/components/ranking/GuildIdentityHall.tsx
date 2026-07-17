@@ -115,7 +115,7 @@ export function GuildIdentityHall({ characters, guild, onEquipTitle }: GuildIden
               {activeTitle ? (
                 <button className="guild-title-clear" onClick={() => onEquipTitle(null)} type="button">Unequip Title</button>
               ) : null}
-              <small className="guild-title-local-note">Local identity only. Titles grant no combat bonus, currency or premium benefit.</small>
+              <small className="guild-title-local-note">Guild identity only. Titles are cosmetic and grant no combat or economy bonus.</small>
             </>
           ) : <div className="ranking-empty">No title matches this filter.</div>}
         </aside>

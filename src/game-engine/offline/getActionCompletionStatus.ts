@@ -2,7 +2,6 @@ import type { Character } from "../../shared/types";
 
 export type OfflineActionCompletionStatus =
   | "running"
-  | "completed_online"
   | "completed_offline"
   | "ready_to_resolve"
   | "dead_recovery_ready"

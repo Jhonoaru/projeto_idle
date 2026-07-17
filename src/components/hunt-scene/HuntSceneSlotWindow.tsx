@@ -81,8 +81,8 @@ const windowConfig: Record<HuntSceneSlotType, HuntSceneSlotWindowConfig> = {
     threshold: "",
     entries: [
       { icon: "RT", name: "Creature Products", meta: "Loot comum entra no inventario", state: "available" },
-      { icon: "NPC", name: "Venda Rapida NPC", meta: "Separado do Market online", state: "available" },
-      { icon: "MKT", name: "Market", meta: "Reservado para listagens online futuras", state: "locked", lock: "Futuro" },
+      { icon: "NPC", name: "Venda Rapida NPC", meta: "Venda local imediata de loot", state: "available" },
+      { icon: "BZR", name: "Bazar Rotativo", meta: "Ofertas locais planejadas para a guilda", state: "locked", lock: "Em breve" },
     ],
   },
 };

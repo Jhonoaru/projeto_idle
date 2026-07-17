@@ -179,7 +179,7 @@ function CodexDossier({ entry }: { entry: GuildCodexEntry }) {
       <div className="codex-record-status">
         <span>Record state</span>
         <strong>Available locally</strong>
-        <small>This guide does not modify the save or require an online account.</small>
+        <small>This installed reference is read-only and belongs to the current local campaign.</small>
       </div>
     </>
   );

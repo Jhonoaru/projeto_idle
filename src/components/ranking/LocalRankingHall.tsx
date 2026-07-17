@@ -256,8 +256,8 @@ export function LocalRankingHall({
           </div>
 
           <div className="ranking-local-notice">
-            <span>Offline record</span>
-            <p>This hall compares only characters stored in the current guild save. No online leaderboard is connected.</p>
+            <span>Guild record</span>
+            <p>This hall compares only adventurers in the current private campaign save.</p>
           </div>
         </aside>
         </div>

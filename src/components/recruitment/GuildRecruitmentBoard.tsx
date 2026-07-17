@@ -63,7 +63,7 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit }: GuildRec
               />
             ))}
           </div>
-          <small className="recruitment-note">Applicants are fixed local characters. There is no refresh timer, random reroll, premium slot or online service.</small>
+          <small className="recruitment-note">Applicants are permanent local characters with fixed contracts, equipment and progression.</small>
         </section>
 
         <section className="recruitment-dossier">
