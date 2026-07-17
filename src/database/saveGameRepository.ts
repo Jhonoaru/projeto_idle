@@ -10,6 +10,7 @@ import { normalizeGuildStaffState } from "../game-engine/staff/normalizeGuildSta
 import { normalizeGuildTreasuryState } from "../game-engine/treasury/normalizeGuildTreasuryState";
 import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGuildProjectsState";
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
+import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { mockCharacters } from "../data/mockCharacters";
@@ -438,8 +439,8 @@ async function saveInventoryItem(
       inventoryItem.location,
       options.equipmentSlot,
       inventoryItem.parentContainerId ?? null,
-      inventoryItem.upgradeLevel ?? 0,
-      inventoryItem.tier ?? 0,
+      normalizeItemUpgradeLevel(inventoryItem.upgradeLevel),
+      normalizeItemTier(inventoryItem.tier),
       JSON.stringify(inventoryItem.imbuements ?? []),
       options.now,
       options.now,

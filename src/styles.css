@@ -1476,6 +1476,64 @@ p {
   gap: 8px;
 }
 
+.forge-item-header {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.forge-quality-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border: 1px solid #30352f;
+  background: #111613;
+}
+
+.forge-rarity-legend {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.forge-rarity-legend > span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 26px;
+  border: 1px solid color-mix(in srgb, var(--item-rarity-color) 48%, #30352f);
+  padding: 4px 6px;
+  color: var(--item-rarity-color);
+  background: var(--item-rarity-soft);
+  font-size: 0.62rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.forge-rarity-legend i {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  background: var(--item-rarity-color);
+}
+
+.forge-quality-track > div {
+  min-width: 0;
+  min-height: 52px;
+  padding: 8px;
+  border-right: 1px solid #30352f;
+  color: #6f7871;
+  background: #151a17;
+}
+
+.forge-quality-track > div:last-child { border-right: 0; }
+.forge-quality-track > div.is-complete { color: #aeb7aa; background: #182019; }
+.forge-quality-track > div.is-current { color: #f1d58c; box-shadow: inset 0 -3px 0 var(--item-tier-color, #d8b96a); }
+.forge-quality-track span { display: block; color: inherit; font-size: 0.58rem; text-transform: uppercase; }
+.forge-quality-track strong { display: block; margin-top: 5px; color: inherit; font-size: 0.7rem; overflow-wrap: anywhere; }
+
 .hunt-duration-panel {
   display: grid;
   gap: 10px;
@@ -1949,11 +2007,79 @@ p {
   box-shadow: 0 0 0 1px rgba(216, 185, 106, 0.55), inset 0 0 18px rgba(216, 185, 106, 0.08);
 }
 
-.item-rarity-common { border-left-color: #7f8a7a; }
-.item-rarity-uncommon { border-left-color: #7fc77a; }
-.item-rarity-rare { border-left-color: #67a8e8; }
-.item-rarity-epic { border-left-color: #b47ee8; }
-.item-rarity-legendary { border-left-color: #e6a84c; }
+:is(.item-rarity-common, .rarity-common) { --item-rarity-color: #89928a; --item-rarity-soft: rgba(137, 146, 138, 0.13); }
+:is(.item-rarity-uncommon, .rarity-uncommon) { --item-rarity-color: #74bd72; --item-rarity-soft: rgba(116, 189, 114, 0.13); }
+:is(.item-rarity-rare, .rarity-rare) { --item-rarity-color: #5fa4df; --item-rarity-soft: rgba(95, 164, 223, 0.14); }
+:is(.item-rarity-epic, .rarity-epic) { --item-rarity-color: #b178d1; --item-rarity-soft: rgba(177, 120, 209, 0.14); }
+:is(.item-rarity-legendary, .rarity-legendary) { --item-rarity-color: #df9b38; --item-rarity-soft: rgba(223, 155, 56, 0.15); }
+
+.item-rarity-common,
+.item-rarity-uncommon,
+.item-rarity-rare,
+.item-rarity-epic,
+.item-rarity-legendary { border-color: var(--item-rarity-color); box-shadow: inset 0 0 16px var(--item-rarity-soft); }
+
+.item-tier-0 { --item-tier-color: #6e756f; }
+.item-tier-1 { --item-tier-color: #b9a46f; }
+.item-tier-2 { --item-tier-color: #72a9b6; }
+.item-tier-3 { --item-tier-color: #d4b45e; }
+
+.item-icon.item-tier-1 { box-shadow: inset 0 -3px 0 var(--item-tier-color), inset 0 0 16px var(--item-rarity-soft); }
+.item-icon.item-tier-2 { box-shadow: inset 0 0 0 2px rgba(114, 169, 182, 0.48), inset 0 0 18px var(--item-rarity-soft); }
+.item-icon.item-tier-3 { box-shadow: 0 0 0 1px rgba(212, 180, 94, 0.62), inset 0 0 0 2px rgba(212, 180, 94, 0.28), inset 0 0 20px var(--item-rarity-soft); }
+
+.item-tier-mark {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  min-width: 18px;
+  padding: 1px 3px;
+  border: 1px solid var(--item-tier-color);
+  border-radius: 2px;
+  color: #f4e7bd;
+  background: #171b18;
+  font-size: 0.5rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.item-quality-badge {
+  display: inline-grid;
+  grid-template-columns: 8px auto auto;
+  gap: 5px;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 24px;
+  padding: 3px 7px;
+  border: 1px solid color-mix(in srgb, var(--item-rarity-color) 55%, #30352f);
+  border-bottom-color: var(--item-tier-color);
+  border-radius: 3px;
+  background: var(--item-rarity-soft);
+  white-space: nowrap;
+}
+
+.item-quality-badge > i { width: 7px; height: 7px; background: var(--item-rarity-color); }
+.item-quality-badge > strong { color: var(--item-rarity-color); font-size: 0.62rem; text-transform: uppercase; }
+.item-quality-badge > em { color: #aeb7aa; font-size: 0.59rem; font-style: normal; text-transform: uppercase; }
+.item-quality-badge.is-compact { min-height: 20px; padding: 2px 5px; }
+.item-quality-badge.is-compact > em { font-size: 0.54rem; }
+
+.inventory-row.item-tier-1,
+.market-row.item-tier-1,
+.equipment-slot.item-tier-1,
+.character-hall-equipment-slot.item-tier-1,
+.forge-item-list button.item-tier-1 { box-shadow: inset 0 -2px 0 rgba(185, 164, 111, 0.45); }
+.inventory-row.item-tier-2,
+.market-row.item-tier-2,
+.equipment-slot.item-tier-2,
+.character-hall-equipment-slot.item-tier-2,
+.forge-item-list button.item-tier-2 { box-shadow: inset 0 0 0 1px rgba(114, 169, 182, 0.38); }
+.inventory-row.item-tier-3,
+.market-row.item-tier-3,
+.equipment-slot.item-tier-3,
+.character-hall-equipment-slot.item-tier-3,
+.forge-item-list button.item-tier-3 { box-shadow: inset 0 0 0 1px rgba(212, 180, 94, 0.5); }
 
 .item-quantity {
   position: absolute;
@@ -2226,25 +2352,11 @@ p {
   color: #f1d58c;
 }
 
-.rarity-common {
-  border-left-color: #7f8a7a;
-}
-
-.rarity-uncommon {
-  border-left-color: #7fc77a;
-}
-
-.rarity-rare {
-  border-left-color: #67a8e8;
-}
-
-.rarity-epic {
-  border-left-color: #b47ee8;
-}
-
-.rarity-legendary {
-  border-left-color: #e6a84c;
-}
+.rarity-common,
+.rarity-uncommon,
+.rarity-rare,
+.rarity-epic,
+.rarity-legendary { border-left-color: var(--item-rarity-color); }
 
 .depot-summary {
   display: grid;
@@ -3744,6 +3856,13 @@ p {
 }
 
 @media (max-width: 720px) {
+  .forge-rarity-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .forge-rarity-legend > span:last-child { grid-column: 1 / -1; }
+  .forge-quality-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .forge-quality-track > div:nth-child(2) { border-right: 0; }
+  .forge-quality-track > div:nth-child(-n+2) { border-bottom: 1px solid #30352f; }
+  .forge-item-header { grid-template-columns: 1fr; }
+
   .game-shell {
     padding: 10px;
   }

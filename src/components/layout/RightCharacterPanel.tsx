@@ -10,6 +10,7 @@ import {
   normalizeWeaponProficiencies,
 } from "../../game-engine/weapon-proficiency/weaponProficiencyProgression";
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
+import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { ActivityLogEntry, Character, EquipmentSlot, Guild, InventoryItem } from "../../shared/types";
 
 interface RightCharacterPanelProps {
@@ -134,8 +135,9 @@ function EquipmentCell({
   item?: InventoryItem;
   slot: EquipmentSlot;
 }) {
+  const identity = item ? getItemVisualIdentity(item.item, item) : undefined;
   return (
-    <div className={`client-equipment-cell ${item ? "is-filled" : ""}`}>
+    <div className={`client-equipment-cell ${item ? `is-filled ${identity?.surfaceClassName}` : ""}`}>
       <span>{slot}</span>
       <strong>{item?.item.name ?? "Empty"}</strong>
       {item ? <small>{formatEnhancement(item)}</small> : null}
@@ -144,8 +146,9 @@ function EquipmentCell({
 }
 
 function InventoryCell({ entry }: { entry: InventoryItem }) {
+  const identity = getItemVisualIdentity(entry.item, entry);
   return (
-    <div className={`client-inventory-cell rarity-${entry.item.rarity}`}>
+    <div className={`client-inventory-cell ${identity.surfaceClassName}`}>
       <strong>{entry.item.name}</strong>
       <span>
         {entry.quantity > 1 ? `x${entry.quantity}` : entry.item.rarity}
@@ -165,5 +168,5 @@ function formatEnhancement(item: InventoryItem) {
     item.imbuements?.length ? `${item.imbuements.length} imb` : undefined,
   ].filter(Boolean);
 
-  return parts.length > 0 ? parts.join(" / ") : item.item.rarity;
+  return parts.length > 0 ? parts.join(" / ") : getItemVisualIdentity(item.item, item).combinedLabel;
 }

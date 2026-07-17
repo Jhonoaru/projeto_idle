@@ -4,6 +4,8 @@ import { calculateInventoryItemSellValue } from "../../game-engine/market/calcul
 import { canSellItem } from "../../game-engine/market/canSellItem";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
+import { ItemQualityBadge } from "../items/ItemQualityBadge";
+import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 
 interface InventoryItemRowProps {
   inventoryItem: InventoryItem;
@@ -38,17 +40,19 @@ export function InventoryItemRow({
   const totalWeight = inventoryItem.item.weight * quantity;
   const totalValue = calculateInventoryItemSellValue(inventoryItem).totalValue;
   const sellStatus = canSellItem(inventoryItem, sourceItems);
+  const identity = getItemVisualIdentity(inventoryItem.item, inventoryItem);
 
   return (
-    <article className={`inventory-row rarity-${inventoryItem.item.rarity} ${inventoryItem.locked ? "is-locked" : ""}`.trim()}>
+    <article className={`inventory-row ${identity.surfaceClassName} ${inventoryItem.locked ? "is-locked" : ""}`.trim()}>
       <div className="inventory-row-icon">
         <ItemIcon inventoryItem={inventoryItem} />
         <ItemTooltip inventoryItem={inventoryItem} sellReason={sellStatus.reason} />
       </div>
       <div>
-        <h3>{formatEnhancedName(inventoryItem)}</h3>
+        <h3>{formatEnhancedItemName(inventoryItem)}</h3>
+        <ItemQualityBadge compact inventoryItem={inventoryItem} />
         <p>
-          {inventoryItem.item.type} / {inventoryItem.item.rarity}
+          {inventoryItem.item.type}
           {inventoryItem.locked ? " / Travado" : ""}
           {inventoryItem.imbuements?.length ? ` / ${inventoryItem.imbuements.length} imbuement(s)` : ""}
         </p>
@@ -110,12 +114,6 @@ export function InventoryItemRow({
       </div>
     </article>
   );
-}
-
-function formatEnhancedName(inventoryItem: InventoryItem) {
-  const upgrade = inventoryItem.upgradeLevel ? ` +${inventoryItem.upgradeLevel}` : "";
-  const tier = inventoryItem.tier ? ` [T${inventoryItem.tier}]` : "";
-  return `${inventoryItem.item.name}${upgrade}${tier}`;
 }
 
 function normalizeQuantity(quantity: number) {

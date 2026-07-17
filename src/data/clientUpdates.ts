@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-59",
+    stage: "Stage 59",
+    title: "Item Quality Progression",
+    date: "2026-07-16",
+    category: "interface",
+    summary: "Rarity and Forge tier now share one readable visual language across equipment, inventory, loot, Market and the Forge.",
+    highlights: [
+      "Five rarity palettes identify an item's base quality while four Forge ranks communicate its refinement independently.",
+      "Tooltips, equipment slots, inventory rows, Bazaar offers and Forge cards now expose the same normalized quality identity.",
+      "Invalid legacy upgrade and tier values normalize safely without a schema migration or a gameplay balance change.",
+    ],
+    systems: ["Items", "Forge", "Inventory", "Market"],
+    featured: true,
+  },
+  {
     id: "stage-58-5",
     stage: "Stage 58.5",
     title: "Wardrobe Exchange QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "SQLite integrity remained healthy and the original database, WAL and SHM were restored with matching SHA-256 hashes.",
     ],
     systems: ["Wardrobe Exchange", "Collections", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-58",

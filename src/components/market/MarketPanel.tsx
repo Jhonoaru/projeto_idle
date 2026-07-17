@@ -8,6 +8,7 @@ import { getHeadquartersBonuses } from "../../game-engine/headquarters/getHeadqu
 import { normalizeGuildBazaarState } from "../../game-engine/bazaar/normalizeGuildBazaarState";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
+import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { MarketFilters } from "./MarketFilters";
 import { MarketItemRow } from "./MarketItemRow";
 import { MarketSourceTabs } from "./MarketSourceTabs";
@@ -375,10 +376,12 @@ function MarketBazaarTab({
             const item = safeGetItem(offer.itemId);
             if (!item) return null;
             const selected = offer.id === selectedOffer?.id;
+            const previewItem = makeBazaarPreviewInventoryItem(item, offer);
+            const identity = getItemVisualIdentity(item, previewItem);
 
             return (
               <button
-                className={`bazaar-offer rarity-${item.rarity} grade-${offer.grade} ${selected ? "is-selected" : ""} ${offer.purchasedAt ? "is-purchased" : ""}`.trim()}
+                className={`bazaar-offer ${identity.surfaceClassName} grade-${offer.grade} ${selected ? "is-selected" : ""} ${offer.purchasedAt ? "is-purchased" : ""}`.trim()}
                 key={offer.id}
                 onClick={() => setSelectedOfferId(offer.id)}
                 type="button"
@@ -387,7 +390,7 @@ function MarketBazaarTab({
                   <span>{formatOfferGrade(offer)}</span>
                   <em>{offer.purchasedAt ? "Acquired" : `${offer.price.toLocaleString("en-US")}g`}</em>
                 </div>
-                <ItemIcon item={item} quantity={offer.quantity} size="large" />
+                <ItemIcon inventoryItem={previewItem} size="large" />
                 <strong>{item.name}</strong>
                 <small>{formatOfferEnhancements(offer)}</small>
                 <small>{item.type} / {item.rarity}</small>
@@ -414,7 +417,7 @@ function MarketBazaarTab({
         >
           {selectedItem && selectedOffer ? (
             <div className="market-selected-preview">
-              <ItemIcon item={selectedItem} quantity={selectedOffer.quantity} size="large" />
+              <ItemIcon inventoryItem={makeBazaarPreviewInventoryItem(selectedItem, selectedOffer)} size="large" />
               <ItemTooltip inventoryItem={makeBazaarPreviewInventoryItem(selectedItem, selectedOffer)} />
             </div>
           ) : null}
@@ -443,7 +446,7 @@ function MarketBazaarTab({
           <div className="bazaar-odds-ledger">
             <span>Relic chance</span>
             <strong>0.01% per offer</strong>
-            <small>Relic equipment arrives at +5 / Tier 3 and uses only existing catalog items.</small>
+            <small>Relic equipment arrives at +5 / Exalted III and uses only existing catalog items.</small>
           </div>
         </MarketTransactionSummary>
       </div>

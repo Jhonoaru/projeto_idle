@@ -2,6 +2,8 @@ import { calculateInventoryItemSellValue } from "../../game-engine/market/calcul
 import { canSellItem } from "../../game-engine/market/canSellItem";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
+import { ItemQualityBadge } from "../items/ItemQualityBadge";
+import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { InventoryItem, SellSource } from "../../shared/types";
 
 interface MarketItemRowProps {
@@ -28,9 +30,10 @@ export function MarketItemRow({
   const value = calculateInventoryItemSellValue(inventoryItem);
   const sellStatus = canSellItem(inventoryItem, sourceItems);
   const disabled = !sellStatus.canSell;
+  const identity = getItemVisualIdentity(inventoryItem.item, inventoryItem);
 
   return (
-    <article className={`market-row rarity-${inventoryItem.item.rarity} ${disabled ? "is-locked" : ""} is-${sellStatus.warningLevel}`.trim()}>
+    <article className={`market-row ${identity.surfaceClassName} ${disabled ? "is-locked" : ""} is-${sellStatus.warningLevel}`.trim()}>
       <div className="market-row-icon">
         <ItemIcon inventoryItem={inventoryItem} size="small" />
         <ItemTooltip inventoryItem={inventoryItem} sellReason={sellStatus.reason} />
@@ -46,7 +49,7 @@ export function MarketItemRow({
       </label>
       <div className="market-row-meta">
         <span>{inventoryItem.item.type}</span>
-        <span>{inventoryItem.item.rarity}</span>
+        <ItemQualityBadge compact inventoryItem={inventoryItem} />
         <span>x{inventoryItem.quantity}</span>
         <span>{sourceLabel(source)}</span>
         {sellStatus.reason ? <span className={`sell-warning is-${sellStatus.warningLevel}`}>{sellStatus.reason}</span> : null}

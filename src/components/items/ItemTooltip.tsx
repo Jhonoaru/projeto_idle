@@ -1,6 +1,8 @@
 import { getImbuementById } from "../../data/imbuements";
 import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
+import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { InventoryItem } from "../../shared/types";
+import { ItemQualityBadge } from "./ItemQualityBadge";
 
 interface ItemTooltipProps {
   inventoryItem?: InventoryItem;
@@ -21,11 +23,13 @@ export function ItemTooltip({ inventoryItem, equipped = false, sellReason }: Ite
   const item = inventoryItem.item;
   const sellValue = calculateInventoryItemSellValue(inventoryItem);
   const imbuements = inventoryItem.imbuements ?? [];
+  const identity = getItemVisualIdentity(item, inventoryItem);
 
   return (
-    <div className={`item-tooltip rarity-${item.rarity}`}>
-      <strong>{formatEnhancedName(inventoryItem)}</strong>
-      <span>{item.type} / {item.rarity}</span>
+    <div className={`item-tooltip ${identity.surfaceClassName}`}>
+      <strong>{formatEnhancedItemName(inventoryItem)}</strong>
+      <ItemQualityBadge inventoryItem={inventoryItem} />
+      <span>{item.type}</span>
       <p>{item.description}</p>
       <div className="item-tooltip-grid">
         <TooltipLine label="Quantity" value={`x${normalizeQuantity(inventoryItem.quantity)}`} />
@@ -34,8 +38,8 @@ export function ItemTooltip({ inventoryItem, equipped = false, sellReason }: Ite
         {item.equipmentSlot ? <TooltipLine label="Slot" value={item.equipmentSlot} /> : null}
         {item.levelRequirement ? <TooltipLine label="Level" value={item.levelRequirement} /> : null}
         {item.vocationRestriction ? <TooltipLine label="Vocation" value={item.vocationRestriction.join(", ")} /> : null}
-        {inventoryItem.upgradeLevel ? <TooltipLine label="Upgrade" value={`+${inventoryItem.upgradeLevel}`} /> : null}
-        {inventoryItem.tier ? <TooltipLine label="Tier" value={`T${inventoryItem.tier}`} /> : null}
+        <TooltipLine label="Upgrade" value={identity.upgradeLabel} />
+        <TooltipLine label="Forge rank" value={identity.tierLabel} />
         {item.isContainer ? <TooltipLine label="Container" value={item.containerType ?? "generic"} /> : null}
       </div>
       <div className="item-tooltip-status">
@@ -73,10 +77,4 @@ function TooltipLine({ label, value }: { label: string; value: string | number }
 
 function normalizeQuantity(quantity: number) {
   return Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
-}
-
-function formatEnhancedName(inventoryItem: InventoryItem) {
-  const upgrade = inventoryItem.upgradeLevel ? ` +${inventoryItem.upgradeLevel}` : "";
-  const tier = inventoryItem.tier ? ` [T${inventoryItem.tier}]` : "";
-  return `${inventoryItem.item.name}${upgrade}${tier}`;
 }

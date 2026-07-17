@@ -28,7 +28,6 @@ export function getInventoryItemBadges(inventoryItem?: InventoryItem, equipped =
     inventoryItem.item.type === "quest" ? "Q" : undefined,
     inventoryItem.imbuements?.length ? "IM" : undefined,
     inventoryItem.upgradeLevel ? `+${inventoryItem.upgradeLevel}` : undefined,
-    inventoryItem.tier ? `T${inventoryItem.tier}` : undefined,
     inventoryItem.item.isContainer ? "B" : undefined,
   ].filter((badge): badge is string => Boolean(badge));
 }

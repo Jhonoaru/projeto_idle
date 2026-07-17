@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { GuildBriefing } from "./GuildBriefing";
 import { ItemIcon } from "../items/ItemIcon";
+import { ItemQualityBadge } from "../items/ItemQualityBadge";
+import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { CHARACTER_STATUS_LABELS, SKILL_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
 import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
@@ -198,10 +200,11 @@ export function CharacterDetails({
             {equipmentSlots.map(({ slot, label }) => {
               const item = character.equipment[slot];
               return (
-                <div className={`character-hall-equipment-slot ${item ? `rarity-${item.item.rarity}` : "is-empty"}`} key={slot}>
+                <div className={`character-hall-equipment-slot ${item ? getItemVisualIdentity(item.item, item).surfaceClassName : "is-empty"}`} key={slot}>
                   <span>{label}</span>
                   <ItemIcon inventoryItem={item} equipped size="medium" showQuantity={false} />
                   <strong>{item?.item.name ?? "Empty"}</strong>
+                  {item ? <ItemQualityBadge compact inventoryItem={item} /> : null}
                   {item ? <small>{formatEnhancement(item.upgradeLevel, item.tier)}</small> : null}
                 </div>
               );

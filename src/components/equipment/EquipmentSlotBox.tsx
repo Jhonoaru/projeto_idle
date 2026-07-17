@@ -1,5 +1,7 @@
 import type { EquipmentSlot, InventoryItem } from "../../shared/types";
 import { getImbuementById } from "../../data/imbuements";
+import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
+import { ItemQualityBadge } from "../items/ItemQualityBadge";
 
 interface EquipmentSlotBoxProps {
   slot: EquipmentSlot;
@@ -9,12 +11,14 @@ interface EquipmentSlotBoxProps {
 }
 
 export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlotBoxProps) {
+  const identity = item ? getItemVisualIdentity(item.item, item) : undefined;
   return (
-    <article className={`equipment-slot equipment-slot-${slot} ${item ? `rarity-${item.item.rarity}` : ""}`.trim()}>
+    <article className={`equipment-slot equipment-slot-${slot} ${identity?.surfaceClassName ?? ""}`.trim()}>
       <span className="equipment-slot-name">{label}</span>
       {item ? (
         <>
-          <strong>{formatEnhancedName(item)}</strong>
+          <strong>{formatEnhancedItemName(item)}</strong>
+          <ItemQualityBadge compact inventoryItem={item} />
           <small>{formatItemStats(item)}</small>
           {item.imbuements?.length ? (
             <small>
@@ -33,12 +37,6 @@ export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlot
       )}
     </article>
   );
-}
-
-function formatEnhancedName(inventoryItem: InventoryItem) {
-  const upgrade = inventoryItem.upgradeLevel ? ` +${inventoryItem.upgradeLevel}` : "";
-  const tier = inventoryItem.tier ? ` [T${inventoryItem.tier}]` : "";
-  return `${inventoryItem.item.name}${upgrade}${tier}`;
 }
 
 function formatItemStats(inventoryItem: InventoryItem) {

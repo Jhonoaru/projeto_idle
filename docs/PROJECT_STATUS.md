@@ -107,6 +107,7 @@ Atualizado em: 2026-07-16
 - Etapa 57.5 concluida: QA real do Bazar no Tauri/SQLite validou migration, compra unica, Guild Depot, Save/Reload, responsividade e restauracao integral do banco.
 - Etapa 58 concluida: Wardrobe Exchange offline com quatro trocas cosmeticas reais, custos em gold/trofeus/quest, Collections, Guild Depot e protecao contra duplicacao.
 - Etapa 58.5 concluida: QA real da Wardrobe Exchange validou cobranca unica, bloqueio por trofeu, Collections, Save/Reload e restauracao integral do SQLite.
+- Etapa 59 concluida: progressao visual unificada de raridades e tiers, com identidade consistente em Inventory, Equipment, Loot, Market/Bazar e Forge, sem alterar o balanceamento ou o schema SQLite.
 
 Comandos principais:
 
@@ -3096,6 +3097,42 @@ Resultado:
 Proximo passo sugerido:
 
 - Etapa 59 - Progressao de raridades e tiers visuais dos itens.
+
+## Etapa 59 - Progressao visual de raridades e tiers dos itens
+
+Status: concluida.
+
+Modelo visual:
+
+- A raridade base continua sendo `common`, `uncommon`, `rare`, `epic` ou `legendary` e agora define cor, borda e superficie de forma consistente.
+- O tier da Forge permanece independente da raridade: Tier 0 `Base`, Tier 1 `Forged I`, Tier 2 `Ascendant II` e Tier 3 `Exalted III`.
+- Upgrade continua limitado a +0..+5. Esta etapa nao mudou dano, custos, probabilidades de drop ou limites funcionais da Forge.
+- `getItemVisualIdentity` centraliza labels, classes e normalizacao; valores invalidos, `NaN` ou fora dos limites recebem fallback seguro.
+
+Integracoes:
+
+- `ItemIcon`, `ItemTooltip` e `ItemQualityBadge` formam a base visual compartilhada.
+- Inventory, Equipment, Character Hall, painel lateral, Loot, Market NPC e Bazar exibem a mesma combinacao de raridade e rank da Forge.
+- O Bazar passa o equipamento aprimorado completo para preview, preservando borda, tier e upgrade de ofertas especiais.
+- A Forge ganhou legenda das cinco raridades e trilha visual Base > Forged I > Ascendant II > Exalted III.
+- Save e Load reaproveitam as colunas existentes e limitam `upgrade_level` a 0..5 e `tier` a 0..3; nao houve migration SQLite.
+- O Guild Field Codex e o Release Archive documentam a diferenca entre raridade de origem e refinamento da Forge.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite; permaneceu apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- Smoke visual no Vite confirmou os badges Common/Base no Character Hall e a progressao completa dentro da Forge.
+- A estrutura foi revisada nas superficies de Inventory, Equipment, Character Hall, painel direito, Market/Bazar, Forge e tooltips.
+
+Limitacoes atuais:
+
+- Esta etapa nao adiciona raridades acima de Legendary, tiers cosmicos, Tier 10 ou novos itens; essa expansao depende de balanceamento e conteudo futuros.
+- O QA desta implementacao usa o mock local do Vite. Persistencia real, equipamentos aprimorados e regressao no Tauri/SQLite ficam para a Etapa 59.5.
+- Sprites dedicados por raridade continuam fora do escopo; a identidade atual usa os assets existentes com bordas, marcadores e superficies CSS.
+
+Proximo passo sugerido:
+
+- Etapa 59.5 - QA da progressao de raridades e tiers no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

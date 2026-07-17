@@ -13,6 +13,7 @@ import { normalizeGuildStaffState } from "../game-engine/staff/normalizeGuildSta
 import { normalizeGuildTreasuryState } from "../game-engine/treasury/normalizeGuildTreasuryState";
 import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGuildProjectsState";
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
+import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
 import { normalizeWeaponProficiencies } from "../game-engine/weapon-proficiency/weaponProficiencyProgression";
@@ -254,8 +255,8 @@ export function mapInventoryItem(row: InventoryRow): InventoryItem {
     parentContainerId: row.parent_container_id,
     locked: Boolean(row.locked),
     location: row.location,
-    upgradeLevel: row.upgrade_level ?? 0,
-    tier: row.tier ?? 0,
+    upgradeLevel: normalizeItemUpgradeLevel(row.upgrade_level),
+    tier: normalizeItemTier(row.tier),
     imbuements: parseJson(row.imbuements_json ?? "[]", []),
   };
 }

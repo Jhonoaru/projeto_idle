@@ -1,4 +1,5 @@
 import { getInventoryItemBadges, getItemIconMeta } from "./itemIconMeta";
+import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { InventoryItem, Item } from "../../shared/types";
 
 interface ItemIconProps {
@@ -27,7 +28,7 @@ export function ItemIcon({
   const iconItem = inventoryItem?.item ?? item;
   const iconQuantity = quantity ?? inventoryItem?.quantity;
   const meta = getItemIconMeta(iconItem);
-  const rarity = iconItem?.rarity ?? "common";
+  const identity = getItemVisualIdentity(iconItem, inventoryItem);
   const badges = showBadges ? getInventoryItemBadges(inventoryItem, equipped) : [];
 
   return (
@@ -37,17 +38,18 @@ export function ItemIcon({
         "item-icon",
         `item-icon-${size}`,
         `item-icon-tone-${meta.tone}`,
-        showRarity ? `item-rarity-${rarity}` : "",
+        showRarity ? identity.className : "",
         inventoryItem?.locked ? "is-locked" : "",
         equipped ? "is-equipped" : "",
         selected ? "is-selected" : "",
       ].filter(Boolean).join(" ")}
-      title={iconItem ? `${iconItem.name} / ${meta.label}` : "Empty"}
+      title={iconItem ? `${iconItem.name} / ${identity.combinedLabel} / ${meta.label}` : "Empty"}
     >
       <strong>{meta.symbol}</strong>
       {showQuantity && iconQuantity && iconQuantity > 1 ? (
         <span className="item-quantity">x{iconQuantity}</span>
       ) : null}
+      {showRarity && identity.tier > 0 ? <span className="item-tier-mark">T{identity.tier}</span> : null}
       {badges.length > 0 ? (
         <div className="item-badge-row">
           {badges.slice(0, 3).map((badge) => (

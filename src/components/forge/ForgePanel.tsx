@@ -12,7 +12,10 @@ import { getForgeMaterialsAvailable } from "../../game-engine/forge/getForgeMate
 import { getImbuementApplicationStatus } from "../../game-engine/forge/getImbuementApplicationStatus";
 import { getForgeableItems } from "../../game-engine/forge/forgeInventoryHelpers";
 import { calculateEnhancedItemBonuses } from "../../game-engine/forge/calculateEnhancedItemBonuses";
+import { formatEnhancedItemName, getItemVisualIdentity, type ItemVisualTier } from "../../game-engine/items/getItemVisualIdentity";
 import { ForgeMaterialRequirement } from "./ForgeMaterialRequirement";
+import { ItemIcon } from "../items/ItemIcon";
+import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import type { Character, EquipmentSlot, Guild, GuildDepot, ImbuementDefinition, InventoryItem } from "../../shared/types";
 
 interface ForgePanelProps {
@@ -53,6 +56,7 @@ export function ForgePanel({
   );
   const itemSlot = selectedSlot ?? selectedItem?.item.equipmentSlot;
   const selectedBonuses = selectedItem ? calculateEnhancedItemBonuses(selectedItem) : undefined;
+  const selectedIdentity = selectedItem ? getItemVisualIdentity(selectedItem.item, selectedItem) : undefined;
 
   if (forgeableItems.length === 0) {
     return <div className="empty-list">Nenhum equipamento disponivel para Forge.</div>;
@@ -75,6 +79,8 @@ export function ForgePanel({
         </div>
       </div>
 
+      <ForgeRarityLegend />
+
       <div className="forge-filters">
         {(["all", "weapons", "armor", "accessories", "backpack"] as ForgeFilter[]).map((option) => (
           <button
@@ -90,28 +96,36 @@ export function ForgePanel({
 
       <div className="forge-layout forge-layout-wide">
         <div className="forge-item-list">
-          {filteredItems.map((item) => (
-            <button
-              className={selectedItem?.id === item.id ? "is-selected" : ""}
+          {filteredItems.map((item) => {
+            const identity = getItemVisualIdentity(item.item, item);
+            return <button
+              className={`${identity.surfaceClassName} ${selectedItem?.id === item.id ? "is-selected" : ""}`.trim()}
               key={item.id}
               onClick={() => setSelectedItemId(item.id)}
               type="button"
             >
               <strong>{formatForgeItemName(item)}</strong>
-              <span>{item.item.equipmentSlot ?? "equipment"} / {item.item.rarity}</span>
+              <ItemQualityBadge compact inventoryItem={item} />
+              <span>{item.item.equipmentSlot ?? "equipment"}</span>
               <em>{item.imbuements?.length ?? 0} imbuement(s)</em>
-            </button>
-          ))}
+            </button>;
+          })}
         </div>
 
         {selectedItem ? (
           <>
             <div className="forge-details">
               <div className="forge-item-header">
-                <span>{selectedSlot ? `Equipped: ${selectedSlot}` : "Inventory"}</span>
-                <strong>{formatForgeItemName(selectedItem)}</strong>
-                <p>{selectedItem.item.description}</p>
+                <ItemIcon inventoryItem={selectedItem} size="large" showQuantity={false} />
+                <div>
+                  <span>{selectedSlot ? `Equipped: ${selectedSlot}` : "Inventory"}</span>
+                  <strong>{formatForgeItemName(selectedItem)}</strong>
+                  <ItemQualityBadge inventoryItem={selectedItem} />
+                  <p>{selectedItem.item.description}</p>
+                </div>
               </div>
+
+              {selectedIdentity ? <ForgeQualityTrack currentTier={selectedIdentity.tier} /> : null}
 
               <div className="forge-action-grid">
                 <ForgeActionBox
@@ -124,7 +138,7 @@ export function ForgePanel({
 
                 <ForgeActionBox
                   actionLabel="Increase Tier"
-                  currentLabel={`Tier ${selectedItem.tier ?? 0} / 3`}
+                  currentLabel={`${selectedIdentity?.tierLabel ?? "Base"} / Tier ${selectedIdentity?.tier ?? 0} of 3`}
                   cost={getItemTierCost(selectedItem.tier ?? 0)}
                   materialsAvailable={materialsAvailable}
                   onAction={() => onIncreaseTier(selectedItem)}
@@ -185,6 +199,41 @@ export function ForgePanel({
           </>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function ForgeRarityLegend() {
+  const rarities = ["common", "uncommon", "rare", "epic", "legendary"] as const;
+
+  return (
+    <div className="forge-rarity-legend" aria-label="Item rarity progression">
+      {rarities.map((rarity) => (
+        <span className={`item-rarity-${rarity}`} key={rarity}>
+          <i aria-hidden="true" />
+          {rarity}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ForgeQualityTrack({ currentTier }: { currentTier: ItemVisualTier }) {
+  const steps: Array<{ tier: ItemVisualTier; label: string }> = [
+    { tier: 0, label: "Base" },
+    { tier: 1, label: "Forged I" },
+    { tier: 2, label: "Ascendant II" },
+    { tier: 3, label: "Exalted III" },
+  ];
+
+  return (
+    <div className="forge-quality-track" aria-label="Forge tier progression">
+      {steps.map((step) => (
+        <div className={`${step.tier === currentTier ? "is-current" : ""} ${step.tier < currentTier ? "is-complete" : ""} item-tier-${step.tier}`} key={step.tier}>
+          <span>T{step.tier}</span>
+          <strong>{step.label}</strong>
+        </div>
+      ))}
     </div>
   );
 }
@@ -280,9 +329,7 @@ function ForgeActionBox({
 }
 
 export function formatForgeItemName(item: InventoryItem) {
-  const upgrade = item.upgradeLevel ? ` +${item.upgradeLevel}` : "";
-  const tier = item.tier ? ` [T${item.tier}]` : "";
-  return `${item.item.name}${upgrade}${tier}`;
+  return formatEnhancedItemName(item);
 }
 
 function matchesFilter(item: InventoryItem, filter: ForgeFilter) {
