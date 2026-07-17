@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-57",
+    stage: "Stage 57",
+    title: "Offline Rotating Bazaar",
+    date: "2026-07-16",
+    category: "systems",
+    summary: "The private guild economy now includes six deterministic local offers that rotate every ten minutes and persist in SQLite.",
+    highlights: [
+      "Each rotation is generated from the guild and time window, so reopening the save cannot reroll the current stock.",
+      "Purchases spend guild gold once, use real catalog items and deliver safely to the Guild Depot by default.",
+      "Rare enhanced equipment can appear, including a 0.01% Relic roll with +5 and Tier 3 applied to an existing item.",
+    ],
+    systems: ["Rotating Bazaar", "Guild Economy", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-56-5",
     stage: "Stage 56.5",
     title: "Offline Campaign QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Activity Log timestamps now survive autosave instead of being overwritten by one shared save time.",
     ],
     systems: ["Offline Campaign", "SQLite QA", "Activity Log"],
-    featured: true,
   },
   {
     id: "stage-56",

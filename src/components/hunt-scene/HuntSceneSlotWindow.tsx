@@ -82,7 +82,7 @@ const windowConfig: Record<HuntSceneSlotType, HuntSceneSlotWindowConfig> = {
     entries: [
       { icon: "RT", name: "Creature Products", meta: "Loot comum entra no inventario", state: "available" },
       { icon: "NPC", name: "Venda Rapida NPC", meta: "Venda local imediata de loot", state: "available" },
-      { icon: "BZR", name: "Bazar Rotativo", meta: "Ofertas locais planejadas para a guilda", state: "locked", lock: "Em breve" },
+      { icon: "BZR", name: "Bazar Rotativo", meta: "6 ofertas locais / rotacao de 10 min", state: "available" },
     ],
   },
 };

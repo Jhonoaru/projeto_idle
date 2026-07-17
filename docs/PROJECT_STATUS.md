@@ -103,6 +103,7 @@ Atualizado em: 2026-07-16
 - Etapa 55.5 concluida: QA real do Guild Recruitment validou contrato unico, character completo, Save/Reload, bloqueios, responsividade e restauracao integral.
 - Etapa 56 concluida: direcao consolidada como campanha single-player totalmente offline, com economia NPC/local e Store direcionada a visuais conquistados por gameplay.
 - Etapa 56.5 concluida: QA no Tauri/SQLite confirmou Store, Codex, Market NPC e Updates, alem de corrigir a perda de timestamps do Activity Log no autosave.
+- Etapa 57 concluida: Bazar Rotativo Offline com seis ofertas deterministicas por janela de dez minutos, compras unicas via `guild.gold`, itens reais, raridade Relic e persistencia SQLite.
 
 Comandos principais:
 
@@ -2915,6 +2916,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 57 - Bazar Rotativo Offline.
+
+## Etapa 57 - Bazar Rotativo Offline
+
+Status: concluida.
+
+Modelo e rotacao:
+
+- O Market NPC ganhou uma aba `Bazar` separada da loja fixa, Sell, Quick Sell, Buyback e Services.
+- Cada janela local de dez minutos gera seis ofertas deterministicas a partir do id da guilda e da chave temporal da rotacao.
+- Reabrir o Market, recarregar o save ou reiniciar o app dentro da mesma janela nao rerrola o estoque.
+- A normalizacao regenera a oferta canonica da janela e sobrepoe o historico de compras persistido, evitando manipulacao de preco ou item pela interface.
+
+Ofertas e raridade:
+
+- O catalogo usa somente ids existentes de supplies, materiais, utilitarios e equipamentos.
+- Os graus sao `standard`, `uncommon`, `rare` e `relic`, independentes da raridade base do item.
+- `Relic` possui chance de 0,01% por oferta, usa equipamento real existente e chega em `+5 / Tier 3`.
+- Itens invalidos, estado corrompido, gold invalido e rotacoes antigas recebem normalizacao ou bloqueio seguro.
+
+Compra e entrega:
+
+- A engine recalcula item, quantidade e preco; o frontend envia somente o id da oferta e o destino.
+- Cada oferta pode ser comprada uma vez, com historico limitado e protecao adicional contra clique duplo no React.
+- O destino padrao e o Guild Depot, evitando perda quando nao houver personagem selecionado; Inventory e Character Depot continuam opcionais.
+- Compras atualizam `guild.gold`, total de compras, gold total gasto, Activity Log e o estado visual `Acquired`.
+
+Persistencia:
+
+- `Guild` recebeu `bazaar?: GuildBazaarState`, compativel com saves antigos.
+- A migration aditiva cria `guilds.bazaar_json` com default seguro; mapper e repository normalizam o JSON no load/save.
+- `purchaseHistory` impede nova compra da mesma oferta depois de Save/Reload e e preservado entre rotacoes.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite; permaneceu apenas o aviso conhecido do bundle acima de 500 kB.
+- Smoke no Vite confirmou a aba Bazar, seis cards, countdown ativo, selecao e destino padrao Guild Depot.
+- Uma oferta de Training Axe por 138g foi comprada: o saldo caiu de 420g para 282g, o card virou `Acquired` e o botao foi bloqueado.
+- Um segundo clique imediato nao criou compra duplicada nem novo desconto de gold.
+
+Limitacoes atuais:
+
+- A verificacao desta etapa usou o mock local do Vite; migration e persistencia no SQLite real ficam para a Etapa 57.5.
+- Nao existe Market entre jogadores, auction house, trade, conexao online, moeda paga ou premium.
+- Relic reaproveita equipamento e arte existentes; assets visuais exclusivos permanecem fora do escopo.
+
+Proximo passo sugerido:
+
+- Etapa 57.5 - QA do Bazar Rotativo Offline no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

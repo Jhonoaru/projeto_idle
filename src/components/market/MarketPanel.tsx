@@ -5,6 +5,7 @@ import { canSellItem } from "../../game-engine/market/canSellItem";
 import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
 import { filterMarketItems } from "../../game-engine/market/filterMarketItems";
 import { getHeadquartersBonuses } from "../../game-engine/headquarters/getHeadquartersBonuses";
+import { normalizeGuildBazaarState } from "../../game-engine/bazaar/normalizeGuildBazaarState";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
 import { MarketFilters } from "./MarketFilters";
@@ -14,6 +15,7 @@ import { QuickSellWindow } from "./QuickSellWindow";
 import { SellSummaryPanel } from "./SellSummaryPanel";
 import type {
   Character,
+  BazaarOffer,
   EquipmentSlot,
   Guild,
   GuildDepot,
@@ -26,7 +28,7 @@ import type {
   ShopDeliveryTarget,
 } from "../../shared/types";
 
-type MarketMode = "buy" | "sell" | "quick_sell";
+type MarketMode = "buy" | "bazaar" | "sell" | "quick_sell";
 
 interface MarketPanelProps {
   character: Character;
@@ -47,6 +49,8 @@ interface MarketPanelProps {
     unitPrice: number,
     deliveryTarget: ShopDeliveryTarget,
   ) => void;
+  onPurchaseBazaarOffer: (offerId: string, deliveryTarget: ShopDeliveryTarget) => void;
+  onSyncBazaar: (nowIso: string) => void;
 }
 
 export function MarketPanel({
@@ -57,9 +61,27 @@ export function MarketPanel({
   onToggleLock,
   onSellCategory,
   onBuyItem,
+  onPurchaseBazaarOffer,
+  onSyncBazaar,
 }: MarketPanelProps) {
   const [mode, setMode] = useState<MarketMode>("buy");
+  const [nowMs, setNowMs] = useState(() => Date.now());
   const headquartersDiscount = getHeadquartersBonuses(guild.headquarters).npcPriceDiscountPercent;
+  const bazaar = useMemo(
+    () => normalizeGuildBazaarState(guild.bazaar, guild.id, new Date(nowMs)),
+    [guild.bazaar, guild.id, nowMs],
+  );
+
+  useEffect(() => {
+    const interval = window.setInterval(() => setNowMs(Date.now()), 1_000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (guild.bazaar?.rotationKey !== bazaar.rotationKey) {
+      onSyncBazaar(new Date(nowMs).toISOString());
+    }
+  }, [bazaar.rotationKey, guild.bazaar?.rotationKey, nowMs, onSyncBazaar]);
 
   return (
     <div className="market-window">
@@ -67,7 +89,7 @@ export function MarketPanel({
         <div>
           <span>Mercador da Guilda</span>
           <strong>Market NPC</strong>
-          <p>Loja local offline para supplies, containers, loot e venda segura da guilda.</p>
+          <p>Loja NPC fixa e Bazar Rotativo local para a economia privada da guilda.</p>
         </div>
         <div className="market-gold">
           <span>Guild Gold</span>
@@ -78,6 +100,7 @@ export function MarketPanel({
 
       <nav className="market-tabs" aria-label="Market tabs">
         <MarketTabButton active={mode === "buy"} label="Buy" onClick={() => setMode("buy")} />
+        <MarketTabButton active={mode === "bazaar"} label="Bazar" onClick={() => setMode("bazaar")} />
         <MarketTabButton active={mode === "sell"} label="Sell" onClick={() => setMode("sell")} />
         <MarketTabButton active={mode === "quick_sell"} label="Quick Sell" onClick={() => setMode("quick_sell")} />
         <button disabled title="Placeholder visual para uma etapa futura." type="button">
@@ -94,6 +117,16 @@ export function MarketPanel({
           guild={guild}
           npcDiscountPercent={headquartersDiscount}
           onBuyItem={onBuyItem}
+        />
+      ) : null}
+
+      {mode === "bazaar" ? (
+        <MarketBazaarTab
+          bazaar={bazaar}
+          character={character}
+          guild={guild}
+          nowMs={nowMs}
+          onPurchaseOffer={onPurchaseBazaarOffer}
         />
       ) : null}
 
@@ -279,6 +312,141 @@ function MarketBuyTab({
           Confirm Buy
         </button>
       </MarketTransactionSummary>
+    </section>
+  );
+}
+
+function MarketBazaarTab({
+  bazaar,
+  character,
+  guild,
+  nowMs,
+  onPurchaseOffer,
+}: {
+  bazaar: NonNullable<Guild["bazaar"]>;
+  character: Character;
+  guild: Guild;
+  nowMs: number;
+  onPurchaseOffer: MarketPanelProps["onPurchaseBazaarOffer"];
+}) {
+  const [selectedOfferId, setSelectedOfferId] = useState(bazaar.offers[0]?.id ?? "");
+  const [deliveryTarget, setDeliveryTarget] = useState<ShopDeliveryTarget>("guild_depot");
+  const [isBuying, setIsBuying] = useState(false);
+  const isBuyingRef = useRef(false);
+  const selectedOffer = bazaar.offers.find((offer) => offer.id === selectedOfferId) ?? bazaar.offers[0];
+  const selectedItem = safeGetItem(selectedOffer?.itemId);
+  const canAfford = Boolean(selectedOffer && normalizeGold(guild.gold) >= selectedOffer.price);
+  const remainingMs = Math.max(0, Date.parse(bazaar.expiresAt) - nowMs);
+  const purchasedCount = bazaar.offers.filter((offer) => offer.purchasedAt).length;
+
+  useEffect(() => {
+    setSelectedOfferId(bazaar.offers.find((offer) => !offer.purchasedAt)?.id ?? bazaar.offers[0]?.id ?? "");
+  }, [bazaar.rotationKey]);
+
+  function buySelectedOffer() {
+    if (!selectedOffer || selectedOffer.purchasedAt || !canAfford || isBuyingRef.current) return;
+    isBuyingRef.current = true;
+    setIsBuying(true);
+    onPurchaseOffer(selectedOffer.id, deliveryTarget);
+    window.setTimeout(() => {
+      isBuyingRef.current = false;
+      setIsBuying(false);
+    }, 250);
+  }
+
+  return (
+    <section className="market-tab-panel bazaar-panel">
+      <header className="bazaar-rotation-header">
+        <div>
+          <span>Local ten-minute rotation</span>
+          <strong>Bazar Rotativo</strong>
+          <p>Seis ofertas geradas pelo jogo. Sem listings, jogadores ou refresh pago.</p>
+        </div>
+        <div className="bazaar-timer" aria-label="Time until bazaar rotation">
+          <span>Next rotation</span>
+          <strong>{formatCountdown(remainingMs)}</strong>
+          <small>{purchasedCount}/6 acquired</small>
+        </div>
+      </header>
+
+      <div className="bazaar-layout">
+        <div className="bazaar-offer-grid">
+          {bazaar.offers.map((offer) => {
+            const item = safeGetItem(offer.itemId);
+            if (!item) return null;
+            const selected = offer.id === selectedOffer?.id;
+
+            return (
+              <button
+                className={`bazaar-offer rarity-${item.rarity} grade-${offer.grade} ${selected ? "is-selected" : ""} ${offer.purchasedAt ? "is-purchased" : ""}`.trim()}
+                key={offer.id}
+                onClick={() => setSelectedOfferId(offer.id)}
+                type="button"
+              >
+                <div className="bazaar-offer-topline">
+                  <span>{formatOfferGrade(offer)}</span>
+                  <em>{offer.purchasedAt ? "Acquired" : `${offer.price.toLocaleString("en-US")}g`}</em>
+                </div>
+                <ItemIcon item={item} quantity={offer.quantity} size="large" />
+                <strong>{item.name}</strong>
+                <small>{formatOfferEnhancements(offer)}</small>
+                <small>{item.type} / {item.rarity}</small>
+              </button>
+            );
+          })}
+        </div>
+
+        <MarketTransactionSummary
+          title="Bazaar Offer"
+          rows={[
+            ["Item", selectedItem?.name ?? "Unavailable"],
+            ["Bundle", `x${selectedOffer?.quantity ?? 0}`],
+            ["Offer grade", selectedOffer ? formatOfferGrade(selectedOffer) : "-"],
+            ["Forge", selectedOffer ? formatOfferEnhancements(selectedOffer) : "-"],
+            ["Price", `${(selectedOffer?.price ?? 0).toLocaleString("en-US")}g`],
+            ["Gold after", `${Math.max(0, normalizeGold(guild.gold) - (selectedOffer?.price ?? 0)).toLocaleString("en-US")}g`],
+          ]}
+          warning={selectedOffer?.purchasedAt
+            ? "Esta oferta ja foi adquirida nesta rotacao."
+            : !canAfford
+              ? "guild.gold insuficiente para esta oferta."
+              : "A oferta e unica e nao volta ao estoque antes da proxima rotacao."}
+        >
+          {selectedItem && selectedOffer ? (
+            <div className="market-selected-preview">
+              <ItemIcon item={selectedItem} quantity={selectedOffer.quantity} size="large" />
+              <ItemTooltip inventoryItem={makeBazaarPreviewInventoryItem(selectedItem, selectedOffer)} />
+            </div>
+          ) : null}
+
+          <div className="market-destination-options">
+            <button className={deliveryTarget === "guild_depot" ? "is-selected" : ""} onClick={() => setDeliveryTarget("guild_depot")} type="button">
+              Guild Depot
+            </button>
+            <button className={deliveryTarget === "character_inventory" ? "is-selected" : ""} onClick={() => setDeliveryTarget("character_inventory")} type="button">
+              {character.name} Bag
+            </button>
+            <button className={deliveryTarget === "character_depot" ? "is-selected" : ""} onClick={() => setDeliveryTarget("character_depot")} type="button">
+              Char Depot
+            </button>
+          </div>
+
+          <button
+            className="market-primary-action"
+            disabled={!selectedOffer || Boolean(selectedOffer.purchasedAt) || !canAfford || isBuying}
+            onClick={buySelectedOffer}
+            type="button"
+          >
+            Acquire Offer
+          </button>
+
+          <div className="bazaar-odds-ledger">
+            <span>Relic chance</span>
+            <strong>0.01% per offer</strong>
+            <small>Relic equipment arrives at +5 / Tier 3 and uses only existing catalog items.</small>
+          </div>
+        </MarketTransactionSummary>
+      </div>
     </section>
   );
 }
@@ -544,6 +712,34 @@ function makePreviewInventoryItem(item: Item, quantity: number): InventoryItem {
     quantity,
     location: "guildDepot",
   };
+}
+
+function makeBazaarPreviewInventoryItem(item: Item, offer: BazaarOffer): InventoryItem {
+  return {
+    ...makePreviewInventoryItem(item, offer.quantity),
+    id: `bazaar-preview-${offer.id}`,
+    upgradeLevel: offer.upgradeLevel,
+    tier: offer.tier,
+  };
+}
+
+function formatOfferGrade(offer: BazaarOffer) {
+  if (offer.grade === "relic") return "Relic Find";
+  if (offer.grade === "rare") return "Rare Find";
+  if (offer.grade === "uncommon") return "Uncommon Find";
+  return "Standard Offer";
+}
+
+function formatOfferEnhancements(offer: BazaarOffer) {
+  if (offer.upgradeLevel <= 0 && offer.tier <= 0) return "Base item";
+  return `+${offer.upgradeLevel} / Tier ${offer.tier}`;
+}
+
+function formatCountdown(remainingMs: number) {
+  const totalSeconds = Math.max(0, Math.ceil(remainingMs / 1_000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
 function normalizeQuantity(value: number) {

@@ -1,0 +1,68 @@
+export const bazaarSupplyItemIds = [
+  "minor-health-potion",
+  "health-potion",
+  "mana-potion",
+  "strong-health-potion",
+  "strong-mana-potion",
+  "light-magic-rune",
+  "fire-burst-rune",
+  "healing-rune",
+  "energy-strike-rune",
+  "simple-arrow",
+  "piercing-arrow",
+] as const;
+
+export const bazaarEquipmentItemIds = [
+  "worn-sword",
+  "rusty-blade",
+  "training-axe",
+  "wooden-club",
+  "simple-bow",
+  "novice-wand",
+  "leather-helmet",
+  "mystic-cap",
+  "leather-armor",
+  "leather-legs",
+  "leather-boots",
+  "wooden-shield",
+  "brass-shield",
+  "ranger-gloves",
+  "apprentice-robe",
+  "monk-wraps",
+  "cloth-sash",
+  "light-quiver",
+  "adventurer-backpack",
+  "loot-bag",
+  "supply-bag",
+  "rune-pouch",
+  "small-backpack",
+  "copper-ring",
+  "small-amulet",
+] as const;
+
+export const bazaarMaterialItemIds = [
+  "iron-ore",
+  "old-cloth",
+  "broken-fang",
+  "enchanted-dust",
+] as const;
+
+export const bazaarUtilityItemIds = [
+  "rope",
+  "shovel",
+  "torch",
+  "travel-scroll",
+  "small-backpack",
+  "loot-bag",
+  "supply-bag",
+  "rune-pouch",
+] as const;
+
+export const bazaarOfferPools: readonly (readonly string[])[] = [
+  bazaarSupplyItemIds,
+  bazaarEquipmentItemIds,
+  bazaarMaterialItemIds,
+  bazaarEquipmentItemIds,
+  bazaarUtilityItemIds,
+  [...bazaarSupplyItemIds, ...bazaarEquipmentItemIds, ...bazaarMaterialItemIds, ...bazaarUtilityItemIds],
+];

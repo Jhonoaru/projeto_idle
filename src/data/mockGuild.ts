@@ -1,4 +1,5 @@
 import { createDefaultDailyRewardState } from "../game-engine/daily-reward/createDefaultDailyRewardState";
+import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
 import type { Guild } from "../shared/types";
 
 export const mockGuild: Guild = {
@@ -62,4 +63,5 @@ export const mockGuild: Guild = {
     totalInvestedGold: 0,
     totalDonatedMaterials: 0,
   },
+  bazaar: normalizeGuildBazaarState(undefined, "guild-aurora"),
 };

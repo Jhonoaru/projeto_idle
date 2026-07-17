@@ -170,6 +170,11 @@ interface MainPanelProps {
     unitPrice: number,
     deliveryTarget: ShopDeliveryTarget,
   ) => void;
+  onPurchaseBazaarOffer: (
+    offerId: string,
+    deliveryTarget: ShopDeliveryTarget,
+  ) => void;
+  onSyncBazaar: (nowIso: string) => void;
   onClaimDailyReward: () => void;
   onActivateMonsterFocus: (
     slotIndex: number,
@@ -271,6 +276,8 @@ export function MainPanel({
   onSellMarketItems,
   onSellMarketCategory,
   onBuyMarketItem,
+  onPurchaseBazaarOffer,
+  onSyncBazaar,
   onClaimDailyReward,
   onActivateMonsterFocus,
   onClearMonsterFocus,
@@ -534,8 +541,10 @@ export function MainPanel({
               guild={guild}
               guildDepot={depot}
               onBuyItem={onBuyMarketItem}
+              onPurchaseBazaarOffer={onPurchaseBazaarOffer}
               onSellCategory={onSellMarketCategory}
               onSellItems={onSellMarketItems}
+              onSyncBazaar={onSyncBazaar}
               onToggleLock={onToggleMarketItemLock}
             />
           </Panel>

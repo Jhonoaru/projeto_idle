@@ -62,6 +62,8 @@ import { assignGuildSpecialist, hireGuildSpecialist } from "../game-engine/staff
 import { depositGuildGold, withdrawGuildGold } from "../game-engine/treasury/transferGuildTreasuryGold";
 import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectPhase";
 import { recruitGuildCandidate } from "../game-engine/recruitment/recruitGuildCandidate";
+import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
+import { purchaseBazaarOffer } from "../game-engine/bazaar/purchaseBazaarOffer";
 import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
@@ -202,6 +204,7 @@ export function App() {
   const transferringTreasuryGoldRef = useRef(false);
   const fundingGuildProjectRef = useRef(false);
   const recruitingGuildMemberRef = useRef(false);
+  const buyingBazaarOfferRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -1642,6 +1645,47 @@ export function App() {
     }
   }
 
+  function handleSyncBazaar(nowIso: string) {
+    const now = new Date(nowIso);
+    setGuild((currentGuild) => {
+      const bazaar = normalizeGuildBazaarState(currentGuild.bazaar, currentGuild.id, now);
+      return currentGuild.bazaar?.rotationKey === bazaar.rotationKey
+        ? currentGuild
+        : { ...currentGuild, bazaar };
+    });
+  }
+
+  function handlePurchaseBazaarOffer(offerId: string, deliveryTarget: ShopDeliveryTarget) {
+    if (buyingBazaarOfferRef.current) return;
+    buyingBazaarOfferRef.current = true;
+
+    try {
+      const purchase = purchaseBazaarOffer({
+        character: selectedCharacter,
+        guild,
+        guildDepot: depot,
+        offerId,
+        deliveryTarget,
+      });
+
+      updateSelectedCharacter(purchase.character);
+      setGuild(purchase.guild);
+      setDepot(purchase.guildDepot);
+
+      for (const message of [...purchase.logs].reverse()) {
+        prependLog(
+          purchase.success ? "Bazaar purchase" : "Bazaar blocked",
+          message,
+          purchase.success ? "success" : "warning",
+        );
+      }
+    } finally {
+      window.setTimeout(() => {
+        buyingBazaarOfferRef.current = false;
+      }, 250);
+    }
+  }
+
   function logMarketResult(messages: string[], success: boolean) {
     if (messages.length === 0) {
       prependLog("Market", "Nenhum item foi vendido.", "warning");
@@ -2061,6 +2105,8 @@ export function App() {
           onSellMarketCategory={handleSellMarketCategory}
           onSellMarketItems={handleSellMarketItems}
           onBuyMarketItem={handleBuyMarketItem}
+          onPurchaseBazaarOffer={handlePurchaseBazaarOffer}
+          onSyncBazaar={handleSyncBazaar}
           onActivateMonsterFocus={handleActivateMonsterFocus}
           onClearMonsterFocus={handleClearMonsterFocus}
           onEquipCollectionItem={handleEquipCollectionItem}

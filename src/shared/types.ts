@@ -151,6 +151,38 @@ export type ShopCategory = "potions" | "runes" | "ammo" | "containers" | "utilit
 
 export type ShopDeliveryTarget = "character_inventory" | "character_depot" | "guild_depot";
 
+export type BazaarOfferGrade = "standard" | "uncommon" | "rare" | "relic";
+
+export interface BazaarOffer {
+  id: string;
+  itemId: string;
+  quantity: number;
+  price: number;
+  grade: BazaarOfferGrade;
+  upgradeLevel: number;
+  tier: number;
+  purchasedAt?: string;
+}
+
+export interface BazaarPurchaseRecord {
+  offerId: string;
+  rotationKey: string;
+  itemId: string;
+  quantity: number;
+  totalCost: number;
+  purchasedAt: string;
+}
+
+export interface GuildBazaarState {
+  rotationKey: string;
+  generatedAt: string;
+  expiresAt: string;
+  offers: BazaarOffer[];
+  purchaseHistory: BazaarPurchaseRecord[];
+  totalPurchases: number;
+  totalSpentGold: number;
+}
+
 export type CollectionCategory =
   | "outfit"
   | "mount"
@@ -219,6 +251,7 @@ export interface Guild {
   staff?: GuildStaffState;
   treasury?: GuildTreasuryState;
   projects?: GuildProjectsState;
+  bazaar?: GuildBazaarState;
 }
 
 export interface GuildProjectMaterialRequirement {
