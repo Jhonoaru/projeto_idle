@@ -23,7 +23,7 @@ export function getGuildFacilityUpgradeAvailability(guild: Guild, depot: GuildDe
   const careerPoints = getGuildCareer(guild, characters).points;
   const currentGold = normalizeInteger(guild.gold);
   const materials = requirements.map((requirement) => {
-    const available = countAvailableMaterial(depot, requirement.itemId);
+    const available = getAvailableGuildDepotMaterialQuantity(depot, requirement.itemId);
     return {
       ...requirement,
       name: itemCatalog[requirement.itemId]?.name ?? requirement.itemId,
@@ -83,7 +83,7 @@ export function upgradeGuildFacility(guild: Guild, depot: GuildDepot, characters
   };
 }
 
-function countAvailableMaterial(depot: GuildDepot, itemId: string) {
+export function getAvailableGuildDepotMaterialQuantity(depot: GuildDepot, itemId: string) {
   return depot.items
     .filter((entry) => isConsumableRootMaterial(entry, itemId))
     .reduce((sum, entry) => safeAdd(sum, normalizeInteger(entry.quantity)), 0);

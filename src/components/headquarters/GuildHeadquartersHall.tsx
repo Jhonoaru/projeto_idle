@@ -7,15 +7,17 @@ import { normalizeGuildHeadquarters } from "../../game-engine/headquarters/norma
 import { getGuildFacilityUpgradeAvailability } from "../../game-engine/headquarters/upgradeGuildFacility";
 import type { Character, Guild, GuildDepot, GuildFacilityDefinition, GuildFacilityId } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
+import { HeadquartersResourcePlanner } from "./HeadquartersResourcePlanner";
 
 interface GuildHeadquartersHallProps {
   characters: Character[];
   depot: GuildDepot;
   guild: Guild;
   onUpgradeFacility: (facilityId: GuildFacilityId) => void;
+  onTrackHunt: (hunt: import("../../shared/types").HuntArea) => void;
 }
 
-export function GuildHeadquartersHall({ characters, depot, guild, onUpgradeFacility }: GuildHeadquartersHallProps) {
+export function GuildHeadquartersHall({ characters, depot, guild, onTrackHunt, onUpgradeFacility }: GuildHeadquartersHallProps) {
   const headquarters = useMemo(() => normalizeGuildHeadquarters(guild.headquarters), [guild.headquarters]);
   const bonuses = useMemo(() => getHeadquartersBonuses(headquarters), [headquarters]);
   const rank = useMemo(() => getHeadquartersRank(headquarters), [headquarters]);
@@ -118,6 +120,7 @@ export function GuildHeadquartersHall({ characters, depot, guild, onUpgradeFacil
           <small className="headquarters-local-note">Only unlocked materials at the root of the Guild Depot are donated. Character inventory, containers and locked stacks remain untouched.</small>
         </aside>
       </div>
+      <HeadquartersResourcePlanner characters={characters} depot={depot} guild={guild} onTrackHunt={onTrackHunt} />
     </div>
   );
 }

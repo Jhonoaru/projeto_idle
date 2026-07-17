@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-65",
+    stage: "Stage 65",
+    title: "Headquarters Resource Planner",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "Headquarters logistics now turn remaining facility upgrades into live material targets linked to their real campaign hunt sources.",
+    highlights: [
+      "Next Levels and Full Completion scopes aggregate exact requirements against eligible unlocked stacks in the Guild Depot.",
+      "Each material lists the creatures, hunt, raw drop chance, quantity range and roster readiness derived from the current save.",
+      "Open Hunt selects an idle qualified adventurer and opens the chosen source directly in Hunt Assignment without adding new persisted state.",
+    ],
+    systems: ["Resource Planner", "Headquarters", "Hunts", "Guild Depot"],
+    featured: true,
+  },
+  {
     id: "stage-64-5",
     stage: "Stage 64.5",
     title: "Headquarters Materials QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "A double click upgraded Contract Archive once, consumed exact stacks and preserved one bonus, ledger entry and Activity Log through two Tauri reloads.",
     ],
     systems: ["Headquarters QA", "Depot", "Responsive UI", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-64",

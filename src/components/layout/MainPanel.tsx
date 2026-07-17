@@ -147,6 +147,7 @@ interface MainPanelProps {
   onResetSave: () => void;
   onResetClientPreferences: () => void;
   onSelectHunt: (hunt: HuntArea) => void;
+  onOpenTrackedHunt: (hunt: HuntArea) => void;
   onClearSelectedHunt: () => void;
   onChangeDuration: (durationMinutes: number) => void;
   onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
@@ -267,6 +268,7 @@ export function MainPanel({
   onResetSave,
   onResetClientPreferences,
   onSelectHunt,
+  onOpenTrackedHunt,
   onClearSelectedHunt,
   onChangeDuration,
   onStartHunt,
@@ -650,6 +652,7 @@ export function MainPanel({
             characters={characters}
             depot={depot}
             guild={guild}
+            onTrackHunt={onOpenTrackedHunt}
             onUpgradeFacility={onUpgradeGuildFacility}
           />
         ) : null}

@@ -496,6 +496,19 @@ export function App() {
     setActiveTab(tab);
   }
 
+  function handleOpenTrackedHunt(hunt: HuntArea) {
+    const readyHunter = [selectedCharacter, ...characters].find((character, index, roster) => (
+      roster.findIndex((entry) => entry.id === character.id) === index
+      && character.level >= hunt.minLevel
+      && (!hunt.requiredAccess || character.accessIds.includes(hunt.requiredAccess))
+      && character.status === "idle"
+      && !character.currentAction
+    ));
+    if (readyHunter) setSelectedCharacterId(readyHunter.id);
+    setSelectedHunt(hunt);
+    setActiveTab("hunts");
+  }
+
   function handleChangeClientPreferences(updates: Partial<ClientPreferences>) {
     setClientPreferences((current) => normalizeClientPreferences({ ...current, ...updates }));
   }
@@ -2149,6 +2162,7 @@ export function App() {
           onSelectBoss={handleSelectBoss}
           onSelectCharacter={setSelectedCharacterId}
           onSelectHunt={setSelectedHunt}
+          onOpenTrackedHunt={handleOpenTrackedHunt}
           onClearSelectedHunt={() => setSelectedHunt(undefined)}
           onEquipItem={handleEquipItem}
           onMoveInventoryItemOutOfContainer={handleMoveInventoryItemOutOfContainer}

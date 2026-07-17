@@ -119,6 +119,7 @@ Atualizado em: 2026-07-17
 - Etapa 63.5 concluida: QA real corrigiu merge com stacks locked e validou dados corrompidos, clique duplo, responsividade e dois reloads Tauri/SQLite.
 - Etapa 64 concluida: as 12 melhorias da Headquarters agora exigem gold, Career Points e materiais reais de hunts antigas consumidos no Guild Depot.
 - Etapa 64.5 concluida: QA real liberou o Depot no menu, corrigiu o breakpoint intermediario e validou transferencia, upgrade unico e dois reloads Tauri/SQLite.
+- Etapa 65 concluida: Resource Planner deriva metas dos upgrades, compara o Guild Depot e abre fontes reais de hunt com um aventureiro apto.
 
 Comandos principais:
 
@@ -3719,6 +3720,72 @@ Resultado e limites:
 Proximo passo sugerido:
 
 - Etapa 65 - Resource Planner e rastreamento de materiais de hunt.
+
+## Etapa 65 - Resource Planner e rastreamento de materiais de hunt
+
+Status: concluida.
+
+Arquivos criados:
+
+- `src/game-engine/headquarters/buildHeadquartersResourcePlan.ts`.
+- `src/components/headquarters/HeadquartersResourcePlanner.tsx`.
+
+Arquivos principais alterados:
+
+- `src/game-engine/headquarters/upgradeGuildFacility.ts`.
+- `src/components/headquarters/GuildHeadquartersHall.tsx`.
+- `src/components/layout/MainPanel.tsx`.
+- `src/app/App.tsx`.
+- `src/styles.css`.
+- `src/data/clientUpdates.ts`.
+
+Modelagem:
+
+- O Resource Planner e totalmente derivado do save atual e nao adiciona coluna, JSON ou estado persistido novo.
+- `Next Levels` agrega o proximo nivel de cada facility ainda incompleta.
+- `Full Completion` agrega todos os niveis restantes ate 12/12.
+- Quantidade disponivel reutiliza a mesma funcao do upgrade real: apenas stacks desbloqueados, na raiz e pertencentes ao Guild Depot contam.
+- Stacks locked, nested, de personagem e quest items continuam fora do calculo e do consumo.
+- Materiais cobertos usam `min(disponivel, necessario)`, impedindo estoque excedente de mascarar deficit de outro recurso.
+
+Fontes e navegacao:
+
+- As fontes sao encontradas diretamente em `hunts[].monsters[].lootTable`, sem tabela paralela manual.
+- Cada fonte mostra hunt, cidade, level minimo, criaturas, maior chance bruta e faixa de quantidade por drop.
+- O status considera level, acesso, `character.status === idle` e ausencia de acao atual.
+- Aventureiros que cumprem level/acesso mas estao ocupados nao sao anunciados como prontos.
+- `Open Hunt` seleciona o primeiro membro ocioso e apto da guilda, preserva a hunt escolhida e abre diretamente a Hunt Assignment.
+- Fontes sem aventureiro apto permanecem visiveis com motivo e botao desabilitado.
+
+Interface:
+
+- O planner foi adicionado como banda propria abaixo das facilities, mantendo a Headquarters como uma unica area de trabalho.
+- Quatro indicadores resumem targets, total necessario, cobertura atual e deficit.
+- Materiais sao botoes compactos com ItemIcon, contagem do Depot e status `Need` ou `Ready`.
+- A fonte selecionada aparece ao lado em desktop e abaixo em larguras menores.
+- Nao foram usados assets externos, premium, moeda paga ou dependencia online.
+
+Validacao funcional e visual:
+
+- No mock com Headquarters 0/12, `Next Levels` calculou quatro targets, 42 materiais, 18 cobertos e 24 faltantes.
+- `Full Completion` calculou 12 targets e exatamente 138 materiais, igual ao custo completo validado na Etapa 64.5.
+- Old Cloth apontou Trollwood Camp, Forest Troll, chance bruta de 12% e quantidade 1-3.
+- O atalho de Trollwood ignorou Ayla ocupada, selecionou Lyra ociosa level 26 e abriu Hunt Assignment sem bloqueio por acao atual.
+- Layout revisado em 1280, 960, 700 e 430 px; nao houve overflow horizontal na pagina ou no planner.
+- O primeiro build detectou uma inferencia ampla de `status`; o union type foi explicitado e o erro foi corrigido antes da validacao.
+- `npm.cmd run build` passou com 347 modulos apos a correcao.
+
+Limitacoes atuais:
+
+- Chances exibidas sao valores brutos da loot table por criatura, nao uma previsao de tempo ou garantia de drop.
+- O planner cobre materiais de Headquarters vindos de hunts; bosses, quests, Workbench e Guild Projects ainda nao compartilham uma lista global de objetivos.
+- Materiais obtidos continuam precisando ser enviados manualmente ao Guild Depot para contar.
+- Nao existe pin persistente, notificacao automatica ou auto-dispatch de personagem.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 65.5 - QA do Resource Planner no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
