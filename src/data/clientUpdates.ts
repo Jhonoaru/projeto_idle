@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-65-5",
+    stage: "Stage 65.5",
+    title: "Resource Planner QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Material totals, protected stacks, hunt readiness, responsive navigation and read-only SQLite behavior passed expanded validation.",
+    highlights: [
+      "Thirty-three engine checks covered malformed state, split and excess stacks, protected resources, source locks and immutable inputs.",
+      "The real legacy save normalized Headquarters once, then retained an identical semantic hash through a second native load without new items or logs.",
+      "Trollwood tracking ignored busy adventurers, selected idle Lyra and opened Hunt Assignment cleanly across desktop and compact layouts.",
+    ],
+    systems: ["Resource Planner QA", "Headquarters", "Hunt Routing", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-65",
     stage: "Stage 65",
     title: "Headquarters Resource Planner",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Open Hunt selects an idle qualified adventurer and opens the chosen source directly in Hunt Assignment without adding new persisted state.",
     ],
     systems: ["Resource Planner", "Headquarters", "Hunts", "Guild Depot"],
-    featured: true,
   },
   {
     id: "stage-64-5",

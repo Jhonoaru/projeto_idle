@@ -120,6 +120,7 @@ Atualizado em: 2026-07-17
 - Etapa 64 concluida: as 12 melhorias da Headquarters agora exigem gold, Career Points e materiais reais de hunts antigas consumidos no Guild Depot.
 - Etapa 64.5 concluida: QA real liberou o Depot no menu, corrigiu o breakpoint intermediario e validou transferencia, upgrade unico e dois reloads Tauri/SQLite.
 - Etapa 65 concluida: Resource Planner deriva metas dos upgrades, compara o Guild Depot e abre fontes reais de hunt com um aventureiro apto.
+- Etapa 65.5 concluida: QA ampliada validou 33 cenarios, save legado, duas aberturas Tauri, rota de farm e responsividade sem encontrar regressao funcional.
 
 Comandos principais:
 
@@ -3786,6 +3787,64 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 65.5 - QA do Resource Planner no Tauri/SQLite.
+
+## Etapa 65.5 - QA do Resource Planner no Tauri/SQLite
+
+Status: concluida.
+
+Baseline:
+
+- `git pull` confirmou `main` atualizado e `git status` iniciou limpo.
+- `npm.cmd run build` passou antes da QA com 347 modulos.
+- O save real iniciou com `PRAGMA integrity_check = ok` e SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Matriz deterministica da engine:
+
+- Um harness temporario empacotado pelo Vite executou 33 verificacoes e foi removido integralmente depois do teste.
+- `Next Levels` confirmou 4 targets, 42 materiais, 18 cobertos e 24 faltantes.
+- `Full Completion` confirmou 12 targets, 138 materiais, 32 cobertos e 106 faltantes no estoque mock completo.
+- Todos os materiais restantes possuiam ao menos uma fonte real nas loot tables das hunts.
+- Stacks root desbloqueados foram agregados; locked, nested, character-owned, Inventory e quest items foram ignorados.
+- Estoque excedente de Old Cloth cobriu somente os 22 necessarios e nao escondeu os outros 20 materiais faltantes.
+- Headquarters 12/12 retornou zero target, zero entry e zero deficit.
+- Estado malformado com NaN, niveis negativos, fracionarios e acima do cap foi normalizado para totais finitos.
+- Old Cloth confirmou Trollwood Camp, chance bruta de 12%, quantidade 1-3 e Lyra ociosa na lista pronta.
+- Rosters artificiais confirmaram estados `busy`, `level` e `access`.
+- Guild Depot, personagens e headquarters de entrada permaneceram sem mutacao.
+
+Save real e Tauri:
+
+- O banco real possuia Headquarters legado 0/12 sem `totalInvestedMaterials`, 674g, 5 personagens, 26 itens e 10 logs.
+- Rat Tail x6 estava no Inventory de Arkon e, corretamente, nao participou da cobertura do Guild Depot.
+- Old Cloth x18 era o unico material elegivel dos proximos quatro upgrades; o resultado real esperado permaneceu 42/18/24.
+- Antes das aberturas nativas, o banco foi copiado para backup com hash identico ao original.
+- A primeira abertura Tauri normalizou `totalInvestedMaterials: 0` e preservou levels, gold, personagens, itens e logs.
+- A segunda abertura produziu o mesmo hash semantico `91F52C513ADBBF032F848B5E292F6893C1BD0979BB7370903C88F83540673E96`.
+- As duas janelas permaneceram abertas durante cinco segundos para load/autosave e foram encerradas de forma controlada pelo QA; nao houve interacao manual dentro da janela nativa.
+- `PRAGMA integrity_check` permaneceu `ok` e nenhuma segunda normalizacao, item, log ou transacao foi criada.
+- O banco original foi restaurado byte por byte; WAL, SHM e backup temporario foram removidos.
+
+QA visual e navegacao:
+
+- O frontend exibiu os mesmos valores 42 necessarios, 18 cobertos, 24 faltantes, Old Cloth 18/22 e Rat Tail 0/15.
+- O Rat Tail pessoal do save/mock nao foi contado pelo planner.
+- `Full Completion` exibiu 138 necessarios e 106 faltantes; Ancient Bone apontou Ancient Crypt, `Requires level 30` e manteve `Open Hunt` desabilitado.
+- Voltar para `Next Levels` removeu a selecao Ancient Bone inexistente e retornou com seguranca para Old Cloth.
+- Trollwood Camp exibiu apenas Lyra como ociosa e apta; `Open Hunt` selecionou Lyra level 26 e abriu Hunt Assignment sem bloqueio por acao atual.
+- Em 1280, 960, 700 e 430 px nao houve overflow horizontal da pagina ou do Resource Planner.
+- Release Archive e console do app nao apresentaram erros inesperados.
+
+Resultado e limitacoes:
+
+- Nenhum bug funcional foi encontrado e nenhum arquivo de gameplay precisou ser alterado na Etapa 65.5.
+- O planner continua derivado e read-only; a normalizacao observada pertence ao carregamento legado de Headquarters, nao a uma escrita do planner.
+- O QA nativo validou load/autosave e persistencia por consulta SQLite, mas os cliques de interface foram executados no frontend Vite.
+- Chances continuam sendo valores brutos por criatura, sem estimativa de tempo para obter o drop.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 66 - Guild Logistics Board e objetivos de campanha.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
