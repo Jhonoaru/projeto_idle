@@ -5,6 +5,8 @@ import type { InventoryItem } from "../../shared/types";
 import { ItemQualityBadge } from "./ItemQualityBadge";
 import { ItemProgressionBadge } from "./ItemProgressionBadge";
 import { getEquipmentProgression } from "../../game-engine/items/getEquipmentProgression";
+import { getEquipmentSetForItem } from "../../game-engine/equipment/calculateEquipmentSetBonuses";
+import { EquipmentSetBadge } from "./EquipmentSetBadge";
 
 interface ItemTooltipProps {
   inventoryItem?: InventoryItem;
@@ -27,12 +29,14 @@ export function ItemTooltip({ inventoryItem, equipped = false, sellReason }: Ite
   const imbuements = inventoryItem.imbuements ?? [];
   const identity = getItemVisualIdentity(item, inventoryItem);
   const progression = item.type === "equipment" ? getEquipmentProgression(item) : undefined;
+  const equipmentSet = item.type === "equipment" ? getEquipmentSetForItem(item) : undefined;
 
   return (
     <div className={`item-tooltip ${identity.surfaceClassName}`}>
       <strong>{formatEnhancedItemName(inventoryItem)}</strong>
       <ItemQualityBadge inventoryItem={inventoryItem} />
       <ItemProgressionBadge item={item} />
+      <EquipmentSetBadge item={item} />
       <span>{item.type}</span>
       <p>{item.description}</p>
       <div className="item-tooltip-grid">
@@ -44,6 +48,7 @@ export function ItemTooltip({ inventoryItem, equipped = false, sellReason }: Ite
         {item.vocationRestriction ? <TooltipLine label="Vocation" value={item.vocationRestriction.join(", ")} /> : null}
         {progression ? <TooltipLine label="Family" value={progression.family.label} /> : null}
         {progression ? <TooltipLine label="Gear band" value={progression.band.label} /> : null}
+        {equipmentSet ? <TooltipLine label="Set" value={equipmentSet.name} /> : null}
         <TooltipLine label="Upgrade" value={identity.upgradeLabel} />
         <TooltipLine label="Forge rank" value={identity.tierLabel} />
         {item.isContainer ? <TooltipLine label="Container" value={item.containerType ?? "generic"} /> : null}

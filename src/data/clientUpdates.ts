@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-61",
+    stage: "Stage 61",
+    title: "Offline Equipment Sets",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "Three campaign sets now turn matching weapons, armor and one boss Artifact into modest derived character bonuses.",
+    highlights: [
+      "Iron Expedition, Cryptwarden and Emberforged accept the weapon appropriate to each vocation instead of requiring mutually exclusive pieces.",
+      "Two-piece and three-piece thresholds improve real attributes without changing item drops, Forge tiers, rarity or the SQLite schema.",
+      "Character Details, Inventory, tooltips, item icons and Forge expose consistent set membership, progress and active thresholds.",
+    ],
+    systems: ["Equipment Sets", "Character Attributes", "Forge", "Inventory"],
+    featured: true,
+  },
+  {
     id: "stage-60-5",
     stage: "Stage 60.5",
     title: "Equipment Progression QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Iron Longsword and Emberheart Amulet survived Tauri autosave and reload before the original SQLite save was restored byte for byte.",
     ],
     systems: ["Equipment", "Loot", "Bazaar", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-60",

@@ -78,6 +78,7 @@ export type QuestRisk = "safe" | "low" | "medium" | "high" | "deadly";
 export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
 export type EquipmentFamilyId = "field-kit" | "vanguard" | "pathfinder" | "arcanum" | "discipline" | "artifact";
 export type EquipmentProgressionBandId = "novice" | "adventurer" | "veteran" | "elite" | "mythic";
+export type EquipmentSetId = "iron-expedition" | "cryptwarden" | "emberforged";
 
 export type DeathCause = "hunt" | "boss" | "quest" | "unknown";
 
@@ -894,6 +895,7 @@ export interface Item {
   levelRequirement?: number;
   equipmentFamily?: EquipmentFamilyId;
   progressionBand?: EquipmentProgressionBandId;
+  equipmentSetId?: EquipmentSetId;
 }
 
 export interface InventoryItem {

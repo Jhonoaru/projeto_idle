@@ -15,10 +15,13 @@ import { calculateEnhancedItemBonuses } from "../../game-engine/forge/calculateE
 import { formatEnhancedItemName, getItemVisualIdentity, type ItemVisualTier } from "../../game-engine/items/getItemVisualIdentity";
 import { getEquipmentProgression } from "../../game-engine/items/getEquipmentProgression";
 import { equipmentFamilies, equipmentProgressionBands, equipmentProgressionOrder } from "../../data/equipmentProgression";
+import { equipmentSetOrder, equipmentSets } from "../../data/equipmentSets";
 import { ForgeMaterialRequirement } from "./ForgeMaterialRequirement";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
+import { EquipmentSetBadge } from "../items/EquipmentSetBadge";
+import { formatEquipmentSetBonus } from "../../game-engine/equipment/calculateEquipmentSetBonuses";
 import type { Character, EquipmentProgressionBandId, EquipmentSlot, Guild, GuildDepot, ImbuementDefinition, InventoryItem } from "../../shared/types";
 
 interface ForgePanelProps {
@@ -85,6 +88,7 @@ export function ForgePanel({
 
       <ForgeRarityLegend />
       <ForgeFamilyLegend />
+      <ForgeSetLegend />
 
       <div className="forge-filters">
         {(["all", "weapons", "armor", "accessories", "backpack"] as ForgeFilter[]).map((option) => (
@@ -112,6 +116,7 @@ export function ForgePanel({
               <strong>{formatForgeItemName(item)}</strong>
               <ItemQualityBadge compact inventoryItem={item} />
               <ItemProgressionBadge compact item={item.item} />
+              <EquipmentSetBadge compact item={item.item} />
               <span>{item.item.equipmentSlot ?? "equipment"}</span>
               <em>{item.imbuements?.length ?? 0} imbuement(s)</em>
             </button>;
@@ -128,6 +133,7 @@ export function ForgePanel({
                   <strong>{formatForgeItemName(selectedItem)}</strong>
                   <ItemQualityBadge inventoryItem={selectedItem} />
                   <ItemProgressionBadge item={selectedItem.item} />
+                  <EquipmentSetBadge item={selectedItem.item} />
                   <p>{selectedItem.item.description}</p>
                 </div>
               </div>
@@ -254,6 +260,26 @@ function ForgeFamilyLegend() {
           <strong>{family.label}</strong>
         </span>
       ))}
+    </div>
+  );
+}
+
+function ForgeSetLegend() {
+  return (
+    <div className="forge-set-legend" aria-label="Equipment campaign sets">
+      {equipmentSetOrder.map((setId) => {
+        const definition = equipmentSets[setId];
+        return (
+          <article className={`equipment-set-${setId}`} key={setId} title={definition.description}>
+            <i aria-hidden="true">{definition.code}</i>
+            <span>
+              <strong>{definition.name}</strong>
+              <small>{definition.campaignBand}</small>
+            </span>
+            <em>{definition.thresholds.map((threshold) => `${threshold.pieces}p ${formatEquipmentSetBonus(threshold.bonuses)}`).join(" / ")}</em>
+          </article>
+        );
+      })}
     </div>
   );
 }

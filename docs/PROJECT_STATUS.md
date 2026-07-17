@@ -111,6 +111,7 @@ Atualizado em: 2026-07-17
 - Etapa 59.5 concluida: QA real de raridades e tiers validou normalizacao, +5/Tier 3, Save/Reload, Forge, Bazar, responsividade e restauracao integral do SQLite.
 - Etapa 60 concluida: equipamentos ganharam seis familias, cinco faixas de level, 16 novos itens e fontes reais em hunts, bosses e Bazar offline.
 - Etapa 60.5 concluida: QA real validou catalogo, loot, Bazar, gates, responsividade, Save/Reload no Tauri e restauracao integral do SQLite.
+- Etapa 61 concluida: Iron Expedition, Cryptwarden e Emberforged adicionaram bonus derivados por conjunto, com suporte a todas as vocacoes e UI integrada.
 
 Comandos principais:
 
@@ -3231,7 +3232,7 @@ Validacao executada:
 Limitacoes atuais:
 
 - A etapa nao adiciona sprites exclusivos; itens usam os sigilos e tratamentos CSS atuais.
-- Nao existem set bonuses, crafting de equipamentos, reroll de atributos ou raridade cosmica.
+- A Etapa 60 ainda nao adicionava set bonuses, crafting de equipamentos, reroll de atributos ou raridade cosmica; os conjuntos chegaram na Etapa 61.
 - O QA desta implementacao usou o mock Vite. Drop real, compra, equip e Save/Reload no Tauri/SQLite ficam para a Etapa 60.5.
 - Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
 
@@ -3281,6 +3282,61 @@ Resultado:
 Proximo passo sugerido:
 
 - Etapa 61 - Sets de equipamentos e bonus de conjunto offline.
+
+## Etapa 61 - Sets de equipamentos e bonus de conjunto offline
+
+Status: concluida.
+
+Modelo:
+
+- Tres kits cobrem a progressao existente: Iron Expedition (Adventurer), Cryptwarden (Veteran) e Emberforged (Elite/Mythic).
+- Cada kit usa grupos de pecas, nao uma lista rigida: uma arma valida para Guardian, Ranger, Arcanist/Warden ou Monk preenche o mesmo grupo de arma.
+- Um grupo conta no maximo uma vez, impedindo que duas armas do mesmo kit em um save malformado dupliquem progresso.
+- Iron Expedition e Cryptwarden ativam em 2/2 com arma e armadura; Emberforged ativa Dragon Temper em 2/3 e Heart of the Matriarch em 3/3 com Emberheart Amulet.
+- Set, familia, faixa de level, raridade, upgrade, Forge tier e imbuement continuam camadas independentes.
+
+Bonus reais:
+
+- Iron Expedition 2/2: Attack +2%, Defense +2% e Health +15.
+- Cryptwarden 2/2: Attack +3%, Defense +3%, Health +30 e Mana +15.
+- Emberforged 2/3: Attack +4%, Defense +4%, Health +50 e Mana +25.
+- Emberforged 3/3 adiciona Capacity +40, Speed +3 e Crit Chance +2%.
+- Os bonus entram no calculo central de atributos e, por consequencia, no power usado por hunts, bosses, quests e expedicoes.
+
+Compatibilidade e seguranca:
+
+- Os 16 itens da Etapa 60 receberam apenas `equipmentSetId` no catalogo local; nenhuma coluna SQLite ou migration foi criada.
+- Saves antigos continuam persistindo `item_id` e recebem identidade de conjunto ao hidratar o catalogo atual.
+- Metadado de set invalido usa fallback pelo itemId conhecido; item isolado, faixa misturada ou conjunto incompleto nao concede bonus.
+- Os bonus sao pequenos, deterministas e totalmente offline; nao existe reroll, compra premium, pagamento ou dependencia online.
+
+Interface:
+
+- `EquipmentSetBadge` identifica pecas de conjunto em Inventory, tooltips, titulos de ItemIcon e listas/dossier da Forge.
+- Character Details ganhou ledger 0/2 ou 0/3 com grupos equipados, marcos e bonus ativos.
+- Guild Record mostra o resumo agregado de set bonus ao lado do gear bonus comum.
+- Forge ganhou uma legenda dos tres kits com faixa e todos os thresholds, separada das familias, raridades e tiers.
+- Guild Field Codex e Release Archive documentam a regra de grupos alternativos e a independencia das demais camadas de item.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite.
+- Auditoria SSR confirmou tres sets, 16 pecas, zero item ausente e correspondencia integral entre catalogo e definicoes.
+- Uma peca nao ativou bonus; arma e armadura de faixas diferentes tambem nao ativaram conjunto.
+- Emberforged 2/3 aplicou Attack, Defense, Health e Mana; 3/3 adicionou Crit, Capacity e Speed aos atributos reais.
+- Character Details e Forge foram verificadas em 1280x800, 960x700 e 700x700 sem overflow horizontal.
+- O QA visual encontrou nomes de sets quebrando no meio da palavra na Forge; a coluna foi corrigida e revalidada nos tres viewports.
+
+Limitacoes atuais:
+
+- Os conjuntos reutilizam as 16 pecas existentes e seus drops; esta etapa nao adiciona novos sprites, crafting, reroll ou mais slots.
+- Bonus economicos, XP, loot e supply nao fazem parte dos sets atuais para evitar escalada excessiva.
+- O QA desta implementacao usou engine e mock Vite; equip/unequip e Save/Reload reais no Tauri/SQLite ficam para a Etapa 61.5.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 61.5 - QA dos sets de equipamentos no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

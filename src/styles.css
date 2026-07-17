@@ -2190,6 +2190,139 @@ p {
 .item-progression-badge.is-compact > strong { font-size: 0.53rem; }
 .item-progression-badge.is-compact > em { font-size: 0.49rem; }
 
+.equipment-set-iron-expedition { --equipment-set-color: #b6a56f; --equipment-set-surface: #242219; }
+.equipment-set-cryptwarden { --equipment-set-color: #70aaa0; --equipment-set-surface: #162522; }
+.equipment-set-emberforged { --equipment-set-color: #d6814f; --equipment-set-surface: #2b1d17; }
+
+.equipment-set-badge {
+  display: inline-grid;
+  grid-template-columns: 22px minmax(0, auto);
+  gap: 5px;
+  align-items: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 3px 6px 3px 3px;
+  border: 1px solid color-mix(in srgb, var(--equipment-set-color) 58%, #30342f);
+  color: var(--equipment-set-color);
+  background: var(--equipment-set-surface);
+}
+
+.equipment-set-badge > i {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  min-height: 18px;
+  border: 1px solid color-mix(in srgb, var(--equipment-set-color) 65%, transparent);
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.equipment-set-badge > strong { color: inherit; font-size: 0.58rem; text-transform: uppercase; }
+.equipment-set-badge.is-compact { grid-template-columns: 18px minmax(0, auto); min-height: 20px; padding: 2px 4px 2px 2px; }
+.equipment-set-badge.is-compact > i { min-width: 16px; min-height: 14px; font-size: 0.45rem; }
+.equipment-set-badge.is-compact > strong { font-size: 0.51rem; }
+
+.equipment-set-ledger {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.equipment-set-card {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid #303630;
+  background: #111613;
+  opacity: 0.76;
+}
+
+.equipment-set-card.is-active {
+  border-color: color-mix(in srgb, var(--equipment-set-color) 68%, #343932);
+  background: var(--equipment-set-surface);
+  opacity: 1;
+}
+
+.equipment-set-card header {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+}
+
+.equipment-set-card header > i {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--equipment-set-color);
+  color: var(--equipment-set-color);
+  font-size: 0.55rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.equipment-set-card header strong,
+.equipment-set-card header small { display: block; overflow-wrap: anywhere; }
+.equipment-set-card header strong { color: var(--equipment-set-color); font-size: 0.65rem; text-transform: uppercase; }
+.equipment-set-card header small { margin-top: 2px; color: #7f8982; font-size: 0.52rem; }
+.equipment-set-card header b { color: #d9cfaf; font-size: 0.68rem; }
+
+.equipment-set-pips { display: flex; gap: 4px; margin: 7px 0; }
+.equipment-set-pips > span { height: 4px; flex: 1; background: #292f2a; }
+.equipment-set-pips > span.is-equipped { background: var(--equipment-set-color); }
+
+.equipment-set-thresholds { display: grid; gap: 4px; }
+.equipment-set-thresholds p { margin: 0; padding: 5px; border-left: 2px solid #343a35; background: #0d110f; }
+.equipment-set-thresholds p.is-active { border-left-color: var(--equipment-set-color); }
+.equipment-set-thresholds strong,
+.equipment-set-thresholds span { display: block; overflow-wrap: anywhere; }
+.equipment-set-thresholds strong { color: #8e968e; font-size: 0.52rem; text-transform: uppercase; }
+.equipment-set-thresholds p.is-active strong { color: var(--equipment-set-color); }
+.equipment-set-thresholds span { margin-top: 2px; color: #777f78; font-size: 0.5rem; line-height: 1.25; }
+
+.forge-set-legend {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+
+.forge-set-legend article {
+  display: grid;
+  grid-template-columns: 30px minmax(88px, 0.8fr) minmax(0, 1.2fr);
+  gap: 7px;
+  align-items: center;
+  min-width: 0;
+  min-height: 50px;
+  padding: 7px;
+  border: 1px solid color-mix(in srgb, var(--equipment-set-color) 45%, #303630);
+  background: var(--equipment-set-surface);
+}
+
+.forge-set-legend article > i {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--equipment-set-color);
+  color: var(--equipment-set-color);
+  font-size: 0.56rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.forge-set-legend strong,
+.forge-set-legend small,
+.forge-set-legend em { display: block; overflow-wrap: anywhere; }
+.forge-set-legend strong { color: var(--equipment-set-color); font-size: 0.62rem; overflow-wrap: normal; text-transform: uppercase; word-break: normal; }
+.forge-set-legend small { margin-top: 2px; color: #8b938c; font-size: 0.5rem; }
+.forge-set-legend em { color: #a5aaa3; font-size: 0.5rem; font-style: normal; line-height: 1.3; }
+
+@media (max-width: 1100px) {
+  .forge-set-legend { grid-template-columns: 1fr; }
+}
+
 .bazaar-offer .item-progression-badge {
   justify-self: center;
   max-width: 100%;

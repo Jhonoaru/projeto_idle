@@ -340,6 +340,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 12,
     equipmentFamily: "vanguard",
     progressionBand: "adventurer",
+    equipmentSetId: "iron-expedition",
   },
   "ironwood-bow": {
     id: "ironwood-bow",
@@ -358,6 +359,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 12,
     equipmentFamily: "pathfinder",
     progressionBand: "adventurer",
+    equipmentSetId: "iron-expedition",
   },
   "runed-wand": {
     id: "runed-wand",
@@ -376,6 +378,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 12,
     equipmentFamily: "arcanum",
     progressionBand: "adventurer",
+    equipmentSetId: "iron-expedition",
   },
   "iron-handwraps": {
     id: "iron-handwraps",
@@ -394,6 +397,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 12,
     equipmentFamily: "discipline",
     progressionBand: "adventurer",
+    equipmentSetId: "iron-expedition",
   },
   "iron-cuirass": {
     id: "iron-cuirass",
@@ -410,6 +414,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 12,
     equipmentFamily: "field-kit",
     progressionBand: "adventurer",
+    equipmentSetId: "iron-expedition",
   },
   "cryptsteel-blade": {
     id: "cryptsteel-blade",
@@ -426,6 +431,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 30,
     equipmentFamily: "vanguard",
     progressionBand: "veteran",
+    equipmentSetId: "cryptwarden",
   },
   "gravewood-bow": {
     id: "gravewood-bow",
@@ -444,6 +450,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 30,
     equipmentFamily: "pathfinder",
     progressionBand: "veteran",
+    equipmentSetId: "cryptwarden",
   },
   "crypt-scepter": {
     id: "crypt-scepter",
@@ -462,6 +469,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 30,
     equipmentFamily: "arcanum",
     progressionBand: "veteran",
+    equipmentSetId: "cryptwarden",
   },
   "boneweave-wraps": {
     id: "boneweave-wraps",
@@ -480,6 +488,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 30,
     equipmentFamily: "discipline",
     progressionBand: "veteran",
+    equipmentSetId: "cryptwarden",
   },
   "cryptguard-armor": {
     id: "cryptguard-armor",
@@ -496,6 +505,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 30,
     equipmentFamily: "field-kit",
     progressionBand: "veteran",
+    equipmentSetId: "cryptwarden",
   },
   "ember-blade": {
     id: "ember-blade",
@@ -512,6 +522,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 55,
     equipmentFamily: "vanguard",
     progressionBand: "elite",
+    equipmentSetId: "emberforged",
   },
   "wyvern-bow": {
     id: "wyvern-bow",
@@ -530,6 +541,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 55,
     equipmentFamily: "pathfinder",
     progressionBand: "elite",
+    equipmentSetId: "emberforged",
   },
   "ember-staff": {
     id: "ember-staff",
@@ -548,6 +560,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 55,
     equipmentFamily: "arcanum",
     progressionBand: "elite",
+    equipmentSetId: "emberforged",
   },
   "dragon-wraps": {
     id: "dragon-wraps",
@@ -566,6 +579,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 55,
     equipmentFamily: "discipline",
     progressionBand: "elite",
+    equipmentSetId: "emberforged",
   },
   "dragonscale-armor": {
     id: "dragonscale-armor",
@@ -582,6 +596,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 55,
     equipmentFamily: "field-kit",
     progressionBand: "elite",
+    equipmentSetId: "emberforged",
   },
   "emberheart-amulet": {
     id: "emberheart-amulet",
@@ -599,6 +614,7 @@ export const items: Record<string, Item> = {
     levelRequirement: 60,
     equipmentFamily: "artifact",
     progressionBand: "mythic",
+    equipmentSetId: "emberforged",
   },
   "leather-helmet": {
     id: "leather-helmet",

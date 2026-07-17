@@ -7,6 +7,7 @@ import { ItemTooltip } from "../items/ItemTooltip";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
+import { EquipmentSetBadge } from "../items/EquipmentSetBadge";
 
 interface InventoryItemRowProps {
   inventoryItem: InventoryItem;
@@ -53,6 +54,7 @@ export function InventoryItemRow({
         <h3>{formatEnhancedItemName(inventoryItem)}</h3>
         <ItemQualityBadge compact inventoryItem={inventoryItem} />
         <ItemProgressionBadge compact item={inventoryItem.item} />
+        <EquipmentSetBadge compact item={inventoryItem.item} />
         <p>
           {inventoryItem.item.type}
           {inventoryItem.locked ? " / Travado" : ""}

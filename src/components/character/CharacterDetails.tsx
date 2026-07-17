@@ -3,6 +3,8 @@ import { GuildBriefing } from "./GuildBriefing";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
+import { EquipmentSetLedger } from "../equipment/EquipmentSetLedger";
+import { calculateEquipmentSetBonuses, formatEquipmentSetBonus } from "../../game-engine/equipment/calculateEquipmentSetBonuses";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { CHARACTER_STATUS_LABELS, SKILL_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
@@ -58,6 +60,7 @@ export function CharacterDetails({
   const xpPreview = getEstimatedExperiencePreview(character);
   const levelProgress = Math.round(xpPreview.levelProgressPercent);
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
+  const equipmentSetBonuses = calculateEquipmentSetBonuses(character.equipment);
   const weaponProficiencies = normalizeWeaponProficiencies(character.weaponProficiencies);
   const activeWeaponType = getEquippedWeaponProficiencyType(character.equipment.weapon);
   const activeMastery = activeWeaponType ? weaponProficiencies[activeWeaponType] : undefined;
@@ -212,6 +215,7 @@ export function CharacterDetails({
               );
             })}
           </div>
+          <EquipmentSetLedger equipment={character.equipment} />
           <button className="character-hall-link" onClick={() => onOpenTab("inventory")} type="button">Manage equipment</button>
         </section>
 
@@ -241,6 +245,7 @@ export function CharacterDetails({
             <Detail label="Deaths" value={(character.deathCount ?? 0).toString()} />
             <Detail label="Gold generated" value={`${character.gold.toLocaleString("en-US")}g`} />
             <Detail label="Gear bonus" value={formatEquipmentBonus(equipmentBonuses)} />
+            <Detail label="Set bonus" value={formatEquipmentSetBonus(equipmentSetBonuses) || "None"} />
           </dl>
         </section>
       </div>
