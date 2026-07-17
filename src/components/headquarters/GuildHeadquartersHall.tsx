@@ -1,17 +1,21 @@
 import { useMemo, useState } from "react";
 import { guildFacilities } from "../../data/guildFacilities";
+import { items } from "../../data/items";
 import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
 import { getHeadquartersBonuses, getHeadquartersRank } from "../../game-engine/headquarters/getHeadquartersBonuses";
 import { normalizeGuildHeadquarters } from "../../game-engine/headquarters/normalizeGuildHeadquarters";
-import type { Character, Guild, GuildFacilityDefinition, GuildFacilityId } from "../../shared/types";
+import { getGuildFacilityUpgradeAvailability } from "../../game-engine/headquarters/upgradeGuildFacility";
+import type { Character, Guild, GuildDepot, GuildFacilityDefinition, GuildFacilityId } from "../../shared/types";
+import { ItemIcon } from "../items/ItemIcon";
 
 interface GuildHeadquartersHallProps {
   characters: Character[];
+  depot: GuildDepot;
   guild: Guild;
   onUpgradeFacility: (facilityId: GuildFacilityId) => void;
 }
 
-export function GuildHeadquartersHall({ characters, guild, onUpgradeFacility }: GuildHeadquartersHallProps) {
+export function GuildHeadquartersHall({ characters, depot, guild, onUpgradeFacility }: GuildHeadquartersHallProps) {
   const headquarters = useMemo(() => normalizeGuildHeadquarters(guild.headquarters), [guild.headquarters]);
   const bonuses = useMemo(() => getHeadquartersBonuses(headquarters), [headquarters]);
   const rank = useMemo(() => getHeadquartersRank(headquarters), [headquarters]);
@@ -19,11 +23,11 @@ export function GuildHeadquartersHall({ characters, guild, onUpgradeFacility }: 
   const [selectedFacilityId, setSelectedFacilityId] = useState<GuildFacilityId>(guildFacilities[0].id);
   const selectedFacility = guildFacilities.find((facility) => facility.id === selectedFacilityId) ?? guildFacilities[0];
   const selectedLevel = headquarters.facilityLevels[selectedFacility.id];
-  const upgradeCost = selectedFacility.upgradeCosts[selectedLevel];
-  const requiredPoints = selectedFacility.careerPointRequirements[selectedLevel];
   const maxed = selectedLevel >= 3;
-  const canAfford = maxed || guild.gold >= (upgradeCost ?? Number.POSITIVE_INFINITY);
-  const careerReady = maxed || career.points >= (requiredPoints ?? Number.POSITIVE_INFINITY);
+  const upgrade = useMemo(
+    () => getGuildFacilityUpgradeAvailability(guild, depot, characters, selectedFacility.id),
+    [characters, depot, guild, selectedFacility.id],
+  );
 
   return (
     <div className="headquarters-hall">
@@ -32,12 +36,12 @@ export function GuildHeadquartersHall({ characters, guild, onUpgradeFacility }: 
         <div className="headquarters-identity">
           <span>Guild headquarters</span>
           <h3>{guild.name} {rank.title}</h3>
-          <p>Permanent local facilities funded with guild gold and backed by Career Ledger progress.</p>
+          <p>Permanent local facilities funded with guild gold, Career Ledger progress and materials recovered from campaign hunts.</p>
         </div>
         <div className="headquarters-summary">
           <Summary label="Facility levels" value={`${rank.totalLevels}/12`} />
-          <Summary label="Invested" value={`${headquarters.totalInvestedGold.toLocaleString("en-US")}g`} />
-          <Summary label="Guild gold" value={`${guild.gold.toLocaleString("en-US")}g`} />
+          <Summary label="Gold invested" value={`${headquarters.totalInvestedGold.toLocaleString("en-US")}g`} />
+          <Summary label="Materials donated" value={headquarters.totalInvestedMaterials.toLocaleString("en-US")} />
           <Summary label="Career points" value={`${career.points}`} />
         </div>
       </section>
@@ -87,20 +91,31 @@ export function GuildHeadquartersHall({ characters, guild, onUpgradeFacility }: 
             ) : (
               <>
                 <div><span>Next benefit</span><strong>{formatBonus(selectedFacility, selectedLevel + 1)}</strong></div>
-                <div><span>Construction cost</span><strong>{upgradeCost?.toLocaleString("en-US")}g</strong></div>
-                <div><span>Career requirement</span><strong>{requiredPoints} points</strong></div>
+                <div><span>Construction cost</span><strong>{upgrade.cost.toLocaleString("en-US")}g</strong></div>
+                <div><span>Career requirement</span><strong>{upgrade.requiredCareerPoints} points</strong></div>
               </>
             )}
           </div>
+          {!maxed ? (
+            <div className="headquarters-material-order" aria-label="Facility material requirements">
+              <header><span>Guild Depot requisition</span><strong>Unlocked root stacks</strong></header>
+              {upgrade.materials.map((material) => (
+                <div className={material.missing > 0 ? "is-missing" : "is-ready"} key={material.itemId}>
+                  <span><ItemIcon item={items[material.itemId]} showQuantity={false} size="small" /><strong>{material.name}</strong></span>
+                  <b>{material.available}/{material.quantity}</b>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <button
             className="headquarters-upgrade-button"
-            disabled={maxed || !canAfford || !careerReady}
+            disabled={!upgrade.available}
             onClick={() => onUpgradeFacility(selectedFacility.id)}
             type="button"
           >
-            {maxed ? "Maximum Level" : !careerReady ? `Requires ${requiredPoints} Career Points` : !canAfford ? `Requires ${upgradeCost?.toLocaleString("en-US")}g` : `Upgrade to Level ${selectedLevel + 1}`}
+            {maxed ? "Maximum Level" : upgrade.available ? `Upgrade to Level ${selectedLevel + 1}` : upgrade.reason}
           </button>
-          <small className="headquarters-local-note">Facilities are permanent, guild-wide and capped for this local campaign.</small>
+          <small className="headquarters-local-note">Only unlocked materials at the root of the Guild Depot are donated. Character inventory, containers and locked stacks remain untouched.</small>
         </aside>
       </div>
     </div>

@@ -388,8 +388,11 @@ export function App() {
   function handleUpgradeGuildFacility(facilityId: GuildFacilityId) {
     if (upgradingFacilityRef.current) return;
     upgradingFacilityRef.current = true;
-    const result = upgradeGuildFacility(guild, characters, facilityId);
-    if (result.success) setGuild(result.guild);
+    const result = upgradeGuildFacility(guild, depot, characters, facilityId);
+    if (result.success) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
     prependLog(
       result.success ? "Headquarters upgraded" : "Headquarters blocked",
       result.message,

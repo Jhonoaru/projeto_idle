@@ -117,6 +117,7 @@ Atualizado em: 2026-07-17
 - Etapa 62.5 concluida: QA real validou receitas, ranks, consumo transacional, clique duplo, filtros, responsividade e dois Save/Reload no Tauri/SQLite.
 - Etapa 63 concluida: Salvage offline adicionou recuperacao deterministica de materiais, protecoes de equipamento, confirmacao dupla e ledger persistente no SQLite.
 - Etapa 63.5 concluida: QA real corrigiu merge com stacks locked e validou dados corrompidos, clique duplo, responsividade e dois reloads Tauri/SQLite.
+- Etapa 64 concluida: as 12 melhorias da Headquarters agora exigem gold, Career Points e materiais reais de hunts antigas consumidos no Guild Depot.
 
 Comandos principais:
 
@@ -3600,6 +3601,68 @@ Resultado e limites:
 Proximo passo sugerido:
 
 - Etapa 64 - Upgrades da guilda com materiais de hunts antigas.
+
+## Etapa 64 - Upgrades da guilda com materiais de hunts antigas
+
+Status: concluida.
+
+Objetivo e modelo:
+
+- As quatro facilities existentes mantiveram tres niveis e os bonus originais; a etapa adicionou custo material sem aumentar o poder maximo.
+- War Room continua fornecendo +1% Hunt XP por nivel; Training Yard +2% training; Quartermaster -2% NPC prices; Contract Archive +1% Quest XP.
+- Cada um dos 12 upgrades exige gold, Career Points e dois materiais reais do catalogo.
+- `totalInvestedMaterials` foi adicionado ao `headquarters_json`; saves antigos recebem zero sem perder niveis ou gold investido.
+
+Materiais e retorno a hunts:
+
+- Nivel 1 usa Rat Tail, Spider Silk e Old Cloth das rotas iniciais.
+- Nivel 2 usa Broken Fang, Iron Ore, Spider Silk e Ancient Bone das hunts regionais e crypts.
+- Nivel 3 usa Ancient Bone, Wyvern Scale, Cultist Charm e Enchanted Dust das areas avancadas.
+- Os requisitos ficam no catalogo TypeScript e nao sao salvos por jogador, evitando reroll ou alteracao ao reabrir o jogo.
+- Quantidades foram mantidas pequenas para criar objetivos paralelos sem bloquear excessivamente a campanha.
+
+Engine e seguranca:
+
+- `getGuildFacilityUpgradeAvailability` centraliza level, career, gold, materiais disponiveis, faltantes e motivos de bloqueio.
+- A transacao valida todos os requisitos antes de alterar guilda ou depot.
+- Somente stacks destravadas, na raiz do Guild Depot, sem owner de personagem e que nao sejam quest items podem ser consumidas.
+- Stacks locked, itens em containers, inventarios e depots de personagens permanecem intocados.
+- Consumo pode atravessar varias stacks, recalcula capacity e incrementa os totais vitalicios de gold e materiais.
+- Clique duplo continua protegido pela trava curta existente no App e cada resultado gera um unico Activity Log.
+
+Interface:
+
+- O hero agora mostra Facility Levels, Gold Invested, Materials Donated e Career Points.
+- O dossier apresenta custo, career gate e uma requisicao visual com os icones reais, nomes e contagens disponivel/exigida.
+- Materiais prontos e faltantes possuem estados distintos; o botao mostra o primeiro bloqueio relevante.
+- A nota operacional informa explicitamente que apenas stacks destravadas na raiz do Guild Depot sao doadas.
+
+Validacao:
+
+- A matriz SSR passou 67 verificacoes cobrindo 12 requisitos, catalogo, normalizacao, quatro upgrades iniciais, progressao completa e bloqueios.
+- War Room avancou de 0 a 3 consumindo 35 materiais e 6.250g, mantendo o bonus final em +3% Hunt XP.
+- Consumo em duas stacks funcionou; stacks locked e nested permaneceram com as quantidades originais.
+- Gold, material, career e level maximo bloquearam sem mutar guilda ou depot.
+- As quatro facilities e seus requisitos foram inspecionados no browser em 1280x800, 960x700, 700x700 e 430x760 sem overflow.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` gerou executavel, MSI e NSIS.
+- A primeira abertura normalizou o save antigo com `totalInvestedMaterials: 0`, mantendo 674g e integridade `ok`.
+- Uma fixture de War Room level 1 preservou 424g, 250g investidos, oito materiais doados e um Activity Log por duas aberturas.
+- Rat Tail locked e Spider Silk nested permaneceram intocados durante os dois reloads.
+- O save real foi restaurado ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`; backup temporario, WAL e SHM foram removidos.
+
+Limitacoes atuais:
+
+- Nao ha fila, tempo de construcao, downgrade, reembolso, melhoria alem do nivel 3 ou bonus novos.
+- Materiais precisam ser movidos manualmente para a raiz do Guild Depot antes da doacao.
+- Nao ha comando direto do requisito para abrir a hunt de origem; as fontes podem ser consultadas no Codex.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 64.5 - QA dos upgrades materiais da Headquarters no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

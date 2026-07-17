@@ -366,6 +366,12 @@ export type GuildFacilityId = "war_room" | "training_yard" | "quartermaster" | "
 export interface GuildHeadquartersState {
   facilityLevels: Record<GuildFacilityId, number>;
   totalInvestedGold: number;
+  totalInvestedMaterials: number;
+}
+
+export interface GuildFacilityMaterialRequirement {
+  itemId: string;
+  quantity: number;
 }
 
 export interface GuildFacilityDefinition {
@@ -377,6 +383,7 @@ export interface GuildFacilityDefinition {
   bonusPerLevel: number;
   upgradeCosts: readonly number[];
   careerPointRequirements: readonly number[];
+  materialRequirements: readonly (readonly GuildFacilityMaterialRequirement[])[];
 }
 
 export type GuildSpecialistId = "scout_captain" | "provisioner" | "guild_envoy" | "field_medic";

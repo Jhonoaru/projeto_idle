@@ -11457,6 +11457,17 @@ html[data-client-density="compact"] .top-bar { gap: 6px; margin-bottom: 6px; pad
 .headquarters-upgrade-order > div:last-child { border-bottom: 0; }
 .headquarters-upgrade-order > strong { padding: 12px; color: #9bc6a3; text-align: center; }
 .headquarters-upgrade-order strong { color: #dfce97; font-size: 0.68rem; }
+.headquarters-material-order { display: grid; gap: 5px; margin-top: 8px; border: 1px solid #303832; padding: 8px; background: #111613; }
+.headquarters-material-order header { display: flex; justify-content: space-between; gap: 8px; padding-bottom: 6px; border-bottom: 1px solid #303832; }
+.headquarters-material-order header span { color: #a9955f; font-size: 0.59rem; text-transform: uppercase; }
+.headquarters-material-order header strong { color: #7f8981; font-size: 0.55rem; }
+.headquarters-material-order > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; border: 1px solid #343c36; padding: 6px; background: #171d19; }
+.headquarters-material-order > div > span { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.headquarters-material-order .item-icon { flex: 0 0 auto; }
+.headquarters-material-order div strong { min-width: 0; overflow-wrap: anywhere; color: #c8cec8; font-size: 0.64rem; }
+.headquarters-material-order b { color: #91b997; font-size: 0.65rem; white-space: nowrap; }
+.headquarters-material-order .is-missing { border-color: #61483b; background: #201714; }
+.headquarters-material-order .is-missing b { color: #d48b6c; }
 .headquarters-upgrade-button { min-height: 42px; margin-top: 8px; border: 1px solid #aa8b46; color: #f0d792; background: #283127; font-family: Georgia, serif; font-weight: 900; cursor: pointer; }
 .headquarters-upgrade-button:disabled { border-color: #3b433c; color: #717a73; background: #171c18; cursor: not-allowed; }
 .headquarters-local-note { display: block; margin-top: auto; padding-top: 10px; color: #7f8a82; font-size: 0.58rem; line-height: 1.4; }

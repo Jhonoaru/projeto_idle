@@ -648,6 +648,7 @@ export function MainPanel({
         {activeTab === "headquarters" ? (
           <GuildHeadquartersHall
             characters={characters}
+            depot={depot}
             guild={guild}
             onUpgradeFacility={onUpgradeGuildFacility}
           />

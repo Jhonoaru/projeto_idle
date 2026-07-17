@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-64",
+    stage: "Stage 64",
+    title: "Hunt-Funded Headquarters",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "Headquarters facilities now require real campaign loot alongside gold and Career Points, creating permanent reasons to revisit earlier hunts.",
+    highlights: [
+      "All twelve facility levels use two catalog-backed materials drawn from starter caves, regional hunts, crypts and late campaign creatures.",
+      "Upgrades consume only unlocked root stacks in the Guild Depot while protected, nested and character-owned resources remain untouched.",
+      "The Guild Hall previews exact counts, tracks lifetime donated materials and preserves the existing capped Hunt, Training, NPC and Quest bonuses.",
+    ],
+    systems: ["Headquarters", "Guild Depot", "Hunt Materials", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-63-5",
     stage: "Stage 63.5",
     title: "Guild Salvage QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Forty engine checks, responsive browser QA and two Tauri reloads preserved one transaction before the original save was restored byte for byte.",
     ],
     systems: ["Salvage QA", "Guild Depot", "Tauri QA", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-63",

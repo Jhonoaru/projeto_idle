@@ -10,6 +10,7 @@ export function createDefaultGuildHeadquarters(): GuildHeadquartersState {
       contract_archive: 0,
     },
     totalInvestedGold: 0,
+    totalInvestedMaterials: 0,
   };
 }
 
@@ -30,6 +31,7 @@ export function normalizeGuildHeadquarters(value: unknown): GuildHeadquartersSta
   return {
     facilityLevels,
     totalInvestedGold: normalizeGold(candidate.totalInvestedGold),
+    totalInvestedMaterials: normalizeGold(candidate.totalInvestedMaterials),
   };
 }
 
