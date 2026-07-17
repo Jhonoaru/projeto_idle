@@ -64,4 +64,10 @@ export const mockGuild: Guild = {
     totalDonatedMaterials: 0,
   },
   bazaar: normalizeGuildBazaarState(undefined, "guild-aurora"),
+  crafting: {
+    totalCrafts: 0,
+    totalGoldSpent: 0,
+    totalMaterialsConsumed: 0,
+    history: [],
+  },
 };

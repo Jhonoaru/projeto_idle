@@ -113,6 +113,7 @@ Atualizado em: 2026-07-17
 - Etapa 60.5 concluida: QA real validou catalogo, loot, Bazar, gates, responsividade, Save/Reload no Tauri e restauracao integral do SQLite.
 - Etapa 61 concluida: Iron Expedition, Cryptwarden e Emberforged adicionaram bonus derivados por conjunto, com suporte a todas as vocacoes e UI integrada.
 - Etapa 61.5 concluida: QA real validou thresholds 3/3, 2/3 e 1/3, equip/unequip, gates, Tauri/SQLite, responsividade e restauracao integral do save.
+- Etapa 62 concluida: Guild Workbench offline adicionou 19 receitas, quatro ranks, consumo do Guild Depot, entrega segura e historico persistente no SQLite.
 
 Comandos principais:
 
@@ -3388,6 +3389,70 @@ Resultado:
 Proximo passo sugerido:
 
 - Etapa 62 - Crafting offline e bancada de equipamentos da guilda.
+
+## Etapa 62 - Crafting offline e bancada de equipamentos da guilda
+
+Status: concluida.
+
+Modelo:
+
+- A Forge ganhou os modos `Enhancement Forge` e `Guild Workbench`, sem remover upgrade, tier ou imbuements existentes.
+- A bancada e guild-wide, totalmente offline, deterministica e sem chance de falha, fila, espera ou moeda premium.
+- Dezenove blueprints reutilizam equipamentos reais do catalogo, cobrindo armas de todas as vocacoes e armaduras de quatro faixas.
+- Apprentice oferece quatro pecas iniciais; Journeyman oferece as cinco pecas Iron Expedition; Master oferece as cinco Cryptwarden; Grandmaster oferece cinco pecas Emberforged.
+- Emberheart Amulet permanece exclusivo das fontes raras existentes e nao pode ser fabricado.
+
+Progressao:
+
+- Workshop Rank 1 Apprentice inicia com zero crafts.
+- Rank 2 Journeyman desbloqueia com tres pedidos concluidos.
+- Rank 3 Master desbloqueia com oito pedidos concluidos.
+- Rank 4 Grandmaster desbloqueia com 15 pedidos concluidos.
+- O estado persiste `totalCrafts`, `totalGoldSpent`, `totalMaterialsConsumed` e os ultimos 20 pedidos.
+
+Economia e inventario:
+
+- Cada receita exige `guild.gold` e materiais ou trofeus reais, incluindo Iron Ore, Old Cloth, Broken Fang, Ancient Bone, Cultist Charm, Wyvern Scale, Dragon Ember e Enchanted Dust.
+- Somente itens destravados do Guild Depot contam e podem ser consumidos; quest items e stacks protegidos permanecem intocados.
+- A operacao valida receita, output, rank, gold e todos os materiais antes de alterar o estado.
+- O equipamento fabricado recebe ID proprio, nao empilha e e entregue imediatamente ao Guild Depot, mesmo sem personagem selecionado.
+- Falhas nao descontam gold, nao removem materiais e nao criam historico.
+
+Interface:
+
+- Resumo mostra rank, pedidos concluidos, guild gold e tipos de materiais indexados.
+- A trilha de quatro ranks informa o proximo marco e quantos pedidos faltam.
+- Filtros separam todas as receitas, armas e armaduras.
+- O blueprint selecionado mostra icone, familia, faixa de level, set, requisitos atuais, destino e motivo de bloqueio.
+- Workshop Ledger mostra os ultimos 20 pedidos e totais vitalicios.
+- O Activity Log recebe uma unica entrada de sucesso ou bloqueio por tentativa.
+- Uma trava curta no App impede duplicacao por clique duplo.
+
+Save/Load SQLite:
+
+- `crafting_json` foi adicionado a `guilds` por migration idempotente com default `{}`.
+- Saves antigos normalizam campos ausentes, negativos, `NaN`, historico invalido e timestamps corrompidos.
+- O catalogo de receitas fica em codigo; somente progresso e historico ficam no save.
+- Execucao protegida do release Tauri criou a coluna, carregou o estado default e manteve `PRAGMA integrity_check = ok`.
+- O save real foi restaurado ao SHA-256 original `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` depois do teste.
+
+Validacao:
+
+- Teste SSR validou material travado, rank gate, gold insuficiente, receita ausente, ausencia de mutacao em bloqueios e normalizacao legada.
+- Tres crafts consecutivos consumiram seis Iron Ore e 120g, criaram tres IDs distintos e desbloquearam Journeyman.
+- O fluxo visual fabricou Worn Sword, atualizou 420g para 380g, Iron Ore de 12 para 10 e adicionou uma entrada ao ledger.
+- Viewports 1280x800, 960x700 e 700x700 foram verificadas; um overflow intermediario encontrado em 960 px foi corrigido com layout de uma coluna.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram; executavel, MSI e NSIS foram gerados.
+
+Limitacoes atuais:
+
+- Nao ha salvage, reroll, qualidade aleatoria, fila de producao, receitas temporizadas ou crafting automatico.
+- A bancada reutiliza os equipamentos e simbolos existentes; novos sprites ficam para uma etapa visual futura.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 62.5 - QA do crafting offline no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

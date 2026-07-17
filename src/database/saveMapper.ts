@@ -13,6 +13,7 @@ import { normalizeGuildStaffState } from "../game-engine/staff/normalizeGuildSta
 import { normalizeGuildTreasuryState } from "../game-engine/treasury/normalizeGuildTreasuryState";
 import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGuildProjectsState";
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
+import { normalizeGuildCraftingState } from "../game-engine/crafting/normalizeGuildCraftingState";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -49,6 +50,7 @@ export interface GuildRow {
   treasury_json?: string | null;
   projects_json?: string | null;
   bazaar_json?: string | null;
+  crafting_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -150,6 +152,9 @@ export function mapGuild(row: GuildRow): Guild {
     bazaar: normalizeGuildBazaarState(
       row.bazaar_json ? parseJson(row.bazaar_json, undefined) : undefined,
       row.id,
+    ),
+    crafting: normalizeGuildCraftingState(
+      row.crafting_json ? parseJson(row.crafting_json, undefined) : undefined,
     ),
   };
 }

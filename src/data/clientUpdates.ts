@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-62",
+    stage: "Stage 62",
+    title: "Offline Guild Workbench",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "The Forge now includes a deterministic guild workbench that turns saved hunt materials and gold into real equipment.",
+    highlights: [
+      "Nineteen blueprints cover Apprentice through Grandmaster weapons and armor using existing catalog items, old-hunt materials and elite trophies.",
+      "Every order consumes only unlocked Guild Depot resources, delivers immediately to the same depot and advances a permanent four-rank workshop ledger.",
+      "Craft totals, lifetime costs and the latest 20 orders persist through a backward-compatible crafting_json field in the local SQLite save.",
+    ],
+    systems: ["Crafting", "Guild Depot", "Equipment", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-61-5",
     stage: "Stage 61.5",
     title: "Equipment Sets QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Four desktop loads kept SQLite integrity healthy before the original 674-gold save was restored with its matching SHA-256 hash.",
     ],
     systems: ["Equipment Sets", "Character Attributes", "Tauri QA", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-61",

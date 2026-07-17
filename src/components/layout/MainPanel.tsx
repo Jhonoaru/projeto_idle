@@ -13,6 +13,7 @@ import { SkillsProgressionPanel } from "../character/SkillsProgressionPanel";
 import { WeaponProficiencyPanel } from "../character/WeaponProficiencyPanel";
 import { EquipmentPanel } from "../equipment/EquipmentPanel";
 import { ForgePanel } from "../forge/ForgePanel";
+import { ForgeWorkshop } from "../forge/ForgeWorkshop";
 import { CharacterDepotPanel } from "../inventory/CharacterDepotPanel";
 import { GuildDepotPanel } from "../inventory/GuildDepotPanel";
 import { InventoryPanel } from "../inventory/InventoryPanel";
@@ -224,6 +225,7 @@ interface MainPanelProps {
   onIncreaseForgeTier: (inventoryItem: InventoryItem) => void;
   onApplyForgeImbuement: (inventoryItem: InventoryItem, imbuementId: string) => void;
   onRemoveForgeImbuements: (inventoryItem: InventoryItem, imbuementId?: string) => void;
+  onCraftEquipment: (recipeId: string) => void;
 }
 
 export function MainPanel({
@@ -316,6 +318,7 @@ export function MainPanel({
   onIncreaseForgeTier,
   onApplyForgeImbuement,
   onRemoveForgeImbuements,
+  onCraftEquipment,
 }: MainPanelProps) {
   const tabContentRef = useRef<HTMLDivElement>(null);
 
@@ -554,11 +557,12 @@ export function MainPanel({
 
         {activeTab === "forge" ? (
           <Panel title="Forge Workshop">
-            <ForgePanel
+            <ForgeWorkshop
               character={selectedCharacter}
               guild={guild}
               guildDepot={depot}
               onApplyImbuement={onApplyForgeImbuement}
+              onCraft={onCraftEquipment}
               onIncreaseTier={onIncreaseForgeTier}
               onRemoveImbuements={onRemoveForgeImbuements}
               onUpgradeItem={onUpgradeForgeItem}

@@ -87,6 +87,7 @@ import { applyImbuement } from "../game-engine/forge/applyImbuement";
 import { findCharacterItem, updateCharacterItem } from "../game-engine/forge/forgeInventoryHelpers";
 import { increaseItemTier } from "../game-engine/forge/increaseItemTier";
 import { upgradeItem } from "../game-engine/forge/upgradeItem";
+import { craftEquipment } from "../game-engine/crafting/craftEquipment";
 import { reviveCharacter } from "../game-engine/death/reviveCharacter";
 import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
@@ -207,6 +208,7 @@ export function App() {
   const recruitingGuildMemberRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
+  const craftingEquipmentRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -1448,6 +1450,18 @@ export function App() {
     }
   }
 
+  function handleCraftEquipment(recipeId: string) {
+    if (craftingEquipmentRef.current) return;
+    craftingEquipmentRef.current = true;
+    const result = craftEquipment(guild, depot, recipeId);
+    if (result.success) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
+    prependLog(result.success ? "Equipment crafted" : "Crafting blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { craftingEquipmentRef.current = false; }, 250);
+  }
+
   function handleClearMonsterFocus(slotIndex: number) {
     const resolutionKey = `clear-focus-${selectedCharacter.id}-${slotIndex}`;
     if (!beginResearchResolution(resolutionKey)) return;
@@ -2110,6 +2124,7 @@ export function App() {
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}
+          onCraftEquipment={handleCraftEquipment}
           onReviveCharacter={handleReviveSelectedCharacter}
           onRemoveCharm={handleRemoveCharm}
           onRemoveForgeImbuements={handleRemoveForgeImbuements}

@@ -79,6 +79,8 @@ export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
 export type EquipmentFamilyId = "field-kit" | "vanguard" | "pathfinder" | "arcanum" | "discipline" | "artifact";
 export type EquipmentProgressionBandId = "novice" | "adventurer" | "veteran" | "elite" | "mythic";
 export type EquipmentSetId = "iron-expedition" | "cryptwarden" | "emberforged";
+export type CraftingRecipeCategory = "weapon" | "armor";
+export type GuildWorkshopRank = 1 | 2 | 3 | 4;
 
 export type DeathCause = "hunt" | "boss" | "quest" | "unknown";
 
@@ -255,6 +257,37 @@ export interface Guild {
   treasury?: GuildTreasuryState;
   projects?: GuildProjectsState;
   bazaar?: GuildBazaarState;
+  crafting?: GuildCraftingState;
+}
+
+export interface CraftingRecipeDefinition {
+  id: string;
+  name: string;
+  description: string;
+  category: CraftingRecipeCategory;
+  outputItemId: string;
+  outputQuantity: number;
+  goldCost: number;
+  requiredWorkshopRank: GuildWorkshopRank;
+  materials: ForgeMaterialRequirement[];
+}
+
+export interface GuildCraftingHistoryEntry {
+  id: string;
+  recipeId: string;
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  goldSpent: number;
+  materialsConsumed: number;
+  craftedAt: string;
+}
+
+export interface GuildCraftingState {
+  totalCrafts: number;
+  totalGoldSpent: number;
+  totalMaterialsConsumed: number;
+  history: GuildCraftingHistoryEntry[];
 }
 
 export interface GuildProjectMaterialRequirement {
