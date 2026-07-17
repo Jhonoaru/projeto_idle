@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-60-5",
+    stage: "Stage 60.5",
+    title: "Equipment Progression QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Equipment families, level bands, loot sources, equip gates and catalog-backed SQLite persistence passed controlled desktop validation.",
+    highlights: [
+      "All 41 equipment items resolved to one of six families and five level bands, with every new reward connected to loot and the offline Bazaar.",
+      "Level and vocation gates rejected invalid equipment while legacy inventory rows hydrated current progression metadata directly from the catalog.",
+      "Iron Longsword and Emberheart Amulet survived Tauri autosave and reload before the original SQLite save was restored byte for byte.",
+    ],
+    systems: ["Equipment", "Loot", "Bazaar", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-60",
     stage: "Stage 60",
     title: "Equipment Progression Paths",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Forge, Inventory, Equipment, Character Details, Market and Bazaar expose the same family, band and required-level identity.",
     ],
     systems: ["Equipment", "Loot", "Bosses", "Forge", "Bazaar"],
-    featured: true,
   },
   {
     id: "stage-59-5",

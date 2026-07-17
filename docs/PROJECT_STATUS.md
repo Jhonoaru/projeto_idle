@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-16
+Atualizado em: 2026-07-17
 
 ## Stack usada
 
@@ -110,6 +110,7 @@ Atualizado em: 2026-07-16
 - Etapa 59 concluida: progressao visual unificada de raridades e tiers, com identidade consistente em Inventory, Equipment, Loot, Market/Bazar e Forge, sem alterar o balanceamento ou o schema SQLite.
 - Etapa 59.5 concluida: QA real de raridades e tiers validou normalizacao, +5/Tier 3, Save/Reload, Forge, Bazar, responsividade e restauracao integral do SQLite.
 - Etapa 60 concluida: equipamentos ganharam seis familias, cinco faixas de level, 16 novos itens e fontes reais em hunts, bosses e Bazar offline.
+- Etapa 60.5 concluida: QA real validou catalogo, loot, Bazar, gates, responsividade, Save/Reload no Tauri e restauracao integral do SQLite.
 
 Comandos principais:
 
@@ -3237,6 +3238,49 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 60.5 - QA da progressao de equipamentos no Tauri/SQLite.
+
+## Etapa 60.5 - QA da progressao de equipamentos no Tauri/SQLite
+
+Status: concluida.
+
+Catalogo e regras:
+
+- A auditoria executavel cobriu os 41 equipamentos, seis familias e cinco faixas de level sem metadado invalido.
+- Os 16 itens da Etapa 60 possuem fonte real de loot e participam do Bazar Rotativo offline.
+- As 89 entradas de loot e 64 referencias de catalogo do Bazar possuem itemId, chance e quantidade validos.
+- Arkon level 1 foi bloqueado ao tentar equipar Dragonscale Armor level 55; Lyra equipou Runed Wand e Shen foi bloqueado no Ironwood Bow por vocacao.
+- Metadados invalidos de familia, faixa e level receberam fallback seguro; uma linha de save antiga hidratou Iron Longsword como Vanguard/Adventurer/Lv 12 pelo catalogo atual.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` gerou o executavel, MSI e instalador NSIS sem erro.
+- O save real iniciou com Aurora 674g, cinco personagens, 26 itens e dez Activity Logs.
+- Iron Longsword e Emberheart Amulet foram inseridos como fixtures controlados no Guild Depot.
+- O executavel Tauri carregou os dois itens, realizou autosave e uma segunda abertura preservou ambos com quantidade, origem, upgrade e tier corretos.
+- `PRAGMA integrity_check` permaneceu `ok` antes do teste, depois do autosave e depois do reload.
+
+Interface e responsividade:
+
+- Character Details mostrou Worn Sword como Vanguard/Novice e Leather Armor como Field Kit/Novice.
+- Forge exibiu as seis familias, as cinco faixas e trilhas separadas para level e tier.
+- Bazar exibiu familia, faixa e level nos cards de equipamento e no dossier compartilhado.
+- Viewports 1280x800, 960x700 e 700x700 ficaram sem overflow horizontal nos badges e na legenda de familias.
+
+Restauracao:
+
+- O banco original foi protegido antes dos fixtures e restaurado apos encerrar o Tauri.
+- SHA-256 original e final: `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- O save restaurado terminou com 674g, cinco personagens, 26 itens, dez logs e zero fixture de QA.
+- Backup temporario, WAL e SHM foram removidos.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado nesta etapa.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 61 - Sets de equipamentos e bonus de conjunto offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
