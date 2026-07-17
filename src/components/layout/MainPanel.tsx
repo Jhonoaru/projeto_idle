@@ -226,6 +226,7 @@ interface MainPanelProps {
   onApplyForgeImbuement: (inventoryItem: InventoryItem, imbuementId: string) => void;
   onRemoveForgeImbuements: (inventoryItem: InventoryItem, imbuementId?: string) => void;
   onCraftEquipment: (recipeId: string) => void;
+  onSalvageEquipment: (inventoryItemId: string) => void;
 }
 
 export function MainPanel({
@@ -319,6 +320,7 @@ export function MainPanel({
   onApplyForgeImbuement,
   onRemoveForgeImbuements,
   onCraftEquipment,
+  onSalvageEquipment,
 }: MainPanelProps) {
   const tabContentRef = useRef<HTMLDivElement>(null);
 
@@ -563,6 +565,7 @@ export function MainPanel({
               guildDepot={depot}
               onApplyImbuement={onApplyForgeImbuement}
               onCraft={onCraftEquipment}
+              onSalvage={onSalvageEquipment}
               onIncreaseTier={onIncreaseForgeTier}
               onRemoveImbuements={onRemoveForgeImbuements}
               onUpgradeItem={onUpgradeForgeItem}

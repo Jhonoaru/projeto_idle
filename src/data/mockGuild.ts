@@ -69,5 +69,8 @@ export const mockGuild: Guild = {
     totalGoldSpent: 0,
     totalMaterialsConsumed: 0,
     history: [],
+    totalSalvages: 0,
+    totalRecoveredMaterials: 0,
+    salvageHistory: [],
   },
 };

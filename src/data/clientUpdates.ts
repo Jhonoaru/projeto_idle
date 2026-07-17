@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-63",
+    stage: "Stage 63",
+    title: "Offline Guild Salvage",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "The Forge now recovers controlled materials from safe Guild Depot equipment without generating gold or rerolling rewards.",
+    highlights: [
+      "Common through Epic equipment returns deterministic Iron Ore or Old Cloth, with Enchanted Dust reserved for Rare and Epic pieces.",
+      "Locked, nested, upgraded, tiered, imbued, container and Legendary Artifact equipment stays protected from salvage.",
+      "Two-step confirmation, one-unit transactions and a persistent 20-entry recovery ledger prevent accidental or duplicate recovery.",
+    ],
+    systems: ["Salvage", "Guild Depot", "Forge", "SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-62-5",
     stage: "Stage 62.5",
     title: "Guild Workbench QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Filters, blocked reasons and responsive layouts passed at 1280x800, 960x700 and 700x700 before the original save was restored byte for byte.",
     ],
     systems: ["Crafting QA", "Guild Depot", "Tauri QA", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-62",

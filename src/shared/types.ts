@@ -283,11 +283,28 @@ export interface GuildCraftingHistoryEntry {
   craftedAt: string;
 }
 
+export interface SalvageMaterialResult {
+  itemId: string;
+  quantity: number;
+}
+
+export interface GuildSalvageHistoryEntry {
+  id: string;
+  sourceInventoryItemId: string;
+  itemId: string;
+  itemName: string;
+  recoveredMaterials: SalvageMaterialResult[];
+  salvagedAt: string;
+}
+
 export interface GuildCraftingState {
   totalCrafts: number;
   totalGoldSpent: number;
   totalMaterialsConsumed: number;
   history: GuildCraftingHistoryEntry[];
+  totalSalvages: number;
+  totalRecoveredMaterials: number;
+  salvageHistory: GuildSalvageHistoryEntry[];
 }
 
 export interface GuildProjectMaterialRequirement {

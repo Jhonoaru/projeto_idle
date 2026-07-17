@@ -1299,6 +1299,204 @@ p {
   .workbench-delivery strong { text-align: left; }
 }
 
+.salvage-panel {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.salvage-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.salvage-summary > div {
+  min-width: 0;
+  border: 1px solid #343b34;
+  padding: 9px;
+  background: #151a17;
+}
+
+.salvage-summary span,
+.salvage-order-header span,
+.salvage-history span,
+.salvage-protection-ledger span {
+  display: block;
+  color: #8f9991;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.salvage-summary strong {
+  display: block;
+  margin-top: 4px;
+  color: #f1d58c;
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.salvage-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(330px, 1.1fr) minmax(190px, 0.62fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+}
+
+.salvage-item-list,
+.salvage-order,
+.salvage-history {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.salvage-item-list {
+  max-height: 570px;
+  overflow-y: auto;
+}
+
+.salvage-item-list > p,
+.salvage-empty {
+  margin: 0;
+  border: 1px dashed #384139;
+  padding: 22px 8px;
+  color: #7f8981;
+  background: #121613;
+  font-size: 0.65rem;
+  text-align: center;
+}
+
+.salvage-item-list > button {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  min-height: 56px;
+  border: 1px solid #343b34;
+  padding: 6px;
+  color: #aeb7aa;
+  background: #131815;
+  text-align: left;
+  cursor: pointer;
+}
+
+.salvage-item-list > button.is-selected { border-color: #d8b96a; background: #202018; }
+.salvage-item-list > button.is-protected:not(.is-selected) { opacity: 0.67; }
+.salvage-item-list span,
+.salvage-item-list small,
+.salvage-item-list strong,
+.salvage-item-list em { display: block; min-width: 0; overflow-wrap: anywhere; }
+.salvage-item-list small { color: #7d8880; font-size: 0.53rem; text-transform: uppercase; }
+.salvage-item-list strong { margin-top: 3px; color: #d7d2c6; font-size: 0.68rem; }
+.salvage-item-list em { margin-top: 3px; color: #94b68f; font-size: 0.57rem; font-style: normal; }
+.salvage-item-list .is-protected em { color: #a77f6e; }
+
+.salvage-order,
+.salvage-history {
+  border: 1px solid #343b34;
+  padding: 10px;
+  background: #111613;
+}
+
+.salvage-order-header {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.salvage-order-header h3 { margin: 4px 0 7px; color: #f1d58c; font-size: 0.9rem; }
+.salvage-order > p { margin: 2px 0 4px; color: #aeb7aa; font-size: 0.72rem; line-height: 1.4; }
+
+.salvage-protection-ledger {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.salvage-protection-ledger > div {
+  min-width: 0;
+  border: 1px solid #343b34;
+  padding: 7px;
+  background: #151a17;
+}
+
+.salvage-protection-ledger strong { display: block; margin-top: 3px; color: #c8cfc8; font-size: 0.63rem; overflow-wrap: anywhere; }
+
+.salvage-yield {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  min-height: 68px;
+}
+
+.salvage-yield article {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid #466047;
+  padding: 7px;
+  background: #162019;
+}
+
+.salvage-yield span,
+.salvage-yield small,
+.salvage-yield strong,
+.salvage-yield em { display: block; min-width: 0; overflow-wrap: anywhere; }
+.salvage-yield small { color: #809884; font-size: 0.53rem; text-transform: uppercase; }
+.salvage-yield strong { margin-top: 3px; color: #b8d0b4; font-size: 0.65rem; }
+.salvage-yield em { margin-top: 3px; color: #f1d58c; font-size: 0.62rem; font-style: normal; }
+.salvage-yield > p { grid-column: 1 / -1; margin: 0; border: 1px solid #604538; padding: 16px 8px; color: #d59777; background: #211713; font-size: 0.65rem; text-align: center; }
+
+.salvage-action-button {
+  min-height: 38px;
+  border: 1px solid #c9aa62;
+  color: #201b10;
+  background: #d8b96a;
+  font-size: 0.68rem;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.salvage-action-button.is-armed { border-color: #ef9b62; color: #fff0db; background: #9c4c27; }
+.salvage-action-button:disabled { border-color: #414841; color: #838b84; background: #252a26; cursor: not-allowed; }
+
+.salvage-history { align-content: start; max-height: 570px; overflow-y: auto; }
+.salvage-history header { padding-bottom: 7px; border-bottom: 1px solid #343b34; }
+.salvage-history header strong { display: block; margin-top: 3px; color: #f1d58c; font-size: 0.68rem; }
+.salvage-history > p { margin: 0; padding: 18px 5px; color: #7f8981; font-size: 0.65rem; text-align: center; }
+.salvage-history article { min-width: 0; border-bottom: 1px solid #2d342e; padding: 7px 2px; }
+.salvage-history article strong,
+.salvage-history article small { display: block; margin-top: 3px; overflow-wrap: anywhere; }
+.salvage-history article strong { color: #d8d2c5; font-size: 0.64rem; }
+.salvage-history article small { color: #8b958d; font-size: 0.55rem; }
+.salvage-history footer { margin-top: 3px; border-top: 1px solid #4b4634; padding-top: 8px; }
+.salvage-history footer strong,
+.salvage-history footer small { display: block; margin-top: 3px; }
+.salvage-history footer strong { color: #b8d0b4; font-size: 0.7rem; }
+.salvage-history footer small { color: #8f9991; font-size: 0.56rem; }
+
+@media (max-width: 1180px) {
+  .salvage-layout { grid-template-columns: 1fr; }
+  .salvage-item-list { max-height: 330px; }
+  .salvage-history { max-height: 330px; }
+}
+
+@media (max-width: 760px) {
+  .salvage-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .salvage-item-list { max-height: 300px; }
+  .salvage-protection-ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .salvage-yield { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 1400px) {
   .forge-layout-wide {
     grid-template-columns: minmax(170px, 0.65fr) minmax(220px, 0.9fr) minmax(260px, 1.2fr);

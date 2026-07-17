@@ -88,6 +88,7 @@ import { findCharacterItem, updateCharacterItem } from "../game-engine/forge/for
 import { increaseItemTier } from "../game-engine/forge/increaseItemTier";
 import { upgradeItem } from "../game-engine/forge/upgradeItem";
 import { craftEquipment } from "../game-engine/crafting/craftEquipment";
+import { salvageEquipment } from "../game-engine/crafting/salvageEquipment";
 import { reviveCharacter } from "../game-engine/death/reviveCharacter";
 import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
@@ -209,6 +210,7 @@ export function App() {
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
+  const salvagingEquipmentRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -1462,6 +1464,18 @@ export function App() {
     window.setTimeout(() => { craftingEquipmentRef.current = false; }, 250);
   }
 
+  function handleSalvageEquipment(inventoryItemId: string) {
+    if (salvagingEquipmentRef.current) return;
+    salvagingEquipmentRef.current = true;
+    const result = salvageEquipment(guild, depot, inventoryItemId);
+    if (result.success) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
+    prependLog(result.success ? "Equipment salvaged" : "Salvage blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { salvagingEquipmentRef.current = false; }, 250);
+  }
+
   function handleClearMonsterFocus(slotIndex: number) {
     const resolutionKey = `clear-focus-${selectedCharacter.id}-${slotIndex}`;
     if (!beginResearchResolution(resolutionKey)) return;
@@ -2125,6 +2139,7 @@ export function App() {
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}
           onCraftEquipment={handleCraftEquipment}
+          onSalvageEquipment={handleSalvageEquipment}
           onReviveCharacter={handleReviveSelectedCharacter}
           onRemoveCharm={handleRemoveCharm}
           onRemoveForgeImbuements={handleRemoveForgeImbuements}

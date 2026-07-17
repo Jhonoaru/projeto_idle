@@ -115,6 +115,7 @@ Atualizado em: 2026-07-17
 - Etapa 61.5 concluida: QA real validou thresholds 3/3, 2/3 e 1/3, equip/unequip, gates, Tauri/SQLite, responsividade e restauracao integral do save.
 - Etapa 62 concluida: Guild Workbench offline adicionou 19 receitas, quatro ranks, consumo do Guild Depot, entrega segura e historico persistente no SQLite.
 - Etapa 62.5 concluida: QA real validou receitas, ranks, consumo transacional, clique duplo, filtros, responsividade e dois Save/Reload no Tauri/SQLite.
+- Etapa 63 concluida: Salvage offline adicionou recuperacao deterministica de materiais, protecoes de equipamento, confirmacao dupla e ledger persistente no SQLite.
 
 Comandos principais:
 
@@ -3501,6 +3502,58 @@ Restauracao e resultado:
 Proximo passo sugerido:
 
 - Etapa 63 - Salvage offline e recuperacao controlada de materiais.
+
+## Etapa 63 - Salvage offline e recuperacao controlada de materiais
+
+Status: concluida.
+
+Modelo e economia:
+
+- A Forge ganhou o terceiro modo `Salvage Bench`, dedicado aos equipamentos armazenados no Guild Depot.
+- Cada operacao remove exatamente uma unidade e retorna materiais deterministas; nao ha chance, reroll, espera, custo ou geracao de gold.
+- Equipamentos Common retornam um material, Uncommon dois, Rare tres mais um Enchanted Dust e Epic quatro mais dois Enchanted Dust.
+- Escudos, equipamentos Vanguard e armaduras pesadas retornam Iron Ore; equipamentos leves retornam Old Cloth.
+- Legendary Artifacts nao podem ser desmontados, preservando as recompensas mais raras da campanha.
+
+Protecoes e transacao:
+
+- Equipamentos locked, dentro de containers, que sejam containers, com upgrade, tier ou imbuement ficam protegidos.
+- A engine valida item, quantidade, timestamp e retorno antes de alterar o depot ou o estado da guilda.
+- Materiais stackable sao mesclados no Guild Depot e o gold permanece inalterado.
+- Falhas retornam o mesmo estado sem mutar inputs; uma trava curta no App impede resolucao duplicada.
+
+Interface:
+
+- O resumo mostra equipamentos elegiveis, protegidos, ordens concluidas e materiais recuperados.
+- A lista diferencia `Recoverable` e `Protected`; o dossier mostra familia, faixa, set e os quatro indicadores de protecao.
+- O retorno e exibido antes da operacao e o botao exige `Prepare Salvage` seguido de `Confirm Salvage`.
+- O Recovery Ledger preserva as ultimas 20 ordens e totais vitalicios; o Activity Log recebe uma unica entrada por resultado.
+
+Save/Load SQLite:
+
+- O ledger reutiliza `guilds.crafting_json`, sem nova migration ou tabela.
+- Saves antigos recebem `totalSalvages`, `totalRecoveredMaterials` e `salvageHistory` com defaults seguros.
+- Campos negativos, `NaN`, historicos invalidos, timestamps corrompidos e listas acima de 20 entradas sao normalizados.
+- Duas aberturas do release Tauri preservaram uma fixture com um Brass Shield consumido, Iron Ore 12 para 14, um ledger e um log sem duplicacao.
+- `PRAGMA integrity_check` permaneceu `ok`; o save real foi restaurado ao SHA-256 original `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Validacao:
+
+- A matriz SSR passou 29 verificacoes de retornos, oito protecoes, transacao, ausencia de mutacao, normalizacao, limite do historico e inputs invalidos.
+- Um criterio incorreto que classificava Leather Armor como metal apenas pelo peso foi encontrado e corrigido.
+- No browser, o primeiro clique apenas armou a confirmacao e um duplo clique na confirmacao gerou uma ordem, dois materiais e um log.
+- Viewports 1280x800, 960x700, 700x700 e 430x760 ficaram sem overflow no painel e nos controles.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram; executavel, MSI e NSIS foram gerados.
+
+Limitacoes atuais:
+
+- Nao ha preview de valor em gold, salvage em massa, selecao de quantidade, reciclagem de itens equipados ou recuperacao de trofeus raros.
+- O retorno usa somente Iron Ore, Old Cloth e Enchanted Dust; a economia pode ser rebalanceada apos uma sessao longa de campanha.
+- Permanecem os simbolos existentes e o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 63.5 - QA do Salvage offline no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

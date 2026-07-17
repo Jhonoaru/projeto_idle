@@ -3,6 +3,7 @@ import type { Character, Guild, GuildDepot, InventoryItem } from "../../shared/t
 import { GameTabBar } from "../ui/GameTabBar";
 import { ForgePanel } from "./ForgePanel";
 import { GuildWorkbenchPanel } from "./GuildWorkbenchPanel";
+import { SalvageBenchPanel } from "./SalvageBenchPanel";
 
 interface ForgeWorkshopProps {
   character: Character;
@@ -13,9 +14,10 @@ interface ForgeWorkshopProps {
   onApplyImbuement: (inventoryItem: InventoryItem, imbuementId: string) => void;
   onRemoveImbuements: (inventoryItem: InventoryItem, imbuementId?: string) => void;
   onCraft: (recipeId: string) => void;
+  onSalvage: (inventoryItemId: string) => void;
 }
 
-type ForgeWorkshopTab = "enhancement" | "workbench";
+type ForgeWorkshopTab = "enhancement" | "workbench" | "salvage";
 
 export function ForgeWorkshop(props: ForgeWorkshopProps) {
   const [activeTab, setActiveTab] = useState<ForgeWorkshopTab>("enhancement");
@@ -25,7 +27,11 @@ export function ForgeWorkshop(props: ForgeWorkshopProps) {
       <GameTabBar
         activeTab={activeTab}
         onChangeTab={setActiveTab}
-        tabs={[{ id: "enhancement", label: "Enhancement Forge" }, { id: "workbench", label: "Guild Workbench" }]}
+        tabs={[
+          { id: "enhancement", label: "Enhancement Forge" },
+          { id: "workbench", label: "Guild Workbench" },
+          { id: "salvage", label: "Salvage Bench" },
+        ]}
       />
       {activeTab === "enhancement" ? (
         <ForgePanel
@@ -37,7 +43,9 @@ export function ForgeWorkshop(props: ForgeWorkshopProps) {
           onRemoveImbuements={props.onRemoveImbuements}
           onUpgradeItem={props.onUpgradeItem}
         />
-      ) : <GuildWorkbenchPanel depot={props.guildDepot} guild={props.guild} onCraft={props.onCraft} />}
+      ) : activeTab === "workbench" ? (
+        <GuildWorkbenchPanel depot={props.guildDepot} guild={props.guild} onCraft={props.onCraft} />
+      ) : <SalvageBenchPanel depot={props.guildDepot} guild={props.guild} onSalvage={props.onSalvage} />}
     </div>
   );
 }

@@ -40,6 +40,7 @@ export function craftEquipment(guild: Guild, depot: GuildDepot, recipeId: string
     ...guild,
     gold: availability.gold - availability.recipe.goldCost,
     crafting: {
+      ...crafting,
       totalCrafts: safeAdd(crafting.totalCrafts, 1),
       totalGoldSpent: safeAdd(crafting.totalGoldSpent, availability.recipe.goldCost),
       totalMaterialsConsumed: safeAdd(crafting.totalMaterialsConsumed, materialsConsumed),
