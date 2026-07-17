@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-61-5",
+    stage: "Stage 61.5",
+    title: "Equipment Sets QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Set thresholds, equip transitions, derived attributes and catalog-backed persistence passed controlled Tauri and SQLite validation.",
+    highlights: [
+      "Emberforged moved through 3/3, 2/3 and 1/3 states with the exact expected Health, Mana, Capacity, Speed, Crit, Attack and Defense changes.",
+      "Real equip and unequip flows returned pieces to inventory, removed only the appropriate threshold and preserved level and vocation gates.",
+      "Four desktop loads kept SQLite integrity healthy before the original 674-gold save was restored with its matching SHA-256 hash.",
+    ],
+    systems: ["Equipment Sets", "Character Attributes", "Tauri QA", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-61",
     stage: "Stage 61",
     title: "Offline Equipment Sets",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Character Details, Inventory, tooltips, item icons and Forge expose consistent set membership, progress and active thresholds.",
     ],
     systems: ["Equipment Sets", "Character Attributes", "Forge", "Inventory"],
-    featured: true,
   },
   {
     id: "stage-60-5",

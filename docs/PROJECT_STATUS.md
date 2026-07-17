@@ -112,6 +112,7 @@ Atualizado em: 2026-07-17
 - Etapa 60 concluida: equipamentos ganharam seis familias, cinco faixas de level, 16 novos itens e fontes reais em hunts, bosses e Bazar offline.
 - Etapa 60.5 concluida: QA real validou catalogo, loot, Bazar, gates, responsividade, Save/Reload no Tauri e restauracao integral do SQLite.
 - Etapa 61 concluida: Iron Expedition, Cryptwarden e Emberforged adicionaram bonus derivados por conjunto, com suporte a todas as vocacoes e UI integrada.
+- Etapa 61.5 concluida: QA real validou thresholds 3/3, 2/3 e 1/3, equip/unequip, gates, Tauri/SQLite, responsividade e restauracao integral do save.
 
 Comandos principais:
 
@@ -3337,6 +3338,56 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 61.5 - QA dos sets de equipamentos no Tauri/SQLite.
+
+## Etapa 61.5 - QA dos sets de equipamentos no Tauri/SQLite
+
+Status: concluida.
+
+Preparacao:
+
+- `git pull`, `git status`, `npm.cmd run build` e `npm.cmd run tauri:build` passaram antes dos fixtures.
+- O pacote nativo gerou executavel, MSI e instalador NSIS com a implementacao da Etapa 61.
+- O save real iniciou com Aurora 674g, Arkon level 1, cinco personagens, 26 itens e dez Activity Logs.
+- DB original protegido com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Thresholds no Tauri/SQLite:
+
+- Arkon foi elevado temporariamente ao level 60 e recebeu Ember Blade, Dragonscale Armor e Emberheart Amulet como fixture controlado.
+- Emberforged 3/3 persistiu Health 1375, Mana 390, Capacity 1540, Speed 285, Attack 190, Defense 243 e Crit Chance 2%.
+- Retirar apenas Emberheart Amulet manteve 2/3 com Health 1275, Mana 310, Capacity 1500, Speed 282, Attack 190, Defense 232 e Crit 0%.
+- Retirar tambem Dragonscale Armor deixou 1/3, removeu todo set bonus e retornou Health 1225, Mana 285, Capacity 1500, Speed 282, Attack 182, Defense 158 e Crit 0%.
+- Uma quarta abertura preservou o estado 1/3 sem reativar thresholds nem mover pecas de volta para equipment.
+- `PRAGMA integrity_check` permaneceu `ok` em todos os cenarios.
+
+Equip, unequip e gates:
+
+- `equipItem` ativou 2/3 ao equipar arma e armadura e ativou 3/3 ao adicionar o amuleto.
+- `unequipItem` devolveu amuleto e armadura ao inventario, recalculou atributos imediatamente e removeu somente o marco correspondente.
+- Arkon level 1 foi bloqueado na Dragonscale Armor com `requires level 55`.
+- Shen foi bloqueado no Ironwood Bow por vocacao incompativel.
+- Equipamento misturado e conjunto incompleto continuaram sem bonus; nenhum grupo foi contado duas vezes.
+
+Interface e responsividade:
+
+- Character Details exibiu os tres ledgers, grupos, contadores e quatro thresholds sem texto cortado.
+- Forge preservou nomes completos, faixas e resumos dos tres sets.
+- Viewports 1280x800, 960x700 e 700x700 ficaram sem overflow horizontal nos ledgers, thresholds ou cards da Forge.
+- Release Archive passou a destacar Stage 61.5 como QA atual.
+
+Restauracao:
+
+- O Tauri foi encerrado antes da restauracao e nenhum processo desktop permaneceu aberto.
+- O banco original voltou ao mesmo SHA-256, com 674g, Arkon level 1, cinco personagens, 26 itens, dez logs e zero fixture.
+- Backup temporario, WAL e SHM foram removidos.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado nesta etapa.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 62 - Crafting offline e bancada de equipamentos da guilda.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
