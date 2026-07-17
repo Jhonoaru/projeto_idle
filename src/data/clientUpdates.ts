@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-57-5",
+    stage: "Stage 57.5",
+    title: "Offline Bazaar QA",
+    date: "2026-07-16",
+    category: "qa",
+    summary: "Migration, one-time purchases, Guild Depot delivery and SQLite restoration passed controlled desktop validation.",
+    highlights: [
+      "A legacy guild gained bazaar_json and six deterministic offers without losing its 674 gold, roster or activity history.",
+      "A double click bought Broken Fang x2 once for 58 gold, delivered it to the Guild Depot and persisted one purchase record.",
+      "Reload preserved the acquired offer, the 960x700 layout stayed within the viewport and the original database was restored byte for byte.",
+    ],
+    systems: ["Rotating Bazaar", "SQLite QA", "Guild Depot"],
+    featured: true,
+  },
+  {
     id: "stage-57",
     stage: "Stage 57",
     title: "Offline Rotating Bazaar",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Rare enhanced equipment can appear, including a 0.01% Relic roll with +5 and Tier 3 applied to an existing item.",
     ],
     systems: ["Rotating Bazaar", "Guild Economy", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-56-5",

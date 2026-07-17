@@ -104,6 +104,7 @@ Atualizado em: 2026-07-16
 - Etapa 56 concluida: direcao consolidada como campanha single-player totalmente offline, com economia NPC/local e Store direcionada a visuais conquistados por gameplay.
 - Etapa 56.5 concluida: QA no Tauri/SQLite confirmou Store, Codex, Market NPC e Updates, alem de corrigir a perda de timestamps do Activity Log no autosave.
 - Etapa 57 concluida: Bazar Rotativo Offline com seis ofertas deterministicas por janela de dez minutos, compras unicas via `guild.gold`, itens reais, raridade Relic e persistencia SQLite.
+- Etapa 57.5 concluida: QA real do Bazar no Tauri/SQLite validou migration, compra unica, Guild Depot, Save/Reload, responsividade e restauracao integral do banco.
 
 Comandos principais:
 
@@ -2964,6 +2965,53 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 57.5 - QA do Bazar Rotativo Offline no Tauri/SQLite.
+
+## Etapa 57.5 - QA do Bazar Rotativo Offline no Tauri/SQLite
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e `npm.cmd run build` foram executados antes do QA; o repositorio estava sincronizado e limpo.
+- O banco original possuia 674g, cinco personagens, dez Activity Logs e ainda nao tinha `guilds.bazaar_json`.
+- `guild_hunt_idle.db`, WAL vazio e SHM foram copiados antes da abertura do Tauri, com hashes individuais registrados.
+- O hash SHA-256 original do banco principal era `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Validacao desktop e SQLite:
+
+- `npm.cmd run tauri:dev` abriu o executavel real com WebView2 e SQLite, sem fallback para o mock.
+- A migration criou `bazaar_json`, preservou 674g e gerou seis ofertas na rotacao `2973750`.
+- A mesma rotacao permaneceu estavel entre abertura do Market, compra e Reload.
+- O estoque controlado incluiu Mana Potion, Small Backpack, Broken Fang, Leather Boots, Shovel e um Rune Pouch Rare `+2 / Tier 1`.
+- `PRAGMA integrity_check` permaneceu `ok` antes e depois da compra.
+
+Compra e protecoes:
+
+- Broken Fang x2 foi selecionado por 58g com Guild Depot como destino padrao.
+- Dois cliques sincronizados no botao produziram uma unica compra: `guild.gold` passou de 674g para 616g.
+- O SQLite recebeu exatamente dois Broken Fang no Guild Depot, um registro em `purchaseHistory`, `totalPurchases: 1` e `totalSpentGold: 58`.
+- O Activity Log persistiu uma unica entrada `Bazaar purchase` com o item, quantidade e custo.
+- Depois de Reload, a oferta continuou `Acquired`, o botao permaneceu desabilitado e uma nova tentativa nao alterou gold, item, historico ou log.
+
+Responsividade:
+
+- Em 960x700, a aba manteve seis cards, resumo e botao acessiveis.
+- Nao houve overflow horizontal no documento nem no painel do Bazar.
+
+Restauracao:
+
+- O app, Vite e WebView2 foram encerrados antes da restauracao.
+- O banco restaurado voltou a 674g, cinco personagens, dez logs e sem `bazaar_json`, confirmando retorno ao estado anterior ao teste.
+- Banco principal, WAL e SHM terminaram com hashes identicos aos backups; as tres copias temporarias foram removidas.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado nesta etapa.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 58 - Cosmetic Exchange Offline na Store.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
