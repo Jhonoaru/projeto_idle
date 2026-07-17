@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-62-5",
+    stage: "Stage 62.5",
+    title: "Guild Workbench QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Recipes, rank gates, transactional consumption, double-click protection and SQLite Save/Reload passed controlled validation.",
+    highlights: [
+      "All 19 blueprints resolved valid equipment and eight real input items while rank boundaries and malformed state normalization stayed deterministic.",
+      "A protected Tauri fixture preserved gold, Iron Ore, one crafted Worn Sword, one ledger entry and one Activity Log through two desktop reloads without duplication.",
+      "Filters, blocked reasons and responsive layouts passed at 1280x800, 960x700 and 700x700 before the original save was restored byte for byte.",
+    ],
+    systems: ["Crafting QA", "Guild Depot", "Tauri QA", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-62",
     stage: "Stage 62",
     title: "Offline Guild Workbench",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Craft totals, lifetime costs and the latest 20 orders persist through a backward-compatible crafting_json field in the local SQLite save.",
     ],
     systems: ["Crafting", "Guild Depot", "Equipment", "SQLite"],
-    featured: true,
   },
   {
     id: "stage-61-5",

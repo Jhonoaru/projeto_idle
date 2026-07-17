@@ -114,6 +114,7 @@ Atualizado em: 2026-07-17
 - Etapa 61 concluida: Iron Expedition, Cryptwarden e Emberforged adicionaram bonus derivados por conjunto, com suporte a todas as vocacoes e UI integrada.
 - Etapa 61.5 concluida: QA real validou thresholds 3/3, 2/3 e 1/3, equip/unequip, gates, Tauri/SQLite, responsividade e restauracao integral do save.
 - Etapa 62 concluida: Guild Workbench offline adicionou 19 receitas, quatro ranks, consumo do Guild Depot, entrega segura e historico persistente no SQLite.
+- Etapa 62.5 concluida: QA real validou receitas, ranks, consumo transacional, clique duplo, filtros, responsividade e dois Save/Reload no Tauri/SQLite.
 
 Comandos principais:
 
@@ -3453,6 +3454,53 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 62.5 - QA do crafting offline no Tauri/SQLite.
+
+## Etapa 62.5 - QA do crafting offline no Tauri/SQLite
+
+Status: concluida.
+
+Baseline e protecao:
+
+- `git pull`, `git status` e `npm.cmd run build` passaram antes dos testes.
+- O save real iniciou com Aurora 674g, guild level 1, cinco personagens, 26 itens e dez Activity Logs.
+- O banco original foi protegido com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- O baseline ainda nao possuia `crafting_json`, confirmando um teste real de migration em save antigo.
+
+Matriz da engine:
+
+- As 19 receitas resolveram outputs de equipamento validos e oito insumos reais: Iron Ore, Old Cloth, Broken Fang, Enchanted Dust, Ancient Bone, Wyvern Scale, Cultist Charm e Dragon Ember.
+- Os limites 0/3/8/15 ativaram corretamente Apprentice, Journeyman, Master e Grandmaster.
+- Um craft valido foi executado em cada rank com desconto exato de gold, consumo de materiais, item unico e entrega no Guild Depot.
+- Material travado nao contou nem foi consumido; receita ausente, data invalida, gold `NaN`, rank insuficiente e recursos incompletos bloquearam sem mutar inputs.
+- Estado legado negativo ou corrompido normalizou com seguranca e historico acima de 20 entradas foi limitado.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` gerou novamente executavel, MSI e instalador NSIS.
+- A primeira abertura do release migrou o save antigo, adicionou `crafting_json` e carregou o estado default sem alterar 674g ou os 26 itens.
+- Uma fixture controlada representou um Worn Sword: guild gold 674 para 634, Iron Ore 12 para 10, um item no Guild Depot, um ledger e um Activity Log.
+- Duas aberturas completas do Tauri atualizaram `last_saved_at` e preservaram exatamente essa transacao.
+- A segunda abertura permaneceu com um item, um historico e um log, sem reaplicar craft ou duplicar recompensas.
+- `PRAGMA integrity_check` permaneceu `ok` durante migration e ambos os reloads.
+
+Interface:
+
+- O filtro Armor trocou o blueprint ativo para Field Leather e listou somente as quatro armaduras.
+- Iron Longsword em Apprentice mostrou `Requires Workshop Rank 2.` com o botao desabilitado.
+- Duplo clique real em Craft Worn Sword aplicou somente uma transacao: 420g para 380g, Iron Ore 12 para 10, um pedido e um log.
+- Viewports 1280x800, 960x700 e 700x700 ficaram sem overflow ou textos cortados nas receitas e nos requisitos.
+- Release Archive passou a destacar Stage 62.5 como QA atual.
+
+Restauracao e resultado:
+
+- O Tauri foi encerrado graciosamente antes da restauracao.
+- O save voltou ao SHA-256 original, sem WAL, SHM ou backup temporario restante.
+- Nenhum bug funcional, visual, de duplicacao ou persistencia foi encontrado nesta etapa.
+- Permanece somente o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 63 - Salvage offline e recuperacao controlada de materiais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
