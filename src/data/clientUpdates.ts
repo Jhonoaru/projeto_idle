@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-56-5",
+    stage: "Stage 56.5",
+    title: "Offline Campaign QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "The offline campaign direction, local economy, cosmetic wardrobe and SQLite persistence passed desktop validation.",
+    highlights: [
+      "Store, Wiki, Market and Updates opened in the real Tauri WebView with the existing 674-gold local campaign.",
+      "The 960x700 Store remained readable without horizontal overflow, online listings or payment language.",
+      "Activity Log timestamps now survive autosave instead of being overwritten by one shared save time.",
+    ],
+    systems: ["Offline Campaign", "SQLite QA", "Activity Log"],
+    featured: true,
+  },
+  {
     id: "stage-56",
     stage: "Stage 56",
     title: "Offline Campaign Consolidation",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Unused online completion and payment-source types were removed without changing the database schema or existing saves.",
     ],
     systems: ["Offline Campaign", "NPC Market", "Cosmetic Wardrobe"],
-    featured: true,
   },
   {
     id: "stage-55-5",

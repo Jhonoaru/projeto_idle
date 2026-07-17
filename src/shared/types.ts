@@ -1208,6 +1208,7 @@ export interface HuntArea {
 export interface ActivityLogEntry {
   id: string;
   timestamp: string;
+  createdAt?: string;
   title: string;
   message: string;
   tone: "neutral" | "success" | "warning";

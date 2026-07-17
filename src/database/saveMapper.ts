@@ -257,6 +257,7 @@ export function mapInventoryItem(row: InventoryRow): InventoryItem {
 export function mapLog(row: LogRow): ActivityLogEntry {
   return {
     id: row.id,
+    createdAt: row.created_at,
     timestamp: new Date(row.created_at).toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",

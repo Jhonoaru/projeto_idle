@@ -461,9 +461,26 @@ async function saveLogs(
         type,
         created_at
       ) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [log.id, guildId, null, log.title, log.message, log.tone, now],
+      [log.id, guildId, null, log.title, log.message, log.tone, getLogCreatedAt(log, now)],
     );
   }
+}
+
+function getLogCreatedAt(log: ActivityLogEntry, fallbackNow: string) {
+  if (log.createdAt && Number.isFinite(Date.parse(log.createdAt))) {
+    return log.createdAt;
+  }
+
+  const timeMatch = /^(\d{1,2}):(\d{2})$/.exec(log.timestamp);
+  if (!timeMatch) return fallbackNow;
+
+  const hours = Number(timeMatch[1]);
+  const minutes = Number(timeMatch[2]);
+  if (hours > 23 || minutes > 59) return fallbackNow;
+
+  const fallbackDate = new Date(fallbackNow);
+  fallbackDate.setHours(hours, minutes, 0, 0);
+  return fallbackDate.toISOString();
 }
 
 function stringifyNullable(value: unknown) {

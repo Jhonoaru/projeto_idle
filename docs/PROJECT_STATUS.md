@@ -102,6 +102,7 @@ Atualizado em: 2026-07-16
 - Etapa 55 concluida: Guild Recruitment Board adicionou tres candidatos locais, contratos permanentes e novos personagens persistentes no roster.
 - Etapa 55.5 concluida: QA real do Guild Recruitment validou contrato unico, character completo, Save/Reload, bloqueios, responsividade e restauracao integral.
 - Etapa 56 concluida: direcao consolidada como campanha single-player totalmente offline, com economia NPC/local e Store direcionada a visuais conquistados por gameplay.
+- Etapa 56.5 concluida: QA no Tauri/SQLite confirmou Store, Codex, Market NPC e Updates, alem de corrigir a perda de timestamps do Activity Log no autosave.
 
 Comandos principais:
 
@@ -2871,6 +2872,49 @@ Proximo passo sugerido:
 
 - Etapa 56.5 - QA da consolidacao offline e dos textos de economia/Store.
 - Depois do QA: Etapa 57 - Bazar Rotativo Offline.
+
+## Etapa 56.5 - QA da consolidacao offline no Tauri/SQLite
+
+Status: concluida.
+
+Validacao desktop:
+
+- `npm.cmd run build` passou antes e depois da correcao com TypeScript e Vite.
+- `npm.cmd run tauri:dev` abriu o executavel real e carregou o SQLite sem fallback para mock.
+- A campanha abriu com Aurora, Arkon, 674g, cinco personagens, 35 skills, 26 itens e dez logs.
+- Store, Wiki, Market e Updates foram abertos por controles reais do WebView Tauri.
+- Store mostrou `Aurora Wardrobe Archive`, `Gameplay only` e troca futura por `Gold / trophies`.
+- Wiki destacou `Offline Guild Campaign`, um guild manager, SQLite local e economia NPC/bazar local.
+- Market permaneceu `Market NPC`, com Quick Sell e sem player listings ou Market online.
+- Updates exibiu a Etapa 56 como `Offline Campaign Consolidation`.
+- A Store foi capturada e revisada em janela 960x700 sem overflow horizontal ou texto cortado.
+- Busca estatica nao encontrou `fetch`, `WebSocket`, `EventSource`, cliente HTTP ou chamada de rede no codigo da aplicacao.
+
+Bug encontrado e corrigido:
+
+- `saveLogs` apagava e reinseria todos os Activity Logs usando o horario do autosave, fazendo dez registros antigos perderem seus horarios individuais.
+- `ActivityLogEntry` agora aceita `createdAt` ISO opcional; o mapper preserva `created_at` do SQLite e novos logs recebem o instante real da criacao.
+- Logs legados que possuem somente `HH:mm` usam fallback seguro baseado no dia do save.
+- Uma segunda abertura Tauri confirmou `Save salvo.` e manteve o hash dos dez `created_at` exatamente em `16E2547F66573CAC84922AFDF176A72529BEC4C0760BB0ACBB99BEE936F8B074`.
+
+Integridade e honestidade:
+
+- `PRAGMA integrity_check` permaneceu `ok`; gold, roster, skills, itens, logs e current actions permaneceram presentes.
+- Nenhuma compra, venda, recompensa, coleta, Save manual ou Reset foi acionado durante a navegacao.
+- O hash fisico inicial era `D2BEEC8EBBCABBB05BEC56879DA4A559AEE0C8D28316CF3DF25D5904A79EE24D` e o final ficou `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- O arquivo nao voltou ao hash byte a byte porque o fluxo normal atualiza `last_loaded_at`, `last_saved_at` e `updated_at` ao abrir; nao havia fixture de gameplay nem backup temporario a restaurar nesta QA.
+- O primeiro autosave da QA tambem expôs e atualizou os timestamps antigos dos logs antes da correcao; esses valores anteriores nao eram preservados pelo modelo antigo e nao puderam ser reconstruidos byte a byte.
+
+Limitacoes:
+
+- O futuro Bazar Rotativo continua apenas como placeholder local bloqueado.
+- Trocas cosmeticas da Store continuam em preview e nao foram implementadas.
+- `reqwest` aparece apenas como dependencia transitiva no `Cargo.lock`; nao ha uso direto no codigo Rust ou TypeScript do projeto.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 57 - Bazar Rotativo Offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

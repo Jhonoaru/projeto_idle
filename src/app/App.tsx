@@ -2125,9 +2125,12 @@ function createLogEntry(
   message: string,
   tone: ActivityLogEntry["tone"],
 ): ActivityLogEntry {
+  const createdAt = new Date();
+
   return {
     id: `log-${Date.now()}-${logEntrySequence++}`,
-    timestamp: new Date().toLocaleTimeString("en-US", {
+    createdAt: createdAt.toISOString(),
+    timestamp: createdAt.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
