@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-59-5",
+    stage: "Stage 59.5",
+    title: "Item Quality QA",
+    date: "2026-07-16",
+    category: "qa",
+    summary: "Rarity, Forge rank, defensive normalization and enhanced-equipment persistence passed controlled Tauri and SQLite validation.",
+    highlights: [
+      "An invalid +999 / Tier -4 fixture normalized to the supported +5 / Tier 0 limits after the real desktop load and autosave.",
+      "A Common +5 / Exalted III weapon survived Save and Reload while Character Details, Forge and Bazaar exposed consistent quality labels.",
+      "The original SQLite save was restored with matching SHA-256, ten logs, 26 items, 674 gold and integrity_check ok.",
+    ],
+    systems: ["Item Quality", "Forge", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-59",
     stage: "Stage 59",
     title: "Item Quality Progression",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Invalid legacy upgrade and tier values normalize safely without a schema migration or a gameplay balance change.",
     ],
     systems: ["Items", "Forge", "Inventory", "Market"],
-    featured: true,
   },
   {
     id: "stage-58-5",

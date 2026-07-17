@@ -108,6 +108,7 @@ Atualizado em: 2026-07-16
 - Etapa 58 concluida: Wardrobe Exchange offline com quatro trocas cosmeticas reais, custos em gold/trofeus/quest, Collections, Guild Depot e protecao contra duplicacao.
 - Etapa 58.5 concluida: QA real da Wardrobe Exchange validou cobranca unica, bloqueio por trofeu, Collections, Save/Reload e restauracao integral do SQLite.
 - Etapa 59 concluida: progressao visual unificada de raridades e tiers, com identidade consistente em Inventory, Equipment, Loot, Market/Bazar e Forge, sem alterar o balanceamento ou o schema SQLite.
+- Etapa 59.5 concluida: QA real de raridades e tiers validou normalizacao, +5/Tier 3, Save/Reload, Forge, Bazar, responsividade e restauracao integral do SQLite.
 
 Comandos principais:
 
@@ -3133,6 +3134,50 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 59.5 - QA da progressao de raridades e tiers no Tauri/SQLite.
+
+## Etapa 59.5 - QA da progressao de raridades e tiers no Tauri/SQLite
+
+Status: concluida.
+
+Preparacao e fixture:
+
+- `git pull`, `git status` e `npm.cmd run build` passaram antes do QA; o repositorio estava sincronizado e limpo.
+- O save real continha Aurora com 674g, cinco personagens, 26 itens e dez Activity Logs; todos os itens estavam inicialmente em +0/Tier 0.
+- DB, WAL e SHM foram consolidados antes do teste e o banco principal foi protegido fora do repositorio.
+- SHA-256 original: `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- A Worn Sword equipada de Arkon foi usada como fixture controlada, sem criar item ou personagem artificial.
+
+Normalizacao e persistencia:
+
+- O fixture invalido +999/Tier -4 carregou no Tauri real e foi salvo como +5/Tier 0, confirmando os limites defensivos do mapper e repository.
+- O segundo fixture +5/Tier 3 apareceu como `Common`, `Exalted III` e `+5 / Tier 3` no Character Details.
+- A Forge mostrou `Worn Sword +5 [T3]`, a legenda Common/Uncommon/Rare/Epic/Legendary e a trilha Base/Forged I/Ascendant II/Exalted III.
+- No limite, a Forge exibiu `+5 / +5` e `Exalted III / Tier 3 of 3` sem oferecer progressao adicional.
+- Save gravou +5/Tier 3 no SQLite; Reload retornou para Character Details mantendo `Common / Exalted III / +5 / Tier 3`.
+- `PRAGMA integrity_check` permaneceu `ok` antes, durante e depois dos cenarios.
+
+Market, Bazar e responsividade:
+
+- O Market NPC preservou raridade e Forge rank no preview compartilhado de itens.
+- O Bazar apresentou uma Novice Wand +1/Tier 0 e o dossier confirmou `Common / Base`, Upgrade +1 e Forge rank Base.
+- A mensagem de Relic permaneceu alinhada ao modelo: equipamento Relic chega em +5/Exalted III usando item existente.
+- Forge foi verificada em 960x700, 760x700 e 700x700; a legenda de raridades reorganizou em duas colunas no breakpoint compacto sem sobreposicao.
+
+Restauracao:
+
+- Toda a arvore do Tauri/Vite foi encerrada e o banco original foi restaurado byte a byte.
+- O SHA-256 final voltou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- O save restaurado terminou com 674g, cinco personagens, 26 itens, dez logs e Worn Sword em +0/Tier 0.
+- Nenhum WAL/SHM de QA ou backup temporario permaneceu no sistema.
+
+Resultado:
+
+- Nenhum bug funcional, visual ou de persistencia foi encontrado nesta etapa.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 60 - Progressao de equipamentos por familias e faixas de level.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
