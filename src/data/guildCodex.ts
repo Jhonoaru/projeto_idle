@@ -323,6 +323,28 @@ const systemEntries: GuildCodexEntry[] = [
     keywords: ["skill", "training", "weapon", "proficiency", "destiny"],
   },
   {
+    id: "equipment-progression",
+    category: "progression",
+    code: "EP",
+    title: "Equipment Progression",
+    subtitle: "Families and level bands",
+    summary: "Equipment families guide combat identity while five level bands organize the offline campaign's hunt and boss rewards.",
+    facts: [
+      { label: "Families", value: "6 paths" },
+      { label: "Bands", value: "Novice to Mythic" },
+      { label: "Sources", value: "Hunts / bosses / bazaar" },
+      { label: "Persistence", value: "Catalog-derived" },
+    ],
+    guidance: [
+      "Vanguard, Pathfinder, Arcanum and Discipline follow combat styles; Field Kit covers universal gear and Artifact marks boss rewards.",
+      "Novice, Adventurer, Veteran, Elite and Mythic bands use the item's required level and remain independent from rarity and Forge tier.",
+      "Equipment can drop from matching campaign regions or appear in the rotating local Bazaar, but level and vocation gates still apply.",
+      "Families do not grant set bonuses; all power continues to come from the item's real stats, upgrades, tiers and imbuements.",
+    ],
+    relatedSystems: ["Equipment", "Hunts", "Bosses", "Forge", "Rotating Bazaar"],
+    keywords: ["equipment", "gear", "family", "band", "level", "vanguard", "pathfinder", "arcanum", "discipline", "artifact"],
+  },
+  {
     id: "guild-ledgers",
     category: "services",
     code: "GL",

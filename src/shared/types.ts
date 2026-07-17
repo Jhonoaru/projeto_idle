@@ -76,6 +76,8 @@ export type QuestType = "access" | "story" | "daily" | "boss_access" | "tutorial
 export type QuestRisk = "safe" | "low" | "medium" | "high" | "deadly";
 
 export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
+export type EquipmentFamilyId = "field-kit" | "vanguard" | "pathfinder" | "arcanum" | "discipline" | "artifact";
+export type EquipmentProgressionBandId = "novice" | "adventurer" | "veteran" | "elite" | "mythic";
 
 export type DeathCause = "hunt" | "boss" | "quest" | "unknown";
 
@@ -890,6 +892,8 @@ export interface Item {
   speedBonus?: number;
   vocationRestriction?: Vocation[];
   levelRequirement?: number;
+  equipmentFamily?: EquipmentFamilyId;
+  progressionBand?: EquipmentProgressionBandId;
 }
 
 export interface InventoryItem {

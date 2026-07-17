@@ -109,6 +109,7 @@ Atualizado em: 2026-07-16
 - Etapa 58.5 concluida: QA real da Wardrobe Exchange validou cobranca unica, bloqueio por trofeu, Collections, Save/Reload e restauracao integral do SQLite.
 - Etapa 59 concluida: progressao visual unificada de raridades e tiers, com identidade consistente em Inventory, Equipment, Loot, Market/Bazar e Forge, sem alterar o balanceamento ou o schema SQLite.
 - Etapa 59.5 concluida: QA real de raridades e tiers validou normalizacao, +5/Tier 3, Save/Reload, Forge, Bazar, responsividade e restauracao integral do SQLite.
+- Etapa 60 concluida: equipamentos ganharam seis familias, cinco faixas de level, 16 novos itens e fontes reais em hunts, bosses e Bazar offline.
 
 Comandos principais:
 
@@ -3178,6 +3179,64 @@ Resultado:
 Proximo passo sugerido:
 
 - Etapa 60 - Progressao de equipamentos por familias e faixas de level.
+
+## Etapa 60 - Progressao de equipamentos por familias e faixas de level
+
+Status: concluida.
+
+Modelo de progressao:
+
+- Cinco faixas organizam o catalogo: Novice (1-9), Adventurer (10-24), Veteran (25-44), Elite (45-59) e Mythic (60+).
+- Seis familias identificam o caminho do equipamento: Vanguard, Pathfinder, Arcanum, Discipline, Field Kit e Artifact.
+- Familia/faixa sao independentes de raridade, upgrade e tier da Forge; nao existe bonus artificial por conjunto.
+- Itens antigos recebem familia e faixa derivadas de slot, proficiencia, bonus e level requirement, preservando saves sem migration SQLite.
+- Metadados explicitos invalidos usam fallback seguro para uma familia/faixa derivada.
+
+Conteudo novo:
+
+- O catalogo passou a 41 equipamentos, com 16 novos itens distribuidos pelas quatro faixas acima de Novice.
+- Adventurer adiciona Iron Longsword, Ironwood Bow, Runed Wand, Iron Handwraps e Iron Cuirass no level 12.
+- Veteran adiciona Cryptsteel Blade, Gravewood Bow, Crypt Scepter, Boneweave Wraps e Cryptguard Armor no level 30.
+- Elite adiciona Ember Blade, Wyvern Bow, Ember Staff, Dragon Wraps e Dragonscale Armor no level 55.
+- Mythic adiciona Emberheart Amulet, relicario legendary de level 60 ligado a Ember Matriarch.
+- Os valores de ataque, defesa e poder especializado crescem por faixa sem criar Tier 10, raridade cosmica ou bonus premium.
+
+Fontes e regras:
+
+- Trollwood/Mudrot/Minotaur Outpost preenchem a faixa Adventurer com chances pequenas de equipamento.
+- Ancient Crypt e Cyclops Hills fornecem os caminhos Veteran.
+- Ember Dragon Nest fornece equipamentos Elite com chances raras.
+- Grunk, Crypt Warden, Khazgrim Gatekeeper e Ember Matriarch possuem chances melhores para suas faixas; Emberheart permanece raro.
+- Todos os 16 itens participam do Bazar Rotativo offline e podem receber os upgrades de oferta existentes.
+- `canEquipItem` continua impondo level, vocacao e regra de offhand mesmo quando o item foi comprado antes do requisito.
+
+Interface:
+
+- `ItemProgressionBadge` mostra codigo da familia, nome da familia, faixa e level minimo.
+- ItemIcon, ItemTooltip, Inventory, Equipment, Character Details, Market, Bazar e Forge compartilham os mesmos metadados.
+- A Forge ganhou ledger das seis familias e trilha Novice > Adventurer > Veteran > Elite > Mythic, separada da trilha de tier.
+- O Bazar exibe familia/faixa diretamente no card e no dossier selecionado.
+- O Guild Field Codex documenta fontes, limites e ausencia de bonus de conjunto.
+
+Validacao executada:
+
+- `npm.cmd run build` passou com TypeScript e Vite.
+- Auditoria SSR dos modulos encontrou 41 equipamentos, cobertura nas cinco faixas e seis familias e zero itemId de loot ausente.
+- Gates validados: Arkon nao equipa Dragonscale Armor por requerer level 55; Lyra equipa Runed Wand; Shen nao equipa Ironwood Bow por vocacao.
+- Smoke no Vite confirmou Worn Sword como Vanguard/Novice e Dragonscale Armor como Field Kit/Elite/Lv 55 no Bazar.
+- Forge foi verificada no desktop, 960x700 e 700x700; um overflow horizontal em 1280px foi encontrado e corrigido.
+- `git diff --check` passou.
+
+Limitacoes atuais:
+
+- A etapa nao adiciona sprites exclusivos; itens usam os sigilos e tratamentos CSS atuais.
+- Nao existem set bonuses, crafting de equipamentos, reroll de atributos ou raridade cosmica.
+- O QA desta implementacao usou o mock Vite. Drop real, compra, equip e Save/Reload no Tauri/SQLite ficam para a Etapa 60.5.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 60.5 - QA da progressao de equipamentos no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

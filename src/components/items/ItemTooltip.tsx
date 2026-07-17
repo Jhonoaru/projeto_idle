@@ -3,6 +3,8 @@ import { calculateInventoryItemSellValue } from "../../game-engine/market/calcul
 import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { InventoryItem } from "../../shared/types";
 import { ItemQualityBadge } from "./ItemQualityBadge";
+import { ItemProgressionBadge } from "./ItemProgressionBadge";
+import { getEquipmentProgression } from "../../game-engine/items/getEquipmentProgression";
 
 interface ItemTooltipProps {
   inventoryItem?: InventoryItem;
@@ -24,11 +26,13 @@ export function ItemTooltip({ inventoryItem, equipped = false, sellReason }: Ite
   const sellValue = calculateInventoryItemSellValue(inventoryItem);
   const imbuements = inventoryItem.imbuements ?? [];
   const identity = getItemVisualIdentity(item, inventoryItem);
+  const progression = item.type === "equipment" ? getEquipmentProgression(item) : undefined;
 
   return (
     <div className={`item-tooltip ${identity.surfaceClassName}`}>
       <strong>{formatEnhancedItemName(inventoryItem)}</strong>
       <ItemQualityBadge inventoryItem={inventoryItem} />
+      <ItemProgressionBadge item={item} />
       <span>{item.type}</span>
       <p>{item.description}</p>
       <div className="item-tooltip-grid">
@@ -38,6 +42,8 @@ export function ItemTooltip({ inventoryItem, equipped = false, sellReason }: Ite
         {item.equipmentSlot ? <TooltipLine label="Slot" value={item.equipmentSlot} /> : null}
         {item.levelRequirement ? <TooltipLine label="Level" value={item.levelRequirement} /> : null}
         {item.vocationRestriction ? <TooltipLine label="Vocation" value={item.vocationRestriction.join(", ")} /> : null}
+        {progression ? <TooltipLine label="Family" value={progression.family.label} /> : null}
+        {progression ? <TooltipLine label="Gear band" value={progression.band.label} /> : null}
         <TooltipLine label="Upgrade" value={identity.upgradeLabel} />
         <TooltipLine label="Forge rank" value={identity.tierLabel} />
         {item.isContainer ? <TooltipLine label="Container" value={item.containerType ?? "generic"} /> : null}

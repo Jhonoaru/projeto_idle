@@ -1,5 +1,6 @@
 import { getInventoryItemBadges, getItemIconMeta } from "./itemIconMeta";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
+import { getEquipmentProgression } from "../../game-engine/items/getEquipmentProgression";
 import type { InventoryItem, Item } from "../../shared/types";
 
 interface ItemIconProps {
@@ -29,6 +30,7 @@ export function ItemIcon({
   const iconQuantity = quantity ?? inventoryItem?.quantity;
   const meta = getItemIconMeta(iconItem);
   const identity = getItemVisualIdentity(iconItem, inventoryItem);
+  const progression = iconItem?.type === "equipment" ? getEquipmentProgression(iconItem) : undefined;
   const badges = showBadges ? getInventoryItemBadges(inventoryItem, equipped) : [];
 
   return (
@@ -43,7 +45,7 @@ export function ItemIcon({
         equipped ? "is-equipped" : "",
         selected ? "is-selected" : "",
       ].filter(Boolean).join(" ")}
-      title={iconItem ? `${iconItem.name} / ${identity.combinedLabel} / ${meta.label}` : "Empty"}
+      title={iconItem ? `${iconItem.name} / ${identity.combinedLabel}${progression ? ` / ${progression.family.label} / ${progression.band.label}` : ""} / ${meta.label}` : "Empty"}
     >
       <strong>{meta.symbol}</strong>
       {showQuantity && iconQuantity && iconQuantity > 1 ? (

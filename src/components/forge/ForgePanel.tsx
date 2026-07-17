@@ -13,10 +13,13 @@ import { getImbuementApplicationStatus } from "../../game-engine/forge/getImbuem
 import { getForgeableItems } from "../../game-engine/forge/forgeInventoryHelpers";
 import { calculateEnhancedItemBonuses } from "../../game-engine/forge/calculateEnhancedItemBonuses";
 import { formatEnhancedItemName, getItemVisualIdentity, type ItemVisualTier } from "../../game-engine/items/getItemVisualIdentity";
+import { getEquipmentProgression } from "../../game-engine/items/getEquipmentProgression";
+import { equipmentFamilies, equipmentProgressionBands, equipmentProgressionOrder } from "../../data/equipmentProgression";
 import { ForgeMaterialRequirement } from "./ForgeMaterialRequirement";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
-import type { Character, EquipmentSlot, Guild, GuildDepot, ImbuementDefinition, InventoryItem } from "../../shared/types";
+import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
+import type { Character, EquipmentProgressionBandId, EquipmentSlot, Guild, GuildDepot, ImbuementDefinition, InventoryItem } from "../../shared/types";
 
 interface ForgePanelProps {
   character: Character;
@@ -57,6 +60,7 @@ export function ForgePanel({
   const itemSlot = selectedSlot ?? selectedItem?.item.equipmentSlot;
   const selectedBonuses = selectedItem ? calculateEnhancedItemBonuses(selectedItem) : undefined;
   const selectedIdentity = selectedItem ? getItemVisualIdentity(selectedItem.item, selectedItem) : undefined;
+  const selectedProgression = selectedItem ? getEquipmentProgression(selectedItem.item) : undefined;
 
   if (forgeableItems.length === 0) {
     return <div className="empty-list">Nenhum equipamento disponivel para Forge.</div>;
@@ -80,6 +84,7 @@ export function ForgePanel({
       </div>
 
       <ForgeRarityLegend />
+      <ForgeFamilyLegend />
 
       <div className="forge-filters">
         {(["all", "weapons", "armor", "accessories", "backpack"] as ForgeFilter[]).map((option) => (
@@ -106,6 +111,7 @@ export function ForgePanel({
             >
               <strong>{formatForgeItemName(item)}</strong>
               <ItemQualityBadge compact inventoryItem={item} />
+              <ItemProgressionBadge compact item={item.item} />
               <span>{item.item.equipmentSlot ?? "equipment"}</span>
               <em>{item.imbuements?.length ?? 0} imbuement(s)</em>
             </button>;
@@ -121,11 +127,13 @@ export function ForgePanel({
                   <span>{selectedSlot ? `Equipped: ${selectedSlot}` : "Inventory"}</span>
                   <strong>{formatForgeItemName(selectedItem)}</strong>
                   <ItemQualityBadge inventoryItem={selectedItem} />
+                  <ItemProgressionBadge item={selectedItem.item} />
                   <p>{selectedItem.item.description}</p>
                 </div>
               </div>
 
               {selectedIdentity ? <ForgeQualityTrack currentTier={selectedIdentity.tier} /> : null}
+              {selectedProgression ? <EquipmentProgressionTrack currentBand={selectedProgression.bandId} /> : null}
 
               <div className="forge-action-grid">
                 <ForgeActionBox
@@ -203,6 +211,25 @@ export function ForgePanel({
   );
 }
 
+function EquipmentProgressionTrack({ currentBand }: { currentBand: EquipmentProgressionBandId }) {
+  const currentIndex = equipmentProgressionOrder.indexOf(currentBand);
+
+  return (
+    <div className="equipment-progression-track" aria-label="Equipment level progression">
+      {equipmentProgressionOrder.map((bandId, index) => {
+        const band = equipmentProgressionBands[bandId];
+        return (
+          <div className={`${bandId === currentBand ? "is-current" : ""} ${index < currentIndex ? "is-complete" : ""} equipment-band-${bandId}`} key={bandId}>
+            <span>{band.code}</span>
+            <strong>{band.label}</strong>
+            <em>Lv {band.minLevel}{band.maxLevel ? `-${band.maxLevel}` : "+"}</em>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ForgeRarityLegend() {
   const rarities = ["common", "uncommon", "rare", "epic", "legendary"] as const;
 
@@ -212,6 +239,19 @@ function ForgeRarityLegend() {
         <span className={`item-rarity-${rarity}`} key={rarity}>
           <i aria-hidden="true" />
           {rarity}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ForgeFamilyLegend() {
+  return (
+    <div className="forge-family-legend" aria-label="Equipment families">
+      {Object.values(equipmentFamilies).map((family) => (
+        <span className={`equipment-family-${family.id}`} key={family.id} title={family.description}>
+          <i aria-hidden="true">{family.code}</i>
+          <strong>{family.label}</strong>
         </span>
       ))}
     </div>

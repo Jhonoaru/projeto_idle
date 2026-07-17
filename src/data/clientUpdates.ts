@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-60",
+    stage: "Stage 60",
+    title: "Equipment Progression Paths",
+    date: "2026-07-16",
+    category: "systems",
+    summary: "Equipment now follows six families and five level bands, with new hunt, boss and rotating Bazaar rewards filling the campaign curve.",
+    highlights: [
+      "Vanguard, Pathfinder, Arcanum, Discipline, Field Kit and Artifact identify the intended combat path without creating set bonuses.",
+      "Sixteen new items cover Adventurer, Veteran, Elite and Mythic progression while legacy equipment derives safe family and band metadata.",
+      "Forge, Inventory, Equipment, Character Details, Market and Bazaar expose the same family, band and required-level identity.",
+    ],
+    systems: ["Equipment", "Loot", "Bosses", "Forge", "Bazaar"],
+    featured: true,
+  },
+  {
     id: "stage-59-5",
     stage: "Stage 59.5",
     title: "Item Quality QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The original SQLite save was restored with matching SHA-256, ten logs, 26 items, 674 gold and integrity_check ok.",
     ],
     systems: ["Item Quality", "Forge", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-59",

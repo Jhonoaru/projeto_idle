@@ -53,6 +53,8 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.7, minQuantity: 6, maxQuantity: 18 },
       { itemId: "troll-tooth", chance: 0.2, minQuantity: 1, maxQuantity: 2 },
       { itemId: "old-cloth", chance: 0.12, minQuantity: 1, maxQuantity: 3 },
+      { itemId: "iron-longsword", chance: 0.008, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "iron-handwraps", chance: 0.008, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   mudRotter: {
@@ -71,6 +73,7 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.72, minQuantity: 10, maxQuantity: 28 },
       { itemId: "rotten-claw", chance: 0.18, minQuantity: 1, maxQuantity: 2 },
       { itemId: "health-potion", chance: 0.04, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "runed-wand", chance: 0.006, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   youngMinotaur: {
@@ -89,6 +92,7 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.82, minQuantity: 18, maxQuantity: 50 },
       { itemId: "minotaur-horn", chance: 0.16, minQuantity: 1, maxQuantity: 2 },
       { itemId: "brass-shield", chance: 0.02, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "iron-cuirass", chance: 0.01, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   orcRaider: {
@@ -107,6 +111,7 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.78, minQuantity: 14, maxQuantity: 44 },
       { itemId: "orc-leather", chance: 0.18, minQuantity: 1, maxQuantity: 2 },
       { itemId: "training-axe", chance: 0.025, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "ironwood-bow", chance: 0.008, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   dwarfGuard: {
@@ -125,6 +130,8 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.88, minQuantity: 40, maxQuantity: 100 },
       { itemId: "dwarf-badge", chance: 0.12, minQuantity: 1, maxQuantity: 1 },
       { itemId: "iron-ore", chance: 0.22, minQuantity: 1, maxQuantity: 4 },
+      { itemId: "gravewood-bow", chance: 0.005, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "cryptguard-armor", chance: 0.004, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   ancientSkeleton: {
@@ -143,6 +150,8 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.76, minQuantity: 24, maxQuantity: 70 },
       { itemId: "ancient-bone", chance: 0.18, minQuantity: 1, maxQuantity: 3 },
       { itemId: "enchanted-dust", chance: 0.035, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "cryptsteel-blade", chance: 0.005, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "boneweave-wraps", chance: 0.005, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   cyclopsBrute: {
@@ -161,6 +170,7 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.9, minQuantity: 55, maxQuantity: 140 },
       { itemId: "cyclops-eye", chance: 0.035, minQuantity: 1, maxQuantity: 1 },
       { itemId: "wooden-club", chance: 0.03, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "cryptguard-armor", chance: 0.006, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   wyvernHatchling: {
@@ -179,6 +189,8 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.92, minQuantity: 70, maxQuantity: 170 },
       { itemId: "wyvern-scale", chance: 0.14, minQuantity: 1, maxQuantity: 2 },
       { itemId: "broken-fang", chance: 0.16, minQuantity: 1, maxQuantity: 3 },
+      { itemId: "wyvern-bow", chance: 0.003, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "dragon-wraps", chance: 0.003, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   dragonWhelp: {
@@ -198,6 +210,9 @@ export const monsters = {
       { itemId: "dragon-ember", chance: 0.025, minQuantity: 1, maxQuantity: 1 },
       { itemId: "wyvern-scale", chance: 0.18, minQuantity: 1, maxQuantity: 2 },
       { itemId: "strong-health-potion", chance: 0.05, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "ember-blade", chance: 0.002, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "ember-staff", chance: 0.002, minQuantity: 1, maxQuantity: 1 },
+      { itemId: "dragonscale-armor", chance: 0.0015, minQuantity: 1, maxQuantity: 1 },
     ],
   },
   cultAcolyte: {
@@ -216,6 +231,7 @@ export const monsters = {
       { itemId: "gold-coin", chance: 0.82, minQuantity: 35, maxQuantity: 90 },
       { itemId: "cultist-charm", chance: 0.1, minQuantity: 1, maxQuantity: 1 },
       { itemId: "mana-potion", chance: 0.08, minQuantity: 1, maxQuantity: 2 },
+      { itemId: "crypt-scepter", chance: 0.006, minQuantity: 1, maxQuantity: 1 },
     ],
   },
 } satisfies Record<string, Monster>;

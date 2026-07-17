@@ -8,6 +8,7 @@ import { getHeadquartersBonuses } from "../../game-engine/headquarters/getHeadqu
 import { normalizeGuildBazaarState } from "../../game-engine/bazaar/normalizeGuildBazaarState";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
+import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { MarketFilters } from "./MarketFilters";
 import { MarketItemRow } from "./MarketItemRow";
@@ -393,6 +394,7 @@ function MarketBazaarTab({
                 <ItemIcon inventoryItem={previewItem} size="large" />
                 <strong>{item.name}</strong>
                 <small>{formatOfferEnhancements(offer)}</small>
+                <ItemProgressionBadge compact item={item} />
                 <small>{item.type} / {item.rarity}</small>
               </button>
             );

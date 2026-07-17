@@ -2,6 +2,7 @@ import type { EquipmentSlot, InventoryItem } from "../../shared/types";
 import { getImbuementById } from "../../data/imbuements";
 import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
+import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
 
 interface EquipmentSlotBoxProps {
   slot: EquipmentSlot;
@@ -19,6 +20,7 @@ export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlot
         <>
           <strong>{formatEnhancedItemName(item)}</strong>
           <ItemQualityBadge compact inventoryItem={item} />
+          <ItemProgressionBadge compact item={item.item} />
           <small>{formatItemStats(item)}</small>
           {item.imbuements?.length ? (
             <small>

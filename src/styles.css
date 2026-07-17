@@ -1064,6 +1064,12 @@ p {
   grid-template-columns: minmax(210px, 0.65fr) minmax(280px, 0.9fr) minmax(340px, 1.2fr);
 }
 
+@media (max-width: 1400px) {
+  .forge-layout-wide {
+    grid-template-columns: minmax(170px, 0.65fr) minmax(220px, 0.9fr) minmax(260px, 1.2fr);
+  }
+}
+
 .forge-item-list button {
   padding: 10px;
   text-align: left;
@@ -1490,6 +1496,32 @@ p {
   background: #111613;
 }
 
+.equipment-progression-track {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border: 1px solid #30352f;
+  background: #111613;
+}
+
+.equipment-progression-track > div {
+  min-width: 0;
+  min-height: 56px;
+  padding: 7px;
+  border-right: 1px solid #30352f;
+  color: #68716b;
+  background: #141917;
+}
+
+.equipment-progression-track > div:last-child { border-right: 0; }
+.equipment-progression-track > div.is-complete { color: #9ba59e; background: #182019; }
+.equipment-progression-track > div.is-current { color: var(--equipment-band-color); box-shadow: inset 0 -3px 0 var(--equipment-band-color); }
+.equipment-progression-track span,
+.equipment-progression-track strong,
+.equipment-progression-track em { display: block; color: inherit; text-transform: uppercase; }
+.equipment-progression-track span { font-size: 0.55rem; font-weight: 900; }
+.equipment-progression-track strong { margin-top: 3px; font-size: 0.66rem; overflow-wrap: anywhere; }
+.equipment-progression-track em { margin-top: 3px; font-size: 0.52rem; font-style: normal; }
+
 .forge-rarity-legend {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1517,6 +1549,52 @@ p {
   height: 7px;
   flex: 0 0 auto;
   background: var(--item-rarity-color);
+}
+
+.forge-family-legend {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.forge-family-legend > span {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+  min-height: 30px;
+  border: 1px solid color-mix(in srgb, var(--equipment-family-color) 48%, #30352f);
+  padding: 4px 6px;
+  color: var(--equipment-family-color);
+  background: color-mix(in srgb, var(--equipment-family-color) 8%, #141917);
+}
+
+.forge-family-legend i {
+  display: grid;
+  place-items: center;
+  min-height: 18px;
+  color: #121512;
+  background: var(--equipment-family-color);
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.forge-family-legend strong {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 0.58rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .forge-family-legend {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .forge-quality-track > div {
@@ -2064,6 +2142,58 @@ p {
 .item-quality-badge > em { color: #aeb7aa; font-size: 0.59rem; font-style: normal; text-transform: uppercase; }
 .item-quality-badge.is-compact { min-height: 20px; padding: 2px 5px; }
 .item-quality-badge.is-compact > em { font-size: 0.54rem; }
+
+.equipment-family-field-kit { --equipment-family-color: #aaa58f; }
+.equipment-family-vanguard { --equipment-family-color: #d07b67; }
+.equipment-family-pathfinder { --equipment-family-color: #70b98d; }
+.equipment-family-arcanum { --equipment-family-color: #879bd5; }
+.equipment-family-discipline { --equipment-family-color: #d4ad68; }
+.equipment-family-artifact { --equipment-family-color: #c77eb7; }
+
+.equipment-band-novice { --equipment-band-color: #929b94; }
+.equipment-band-adventurer { --equipment-band-color: #76b77a; }
+.equipment-band-veteran { --equipment-band-color: #639ed1; }
+.equipment-band-elite { --equipment-band-color: #ac79ca; }
+.equipment-band-mythic { --equipment-band-color: #d79c42; }
+
+.item-progression-badge {
+  display: inline-grid;
+  grid-template-columns: 22px auto auto;
+  gap: 5px;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 24px;
+  border: 1px solid color-mix(in srgb, var(--equipment-family-color) 55%, #30352f);
+  border-bottom-color: var(--equipment-band-color);
+  padding: 3px 6px;
+  background: color-mix(in srgb, var(--equipment-family-color) 9%, #141917);
+  white-space: nowrap;
+}
+
+.item-progression-badge > i {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  min-height: 16px;
+  color: #121512;
+  background: var(--equipment-family-color);
+  font-size: 0.52rem;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.item-progression-badge > strong { color: var(--equipment-family-color); font-size: 0.59rem; text-transform: uppercase; }
+.item-progression-badge > em { color: var(--equipment-band-color); font-size: 0.54rem; font-style: normal; text-transform: uppercase; }
+.item-progression-badge.is-compact { grid-template-columns: 18px auto auto; min-height: 20px; padding: 2px 4px; }
+.item-progression-badge.is-compact > i { min-width: 16px; min-height: 14px; font-size: 0.46rem; }
+.item-progression-badge.is-compact > strong { font-size: 0.53rem; }
+.item-progression-badge.is-compact > em { font-size: 0.49rem; }
+
+.bazaar-offer .item-progression-badge {
+  justify-self: center;
+  max-width: 100%;
+}
 
 .inventory-row.item-tier-1,
 .market-row.item-tier-1,
@@ -3858,9 +3988,14 @@ p {
 @media (max-width: 720px) {
   .forge-rarity-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .forge-rarity-legend > span:last-child { grid-column: 1 / -1; }
+  .forge-family-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .forge-quality-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .forge-quality-track > div:nth-child(2) { border-right: 0; }
   .forge-quality-track > div:nth-child(-n+2) { border-bottom: 1px solid #30352f; }
+  .equipment-progression-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .equipment-progression-track > div:nth-child(2n) { border-right: 0; }
+  .equipment-progression-track > div:nth-child(-n+4) { border-bottom: 1px solid #30352f; }
+  .equipment-progression-track > div:last-child { grid-column: 1 / -1; }
   .forge-item-header { grid-template-columns: 1fr; }
 
   .game-shell {

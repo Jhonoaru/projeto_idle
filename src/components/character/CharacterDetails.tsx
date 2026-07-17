@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GuildBriefing } from "./GuildBriefing";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
+import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { CHARACTER_STATUS_LABELS, SKILL_LABELS } from "../../shared/constants";
 import { calculateEquipmentBonuses } from "../../game-engine/equipment/calculateEquipmentBonuses";
@@ -205,6 +206,7 @@ export function CharacterDetails({
                   <ItemIcon inventoryItem={item} equipped size="medium" showQuantity={false} />
                   <strong>{item?.item.name ?? "Empty"}</strong>
                   {item ? <ItemQualityBadge compact inventoryItem={item} /> : null}
+                  {item ? <ItemProgressionBadge compact item={item.item} /> : null}
                   {item ? <small>{formatEnhancement(item.upgradeLevel, item.tier)}</small> : null}
                 </div>
               );

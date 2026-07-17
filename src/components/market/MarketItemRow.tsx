@@ -4,6 +4,7 @@ import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
+import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
 import type { InventoryItem, SellSource } from "../../shared/types";
 
 interface MarketItemRowProps {
@@ -50,6 +51,7 @@ export function MarketItemRow({
       <div className="market-row-meta">
         <span>{inventoryItem.item.type}</span>
         <ItemQualityBadge compact inventoryItem={inventoryItem} />
+        <ItemProgressionBadge compact item={inventoryItem.item} />
         <span>x{inventoryItem.quantity}</span>
         <span>{sourceLabel(source)}</span>
         {sellStatus.reason ? <span className={`sell-warning is-${sellStatus.warningLevel}`}>{sellStatus.reason}</span> : null}
