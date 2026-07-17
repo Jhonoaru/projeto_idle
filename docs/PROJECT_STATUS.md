@@ -124,6 +124,7 @@ Atualizado em: 2026-07-17
 - Etapa 66 concluida: Guild Logistics Board centraliza Headquarters, Projects e Wardrobe, unifica stacks elegiveis e abre sistemas ou hunts reais.
 - Etapa 66.5 concluida: QA ampliada validou 39 cenarios, rotas do board, responsividade, duas cargas Tauri e restauracao exata do SQLite.
 - Etapa 67 concluida: Campaign Pinboard adiciona tres prioridades persistentes, ordenacao manual e progresso material focado sem reservar recursos.
+- Etapa 67.5 concluida: QA ampliada validou transicoes, conclusao, dados corrompidos, clique duplo, tres viewports reais e duas cargas Tauri.
 
 Comandos principais:
 
@@ -4056,6 +4057,57 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 67.5 - QA do Campaign Pinboard no Tauri/SQLite.
+
+## Etapa 67.5 - QA do Campaign Pinboard no Tauri/SQLite
+
+Status: concluida sem bug funcional novo.
+
+Matriz de engine:
+
+- Um harness temporario executou 41/41 checks e foi removido depois da validacao.
+- Normalizacao rejeitou tipos invalidos, ids vazios e duplicados, preservou a ordem e limitou o estado a tres pins.
+- O Field Supply Station permaneceu fixado ao avancar de fase 1/3 para 2/3 e 3/3.
+- A demanda focada mudou de Old Cloth para Iron Ore e depois para duas linhas, sempre usando apenas a fase atual.
+- Ao concluir a terceira fase, o projeto saiu da fila, do pinboard e dos totais focados sem perder a referencia persistida antes da proxima edicao.
+- Fixar uma nova ordem limpou o id concluido; o mesmo fluxo foi repetido apos desbloquear Noble Adventurer pela Wardrobe.
+- O quarto pin, Up no primeiro slot, Down no ultimo slot, pin duplicado e unpin duplicado preservaram identidade sem efeito parcial.
+- Reordenacao valida moveu exatamente uma posicao e nao mutou a guilda de entrada.
+- Stacks locked e nested com quantidade alta continuaram fora da cobertura focada.
+- Mapper SQLite recuperou JSON quebrado e removeu duplicatas com seguranca.
+
+QA visual e responsivo:
+
+- O pinboard foi exercitado com tres prioridades em viewports reais de iframe com 960, 700 e 430 px.
+- Em todos os tamanhos, `pageScroll === pageClient`, `boardScroll === boardClient` e `pinScroll === pinClient`.
+- O layout de 430 px empilhou os tres slots e os cinco filtros em uma coluna sem texto ou controles sobrepostos.
+- Um clique duplo em `Unpin Contract Archive` removeu somente esse pin e deixou os outros dois ativos.
+- O frontend web registrou apenas o fallback esperado do plugin SQLite e erros de `MutationObserver` do wrapper de iframe usado no QA; nao existe `MutationObserver` no codigo `src` do app.
+
+Tauri e SQLite:
+
+- O SQLite original recebeu backup byte a byte com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- Uma fixture gravou espacos, id duplicado, valor numerico e mais de tres entradas em `logistics_json`.
+- A primeira carga Tauri normalizou o campo para Project, Wardrobe e Headquarters, nessa ordem.
+- A segunda carga manteve os mesmos tres pins e o hash semantico `3C1601F6BDF8BE202F34A6997F3F17DF93B5E2C5AFB849446E1B1C303BC49A44`.
+- `integrity_check` permaneceu `ok`, com 674g, 26 itens e dez activity logs, sem duplicacao.
+- O banco original foi restaurado com o mesmo SHA-256 e sem WAL, SHM ou backup temporario restante.
+
+Validacoes tecnicas:
+
+- `npm.cmd run build` passou no baseline com 353 modulos.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram novamente no fechamento, com MSI e NSIS gerados.
+- Nenhum arquivo de gameplay, schema ou persistencia precisou ser corrigido nesta etapa.
+- O aviso conhecido de bundle JavaScript acima de 500 kB permanece.
+
+Limitacoes mantidas:
+
+- Pins concluidos deixam de aparecer imediatamente, mas o id inativo so e removido do JSON na proxima edicao do pinboard.
+- O sistema ainda nao emite badge ou Activity Log automatico quando uma prioridade fica pronta.
+- Pins continuam sem reservar recursos ou executar transacoes automaticamente por design.
+
+Proximo passo sugerido:
+
+- Etapa 68 - Logistics Alerts e notificacoes de campanha.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

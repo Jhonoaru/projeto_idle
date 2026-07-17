@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-67-5",
+    stage: "Stage 67.5",
+    title: "Campaign Pinboard QA",
+    date: "2026-07-17",
+    category: "qa",
+    summary: "Priority transitions, completed objectives, malformed saves, double clicks and compact layouts passed expanded Pinboard validation.",
+    highlights: [
+      "Forty-one engine checks followed a pinned project through all three phases and removed completed Project and Wardrobe orders from focused demand.",
+      "Real 960, 700 and 430 px iframe viewports kept the page, board and pinboard free of horizontal overflow with three priorities visible.",
+      "Tauri normalized malformed logistics JSON once, retained an identical semantic hash on reload and left the original SQLite restored byte for byte.",
+    ],
+    systems: ["Campaign Pinboard QA", "Responsive UI", "Tauri QA", "SQLite QA"],
+    featured: true,
+  },
+  {
     id: "stage-67",
     stage: "Stage 67",
     title: "Campaign Priority Pinboard",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Pinned demand remains informational: no gold or material is reserved and no hunt or transaction starts automatically.",
     ],
     systems: ["Campaign Pinboard", "Guild Logistics", "SQLite", "Priority Planning"],
-    featured: true,
   },
   {
     id: "stage-66-5",
