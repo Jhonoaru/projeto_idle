@@ -25,6 +25,7 @@ import { GuildTreasuryHall } from "../treasury/GuildTreasuryHall";
 import { GuildProjectsHall } from "../projects/GuildProjectsHall";
 import { GuildRecruitmentBoard } from "../recruitment/GuildRecruitmentBoard";
 import { GuildLogisticsBoard } from "../logistics/GuildLogisticsBoard";
+import { CampaignOperationsDashboard } from "../operations/CampaignOperationsDashboard";
 import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
@@ -74,6 +75,7 @@ interface LastResultView {
 export type MainPanelTab =
   | "home"
   | "character"
+  | "operations"
   | "headquarters"
   | "contracts"
   | "staff"
@@ -396,6 +398,17 @@ export function MainPanel({
 
         {activeTab === "skills" ? (
           <SkillsProgressionPanel character={selectedCharacter} onOpenTab={onChangeTab} />
+        ) : null}
+
+        {activeTab === "operations" ? (
+          <CampaignOperationsDashboard
+            characters={characters}
+            depot={depot}
+            guild={guild}
+            logs={logs}
+            onOpenSystem={onChangeTab}
+            onSelectCharacter={onSelectCharacter}
+          />
         ) : null}
 
         {activeTab === "blessings" ? (
@@ -742,6 +755,7 @@ function getWindowTitle(tab: MainPanelTab) {
   const titles: Record<MainPanelTab, string> = {
     home: "Guild Hunt Idle",
     character: "Character Details",
+    operations: "Campaign Operations Dashboard",
     headquarters: "Guild Headquarters",
     contracts: "Guild Contracts Board",
     staff: "Guild Staff",
@@ -789,6 +803,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
   if (tab === "ranking") return "Local roster standings and guild career milestones derived from the current save.";
   if (tab === "headquarters") return "Guild-wide facilities, construction costs and small local progression bonuses.";
+  if (tab === "operations") return "Live local overview of roster assignments, support expeditions and permanent campaign priorities.";
   if (tab === "contracts") return "Local support expeditions with fixed outcomes, small rewards and SQLite persistence.";
   if (tab === "staff") return "Permanent local specialists with one active duty post and capped expedition bonuses.";
   if (tab === "treasury") return "Protected local reserves and a persistent ledger for the guild's existing gold.";
@@ -809,6 +824,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
 function getWindowIcon(tab: MainPanelTab) {
   const icons: Partial<Record<MainPanelTab, string>> = {
     character: "D",
+    operations: "O",
     headquarters: "H",
     contracts: "C",
     staff: "S",

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-69",
+    stage: "Stage 69",
+    title: "Campaign Operations Dashboard",
+    date: "2026-07-17",
+    category: "systems",
+    summary: "A new read-only command dashboard consolidates roster assignments, support expeditions, campaign priorities and next orders from the local save.",
+    highlights: [
+      "Five adventurers share one live assignment ledger with safe countdowns, report readiness and direct routes to Action or Explore.",
+      "Support expeditions, pinned Logistics objectives and a concise recommendation queue link to the existing guild systems without automatic execution.",
+      "The dashboard derives all state in memory, adds no schema and keeps the SQLite campaign semantically unchanged across native reloads.",
+    ],
+    systems: ["Campaign Operations", "Roster Management", "Guild Expeditions", "Logistics"],
+    featured: true,
+  },
+  {
     id: "stage-68-5",
     stage: "Stage 68.5",
     title: "Logistics Alerts QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Three native reload scenarios normalized a legacy save, preserved reviewed guards and restored the original SQLite byte for byte.",
     ],
     systems: ["Logistics Alerts QA", "Activity Log", "Responsive UI", "SQLite QA"],
-    featured: true,
   },
   {
     id: "stage-68",

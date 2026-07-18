@@ -15,6 +15,7 @@ interface CharacterSideMenuProps {
 
 const menuItems: Array<{ tab: MainPanelTab; label: string; icon: string }> = [
   { tab: "character", label: "Details", icon: "D" },
+  { tab: "operations", label: "Operations", icon: "O" },
   { tab: "headquarters", label: "Guild", icon: "H" },
   { tab: "contracts", label: "Contracts", icon: "C" },
   { tab: "staff", label: "Staff", icon: "S" },

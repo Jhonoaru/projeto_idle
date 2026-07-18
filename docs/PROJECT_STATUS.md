@@ -127,6 +127,7 @@ Atualizado em: 2026-07-17
 - Etapa 67.5 concluida: QA ampliada validou transicoes, conclusao, dados corrompidos, clique duplo, tres viewports reais e duas cargas Tauri.
 - Etapa 68 concluida: prioridades prontas agora geram badge, banner revisavel e Activity Log uma vez por revisao do objetivo, com persistencia SQLite.
 - Etapa 68.5 concluida: QA ampliada validou 56 cenarios, alertas independentes, review, layouts compactos, JSON quebrado e tres cargas Tauri/SQLite.
+- Etapa 69 concluida: Campaign Operations Dashboard centraliza roster, expedicao, prioridades, recomendacoes e Activity Log sem criar estado ou automacao.
 
 Comandos principais:
 
@@ -4219,6 +4220,73 @@ Validacoes tecnicas:
 Proximo passo sugerido:
 
 - Etapa 69 - Campaign Operations Dashboard.
+
+## Etapa 69 - Campaign Operations Dashboard
+
+Status: concluida.
+
+Modelo derivado:
+
+- `buildCampaignOperationsDashboard` consolida guilda, Guild Depot, roster e relogio local sem gravar estado novo.
+- Cada aventureiro recebe status operacional, label, alvo, progresso, tempo restante, prontidao e destino `Action` ou `Explore`.
+- Acoes com `readyToResolve` ou prazo valido vencido aparecem como report prontas; datas antigas invalidas permanecem seguras e mostram `Timer unavailable`.
+- A expedicao de suporte usa o snapshot persistido existente para nome, equipe, chance, progresso e report pronta.
+- O Campaign Focus reaproveita os tres pins reais de Logistics e calcula cobertura/deficit apenas da revisao atual.
+- Contratos financiaveis, candidatos recrutaveis, projects concluidos e Headquarters levels sao derivados pelos engines existentes.
+- Uma fila de ate cinco recomendacoes prioriza reports, alertas, expedicao, materiais, recruitment e aventureiros idle.
+
+Interface e navegacao:
+
+- Operations entrou no menu lateral logo depois de Details e nos atalhos do Character Hall.
+- A janela ampla oculta roster lateral, menu e painel direito para usar toda a area central.
+- Hero resume aventureiros disponiveis, ativos, reports prontas e prioridades fixadas.
+- Adventurer Roster mostra os cinco personagens, status, destino, timer/progresso e comando `Assign`, `Review` ou `Recover`.
+- Next Orders abre somente os sistemas reais; nenhum comando e executado dentro do dashboard.
+- Guild Expedition mostra dispatch atual ou quantidade de contratos financiaveis e abre Contracts.
+- Priority Focus abre Logistics, Projects, Headquarters ou Wardrobe conforme o objetivo real.
+- Recent Activity reutiliza as seis entradas mais recentes do Activity Log.
+- Operations e Logistics foram incluidos entre as telas restauraveis do cliente local.
+
+Arquivos criados:
+
+- `src/game-engine/operations/buildCampaignOperationsDashboard.ts`.
+- `src/components/operations/CampaignOperationsDashboard.tsx`.
+
+Arquivos principais alterados:
+
+- `src/components/layout/MainPanel.tsx`.
+- `src/components/layout/CharacterSideMenu.tsx`.
+- `src/components/character/CharacterDetails.tsx`.
+- `src/client-preferences/clientPreferences.ts`.
+- `src/app/App.tsx`.
+- `src/styles.css`.
+- `src/data/clientUpdates.ts`.
+- `docs/PROJECT_STATUS.md`.
+
+Validacao realizada:
+
+- Harness temporario passou em 48/48 checks de roster idle/active/ready/dead, timers, datas invalidas, expedicao, prioridades, recomendacoes e imutabilidade.
+- O frontend abriu Operations pelo menu e mostrou 3 aventureiros disponiveis, 2 ativos, 5 registrados e 3 next orders no mock atual.
+- `Open Contracts` abriu o Contracts Board e `Assign` abriu Explore com o personagem selecionado.
+- O desktop 1280x720 manteve `scrollWidth === clientWidth`, cinco linhas de roster e tres recomendacoes visiveis.
+- Viewports reais de iframe em 960, 700 e 430 px ficaram sem overflow na pagina ou no dashboard.
+- Em 430 px, nenhum button, strong, small ou span medido excedeu seu container.
+- `npm.cmd run build` passou com 356 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Duas cargas nativas mantiveram o hash semantico `51F0589FDA9E7285D08D49118388E03F53AC576BFDCEA58E1EDD0704CAA324FF`.
+- O SQLite permaneceu com 674g, 12 renown, 5 personagens, 26 stacks, quantidade total 95, 10 logs e `integrity_check: ok`.
+- O banco original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem sidecars ou backup restante.
+
+Limitacoes atuais:
+
+- O dashboard e deliberadamente read-only; coleta, dispatch, financiamento, recrutamento e inicio de hunt continuam nos respectivos sistemas.
+- Timers legados no formato apenas `HH:mm` nao podem ser comparados com a data atual e sao identificados como indisponiveis.
+- Nao ha agenda automatica, fila de personagens, reserva de recursos, notificacao do sistema operacional ou processamento online.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 69.5 - QA do Campaign Operations Dashboard no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
