@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-17
+Atualizado em: 2026-07-18
 
 ## Stack usada
 
@@ -128,6 +128,7 @@ Atualizado em: 2026-07-17
 - Etapa 68 concluida: prioridades prontas agora geram badge, banner revisavel e Activity Log uma vez por revisao do objetivo, com persistencia SQLite.
 - Etapa 68.5 concluida: QA ampliada validou 56 cenarios, alertas independentes, review, layouts compactos, JSON quebrado e tres cargas Tauri/SQLite.
 - Etapa 69 concluida: Campaign Operations Dashboard centraliza roster, expedicao, prioridades, recomendacoes e Activity Log sem criar estado ou automacao.
+- Etapa 69.5 concluida: QA ampliada corrigiu status operacional inconsistente e validou 93 checks, rotas, responsividade e reloads Tauri/SQLite.
 
 Comandos principais:
 
@@ -4287,6 +4288,54 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 69.5 - QA do Campaign Operations Dashboard no Tauri/SQLite.
+
+## Etapa 69.5 - QA do Campaign Operations Dashboard no Tauri/SQLite
+
+Status: concluida com uma correcao funcional.
+
+Correcao realizada:
+
+- Saves legados podem persistir `character.status` e `currentAction` separadamente e carregar uma acao ativa com status `idle`.
+- O dashboard anteriormente mostrava essa linha como Idle e contava o mesmo aventureiro em Available e In the field.
+- A projecao agora prioriza um `currentAction.type` ativo valido, usa fallback operacional seguro para combinacoes invalidas e calcula disponibilidade somente pelas linhas realmente idle.
+- A correcao e apenas derivada; nenhum personagem, acao ou campo SQLite e regravado pelo dashboard.
+
+Matriz de engine:
+
+- Harness temporario passou em 93/93 checks e foi removido depois da validacao.
+- Foram cobertos roster idle, ativo, pronto, morto, vazio e o par legado `status: idle` com acao ativa.
+- Deadlines exatos, flag `readyToResolve`, timer quebrado, gold `NaN`, expedicao invalida, expedicao ativa/pronta e membro orfao permaneceram seguros.
+- Prioridades preservaram ordem, cobertura limitada ao requisito, deficits nao negativos e fila de recomendacoes limitada a cinco ids unicos.
+- Todos os tempos, percentuais e contadores permaneceram finitos e os inputs nao sofreram mutacao.
+
+QA visual e navegacao:
+
+- Operations abriu pelo Character Hall com 3 aventureiros disponiveis, 2 ativos, 5 registrados e 3 Next Orders no mock atual.
+- `Open Contracts`, Logistics e Projects abriram seus halls reais.
+- `Assign` selecionou Arkon e abriu Explorar; `Review` selecionou Ayla e abriu Current Action.
+- O desktop 1280x720 ocultou os paineis laterais, manteve cinco linhas de roster e tres recomendacoes sem overflow horizontal.
+- Viewports de 960, 700 e 430 px mantiveram `scrollWidth === clientWidth` na pagina e no dashboard.
+- Nenhum button, strong, small, span ou time medido excedeu seu container nos tres breakpoints compactos.
+- O frontend web registrou somente o fallback esperado do plugin SQLite fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- As primeiras cargas completaram uma normalizacao legada de Headquarters adicionando `totalInvestedMaterials: 0`; somente timestamps tecnicos acompanharam o autosave.
+- Uma carga adicional manteve o hash semantico `337BC492F581B4E3E4B6873270FED6F71B1DB09C3E066CF43C41C23B0DDBEA37` antes e depois.
+- O estado normalizado permaneceu com 674g, 12 renown, 5 personagens, 35 skills, 26 stacks, quantidade total 95 e 10 logs.
+- `PRAGMA integrity_check` permaneceu `ok` em todas as leituras.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM, snapshot ou backup restante.
+
+Validacoes tecnicas:
+
+- `npm.cmd run build` passou antes e depois da correcao com 356 modulos.
+- O dashboard permaneceu read-only e nenhuma migration ou coluna nova foi necessaria.
+- Permanece somente o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 70 - proxima expansao da campanha offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

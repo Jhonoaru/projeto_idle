@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-69-5",
+    stage: "Stage 69.5",
+    title: "Campaign Operations QA",
+    date: "2026-07-18",
+    category: "qa",
+    summary: "Expanded engine, navigation, responsive and native SQLite checks hardened the Operations Dashboard against inconsistent legacy assignments.",
+    highlights: [
+      "Ninety-three engine checks covered mismatched action status, invalid timers, expedition deadlines, orphan teams, malformed gold, priorities and immutable inputs.",
+      "Contracts, Logistics, Projects, Assign and Review routes reached their real destinations while 1280, 960, 700 and 430 px layouts remained free of horizontal overflow.",
+      "Native reloads preserved campaign data after one legacy normalization, and the original SQLite save was restored byte for byte without sidecars.",
+    ],
+    systems: ["Campaign Operations QA", "Roster Status", "Responsive UI", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-69",
     stage: "Stage 69",
     title: "Campaign Operations Dashboard",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The dashboard derives all state in memory, adds no schema and keeps the SQLite campaign semantically unchanged across native reloads.",
     ],
     systems: ["Campaign Operations", "Roster Management", "Guild Expeditions", "Logistics"],
-    featured: true,
   },
   {
     id: "stage-68-5",

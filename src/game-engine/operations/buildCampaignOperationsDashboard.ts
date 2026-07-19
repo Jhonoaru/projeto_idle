@@ -27,7 +27,7 @@ export interface CampaignRosterOperation {
   vocation: string;
   level: number;
   city: string;
-  status: CharacterStatus | "ready";
+  status: CharacterStatus | "active" | "ready";
   tone: CampaignOperationTone;
   label: string;
   target?: string;
@@ -127,7 +127,7 @@ export function buildCampaignOperationsDashboard(
   const projects = normalizeGuildProjectsState(guild.projects);
   const headquarters = getHeadquartersRank(guild.headquarters);
   const summary = {
-    idleAdventurers: roster.filter((entry) => entry.status === "idle").length,
+    idleAdventurers: roster.filter((entry) => entry.tone === "idle").length,
     activeAdventurers: roster.filter((entry) => entry.tone === "active").length,
     deadAdventurers: roster.filter((entry) => entry.status === "dead").length,
     readyReports: readyCharacterReports + Number(expedition.status === "ready"),
@@ -167,11 +167,12 @@ function buildRosterOperation(character: Character, nowMs: number): CampaignRost
     return rosterEntry(character, "ready", "ready", action?.label || "Action report ready", action?.targetName, 0, 100, true, "action");
   }
   if (action || character.status !== "idle") {
+    const activeStatus = getActiveOperationStatus(action?.type, character.status);
     return rosterEntry(
       character,
-      character.status,
+      activeStatus,
       "active",
-      action?.label || formatStatus(character.status),
+      action?.label || formatStatus(activeStatus),
       action?.targetName,
       remainingMs,
       progressPercent,
@@ -292,8 +293,25 @@ function parseTime(value: unknown) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-function formatStatus(status: CharacterStatus) {
+function formatStatus(status: CharacterStatus | "active") {
   return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function getActiveOperationStatus(actionType: unknown, characterStatus: unknown): Exclude<CharacterStatus, "idle" | "dead"> | "active" {
+  const activeStatuses: Array<Exclude<CharacterStatus, "idle" | "dead">> = [
+    "hunting",
+    "training",
+    "questing",
+    "bossing",
+    "traveling",
+  ];
+  if (activeStatuses.includes(actionType as Exclude<CharacterStatus, "idle" | "dead">)) {
+    return actionType as Exclude<CharacterStatus, "idle" | "dead">;
+  }
+  if (activeStatuses.includes(characterStatus as Exclude<CharacterStatus, "idle" | "dead">)) {
+    return characterStatus as Exclude<CharacterStatus, "idle" | "dead">;
+  }
+  return "active";
 }
 
 function clampPercent(value: number) {
