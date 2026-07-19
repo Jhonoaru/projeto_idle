@@ -24,10 +24,12 @@ export function formatDurationFromMinutes(minutes: number) {
 }
 
 export function getClockElapsedMs(startedAt: string) {
-  const started = parseClockToday(startedAt);
   const now = new Date();
+  const started = parseActionTimestamp(startedAt, now);
 
-  if (started.getTime() > now.getTime() + 12 * 60 * 60 * 1000) {
+  if (!started) return 0;
+
+  if (!startedAt.includes("T") && started.getTime() > now.getTime() + 12 * 60 * 60 * 1000) {
     started.setDate(started.getDate() - 1);
   }
 
@@ -35,10 +37,12 @@ export function getClockElapsedMs(startedAt: string) {
 }
 
 export function getClockRemainingMs(endsAt: string) {
-  const ends = parseClockToday(endsAt);
   const now = new Date();
+  const ends = parseActionTimestamp(endsAt, now);
 
-  if (ends.getTime() < now.getTime() - 12 * 60 * 60 * 1000) {
+  if (!ends) return 0;
+
+  if (!endsAt.includes("T") && ends.getTime() < now.getTime() - 12 * 60 * 60 * 1000) {
     ends.setDate(ends.getDate() + 1);
   }
 
@@ -54,9 +58,17 @@ export function formatClock(date: Date) {
   });
 }
 
-function parseClockToday(clock: string) {
-  const [hours = 0, minutes = 0, seconds = 0] = clock.split(":").map(Number);
-  const date = new Date();
+function parseActionTimestamp(value: string, anchor: Date) {
+  if (value.includes("T")) {
+    const timestamp = new Date(value);
+    return Number.isFinite(timestamp.getTime()) ? timestamp : undefined;
+  }
+
+  const parts = value.split(":").map(Number);
+  if (parts.length < 2 || parts.some((part) => !Number.isFinite(part))) return undefined;
+
+  const [hours, minutes, seconds = 0] = parts;
+  const date = new Date(anchor);
   date.setHours(hours, minutes, seconds, 0);
 
   return date;

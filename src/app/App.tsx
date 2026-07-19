@@ -2007,6 +2007,9 @@ export function App() {
         ...currentGuild,
         gold: Math.max(0, currentGuild.gold - result.guildGoldSpent),
       }));
+      if (!bossParty.members.some((member) => member.characterId === selectedCharacter.id)) {
+        setSelectedCharacterId(bossParty.members[0].characterId);
+      }
       setActiveTab("action");
 
       for (const message of [...result.logs].reverse()) {

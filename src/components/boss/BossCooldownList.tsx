@@ -27,8 +27,9 @@ export function BossCooldownList({
     <div className="boss-cooldown-list">
       {character.bossCooldowns.map((cooldown) => {
         const boss = bosses.find((candidate) => candidate.id === cooldown.bossId);
-        const remainingMs = new Date(cooldown.availableAt).getTime() - Date.now();
-        const isReady = remainingMs <= 0;
+        const availableAt = Date.parse(cooldown.availableAt);
+        const remainingMs = Number.isFinite(availableAt) ? Math.max(0, availableAt - Date.now()) : 0;
+        const isReady = remainingMs === 0;
 
         return (
           <article className="boss-cooldown-row" key={`${cooldown.characterId}-${cooldown.bossId}`}>

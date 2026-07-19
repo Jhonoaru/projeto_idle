@@ -81,7 +81,7 @@ export function BossActionPanel({
         </div>
         <div>
           <span>Guild balance</span>
-          <strong>{Math.max(0, Math.floor(guildGold)).toLocaleString("en-US")}g</strong>
+          <strong>{normalizeGold(guildGold).toLocaleString("en-US")}g</strong>
         </div>
       </div>
 
@@ -110,4 +110,8 @@ export function BossActionPanel({
       </div>
     </div>
   );
+}
+
+function normalizeGold(value: number) {
+  return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
 }

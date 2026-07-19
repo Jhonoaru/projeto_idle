@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-70-5",
+    stage: "Stage 70.5",
+    title: "Guild Raid Board QA",
+    date: "2026-07-19",
+    category: "qa",
+    summary: "Expanded engine, browser and native SQLite validation hardened raid timers, party snapshots, duplicate launch protection and action navigation.",
+    highlights: [
+      "One hundred eighty-four checks covered every contract, gate, fee, party rule, cooldown, result transition, ISO timer and offline-ready state.",
+      "Raid resolution now rejects stale members or changed roles, and launching with another adventurer focuses that participant in Current Action.",
+      "Native fixtures preserved ISO raid snapshots and offline completion exactly across reloads before the original SQLite save was restored byte for byte.",
+    ],
+    systems: ["Guild Raid Board QA", "Action Timers", "Party Snapshots", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-70",
     stage: "Stage 70",
     title: "Offline Guild Raid Board",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Full ISO action timestamps replace ambiguous boss timers while existing rewards, Guild Depot delivery and SQLite persistence remain compatible with old saves.",
     ],
     systems: ["Guild Raid Board", "Boss Parties", "Guild Economy", "Personal Cooldowns"],
-    featured: true,
   },
   {
     id: "stage-69-5",

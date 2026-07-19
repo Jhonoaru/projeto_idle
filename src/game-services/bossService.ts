@@ -76,6 +76,7 @@ export function finishBoss(
   party: BossParty,
   guildGold = 0,
 ) {
+  assertActiveBossParty(characters, boss, party);
   const result = simulateBossFight(characters, party, boss);
   const participantIds = new Set(party.members.map((member) => member.characterId));
   let remainingGuildGold = guildGold;
@@ -162,6 +163,48 @@ export function cancelBoss(characters: Character[], boss: Boss, party: BossParty
 function normalizeGold(value: unknown) {
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+}
+
+function assertActiveBossParty(characters: Character[], boss: Boss, party: BossParty) {
+  if (party.bossId !== boss.id || party.members.length === 0) {
+    throw new Error(`A equipe ativa de ${boss.name} nao foi encontrada.`);
+  }
+
+  const memberIds = party.members.map((member) => member.characterId);
+  if (new Set(memberIds).size !== memberIds.length) {
+    throw new Error(`A equipe ativa de ${boss.name} possui membros duplicados.`);
+  }
+
+  const invalidMember = memberIds.find((characterId) => {
+    const character = characters.find((candidate) => candidate.id === characterId);
+    return character?.status !== "bossing"
+      || character.currentAction?.type !== "bossing"
+      || character.currentAction.targetId !== boss.id
+      || !sameMemberIds(
+        character.currentAction.partyMemberIds
+          ?? character.currentAction.partyMembers?.map((member) => member.characterId),
+        memberIds,
+      )
+      || !samePartyRoles(character.currentAction.partyMembers, party.members);
+  });
+
+  if (invalidMember) {
+    throw new Error(`A equipe de ${boss.name} nao corresponde a raid ativa.`);
+  }
+}
+
+function sameMemberIds(snapshotIds: string[] | undefined, memberIds: string[]) {
+  if (!snapshotIds || snapshotIds.length !== memberIds.length) return false;
+  const snapshot = new Set(snapshotIds);
+  return snapshot.size === memberIds.length && memberIds.every((memberId) => snapshot.has(memberId));
+}
+
+function samePartyRoles(snapshot: BossParty["members"] | undefined, members: BossParty["members"]) {
+  if (!snapshot) return true;
+  if (snapshot.length !== members.length) return false;
+  return members.every((member) => snapshot.some(
+    (entry) => entry.characterId === member.characterId && entry.role === member.role,
+  ));
 }
 
 function addBossLootToDepot(depot: GuildDepot, result: BossSimulationResult): GuildDepot {

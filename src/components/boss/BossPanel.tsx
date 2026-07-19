@@ -58,7 +58,7 @@ export function BossPanel({
           <p>{selectedBoss?.description ?? "Choose a boss contract before assembling the strike team."}</p>
         </div>
         <dl>
-          <div><dt>Guild gold</dt><dd>{Math.max(0, Math.floor(guildGold)).toLocaleString("en-US")}g</dd></div>
+          <div><dt>Guild gold</dt><dd>{normalizeGold(guildGold).toLocaleString("en-US")}g</dd></div>
           <div><dt>Entry fee</dt><dd>{selectedBoss ? `${selectedBoss.entryCost.toLocaleString("en-US")}g` : "-"}</dd></div>
           <div><dt>Cooldown</dt><dd>{selectedBoss ? `${selectedBoss.cooldownHours}h` : "-"}</dd></div>
           <div><dt>Party</dt><dd>{selectedBoss ? `${selectedBoss.requirements.minPartySize}-${selectedBoss.requirements.maxPartySize}` : "-"}</dd></div>
@@ -151,6 +151,10 @@ export function BossPanel({
 function formatChance(chance: number) {
   const percent = Math.max(0, Math.min(100, chance * 100));
   return percent < 10 ? `${percent.toFixed(1)}%` : `${Math.round(percent)}%`;
+}
+
+function normalizeGold(value: number) {
+  return Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
 }
 
 function getBossStatus(character: Character, boss: Boss): BossStatus {

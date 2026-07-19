@@ -1,4 +1,4 @@
-import { formatClock } from "../shared/time";
+import { formatClock, getClockRemainingMs } from "../shared/time";
 import type { Character } from "../shared/types";
 
 const cancellableStatuses = ["hunting", "training", "questing", "bossing"] as const;
@@ -89,16 +89,5 @@ export function getTravelRemainingMs(character: Character) {
     return 0;
   }
 
-  const [hours, minutes, seconds] = character.currentAction.endsAt
-    .split(":")
-    .map(Number);
-  const now = new Date();
-  const endsAt = new Date(now);
-  endsAt.setHours(hours, minutes, seconds || 0, 0);
-
-  if (endsAt.getTime() < now.getTime() - 12 * 60 * 60 * 1000) {
-    endsAt.setDate(endsAt.getDate() + 1);
-  }
-
-  return Math.max(0, endsAt.getTime() - now.getTime());
+  return getClockRemainingMs(character.currentAction.endsAt);
 }

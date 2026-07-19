@@ -130,6 +130,7 @@ Atualizado em: 2026-07-19
 - Etapa 69 concluida: Campaign Operations Dashboard centraliza roster, expedicao, prioridades, recomendacoes e Activity Log sem criar estado ou automacao.
 - Etapa 69.5 concluida: QA ampliada corrigiu status operacional inconsistente e validou 93 checks, rotas, responsividade e reloads Tauri/SQLite.
 - Etapa 70 concluida: Guild Raid Board transforma bosses em expedicoes offline financiadas, com strike team elegivel, loot preview, cooldown pessoal e relatorio integrado.
+- Etapa 70.5 concluida: QA ampliada corrigiu timers ISO, retorno cancelado, snapshot anti-reroll e foco do participante, com 184 checks e fixture Tauri/SQLite.
 
 Comandos principais:
 
@@ -4376,6 +4377,57 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 70.5 - QA aprofundada do Guild Raid Board no Tauri/SQLite.
+
+## Etapa 70.5 - QA do Guild Raid Board no Tauri/SQLite
+
+Status: concluida com cinco correcoes funcionais.
+
+Correcoes realizadas:
+
+- `getClockElapsedMs` e `getClockRemainingMs` agora aceitam timestamps ISO absolutos e relogios legados `HH:mm:ss`; valores invalidos retornam zero sem produzir `NaN`.
+- O retorno de uma raid cancelada nao pode mais terminar imediatamente por interpretar ISO como relogio; `getTravelRemainingMs` usa o parser compartilhado seguro.
+- A resolucao exige que boss, membros e ids correspondam a raid ativa e, quando o snapshot existe, rejeita papeis alterados depois do lancamento para impedir reroll de risco.
+- Quando a strike team nao inclui o personagem previamente selecionado, iniciar a raid agora seleciona o primeiro participante antes de abrir Current Action.
+- Saldos e cooldowns malformados exibem zero/Ready de forma segura em vez de `NaN`.
+
+Matriz de engine:
+
+- Harness temporario passou em 184/184 checks e foi removido depois da validacao.
+- Os seis contratos cobriram taxa, recompensa minima, duracao, cooldown, itemIds, chances e quantidades de loot.
+- Foram validados saldo exato, insuficiente, negativo e `NaN`, party errada, vazia, duplicada, membro ausente, ocupado, abaixo do level, sem acesso e em cooldown.
+- Roles obrigatorios, snapshots imutaveis, custo unico, timestamps ISO, membro externo, resolucao unica e substituicao de cooldown permaneceram corretos.
+- Resolucao com party idle, ids alterados ou role trocado foi bloqueada sem mutar personagens ou depot.
+- Cancelamento, viagem ISO/legada, finalizacao antecipada, offline running/completed/ready e timestamps separados por mais de 12 horas permaneceram finitos e coerentes.
+
+QA visual e de fluxo:
+
+- Explore abriu os seis Boss contracts com taxas, gates, Strike Team, loot real, cooldowns e Raid Report.
+- Arkon inelegivel manteve Launch Raid bloqueado; trocar para Lyra liberou o contrato starter.
+- Clique duplo em Launch Raid debitou somente 80g, levando a guilda mock de 420g para 340g.
+- Current Action abriu em Lyra com status Bossing, custo 80g, inicio/fim ISO, 8 minutos restantes e analyzer coerente.
+- Cancelar criou retorno de 10 segundos em vez de concluir imediatamente.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, conteudo e Raid Board sem overflow horizontal ou texto excedendo containers.
+- O console web apresentou somente o fallback esperado do plugin SQLite fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 356 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Cargas nativas baseline mantiveram o hash semantico `E1E0862CF697C27ECAC40540202FF21CEFD212315A63233C1CA370F4DA8CB5C2`, 674g, 12 renown, 5 personagens, 35 skills, 26 stacks, quantidade 95 e 10 logs.
+- Uma fixture temporaria de raid ISO concluida em Lyra foi marcada `readyToResolve` uma unica vez, preservando target, custo, ids e roles.
+- Cargas seguintes mantiveram o action hash `C4A2F8F0CC1FBCE001741A616815055799D817E1B70C067B949A47209FFB9B93` e `offlineElapsedMs` sem duplicacao.
+- `PRAGMA integrity_check` permaneceu `ok` durante baseline e fixture.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- O desfecho ainda usa a simulacao idle existente e pode ser finalizado manualmente antes do timer para testes de gameplay.
+- Nao houve sessao longa de balanceamento dos seis bosses em uma campanha avancada real.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 71 - proxima expansao da campanha offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
