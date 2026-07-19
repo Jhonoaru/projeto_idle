@@ -5,7 +5,6 @@ import { canStartBoss } from "../game-engine/boss/canStartBoss";
 import { simulateBossFight } from "../game-engine/boss/simulateBossFight";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
 import { addExperience } from "../game-engine/progression/addExperience";
-import { formatClock } from "../shared/time";
 import type {
   Boss,
   BossParty,
@@ -14,15 +13,22 @@ import type {
   GuildDepot,
 } from "../shared/types";
 
-export function startBoss(characters: Character[], boss: Boss, party: BossParty) {
-  const validation = canStartBoss(characters, boss, party);
+export function startBoss(
+  characters: Character[],
+  boss: Boss,
+  party: BossParty,
+  guildGold = Number.MAX_SAFE_INTEGER,
+  now = new Date(),
+) {
+  const validation = canStartBoss(characters, boss, party, guildGold);
 
   if (!validation.canStart) {
     throw new Error(validation.reason ?? `${boss.name} cannot be started.`);
   }
 
-  const startedAt = new Date();
+  const startedAt = Number.isFinite(now.getTime()) ? now : new Date();
   const endsAt = new Date(startedAt.getTime() + boss.durationMinutes * 60_000);
+  const guildGoldSpent = normalizeGold(boss.entryCost);
   const memberIds = party.members.map((member) => member.characterId);
   const participantNames = characters
     .filter((character) => memberIds.includes(character.id))
@@ -35,14 +41,15 @@ export function startBoss(characters: Character[], boss: Boss, party: BossParty)
           currentAction: {
             type: "bossing" as const,
             label: boss.name,
-            startedAt: formatClock(startedAt),
-            endsAt: formatClock(endsAt),
+            startedAt: startedAt.toISOString(),
+            endsAt: endsAt.toISOString(),
             durationMinutes: boss.durationMinutes,
             targetId: boss.id,
             targetName: boss.name,
             risk: boss.risk,
             expectedXp: boss.reward.experience,
             expectedGold: boss.reward.goldMax,
+            cost: guildGoldSpent,
             partyMemberIds: memberIds,
             partyMembers: party.members,
           },
@@ -52,10 +59,12 @@ export function startBoss(characters: Character[], boss: Boss, party: BossParty)
 
   return {
     characters: updatedCharacters,
+    guildGoldSpent,
     logs: [
       boss.type === "party"
         ? `Party iniciou ${boss.name} com ${participantNames.join(", ")}.`
         : `${participantNames[0]} iniciou ${boss.name}.`,
+      `${guildGoldSpent.toLocaleString("en-US")}g foram usados para preparar a tentativa.`,
     ],
   };
 }
@@ -135,8 +144,8 @@ export function cancelBoss(characters: Character[], boss: Boss, party: BossParty
           currentAction: {
             type: "traveling" as const,
             label: `Retornando para ${character.city}`,
-            startedAt: formatClock(startedAt),
-            endsAt: formatClock(endsAt),
+            startedAt: startedAt.toISOString(),
+            endsAt: endsAt.toISOString(),
             durationMinutes: 10_000 / 60_000,
             targetName: character.city,
           },
@@ -148,6 +157,11 @@ export function cancelBoss(characters: Character[], boss: Boss, party: BossParty
     characters: updatedCharacters,
     logs: [`${boss.name} foi cancelado. Participantes estao retornando.`],
   };
+}
+
+function normalizeGold(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
 }
 
 function addBossLootToDepot(depot: GuildDepot, result: BossSimulationResult): GuildDepot {

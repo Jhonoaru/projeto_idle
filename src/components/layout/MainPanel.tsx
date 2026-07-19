@@ -222,7 +222,6 @@ interface MainPanelProps {
   onStartBoss: () => void;
   onFinishBoss: () => void;
   onCancelBoss: () => void;
-  onClearBossCooldown: (characterId: string, bossId: string) => void;
   onReviveCharacter: () => void;
   onBuyBlessing: (blessingId: string) => void;
   onClaimBestiaryReward: (monsterId: string) => void;
@@ -319,7 +318,6 @@ export function MainPanel({
   onStartBoss,
   onFinishBoss,
   onCancelBoss,
-  onClearBossCooldown,
   onReviveCharacter,
   onBuyBlessing,
   onClaimBestiaryReward,
@@ -501,7 +499,6 @@ export function MainPanel({
             onChangeBossPartyRole={onChangeBossPartyRole}
             onChangeDuration={onChangeDuration}
             onClearSelectedHunt={onClearSelectedHunt}
-            onClearBossCooldown={onClearBossCooldown}
             onFinishBoss={onFinishBoss}
             onFinishQuest={onFinishQuest}
             onFinishTraining={onFinishTraining}
@@ -637,10 +634,10 @@ export function MainPanel({
             <BossPanel
               bosses={bosses}
               characters={characters}
+              guildGold={guild.gold}
               lastResult={lastBossResult}
               onCancelBoss={onCancelBoss}
               onChangeRole={onChangeBossPartyRole}
-              onClearCooldown={onClearBossCooldown}
               onFinishBoss={onFinishBoss}
               onSelectBoss={onSelectBoss}
               onStartBoss={onStartBoss}

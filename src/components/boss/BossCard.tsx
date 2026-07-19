@@ -32,6 +32,7 @@ export function BossCard({ boss, status, reason, isSelected, onSelect }: BossCar
           <span>Lv {boss.requirements.requiredLevel}</span>
           <span>{boss.durationMinutes} min</span>
           <span>{boss.cooldownHours}h cooldown</span>
+          <span>{boss.entryCost.toLocaleString("en-US")}g entry</span>
           <span>{statusLabel(status)}</span>
           <span>{accessText}</span>
           <span>

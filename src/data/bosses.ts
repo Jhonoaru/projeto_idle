@@ -9,6 +9,7 @@ export const bosses: Boss[] = [
     description: "A swollen matriarch nesting below the old sewer gates.",
     durationMinutes: 8,
     cooldownHours: 20,
+    entryCost: 80,
     risk: "low",
     requirements: {
       requiredLevel: 15,
@@ -37,6 +38,7 @@ export const bosses: Boss[] = [
     description: "A brutal camp chief who breaks supply lines for sport.",
     durationMinutes: 10,
     cooldownHours: 20,
+    entryCost: 140,
     risk: "medium",
     requirements: {
       requiredLevel: 25,
@@ -71,6 +73,7 @@ export const bosses: Boss[] = [
     description: "A sealed guardian that tests anyone entering Eldoria's old crypt.",
     durationMinutes: 12,
     cooldownHours: 20,
+    entryCost: 240,
     risk: "high",
     requirements: {
       requiredLevel: 35,
@@ -104,6 +107,7 @@ export const bosses: Boss[] = [
     description: "A gate champion who only yields to a coordinated strike team.",
     durationMinutes: 18,
     cooldownHours: 20,
+    entryCost: 420,
     risk: "high",
     requirements: {
       requiredLevel: 45,
@@ -137,6 +141,7 @@ export const bosses: Boss[] = [
     description: "A nest mother whose fire punishes weak party composition.",
     durationMinutes: 25,
     cooldownHours: 20,
+    entryCost: 900,
     risk: "deadly",
     requirements: {
       requiredLevel: 60,
@@ -176,6 +181,7 @@ export const bosses: Boss[] = [
     description: "A controlled guild arena fight where a healer makes the run safer.",
     durationMinutes: 15,
     cooldownHours: 20,
+    entryCost: 260,
     risk: "medium",
     requirements: {
       requiredLevel: 25,

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-70",
+    stage: "Stage 70",
+    title: "Offline Guild Raid Board",
+    date: "2026-07-19",
+    category: "systems",
+    summary: "Boss contracts now operate as funded offline guild raids with eligible strike teams, visible loot intelligence and persistent personal cooldowns.",
+    highlights: [
+      "Six raid contracts charge a clear one-time preparation fee from guild gold when launched, with no premium currency, online rotation or hidden payment.",
+      "The briefing combines requirements, party eligibility, reward ranges, real item previews, cooldowns and the final raid report in one responsive command board.",
+      "Full ISO action timestamps replace ambiguous boss timers while existing rewards, Guild Depot delivery and SQLite persistence remain compatible with old saves.",
+    ],
+    systems: ["Guild Raid Board", "Boss Parties", "Guild Economy", "Personal Cooldowns"],
+    featured: true,
+  },
+  {
     id: "stage-69-5",
     stage: "Stage 69.5",
     title: "Campaign Operations QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Native reloads preserved campaign data after one legacy normalization, and the original SQLite save was restored byte for byte without sidecars.",
     ],
     systems: ["Campaign Operations QA", "Roster Status", "Responsive UI", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-69",

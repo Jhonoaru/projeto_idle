@@ -30,6 +30,22 @@ export function PartyBuilder({
         const accessText = hasAccess
           ? "Access ok"
           : `Requer ${boss.requirements.requiredAccessIds?.map(getAccessName).join(", ")}`;
+        const hasCooldown = character.bossCooldowns.some(
+          (entry) => entry.bossId === boss.id && Date.parse(entry.availableAt) > Date.now(),
+        );
+        const eligible = character.status === "idle"
+          && character.level >= boss.requirements.requiredLevel
+          && hasAccess
+          && !hasCooldown;
+        const eligibilityText = eligible
+          ? accessText
+          : hasCooldown
+            ? "Cooldown active"
+            : character.status !== "idle"
+              ? `Busy: ${character.status}`
+              : character.level < boss.requirements.requiredLevel
+                ? `Requires level ${boss.requirements.requiredLevel}`
+                : accessText;
 
         return (
           <article className={`party-row ${member ? "is-selected" : ""}`} key={character.id}>
@@ -38,7 +54,7 @@ export function PartyBuilder({
               <span>
                 Lv {character.level} {character.vocation} - {character.status}
               </span>
-              <small>{accessText}</small>
+              <small>{eligibilityText}</small>
             </div>
             <select
               disabled={!member}
@@ -51,7 +67,7 @@ export function PartyBuilder({
                 </option>
               ))}
             </select>
-            <button onClick={() => onToggleMember(character.id)} type="button">
+            <button disabled={!member && !eligible} onClick={() => onToggleMember(character.id)} type="button">
               {member ? "Remover" : "Adicionar"}
             </button>
           </article>

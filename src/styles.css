@@ -3920,6 +3920,86 @@ p {
   grid-template-columns: minmax(0, 1fr) minmax(160px, auto);
 }
 
+.raid-board { gap: 12px; }
+.raid-board-hero {
+  display: grid;
+  grid-template-columns: 58px minmax(180px, 1fr) minmax(300px, 0.9fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 112px;
+  padding: 14px;
+  border: 1px solid #6f5c31;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #111714, #171a16 55%, #101516);
+}
+.raid-board-hero > i {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 64px;
+  border: 1px solid #927a43;
+  border-radius: 4px;
+  color: #f1d58c;
+  background: #19211d;
+  font-family: Georgia, serif;
+  font-size: 1.6rem;
+  font-style: normal;
+  font-weight: 900;
+}
+.raid-board-hero > div > span,
+.boss-command-section > header span,
+.raid-loot-table > header span {
+  color: #7f968d;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+.raid-board-hero h3 { margin: 3px 0; color: #f1d58c; font-family: Georgia, serif; font-size: 1.22rem; }
+.raid-board-hero p { margin: 0; color: #b9c0b5; font-size: 0.78rem; line-height: 1.45; }
+.raid-board-hero dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: 0; margin: 0; border: 1px solid #303a34; }
+.raid-board-hero dl div { min-width: 0; padding: 9px; border-right: 1px solid #303a34; background: #101512; }
+.raid-board-hero dl div:last-child { border-right: 0; }
+.raid-board-hero dt { color: #869088; font-size: 0.62rem; text-transform: uppercase; }
+.raid-board-hero dd { margin: 4px 0 0; color: #f1d58c; font-weight: 900; }
+
+.raid-board .boss-command-grid { grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr); gap: 12px; }
+.raid-board .boss-command-section { align-content: start; padding: 12px; border: 1px solid #303a34; background: #101512; }
+.boss-command-section > header { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #303a34; }
+.boss-command-section > header h3 { margin: 0; }
+.raid-board .assignment-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.raid-board .assignment-summary div { min-height: 58px; border-radius: 3px; background: #151b17; }
+.raid-board .hunt-action-buttons { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.raid-board .hunt-action-buttons button { min-width: 0; }
+
+.raid-loot-table { display: grid; gap: 10px; padding: 12px; border: 1px solid #303a34; background: #101512; }
+.raid-loot-table > header { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+.raid-loot-table > header h3 { margin: 2px 0 0; color: #f1d58c; font-size: 0.82rem; text-transform: uppercase; }
+.raid-loot-table > header > strong { color: #9fb9ae; font-size: 0.72rem; }
+.raid-loot-table > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 6px; }
+.raid-loot-table article { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 58px; padding: 7px; border: 1px solid #2c3832; background: #151b18; }
+.raid-loot-table article > div { min-width: 0; }
+.raid-loot-table article strong, .raid-loot-table article small { display: block; overflow-wrap: anywhere; }
+.raid-loot-table article strong { color: #d9d6c8; font-size: 0.76rem; }
+.raid-loot-table article small { margin-top: 3px; color: #819087; font-size: 0.66rem; }
+.raid-loot-table article > b { color: #e4c66f; font-size: 0.76rem; }
+.raid-board-secondary { display: grid; grid-template-columns: minmax(280px, 0.75fr) minmax(0, 1.25fr); gap: 12px; }
+.raid-board .party-row button:disabled { border-color: #3b423d; color: #747c75; background: #171c19; cursor: not-allowed; }
+
+@media (max-width: 1100px) {
+  .raid-board-hero { grid-template-columns: 54px minmax(0, 1fr); }
+  .raid-board-hero dl { grid-column: 1 / -1; }
+  .raid-board .boss-command-grid, .raid-board-secondary { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  .raid-board-hero { grid-template-columns: 1fr; text-align: center; }
+  .raid-board-hero > i { margin: 0 auto; }
+  .raid-board-hero dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .raid-board-hero dl div:nth-child(2) { border-right: 0; }
+  .raid-board-hero dl div:nth-child(-n+2) { border-bottom: 1px solid #303a34; }
+  .raid-board .assignment-summary, .raid-board .hunt-action-buttons { grid-template-columns: 1fr; }
+  .raid-loot-table > div { grid-template-columns: 1fr; }
+}
+
 .quest-available {
   border-left-color: #7fc77a;
 }
@@ -4850,6 +4930,7 @@ p {
 .explore-window {
   display: grid;
   gap: 12px;
+  min-width: 0;
   min-height: 0;
 }
 
@@ -7593,6 +7674,7 @@ p {
 .explore-mode-panel {
   display: grid;
   gap: 12px;
+  min-width: 0;
   min-height: 0;
   border: 1px solid #1f292b;
   border-radius: 6px;
@@ -7805,6 +7887,7 @@ p {
 .explore-detail-dock {
   display: grid;
   gap: 12px;
+  min-width: 0;
   border-top: 1px solid #1f292b;
   padding-top: 12px;
 }

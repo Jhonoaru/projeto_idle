@@ -45,7 +45,6 @@ interface ExploreWindowProps {
   onCancelBoss: () => void;
   onChangeBossPartyRole: (characterId: string, role: PartyRole) => void;
   onChangeDuration: (durationMinutes: number) => void;
-  onClearBossCooldown: (characterId: string, bossId: string) => void;
   onFinishBoss: () => void;
   onFinishQuest: (quest: Quest) => void;
   onFinishTraining: () => void;
@@ -89,7 +88,6 @@ export function ExploreWindow({
   onCancelBoss,
   onChangeBossPartyRole,
   onChangeDuration,
-  onClearBossCooldown,
   onFinishBoss,
   onFinishQuest,
   onFinishTraining,
@@ -194,7 +192,7 @@ export function ExploreWindow({
         <div className="explore-mode-panel">
           <ExploreSummary
             countLabel={`${bosses.length} contracts`}
-            detail="Choose a contract, assemble a party, then resolve the simulated boss action."
+            detail="Choose a contract, assemble an eligible strike team and pay the local preparation fee."
             title="Boss contracts"
           />
           <div className="explore-card-grid boss-board-grid">
@@ -212,10 +210,10 @@ export function ExploreWindow({
             <BossPanel
               bosses={bosses}
               characters={characters}
+              guildGold={guildGold}
               lastResult={lastBossResult}
               onCancelBoss={onCancelBoss}
               onChangeRole={onChangeBossPartyRole}
-              onClearCooldown={onClearBossCooldown}
               onFinishBoss={onFinishBoss}
               onSelectBoss={onSelectBoss}
               onStartBoss={onStartBoss}
@@ -223,6 +221,7 @@ export function ExploreWindow({
               party={bossParty}
               selectedBoss={selectedBoss}
               selectedCharacter={character}
+              showCatalog={false}
             />
           </div>
         </div>
@@ -393,7 +392,7 @@ function ExploreBossCard({
       <i className={`explore-card-token risk-token-${boss.risk}`} aria-hidden="true">B</i>
       <strong>Level recom. {boss.requirements.requiredLevel}</strong>
       <small>{boss.type} / {boss.risk}</small>
-      <p>{status === "locked" ? getBossLockText(character, boss) : `${boss.durationMinutes} min · ${boss.cooldownHours}h cooldown`}</p>
+      <p>{status === "locked" ? getBossLockText(character, boss) : `${boss.durationMinutes} min / ${boss.entryCost.toLocaleString("en-US")}g entry`}</p>
     </button>
   );
 }

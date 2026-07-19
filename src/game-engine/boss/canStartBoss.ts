@@ -5,6 +5,7 @@ export function canStartBoss(
   characters: Character[],
   boss: Boss,
   selectedParty: BossParty,
+  guildGold = Number.MAX_SAFE_INTEGER,
 ) {
   if (selectedParty.bossId !== boss.id) {
     return { canStart: false, reason: "Party selecionada nao pertence a este boss." };
@@ -105,7 +106,20 @@ export function canStartBoss(
     };
   }
 
+  const entryCost = normalizeGold(boss.entryCost);
+  if (normalizeGold(guildGold) < entryCost) {
+    return {
+      canStart: false,
+      reason: `${boss.name} requer ${entryCost.toLocaleString("en-US")}g para preparar a tentativa.`,
+    };
+  }
+
   return { canStart: true };
+}
+
+function normalizeGold(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
 }
 
 function findMissingRole(

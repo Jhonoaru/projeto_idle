@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-18
+Atualizado em: 2026-07-19
 
 ## Stack usada
 
@@ -129,6 +129,7 @@ Atualizado em: 2026-07-18
 - Etapa 68.5 concluida: QA ampliada validou 56 cenarios, alertas independentes, review, layouts compactos, JSON quebrado e tres cargas Tauri/SQLite.
 - Etapa 69 concluida: Campaign Operations Dashboard centraliza roster, expedicao, prioridades, recomendacoes e Activity Log sem criar estado ou automacao.
 - Etapa 69.5 concluida: QA ampliada corrigiu status operacional inconsistente e validou 93 checks, rotas, responsividade e reloads Tauri/SQLite.
+- Etapa 70 concluida: Guild Raid Board transforma bosses em expedicoes offline financiadas, com strike team elegivel, loot preview, cooldown pessoal e relatorio integrado.
 
 Comandos principais:
 
@@ -4336,6 +4337,45 @@ Validacoes tecnicas:
 Proximo passo sugerido:
 
 - Etapa 70 - proxima expansao da campanha offline.
+
+## Etapa 70 - Guild Raid Board offline
+
+Implementado:
+
+- O board de Bosses foi reformulado como central de raids offline da guilda, sem contas, servidor, premium ou rotacao online.
+- Os seis bosses existentes receberam taxas locais de preparacao entre 80g e 900g, sempre inferiores ao menor gold de vitoria do respectivo contrato.
+- A taxa e validada contra `guild.gold`, consumida uma unica vez no lancamento e registrada no Activity Log; cancelar uma tentativa nao devolve o custo de preparacao.
+- O briefing mostra level, acesso, tamanho da equipe, duracao, risco, taxa, saldo da guilda, experiencia, gold, renown e cooldown.
+- O Strike Team identifica aventureiros aptos, ocupados, abaixo do level, sem acesso ou em cooldown pessoal e impede adicionar membros inelegiveis.
+- Possible Guild Depot Loot usa os itemIds reais, raridade, quantidade e chance ja definidos no contrato, sem prometer drop garantido.
+- O Raid Report reaproveita o resultado real do boss, incluindo vitoria/derrota, recompensas, loot e coleta pelo fluxo existente.
+- Timestamps de inicio, fim e cancelamento de boss agora usam ISO completo; a action tambem guarda snapshot do custo pago.
+- O comando de debug para limpar cooldown foi removido da interface de producao.
+- Guild Codex, catalogo de bosses e Explore exibem a taxa de entrada de forma consistente.
+- Nenhuma migration ou coluna SQLite nova foi necessaria; bosses continuam usando `currentAction`, cooldowns e recompensas ja persistidos.
+
+Validacoes:
+
+- Harness temporario passou em 34/34 checks e foi removido apos cobrir custos, saldo insuficiente/exato, `NaN`, timestamps ISO, imutabilidade, party, cooldown e cobranca unica por raid.
+- Todos os seis contratos mantiveram itemIds de loot validos e taxa menor que o gold minimo de vitoria.
+- O fluxo web abriu Bosses, trocou de contrato, atualizou taxa/loot, bloqueou personagem inelegivel e nao exibiu catalogo duplicado nem comando de debug.
+- Viewports de 1280, 960, 700 e 430 px ficaram sem overflow horizontal; uma barra interna encontrada no desktop foi corrigida antes da validacao final.
+- `npm.cmd run build` passou com 356 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Tres cargas nativas mantiveram 674g, 12 renown, 5 personagens, 35 skills, 26 stacks, quantidade 95, 10 logs e `PRAGMA integrity_check: ok`.
+- A primeira carga materializou defaults antigos de Headquarters, Logistics, Bazaar e Crafting; as cargas seguintes mantiveram o mesmo hash semantico `671C8BF03255E3FE9E11C9C5B7D550718603001D651A1076548B2694485DBCD7`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- O desfecho da raid continua resolvido pelo motor idle existente; nao ha nova cena de combate de boss em tempo real.
+- Taxas sao valores iniciais de balanceamento e ainda precisam de uma sessao longa com campanha avancada.
+- Nao foram adicionados novos bosses, reroll, matchmaking, premium, pagamento ou conteudo online.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 70.5 - QA aprofundada do Guild Raid Board no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

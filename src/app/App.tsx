@@ -216,6 +216,7 @@ export function App() {
   const salvagingEquipmentRef = useRef(false);
   const updatingLogisticsPinRef = useRef(false);
   const acknowledgingLogisticsAlertsRef = useRef(false);
+  const startingBossRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -732,22 +733,6 @@ export function App() {
         member.characterId === characterId ? { ...member, role } : member,
       ),
     }));
-  }
-
-  function handleClearBossCooldown(characterId: string, bossId: string) {
-    setCharacters((currentCharacters) =>
-      currentCharacters.map((character) =>
-        character.id === characterId
-          ? {
-              ...character,
-              bossCooldowns: character.bossCooldowns.filter(
-                (cooldown) => cooldown.bossId !== bossId,
-              ),
-            }
-          : character,
-      ),
-    );
-    prependLog("Boss cooldown", "Debug: cooldown de boss removido.", "neutral");
   }
 
   function handleStartHunt(autoRepeat?: HuntAutoRepeatConfig) {
@@ -2012,11 +1997,16 @@ export function App() {
   }
 
   function handleStartBoss() {
-    if (!selectedBoss) return;
+    if (!selectedBoss || startingBossRef.current) return;
+    startingBossRef.current = true;
 
     try {
-      const result = startBoss(characters, selectedBoss, bossParty);
+      const result = startBoss(characters, selectedBoss, bossParty, guild.gold);
       setCharacters(result.characters);
+      setGuild((currentGuild) => ({
+        ...currentGuild,
+        gold: Math.max(0, currentGuild.gold - result.guildGoldSpent),
+      }));
       setActiveTab("action");
 
       for (const message of [...result.logs].reverse()) {
@@ -2028,6 +2018,10 @@ export function App() {
         error instanceof Error ? error.message : "Boss cannot be started.",
         "warning",
       );
+    } finally {
+      window.setTimeout(() => {
+        startingBossRef.current = false;
+      }, 500);
     }
   }
 
@@ -2190,7 +2184,6 @@ export function App() {
           onChangeBossPartyRole={handleChangeBossPartyRole}
           onChangeDuration={setDurationMinutes}
           onCancelAction={handleCancelAction}
-          onClearBossCooldown={handleClearBossCooldown}
           onFinishBoss={handleFinishBoss}
           onFinishHunt={handleFinishHunt}
           onReturnToCity={handleReturnToCityFromHuntScene}

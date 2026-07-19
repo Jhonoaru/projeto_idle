@@ -6,6 +6,7 @@ import type { Boss, BossParty, Character } from "../../shared/types";
 interface BossActionPanelProps {
   boss?: Boss;
   characters: Character[];
+  guildGold: number;
   party: BossParty;
   onStartBoss: () => void;
   onFinishBoss: () => void;
@@ -15,6 +16,7 @@ interface BossActionPanelProps {
 export function BossActionPanel({
   boss,
   characters,
+  guildGold,
   party,
   onStartBoss,
   onFinishBoss,
@@ -25,7 +27,7 @@ export function BossActionPanel({
   }
 
   const risk = calculateBossRisk(characters, party, boss);
-  const validation = canStartBoss(characters, boss, party);
+  const validation = canStartBoss(characters, boss, party, guildGold);
   const isInProgress = party.members.some((member) => {
     const character = characters.find((candidate) => candidate.id === member.characterId);
     return character?.status === "bossing" && character.currentAction?.targetId === boss.id;
@@ -73,6 +75,14 @@ export function BossActionPanel({
           <span>Survival</span>
           <strong>{risk.power.survival}</strong>
         </div>
+        <div>
+          <span>Entry fee</span>
+          <strong>{boss.entryCost.toLocaleString("en-US")}g</strong>
+        </div>
+        <div>
+          <span>Guild balance</span>
+          <strong>{Math.max(0, Math.floor(guildGold)).toLocaleString("en-US")}g</strong>
+        </div>
       </div>
 
       {risk.warnings.length > 0 ? (
@@ -89,13 +99,13 @@ export function BossActionPanel({
 
       <div className="hunt-action-buttons">
         <GameButton disabled={!validation.canStart || isInProgress} onClick={onStartBoss}>
-          Iniciar Boss
+          Launch Raid
         </GameButton>
         <GameButton disabled={!isInProgress} onClick={onFinishBoss}>
-          Finalizar Boss Simulado
+          Collect Raid Report
         </GameButton>
         <GameButton disabled={!isInProgress} onClick={onCancelBoss}>
-          Cancelar e Retornar
+          Abort and Return
         </GameButton>
       </div>
     </div>

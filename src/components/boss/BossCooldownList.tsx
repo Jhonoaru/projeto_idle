@@ -5,13 +5,11 @@ import type { Boss, Character } from "../../shared/types";
 interface BossCooldownListProps {
   character: Character;
   bosses: Boss[];
-  onClearCooldown: (characterId: string, bossId: string) => void;
 }
 
 export function BossCooldownList({
   character,
   bosses,
-  onClearCooldown,
 }: BossCooldownListProps) {
   const [, setTick] = useState(0);
 
@@ -38,13 +36,7 @@ export function BossCooldownList({
               <strong>{boss?.name ?? cooldown.bossId}</strong>
               <span>{isReady ? "Disponivel agora" : formatDuration(remainingMs)}</span>
             </div>
-            {/* Temporary local testing helper until persistence/dev tools exist. */}
-            <button
-              onClick={() => onClearCooldown(character.id, cooldown.bossId)}
-              type="button"
-            >
-              Debug: limpar cooldown
-            </button>
+            <strong>{isReady ? "Ready" : "Locked"}</strong>
           </article>
         );
       })}

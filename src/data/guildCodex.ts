@@ -428,10 +428,12 @@ const bossEntries: GuildCodexEntry[] = bosses.map((boss) => ({
     { label: "Party", value: `${boss.requirements.minPartySize}-${boss.requirements.maxPartySize}` },
     { label: "Risk", value: formatText(boss.risk) },
     { label: "Cooldown", value: `${boss.cooldownHours}h` },
+    { label: "Entry fee", value: `${formatNumber(boss.entryCost)}g` },
   ],
   guidance: [
     `The encounter lasts ${boss.durationMinutes} minutes and awards ${formatNumber(boss.reward.experience)} experience on success.`,
     `Gold reward ranges from ${formatNumber(boss.reward.goldMin)}g to ${formatNumber(boss.reward.goldMax)}g, plus ${boss.reward.renown} renown.`,
+    `The guild pays ${formatNumber(boss.entryCost)}g when the raid launches; aborting the attempt does not refund preparation costs.`,
     (boss.requirements.requiredAccessIds ?? []).length > 0
       ? `Required access: ${(boss.requirements.requiredAccessIds ?? []).join(", ")}.`
       : "No special access key is required beyond level and party rules.",

@@ -1193,6 +1193,7 @@ export interface Boss {
   description: string;
   durationMinutes: number;
   cooldownHours: number;
+  entryCost: number;
   risk: BossRisk;
   requirements: BossRequirement;
   reward: BossReward;
