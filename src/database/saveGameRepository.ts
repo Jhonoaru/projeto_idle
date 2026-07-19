@@ -12,6 +12,7 @@ import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGu
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
 import { normalizeGuildCraftingState } from "../game-engine/crafting/normalizeGuildCraftingState";
 import { normalizeGuildLogisticsState } from "../game-engine/logistics/normalizeGuildLogisticsState";
+import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -216,6 +217,7 @@ async function clearSaveTables(db: Database) {
 }
 
 async function saveGuild(db: Database, guild: Guild, now: string) {
+  const normalizedGuild = normalizeGuildProgression(guild);
   await db.execute(
     `INSERT INTO guilds (
       id,
@@ -241,25 +243,25 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       updated_at
     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`,
     [
-      guild.id,
-      guild.name,
-      guild.gold,
-      guild.renown,
-      guild.rank,
-      guild.level,
-      JSON.stringify(normalizeBestiaryState(guild.bestiary)),
-      JSON.stringify(guild.huntPresets ?? []),
-      JSON.stringify(normalizeCollectionsState(guild.collections)),
-      JSON.stringify(normalizeDailyRewardState(guild.dailyReward)),
-      JSON.stringify(normalizeGuildCareerIdentity(guild.careerIdentity)),
-      JSON.stringify(normalizeGuildHeadquarters(guild.headquarters)),
-      JSON.stringify(normalizeGuildExpeditionState(guild.expeditions)),
-      JSON.stringify(normalizeGuildStaffState(guild.staff)),
-      JSON.stringify(normalizeGuildTreasuryState(guild.treasury)),
-      JSON.stringify(normalizeGuildProjectsState(guild.projects)),
-      JSON.stringify(normalizeGuildLogisticsState(guild.logistics)),
-      JSON.stringify(normalizeGuildBazaarState(guild.bazaar, guild.id)),
-      JSON.stringify(normalizeGuildCraftingState(guild.crafting)),
+      normalizedGuild.id,
+      normalizedGuild.name,
+      normalizedGuild.gold,
+      normalizedGuild.renown,
+      normalizedGuild.rank,
+      normalizedGuild.level,
+      JSON.stringify(normalizeBestiaryState(normalizedGuild.bestiary)),
+      JSON.stringify(normalizedGuild.huntPresets ?? []),
+      JSON.stringify(normalizeCollectionsState(normalizedGuild.collections)),
+      JSON.stringify(normalizeDailyRewardState(normalizedGuild.dailyReward)),
+      JSON.stringify(normalizeGuildCareerIdentity(normalizedGuild.careerIdentity)),
+      JSON.stringify(normalizeGuildHeadquarters(normalizedGuild.headquarters)),
+      JSON.stringify(normalizeGuildExpeditionState(normalizedGuild.expeditions)),
+      JSON.stringify(normalizeGuildStaffState(normalizedGuild.staff)),
+      JSON.stringify(normalizeGuildTreasuryState(normalizedGuild.treasury)),
+      JSON.stringify(normalizeGuildProjectsState(normalizedGuild.projects)),
+      JSON.stringify(normalizeGuildLogisticsState(normalizedGuild.logistics)),
+      JSON.stringify(normalizeGuildBazaarState(normalizedGuild.bazaar, normalizedGuild.id)),
+      JSON.stringify(normalizeGuildCraftingState(normalizedGuild.crafting)),
       now,
       now,
     ],

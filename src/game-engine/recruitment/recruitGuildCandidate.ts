@@ -1,11 +1,11 @@
 import { getGuildCareer } from "../achievements/getGuildCareer";
+import { getGuildProgression, normalizeGuildProgression } from "../guild-progression/getGuildProgression";
 import { calculateCharacterAttributes } from "../character/calculateCharacterAttributes";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
 import { experienceForLevel } from "../progression/experienceTable";
 import { createInventoryItem } from "../../data/inventoryFactory";
 import {
   getGuildRecruitCandidate,
-  MAX_GUILD_ROSTER_SIZE,
   type GuildRecruitCandidateDefinition,
 } from "../../data/guildRecruitCandidates";
 import type { Character, EquippedItems, Guild, SkillName, SkillSet } from "../../shared/types";
@@ -26,7 +26,7 @@ export function recruitGuildCandidate(
   const currentGold = normalizeInteger(guild.gold);
   return {
     success: true,
-    guild: { ...guild, gold: currentGold - availability.candidate.hireCost },
+    guild: normalizeGuildProgression({ ...guild, gold: currentGold - availability.candidate.hireCost }),
     characters: [...characters, character],
     character,
     message: `${character.name} joined the guild as a level ${character.level} ${character.vocation}.`,
@@ -39,7 +39,9 @@ export function getGuildRecruitmentAvailability(guild: Guild, characters: Charac
 
   const reasons: string[] = [];
   if (characters.some((character) => character.id === candidate.characterId)) reasons.push("Already recruited.");
-  if (characters.length >= MAX_GUILD_ROSTER_SIZE) reasons.push(`Guild roster is full (${MAX_GUILD_ROSTER_SIZE}/${MAX_GUILD_ROSTER_SIZE}).`);
+  const progression = getGuildProgression(guild);
+  if (characters.length >= progression.rosterCapacity) reasons.push(`Guild roster is full (${progression.rosterCapacity}/${progression.rosterCapacity}).`);
+  if (progression.level < candidate.minimumGuildLevel) reasons.push(`Requires Guild Level ${candidate.minimumGuildLevel}.`);
   const careerPoints = getGuildCareer(guild, characters).points;
   if (careerPoints < candidate.minimumCareerPoints) reasons.push(`Requires ${candidate.minimumCareerPoints} Career Points.`);
   if (normalizeInteger(guild.gold) < candidate.hireCost) reasons.push(`Requires ${candidate.hireCost.toLocaleString("en-US")}g.`);

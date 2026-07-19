@@ -7,8 +7,8 @@ export const mockGuild: Guild = {
   name: "Aurora",
   gold: 420,
   renown: 12,
-  rank: "E",
-  level: 1,
+  rank: "D",
+  level: 2,
   bestiary: {
     progress: [],
     charmPoints: 0,

@@ -131,6 +131,7 @@ Atualizado em: 2026-07-19
 - Etapa 69.5 concluida: QA ampliada corrigiu status operacional inconsistente e validou 93 checks, rotas, responsividade e reloads Tauri/SQLite.
 - Etapa 70 concluida: Guild Raid Board transforma bosses em expedicoes offline financiadas, com strike team elegivel, loot preview, cooldown pessoal e relatorio integrado.
 - Etapa 70.5 concluida: QA ampliada corrigiu timers ISO, retorno cancelado, snapshot anti-reroll e foco do participante, com 184 checks e fixture Tauri/SQLite.
+- Etapa 71 concluida: Guild Renown agora determina seis niveis e ranks, expande o roster de 6 para 11 e desbloqueia seis contratos locais permanentes.
 
 Comandos principais:
 
@@ -4427,7 +4428,51 @@ Limitacoes atuais:
 
 Proximo passo sugerido:
 
-- Etapa 71 - proxima expansao da campanha offline.
+- Etapa 71.5 - QA aprofundada de Guild Level e Recruitment no Tauri/SQLite.
+
+## Etapa 71 - Guild Level e Milestones offline
+
+Implementado:
+
+- `guild.renown` agora deriva automaticamente Guild Level, rank e titulo em seis milestones permanentes: E/1 em 0, D/2 em 10, C/3 em 25, B/4 em 50, A/5 em 90 e S/6 em 140 renown.
+- Cada milestone expande a capacidade do roster em um lugar, de 6 aventureiros no Level 1 ate 11 no Level 6.
+- O Recruitment Board mostra standing, progresso para o proximo nivel, todos os milestones, capacidade atual e requisitos de cada contrato.
+- Os tres candidatos existentes receberam requisito de Guild Level e foram adicionados Bram Reed, Veyra Rune e Sable Rook, totalizando seis contratos locais fixos.
+- Contratos continuam exigindo Career Points e `guild.gold`; o novo gate de Guild Level e cumulativo e nao substitui os requisitos existentes.
+- Topbar e Character Hall mostram rank e nivel derivados do Renown atual.
+- Saves antigos normalizam `renown`, `level` e `rank` no load/save; nenhum campo ou migration SQLite novo foi necessario.
+- Guild Codex, Updates e descricao do Recruitment foram alinhados com a progressao offline.
+
+Regras e seguranca:
+
+- Renown negativo, fracionario, infinito ou `NaN` e normalizado para inteiro seguro nao negativo.
+- Level e rank persistidos nunca sao fonte independente: valores antigos ou inconsistentes sao recalculados pelo Renown.
+- Roster cheio, Guild Level insuficiente, Career Points insuficientes, gold insuficiente, candidato invalido e contrato repetido continuam bloqueando sem mutar o save.
+- Recrutamento bem-sucedido cobra uma vez, adiciona exatamente um personagem completo e persiste pelo fluxo existente de personagens.
+
+Validacoes:
+
+- Harness temporario passou em 91/91 checks e foi removido apos cobrir milestones, thresholds, dados invalidos, itemIds, gates, capacidade, imutabilidade e contrato duplicado.
+- Recruitment Board mostrou Rank D / Level 2, 12 renown, capacidade 7 e os seis milestones/candidatos no mock local.
+- Bram Reed exibiu simultaneamente os bloqueios de Guild Level 4, 400 Career Points e 1.800g.
+- Clique duplo no contrato de Tessa Vale cobrou somente 300g, reduziu 420g para 120g, levou o roster de 5 para 6 e registrou uma unica personagem.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, hall e milestones sem overflow horizontal.
+- O console web apresentou somente o fallback esperado do SQLite fora do Tauri.
+- `npm.cmd run build` passou com 358 modulos; `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O save nativo com 12 renown foi normalizado de Level 1 / Rank E para Level 2 / Rank D e permaneceu assim na segunda carga.
+- As duas cargas preservaram 674g, 5 personagens, 35 skills, 26 stacks, 10 logs e `PRAGMA integrity_check: ok`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- A progressao inicial termina no Guild Level 6 / Rank S e possui somente seis candidatos fixos.
+- Ainda nao existem dismiss, reroll de candidato, recrutamento procedural ou bonus passivo de dano/economia por Guild Level.
+- Os thresholds, custos e requisitos ainda precisam de uma sessao longa de balanceamento em campanha avancada.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 71.5 - QA aprofundada de Guild Level e Recruitment no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -15,6 +15,7 @@ import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGu
 import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildBazaarState";
 import { normalizeGuildCraftingState } from "../game-engine/crafting/normalizeGuildCraftingState";
 import { normalizeGuildLogisticsState } from "../game-engine/logistics/normalizeGuildLogisticsState";
+import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -116,7 +117,7 @@ export interface LogRow {
 }
 
 export function mapGuild(row: GuildRow): Guild {
-  return {
+  return normalizeGuildProgression({
     id: row.id,
     name: row.name,
     gold: row.gold,
@@ -161,7 +162,7 @@ export function mapGuild(row: GuildRow): Guild {
     crafting: normalizeGuildCraftingState(
       row.crafting_json ? parseJson(row.crafting_json, undefined) : undefined,
     ),
-  };
+  });
 }
 
 export function mapCharacter(

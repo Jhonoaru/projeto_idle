@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-71",
+    stage: "Stage 71",
+    title: "Guild Level and Milestones",
+    date: "2026-07-19",
+    category: "systems",
+    summary: "Guild Renown now drives six permanent offline levels, ranks, roster expansions and recruitment unlocks.",
+    highlights: [
+      "Ranks E through S span six milestones from 0 to 140 Renown, with roster capacity growing safely from six to eleven adventurers.",
+      "Three new fixed applicants expand the Recruitment Board to six contracts, each gated by Guild Level, Career Points and spendable guild gold.",
+      "Existing saves derive and persist the correct guild level and rank from Renown without a new SQLite column or online dependency.",
+    ],
+    systems: ["Guild Progression", "Guild Renown", "Recruitment", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-70-5",
     stage: "Stage 70.5",
     title: "Guild Raid Board QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Native fixtures preserved ISO raid snapshots and offline completion exactly across reloads before the original SQLite save was restored byte for byte.",
     ],
     systems: ["Guild Raid Board QA", "Action Timers", "Party Snapshots", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-70",

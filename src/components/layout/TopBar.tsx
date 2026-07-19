@@ -3,6 +3,7 @@ import { GameIconButton } from "../ui/GameIconButton";
 import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
 import { collectionItems } from "../../data/collections";
 import { normalizeCollectionsState } from "../../game-engine/collections/normalizeCollectionsState";
+import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
 import type { Character, Guild } from "../../shared/types";
 import { GAME_TITLE } from "../../shared/constants";
 import type { MainPanelTab } from "./MainPanel";
@@ -35,6 +36,7 @@ export function TopBar({
   const dailyAvailable = canClaimDailyReward(guild.dailyReward);
   const unlockedCosmetics = normalizeCollectionsState(guild.collections).unlockedCollectionItemIds.length;
   const saveBusy = Boolean(saveStatus?.endsWith("..."));
+  const guildProgression = getGuildProgression(guild);
 
   return (
     <header className="top-bar">
@@ -42,7 +44,7 @@ export function TopBar({
         <span>{GAME_TITLE}</span>
         <h1>Guild Hunt</h1>
         <p>
-          Guilda {guild.name}{guildTitle ? `, ${guildTitle}` : ""} / {selectedCharacter.name} / Level {selectedCharacter.level}
+          Guilda {guild.name}{guildTitle ? `, ${guildTitle}` : ""} / Rank {guildProgression.rank} Lv {guildProgression.level} / {selectedCharacter.name} Lv {selectedCharacter.level}
         </p>
       </div>
 

@@ -3,6 +3,7 @@ import { CurrentActionBox } from "../character/CurrentActionBox";
 import { HuntScene } from "../hunt-scene/HuntScene";
 import { Panel } from "../ui/Panel";
 import { getGuildBriefing } from "../../game-engine/onboarding/getGuildBriefing";
+import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
 import type {
   Character,
   Guild,
@@ -52,6 +53,7 @@ export function MainPlayArea({
   onReturnToCity,
 }: MainPlayAreaProps) {
   const activeCount = characters.filter((entry) => entry.status !== "idle").length;
+  const guildProgression = getGuildProgression(guild);
   const completedOffline = offlineReport?.characterReports.filter(
     (report) => report.readyToResolve,
   ).length ?? 0;
@@ -121,6 +123,10 @@ export function MainPlayArea({
 
         <Panel title="Guild Summary">
           <div className="client-summary-grid">
+            <div>
+              <span>Guild Standing</span>
+              <strong>Rank {guildProgression.rank} / Level {guildProgression.level}</strong>
+            </div>
             <div>
               <span>Guild Gold</span>
               <strong>{guild.gold.toLocaleString("en-US")}g</strong>
