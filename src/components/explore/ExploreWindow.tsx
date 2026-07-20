@@ -12,6 +12,8 @@ import type {
   BossParty,
   BossSimulationResult,
   Character,
+  Guild,
+  GuildSquadSlotId,
   HuntArea,
   HuntAutoRepeatConfig,
   PartyRole,
@@ -31,6 +33,7 @@ interface ExploreWindowProps {
   durationMinutes: number;
   hunts: HuntArea[];
   guildGold: number;
+  guild: Guild;
   lastBossResult?: BossSimulationResult;
   lastQuestResult?: {
     success: boolean;
@@ -62,6 +65,7 @@ interface ExploreWindowProps {
     cost: number,
   ) => void;
   onToggleBossPartyMember: (characterId: string) => void;
+  onLoadGuildSquad: (slotId: GuildSquadSlotId) => void;
 }
 
 const tabs: Array<{ id: ExploreTab; label: string; icon: string }> = [
@@ -79,6 +83,7 @@ export function ExploreWindow({
   durationMinutes,
   hunts,
   guildGold,
+  guild,
   lastBossResult,
   lastQuestResult,
   lastTrainingResult,
@@ -100,6 +105,7 @@ export function ExploreWindow({
   onStartQuest,
   onStartTraining,
   onToggleBossPartyMember,
+  onLoadGuildSquad,
 }: ExploreWindowProps) {
   const [activeTab, setActiveTab] = useState<ExploreTab>("hunts");
   const [huntSearch, setHuntSearch] = useState("");
@@ -211,6 +217,7 @@ export function ExploreWindow({
               bosses={bosses}
               characters={characters}
               guildGold={guildGold}
+              guild={guild}
               lastResult={lastBossResult}
               onCancelBoss={onCancelBoss}
               onChangeRole={onChangeBossPartyRole}
@@ -218,6 +225,7 @@ export function ExploreWindow({
               onSelectBoss={onSelectBoss}
               onStartBoss={onStartBoss}
               onToggleMember={onToggleBossPartyMember}
+              onLoadGuildSquad={onLoadGuildSquad}
               party={bossParty}
               selectedBoss={selectedBoss}
               selectedCharacter={character}

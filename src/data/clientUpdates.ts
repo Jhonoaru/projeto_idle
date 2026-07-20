@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-75",
+    stage: "Stage 75",
+    title: "Offline Guild Squads",
+    date: "2026-07-20",
+    category: "systems",
+    summary: "Three persistent formation slots now let the guild manager reuse named adventurer teams across Bosses and local Contracts.",
+    highlights: [
+      "Guild Levels 1, 3 and 5 unlock three named formations with up to five adventurers and one existing combat role per member.",
+      "Operations owns the formation editor, while Bosses and Contracts load saved members without launching, bypassing eligibility or changing active assignments.",
+      "Legacy and malformed SQLite states normalize locked slots, missing characters, duplicate members, invalid roles, names and timestamps safely.",
+    ],
+    systems: ["Guild Squads", "Campaign Operations", "Boss Parties", "Guild Contracts", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-74-5",
     stage: "Stage 74.5",
     title: "Guild Directives QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Desktop and mobile layouts remained overflow-free, while two native reloads repaired controlled SQLite fixtures without changing gold, progression or table counts.",
     ],
     systems: ["Guild Directives QA", "Assignment Snapshots", "Headquarters", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-74",

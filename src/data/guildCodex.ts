@@ -73,6 +73,28 @@ const systemEntries: GuildCodexEntry[] = [
     keywords: ["recruit", "recruitment", "applicant", "candidate", "roster", "adventurer", "contract", "renown", "objective", "order", "guild level", "rank", "reward", "cache"],
   },
   {
+    id: "guild-squads",
+    category: "services",
+    code: "SQ",
+    title: "Guild Squads",
+    subtitle: "Reusable local formations",
+    summary: "Save named groups of adventurers and their combat roles, then reuse those formations when preparing Bosses or support Contracts.",
+    facts: [
+      { label: "Formation slots", value: "3 guild-wide" },
+      { label: "Members", value: "Up to 5 each" },
+      { label: "Unlocks", value: "Guild Levels 1 / 3 / 5" },
+      { label: "Automation", value: "None" },
+    ],
+    guidance: [
+      "Campaign Operations is the formation editor; every member keeps one of the existing tank, healer, damage or support roles.",
+      "Loading a squad into Bosses still applies the selected boss party limit, access, level, status and cooldown rules.",
+      "Loading a squad into Contracts fills the available support-team places, excludes dead adventurers and never dispatches automatically.",
+      "Squads are organization presets only: they add no statistics, currency, cooldown or background activity.",
+    ],
+    relatedSystems: ["Campaign Operations", "Bosses", "Guild Contracts", "Guild Levels", "SQLite Save"],
+    keywords: ["squad", "formation", "party", "preset", "team", "role", "boss", "contract"],
+  },
+  {
     id: "guild-projects",
     category: "services",
     code: "GP",
@@ -152,6 +174,7 @@ const systemEntries: GuildCodexEntry[] = [
       "Career Points and Headquarters levels unlock harder postings while team power determines the displayed success chance.",
       "The outcome roll is persisted at dispatch time, so reloading the local save cannot reroll an expedition.",
       "Support assignments do not interrupt personal hunts, training or quests; completed reports require manual collection.",
+      "Saved Guild Squads can fill the support team up to the posting limit; loading one never dispatches the expedition.",
     ],
     relatedSystems: ["Guild Headquarters", "Career Ledger", "Guild Depot", "Activity Log"],
     keywords: ["contract", "expedition", "dispatch", "support team", "report", "guild depot"],
@@ -439,6 +462,7 @@ const bossEntries: GuildCodexEntry[] = bosses.map((boss) => ({
     `The encounter lasts ${boss.durationMinutes} minutes and awards ${formatNumber(boss.reward.experience)} experience on success.`,
     `Gold reward ranges from ${formatNumber(boss.reward.goldMin)}g to ${formatNumber(boss.reward.goldMax)}g, plus ${boss.reward.renown} renown.`,
     `The guild pays ${formatNumber(boss.entryCost)}g when the raid launches; aborting the attempt does not refund preparation costs.`,
+    "A saved Guild Squad can fill the strike team, but party size, member eligibility, access and cooldown checks remain mandatory.",
     (boss.requirements.requiredAccessIds ?? []).length > 0
       ? `Required access: ${(boss.requirements.requiredAccessIds ?? []).join(", ")}.`
       : "No special access key is required beyond level and party rules.",

@@ -67,6 +67,8 @@ import { claimGuildLevelReward } from "../game-engine/guild-progression/claimGui
 import { claimGuildRenownObjective } from "../game-engine/guild-progression/claimGuildRenownObjective";
 import { activateGuildDirective } from "../game-engine/guild-directives/activateGuildDirective";
 import { getGuildDirectiveBonuses } from "../game-engine/guild-directives/getGuildDirectiveStatus";
+import { saveGuildSquad } from "../game-engine/guild-squads/saveGuildSquad";
+import { createBossPartyFromGuildSquad } from "../game-engine/guild-squads/createBossPartyFromGuildSquad";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -129,6 +131,8 @@ import type {
   EquipmentSlot,
   GuildFacilityId,
   GuildSpecialistId,
+  GuildSquadMember,
+  GuildSquadSlotId,
   GuildTreasuryTransactionType,
   InventoryItem,
   MarketItemCategory,
@@ -223,6 +227,8 @@ export function App() {
   const claimingGuildLevelRewardRef = useRef(false);
   const claimingGuildRenownObjectiveRef = useRef(false);
   const activatingGuildDirectiveRef = useRef(false);
+  const savingGuildSquadRef = useRef(false);
+  const loadingGuildSquadRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
@@ -554,6 +560,29 @@ export function App() {
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Guild directive activated" : "Guild directive blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { activatingGuildDirectiveRef.current = false; }, 250);
+  }
+
+  function handleSaveGuildSquad(slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) {
+    if (savingGuildSquadRef.current) return;
+    savingGuildSquadRef.current = true;
+    const result = saveGuildSquad(guild, characters, slotId, name, members);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Guild Squad saved" : "Guild Squad blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { savingGuildSquadRef.current = false; }, 200);
+  }
+
+  function handleLoadGuildSquad(slotId: GuildSquadSlotId) {
+    if (loadingGuildSquadRef.current) return;
+    loadingGuildSquadRef.current = true;
+    const boss = selectedBoss ?? bosses[0];
+    const result = createBossPartyFromGuildSquad(guild, characters, boss, slotId);
+    if (result.success) {
+      setSelectedBoss(boss);
+      setBossParty(result.party);
+      setActiveTab("bosses");
+    }
+    prependLog(result.success ? "Guild Squad loaded" : "Guild Squad blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { loadingGuildSquadRef.current = false; }, 200);
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
@@ -2275,6 +2304,8 @@ export function App() {
           onClaimGuildLevelReward={handleClaimGuildLevelReward}
           onClaimGuildRenownObjective={handleClaimGuildRenownObjective}
           onActivateGuildDirective={handleActivateGuildDirective}
+          onSaveGuildSquad={handleSaveGuildSquad}
+          onLoadGuildSquad={handleLoadGuildSquad}
           onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onClaimDailyReward={handleClaimDailyReward}

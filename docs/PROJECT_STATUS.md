@@ -139,6 +139,7 @@ Atualizado em: 2026-07-20
 - Etapa 73.5 concluida: QA ampliada corrigiu progresso falso em quests e crash potencial do Bestiary, com 11.537 checks, responsividade e duas cargas Tauri/SQLite.
 - Etapa 74 concluida: seis Guild Directives desbloqueadas por Level permitem especializar futuras hunts, training, quests, compras NPC e expeditions sem moeda nova ou online.
 - Etapa 74.5 concluida: QA ampliada saneou directives bloqueadas e snapshots de Training corrompidos, com 53.131 checks, responsividade e duas cargas Tauri/SQLite.
+- Etapa 75 concluida: Guild Squads adicionou tres presets persistentes de formacao, com roles, unlock por Guild Level e reutilizacao segura em Bosses e Contracts.
 
 Comandos principais:
 
@@ -4809,7 +4810,56 @@ Limitacoes mantidas:
 
 Proximo passo sugerido:
 
-- Etapa 75 - definir a proxima camada de gerenciamento offline a partir de Guild Levels, Directives e operacoes existentes.
+- Etapa 75 - Guild Squads offline.
+
+## Etapa 75 - Guild Squads offline
+
+Status: concluida.
+
+Conceito e regras:
+
+- A guilda possui tres slots fixos de formacao: First Company no Guild Level 1, Second Company no Level 3 e Third Company no Level 5.
+- Cada preset guarda nome de ate 24 caracteres, ate cinco personagens e um role existente por membro: tank, healer, damage ou support.
+- Squads sao apenas presets locais de organizacao. Nao concedem atributos, moeda, cooldown, automacao, combate paralelo ou inicio automatico de atividade.
+- Salvar uma formacao vazia e permitido; personagens podem participar de mais de um preset.
+
+Engine e persistencia:
+
+- `src/data/guildSquads.ts` define os tres slots, sigilos, nomes padrao e Guild Levels necessarios.
+- `src/game-engine/guild-squads/` normaliza, deriva status, salva presets e converte uma formacao em `BossParty` sem mutar a guilda original.
+- A normalizacao remove slots desconhecidos ou bloqueados, personagens inexistentes ou duplicados, roles invalidos, nomes excessivos e timestamps corrompidos.
+- SQLite adiciona `squads_json`; saves antigos recebem `{ squads: [] }` sem alterar guilda, roster, inventario ou atividades.
+
+Interface e integracoes:
+
+- Campaign Operations recebeu o editor Guild Squads com tabs, nome, roster, roles, Save Formation, Load in Bosses e Clear.
+- Bosses mostra os tres atalhos salvos e limita a formacao ao tamanho maximo do boss; level, access, status, composicao e cooldown continuam validados pelo sistema real.
+- Contracts usa os ids salvos para preencher a equipe ate o limite do posting, exclui personagens mortos e nunca executa Dispatch automaticamente.
+- Salvar e carregar registram somente uma entrada de Activity Log, inclusive sob clique duplo rapido.
+- Updates e Guild Field Codex documentam a funcionalidade e seus limites offline.
+
+Validacoes:
+
+- O harness temporario passou em 61.441 checks e foi removido apos testar unlocks, normalizacao, imutabilidade, limites, ordem, roles e dez mil estados variados.
+- No browser local, uma formacao Arkon/Lyra foi salva por clique duplo com um unico log, carregada no boss respeitando o limite solo e aplicada ao Contract sem dispatch.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, editor e cards sem overflow horizontal.
+- O console web mostrou apenas o fallback SQLite esperado ao executar o frontend fora do Tauri.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 377 modulos; o build nativo gerou executavel release, MSI e NSIS.
+- A migration nativa criou `squads_json` no save anterior; uma fixture corrompida foi reduzida a First Company com Arkon tank e Lyra healer apos duas cargas.
+- As cargas preservaram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs, com `PRAGMA integrity_check: ok`.
+- O executavel foi aberto de forma oculta para validar load/migration/auto-save; nao houve QA manual por cliques na janela Tauri.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- Nao ha drag-and-drop, reordenacao manual de membros, icones customizados ou importacao entre saves.
+- Contracts preserva a ordem salva e corta membros excedentes; Bosses faz o mesmo pelo limite do encontro.
+- O balanceamento de composicoes ainda precisa de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 75.5 - QA aprofundada dos Guild Squads no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

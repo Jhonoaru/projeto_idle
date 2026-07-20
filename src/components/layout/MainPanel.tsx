@@ -49,6 +49,8 @@ import type {
   EquipmentSlot,
   Guild,
   GuildSpecialistId,
+  GuildSquadMember,
+  GuildSquadSlotId,
   GuildTreasuryTransactionType,
   GuildDepot,
   HuntArea,
@@ -150,6 +152,8 @@ interface MainPanelProps {
   onClaimGuildLevelReward: (level: number) => void;
   onClaimGuildRenownObjective: (objectiveId: string) => void;
   onActivateGuildDirective: (directiveId: string) => void;
+  onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
+  onLoadGuildSquad: (slotId: GuildSquadSlotId) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onAcknowledgeGuildLogisticsAlerts: () => void;
   onManualSave: () => void;
@@ -275,6 +279,8 @@ export function MainPanel({
   onClaimGuildLevelReward,
   onClaimGuildRenownObjective,
   onActivateGuildDirective,
+  onSaveGuildSquad,
+  onLoadGuildSquad,
   onUpdateGuildLogisticsPin,
   onAcknowledgeGuildLogisticsAlerts,
   onManualSave,
@@ -412,6 +418,8 @@ export function MainPanel({
             logs={logs}
             onOpenSystem={onChangeTab}
             onSelectCharacter={onSelectCharacter}
+            onSaveGuildSquad={onSaveGuildSquad}
+            onUseGuildSquadForBoss={onLoadGuildSquad}
           />
         ) : null}
 
@@ -497,6 +505,7 @@ export function MainPanel({
             character={selectedCharacter}
             durationMinutes={durationMinutes}
             guildGold={guild.gold}
+            guild={guild}
             hunts={hunts}
             lastBossResult={lastBossResult}
             lastQuestResult={lastQuestResult}
@@ -516,6 +525,7 @@ export function MainPanel({
             onStartQuest={onStartQuest}
             onStartTraining={onStartTraining}
             onToggleBossPartyMember={onToggleBossPartyMember}
+            onLoadGuildSquad={onLoadGuildSquad}
             quests={quests}
             selectedBoss={selectedBoss}
             selectedHunt={selectedHunt}
@@ -641,6 +651,7 @@ export function MainPanel({
               bosses={bosses}
               characters={characters}
               guildGold={guild.gold}
+              guild={guild}
               lastResult={lastBossResult}
               onCancelBoss={onCancelBoss}
               onChangeRole={onChangeBossPartyRole}
@@ -648,6 +659,7 @@ export function MainPanel({
               onSelectBoss={onSelectBoss}
               onStartBoss={onStartBoss}
               onToggleMember={onToggleBossPartyMember}
+              onLoadGuildSquad={onLoadGuildSquad}
               party={bossParty}
               selectedBoss={selectedBoss}
               selectedCharacter={selectedCharacter}

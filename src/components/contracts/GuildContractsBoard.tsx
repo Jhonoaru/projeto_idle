@@ -9,6 +9,7 @@ import { getHeadquartersRank } from "../../game-engine/headquarters/getHeadquart
 import { applyDispatchDiscount, getGuildStaffBonuses } from "../../game-engine/staff/getGuildStaffBonuses";
 import { getGuildSpecialist } from "../../data/guildSpecialists";
 import { getGuildDirectiveBonuses, getGuildDirectiveStatus } from "../../game-engine/guild-directives/getGuildDirectiveStatus";
+import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import type { Character, Guild, GuildContractDefinition } from "../../shared/types";
 
 interface GuildContractsBoardProps {
@@ -36,6 +37,7 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
   const staffBonuses = getGuildStaffBonuses(guild.staff);
   const directiveBonuses = getGuildDirectiveBonuses(guild);
   const activeDirective = getGuildDirectiveStatus(guild).activeDirective;
+  const squadStatus = getGuildSquadStatus(guild, characters);
   const projectedSuccessChance = Math.min(95, successChance + staffBonuses.successChancePoints + directiveBonuses.expeditionSuccessChancePoints);
   const dispatchCost = applyDispatchDiscount(selectedContract.dispatchCost, staffBonuses.dispatchDiscountPercent);
   const projectedGold = Math.floor(selectedContract.rewardGold * (1 + staffBonuses.expeditionGoldPercent / 100));
@@ -71,6 +73,15 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
     if (!contract) return;
     setSelectedContractId(contractId);
     setAssignedCharacterIds((current) => current.slice(0, contract.maximumTeamSize));
+  }
+
+  function applySquad(slotId: string) {
+    const squad = squadStatus.slots.find((slot) => slot.definition.id === slotId)?.squad;
+    if (!squad) return;
+    setAssignedCharacterIds(squad.members
+      .map((member) => member.characterId)
+      .filter((characterId) => characters.some((character) => character.id === characterId && character.status !== "dead"))
+      .slice(0, selectedContract.maximumTeamSize));
   }
 
   const teamReady = assignedCharacterIds.length >= selectedContract.minimumTeamSize && assignedCharacterIds.length <= selectedContract.maximumTeamSize;
@@ -155,6 +166,13 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
           </div>
           <section className="contracts-team">
             <header><span>Support team</span><strong>{assignedCharacterIds.length}/{selectedContract.maximumTeamSize}</strong></header>
+            <nav className="contracts-squad-presets" aria-label="Saved Guild Squads">
+              {squadStatus.slots.map((slot) => (
+                <button disabled={!slot.unlocked || !slot.squad?.members.length} key={slot.definition.id} onClick={() => applySquad(slot.definition.id)} type="button">
+                  <i>{slot.definition.sigil}</i>{slot.squad?.name ?? slot.definition.defaultName}
+                </button>
+              ))}
+            </nav>
             <div>
               {characters.map((character) => {
                 const selected = assignedCharacterIds.includes(character.id);

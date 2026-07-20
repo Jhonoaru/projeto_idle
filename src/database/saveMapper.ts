@@ -18,6 +18,7 @@ import { normalizeGuildLogisticsState } from "../game-engine/logistics/normalize
 import { normalizeGuildProgressionRewardState } from "../game-engine/guild-progression/normalizeGuildProgressionRewardState";
 import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progression/normalizeGuildRenownObjectivesState";
 import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
+import { normalizeGuildSquadsState } from "../game-engine/guild-squads/normalizeGuildSquadsState";
 import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
@@ -60,6 +61,7 @@ export interface GuildRow {
   progression_rewards_json?: string | null;
   renown_objectives_json?: string | null;
   directives_json?: string | null;
+  squads_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -177,10 +179,14 @@ export function mapGuild(row: GuildRow): Guild {
     directives: normalizeGuildDirectivesState(
       row.directives_json ? parseJson(row.directives_json, undefined) : undefined,
     ),
+    squads: normalizeGuildSquadsState(
+      row.squads_json ? parseJson(row.squads_json, undefined) : undefined,
+    ),
   });
   return {
     ...guild,
     directives: normalizeGuildDirectivesState(guild.directives, guild.level),
+    squads: normalizeGuildSquadsState(guild.squads, guild.level),
   };
 }
 

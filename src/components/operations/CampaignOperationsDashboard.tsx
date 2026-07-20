@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MainPanelTab } from "../layout/MainPanel";
-import type { ActivityLogEntry, Character, Guild, GuildDepot } from "../../shared/types";
+import type { ActivityLogEntry, Character, Guild, GuildDepot, GuildSquadMember, GuildSquadSlotId } from "../../shared/types";
 import {
   buildCampaignOperationsDashboard,
   type CampaignOperationTone,
 } from "../../game-engine/operations/buildCampaignOperationsDashboard";
+import { GuildSquadsBoard } from "./GuildSquadsBoard";
 
 interface CampaignOperationsDashboardProps {
   guild: Guild;
@@ -13,6 +14,8 @@ interface CampaignOperationsDashboardProps {
   logs: ActivityLogEntry[];
   onOpenSystem: (tab: MainPanelTab) => void;
   onSelectCharacter: (characterId: string) => void;
+  onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
+  onUseGuildSquadForBoss: (slotId: GuildSquadSlotId) => void;
 }
 
 export function CampaignOperationsDashboard({
@@ -22,6 +25,8 @@ export function CampaignOperationsDashboard({
   logs,
   onOpenSystem,
   onSelectCharacter,
+  onSaveGuildSquad,
+  onUseGuildSquadForBoss,
 }: CampaignOperationsDashboardProps) {
   const [clock, setClock] = useState(() => Date.now());
   const dashboard = useMemo(
@@ -58,6 +63,13 @@ export function CampaignOperationsDashboard({
           <Summary label="Campaign focus" value={`${dashboard.summary.pinnedPriorities}/3 priorities`} tone={dashboard.summary.unreadLogisticsAlerts > 0 ? "ready" : "idle"} />
         </div>
       </section>
+
+      <GuildSquadsBoard
+        characters={characters}
+        guild={guild}
+        onSave={onSaveGuildSquad}
+        onUseForBoss={onUseGuildSquadForBoss}
+      />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">

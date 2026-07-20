@@ -16,6 +16,7 @@ import { normalizeGuildProgression } from "../game-engine/guild-progression/getG
 import { normalizeGuildProgressionRewardState } from "../game-engine/guild-progression/normalizeGuildProgressionRewardState";
 import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progression/normalizeGuildRenownObjectivesState";
 import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
+import { normalizeGuildSquadsState } from "../game-engine/guild-squads/normalizeGuildSquadsState";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -111,8 +112,13 @@ export async function loadGameState(db: Database): Promise<GameStateSnapshot | n
     ? [...savedLogs, ...mockLogs.filter((log) => !savedLogs.some((savedLog) => savedLog.id === log.id))]
     : savedLogs;
 
+  const normalizedGuild = {
+    ...guild,
+    squads: normalizeGuildSquadsState(guild.squads, guild.level, characters.map((character) => character.id)),
+  };
+
   return {
-    guild,
+    guild: normalizedGuild,
     characters,
     depot: {
       goldStored: 0,
@@ -173,7 +179,7 @@ async function persistGameState(db: Database, state: GameStateSnapshot) {
   const now = new Date().toISOString();
 
   await clearSaveTables(db);
-  await saveGuild(db, state.guild, now);
+  await saveGuild(db, state.guild, state.characters, now);
 
   for (const character of state.characters) {
     await saveCharacter(db, state.guild.id, character, now, state.guild.collections);
@@ -219,7 +225,7 @@ async function clearSaveTables(db: Database) {
   await db.execute("DELETE FROM guilds");
 }
 
-async function saveGuild(db: Database, guild: Guild, now: string) {
+async function saveGuild(db: Database, guild: Guild, characters: Character[], now: string) {
   const normalizedGuild = normalizeGuildProgression(guild);
   await db.execute(
     `INSERT INTO guilds (
@@ -245,9 +251,10 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       progression_rewards_json,
       renown_objectives_json,
       directives_json,
+      squads_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
     [
       normalizedGuild.id,
       normalizedGuild.name,
@@ -271,6 +278,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       JSON.stringify(normalizeGuildProgressionRewardState(normalizedGuild.progressionRewards)),
       JSON.stringify(normalizeGuildRenownObjectivesState(normalizedGuild.renownObjectives)),
       JSON.stringify(normalizeGuildDirectivesState(normalizedGuild.directives, normalizedGuild.level)),
+      JSON.stringify(normalizeGuildSquadsState(normalizedGuild.squads, normalizedGuild.level, characters.map((character) => character.id))),
       now,
       now,
     ],

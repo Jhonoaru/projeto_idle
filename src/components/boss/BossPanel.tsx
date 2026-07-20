@@ -6,12 +6,15 @@ import { BossCooldownList } from "./BossCooldownList";
 import { BossResultPanel } from "./BossResultPanel";
 import { PartyBuilder } from "./PartyBuilder";
 import { ItemIcon } from "../items/ItemIcon";
+import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import type {
   Boss,
   BossParty,
   BossSimulationResult,
   BossStatus,
   Character,
+  Guild,
+  GuildSquadSlotId,
   PartyRole,
 } from "../../shared/types";
 
@@ -19,6 +22,7 @@ interface BossPanelProps {
   bosses: Boss[];
   characters: Character[];
   guildGold: number;
+  guild: Guild;
   selectedCharacter: Character;
   selectedBoss?: Boss;
   party: BossParty;
@@ -30,12 +34,14 @@ interface BossPanelProps {
   onStartBoss: () => void;
   onFinishBoss: () => void;
   onCancelBoss: () => void;
+  onLoadGuildSquad: (slotId: GuildSquadSlotId) => void;
 }
 
 export function BossPanel({
   bosses,
   characters,
   guildGold,
+  guild,
   selectedCharacter,
   selectedBoss,
   party,
@@ -47,7 +53,9 @@ export function BossPanel({
   onStartBoss,
   onFinishBoss,
   onCancelBoss,
+  onLoadGuildSquad,
 }: BossPanelProps) {
+  const squadStatus = getGuildSquadStatus(guild, characters);
   return (
     <div className="boss-panel raid-board">
       <section className="raid-board-hero">
@@ -81,13 +89,23 @@ export function BossPanel({
         <section className="boss-command-section">
           <header><span>Manual deployment</span><h3>Strike Team</h3></header>
           {selectedBoss ? (
-            <PartyBuilder
-              boss={selectedBoss}
-              characters={characters}
-              onChangeRole={onChangeRole}
-              onToggleMember={onToggleMember}
-              party={party}
-            />
+            <>
+              <div className="boss-squad-presets">
+                <span>Saved squads</span>
+                {squadStatus.slots.map((slot) => (
+                  <button disabled={!slot.unlocked || !slot.squad?.members.length} key={slot.definition.id} onClick={() => onLoadGuildSquad(slot.definition.id)} type="button">
+                    <i>{slot.definition.sigil}</i>{slot.squad?.name ?? slot.definition.defaultName}
+                  </button>
+                ))}
+              </div>
+              <PartyBuilder
+                boss={selectedBoss}
+                characters={characters}
+                onChangeRole={onChangeRole}
+                onToggleMember={onToggleMember}
+                party={party}
+              />
+            </>
           ) : (
             <div className="empty-list">Select a boss to build a party.</div>
           )}

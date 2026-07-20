@@ -262,6 +262,7 @@ export interface Guild {
   progressionRewards?: GuildProgressionRewardState;
   renownObjectives?: GuildRenownObjectivesState;
   directives?: GuildDirectivesState;
+  squads?: GuildSquadsState;
 }
 
 export interface GuildLevelRewardClaim {
@@ -302,6 +303,24 @@ export interface GuildDirectiveActivation {
 export interface GuildDirectivesState {
   activeDirectiveId: GuildDirectiveId | null;
   activationHistory: GuildDirectiveActivation[];
+}
+
+export type GuildSquadSlotId = "squad-one" | "squad-two" | "squad-three";
+
+export interface GuildSquadMember {
+  characterId: string;
+  role: PartyRole;
+}
+
+export interface GuildSquadPreset {
+  id: GuildSquadSlotId;
+  name: string;
+  members: GuildSquadMember[];
+  updatedAt: string;
+}
+
+export interface GuildSquadsState {
+  squads: GuildSquadPreset[];
 }
 
 export interface GuildLogisticsState {
