@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-71-5",
+    stage: "Stage 71.5",
+    title: "Guild Progression QA",
+    date: "2026-07-19",
+    category: "qa",
+    summary: "Expanded engine, responsive and native SQLite validation hardened all six Guild Levels and permanent recruitment contracts.",
+    highlights: [
+      "Three hundred six checks covered every Renown boundary, roster capacity, candidate gate, loadout, sequential contract and malformed save case.",
+      "Elis Dawn now receives a level-valid Leather Helmet instead of a Mystic Cap that required level 12.",
+      "Native fixtures persisted Rank E through S, recovered corrupted Renown safely and preserved the original SQLite save byte for byte.",
+    ],
+    systems: ["Guild Progression QA", "Recruitment", "Equipment Gates", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-71",
     stage: "Stage 71",
     title: "Guild Level and Milestones",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Existing saves derive and persist the correct guild level and rank from Renown without a new SQLite column or online dependency.",
     ],
     systems: ["Guild Progression", "Guild Renown", "Recruitment", "SQLite Save"],
-    featured: true,
   },
   {
     id: "stage-70-5",

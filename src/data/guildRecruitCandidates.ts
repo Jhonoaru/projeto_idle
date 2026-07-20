@@ -67,7 +67,7 @@ export const guildRecruitCandidates: GuildRecruitCandidateDefinition[] = [
     minimumGuildLevel: 3,
     minimumCareerPoints: 250,
     skills: skillLevels({ magic: 28, shielding: 18, club: 14 }),
-    equipment: { weapon: "novice-wand", helmet: "mystic-cap", armor: "apprentice-robe" },
+    equipment: { weapon: "novice-wand", helmet: "leather-helmet", armor: "apprentice-robe" },
     inventory: [{ itemId: "mana-potion", quantity: 3 }],
   },
   {

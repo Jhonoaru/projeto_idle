@@ -132,6 +132,7 @@ Atualizado em: 2026-07-19
 - Etapa 70 concluida: Guild Raid Board transforma bosses em expedicoes offline financiadas, com strike team elegivel, loot preview, cooldown pessoal e relatorio integrado.
 - Etapa 70.5 concluida: QA ampliada corrigiu timers ISO, retorno cancelado, snapshot anti-reroll e foco do participante, com 184 checks e fixture Tauri/SQLite.
 - Etapa 71 concluida: Guild Renown agora determina seis niveis e ranks, expande o roster de 6 para 11 e desbloqueia seis contratos locais permanentes.
+- Etapa 71.5 concluida: QA ampliada corrigiu o loadout de Elis Dawn e validou 306 checks, seis ranks, contratos, responsividade e fixtures Tauri/SQLite.
 
 Comandos principais:
 
@@ -4473,6 +4474,53 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 71.5 - QA aprofundada de Guild Level e Recruitment no Tauri/SQLite.
+
+## Etapa 71.5 - QA de Guild Level e Recruitment no Tauri/SQLite
+
+Status: concluida com uma correcao funcional.
+
+Correcao realizada:
+
+- Elis Dawn era recrutada no Level 10 com `mystic-cap`, item que exige Level 12 e nao poderia ser equipado normalmente nessa fase.
+- O contrato agora entrega `leather-helmet`, item real, compativel com Level 10 e com o slot de helmet, preservando level, vocacao, custo, skills e os demais itens da candidata.
+- Candidatos ja persistidos continuam compativeis com o mapper; a mudanca afeta o loadout correto de novos contratos sem migration SQLite.
+
+Matriz de engine:
+
+- Harness temporario passou em 306/306 checks e foi removido depois da validacao.
+- Os seis milestones cobriram threshold exato, um ponto abaixo/acima, rank, titulo, capacidade, proximo nivel e progresso finito.
+- Renown negativo, fracionario, vazio, textual, `NaN`, infinito e acima do limite seguro foi normalizado sem produzir level, rank ou progresso invalidos.
+- Os seis candidatos tiveram ids unicos, custos crescentes, itens existentes, slots corretos e restricoes de level/vocacao compativeis.
+- Uma fixture de carreira maxima recrutou os seis candidatos em sequencia, levou o roster de 5 para 11 e cobrou exatamente 11.350g.
+- Foram validados imutabilidade, ownership de equipamento, capacity inicial, timestamp ISO, candidato ausente, data invalida, gold `NaN`, roster cheio e contrato repetido.
+- O save mapper recuperou rank/level obsoletos e JSON opcional quebrado sem quebrar a progressao.
+
+QA visual e de fluxo:
+
+- Recruitment Board exibiu os seis milestones, seis candidatos, Rank D / Level 2, 12 renown, capacidade 7 e 295 Career Points no mock local.
+- O dossier de Elis mostrou Novice Wand, Leather Helmet, Apprentice Robe e Mana Potion x3, com os bloqueios corretos de Guild Level e gold.
+- Clique duplo no contrato de Tessa cobrou apenas 300g, reduziu 420g para 120g, levou o roster de 5 para 6 e registrou uma unica personagem.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, hall, cards, milestones e textos sem overflow horizontal.
+- O console web apresentou somente o fallback esperado do SQLite fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run tauri:build` passou com 358 modulos e gerou executavel release, MSI e NSIS.
+- Fixtures nativas persistiram exatamente 0/E/1, 10/D/2, 25/C/3, 50/B/4, 90/A/5 e 140/S/6.
+- Renown textual corrompido foi recuperado como 0/E/1 com `PRAGMA integrity_check: ok`.
+- Duas cargas consecutivas em Rank S preservaram 674g, 5 personagens, 35 skills, 26 stacks e 10 logs.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes mantidas:
+
+- A progressao termina no Guild Level 6 / Rank S e os contratos continuam fixos, sem dismiss, reroll ou geracao procedural.
+- Guild Level ainda expande roster e libera candidatos, mas nao concede bonus passivos de combate ou economia.
+- Custos e thresholds ainda precisam de uma sessao longa em campanha avancada real.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 72 - recompensas e desbloqueios offline por Guild Level.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
