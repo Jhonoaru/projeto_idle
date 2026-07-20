@@ -53,12 +53,13 @@ const systemEntries: GuildCodexEntry[] = [
     code: "GR",
     title: "Guild Recruitment",
     subtitle: "Renown-based guild growth",
-    summary: "Raise six offline guild levels through Renown, expand the roster, unlock permanent applicants and claim one cache per milestone.",
+    summary: "Complete local Renown Orders, raise six guild levels, expand the roster, unlock permanent applicants and claim milestone caches.",
     facts: [
       { label: "Applicants", value: "6 permanent candidates" },
       { label: "Guild levels", value: "6 / Rank E to S" },
       { label: "Roster limit", value: "6 to 11 adventurers" },
       { label: "Reward caches", value: "6 one-time claims" },
+      { label: "Renown Orders", value: "6 goals / +23 total" },
     ],
     guidance: [
       "Renown automatically determines guild level and rank; each milestone expands capacity and unlocks one fixed applicant.",
@@ -66,9 +67,10 @@ const systemEntries: GuildCodexEntry[] = [
       "A recruited character is stored as an ordinary roster member, so skills, equipment, inventory and future progress use the existing SQLite save.",
       "Contracts are permanent and cannot be repeated; each successful contract becomes an ordinary saved roster member.",
       "Reached reward caches can be claimed in any order. Gold goes to the guild, items go to the Guild Depot and the final cosmetic goes to Collections.",
+      "Six Renown Orders derive progress from quests, Bestiary, expeditions, Headquarters, Projects and recruitment; each reward can be claimed once.",
     ],
-    relatedSystems: ["Guild Renown", "Character Hall", "Career Ledger", "Guild Gold", "Guild Depot", "Collections", "SQLite Save"],
-    keywords: ["recruit", "recruitment", "applicant", "candidate", "roster", "adventurer", "contract", "renown", "guild level", "rank", "reward", "cache"],
+    relatedSystems: ["Guild Renown", "Quest Board", "Bestiary", "Contracts", "Headquarters", "Projects", "Guild Depot", "Collections", "SQLite Save"],
+    keywords: ["recruit", "recruitment", "applicant", "candidate", "roster", "adventurer", "contract", "renown", "objective", "order", "guild level", "rank", "reward", "cache"],
   },
   {
     id: "guild-projects",

@@ -260,6 +260,7 @@ export interface Guild {
   bazaar?: GuildBazaarState;
   crafting?: GuildCraftingState;
   progressionRewards?: GuildProgressionRewardState;
+  renownObjectives?: GuildRenownObjectivesState;
 }
 
 export interface GuildLevelRewardClaim {
@@ -271,6 +272,17 @@ export interface GuildLevelRewardClaim {
 export interface GuildProgressionRewardState {
   claimedLevels: number[];
   claimHistory: GuildLevelRewardClaim[];
+}
+
+export interface GuildRenownObjectiveClaim {
+  objectiveId: string;
+  renownGained: number;
+  claimedAt: string;
+}
+
+export interface GuildRenownObjectivesState {
+  claimedObjectiveIds: string[];
+  claimHistory: GuildRenownObjectiveClaim[];
 }
 
 export interface GuildLogisticsState {

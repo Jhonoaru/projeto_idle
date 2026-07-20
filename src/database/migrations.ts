@@ -23,6 +23,7 @@ const createStatements = [
     bazaar_json TEXT NOT NULL DEFAULT '{}',
     crafting_json TEXT NOT NULL DEFAULT '{}',
     progression_rewards_json TEXT NOT NULL DEFAULT '{}',
+    renown_objectives_json TEXT NOT NULL DEFAULT '{}',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
@@ -129,6 +130,7 @@ export async function runMigrations(db: Database) {
   await addColumnIfMissing(db, "guilds", "bazaar_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "guilds", "crafting_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "guilds", "progression_rewards_json", "TEXT NOT NULL DEFAULT '{}'");
+  await addColumnIfMissing(db, "guilds", "renown_objectives_json", "TEXT NOT NULL DEFAULT '{}'");
 
   await addColumnIfMissing(db, "characters", "death_state_json", "TEXT");
   await addColumnIfMissing(db, "characters", "blessings_json", "TEXT NOT NULL DEFAULT '[]'");

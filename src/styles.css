@@ -12445,6 +12445,7 @@ html[data-client-motion="reduced"] *::after {
 .recruitment-hall { display: grid; gap: 10px; min-width: 0; }
 .recruitment-hero,
 .recruitment-standing,
+.guild-renown-objectives-board,
 .guild-level-reward-board,
 .recruitment-board,
 .recruitment-dossier { min-width: 0; border: 1px solid #3f433b; background: #101513; }
@@ -12490,6 +12491,31 @@ html[data-client-motion="reduced"] *::after {
 .recruitment-milestones article.is-reached > i { border-color: #817041; color: #d7c17f; }
 .recruitment-milestones article.is-current { outline: 2px solid #b99a4e; outline-offset: -2px; }
 .recruitment-milestones article.is-current strong { color: #e0cd91; }
+.guild-renown-objectives-board { padding: 11px; }
+.guild-renown-objectives-board > header { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding-bottom: 9px; border-bottom: 1px solid #313832; }
+.guild-renown-objectives-board > header span { color: #89938d; font-size: 0.57rem; text-transform: uppercase; }
+.guild-renown-objectives-board > header h3 { margin: 4px 0 0; color: #ead18c; font: 700 0.82rem Georgia, serif; }
+.guild-renown-objectives-board > header > strong { color: #b7aa80; font-size: 0.58rem; }
+.guild-renown-objective-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 9px; }
+.guild-renown-objective-grid article { position: relative; min-width: 0; padding: 9px; border: 1px solid #303832; background: #111613; }
+.guild-renown-objective-heading { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.guild-renown-objective-heading > i { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid #414a43; color: #a9b0a8; font: 700 normal 0.62rem Georgia, serif; }
+.guild-renown-objective-heading small,
+.guild-renown-objective-heading strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild-renown-objective-heading small { color: #7f8982; font-size: 0.48rem; text-transform: uppercase; }
+.guild-renown-objective-heading strong { margin-top: 3px; color: #c1bea8; font: 700 0.65rem Georgia, serif; }
+.guild-renown-objective-heading b { color: #e1c875; font-size: 0.66rem; }
+.guild-renown-objective-grid article > p { min-height: 28px; margin: 8px 0; color: #89948b; font-size: 0.54rem; line-height: 1.35; }
+.guild-renown-objective-progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.guild-renown-objective-progress > span { height: 5px; overflow: hidden; border: 1px solid #384139; background: #090d0b; }
+.guild-renown-objective-progress > span i { display: block; height: 100%; background: #8d8149; }
+.guild-renown-objective-progress strong { color: #b9b18d; font-size: 0.55rem; }
+.guild-renown-objective-grid button { width: 100%; min-height: 30px; margin-top: 8px; border: 1px solid #3b443d; color: #9da69f; background: #171c18; font: 700 0.54rem Georgia, serif; text-transform: uppercase; }
+.guild-renown-objective-grid button:not(:disabled) { cursor: pointer; }
+.guild-renown-objective-grid article.is-claimable { border-color: #8f7842; background: #1c1d16; }
+.guild-renown-objective-grid article.is-claimable button { border-color: #a88a48; color: #f0d792; background: #2a3329; }
+.guild-renown-objective-grid article.is-claimed { border-color: #4f6250; background: #151d17; }
+.guild-renown-objective-grid article.is-claimed strong { color: #9eb292; }
 .guild-level-reward-board { padding: 11px; }
 .guild-level-reward-board > header { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding-bottom: 9px; border-bottom: 1px solid #313832; }
 .guild-level-reward-board > header span { color: #89938d; font-size: 0.57rem; text-transform: uppercase; }
@@ -12570,6 +12596,7 @@ html[data-client-motion="reduced"] *::after {
   .recruitment-summary { grid-column: 1 / -1; }
   .recruitment-workspace { grid-template-columns: 1fr; }
   .recruitment-milestones { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .guild-renown-objective-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-level-reward-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 700px) {
@@ -12585,6 +12612,7 @@ html[data-client-motion="reduced"] *::after {
   .recruitment-standing > header { align-items: start; flex-direction: column; }
   .recruitment-standing > header > strong { text-align: left; }
   .recruitment-milestones { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guild-renown-objective-grid { grid-template-columns: 1fr; }
   .guild-level-reward-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 430px) {

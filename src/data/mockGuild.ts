@@ -76,4 +76,5 @@ export const mockGuild: Guild = {
     salvageHistory: [],
   },
   progressionRewards: { claimedLevels: [], claimHistory: [] },
+  renownObjectives: { claimedObjectiveIds: [], claimHistory: [] },
 };

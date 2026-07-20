@@ -11,6 +11,8 @@ import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
 import { getGuildRecruitmentAvailability } from "../../game-engine/recruitment/recruitGuildCandidate";
 import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
 import { getGuildLevelRewardStatus } from "../../game-engine/guild-progression/getGuildLevelRewardStatus";
+import { getGuildRenownObjectiveStatus } from "../../game-engine/guild-progression/getGuildRenownObjectiveStatus";
+import type { GuildRenownObjectiveDefinition } from "../../data/guildRenownObjectives";
 import { SKILL_LABELS } from "../../shared/constants";
 import type { Character, Guild, SkillName } from "../../shared/types";
 
@@ -19,14 +21,17 @@ interface GuildRecruitmentBoardProps {
   guild: Guild;
   onRecruit: (candidateId: string) => void;
   onClaimLevelReward: (level: number) => void;
+  onClaimRenownObjective: (objectiveId: string) => void;
+  onOpenSystem: (destination: GuildRenownObjectiveDefinition["destination"]) => void;
 }
 
-export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLevelReward }: GuildRecruitmentBoardProps) {
+export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLevelReward, onClaimRenownObjective, onOpenSystem }: GuildRecruitmentBoardProps) {
   const [selectedId, setSelectedId] = useState(guildRecruitCandidates[0].id);
   const selected = getGuildRecruitCandidate(selectedId) ?? guildRecruitCandidates[0];
   const career = useMemo(() => getGuildCareer(guild, characters), [characters, guild]);
   const progression = useMemo(() => getGuildProgression(guild), [guild]);
   const rewardStatus = useMemo(() => getGuildLevelRewardStatus(guild), [guild]);
+  const objectiveStatus = useMemo(() => getGuildRenownObjectiveStatus(guild, characters), [characters, guild]);
   const recruitedCount = guildRecruitCandidates.filter((candidate) => isRecruited(candidate, characters)).length;
   const availableCount = guildRecruitCandidates.filter((candidate) => getGuildRecruitmentAvailability(guild, characters, candidate.id).available).length;
   const availability = getGuildRecruitmentAvailability(guild, characters, selected.id);
@@ -49,14 +54,14 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
           <Summary label="Roster" value={`${characters.length}/${progression.rosterCapacity}`} />
           <Summary label="Guild Level" value={`${progression.level}/${progression.maxLevel}`} />
           <Summary label="Renown" value={progression.renown.toLocaleString("en-US")} />
-          <Summary label="Rewards" value={`${rewardStatus.claimedCount}/${rewardStatus.rewards.length}`} />
+          <Summary label="Renown Orders" value={`${objectiveStatus.claimedCount}/${objectiveStatus.objectives.length}`} />
         </div>
       </section>
 
       <section className="recruitment-standing">
         <header>
           <div><span>Guild standing</span><h3>Rank {progression.rank} / {progression.title}</h3></div>
-          <strong>{progression.next ? `${progression.renownToNext} renown to Level ${progression.next.level}` : "Maximum standing reached"} / {career.points.toLocaleString("en-US")} CP / {rewardStatus.claimableCount} reward{rewardStatus.claimableCount === 1 ? "" : "s"} ready</strong>
+          <strong>{progression.next ? `${progression.renownToNext} renown to Level ${progression.next.level}` : "Maximum standing reached"} / {career.points.toLocaleString("en-US")} CP / {objectiveStatus.claimableCount + rewardStatus.claimableCount} claim{objectiveStatus.claimableCount + rewardStatus.claimableCount === 1 ? "" : "s"} ready</strong>
         </header>
         <div className="recruitment-renown-track" aria-label={`${progression.progressPercent}% guild level progress`}>
           <i style={{ width: `${progression.progressPercent}%` }} />
@@ -72,6 +77,38 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
               </article>
             );
           })}
+        </div>
+      </section>
+
+      <section className="guild-renown-objectives-board">
+        <header>
+          <div><span>Local progression orders</span><h3>Guild Renown Objectives</h3></div>
+          <strong>{objectiveStatus.claimedCount}/{objectiveStatus.objectives.length} claimed / {objectiveStatus.totalRenownAvailable} total renown</strong>
+        </header>
+        <div className="guild-renown-objective-grid">
+          {objectiveStatus.objectives.map(({ definition, current, progressPercent, claimed, claimable }) => (
+            <article className={`${claimed ? "is-claimed" : ""} ${claimable ? "is-claimable" : ""}`.trim()} key={definition.id}>
+              <div className="guild-renown-objective-heading">
+                <i>{definition.sigil}</i>
+                <span><small>{formatObjectiveSource(definition.destination)}</small><strong>{definition.title}</strong></span>
+                <b>+{definition.rewardRenown}</b>
+              </div>
+              <p>{definition.description}</p>
+              <div className="guild-renown-objective-progress">
+                <span><i style={{ width: `${progressPercent}%` }} /></span>
+                <strong>{Math.min(current, definition.target)}/{definition.target}</strong>
+              </div>
+              {claimable ? (
+                <button onClick={() => onClaimRenownObjective(definition.id)} type="button">Claim Renown</button>
+              ) : claimed ? (
+                <button disabled type="button">Claimed</button>
+              ) : definition.destination === "recruitment" ? (
+                <button disabled type="button">Applicants Below</button>
+              ) : (
+                <button onClick={() => onOpenSystem(definition.destination)} type="button">Open Source</button>
+              )}
+            </article>
+          ))}
         </div>
       </section>
 
@@ -156,6 +193,18 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
       </div>
     </div>
   );
+}
+
+function formatObjectiveSource(destination: GuildRenownObjectiveDefinition["destination"]) {
+  const labels: Record<GuildRenownObjectiveDefinition["destination"], string> = {
+    quests: "Quest Board",
+    bestiary: "Bestiary",
+    contracts: "Contracts Board",
+    headquarters: "Guild Headquarters",
+    projects: "Guild Projects",
+    recruitment: "Applicant Register",
+  };
+  return labels[destination];
 }
 
 function CandidateCard({ candidate, characters, guild, selected, onSelect }: { candidate: GuildRecruitCandidateDefinition; characters: Character[]; guild: Guild; selected: boolean; onSelect: () => void }) {

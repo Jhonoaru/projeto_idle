@@ -135,6 +135,7 @@ Atualizado em: 2026-07-19
 - Etapa 71.5 concluida: QA ampliada corrigiu o loadout de Elis Dawn e validou 306 checks, seis ranks, contratos, responsividade e fixtures Tauri/SQLite.
 - Etapa 72 concluida: os seis Guild Levels agora liberam caches unicos com gold, supplies, materiais e um cosmetic de Collections, todos persistidos offline.
 - Etapa 72.5 concluida: QA ampliada corrigiu o merge com stacks protegidos e validou 13.098 checks, 720 ordens de claim, responsividade e fixtures Tauri/SQLite.
+- Etapa 73 concluida: seis Renown Objectives locais conectam quests, Bestiary, expeditions, Headquarters, Projects e recrutamento ao avanco dos Guild Levels.
 
 Comandos principais:
 
@@ -4606,6 +4607,46 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 73 - Guild Renown Objectives offline, com fontes e metas claras para avancar os Guild Levels.
+
+## Etapa 73 - Guild Renown Objectives offline
+
+Implementado:
+
+- O Recruitment Board recebeu seis Renown Orders permanentes derivados diretamente do save, sem contador paralelo, tarefa online ou rotacao temporal.
+- First Chartered Deed exige 1 quest e concede +2 Renown; Field Research Ledger exige 25 kills no Bestiary e concede +3.
+- Reliable Contractors exige 2 expeditions bem-sucedidas e concede +4; Hall Under Arms exige 2 upgrades totais da Headquarters e concede +4.
+- Lasting Guild Work exige 1 Guild Project completo e concede +5; Expanded Company exige 1 candidato recrutado e concede +5.
+- Os seis objetivos somam somente 23 Renown, funcionando como orientacao e impulso inicial, sem substituir quests, bosses, contracts ou projects como fontes recorrentes.
+- Cada card mostra sistema-fonte, progresso atual, target, reward, status e comando para abrir a fonte quando ainda esta incompleto.
+- Claims podem ocorrer em qualquer ordem, sao revalidados pela engine e geram um unico Activity Log; duplo clique ou claim repetido nao soma Renown novamente.
+- O badge de Recruitment combina Renown Orders prontos e Guild Level caches disponiveis; um claim que cruza threshold atualiza Level, Rank e caches imediatamente.
+- O estado `renownObjectives` persiste em `renown_objectives_json`; saves antigos ou JSON corrompido recebem ledger vazio sem quebrar a guilda.
+
+Validacoes:
+
+- Harness temporario passou em 28.138/28.138 checks e foi removido apos cobrir dados, seis fontes, estados vazios, bloqueios, imutabilidade, `NaN`, limite seguro, mapper e duplicacao.
+- Todas as 720 ordens possiveis de claim terminaram em exatamente +23 Renown, seis ids e seis entradas de historico.
+- Partindo do mock com 12 Renown, os seis claims chegaram a 35, avancaram para Guild Level 3 / Rank C e liberaram o terceiro cache.
+- No navegador, o mock mostrou um objetivo Ready e cinco incompletos; duplo clique em First Chartered Deed elevou Renown de 12 para 14 uma unica vez.
+- O badge combinado passou de 3 para 2, o Activity Log registrou +2 Renown e Open Source navegou diretamente para o Bestiary.
+- Viewports de 1280, 960, 700 e 430 px mantiveram board, cards, barras e textos sem overflow horizontal.
+- O console web apresentou apenas o fallback esperado do SQLite fora do Tauri.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 366 modulos e geraram executavel release, MSI e NSIS.
+- A migration nativa criou `renown_objectives_json` vazio preservando 12 Renown / Level 2 / Rank D no save antigo.
+- Uma fixture completa preservou seis claims, historico, 35 Renown / Level 3 / Rank C em duas cargas nativas.
+- As cargas mantiveram 1 guilda, 5 personagens, 35 skills, 26 stacks, 10 logs e `PRAGMA integrity_check: ok`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- Os seis objetivos sao fixos, permanentes e resgataveis uma unica vez; nao existem daily/weekly orders, reroll ou geracao procedural.
+- O board orienta fontes existentes, mas nao inicia automaticamente uma atividade nem concede progresso idle passivo.
+- O balanceamento dos targets e dos 23 Renown ainda precisa de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 73.5 - QA aprofundada dos Guild Renown Objectives no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

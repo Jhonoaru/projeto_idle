@@ -13,6 +13,7 @@ import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-e
 import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import { getMainSkill } from "../../game-engine/character/getMainSkill";
 import { getGuildLevelRewardStatus } from "../../game-engine/guild-progression/getGuildLevelRewardStatus";
+import { getGuildRenownObjectiveStatus } from "../../game-engine/guild-progression/getGuildRenownObjectiveStatus";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { calculateWeaponProficiencyBonuses } from "../../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
@@ -74,6 +75,8 @@ export function CharacterDetails({
   const mainSkill = getMainSkill(character);
   const capacityPercent = Math.min(100, Math.round((character.capacityUsed / Math.max(1, character.capacityMax)) * 100));
   const guildRewardStatus = getGuildLevelRewardStatus(guild);
+  const renownObjectiveStatus = getGuildRenownObjectiveStatus(guild, characters);
+  const recruitmentNoticeCount = guildRewardStatus.claimableCount + renownObjectiveStatus.claimableCount;
 
   useEffect(() => {
     if (!character.currentAction?.expectedXp) return undefined;
@@ -162,7 +165,7 @@ export function CharacterDetails({
           <button onClick={() => onOpenTab("treasury")} type="button">Treasury</button>
           <button onClick={() => onOpenTab("projects")} type="button">Projects</button>
           <button onClick={() => onOpenTab("logistics")} type="button">Logistics</button>
-          <button onClick={() => onOpenTab("recruitment")} type="button">Recruitment{guildRewardStatus.claimableCount > 0 ? <em>{guildRewardStatus.claimableCount}</em> : null}</button>
+          <button onClick={() => onOpenTab("recruitment")} type="button">Recruitment{recruitmentNoticeCount > 0 ? <em>{recruitmentNoticeCount}</em> : null}</button>
         </div>
       </section>
 

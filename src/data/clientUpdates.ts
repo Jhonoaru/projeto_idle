@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-73",
+    stage: "Stage 73",
+    title: "Offline Guild Renown Objectives",
+    date: "2026-07-20",
+    category: "systems",
+    summary: "Six permanent local orders now turn existing campaign activity into clear, claimable Guild Renown goals.",
+    highlights: [
+      "Quests, Bestiary kills, successful expeditions, Headquarters upgrades, completed Projects and recruited applicants feed progress directly from the local save.",
+      "Each completed order grants a small one-time Renown reward, with all six worth 23 Renown and no premium currency, passive income or online dependency.",
+      "The Recruitment Board shows live progress, source navigation, claim status and combined badges for ready objectives and Guild Level caches.",
+    ],
+    systems: ["Guild Renown Objectives", "Guild Progression", "Recruitment Board", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-72-5",
     stage: "Stage 72.5",
     title: "Guild Reward Cache QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "A Rank S native fixture preserved all six claims, the Golden Guild Sigil and separate protected/usable depot stacks across two SQLite reloads.",
     ],
     systems: ["Guild Reward QA", "Guild Depot", "Collections", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-72",
