@@ -134,6 +134,7 @@ Atualizado em: 2026-07-19
 - Etapa 71 concluida: Guild Renown agora determina seis niveis e ranks, expande o roster de 6 para 11 e desbloqueia seis contratos locais permanentes.
 - Etapa 71.5 concluida: QA ampliada corrigiu o loadout de Elis Dawn e validou 306 checks, seis ranks, contratos, responsividade e fixtures Tauri/SQLite.
 - Etapa 72 concluida: os seis Guild Levels agora liberam caches unicos com gold, supplies, materiais e um cosmetic de Collections, todos persistidos offline.
+- Etapa 72.5 concluida: QA ampliada corrigiu o merge com stacks protegidos e validou 13.098 checks, 720 ordens de claim, responsividade e fixtures Tauri/SQLite.
 
 Comandos principais:
 
@@ -4557,6 +4558,54 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 72.5 - QA aprofundada das recompensas por Guild Level no Tauri/SQLite.
+
+## Etapa 72.5 - QA das recompensas por Guild Level no Tauri/SQLite
+
+Status: concluida com uma correcao funcional.
+
+Correcao realizada:
+
+- O helper compartilhado de stacks ignorava o estado `locked`; uma recompensa podia se fundir com um stack protegido do mesmo item e ficar indisponivel para uso.
+- `mergeStackableItems` agora inclui `locked/unlocked` na identidade do stack, preservando o recurso protegido e criando ou usando um stack separado para a recompensa utilizavel.
+- Localizacao, owner e container continuam fazendo parte da chave; a mudanca nao move itens nem remove protecao existente.
+
+Matriz de engine:
+
+- Harness temporario passou em 13.098/13.098 checks e foi removido depois da validacao.
+- As seis definicoes foram validadas contra milestones, itemIds reais, Collections, quantidades, fallback e payload unico.
+- Todas as fronteiras de Renown foram cobertas imediatamente antes, no threshold e depois de cada Guild Level.
+- As 720 ordens possiveis de claim terminaram com o mesmo gold, materiais, supplies, cosmetic e ledger completo.
+- Foram validados bloqueio por level, claim duplicado, imutabilidade, timestamp invalido, `gold` NaN, depot nulo, stack protegido, stack em container, JSON ausente e JSON corrompido.
+- Golden Guild Sigil novo ativa Collections; cosmetic ja possuido concede exatamente 1.000g e conclui o milestone uma unica vez.
+
+QA visual e de fluxo:
+
+- No mock Level 2, o Recruitment Board exibiu seis cards, dois Ready e quatro Locked.
+- Level 2 foi resgatado antes do Level 1, comprovando ordem livre; cada duplo clique produziu um unico claim.
+- O saldo passou de 420g para 620g, o badge foi de 2 para 1 e depois desapareceu, e dois Activity Logs foram criados na ordem correta.
+- O Guild Depot mostrou Minor Health Potion x3 sem depender do personagem selecionado.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, board, cards e textos sem overflow horizontal ou sobreposicao.
+- O console web apresentou somente o fallback esperado do SQLite fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 362 modulos e geraram executavel release, MSI e NSIS.
+- A migration de save antigo criou `progression_rewards_json` vazio preservando Guild Level 2 / Rank D.
+- Uma fixture Rank S manteve os seis claims, historico completo e Golden Guild Sigil novo depois de duas cargas nativas.
+- Stacks de Minor Health Potion `7 locked + 3 usable` permaneceram separados nas duas cargas, sem perda ou duplicacao.
+- A fixture preservou 1 guilda, 5 personagens, 35 skills, 28 stacks, 10 logs e `PRAGMA integrity_check: ok`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes mantidas:
+
+- Os seis caches continuam fixos e a progressao encerra no Guild Level 6 / Rank S.
+- Nao existem escolhas alternativas de cache, repeticao, premium, bonus passivo ou moeda nova.
+- O balanceamento dos valores ainda precisa de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 73 - Guild Renown Objectives offline, com fontes e metas claras para avancar os Guild Levels.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

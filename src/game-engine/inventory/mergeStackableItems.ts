@@ -15,6 +15,7 @@ export function mergeStackableItems(items: InventoryItem[]) {
       inventoryItem.ownerCharacterId ?? "depot",
       inventoryItem.parentContainerId ?? "root",
       inventoryItem.itemId,
+      inventoryItem.locked ? "locked" : "unlocked",
     ].join("-");
     const existing = merged.get(key);
 

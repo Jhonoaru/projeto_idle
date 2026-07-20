@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-72-5",
+    stage: "Stage 72.5",
+    title: "Guild Reward Cache QA",
+    date: "2026-07-20",
+    category: "qa",
+    summary: "Expanded engine, responsive and native SQLite validation hardened all six one-time Guild Level reward caches.",
+    highlights: [
+      "Thirteen thousand ninety-eight checks covered every Renown boundary, all 720 claim orders, malformed ledgers, duplicate claims and deterministic rewards.",
+      "Stack merging now keeps protected and usable resources separate, preventing a newly claimed reward from becoming locked inside an existing protected stack.",
+      "A Rank S native fixture preserved all six claims, the Golden Guild Sigil and separate protected/usable depot stacks across two SQLite reloads.",
+    ],
+    systems: ["Guild Reward QA", "Guild Depot", "Collections", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-72",
     stage: "Stage 72",
     title: "Guild Level Reward Caches",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Rank S unlocks the Golden Guild Sigil in Collections, or awards a fixed gold fallback when that cosmetic is already owned.",
     ],
     systems: ["Guild Progression", "Guild Depot", "Collections", "SQLite Save"],
-    featured: true,
   },
   {
     id: "stage-71-5",
