@@ -140,6 +140,7 @@ Atualizado em: 2026-07-20
 - Etapa 74 concluida: seis Guild Directives desbloqueadas por Level permitem especializar futuras hunts, training, quests, compras NPC e expeditions sem moeda nova ou online.
 - Etapa 74.5 concluida: QA ampliada saneou directives bloqueadas e snapshots de Training corrompidos, com 53.131 checks, responsividade e duas cargas Tauri/SQLite.
 - Etapa 75 concluida: Guild Squads adicionou tres presets persistentes de formacao, com roles, unlock por Guild Level e reutilizacao segura em Bosses e Contracts.
+- Etapa 75.5 concluida: QA ampliada dos Guild Squads corrigiu selecao de slot bloqueado, isolou a montagem de Contracts e validou 142.940 checks, responsividade e SQLite nativo.
 
 Comandos principais:
 
@@ -4860,6 +4861,58 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 75.5 - QA aprofundada dos Guild Squads no Tauri/SQLite.
+
+## Etapa 75.5 - QA dos Guild Squads
+
+Status: concluida.
+
+Correcoes reproduzidas:
+
+- Se um slot avancado estivesse selecionado e um Reload/Reset substituisse a campanha por uma guilda de level menor, a tab ficava bloqueada, mas o editor ainda podia apontar temporariamente para aquele slot.
+- `GuildSquadsBoard` agora seleciona automaticamente o primeiro slot permitido sempre que o slot atual deixa de estar desbloqueado.
+- A montagem de support team para Contracts existia somente dentro do componente, dificultando validar diretamente ordem, mortos e limites anormais.
+- `createContractTeamFromGuildSquad` passou a centralizar essa regra, preservando ordem, removendo mortos, limitando a equipe e recuperando limites invalidos sem dispatch automatico.
+
+Matriz automatizada:
+
+- O harness temporario passou em 142.940 checks e foi removido apos a execucao.
+- As seis ordens possiveis de salvar os tres slots preservaram ids unicos, conteudo e imutabilidade da guilda original.
+- Os seis bosses receberam party com bossId, ordem, roles e corte exato pelo `maxPartySize` de cada encontro.
+- Contracts foram testados com limites 1, 2, 3 e 5, alem de zero, negativo, `NaN` e infinito; mortos foram excluidos sem reordenar os sobreviventes.
+- Mapper SQLite derivou Level/Rank pelo Renown, removeu slots ainda bloqueados e recuperou `squads_json` malformado como estado vazio.
+- Vinte mil estados variados cobriram slots desconhecidos/duplicados, nomes, timestamps, roles, personagens e Guild Levels invalidos.
+- Um slot removido por estar bloqueado nao reapareceu sozinho depois de aumentar o Guild Level.
+
+QA visual:
+
+- No mock Level 2, apenas First Company permaneceu habilitada; Second e Third Company exibiram corretamente os requisitos Level 3 e 5.
+- QA Vanguard guardou cinco personagens e o role support alterado de Lyra; clique duplo em Save gerou somente um estado e um Activity Log.
+- Clique duplo em Load in Bosses gerou um unico log e o boss solo recebeu somente Arkon.
+- Khazgrim Gatekeeper recebeu os tres primeiros membros com roles preservados, mas Launch Raid continuou bloqueado por level e personagens ocupados.
+- Contracts substituiu a selecao inicial por Arkon/Ayla, respeitou o limite 2 e manteve historico vazio ate o comando manual Dispatch Expedition.
+- Clique duplo em Clear esvaziou uma vez o preset, desabilitou Load/Clear e deixou 0/1 configured.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, board e editor sem overflow horizontal; a inspecao mobile confirmou controles legiveis.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 378 modulos e gerou executavel release, MSI e NSIS.
+- O save original anterior a Etapa 75 recebeu `squads_json` por migration sem perder tabelas ou registros.
+- Uma fixture com slots duplicado, desconhecido e bloqueados, oito membros, duplicacao, personagem inexistente, role invalido, nome excessivo e timestamp invalido foi carregada duas vezes.
+- O resultado persistido manteve apenas First Company no Level 2, nome com 24 caracteres, epoch seguro e Arkon/Ayla/Lyra/Mira com roles validos.
+- As cargas preservaram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs, com `PRAGMA integrity_check: ok`.
+- O executavel foi aberto de forma oculta para validar migration/load/auto-save; nao houve cliques manuais na janela Tauri.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes mantidas:
+
+- Squads continuam sendo presets manuais sem bonus, automacao, atividade paralela ou reordenacao por drag-and-drop.
+- Personagens ocupados podem permanecer no preset; Bosses exibem e bloqueiam a inelegibilidade atual, enquanto Contracts continuam permitindo support assignments paralelas conforme sua regra existente.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 76 - definir a proxima camada de gerenciamento offline a partir das formacoes persistentes.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

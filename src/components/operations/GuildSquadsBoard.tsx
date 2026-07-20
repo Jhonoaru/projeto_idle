@@ -19,6 +19,12 @@ export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss }: Gu
   const [members, setMembers] = useState<GuildSquadMember[]>(selectedSlot.squad?.members ?? []);
 
   useEffect(() => {
+    if (!selectedSlot.unlocked) {
+      setSelectedSlotId(status.slots.find((slot) => slot.unlocked)?.definition.id ?? "squad-one");
+    }
+  }, [selectedSlot.unlocked, status.slots]);
+
+  useEffect(() => {
     setName(selectedSlot.squad?.name ?? selectedSlot.definition.defaultName);
     setMembers(selectedSlot.squad?.members ?? []);
   }, [selectedSlot.definition.defaultName, selectedSlot.squad]);

@@ -10,6 +10,7 @@ import { applyDispatchDiscount, getGuildStaffBonuses } from "../../game-engine/s
 import { getGuildSpecialist } from "../../data/guildSpecialists";
 import { getGuildDirectiveBonuses, getGuildDirectiveStatus } from "../../game-engine/guild-directives/getGuildDirectiveStatus";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
+import { createContractTeamFromGuildSquad } from "../../game-engine/guild-squads/createContractTeamFromGuildSquad";
 import type { Character, Guild, GuildContractDefinition } from "../../shared/types";
 
 interface GuildContractsBoardProps {
@@ -76,12 +77,8 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
   }
 
   function applySquad(slotId: string) {
-    const squad = squadStatus.slots.find((slot) => slot.definition.id === slotId)?.squad;
-    if (!squad) return;
-    setAssignedCharacterIds(squad.members
-      .map((member) => member.characterId)
-      .filter((characterId) => characters.some((character) => character.id === characterId && character.status !== "dead"))
-      .slice(0, selectedContract.maximumTeamSize));
+    const result = createContractTeamFromGuildSquad(guild, characters, selectedContract.maximumTeamSize, slotId);
+    if (result.success) setAssignedCharacterIds(result.characterIds);
   }
 
   const teamReady = assignedCharacterIds.length >= selectedContract.minimumTeamSize && assignedCharacterIds.length <= selectedContract.maximumTeamSize;

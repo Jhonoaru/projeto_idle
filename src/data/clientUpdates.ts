@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-75-5",
+    stage: "Stage 75.5",
+    title: "Guild Squads QA",
+    date: "2026-07-20",
+    category: "qa",
+    summary: "Expanded engine, responsive and native SQLite validation hardened saved formations across Operations, Bosses and Contracts.",
+    highlights: [
+      "One hundred forty-two thousand nine hundred forty checks covered every save order, all bosses, contract limits, malformed states and Renown-derived unlocks.",
+      "The editor now leaves a slot that becomes locked after a save change, while Contract team preparation has a dedicated tested engine path for limits and dead adventurers.",
+      "Double clicks, role preservation, party truncation, manual dispatch and two native SQLite reloads passed without changing the original campaign save.",
+    ],
+    systems: ["Guild Squads QA", "Boss Parties", "Guild Contracts", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-75",
     stage: "Stage 75",
     title: "Offline Guild Squads",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Legacy and malformed SQLite states normalize locked slots, missing characters, duplicate members, invalid roles, names and timestamps safely.",
     ],
     systems: ["Guild Squads", "Campaign Operations", "Boss Parties", "Guild Contracts", "SQLite Save"],
-    featured: true,
   },
   {
     id: "stage-74-5",
