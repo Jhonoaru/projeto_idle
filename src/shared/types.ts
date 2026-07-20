@@ -261,6 +261,7 @@ export interface Guild {
   crafting?: GuildCraftingState;
   progressionRewards?: GuildProgressionRewardState;
   renownObjectives?: GuildRenownObjectivesState;
+  directives?: GuildDirectivesState;
 }
 
 export interface GuildLevelRewardClaim {
@@ -283,6 +284,24 @@ export interface GuildRenownObjectiveClaim {
 export interface GuildRenownObjectivesState {
   claimedObjectiveIds: string[];
   claimHistory: GuildRenownObjectiveClaim[];
+}
+
+export type GuildDirectiveId =
+  | "vanguard-orders"
+  | "training-charter"
+  | "contract-mandate"
+  | "merchant-compact"
+  | "expedition-standard"
+  | "grand-strategy";
+
+export interface GuildDirectiveActivation {
+  directiveId: GuildDirectiveId;
+  activatedAt: string;
+}
+
+export interface GuildDirectivesState {
+  activeDirectiveId: GuildDirectiveId | null;
+  activationHistory: GuildDirectiveActivation[];
 }
 
 export interface GuildLogisticsState {
@@ -900,6 +919,7 @@ export interface CharacterAction {
   targetName?: string;
   risk?: HuntRisk;
   expectedXp?: number;
+  guildXpBonusPercent?: number;
   expectedGold?: number;
   trainingType?: TrainingType;
   targetSkill?: TrainingTarget;

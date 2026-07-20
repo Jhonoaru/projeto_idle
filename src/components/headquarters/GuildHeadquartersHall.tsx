@@ -8,16 +8,18 @@ import { getGuildFacilityUpgradeAvailability } from "../../game-engine/headquart
 import type { Character, Guild, GuildDepot, GuildFacilityDefinition, GuildFacilityId } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
 import { HeadquartersResourcePlanner } from "./HeadquartersResourcePlanner";
+import { GuildDirectivesBoard } from "./GuildDirectivesBoard";
 
 interface GuildHeadquartersHallProps {
   characters: Character[];
   depot: GuildDepot;
   guild: Guild;
   onUpgradeFacility: (facilityId: GuildFacilityId) => void;
+  onActivateDirective: (directiveId: string) => void;
   onTrackHunt: (hunt: import("../../shared/types").HuntArea) => void;
 }
 
-export function GuildHeadquartersHall({ characters, depot, guild, onTrackHunt, onUpgradeFacility }: GuildHeadquartersHallProps) {
+export function GuildHeadquartersHall({ characters, depot, guild, onActivateDirective, onTrackHunt, onUpgradeFacility }: GuildHeadquartersHallProps) {
   const headquarters = useMemo(() => normalizeGuildHeadquarters(guild.headquarters), [guild.headquarters]);
   const bonuses = useMemo(() => getHeadquartersBonuses(headquarters), [headquarters]);
   const rank = useMemo(() => getHeadquartersRank(headquarters), [headquarters]);
@@ -54,6 +56,8 @@ export function GuildHeadquartersHall({ characters, depot, guild, onTrackHunt, o
         <Bonus label="NPC discount" value={bonuses.npcPriceDiscountPercent} prefix="-" />
         <Bonus label="Quest XP" value={bonuses.questXpBonusPercent} />
       </section>
+
+      <GuildDirectivesBoard characters={characters} guild={guild} onActivate={onActivateDirective} />
 
       <div className="headquarters-workspace">
         <section className="headquarters-facilities">

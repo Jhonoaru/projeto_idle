@@ -137,6 +137,7 @@ Atualizado em: 2026-07-19
 - Etapa 72.5 concluida: QA ampliada corrigiu o merge com stacks protegidos e validou 13.098 checks, 720 ordens de claim, responsividade e fixtures Tauri/SQLite.
 - Etapa 73 concluida: seis Renown Objectives locais conectam quests, Bestiary, expeditions, Headquarters, Projects e recrutamento ao avanco dos Guild Levels.
 - Etapa 73.5 concluida: QA ampliada corrigiu progresso falso em quests e crash potencial do Bestiary, com 11.537 checks, responsividade e duas cargas Tauri/SQLite.
+- Etapa 74 concluida: seis Guild Directives desbloqueadas por Level permitem especializar futuras hunts, training, quests, compras NPC e expeditions sem moeda nova ou online.
 
 Comandos principais:
 
@@ -4694,6 +4695,70 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 74 - consolidar a proxima camada de progressao offline da guilda a partir dos sistemas atuais.
+
+## Etapa 74 - Guild Directives offline
+
+Status: concluida.
+
+Conceito:
+
+- Guild Directives sao politicas guild-wide desbloqueadas uma por Guild Level, do Level 1 ao 6.
+- Uma unica directive fica ativa; trocar e gratuito, local, manual e nao usa moeda, cooldown, premium ou servidor.
+- A politica escolhida afeta somente novas ordens. Hunts, quests, training e expeditions ja iniciadas mantem o bonus registrado no inicio.
+- O snapshot evita trocar a directive no fim de uma acao para alterar retroativamente o resultado e permite gerenciar a politica mesmo com outros aventureiros ocupados.
+
+Diretivas:
+
+- Vanguard Orders, Level 1: +2% Hunt XP.
+- Training Charter, Level 2: +5% Training progress.
+- Contract Mandate, Level 3: +3% Quest XP.
+- Merchant Compact, Level 4: -4% nos precos da loja NPC fixa.
+- Expedition Standard, Level 5: +4 pontos percentuais na chance de expedition.
+- Grand Strategy, Level 6: +2 em Hunt XP, Training, Quest XP, desconto NPC e chance de expedition.
+
+Engine e persistencia:
+
+- `src/data/guildDirectives.ts` define unlocks, sigilos, descricoes e bonuses sem ids externos.
+- `src/game-engine/guild-directives/` normaliza o ledger, deriva unlocks/bonus e ativa uma directive com validacao de level, timestamp e duplicacao.
+- O historico guarda as 12 ativacoes mais recentes; ids, datas ou estruturas invalidas sao descartados com seguranca.
+- `CharacterAction.guildXpBonusPercent` registra o bonus de Hunt/Quest; Training ja guarda `expectedGainPercent` e expedition ja guarda `successChance` no dispatch.
+- Auto-repeat cria cada nova hunt com o bonus vigente naquele novo inicio.
+- SQLite adiciona `directives_json`; saves antigos recebem `{ activeDirectiveId: null, activationHistory: [] }`.
+
+Interface e integracoes:
+
+- Headquarters recebeu um command board compacto com seis cards, Level requerido, efeito, lock, estado ativo e comando Activate Directive.
+- Duplo clique e reativacao da mesma politica nao duplicam historico nem Activity Log.
+- Market NPC combina Merchant Compact com o desconto do Quartermaster e mostra o desconto total da guilda.
+- Contracts mostra a directive ativa e inclui Expedition Standard/Grand Strategy na chance projetada e no snapshot do dispatch.
+- Hunt, Training e Quest combinam facilities permanentes da Headquarters com a directive atual, respeitando o limite defensivo existente de 25%.
+- Codex, Updates e subtitulo do Headquarters foram atualizados.
+
+Validacoes:
+
+- Harness temporario passou em 89/89 checks e foi removido apos validar seis levels, bonus exatos, switches, imutabilidade, historico, JSON corrompido e timestamps invalidos.
+- Foram exercitados preview e snapshot de Hunt, Training e Quest, alem do acrescimo exato de +4 na chance de Expedition.
+- O QA visual encontrou e corrigiu o bloqueio inicial causado pelo roster ocupado; directives agora podem mudar sem reescrever acoes existentes.
+- No mock Level 2, Vanguard Orders e Training Charter ficaram disponiveis e as quatro politicas seguintes permaneceram bloqueadas pelo Level correto.
+- Duplo clique em Vanguard gerou uma ativacao e um log; a troca para Training manteve exatamente um card ativo e adicionou somente o novo log.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, command board e seis cards sem overflow horizontal.
+- O console web apresentou apenas o fallback esperado do SQLite fora do Tauri.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 371 modulos e geraram executavel release, MSI e NSIS.
+- A migration nativa criou `directives_json` vazio preservando o save antigo.
+- Uma fixture manteve Training Charter ativa, duas entradas de historico e uma hunt com snapshot separado de +2% apos duas cargas nativas.
+- As cargas preservaram 1 guilda, 5 personagens, 35 skills, 26 stacks, 10 logs e `PRAGMA integrity_check: ok`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- Nao ha custo, cooldown, slots multiplos, presets de directive ou automacao de troca.
+- Directives nao aumentam dano, loot ou reward de boss nesta versao; os bonuses permanecem pequenos e previsiveis.
+- O balanceamento precisa de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 74.5 - QA aprofundada das Guild Directives e snapshots no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

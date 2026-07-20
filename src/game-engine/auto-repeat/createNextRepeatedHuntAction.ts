@@ -8,6 +8,7 @@ export function createNextRepeatedHuntAction(
   hunt: HuntArea,
   config: HuntAutoRepeatConfig,
   durationMinutes: number,
+  guildXpBonusPercent = 0,
 ): Character {
   const now = new Date();
   const endsAt = new Date(now.getTime() + durationMinutes * 60_000);
@@ -15,6 +16,7 @@ export function createNextRepeatedHuntAction(
   const maxRepeats = clampMaxRepeats(config.maxRepeats);
   const displayMaxRepeats = config.mode === "repeat_count" ? maxRepeats : MAX_AUTO_REPEAT_RUNS;
   const repeatIndex = completedRepeats + 1;
+  const safeGuildXpBonus = Number.isFinite(guildXpBonusPercent) ? Math.min(25, Math.max(0, Math.floor(guildXpBonusPercent))) : 0;
 
   return {
     ...character,
@@ -28,7 +30,8 @@ export function createNextRepeatedHuntAction(
       targetId: hunt.id,
       targetName: hunt.name,
       risk: hunt.risk,
-      expectedXp: Math.round((hunt.estimatedXpPerHour / 60) * durationMinutes),
+      expectedXp: Math.round((hunt.estimatedXpPerHour / 60) * durationMinutes * (1 + safeGuildXpBonus / 100)),
+      guildXpBonusPercent: safeGuildXpBonus,
       expectedGold: Math.round((hunt.estimatedGoldPerHour / 60) * durationMinutes),
       autoRepeat: {
         ...config,

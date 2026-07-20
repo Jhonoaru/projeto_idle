@@ -8,6 +8,7 @@ import { normalizeGuildExpeditionState } from "../../game-engine/expeditions/nor
 import { getHeadquartersRank } from "../../game-engine/headquarters/getHeadquartersBonuses";
 import { applyDispatchDiscount, getGuildStaffBonuses } from "../../game-engine/staff/getGuildStaffBonuses";
 import { getGuildSpecialist } from "../../data/guildSpecialists";
+import { getGuildDirectiveBonuses, getGuildDirectiveStatus } from "../../game-engine/guild-directives/getGuildDirectiveStatus";
 import type { Character, Guild, GuildContractDefinition } from "../../shared/types";
 
 interface GuildContractsBoardProps {
@@ -33,7 +34,9 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
   const teamPower = calculateExpeditionTeamPower(characters, assignedCharacterIds);
   const successChance = calculateExpeditionSuccessChance(teamPower, selectedContract.recommendedPower);
   const staffBonuses = getGuildStaffBonuses(guild.staff);
-  const projectedSuccessChance = Math.min(95, successChance + staffBonuses.successChancePoints);
+  const directiveBonuses = getGuildDirectiveBonuses(guild);
+  const activeDirective = getGuildDirectiveStatus(guild).activeDirective;
+  const projectedSuccessChance = Math.min(95, successChance + staffBonuses.successChancePoints + directiveBonuses.expeditionSuccessChancePoints);
   const dispatchCost = applyDispatchDiscount(selectedContract.dispatchCost, staffBonuses.dispatchDiscountPercent);
   const projectedGold = Math.floor(selectedContract.rewardGold * (1 + staffBonuses.expeditionGoldPercent / 100));
   const projectedRenown = selectedContract.rewardRenown + staffBonuses.expeditionRenown;
@@ -172,6 +175,7 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
             <div><span>Projected success</span><strong>{projectedSuccessChance}%</strong></div>
           </div>
           <div className="contracts-specialist"><span>Specialist on duty</span><strong>{staffBonuses.specialist ? `${staffBonuses.specialist.name} / ${staffBonuses.specialist.bonusLabel}` : "None assigned"}</strong></div>
+          <div className="contracts-specialist"><span>Guild directive</span><strong>{activeDirective ? `${activeDirective.name} / ${activeDirective.bonusLabel}` : "No directive active"}</strong></div>
           <button className="contracts-dispatch-button" disabled={!canDispatch} onClick={() => onStartExpedition(selectedContract.id, assignedCharacterIds)} type="button">
             {active ? "Expedition Already Active" : !availability.available ? availability.reasons[0] : !teamReady ? `Select ${selectedContract.minimumTeamSize}-${selectedContract.maximumTeamSize} Adventurers` : guild.gold < dispatchCost ? `Requires ${dispatchCost.toLocaleString("en-US")}g` : "Dispatch Expedition"}
           </button>

@@ -162,7 +162,7 @@ const systemEntries: GuildCodexEntry[] = [
     code: "HQ",
     title: "Guild Headquarters",
     subtitle: "Permanent local facilities",
-    summary: "Guild gold and career progress fund four capped facilities with small bonuses for established gameplay loops.",
+    summary: "Facilities provide permanent upgrades while one active Guild Directive shapes the next assignments issued by the command hall.",
     facts: [
       { label: "Facilities", value: "4 wings" },
       { label: "Maximum", value: "Level 3 each" },
@@ -173,9 +173,10 @@ const systemEntries: GuildCodexEntry[] = [
       "War Room improves hunt XP, Training Yard improves training progress, Quartermaster discounts the Market NPC and Contract Archive improves quest XP.",
       "Every upgrade validates current level, career points and guild gold before changing the local save.",
       "Headquarters facilities are permanent campaign upgrades with fixed costs, modest bonuses and strict level caps.",
+      "Guild Levels 1 through 6 unlock six free command directives; only one can be active, and changing it affects future assignments rather than rewriting actions already underway.",
     ],
-    relatedSystems: ["Career Ledger", "Hunts", "Training", "Market", "Quests"],
-    keywords: ["headquarters", "facility", "upgrade", "war room", "training yard", "quartermaster", "archive"],
+    relatedSystems: ["Guild Levels", "Career Ledger", "Hunts", "Training", "Market", "Quests", "Expeditions"],
+    keywords: ["headquarters", "facility", "directive", "policy", "upgrade", "war room", "training yard", "quartermaster", "archive"],
   },
   {
     id: "guild-command",

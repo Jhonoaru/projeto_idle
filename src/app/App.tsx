@@ -65,6 +65,8 @@ import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectP
 import { recruitGuildCandidate } from "../game-engine/recruitment/recruitGuildCandidate";
 import { claimGuildLevelReward } from "../game-engine/guild-progression/claimGuildLevelReward";
 import { claimGuildRenownObjective } from "../game-engine/guild-progression/claimGuildRenownObjective";
+import { activateGuildDirective } from "../game-engine/guild-directives/activateGuildDirective";
+import { getGuildDirectiveBonuses } from "../game-engine/guild-directives/getGuildDirectiveStatus";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -157,6 +159,12 @@ export function App() {
     () => getHeadquartersBonuses(guild.headquarters),
     [guild.headquarters],
   );
+  const directiveBonuses = useMemo(() => getGuildDirectiveBonuses(guild), [guild]);
+  const guildOperationBonuses = useMemo(() => ({
+    huntXpBonusPercent: headquartersBonuses.huntXpBonusPercent + directiveBonuses.huntXpBonusPercent,
+    trainingProgressBonusPercent: headquartersBonuses.trainingProgressBonusPercent + directiveBonuses.trainingProgressBonusPercent,
+    questXpBonusPercent: headquartersBonuses.questXpBonusPercent + directiveBonuses.questXpBonusPercent,
+  }), [directiveBonuses, headquartersBonuses]);
   const [depot, setDepot] = useState(mockDepot);
   const [logs, setLogs] = useState<ActivityLogEntry[]>(mockLogs);
   const [database, setDatabase] = useState<Awaited<ReturnType<typeof initDatabase>>>();
@@ -214,6 +222,7 @@ export function App() {
   const recruitingGuildMemberRef = useRef(false);
   const claimingGuildLevelRewardRef = useRef(false);
   const claimingGuildRenownObjectiveRef = useRef(false);
+  const activatingGuildDirectiveRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
@@ -538,6 +547,15 @@ export function App() {
     window.setTimeout(() => { claimingGuildRenownObjectiveRef.current = false; }, 250);
   }
 
+  function handleActivateGuildDirective(directiveId: string) {
+    if (activatingGuildDirectiveRef.current) return;
+    activatingGuildDirectiveRef.current = true;
+    const result = activateGuildDirective(guild, characters, directiveId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Guild directive activated" : "Guild directive blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { activatingGuildDirectiveRef.current = false; }, 250);
+  }
+
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
     if (updatingLogisticsPinRef.current) return;
     updatingLogisticsPinRef.current = true;
@@ -768,7 +786,7 @@ export function App() {
         selectedCharacter,
         selectedHunt,
         durationMinutes,
-        headquartersBonuses.huntXpBonusPercent,
+        guildOperationBonuses.huntXpBonusPercent,
       );
       if (autoRepeat?.enabled) {
         const now = new Date().toISOString();
@@ -887,7 +905,7 @@ export function App() {
         activeDuration,
         guild.gold,
         guild.bestiary,
-        headquartersBonuses.huntXpBonusPercent,
+        guildOperationBonuses.huntXpBonusPercent,
       );
       const bestiaryUpdate = addMonsterKillsToBestiary(guild.bestiary, result.monsterKills ?? []);
       result.bestiaryLogs = bestiaryUpdate.logs;
@@ -900,6 +918,7 @@ export function App() {
         depot,
         previousConfig: previousAutoRepeat,
         durationMinutes: activeDuration,
+        guildXpBonusPercent: guildOperationBonuses.huntXpBonusPercent,
       });
 
       updateSelectedCharacter(autoRepeatResult.character);
@@ -1873,7 +1892,7 @@ export function App() {
         targetSkill,
         trainingDurationMinutes,
         cost,
-        headquartersBonuses.trainingProgressBonusPercent,
+        guildOperationBonuses.trainingProgressBonusPercent,
       );
       updateSelectedCharacter(updatedCharacter);
       if (trainingType === "exercise") {
@@ -1942,7 +1961,7 @@ export function App() {
 
   function handleStartQuest(quest: Quest) {
     try {
-      const result = startQuest(selectedCharacter, quest);
+      const result = startQuest(selectedCharacter, quest, guildOperationBonuses.questXpBonusPercent);
       updateSelectedCharacter(result.character);
       setActiveTab("action");
 
@@ -1975,7 +1994,7 @@ export function App() {
         selectedCharacter,
         quest,
         guild.gold,
-        headquartersBonuses.questXpBonusPercent,
+        guildOperationBonuses.questXpBonusPercent,
       );
       resolved = true;
       updateSelectedCharacter(result.character);
@@ -2255,6 +2274,7 @@ export function App() {
           onRecruitGuildCandidate={handleRecruitGuildCandidate}
           onClaimGuildLevelReward={handleClaimGuildLevelReward}
           onClaimGuildRenownObjective={handleClaimGuildRenownObjective}
+          onActivateGuildDirective={handleActivateGuildDirective}
           onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onClaimDailyReward={handleClaimDailyReward}

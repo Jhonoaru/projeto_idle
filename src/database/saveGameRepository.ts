@@ -15,6 +15,7 @@ import { normalizeGuildLogisticsState } from "../game-engine/logistics/normalize
 import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
 import { normalizeGuildProgressionRewardState } from "../game-engine/guild-progression/normalizeGuildProgressionRewardState";
 import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progression/normalizeGuildRenownObjectivesState";
+import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -243,9 +244,10 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       crafting_json,
       progression_rewards_json,
       renown_objectives_json,
+      directives_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`,
     [
       normalizedGuild.id,
       normalizedGuild.name,
@@ -268,6 +270,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       JSON.stringify(normalizeGuildCraftingState(normalizedGuild.crafting)),
       JSON.stringify(normalizeGuildProgressionRewardState(normalizedGuild.progressionRewards)),
       JSON.stringify(normalizeGuildRenownObjectivesState(normalizedGuild.renownObjectives)),
+      JSON.stringify(normalizeGuildDirectivesState(normalizedGuild.directives)),
       now,
       now,
     ],

@@ -5,6 +5,7 @@ import { canSellItem } from "../../game-engine/market/canSellItem";
 import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
 import { filterMarketItems } from "../../game-engine/market/filterMarketItems";
 import { getHeadquartersBonuses } from "../../game-engine/headquarters/getHeadquartersBonuses";
+import { getGuildDirectiveBonuses } from "../../game-engine/guild-directives/getGuildDirectiveStatus";
 import { normalizeGuildBazaarState } from "../../game-engine/bazaar/normalizeGuildBazaarState";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
@@ -69,6 +70,8 @@ export function MarketPanel({
   const [mode, setMode] = useState<MarketMode>("buy");
   const [nowMs, setNowMs] = useState(() => Date.now());
   const headquartersDiscount = getHeadquartersBonuses(guild.headquarters).npcPriceDiscountPercent;
+  const directiveDiscount = getGuildDirectiveBonuses(guild).npcPriceDiscountPercent;
+  const npcDiscount = headquartersDiscount + directiveDiscount;
   const bazaar = useMemo(
     () => normalizeGuildBazaarState(guild.bazaar, guild.id, new Date(nowMs)),
     [guild.bazaar, guild.id, nowMs],
@@ -96,7 +99,7 @@ export function MarketPanel({
         <div className="market-gold">
           <span>Guild Gold</span>
           <strong>{normalizeGold(guild.gold).toLocaleString("en-US")}g</strong>
-          {headquartersDiscount > 0 ? <small>Quartermaster -{headquartersDiscount}%</small> : null}
+          {npcDiscount > 0 ? <small>Guild discount -{npcDiscount}%</small> : null}
         </div>
       </header>
 
@@ -117,7 +120,7 @@ export function MarketPanel({
         <MarketBuyTab
           character={character}
           guild={guild}
-          npcDiscountPercent={headquartersDiscount}
+          npcDiscountPercent={npcDiscount}
           onBuyItem={onBuyItem}
         />
       ) : null}

@@ -24,7 +24,7 @@ export function startTraining(
   targetSkill: TrainingTarget,
   durationMinutes: number,
   cost: number,
-  headquartersBonusPercent = 0,
+  guildBonusPercent = 0,
 ) {
   if (blockedStatuses.includes(character.status)) {
     throw new Error(`${character.name} cannot train while ${character.status}.`);
@@ -36,8 +36,8 @@ export function startTraining(
     durationMinutes,
     trainingType,
   );
-  const safeBonusPercent = Number.isFinite(headquartersBonusPercent)
-    ? Math.min(25, Math.max(0, Math.floor(headquartersBonusPercent)))
+  const safeBonusPercent = Number.isFinite(guildBonusPercent)
+    ? Math.min(25, Math.max(0, Math.floor(guildBonusPercent)))
     : 0;
   const expectedGainPercent = Math.round(baseGainPercent * (1 + safeBonusPercent / 100) * 100) / 100;
   const startedAt = new Date();

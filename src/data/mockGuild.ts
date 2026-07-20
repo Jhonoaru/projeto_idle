@@ -77,4 +77,5 @@ export const mockGuild: Guild = {
   },
   progressionRewards: { claimedLevels: [], claimHistory: [] },
   renownObjectives: { claimedObjectiveIds: [], claimHistory: [] },
+  directives: { activeDirectiveId: null, activationHistory: [] },
 };

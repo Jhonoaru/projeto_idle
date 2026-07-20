@@ -17,6 +17,7 @@ import { normalizeGuildCraftingState } from "../game-engine/crafting/normalizeGu
 import { normalizeGuildLogisticsState } from "../game-engine/logistics/normalizeGuildLogisticsState";
 import { normalizeGuildProgressionRewardState } from "../game-engine/guild-progression/normalizeGuildProgressionRewardState";
 import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progression/normalizeGuildRenownObjectivesState";
+import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
 import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
@@ -58,6 +59,7 @@ export interface GuildRow {
   crafting_json?: string | null;
   progression_rewards_json?: string | null;
   renown_objectives_json?: string | null;
+  directives_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -171,6 +173,9 @@ export function mapGuild(row: GuildRow): Guild {
     ),
     renownObjectives: normalizeGuildRenownObjectivesState(
       row.renown_objectives_json ? parseJson(row.renown_objectives_json, undefined) : undefined,
+    ),
+    directives: normalizeGuildDirectivesState(
+      row.directives_json ? parseJson(row.directives_json, undefined) : undefined,
     ),
   });
 }

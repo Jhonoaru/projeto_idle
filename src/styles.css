@@ -11515,6 +11515,28 @@ html[data-client-density="compact"] .top-bar { gap: 6px; margin-bottom: 6px; pad
 .headquarters-bonus-ledger > div:last-child { border-right: 0; }
 .headquarters-bonus-ledger strong { color: #9bc6a3; font-size: 0.72rem; }
 
+.guild-directives-board { min-width: 0; padding: 11px; border: 1px solid #3b3b35; background: #101513; }
+.guild-directives-status { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; padding: 8px 10px; border: 1px solid #303832; background: #151a17; }
+.guild-directives-status span { color: #8d9790; font-size: 0.59rem; text-transform: uppercase; }
+.guild-directives-status strong { color: #a7c7a8; font-size: 0.62rem; text-align: right; }
+.guild-directives-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 8px; }
+.guild-directives-grid article { display: flex; flex-direction: column; min-width: 0; min-height: 166px; padding: 8px; border: 1px solid #343c36; border-left: 3px solid #59645b; background: #151a17; }
+.guild-directives-grid article.is-active { border-color: #9d874e; border-left-color: #d2b25d; background: #20231b; box-shadow: inset 0 0 0 1px #4b4229; }
+.guild-directives-grid article.is-locked { opacity: 0.62; }
+.guild-directive-heading { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; }
+.guild-directive-heading > i { display: grid; place-items: center; width: 36px; height: 42px; border: 1px solid #687269; color: #e2ce91; background: #20251f; font-family: Georgia, serif; font-size: 0.68rem; font-style: normal; font-weight: 900; }
+.guild-directive-heading > span { min-width: 0; }
+.guild-directive-heading small,
+.guild-directive-heading strong { display: block; overflow-wrap: anywhere; }
+.guild-directive-heading small { color: #7f8981; font-size: 0.51rem; text-transform: uppercase; }
+.guild-directive-heading strong { margin-top: 3px; color: #ddcd9a; font-family: Georgia, serif; font-size: 0.7rem; }
+.guild-directive-heading b { max-width: 94px; color: #9bc6a3; font-size: 0.56rem; text-align: right; }
+.guild-directives-grid p { margin: 8px 0; color: #929c95; font-size: 0.59rem; line-height: 1.4; }
+.guild-directives-grid button { min-height: 32px; margin-top: auto; border: 1px solid #9a8247; color: #ead28e; background: #24271e; font-family: Georgia, serif; font-size: 0.57rem; font-weight: 700; cursor: pointer; }
+.guild-directives-grid button:disabled { border-color: #39413b; color: #707a72; background: #171c18; cursor: not-allowed; }
+.guild-directives-grid .is-active button:disabled { border-color: #8e7945; color: #ddc77f; background: #27291f; }
+.guild-directives-note { display: block; margin-top: 8px; color: #7f8a82; font-size: 0.56rem; line-height: 1.4; }
+
 .headquarters-workspace { display: grid; grid-template-columns: minmax(640px, 1.45fr) minmax(330px, 0.62fr); gap: 9px; align-items: start; min-width: 0; }
 .headquarters-facilities,
 .headquarters-dossier { padding: 11px; }
@@ -11616,6 +11638,7 @@ html[data-client-density="compact"] .top-bar { gap: 6px; margin-bottom: 6px; pad
   .headquarters-summary { grid-column: 1 / -1; }
   .headquarters-workspace { grid-template-columns: 1fr; }
   .headquarters-plan-workspace { grid-template-columns: 1fr; }
+  .guild-directives-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 820px) {
@@ -11644,6 +11667,11 @@ html[data-client-density="compact"] .top-bar { gap: 6px; margin-bottom: 6px; pad
   .headquarters-plan-materials { grid-template-columns: 1fr; }
   .headquarters-plan-summary > div { border-right: 0; border-bottom: 1px solid #303832; }
   .headquarters-plan-summary > div:last-child { border-bottom: 0; }
+  .guild-directives-status { align-items: flex-start; flex-direction: column; }
+  .guild-directives-status strong { text-align: left; }
+  .guild-directives-grid { grid-template-columns: 1fr; }
+  .guild-directive-heading { grid-template-columns: 38px minmax(0, 1fr); }
+  .guild-directive-heading b { grid-column: 2; max-width: none; text-align: left; }
   .headquarters-plan-sources article { grid-template-columns: 1fr; }
   .headquarters-plan-sources article > div:last-child { grid-template-columns: minmax(0, 1fr) auto; align-items: center; justify-items: start; }
 }

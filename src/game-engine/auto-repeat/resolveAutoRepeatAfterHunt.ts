@@ -16,6 +16,7 @@ export function resolveAutoRepeatAfterHunt({
   depot,
   previousConfig,
   durationMinutes,
+  guildXpBonusPercent = 0,
 }: {
   character: Character;
   hunt: HuntArea;
@@ -23,6 +24,7 @@ export function resolveAutoRepeatAfterHunt({
   depot: GuildDepot;
   previousConfig?: HuntAutoRepeatConfig;
   durationMinutes: number;
+  guildXpBonusPercent?: number;
 }): { character: Character; logs: string[]; summary: AutoRepeatSummary } {
   if (!previousConfig?.enabled) {
     return {
@@ -51,7 +53,7 @@ export function resolveAutoRepeatAfterHunt({
     };
   }
 
-  const nextCharacter = createNextRepeatedHuntAction(character, hunt, completedConfig, durationMinutes);
+  const nextCharacter = createNextRepeatedHuntAction(character, hunt, completedConfig, durationMinutes, guildXpBonusPercent);
   const maxRepeats = nextCharacter.currentAction?.maxRepeatIndex ?? completedConfig.maxRepeats ?? 1;
   const repeatIndex = nextCharacter.currentAction?.repeatIndex ?? completedConfig.completedRepeats + 1;
   const message = `Auto-repeat: ${character.name} started ${hunt.name} again. Run ${repeatIndex}/${maxRepeats}.`;

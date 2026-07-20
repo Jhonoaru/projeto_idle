@@ -3,6 +3,7 @@ import type { Character, Guild } from "../../shared/types";
 import { calculateExpeditionSuccessChance, calculateExpeditionTeamPower, getGuildContractAvailability } from "./getGuildContractAvailability";
 import { normalizeGuildExpeditionState } from "./normalizeGuildExpeditionState";
 import { applyDispatchDiscount, getGuildStaffBonuses } from "../staff/getGuildStaffBonuses";
+import { getGuildDirectiveBonuses } from "../guild-directives/getGuildDirectiveStatus";
 
 export function startGuildExpedition(guild: Guild, characters: Character[], contractId: string, assignedCharacterIds: string[], now = new Date()) {
   const contract = getGuildContract(contractId);
@@ -21,6 +22,7 @@ export function startGuildExpedition(guild: Guild, characters: Character[], cont
   if (uniqueIds.length > contract.maximumTeamSize) return blocked(guild, `${contract.name} accepts at most ${contract.maximumTeamSize} support adventurers.`);
 
   const staffBonuses = getGuildStaffBonuses(guild.staff);
+  const directiveBonuses = getGuildDirectiveBonuses(guild);
   const dispatchCost = applyDispatchDiscount(contract.dispatchCost, staffBonuses.dispatchDiscountPercent);
   const currentGold = Number.isFinite(guild.gold) ? Math.max(0, Math.floor(guild.gold)) : 0;
   if (currentGold < dispatchCost) return blocked(guild, `${contract.name} requires ${dispatchCost.toLocaleString("en-US")}g to dispatch.`);
@@ -28,7 +30,7 @@ export function startGuildExpedition(guild: Guild, characters: Character[], cont
   if (!Number.isFinite(startedAt.getTime())) return blocked(guild, "Invalid expedition start time.");
   const endsAt = new Date(startedAt.getTime() + contract.durationMinutes * 60_000);
   const teamPower = calculateExpeditionTeamPower(characters, uniqueIds);
-  const successChance = Math.min(95, calculateExpeditionSuccessChance(teamPower, contract.recommendedPower) + staffBonuses.successChancePoints);
+  const successChance = Math.min(95, calculateExpeditionSuccessChance(teamPower, contract.recommendedPower) + staffBonuses.successChancePoints + directiveBonuses.expeditionSuccessChancePoints);
   const id = `expedition-${contract.id}-${startedAt.getTime()}`;
   const activeExpedition = {
     id,

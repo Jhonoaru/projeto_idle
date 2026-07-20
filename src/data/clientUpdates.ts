@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-74",
+    stage: "Stage 74",
+    title: "Offline Guild Directives",
+    date: "2026-07-20",
+    category: "systems",
+    summary: "Guild Levels now unlock six command policies that let the manager specialize future assignments without adding currency or online rotation.",
+    highlights: [
+      "Vanguard, Training, Contract, Merchant and Expedition policies provide small focused bonuses, while Grand Strategy offers a modest balanced alternative at Rank S.",
+      "One directive is active guild-wide and can be switched freely; hunts, quests, training sessions and expeditions already underway keep their original bonus snapshot.",
+      "The Headquarters board shows unlock levels, active policy and exact effects, with local SQLite history and duplicate activation protection.",
+    ],
+    systems: ["Guild Directives", "Guild Levels", "Headquarters", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-73-5",
     stage: "Stage 73.5",
     title: "Guild Renown Objective QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "A native fixture preserved all six claims, 23 awarded Renown and Rank C across two SQLite reloads without changing the original save.",
     ],
     systems: ["Guild Renown QA", "Bestiary", "Recruitment Board", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-73",

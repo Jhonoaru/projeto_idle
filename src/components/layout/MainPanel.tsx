@@ -149,6 +149,7 @@ interface MainPanelProps {
   onRecruitGuildCandidate: (candidateId: string) => void;
   onClaimGuildLevelReward: (level: number) => void;
   onClaimGuildRenownObjective: (objectiveId: string) => void;
+  onActivateGuildDirective: (directiveId: string) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onAcknowledgeGuildLogisticsAlerts: () => void;
   onManualSave: () => void;
@@ -273,6 +274,7 @@ export function MainPanel({
   onRecruitGuildCandidate,
   onClaimGuildLevelReward,
   onClaimGuildRenownObjective,
+  onActivateGuildDirective,
   onUpdateGuildLogisticsPin,
   onAcknowledgeGuildLogisticsAlerts,
   onManualSave,
@@ -673,6 +675,7 @@ export function MainPanel({
             characters={characters}
             depot={depot}
             guild={guild}
+            onActivateDirective={onActivateGuildDirective}
             onTrackHunt={onOpenTrackedHunt}
             onUpgradeFacility={onUpgradeGuildFacility}
           />
@@ -810,7 +813,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";
   if (tab === "daily") return "Offline local guild rewards with a seven-day cycle and simple streak.";
   if (tab === "ranking") return "Local roster standings and guild career milestones derived from the current save.";
-  if (tab === "headquarters") return "Guild-wide facilities, construction costs and small local progression bonuses.";
+  if (tab === "headquarters") return "Guild-wide facilities, command directives and small local progression bonuses.";
   if (tab === "operations") return "Live local overview of roster assignments, support expeditions and permanent campaign priorities.";
   if (tab === "contracts") return "Local support expeditions with fixed outcomes, small rewards and SQLite persistence.";
   if (tab === "staff") return "Permanent local specialists with one active duty post and capped expedition bonuses.";

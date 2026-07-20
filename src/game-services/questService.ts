@@ -6,7 +6,7 @@ import { applyDeathPenalty } from "../game-engine/death/applyDeathPenalty";
 import { formatClock } from "../shared/time";
 import type { Character, Quest } from "../shared/types";
 
-export function startQuest(character: Character, quest: Quest) {
+export function startQuest(character: Character, quest: Quest, guildXpBonusPercent = 0) {
   const validation = canStartQuest(character, quest);
 
   if (!validation.canStart) {
@@ -16,6 +16,7 @@ export function startQuest(character: Character, quest: Quest) {
   const risk = calculateQuestRisk(character, quest);
   const startedAt = new Date();
   const endsAt = new Date(startedAt.getTime() + quest.totalDurationMinutes * 60_000);
+  const appliedGuildXpBonus = normalizeGuildBonus(guildXpBonusPercent);
   const progress = {
     questId: quest.id,
     status: "in_progress" as const,
@@ -37,7 +38,8 @@ export function startQuest(character: Character, quest: Quest) {
         targetId: quest.id,
         targetName: quest.name,
         risk: quest.risk,
-        expectedXp: quest.rewards.experience,
+        expectedXp: Math.round((quest.rewards.experience ?? 0) * (1 + appliedGuildXpBonus / 100)),
+        guildXpBonusPercent: appliedGuildXpBonus,
         expectedGold: quest.rewards.gold,
       },
       questProgress: [
@@ -52,7 +54,7 @@ export function startQuest(character: Character, quest: Quest) {
   };
 }
 
-export function finishQuest(character: Character, quest: Quest, guildGold = 0, headquartersXpBonusPercent = 0) {
+export function finishQuest(character: Character, quest: Quest, guildGold = 0, guildXpBonusPercent = 0) {
   if (character.status !== "questing" || character.currentAction?.targetId !== quest.id) {
     throw new Error(`${character.name} nao esta fazendo ${quest.name}.`);
   }
@@ -110,15 +112,13 @@ export function finishQuest(character: Character, quest: Quest, guildGold = 0, h
     };
   }
 
-  const completed = completeQuest(character, quest, headquartersXpBonusPercent);
-  const safeHeadquartersBonus = Number.isFinite(headquartersXpBonusPercent)
-    ? Math.min(25, Math.max(0, Math.floor(headquartersXpBonusPercent)))
-    : 0;
+  const safeGuildBonus = normalizeGuildBonus(character.currentAction.guildXpBonusPercent ?? guildXpBonusPercent);
+  const completed = completeQuest(character, quest, safeGuildBonus);
   const logs = [
     `${character.name} completou ${quest.name}.`,
     ...(quest.unlocksAccess ? [`${character.name} liberou ${quest.unlocksAccess}.`] : []),
-    ...(safeHeadquartersBonus > 0
-      ? [`Headquarters bonus applied: +${safeHeadquartersBonus}% quest XP (${completed.experienceGained.toLocaleString("en-US")} XP total).`]
+    ...(safeGuildBonus > 0
+      ? [`Guild bonus applied: +${safeGuildBonus}% quest XP (${completed.experienceGained.toLocaleString("en-US")} XP total).`]
       : []),
     ...(completed.levelResult.levelsGained > 0
       ? [
@@ -139,6 +139,11 @@ export function finishQuest(character: Character, quest: Quest, guildGold = 0, h
       logs,
     },
   };
+}
+
+function normalizeGuildBonus(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.min(25, Math.max(0, Math.floor(parsed))) : 0;
 }
 
 function markQuest(
