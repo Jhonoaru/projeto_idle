@@ -123,7 +123,7 @@ export interface LogRow {
 }
 
 export function mapGuild(row: GuildRow): Guild {
-  return normalizeGuildProgression({
+  const guild = normalizeGuildProgression({
     id: row.id,
     name: row.name,
     gold: row.gold,
@@ -178,6 +178,10 @@ export function mapGuild(row: GuildRow): Guild {
       row.directives_json ? parseJson(row.directives_json, undefined) : undefined,
     ),
   });
+  return {
+    ...guild,
+    directives: normalizeGuildDirectivesState(guild.directives, guild.level),
+  };
 }
 
 export function mapCharacter(

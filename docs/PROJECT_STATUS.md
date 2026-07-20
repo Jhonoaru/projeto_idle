@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-19
+Atualizado em: 2026-07-20
 
 ## Stack usada
 
@@ -138,6 +138,7 @@ Atualizado em: 2026-07-19
 - Etapa 73 concluida: seis Renown Objectives locais conectam quests, Bestiary, expeditions, Headquarters, Projects e recrutamento ao avanco dos Guild Levels.
 - Etapa 73.5 concluida: QA ampliada corrigiu progresso falso em quests e crash potencial do Bestiary, com 11.537 checks, responsividade e duas cargas Tauri/SQLite.
 - Etapa 74 concluida: seis Guild Directives desbloqueadas por Level permitem especializar futuras hunts, training, quests, compras NPC e expeditions sem moeda nova ou online.
+- Etapa 74.5 concluida: QA ampliada saneou directives bloqueadas e snapshots de Training corrompidos, com 53.131 checks, responsividade e duas cargas Tauri/SQLite.
 
 Comandos principais:
 
@@ -4759,6 +4760,56 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 74.5 - QA aprofundada das Guild Directives e snapshots no Tauri/SQLite.
+
+## Etapa 74.5 - QA das Guild Directives
+
+Status: concluida.
+
+Correcoes reproduzidas:
+
+- Saves corrompidos podiam manter uma directive valida, mas ainda bloqueada pelo Guild Level atual; ela ficava sem efeito e poderia ativar sozinha quando a guilda alcancasse o level exigido.
+- O normalizador agora recebe o Guild Level derivado do Renown e remove active directive e historico impossiveis no load, status, tentativa de ativacao e save SQLite.
+- Um `expectedGainPercent` de Training invalido podia chegar ao progresso da skill como `NaN` ou executar um loop excessivo com valores enormes.
+- `normalizeCharacterAction` agora remove snapshots de Training nao numericos, negativos, infinitos ou acima do limite defensivo, limita a duracao persistida a 480 minutos e descarta modos invalidos.
+- `finishTraining` aplica a mesma defesa e recalcula um ganho seguro quando o snapshot nao pode ser usado.
+
+Matriz automatizada:
+
+- O harness temporario passou em 53.131/53.131 checks e foi removido apos a validacao.
+- Foram cobertos os seis unlock levels, ids e bonuses, imutabilidade, timestamps, bloqueios, duplicacao e limite de 12 entradas do historico.
+- As 720 ordens possiveis de ativacao das seis directives passaram mantendo exatamente uma politica ativa e o historico correto.
+- Dez mil estados variados confirmaram descarte de ids, datas, histories e active directives incompativeis com cada Guild Level.
+- Hunt, Quest, Training e auto-repeat preservaram seus snapshots; Expedition Standard adicionou exatamente quatro pontos a chance de dispatch.
+- O mapper derivou Rank/Level pelo Renown e removeu directive ativa e historico impossiveis de um row SQLite corrompido.
+- Snapshots de Training com `NaN`, infinito, numero negativo, string, nulo e valor excessivo recuperaram ganho finito sem contaminar a skill.
+
+QA visual:
+
+- No mock Guild Level 2, Vanguard Orders e Training Charter ficaram disponiveis; Contract, Merchant, Expedition e Grand Strategy permaneceram bloqueadas.
+- Duplo clique em Vanguard criou um unico estado ativo e uma unica entrada no Activity Log.
+- A troca para Training Charter manteve exatamente um card ativo, um botao alternativo habilitado e todos os cards bloqueados desabilitados.
+- Viewports de 1280x800, 960x700, 700x700 e 430x800 mantiveram pagina, board e seis cards sem overflow horizontal.
+- A inspecao visual mobile confirmou cards legiveis, estado ativo destacado e comandos dentro dos limites.
+- O console web mostrou apenas o fallback SQLite esperado ao executar o frontend fora do Tauri.
+
+QA Tauri/SQLite:
+
+- O save original, anterior a Etapa 74, recebeu `renown_objectives_json` e `directives_json` pelas migrations sem perda de dados.
+- Uma fixture Guild Level 2 recebeu Grand Strategy ativa, historico Grand/Vanguard e Training com duracao 999.999, modo invalido e ganho em string.
+- Apos duas cargas nativas, Grand Strategy foi removida, Vanguard historica foi preservada e o Training persistiu com 480 minutos sem modo ou ganho invalidos.
+- As cargas preservaram 674g, 12 Renown, Rank D, Level 2, 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs, com `PRAGMA integrity_check: ok`.
+- O executavel foi aberto de forma oculta para validar load/migration/auto-save; nao houve QA manual por cliques na janela Tauri.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes mantidas:
+
+- Directives continuam gratuitas, manuais e sem cooldown, presets ou troca automatica.
+- O balanceamento dos bonuses ainda precisa de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 75 - definir a proxima camada de gerenciamento offline a partir de Guild Levels, Directives e operacoes existentes.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

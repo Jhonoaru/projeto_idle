@@ -79,14 +79,10 @@ export function finishTraining(character: Character) {
     throw new Error(`${character.name} is not training.`);
   }
 
-  const progressGain =
-    action.expectedGainPercent ??
-    calculateTrainingGain(
-      character,
-      action.targetSkill,
-      action.durationMinutes ?? 30,
-      action.trainingType ?? "offline",
-    );
+  const durationMinutes = normalizeTrainingDuration(action.durationMinutes);
+  const trainingType = normalizeTrainingType(action.trainingType);
+  const fallbackGain = calculateTrainingGain(character, action.targetSkill, durationMinutes, trainingType);
+  const progressGain = normalizeTrainingSnapshot(action.expectedGainPercent, fallbackGain);
   const skillResult = addSkillProgress(character, action.targetSkill, progressGain);
   const updatedCharacter = {
     ...skillResult.character,
@@ -100,11 +96,27 @@ export function finishTraining(character: Character) {
       skillGain: skillResult.result,
       progressGain,
       cost: action.cost ?? 0,
-      durationMinutes: action.durationMinutes ?? 0,
-      trainingType: action.trainingType ?? "offline",
+      durationMinutes,
+      trainingType,
       targetSkill: action.targetSkill,
     },
   };
+}
+
+function normalizeTrainingSnapshot(value: unknown, fallback: number) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1_000
+    ? value
+    : fallback;
+}
+
+function normalizeTrainingDuration(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.min(480, Math.max(1, Math.floor(value)))
+    : 30;
+}
+
+function normalizeTrainingType(value: unknown): TrainingType {
+  return value === "exercise" || value === "dummy" ? value : "offline";
 }
 
 export function formatSkillName(skillName: TrainingTarget) {

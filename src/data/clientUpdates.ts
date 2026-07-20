@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-74-5",
+    stage: "Stage 74.5",
+    title: "Guild Directives QA",
+    date: "2026-07-20",
+    category: "qa",
+    summary: "Expanded engine, responsive and native SQLite validation hardened command policies and every saved assignment snapshot.",
+    highlights: [
+      "Fifty-three thousand one hundred thirty-one checks covered all 720 activation orders, ten thousand malformed states, every Guild Level and all directive integrations.",
+      "Locked policies can no longer survive a low-level save and activate later by themselves; invalid Training snapshots, modes and durations now recover safely on load and completion.",
+      "Desktop and mobile layouts remained overflow-free, while two native reloads repaired controlled SQLite fixtures without changing gold, progression or table counts.",
+    ],
+    systems: ["Guild Directives QA", "Assignment Snapshots", "Headquarters", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-74",
     stage: "Stage 74",
     title: "Offline Guild Directives",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The Headquarters board shows unlock levels, active policy and exact effects, with local SQLite history and duplicate activation protection.",
     ],
     systems: ["Guild Directives", "Guild Levels", "Headquarters", "SQLite Save"],
-    featured: true,
   },
   {
     id: "stage-73-5",

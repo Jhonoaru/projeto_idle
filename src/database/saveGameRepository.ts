@@ -270,7 +270,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       JSON.stringify(normalizeGuildCraftingState(normalizedGuild.crafting)),
       JSON.stringify(normalizeGuildProgressionRewardState(normalizedGuild.progressionRewards)),
       JSON.stringify(normalizeGuildRenownObjectivesState(normalizedGuild.renownObjectives)),
-      JSON.stringify(normalizeGuildDirectivesState(normalizedGuild.directives)),
+      JSON.stringify(normalizeGuildDirectivesState(normalizedGuild.directives, normalizedGuild.level)),
       now,
       now,
     ],

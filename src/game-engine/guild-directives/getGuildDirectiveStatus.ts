@@ -4,8 +4,8 @@ import { getGuildProgression } from "../guild-progression/getGuildProgression";
 import { normalizeGuildDirectivesState } from "./normalizeGuildDirectivesState";
 
 export function getGuildDirectiveStatus(guild: Guild, characters: Character[] = []) {
-  const state = normalizeGuildDirectivesState(guild.directives);
   const progression = getGuildProgression(guild);
+  const state = normalizeGuildDirectivesState(guild.directives, progression.level);
   const configuredActive = getGuildDirective(state.activeDirectiveId);
   const activeDirective = configuredActive && configuredActive.minimumGuildLevel <= progression.level
     ? configuredActive

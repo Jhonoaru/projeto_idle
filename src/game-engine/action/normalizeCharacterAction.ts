@@ -18,18 +18,40 @@ export function normalizeCharacterAction(
   skills: SkillSet,
 ): CharacterAction | undefined {
   if (!action || action.type !== "training") return action;
-  if (action.targetSkill && trainingTargets.includes(action.targetSkill)) return action;
-
-  const searchableText = `${action.label ?? ""} ${action.targetName ?? ""}`.toLowerCase();
-  const inferredFromText = trainingTargets.find((target) =>
-    trainingTargetAliases[target].some((alias) => searchableText.includes(alias)),
-  );
-  const targetSkill = inferredFromText ?? getHighestSkill(skills);
+  const targetSkill = action.targetSkill && trainingTargets.includes(action.targetSkill)
+    ? action.targetSkill
+    : inferTrainingTarget(action, skills);
 
   return {
     ...action,
     targetSkill,
+    durationMinutes: normalizeTrainingDuration(action.durationMinutes),
+    trainingType: normalizeTrainingType(action.trainingType),
+    expectedGainPercent: normalizeExpectedGain(action.expectedGainPercent),
   };
+}
+
+function inferTrainingTarget(action: CharacterAction, skills: SkillSet) {
+  const searchableText = `${action.label ?? ""} ${action.targetName ?? ""}`.toLowerCase();
+  return trainingTargets.find((target) =>
+    trainingTargetAliases[target].some((alias) => searchableText.includes(alias)),
+  ) ?? getHighestSkill(skills);
+}
+
+function normalizeTrainingDuration(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.min(480, Math.max(1, Math.floor(value)))
+    : undefined;
+}
+
+function normalizeTrainingType(value: unknown) {
+  return value === "offline" || value === "dummy" || value === "exercise" ? value : undefined;
+}
+
+function normalizeExpectedGain(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1_000
+    ? value
+    : undefined;
 }
 
 function getHighestSkill(skills: SkillSet): TrainingTarget {
