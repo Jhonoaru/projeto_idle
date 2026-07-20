@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-73-5",
+    stage: "Stage 73.5",
+    title: "Guild Renown Objective QA",
+    date: "2026-07-20",
+    category: "qa",
+    summary: "Engine, responsive and native SQLite validation hardened all six permanent Guild Renown objectives.",
+    highlights: [
+      "Eleven thousand five hundred thirty-seven checks covered every claim order, source metric, malformed ledger, duplicate claim and numeric boundary.",
+      "Malformed quest lists can no longer create false progress, while malformed Bestiary arrays now normalize safely instead of breaking the Recruitment Board.",
+      "A native fixture preserved all six claims, 23 awarded Renown and Rank C across two SQLite reloads without changing the original save.",
+    ],
+    systems: ["Guild Renown QA", "Bestiary", "Recruitment Board", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-73",
     stage: "Stage 73",
     title: "Offline Guild Renown Objectives",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The Recruitment Board shows live progress, source navigation, claim status and combined badges for ready objectives and Guild Level caches.",
     ],
     systems: ["Guild Renown Objectives", "Guild Progression", "Recruitment Board", "SQLite Save"],
-    featured: true,
   },
   {
     id: "stage-72-5",

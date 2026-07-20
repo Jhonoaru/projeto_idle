@@ -12,7 +12,8 @@ export function normalizeBestiaryState(
 ): GuildBestiaryState {
   const progressByMonster = new Map<string, MonsterBestiaryProgress>();
 
-  for (const entry of bestiary?.progress ?? []) {
+  const sourceProgress = Array.isArray(bestiary?.progress) ? bestiary.progress : [];
+  for (const entry of sourceProgress) {
     if (!entry?.monsterId) continue;
 
     const existing = progressByMonster.get(entry.monsterId);
@@ -29,12 +30,16 @@ export function normalizeBestiaryState(
     }
   }
 
-  const unlockedCharmIds = [...new Set((bestiary?.unlockedCharmIds ?? []).filter(Boolean))];
+  const unlockedCharmIds = [...new Set(
+    (Array.isArray(bestiary?.unlockedCharmIds) ? bestiary.unlockedCharmIds : [])
+      .filter((charmId): charmId is string => typeof charmId === "string" && charmId.length > 0),
+  )];
   const activeCharms = [];
   const usedCharmIds = new Set<string>();
   const usedMonsterIds = new Set<string>();
 
-  for (const assignment of bestiary?.activeCharms ?? []) {
+  const sourceActiveCharms = Array.isArray(bestiary?.activeCharms) ? bestiary.activeCharms : [];
+  for (const assignment of sourceActiveCharms) {
     if (!assignment?.charmId || !assignment?.monsterId) continue;
     if (usedCharmIds.has(assignment.charmId) || usedMonsterIds.has(assignment.monsterId)) continue;
 
@@ -48,10 +53,15 @@ export function normalizeBestiaryState(
 
   return {
     progress: [...progressByMonster.values()],
-    charmPoints: Math.max(0, Math.floor(bestiary?.charmPoints ?? 0)),
+    charmPoints: normalizeInteger(bestiary?.charmPoints),
     unlockedCharmIds,
     activeCharms,
   };
+}
+
+function normalizeInteger(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
 }
 
 export function getBestiaryProgress(

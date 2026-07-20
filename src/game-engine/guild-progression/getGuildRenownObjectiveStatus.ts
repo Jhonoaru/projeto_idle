@@ -41,9 +41,14 @@ function getMetrics(guild: Guild, characters: Character[]): Record<GuildRenownOb
   const headquarters = normalizeGuildHeadquarters(guild.headquarters);
   const projects = normalizeGuildProjectsState(guild.projects);
   const candidateCharacterIds = new Set(guildRecruitCandidates.map((candidate) => candidate.characterId));
+  const completedQuestIds = characters.flatMap((character) =>
+    Array.isArray(character.completedQuestIds)
+      ? character.completedQuestIds.filter((questId): questId is string => typeof questId === "string" && questId.length > 0)
+      : [],
+  );
 
   return {
-    completed_quests: new Set(characters.flatMap((character) => character.completedQuestIds)).size,
+    completed_quests: new Set(completedQuestIds).size,
     monster_kills: bestiary.progress.reduce((total, entry) => total + normalizeInteger(entry.kills), 0),
     successful_expeditions: expeditions.totalSucceeded,
     facility_upgrades: Object.values(headquarters.facilityLevels).reduce((total, level) => total + normalizeInteger(level), 0),

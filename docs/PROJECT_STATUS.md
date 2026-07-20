@@ -136,6 +136,7 @@ Atualizado em: 2026-07-19
 - Etapa 72 concluida: os seis Guild Levels agora liberam caches unicos com gold, supplies, materiais e um cosmetic de Collections, todos persistidos offline.
 - Etapa 72.5 concluida: QA ampliada corrigiu o merge com stacks protegidos e validou 13.098 checks, 720 ordens de claim, responsividade e fixtures Tauri/SQLite.
 - Etapa 73 concluida: seis Renown Objectives locais conectam quests, Bestiary, expeditions, Headquarters, Projects e recrutamento ao avanco dos Guild Levels.
+- Etapa 73.5 concluida: QA ampliada corrigiu progresso falso em quests e crash potencial do Bestiary, com 11.537 checks, responsividade e duas cargas Tauri/SQLite.
 
 Comandos principais:
 
@@ -4647,6 +4648,52 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 73.5 - QA aprofundada dos Guild Renown Objectives no Tauri/SQLite.
+
+## Etapa 73.5 - QA dos Guild Renown Objectives no Tauri/SQLite
+
+Status: concluida com duas correcoes de robustez para saves malformados.
+
+Correcoes realizadas:
+
+- `completedQuestIds` agora so alimenta objetivos quando for uma lista de ids string validos; JSON semanticamente incorreto nao cria mais progresso falso de quest.
+- O normalizador do Bestiary agora trata `progress`, `unlockedCharmIds` e `activeCharms` que nao sejam arrays como listas vazias.
+- `charmPoints` invalido, infinito ou `NaN` agora normaliza para zero, impedindo contaminacao numerica do estado carregado.
+- As correcoes preservam saves validos, regras, targets e as recompensas originais dos seis objetivos.
+
+Matriz de engine:
+
+- Harness temporario passou em 11.537/11.537 checks e foi removido depois da validacao.
+- Todas as 720 ordens possiveis de claim terminaram em 35 Renown a partir de 12, com seis ids e seis entradas de historico.
+- Foram cobertos ledger ausente/corrompido, ids desconhecidos, historico invalido, claim duplicado, timestamp invalido, `NaN`, `MAX_SAFE_INTEGER` e imutabilidade.
+- As seis fontes reais foram exercitadas: quests, Bestiary, expeditions, Headquarters, Projects e recrutamento.
+- Saves com `completedQuestIds: {}` e `bestiary.progress: {}` normalizaram sem claim indevido ou excecao.
+
+QA visual e de fluxo:
+
+- No mock, o Recruitment Board mostrou um Renown Objective pronto e dois Guild Level caches, totalizando badge 3.
+- Um duplo clique em First Chartered Deed concedeu somente +2 Renown, alterou o card para Claimed e gerou um unico Activity Log.
+- O total de Renown passou de 12 para 14 e o badge combinado caiu de 3 para 2 imediatamente.
+- Open Source em Field Research Ledger abriu diretamente Hunting Research / Bestiary.
+- Viewports de 1280, 960, 700 e 430 px mantiveram pagina, board e seis cards sem overflow horizontal ou conteudo interno cortado.
+- O console web apresentou somente o fallback esperado do SQLite fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 366 modulos e geraram executavel release, MSI e NSIS.
+- A fixture antiga recebeu `renown_objectives_json` vazio preservando 12 Renown / Level 2 / Rank D.
+- Uma fixture completa preservou seis claims, historico com +23 Renown e 35 Renown / Level 3 / Rank C apos duas cargas nativas.
+- As cargas mantiveram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs, com `PRAGMA integrity_check: ok`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes mantidas:
+
+- Os seis objetivos continuam fixos, permanentes e resgataveis uma unica vez.
+- O balanceamento dos targets e dos 23 Renown ainda depende de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 74 - consolidar a proxima camada de progressao offline da guilda a partir dos sistemas atuais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
