@@ -13,6 +13,7 @@ import { normalizeGuildBazaarState } from "../game-engine/bazaar/normalizeGuildB
 import { normalizeGuildCraftingState } from "../game-engine/crafting/normalizeGuildCraftingState";
 import { normalizeGuildLogisticsState } from "../game-engine/logistics/normalizeGuildLogisticsState";
 import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
+import { normalizeGuildProgressionRewardState } from "../game-engine/guild-progression/normalizeGuildProgressionRewardState";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -239,9 +240,10 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       logistics_json,
       bazaar_json,
       crafting_json,
+      progression_rewards_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
     [
       normalizedGuild.id,
       normalizedGuild.name,
@@ -262,6 +264,7 @@ async function saveGuild(db: Database, guild: Guild, now: string) {
       JSON.stringify(normalizeGuildLogisticsState(normalizedGuild.logistics)),
       JSON.stringify(normalizeGuildBazaarState(normalizedGuild.bazaar, normalizedGuild.id)),
       JSON.stringify(normalizeGuildCraftingState(normalizedGuild.crafting)),
+      JSON.stringify(normalizeGuildProgressionRewardState(normalizedGuild.progressionRewards)),
       now,
       now,
     ],

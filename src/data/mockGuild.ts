@@ -75,4 +75,5 @@ export const mockGuild: Guild = {
     totalRecoveredMaterials: 0,
     salvageHistory: [],
   },
+  progressionRewards: { claimedLevels: [], claimHistory: [] },
 };

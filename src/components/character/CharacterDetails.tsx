@@ -12,6 +12,7 @@ import { getActiveCharacterCosmetics } from "../../game-engine/collections/getAc
 import { calculateDestinyBonuses, formatDestinyBonusSummary } from "../../game-engine/destiny/calculateDestinyBonuses";
 import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestinyState";
 import { getMainSkill } from "../../game-engine/character/getMainSkill";
+import { getGuildLevelRewardStatus } from "../../game-engine/guild-progression/getGuildLevelRewardStatus";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { calculateWeaponProficiencyBonuses } from "../../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
@@ -72,6 +73,7 @@ export function CharacterDetails({
   const blessingProtection = Math.round(calculateBlessingsProtection(activeBlessings) * 100);
   const mainSkill = getMainSkill(character);
   const capacityPercent = Math.min(100, Math.round((character.capacityUsed / Math.max(1, character.capacityMax)) * 100));
+  const guildRewardStatus = getGuildLevelRewardStatus(guild);
 
   useEffect(() => {
     if (!character.currentAction?.expectedXp) return undefined;
@@ -160,7 +162,7 @@ export function CharacterDetails({
           <button onClick={() => onOpenTab("treasury")} type="button">Treasury</button>
           <button onClick={() => onOpenTab("projects")} type="button">Projects</button>
           <button onClick={() => onOpenTab("logistics")} type="button">Logistics</button>
-          <button onClick={() => onOpenTab("recruitment")} type="button">Recruitment</button>
+          <button onClick={() => onOpenTab("recruitment")} type="button">Recruitment{guildRewardStatus.claimableCount > 0 ? <em>{guildRewardStatus.claimableCount}</em> : null}</button>
         </div>
       </section>
 

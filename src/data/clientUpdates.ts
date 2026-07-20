@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-72",
+    stage: "Stage 72",
+    title: "Guild Level Reward Caches",
+    date: "2026-07-19",
+    category: "systems",
+    summary: "Each of the six offline Guild Levels now grants one permanent reward cache claimed from the Recruitment Board.",
+    highlights: [
+      "Reached milestones can be claimed in any order and are recorded permanently, with duplicate claims blocked by the game engine.",
+      "Gold, potions and crafting materials use the existing guild economy and Guild Depot, so no selected adventurer or new currency is required.",
+      "Rank S unlocks the Golden Guild Sigil in Collections, or awards a fixed gold fallback when that cosmetic is already owned.",
+    ],
+    systems: ["Guild Progression", "Guild Depot", "Collections", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-71-5",
     stage: "Stage 71.5",
     title: "Guild Progression QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Native fixtures persisted Rank E through S, recovered corrupted Renown safely and preserved the original SQLite save byte for byte.",
     ],
     systems: ["Guild Progression QA", "Recruitment", "Equipment Gates", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-71",

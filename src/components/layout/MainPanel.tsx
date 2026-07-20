@@ -147,6 +147,7 @@ interface MainPanelProps {
   onTransferGuildTreasuryGold: (type: GuildTreasuryTransactionType, amount: number) => void;
   onFundGuildProjectPhase: (projectId: string) => void;
   onRecruitGuildCandidate: (candidateId: string) => void;
+  onClaimGuildLevelReward: (level: number) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onAcknowledgeGuildLogisticsAlerts: () => void;
   onManualSave: () => void;
@@ -269,6 +270,7 @@ export function MainPanel({
   onTransferGuildTreasuryGold,
   onFundGuildProjectPhase,
   onRecruitGuildCandidate,
+  onClaimGuildLevelReward,
   onUpdateGuildLogisticsPin,
   onAcknowledgeGuildLogisticsAlerts,
   onManualSave,
@@ -707,7 +709,7 @@ export function MainPanel({
           />
         ) : null}
         {activeTab === "recruitment" ? (
-          <GuildRecruitmentBoard characters={characters} guild={guild} onRecruit={onRecruitGuildCandidate} />
+          <GuildRecruitmentBoard characters={characters} guild={guild} onClaimLevelReward={onClaimGuildLevelReward} onRecruit={onRecruitGuildCandidate} />
         ) : null}
         {activeTab === "ranking" ? (
           <LocalRankingHall
@@ -806,7 +808,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "treasury") return "Protected local reserves and a persistent ledger for the guild's existing gold.";
   if (tab === "projects") return "Permanent local works funded in phases with guild gold and Guild Depot materials.";
   if (tab === "logistics") return "Campaign-wide material demand, permanent objectives and real hunt recovery routes.";
-  if (tab === "recruitment") return "Renown-based guild levels, expanding roster capacity and permanent local contracts.";
+  if (tab === "recruitment") return "Renown-based guild levels, one-time reward caches, expanding roster capacity and permanent local contracts.";
   if (tab === "training") return "Choose a discipline, duration and local training program.";
   if (tab === "proficiency") return "Weapon-specific progression, equipped bonuses and permanent perk milestones.";
   if (tab === "blessings") return "Temple rites that reduce local death penalties and are consumed when protection is used.";

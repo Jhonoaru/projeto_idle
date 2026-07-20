@@ -259,6 +259,18 @@ export interface Guild {
   logistics?: GuildLogisticsState;
   bazaar?: GuildBazaarState;
   crafting?: GuildCraftingState;
+  progressionRewards?: GuildProgressionRewardState;
+}
+
+export interface GuildLevelRewardClaim {
+  level: number;
+  label: string;
+  claimedAt: string;
+}
+
+export interface GuildProgressionRewardState {
+  claimedLevels: number[];
+  claimHistory: GuildLevelRewardClaim[];
 }
 
 export interface GuildLogisticsState {

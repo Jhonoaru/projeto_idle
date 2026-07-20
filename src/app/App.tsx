@@ -63,6 +63,7 @@ import { assignGuildSpecialist, hireGuildSpecialist } from "../game-engine/staff
 import { depositGuildGold, withdrawGuildGold } from "../game-engine/treasury/transferGuildTreasuryGold";
 import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectPhase";
 import { recruitGuildCandidate } from "../game-engine/recruitment/recruitGuildCandidate";
+import { claimGuildLevelReward } from "../game-engine/guild-progression/claimGuildLevelReward";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -210,6 +211,7 @@ export function App() {
   const transferringTreasuryGoldRef = useRef(false);
   const fundingGuildProjectRef = useRef(false);
   const recruitingGuildMemberRef = useRef(false);
+  const claimingGuildLevelRewardRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
@@ -511,6 +513,18 @@ export function App() {
     }
     prependLog(result.success ? "Adventurer recruited" : "Recruitment blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { recruitingGuildMemberRef.current = false; }, 250);
+  }
+
+  function handleClaimGuildLevelReward(level: number) {
+    if (claimingGuildLevelRewardRef.current) return;
+    claimingGuildLevelRewardRef.current = true;
+    const result = claimGuildLevelReward(guild, depot, level);
+    if (result.success) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
+    prependLog(result.success ? "Guild milestone claimed" : "Guild milestone blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { claimingGuildLevelRewardRef.current = false; }, 250);
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
@@ -2228,6 +2242,7 @@ export function App() {
           onTransferGuildTreasuryGold={handleTransferGuildTreasuryGold}
           onFundGuildProjectPhase={handleFundGuildProjectPhase}
           onRecruitGuildCandidate={handleRecruitGuildCandidate}
+          onClaimGuildLevelReward={handleClaimGuildLevelReward}
           onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onClaimDailyReward={handleClaimDailyReward}

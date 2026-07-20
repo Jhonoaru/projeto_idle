@@ -28,7 +28,7 @@ export const collectionItems: CollectionItem[] = [
   avatar("avatar-monk-emblem", "Monk Emblem", "A calm hand mark.", "starter", "M", 60, ["Monk"]),
   avatar("avatar-beast-hunter-sigil", "Beast Hunter Sigil", "A sigil planned for Bestiary achievements.", "bestiary", "BH", 120, undefined, "Complete a creature family in the Bestiary."),
   avatar("avatar-dungeon-victor-sigil", "Dungeon Victor Sigil", "A sigil planned for boss victories.", "boss", "DV", 130, undefined, "Defeat a dungeon boss."),
-  avatar("avatar-golden-guild-sigil", "Golden Guild Sigil", "A bright guild mark planned for future achievements.", "achievement", "GG", 140, undefined, "Future guild achievement unlock."),
+  avatar("avatar-golden-guild-sigil", "Golden Guild Sigil", "A bright guild mark awarded when the company reaches Rank S.", "achievement", "GG", 140, undefined, "Claim the Guild Level 6 reward cache."),
   avatar("avatar-quartermaster-seal", "Quartermaster Seal", "A supply station seal earned through permanent guild work.", "achievement", "QS", 145, undefined, "Complete the Field Supply Station guild project."),
   avatar("avatar-founders-mark", "Founders' Mark", "A restrained memorial mark for a guild with lasting local works.", "achievement", "FM", 146, undefined, "Complete the Founders' Monument guild project."),
   avatar("avatar-ancient-rune-sigil", "Ancient Rune Sigil", "A rune mark inscribed from recovered crypt dust.", "event_placeholder", "AR", 150, undefined, "Complete the Crypt Permission quest and exchange two Enchanted Dust."),

@@ -10,6 +10,7 @@ import { VOCATION_CONFIGS } from "../../data/vocations";
 import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
 import { getGuildRecruitmentAvailability } from "../../game-engine/recruitment/recruitGuildCandidate";
 import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
+import { getGuildLevelRewardStatus } from "../../game-engine/guild-progression/getGuildLevelRewardStatus";
 import { SKILL_LABELS } from "../../shared/constants";
 import type { Character, Guild, SkillName } from "../../shared/types";
 
@@ -17,13 +18,15 @@ interface GuildRecruitmentBoardProps {
   characters: Character[];
   guild: Guild;
   onRecruit: (candidateId: string) => void;
+  onClaimLevelReward: (level: number) => void;
 }
 
-export function GuildRecruitmentBoard({ characters, guild, onRecruit }: GuildRecruitmentBoardProps) {
+export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLevelReward }: GuildRecruitmentBoardProps) {
   const [selectedId, setSelectedId] = useState(guildRecruitCandidates[0].id);
   const selected = getGuildRecruitCandidate(selectedId) ?? guildRecruitCandidates[0];
   const career = useMemo(() => getGuildCareer(guild, characters), [characters, guild]);
   const progression = useMemo(() => getGuildProgression(guild), [guild]);
+  const rewardStatus = useMemo(() => getGuildLevelRewardStatus(guild), [guild]);
   const recruitedCount = guildRecruitCandidates.filter((candidate) => isRecruited(candidate, characters)).length;
   const availableCount = guildRecruitCandidates.filter((candidate) => getGuildRecruitmentAvailability(guild, characters, candidate.id).available).length;
   const availability = getGuildRecruitmentAvailability(guild, characters, selected.id);
@@ -46,14 +49,14 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit }: GuildRec
           <Summary label="Roster" value={`${characters.length}/${progression.rosterCapacity}`} />
           <Summary label="Guild Level" value={`${progression.level}/${progression.maxLevel}`} />
           <Summary label="Renown" value={progression.renown.toLocaleString("en-US")} />
-          <Summary label="Available" value={availableCount.toString()} />
+          <Summary label="Rewards" value={`${rewardStatus.claimedCount}/${rewardStatus.rewards.length}`} />
         </div>
       </section>
 
       <section className="recruitment-standing">
         <header>
           <div><span>Guild standing</span><h3>Rank {progression.rank} / {progression.title}</h3></div>
-          <strong>{progression.next ? `${progression.renownToNext} renown to Level ${progression.next.level}` : "Maximum standing reached"} / {career.points.toLocaleString("en-US")} CP</strong>
+          <strong>{progression.next ? `${progression.renownToNext} renown to Level ${progression.next.level}` : "Maximum standing reached"} / {career.points.toLocaleString("en-US")} CP / {rewardStatus.claimableCount} reward{rewardStatus.claimableCount === 1 ? "" : "s"} ready</strong>
         </header>
         <div className="recruitment-renown-track" aria-label={`${progression.progressPercent}% guild level progress`}>
           <i style={{ width: `${progression.progressPercent}%` }} />
@@ -72,9 +75,27 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit }: GuildRec
         </div>
       </section>
 
+      <section className="guild-level-reward-board">
+        <header>
+          <div><span>Milestone rewards</span><h3>Guild Charter Caches</h3></div>
+          <strong>{rewardStatus.claimedCount}/{rewardStatus.rewards.length} claimed</strong>
+        </header>
+        <div className="guild-level-reward-grid">
+          {rewardStatus.rewards.map(({ reward, reached, claimed, claimable }) => (
+            <article className={`${claimed ? "is-claimed" : ""} ${claimable ? "is-claimable" : ""}`.trim()} key={reward.level}>
+              <i>{reward.level}</i>
+              <div><small>Guild Level {reward.level}</small><strong>{reward.label}</strong><p>{reward.preview}</p></div>
+              <button disabled={!claimable} onClick={() => onClaimLevelReward(reward.level)} type="button">
+                {claimed ? "Claimed" : reached ? "Claim Reward" : "Locked"}
+              </button>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <div className="recruitment-workspace">
         <section className="recruitment-board">
-          <header><span>Applicant Register</span><strong>{recruitedCount}/{guildRecruitCandidates.length} recruited</strong></header>
+          <header><span>Applicant Register</span><strong>{availableCount} available / {recruitedCount}/{guildRecruitCandidates.length} recruited</strong></header>
           <div className="recruitment-card-list">
             {guildRecruitCandidates.map((candidate) => (
               <CandidateCard

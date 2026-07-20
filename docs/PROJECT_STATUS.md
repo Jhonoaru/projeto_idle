@@ -133,6 +133,7 @@ Atualizado em: 2026-07-19
 - Etapa 70.5 concluida: QA ampliada corrigiu timers ISO, retorno cancelado, snapshot anti-reroll e foco do participante, com 184 checks e fixture Tauri/SQLite.
 - Etapa 71 concluida: Guild Renown agora determina seis niveis e ranks, expande o roster de 6 para 11 e desbloqueia seis contratos locais permanentes.
 - Etapa 71.5 concluida: QA ampliada corrigiu o loadout de Elis Dawn e validou 306 checks, seis ranks, contratos, responsividade e fixtures Tauri/SQLite.
+- Etapa 72 concluida: os seis Guild Levels agora liberam caches unicos com gold, supplies, materiais e um cosmetic de Collections, todos persistidos offline.
 
 Comandos principais:
 
@@ -4521,6 +4522,41 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 72 - recompensas e desbloqueios offline por Guild Level.
+
+## Etapa 72 - Recompensas offline por Guild Level
+
+Implementado:
+
+- Cada um dos seis Guild Levels libera um cache unico e permanente no Recruitment Board, sem moeda nova, premium, conexao ou monetizacao.
+- As recompensas sao: Level 1 Minor Health Potion x3, Level 2 200g, Level 3 Iron Ore x4, Level 4 Health Potion x5, Level 5 Enchanted Dust x1 e Level 6 Golden Guild Sigil.
+- Gold entra em `guild.gold`; supplies e materiais usam itemIds reais e sao empilhados no Guild Depot, independentemente do personagem selecionado.
+- Golden Guild Sigil usa o desbloqueio existente de Collections e ativa seu badge; se ja estiver desbloqueado, o cache concede 1.000g como fallback fixo.
+- Caches alcancados podem ser resgatados em qualquer ordem. A engine revalida Guild Level e ledger antes de aplicar a recompensa, impedindo clique duplo e resgate repetido.
+- O Recruitment Board mostra os seis caches, status Locked/Ready/Claimed, total resgatado e badge de recompensas prontas no menu.
+- O Activity Log recebe um unico registro por resgate e o estado persiste em `progression_rewards_json` no SQLite.
+- Saves antigos, JSON ausente ou corrompido recebem ledger vazio; levels invalidos, historico duplicado e timestamps ruins sao normalizados defensivamente.
+
+Validacoes realizadas:
+
+- Harness temporario passou em 88/88 checks e foi removido depois de cobrir dados, gates, ordem livre, imutabilidade, stacks, Collections, fallback, duplicacao e save mapper.
+- No mock Level 2, o Recruitment Board mostrou dois caches prontos e quatro bloqueados; duplo clique resgatou cada cache uma vez, levou o saldo de 420g para 620g e removeu o badge quando nao restou recompensa pronta.
+- Os dois resgates produziram exatamente dois Activity Logs. Os cards, textos e pagina ficaram sem overflow horizontal em 1280, 960, 700 e 430 px.
+- O console web apresentou somente o fallback esperado do SQLite fora do Tauri.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 362 modulos; o Tauri gerou executavel release, MSI e NSIS.
+- A migration nativa adicionou `progression_rewards_json` ao save antigo e inicializou o ledger vazio sem alterar Guild Level 2 / Rank D.
+- Uma fixture com os claims 1 e 2 permaneceu identica depois de duas cargas nativas, sem duplicacao ou perda.
+- As cargas preservaram 1 guilda, 5 personagens, 35 skills, 26 stacks, 10 logs e `PRAGMA integrity_check: ok`.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes atuais:
+
+- Existem seis caches fixos, sem tiers de cache, escolhas alternativas, bonus passivo ou repeticao depois do Rank S.
+- Os valores ainda precisam de balanceamento prolongado dentro de uma campanha completa.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 72.5 - QA aprofundada das recompensas por Guild Level no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
