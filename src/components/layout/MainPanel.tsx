@@ -48,6 +48,8 @@ import type {
   Character,
   EquipmentSlot,
   Guild,
+  GuildDeploymentOrderKind,
+  GuildDeploymentOrderSlotId,
   GuildSpecialistId,
   GuildSquadMember,
   GuildSquadSlotId,
@@ -154,6 +156,8 @@ interface MainPanelProps {
   onActivateGuildDirective: (directiveId: string) => void;
   onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onLoadGuildSquad: (slotId: GuildSquadSlotId, bossId?: string) => void;
+  onSaveDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
+  onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onAcknowledgeGuildLogisticsAlerts: () => void;
   onManualSave: () => void;
@@ -281,6 +285,8 @@ export function MainPanel({
   onActivateGuildDirective,
   onSaveGuildSquad,
   onLoadGuildSquad,
+  onSaveDeploymentOrder,
+  onClearDeploymentOrder,
   onUpdateGuildLogisticsPin,
   onAcknowledgeGuildLogisticsAlerts,
   onManualSave,
@@ -431,6 +437,8 @@ export function MainPanel({
             onSaveGuildSquad={onSaveGuildSquad}
             onUseGuildSquadForBoss={onLoadGuildSquad}
             onPrepareGuildSquadForContract={prepareGuildSquadForContract}
+            onSaveDeploymentOrder={onSaveDeploymentOrder}
+            onClearDeploymentOrder={onClearDeploymentOrder}
           />
         ) : null}
 

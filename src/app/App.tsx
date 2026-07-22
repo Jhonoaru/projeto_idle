@@ -69,6 +69,7 @@ import { activateGuildDirective } from "../game-engine/guild-directives/activate
 import { getGuildDirectiveBonuses } from "../game-engine/guild-directives/getGuildDirectiveStatus";
 import { saveGuildSquad } from "../game-engine/guild-squads/saveGuildSquad";
 import { createBossPartyFromGuildSquad } from "../game-engine/guild-squads/createBossPartyFromGuildSquad";
+import { clearGuildDeploymentOrder, saveGuildDeploymentOrder } from "../game-engine/deployment-orders/updateGuildDeploymentOrder";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -130,6 +131,8 @@ import type {
   HuntSimulationResult,
   EquipmentSlot,
   GuildFacilityId,
+  GuildDeploymentOrderKind,
+  GuildDeploymentOrderSlotId,
   GuildSpecialistId,
   GuildSquadMember,
   GuildSquadSlotId,
@@ -229,6 +232,7 @@ export function App() {
   const activatingGuildDirectiveRef = useRef(false);
   const savingGuildSquadRef = useRef(false);
   const loadingGuildSquadRef = useRef(false);
+  const updatingDeploymentOrderRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
@@ -583,6 +587,24 @@ export function App() {
     }
     prependLog(result.success ? "Guild Squad loaded" : "Guild Squad blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { loadingGuildSquadRef.current = false; }, 200);
+  }
+
+  function handleSaveDeploymentOrder(orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) {
+    if (updatingDeploymentOrderRef.current) return;
+    updatingDeploymentOrderRef.current = true;
+    const result = saveGuildDeploymentOrder(guild, characters, orderSlotId, kind, targetId, squadSlotId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Deployment order assigned" : "Deployment order blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { updatingDeploymentOrderRef.current = false; }, 200);
+  }
+
+  function handleClearDeploymentOrder(orderSlotId: GuildDeploymentOrderSlotId) {
+    if (updatingDeploymentOrderRef.current) return;
+    updatingDeploymentOrderRef.current = true;
+    const result = clearGuildDeploymentOrder(guild, orderSlotId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Deployment order cleared" : "Deployment order unchanged", result.message, result.success ? "neutral" : "warning");
+    window.setTimeout(() => { updatingDeploymentOrderRef.current = false; }, 200);
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
@@ -2306,6 +2328,8 @@ export function App() {
           onActivateGuildDirective={handleActivateGuildDirective}
           onSaveGuildSquad={handleSaveGuildSquad}
           onLoadGuildSquad={handleLoadGuildSquad}
+          onSaveDeploymentOrder={handleSaveDeploymentOrder}
+          onClearDeploymentOrder={handleClearDeploymentOrder}
           onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onClaimDailyReward={handleClaimDailyReward}

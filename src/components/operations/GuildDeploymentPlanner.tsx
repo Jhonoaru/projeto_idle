@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import type { GuildDeploymentKind, GuildDeploymentPlannerState } from "../../game-engine/guild-squads/buildGuildDeploymentPlanner";
-import type { GuildSquadSlotId } from "../../shared/types";
+import type { GuildDeploymentOrderKind, GuildDeploymentOrderSlotId, GuildSquadSlotId } from "../../shared/types";
 
 interface GuildDeploymentPlannerProps {
   planner: GuildDeploymentPlannerState;
   onPrepareBoss: (slotId: GuildSquadSlotId, bossId: string) => void;
   onPrepareContract: (slotId: GuildSquadSlotId, contractId: string) => void;
+  selectedOrderSlotId: GuildDeploymentOrderSlotId;
+  onAssignOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
 }
 
-export function GuildDeploymentPlanner({ planner, onPrepareBoss, onPrepareContract }: GuildDeploymentPlannerProps) {
+export function GuildDeploymentPlanner({ planner, onPrepareBoss, onPrepareContract, selectedOrderSlotId, onAssignOrder }: GuildDeploymentPlannerProps) {
   const [kind, setKind] = useState<GuildDeploymentKind>("boss");
   const targets = kind === "boss" ? planner.bossTargets : planner.contractTargets;
   const [selectedTargetId, setSelectedTargetId] = useState(targets[0]?.id ?? "");
@@ -61,15 +63,16 @@ export function GuildDeploymentPlanner({ planner, onPrepareBoss, onPrepareContra
                 <small>T {candidate.roleCounts.tank} / H {candidate.roleCounts.healer} / D {candidate.roleCounts.damage} / S {candidate.roleCounts.support}</small>
               </div>
               <b>{candidate.ready ? "Ready" : index === 0 && candidate.configured ? "Best available" : "Blocked"}</b>
-              <button
-                disabled={!candidate.unlocked || !candidate.configured}
-                onClick={() => selectedTarget.kind === "boss"
+              <div className="guild-deployment-actions">
+                <button disabled={!candidate.unlocked || !candidate.configured} onClick={() => onAssignOrder(selectedOrderSlotId, selectedTarget.kind, selectedTarget.id, candidate.slotId)} type="button">
+                  Assign {selectedOrderSlotId === "order-one" ? "I" : selectedOrderSlotId === "order-two" ? "II" : "III"}
+                </button>
+                <button disabled={!candidate.unlocked || !candidate.configured} onClick={() => selectedTarget.kind === "boss"
                   ? onPrepareBoss(candidate.slotId, selectedTarget.id)
-                  : onPrepareContract(candidate.slotId, selectedTarget.id)}
-                type="button"
-              >
-                {selectedTarget.kind === "boss" ? "Prepare Raid" : "Prepare Contract"}
-              </button>
+                  : onPrepareContract(candidate.slotId, selectedTarget.id)} type="button">
+                  Prepare
+                </button>
+              </div>
             </article>
           );
         })}

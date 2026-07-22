@@ -263,6 +263,7 @@ export interface Guild {
   renownObjectives?: GuildRenownObjectivesState;
   directives?: GuildDirectivesState;
   squads?: GuildSquadsState;
+  deploymentOrders?: GuildDeploymentOrdersState;
 }
 
 export interface GuildLevelRewardClaim {
@@ -321,6 +322,21 @@ export interface GuildSquadPreset {
 
 export interface GuildSquadsState {
   squads: GuildSquadPreset[];
+}
+
+export type GuildDeploymentOrderSlotId = "order-one" | "order-two" | "order-three";
+export type GuildDeploymentOrderKind = "boss" | "contract";
+
+export interface GuildDeploymentOrder {
+  id: GuildDeploymentOrderSlotId;
+  kind: GuildDeploymentOrderKind;
+  targetId: string;
+  squadSlotId: GuildSquadSlotId;
+  updatedAt: string;
+}
+
+export interface GuildDeploymentOrdersState {
+  orders: GuildDeploymentOrder[];
 }
 
 export interface GuildLogisticsState {

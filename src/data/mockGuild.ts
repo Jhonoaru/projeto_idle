@@ -79,4 +79,5 @@ export const mockGuild: Guild = {
   renownObjectives: { claimedObjectiveIds: [], claimHistory: [] },
   directives: { activeDirectiveId: null, activationHistory: [] },
   squads: { squads: [] },
+  deploymentOrders: { orders: [] },
 };

@@ -17,6 +17,7 @@ import { normalizeGuildProgressionRewardState } from "../game-engine/guild-progr
 import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progression/normalizeGuildRenownObjectivesState";
 import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
 import { normalizeGuildSquadsState } from "../game-engine/guild-squads/normalizeGuildSquadsState";
+import { normalizeGuildDeploymentOrdersState } from "../game-engine/deployment-orders/normalizeGuildDeploymentOrdersState";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -252,9 +253,10 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       renown_objectives_json,
       directives_json,
       squads_json,
+      deployment_orders_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
     [
       normalizedGuild.id,
       normalizedGuild.name,
@@ -279,6 +281,7 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       JSON.stringify(normalizeGuildRenownObjectivesState(normalizedGuild.renownObjectives)),
       JSON.stringify(normalizeGuildDirectivesState(normalizedGuild.directives, normalizedGuild.level)),
       JSON.stringify(normalizeGuildSquadsState(normalizedGuild.squads, normalizedGuild.level, characters.map((character) => character.id))),
+      JSON.stringify(normalizeGuildDeploymentOrdersState(normalizedGuild.deploymentOrders)),
       now,
       now,
     ],

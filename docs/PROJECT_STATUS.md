@@ -145,6 +145,7 @@ Atualizado em: 2026-07-22
 - Etapa 76.5 concluida: QA ampliada alinhou o significado de prontidao, atualizacao de cooldowns e paridade com todas as rotas em 281.247 checks, cinco viewports e SQLite nativo.
 - Etapa 77 concluida: Guild Deployment Planner compara todos os squads contra o Boss ou Contract escolhido e prepara o alvo exato sem iniciar atividades ou criar estado persistente.
 - Etapa 77.5 concluida: QA ampliada alinhou membros exibidos com a party/equipe realmente preparada e validou 785.082 checks, cinco viewports e tres cargas Tauri/SQLite.
+- Etapa 78 concluida: Deployment Orders guarda ate tres combinacoes de Boss/Contract + Guild Squad, recalcula readiness ao vivo e prepara a operacao sem launch ou dispatch automatico.
 
 Comandos principais:
 
@@ -5116,6 +5117,48 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 78 - definir a proxima camada de gerenciamento offline apos o Deployment Planner validado.
+
+## Etapa 78 - Guild Deployment Orders
+
+Status: concluida.
+
+Conceito e regras:
+
+- Campaign Operations ganhou tres `Deployment Orders` persistentes e guild-wide para registrar uma combinacao de alvo e formacao.
+- Cada slot aceita Boss ou Contract e pode ser substituido ou limpo sem alterar os outros slots.
+- A ordem guarda somente intencao: nao reserva aventureiros, nao gasta gold, nao inicia raid, nao faz dispatch e nao cria cooldown.
+- Readiness, motivo, party/equipe efetivamente mobilizada, power e chance continuam derivados do save atual e das regras reais do planner.
+- Alvos removidos, tipos desconhecidos, squads invalidos, slots duplicados e timestamps quebrados sao descartados ou normalizados com seguranca.
+
+Interface e integracoes:
+
+- Novo quadro `Deployment Orders` entre o Command Center e o Deployment Planner, com tres slots compactos, selecao ativa, status e comandos Prepare/Clear.
+- Cada candidato do planner possui `Assign I/II/III` conforme o slot selecionado e mantem `Prepare` como acao manual separada.
+- Preparar uma ordem de Boss abre o Raid Board com o Boss e party exatos; Contract abre o posting e equipe exatos sem dispatch.
+- Activity Log registra atribuicao, bloqueio e limpeza sem spam de readiness derivado.
+- SQLite ganhou a coluna aditiva `deployment_orders_json`; saves antigos recebem `{ "orders": [] }`.
+
+Validacoes:
+
+- Harness temporario passou em 75.008 checks e foi removido: normalizacao malformada, deduplicacao, timestamp, criacao, substituicao, bloqueio de alvo, limpeza idempotente e 25.000 recomputacoes.
+- No browser local, First Company com Lyra registrou Sewer Broodmother em Order I e Supply Route Survey em Order II.
+- Prepare da ordem de Boss abriu Sewer Broodmother com Lyra, 98% de sucesso e nenhum launch; limpar Order I preservou Order II.
+- Viewports de 1280, 760 e 430 px ficaram sem overflow no documento, quadro ou cards.
+- A abertura nativa adicionou `deployment_orders_json` ao banco legado com JSON vazio valido.
+- O banco original, WAL e SHM foram restaurados; o SHA-256 principal retornou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- `npm.cmd run build` passou com 387 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+
+Limitacoes atuais:
+
+- Existem tres slots fixos; nao ha renomeacao, ordenacao, favoritos ilimitados ou fila automatica.
+- Uma ordem pode ficar bloqueada quando personagens, acesso, cooldown ou gold mudam; ela permanece salva para revisao posterior.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser local e migration/build na camada desktop.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 78.5 - QA aprofundada dos Guild Deployment Orders no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

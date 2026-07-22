@@ -12934,6 +12934,32 @@ html[data-client-motion="reduced"] *::after {
 .guild-squad-route-grid article button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
 .guild-squad-warnings { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 8px; border-top: 1px solid #303832; }
 .guild-squad-warnings span { padding-left: 7px; border-left: 2px solid #8d684f; color: #a99486; font-size: 0.49rem; line-height: 1.35; }
+.guild-deployment-orders { min-width: 0; margin-top: 7px; border: 1px solid #3a423b; background: #101513; }
+.guild-deployment-orders > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; min-height: 43px; padding: 7px 8px; border-bottom: 1px solid #303832; }
+.guild-deployment-orders > header span { display: block; color: #7f8a82; font-size: 0.49rem; text-transform: uppercase; }
+.guild-deployment-orders > header h4 { margin: 3px 0 0; color: #ddca8e; font-family: Georgia, serif; font-size: 0.72rem; }
+.guild-deployment-orders > header > strong { color: #9ab795; font-size: 0.54rem; text-transform: uppercase; }
+.guild-deployment-order-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #303832; }
+.guild-deployment-order-grid article { display: grid; grid-template-rows: minmax(80px, 1fr) auto; min-width: 0; border-top: 3px solid #8a5f54; background: #151a17; }
+.guild-deployment-order-grid article.is-ready { border-top-color: #78a76d; background: #172019; }
+.guild-deployment-order-grid article.is-empty { border-top-color: #555e57; }
+.guild-deployment-order-select { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 3px 7px; align-content: center; min-width: 0; padding: 8px; border: 0; color: #89938c; background: transparent; text-align: left; cursor: pointer; }
+.guild-deployment-order-select[aria-pressed="true"] { outline: 1px solid #9d8448; outline-offset: -2px; background: #20241c; }
+.guild-deployment-order-select i { grid-row: 1 / 4; display: grid; place-items: center; width: 28px; height: 36px; border: 1px solid #6d6142; color: #dcc780; background: #20251f; font-style: normal; font-weight: 900; }
+.guild-deployment-order-select span,
+.guild-deployment-order-select strong,
+.guild-deployment-order-select small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild-deployment-order-select span { font-size: 0.47rem; text-transform: uppercase; }
+.guild-deployment-order-select strong { color: #d8ca96; font-family: Georgia, serif; font-size: 0.62rem; }
+.guild-deployment-order-select small { font-size: 0.49rem; }
+.guild-deployment-order-actions { display: grid; grid-template-columns: minmax(0, 1fr) 74px 27px; gap: 4px; align-items: center; padding: 6px 7px; border-top: 1px solid #303832; }
+.guild-deployment-order-actions b { color: #a88b7e; font-size: 0.47rem; text-transform: uppercase; }
+.guild-deployment-order-grid article.is-ready .guild-deployment-order-actions b { color: #90be94; }
+.guild-deployment-order-actions button,
+.guild-deployment-actions button { min-height: 27px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.49rem; font-weight: 700; cursor: pointer; }
+.guild-deployment-order-actions button:last-child { border-color: #5f4d46; color: #bd8174; }
+.guild-deployment-order-hint { align-self: end; padding: 6px 8px; border-top: 1px solid #303832; color: #727c75; font-size: 0.47rem; }
+.guild-deployment-orders > small { display: block; padding: 7px 8px; color: #78837b; font-size: 0.49rem; }
 .guild-deployment-planner { min-width: 0; margin-top: 7px; border: 1px solid #3a423b; background: #101513; }
 .guild-deployment-planner > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; min-height: 43px; padding: 7px 8px; border-bottom: 1px solid #303832; }
 .guild-deployment-planner > header span,
@@ -12974,8 +13000,8 @@ html[data-client-motion="reduced"] *::after {
 .guild-deployment-metrics small { color: #7f8982; font-size: 0.48rem; }
 .guild-deployment-candidates article > b { color: #bd8174; font-size: 0.49rem; text-align: center; text-transform: uppercase; }
 .guild-deployment-candidates article.is-ready > b { color: #90be94; }
-.guild-deployment-candidates article > button { min-height: 29px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 700; cursor: pointer; }
-.guild-deployment-candidates article > button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
+.guild-deployment-actions { display: grid; gap: 3px; }
+.guild-deployment-actions button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
 .guild-deployment-note { display: block; padding: 7px 8px; border-top: 1px solid #303832; color: #78837b; font-size: 0.49rem; line-height: 1.4; }
 .guild-squads-note { display: block; margin-top: 7px; color: #78837b; font-size: 0.51rem; line-height: 1.4; }
 .boss-squad-presets { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 5px; align-items: center; margin-bottom: 8px; }
@@ -13115,7 +13141,7 @@ html[data-client-motion="reduced"] *::after {
   .guild-deployment-candidates article { grid-template-columns: 34px minmax(0, 1fr) 90px; }
   .guild-deployment-metrics { grid-column: 2; }
   .guild-deployment-candidates article > b { grid-column: 3; grid-row: 1; }
-  .guild-deployment-candidates article > button { grid-column: 3; grid-row: 2; }
+  .guild-deployment-actions { grid-column: 3; grid-row: 2; }
 }
 @media (max-width: 520px) {
   .guild-squad-tabs,
@@ -13142,7 +13168,8 @@ html[data-client-motion="reduced"] *::after {
   .guild-deployment-candidates article { grid-template-columns: 34px minmax(0, 1fr); }
   .guild-deployment-metrics { grid-column: 2; }
   .guild-deployment-candidates article > b { grid-column: 1; grid-row: 2; text-align: left; }
-  .guild-deployment-candidates article > button { grid-column: 1 / -1; grid-row: auto; width: 100%; }
+  .guild-deployment-actions { grid-column: 1 / -1; grid-row: auto; width: 100%; }
+  .guild-deployment-order-grid { grid-template-columns: 1fr; }
   .boss-squad-presets { grid-template-columns: 1fr; }
   .operations-hero { grid-template-columns: 1fr; text-align: center; }
   .operations-seal { justify-self: center; }

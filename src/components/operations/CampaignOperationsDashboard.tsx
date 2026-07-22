@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MainPanelTab } from "../layout/MainPanel";
-import type { ActivityLogEntry, Character, Guild, GuildDepot, GuildSquadMember, GuildSquadSlotId } from "../../shared/types";
+import type { ActivityLogEntry, Character, Guild, GuildDeploymentOrderKind, GuildDeploymentOrderSlotId, GuildDepot, GuildSquadMember, GuildSquadSlotId } from "../../shared/types";
 import {
   buildCampaignOperationsDashboard,
   type CampaignOperationTone,
@@ -17,6 +17,8 @@ interface CampaignOperationsDashboardProps {
   onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onUseGuildSquadForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
   onPrepareGuildSquadForContract: (slotId: GuildSquadSlotId, contractId: string) => void;
+  onSaveDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
+  onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
 }
 
 export function CampaignOperationsDashboard({
@@ -29,6 +31,8 @@ export function CampaignOperationsDashboard({
   onSaveGuildSquad,
   onUseGuildSquadForBoss,
   onPrepareGuildSquadForContract,
+  onSaveDeploymentOrder,
+  onClearDeploymentOrder,
 }: CampaignOperationsDashboardProps) {
   const [clock, setClock] = useState(() => Date.now());
   const dashboard = useMemo(
@@ -83,6 +87,8 @@ export function CampaignOperationsDashboard({
         onUseForBoss={onUseGuildSquadForBoss}
         onOpenContracts={() => onOpenSystem("contracts")}
         onPrepareContract={onPrepareGuildSquadForContract}
+        onSaveDeploymentOrder={onSaveDeploymentOrder}
+        onClearDeploymentOrder={onClearDeploymentOrder}
         now={now}
       />
 
