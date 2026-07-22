@@ -83,6 +83,7 @@ const systemEntries: GuildCodexEntry[] = [
       { label: "Formation slots", value: "3 guild-wide" },
       { label: "Members", value: "Up to 5 each" },
       { label: "Unlocks", value: "Guild Levels 1 / 3 / 5" },
+      { label: "Planner targets", value: "6 Bosses / 6 Contracts" },
       { label: "Automation", value: "None" },
     ],
     guidance: [
@@ -91,6 +92,8 @@ const systemEntries: GuildCodexEntry[] = [
       "Loading a squad into Contracts fills the available support-team places, excludes dead adventurers and never dispatches automatically.",
       "Campaign Operations derives field power, role coverage, available members and valid Boss or Contract routes from the current save; no separate readiness state is stored.",
       "Formation ready means every saved member is alive and idle; individual Boss cards still decide raid eligibility, and the assessment refreshes when a cooldown expires.",
+      "The Deployment Planner starts from a chosen Boss or Contract, ranks every formation using current rules and marks the first fully ready squad as recommended.",
+      "Prepare Raid and Prepare Contract load the exact target and squad for manual review; neither command starts an activity or spends gold.",
       "Squads are organization presets only: they add no statistics, currency, cooldown or background activity.",
     ],
     relatedSystems: ["Campaign Operations", "Bosses", "Guild Contracts", "Guild Levels", "SQLite Save"],

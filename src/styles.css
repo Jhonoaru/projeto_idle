@@ -12934,6 +12934,49 @@ html[data-client-motion="reduced"] *::after {
 .guild-squad-route-grid article button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
 .guild-squad-warnings { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 8px; border-top: 1px solid #303832; }
 .guild-squad-warnings span { padding-left: 7px; border-left: 2px solid #8d684f; color: #a99486; font-size: 0.49rem; line-height: 1.35; }
+.guild-deployment-planner { min-width: 0; margin-top: 7px; border: 1px solid #3a423b; background: #101513; }
+.guild-deployment-planner > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; min-height: 43px; padding: 7px 8px; border-bottom: 1px solid #303832; }
+.guild-deployment-planner > header span,
+.guild-deployment-target span,
+.guild-deployment-toolbar label,
+.guild-deployment-copy span { display: block; color: #7f8a82; font-size: 0.49rem; text-transform: uppercase; }
+.guild-deployment-planner > header h4 { margin: 3px 0 0; color: #ddca8e; font-family: Georgia, serif; font-size: 0.72rem; }
+.guild-deployment-planner > header > strong { color: #a9955f; font-size: 0.54rem; text-align: right; text-transform: uppercase; }
+.guild-deployment-toolbar { display: grid; grid-template-columns: auto auto minmax(180px, 1fr) auto; gap: 7px; align-items: center; padding: 7px 8px; border-bottom: 1px solid #303832; background: #141916; }
+.guild-deployment-toolbar > div { display: grid; grid-template-columns: repeat(2, minmax(94px, 1fr)); }
+.guild-deployment-toolbar button { min-height: 29px; border: 1px solid #3d463f; color: #8e9891; background: #111613; font-family: Georgia, serif; font-size: 0.51rem; font-weight: 700; cursor: pointer; }
+.guild-deployment-toolbar button[aria-pressed="true"] { border-color: #806f47; color: #e1cc8e; background: #24271e; }
+.guild-deployment-toolbar select { width: 100%; min-width: 0; min-height: 29px; padding: 0 7px; border: 1px solid #3d463f; border-radius: 0; color: #ddd09d; background: #0d120f; font-size: 0.54rem; }
+.guild-deployment-toolbar > b { color: #9ab795; font-size: 0.52rem; white-space: nowrap; }
+.guild-deployment-target { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, 0.32fr); border-bottom: 1px solid #303832; }
+.guild-deployment-target > div { min-width: 0; min-height: 58px; padding: 8px; border-right: 1px solid #303832; }
+.guild-deployment-target > div:last-child { border-right: 0; text-align: right; }
+.guild-deployment-target strong,
+.guild-deployment-target small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild-deployment-target strong { margin: 4px 0; color: #decf9b; font-family: Georgia, serif; font-size: 0.68rem; }
+.guild-deployment-target small { color: #859088; font-size: 0.5rem; }
+.guild-deployment-candidates { display: grid; gap: 1px; padding: 1px; background: #303832; }
+.guild-deployment-candidates article { display: grid; grid-template-columns: 34px minmax(190px, 1fr) minmax(150px, 0.58fr) 70px 112px; gap: 8px; align-items: center; min-width: 0; min-height: 68px; padding: 7px; border-left: 3px solid #8a5f54; background: #151a17; }
+.guild-deployment-candidates article.is-ready { border-left-color: #78a76d; background: #172019; }
+.guild-deployment-candidates article.is-empty { border-left-color: #555e57; color: #6d766f; background: #121613; }
+.guild-deployment-candidates article > i { display: grid; place-items: center; width: 32px; height: 36px; border: 1px solid #6d6142; color: #dcc780; background: #20251f; font-style: normal; font-weight: 900; }
+.guild-deployment-copy,
+.guild-deployment-metrics { min-width: 0; }
+.guild-deployment-copy strong,
+.guild-deployment-copy small,
+.guild-deployment-metrics span,
+.guild-deployment-metrics strong,
+.guild-deployment-metrics small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild-deployment-copy strong { margin: 3px 0; color: #d8ca96; font-size: 0.62rem; }
+.guild-deployment-copy small { color: #89938c; font-size: 0.5rem; }
+.guild-deployment-metrics span { color: #7f8a82; font-size: 0.48rem; text-transform: uppercase; }
+.guild-deployment-metrics strong { margin: 3px 0; color: #d5c58f; font-size: 0.58rem; }
+.guild-deployment-metrics small { color: #7f8982; font-size: 0.48rem; }
+.guild-deployment-candidates article > b { color: #bd8174; font-size: 0.49rem; text-align: center; text-transform: uppercase; }
+.guild-deployment-candidates article.is-ready > b { color: #90be94; }
+.guild-deployment-candidates article > button { min-height: 29px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 700; cursor: pointer; }
+.guild-deployment-candidates article > button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
+.guild-deployment-note { display: block; padding: 7px 8px; border-top: 1px solid #303832; color: #78837b; font-size: 0.49rem; line-height: 1.4; }
 .guild-squads-note { display: block; margin-top: 7px; color: #78837b; font-size: 0.51rem; line-height: 1.4; }
 .boss-squad-presets { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 5px; align-items: center; margin-bottom: 8px; }
 .boss-squad-presets > span { color: #89938d; font-size: 0.55rem; text-transform: uppercase; }
@@ -13069,6 +13112,10 @@ html[data-client-motion="reduced"] *::after {
   .operations-ledger > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .operations-summary > div:nth-child(2n) { border-right: 0; }
   .operations-priority-list { grid-template-columns: 1fr; }
+  .guild-deployment-candidates article { grid-template-columns: 34px minmax(0, 1fr) 90px; }
+  .guild-deployment-metrics { grid-column: 2; }
+  .guild-deployment-candidates article > b { grid-column: 3; grid-row: 1; }
+  .guild-deployment-candidates article > button { grid-column: 3; grid-row: 2; }
 }
 @media (max-width: 520px) {
   .guild-squad-tabs,
@@ -13084,6 +13131,18 @@ html[data-client-motion="reduced"] *::after {
   .guild-squad-route-grid article { min-height: 122px; }
   .guild-squad-route-grid article button { width: 100%; }
   .guild-squad-warnings { display: grid; }
+  .guild-deployment-planner > header { align-items: flex-start; flex-direction: column; }
+  .guild-deployment-planner > header > strong { text-align: left; }
+  .guild-deployment-toolbar { grid-template-columns: 1fr auto; }
+  .guild-deployment-toolbar > div { grid-column: 1 / -1; }
+  .guild-deployment-toolbar label { grid-column: 1 / -1; }
+  .guild-deployment-target { grid-template-columns: 1fr; }
+  .guild-deployment-target > div { border-right: 0; border-bottom: 1px solid #303832; }
+  .guild-deployment-target > div:last-child { border-bottom: 0; text-align: left; }
+  .guild-deployment-candidates article { grid-template-columns: 34px minmax(0, 1fr); }
+  .guild-deployment-metrics { grid-column: 2; }
+  .guild-deployment-candidates article > b { grid-column: 1; grid-row: 2; text-align: left; }
+  .guild-deployment-candidates article > button { grid-column: 1 / -1; grid-row: auto; width: 100%; }
   .boss-squad-presets { grid-template-columns: 1fr; }
   .operations-hero { grid-template-columns: 1fr; text-align: center; }
   .operations-seal { justify-self: center; }

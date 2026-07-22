@@ -16,6 +16,7 @@ interface CampaignOperationsDashboardProps {
   onSelectCharacter: (characterId: string) => void;
   onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onUseGuildSquadForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
+  onPrepareGuildSquadForContract: (slotId: GuildSquadSlotId, contractId: string) => void;
 }
 
 export function CampaignOperationsDashboard({
@@ -27,6 +28,7 @@ export function CampaignOperationsDashboard({
   onSelectCharacter,
   onSaveGuildSquad,
   onUseGuildSquadForBoss,
+  onPrepareGuildSquadForContract,
 }: CampaignOperationsDashboardProps) {
   const [clock, setClock] = useState(() => Date.now());
   const dashboard = useMemo(
@@ -80,6 +82,7 @@ export function CampaignOperationsDashboard({
         onSave={onSaveGuildSquad}
         onUseForBoss={onUseGuildSquadForBoss}
         onOpenContracts={() => onOpenSystem("contracts")}
+        onPrepareContract={onPrepareGuildSquadForContract}
         now={now}
       />
 

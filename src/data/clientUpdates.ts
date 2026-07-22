@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-77",
+    stage: "Stage 77",
+    title: "Guild Deployment Planner",
+    date: "2026-07-22",
+    category: "systems",
+    summary: "Campaign Operations can now compare every saved formation against a chosen Boss raid or local Contract before committing to preparation.",
+    highlights: [
+      "Choose any of the six Bosses or six Contracts to see all three squad slots ranked with live eligibility, power or success chance, roles and exact blockers.",
+      "The first ready formation is recommended; when none qualify, the strongest configured option remains available for manual preparation and correction.",
+      "Prepare Raid and Prepare Contract load the exact operation and formation for review without launching, dispatching or storing planner state.",
+    ],
+    systems: ["Guild Deployment Planner", "Guild Squads", "Bosses", "Guild Contracts"],
+    featured: true,
+  },
+  {
     id: "stage-76-5",
     stage: "Stage 76.5",
     title: "Squad Command Center QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Five responsive widths and three native SQLite loads preserved squads, cooldowns and the original campaign without adding Command Center persistence.",
     ],
     systems: ["Squad Command Center QA", "Boss Cooldowns", "Guild Contracts", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-76",

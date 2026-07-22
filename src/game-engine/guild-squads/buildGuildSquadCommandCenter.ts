@@ -88,6 +88,7 @@ export function buildGuildSquadCommandCenter(guild: Guild, characters: Character
     return {
       id: slot.definition.id,
       name: slot.squad?.name ?? slot.definition.defaultName,
+      sigil: slot.definition.sigil,
       unlocked: slot.unlocked,
       configured: members.length > 0,
       memberCount: members.length,

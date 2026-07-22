@@ -344,6 +344,16 @@ export function MainPanel({
   onSalvageEquipment,
 }: MainPanelProps) {
   const tabContentRef = useRef<HTMLDivElement>(null);
+  const [contractPreparation, setContractPreparation] = useState<{
+    contractId: string;
+    slotId: GuildSquadSlotId;
+    requestId: number;
+  }>();
+
+  function prepareGuildSquadForContract(slotId: GuildSquadSlotId, contractId: string) {
+    setContractPreparation((current) => ({ contractId, slotId, requestId: (current?.requestId ?? 0) + 1 }));
+    onChangeTab("contracts");
+  }
 
   useEffect(() => {
     tabContentRef.current?.scrollTo({ top: 0, left: 0 });
@@ -420,6 +430,7 @@ export function MainPanel({
             onSelectCharacter={onSelectCharacter}
             onSaveGuildSquad={onSaveGuildSquad}
             onUseGuildSquadForBoss={onLoadGuildSquad}
+            onPrepareGuildSquadForContract={prepareGuildSquadForContract}
           />
         ) : null}
 
@@ -695,9 +706,13 @@ export function MainPanel({
         {activeTab === "contracts" ? (
           <GuildContractsBoard
             characters={characters}
+            initialContractId={contractPreparation?.contractId}
+            initialSquadSlotId={contractPreparation?.slotId}
             guild={guild}
             onCompleteExpedition={onCompleteGuildExpedition}
+            onPreparationApplied={() => setContractPreparation(undefined)}
             onStartExpedition={onStartGuildExpedition}
+            preparationRequestId={contractPreparation?.requestId}
           />
         ) : null}
         {activeTab === "staff" ? (

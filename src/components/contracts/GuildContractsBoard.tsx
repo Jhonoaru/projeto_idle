@@ -11,16 +11,29 @@ import { getGuildSpecialist } from "../../data/guildSpecialists";
 import { getGuildDirectiveBonuses, getGuildDirectiveStatus } from "../../game-engine/guild-directives/getGuildDirectiveStatus";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import { createContractTeamFromGuildSquad } from "../../game-engine/guild-squads/createContractTeamFromGuildSquad";
-import type { Character, Guild, GuildContractDefinition } from "../../shared/types";
+import type { Character, Guild, GuildContractDefinition, GuildSquadSlotId } from "../../shared/types";
 
 interface GuildContractsBoardProps {
   guild: Guild;
   characters: Character[];
   onStartExpedition: (contractId: string, assignedCharacterIds: string[]) => void;
   onCompleteExpedition: () => void;
+  initialContractId?: string;
+  initialSquadSlotId?: GuildSquadSlotId;
+  preparationRequestId?: number;
+  onPreparationApplied?: () => void;
 }
 
-export function GuildContractsBoard({ guild, characters, onStartExpedition, onCompleteExpedition }: GuildContractsBoardProps) {
+export function GuildContractsBoard({
+  guild,
+  characters,
+  onStartExpedition,
+  onCompleteExpedition,
+  initialContractId,
+  initialSquadSlotId,
+  preparationRequestId,
+  onPreparationApplied,
+}: GuildContractsBoardProps) {
   const expeditions = useMemo(() => normalizeGuildExpeditionState(guild.expeditions), [guild.expeditions]);
   const career = useMemo(() => getGuildCareer(guild, characters), [characters, guild]);
   const headquarters = useMemo(() => getHeadquartersRank(guild.headquarters), [guild.headquarters]);
@@ -60,6 +73,17 @@ export function GuildContractsBoard({ guild, characters, onStartExpedition, onCo
   useEffect(() => {
     setAssignedCharacterIds((current) => current.filter((characterId) => characters.some((character) => character.id === characterId && character.status !== "dead")));
   }, [characters]);
+
+  useEffect(() => {
+    if (!preparationRequestId || !initialContractId || !initialSquadSlotId) return;
+    const contract = getGuildContract(initialContractId);
+    if (contract) {
+      setSelectedContractId(contract.id);
+      const result = createContractTeamFromGuildSquad(guild, characters, contract.maximumTeamSize, initialSquadSlotId);
+      if (result.success) setAssignedCharacterIds(result.characterIds);
+    }
+    onPreparationApplied?.();
+  }, [preparationRequestId]);
 
   function toggleCharacter(characterId: string) {
     setAssignedCharacterIds((current) => {

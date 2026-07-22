@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import { buildGuildSquadCommandCenter } from "../../game-engine/guild-squads/buildGuildSquadCommandCenter";
+import { buildGuildDeploymentPlanner } from "../../game-engine/guild-squads/buildGuildDeploymentPlanner";
 import type { Character, Guild, GuildSquadMember, GuildSquadSlotId, PartyRole } from "../../shared/types";
 import { GuildSquadCommandCenter } from "./GuildSquadCommandCenter";
+import { GuildDeploymentPlanner } from "./GuildDeploymentPlanner";
 
 const roles: PartyRole[] = ["tank", "healer", "damage", "support"];
 
@@ -12,12 +14,14 @@ interface GuildSquadsBoardProps {
   onSave: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onUseForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
   onOpenContracts: () => void;
+  onPrepareContract: (slotId: GuildSquadSlotId, contractId: string) => void;
   now: Date;
 }
 
-export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOpenContracts, now }: GuildSquadsBoardProps) {
+export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOpenContracts, onPrepareContract, now }: GuildSquadsBoardProps) {
   const status = useMemo(() => getGuildSquadStatus(guild, characters), [characters, guild]);
   const commandCenter = useMemo(() => buildGuildSquadCommandCenter(guild, characters, now), [characters, guild, now]);
+  const deploymentPlanner = useMemo(() => buildGuildDeploymentPlanner(guild, characters, now), [characters, guild, now]);
   const [selectedSlotId, setSelectedSlotId] = useState<GuildSquadSlotId>("squad-one");
   const selectedSlot = status.slots.find((slot) => slot.definition.id === selectedSlotId) ?? status.slots[0];
   const [name, setName] = useState(selectedSlot.squad?.name ?? selectedSlot.definition.defaultName);
@@ -103,6 +107,11 @@ export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOp
         onOpenBosses={(bossId) => onUseForBoss(selectedSlot.definition.id, bossId)}
         onOpenContracts={onOpenContracts}
         slot={commandSlot}
+      />
+      <GuildDeploymentPlanner
+        onPrepareBoss={onUseForBoss}
+        onPrepareContract={onPrepareContract}
+        planner={deploymentPlanner}
       />
       <small className="guild-squads-note">Squads are reusable local presets. Saving or loading a formation never starts an activity; current boss, access, cooldown and party rules still apply.</small>
     </section>

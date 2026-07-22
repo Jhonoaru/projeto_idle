@@ -143,6 +143,7 @@ Atualizado em: 2026-07-22
 - Etapa 75.5 concluida: QA ampliada dos Guild Squads corrigiu selecao de slot bloqueado, isolou a montagem de Contracts e validou 142.940 checks, responsividade e SQLite nativo.
 - Etapa 76 concluida: Squad Command Center deriva prontidao, poder, roles e rotas reais de Bosses/Contracts a partir das formacoes persistentes, sem novo estado ou automacao.
 - Etapa 76.5 concluida: QA ampliada alinhou o significado de prontidao, atualizacao de cooldowns e paridade com todas as rotas em 281.247 checks, cinco viewports e SQLite nativo.
+- Etapa 77 concluida: Guild Deployment Planner compara todos os squads contra o Boss ou Contract escolhido e prepara o alvo exato sem iniciar atividades ou criar estado persistente.
 
 Comandos principais:
 
@@ -5013,6 +5014,54 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 77 - definir a proxima camada de gerenciamento offline apos o Command Center.
+
+## Etapa 77 - Guild Deployment Planner
+
+Status: concluida.
+
+Conceito e regras:
+
+- Campaign Operations agora possui uma visao operation-first complementar ao Command Center: o jogador escolhe primeiro um Boss ou Contract e compara os tres slots de squad.
+- Os seis Bosses e seis Contracts atuais aparecem no seletor, cada um com regiao, tamanho de equipe, custo base e quantidade de formacoes prontas.
+- Cada candidato mostra nome, disponibilidade, motivo exato de bloqueio, membros, composicao tank/healer/damage/support e power/target ou chance projetada.
+- Formacoes prontas ficam antes das bloqueadas; entre candidatas equivalentes, power relativo ou success chance define a ordem e o slot original resolve empates.
+- A primeira formacao realmente pronta recebe `Recommended formation`. Se nenhuma estiver pronta, a melhor formacao configurada ainda pode ser aberta para ajuste manual como `Best available`.
+
+Integracoes:
+
+- Bosses reutilizam `createBossPartyFromGuildSquad`, `canStartBoss` e `calculateBossPower`; o comando carrega exatamente o Boss escolhido e sua party no Raid Board.
+- Contracts reutilizam disponibilidade, limites de equipe, power, staff, directive, gold e expedition ativa; o comando abre exatamente o posting escolhido com o squad aplicado.
+- Preparar nunca inicia raid, nunca faz dispatch, nunca gasta gold e nunca contorna level, access, cooldown, status ou tamanho de equipe.
+- O planner e derivado do save atual e nao adiciona schema, migration, JSON, moeda, bonus, cooldown ou automacao.
+
+Interface:
+
+- Novo `Deployment Planner` abaixo da inteligencia do squad, com controle segmentado Boss Raids/Contracts, seletor de alvo, resumo e linhas comparativas compactas.
+- Slots locked ou vazios continuam visiveis com motivo e comando desabilitado, preservando a leitura da progressao futura da guilda.
+- Breakpoints de 760 e 520 px reorganizam metricas e comandos sem cards aninhados, sobreposicao ou overflow horizontal.
+
+Validacoes:
+
+- Harness temporario passou em 8.123 checks e foi removido: 12 alvos, tres slots, ranking, recomendacao, contagens, estado vazio, imutabilidade e 2.000 variacoes de status/gold com metricas finitas.
+- No browser local, salvar Arkon atualizou imediatamente o planner; Supply Route Survey foi recomendado e `Sewer Ledger Audit` abriu selecionado com Arkon marcado.
+- A preparacao do contrato nao criou expedition ativa; o dispatch permaneceu manual no board existente.
+- O pedido de preparacao foi consumido apos a abertura: fechar e reabrir Contracts manualmente voltou ao posting/equipe padrao, sem alvo antigo preso.
+- Viewports de 1280, 760 e 430 px ficaram sem overflow no documento, planner, linhas ou botoes; a captura mobile confirmou a reorganizacao visual.
+- O console web exibiu somente o fallback SQLite esperado fora do Tauri.
+- `npm.cmd run build` passou com 382 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+
+Limitacoes atuais:
+
+- O ranking nao possui ordenacao configuravel, favoritos ou filtros adicionais; usa regras fixas e deterministicas.
+- O planner nao edita membros nem roles: ajustes continuam no editor de Guild Squads.
+- O custo mostrado no cabecalho e o valor base; a linha do candidato e a regra real consideram descontos de staff e outros requisitos atuais.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser local e a camada desktop pelo build completo.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 77.5 - QA aprofundada do Guild Deployment Planner no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
