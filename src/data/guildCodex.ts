@@ -93,6 +93,7 @@ const systemEntries: GuildCodexEntry[] = [
       "Campaign Operations derives field power, role coverage, available members and valid Boss or Contract routes from the current save; no separate readiness state is stored.",
       "Formation ready means every saved member is alive and idle; individual Boss cards still decide raid eligibility, and the assessment refreshes when a cooldown expires.",
       "The Deployment Planner starts from a chosen Boss or Contract, ranks every formation using current rules and marks the first fully ready squad as recommended.",
+      "The deployed count follows the selected operation limit: Boss parties and Contract support teams may use fewer members than the full saved preset.",
       "Prepare Raid and Prepare Contract load the exact target and squad for manual review; neither command starts an activity or spends gold.",
       "Squads are organization presets only: they add no statistics, currency, cooldown or background activity.",
     ],

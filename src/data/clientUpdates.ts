@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-77-5",
+    stage: "Stage 77.5",
+    title: "Deployment Planner QA",
+    date: "2026-07-22",
+    category: "qa",
+    summary: "Expanded engine, responsive and native SQLite validation aligned every displayed deployment with the real Boss party or Contract support team.",
+    highlights: [
+      "Seven hundred eighty-five thousand eighty-two checks covered role combinations, status variation, ranking, gold and cooldown boundaries, malformed saves and parity with all twelve operations.",
+      "Boss candidates now show the party actually deployed after each raid limit, so a five-member preset correctly reports one, three, four or five adventurers for the selected target.",
+      "Five responsive widths and three native SQLite loads preserved exact preparation, normalization and the original campaign backup without adding planner persistence.",
+    ],
+    systems: ["Deployment Planner QA", "Boss Parties", "Guild Contracts", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-77",
     stage: "Stage 77",
     title: "Guild Deployment Planner",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Prepare Raid and Prepare Contract load the exact operation and formation for review without launching, dispatching or storing planner state.",
     ],
     systems: ["Guild Deployment Planner", "Guild Squads", "Bosses", "Guild Contracts"],
-    featured: true,
   },
   {
     id: "stage-76-5",

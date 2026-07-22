@@ -56,7 +56,7 @@ export function GuildDeploymentPlanner({ planner, onPrepareBoss, onPrepareContra
                 <small>{candidate.reason}</small>
               </div>
               <div className="guild-deployment-metrics">
-                <span>{candidate.memberCount} member{candidate.memberCount === 1 ? "" : "s"}</span>
+                <span>{candidate.memberCount} deployed</span>
                 <strong>{selectedTarget.kind === "boss" ? `${candidate.power.toLocaleString("en-US")} / ${(candidate.targetPower ?? 0).toLocaleString("en-US")}` : `${candidate.chance ?? 0}% chance`}</strong>
                 <small>T {candidate.roleCounts.tank} / H {candidate.roleCounts.healer} / D {candidate.roleCounts.damage} / S {candidate.roleCounts.support}</small>
               </div>

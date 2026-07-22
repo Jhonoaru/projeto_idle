@@ -81,6 +81,7 @@ function createBossCandidate(slot: GuildSquadCommandSlot, bossId: string): Guild
   return createCandidate(slot, route?.ready ?? false, route?.reason ?? getMissingRouteReason(slot), {
     power: route?.power ?? 0,
     targetPower: route?.targetPower ?? 0,
+    memberCount: route?.partySize ?? 0,
   });
 }
 

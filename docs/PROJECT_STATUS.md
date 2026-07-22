@@ -144,6 +144,7 @@ Atualizado em: 2026-07-22
 - Etapa 76 concluida: Squad Command Center deriva prontidao, poder, roles e rotas reais de Bosses/Contracts a partir das formacoes persistentes, sem novo estado ou automacao.
 - Etapa 76.5 concluida: QA ampliada alinhou o significado de prontidao, atualizacao de cooldowns e paridade com todas as rotas em 281.247 checks, cinco viewports e SQLite nativo.
 - Etapa 77 concluida: Guild Deployment Planner compara todos os squads contra o Boss ou Contract escolhido e prepara o alvo exato sem iniciar atividades ou criar estado persistente.
+- Etapa 77.5 concluida: QA ampliada alinhou membros exibidos com a party/equipe realmente preparada e validou 785.082 checks, cinco viewports e tres cargas Tauri/SQLite.
 
 Comandos principais:
 
@@ -5062,6 +5063,59 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 77.5 - QA aprofundada do Guild Deployment Planner no Tauri/SQLite.
+
+## Etapa 77.5 - QA do Guild Deployment Planner
+
+Status: concluida.
+
+Correcao reproduzida:
+
+- Um preset com cinco membros mostrava `5 members` em qualquer Boss, mesmo quando `createBossPartyFromGuildSquad` carregava somente um membro para solo, tres para Khazgrim ou quatro para a Arena.
+- As rotas de Boss agora carregam `partySize`, o planner usa o tamanho efetivamente preparado e a interface identifica a metrica como `deployed`.
+- Um preset de cinco membros passou a mostrar 1 para Sewer Broodmother, 3 para Khazgrim Gatekeeper, 4 para Novice Arena Champion e 5 para Ember Matriarch.
+- Contracts seguem a mesma linguagem e mostram a equipe truncada pelo `maximumTeamSize`, excluindo mortos conforme a regra existente.
+
+Matriz automatizada:
+
+- O harness temporario passou em 785.082 checks e foi removido.
+- As 1.024 composicoes de tank/healer/damage/support para cinco membros foram comparadas com `canStartBoss` nos seis Bosses.
+- 4.096 variacoes de idle/hunting/training/questing/bossing/traveling/dead foram cruzadas com os tres squads, seis Bosses e seis Contracts.
+- Toda rota foi comparada com a party/equipe realmente criada; readiness de Boss permaneceu identico a `canStartBoss` e readiness de Contract a `startGuildExpedition`.
+- Ranking, recomendacao, contagens de alvos prontos, metricas finitas, motivos, estado vazio, expedition ativa e imutabilidade passaram.
+- Gold foi testado imediatamente abaixo e no custo exato de cada Boss e Contract; Contracts tambem cobriram o desconto do Provisioner.
+- Cooldowns foram testados um milissegundo antes e exatamente no timestamp de liberacao para todos os Bosses.
+- Save malformado com slot desconhecido, duplicatas, personagem inexistente, role invalida, timestamp ruim e gold `NaN` normalizou sem mutacao ou metrica invalida.
+
+QA visual e interativo:
+
+- Um squad com os cinco personagens do mock exibiu 1/3/4/5 deployed conforme os limites dos Bosses e 2/3 conforme os Contracts escolhidos.
+- Ember Matriarch abriu no Raid Board com Arkon, Ayla, Mira, Lyra e Shen, sem launch e mantendo todos os bloqueios reais de level, status, access e gold.
+- Vanguard Frontier Survey abriu com os tres membros realmente truncados, permaneceu bloqueado e nao criou expedition ativa.
+- Fechar e reabrir Contracts manualmente voltou a Supply Route Survey com a equipe padrao, confirmando que o pedido de preparacao foi consumido.
+- Viewports de 1440, 960, 760, 520 e 430 px ficaram sem overflow no documento, planner, linhas ou controles e sem texto cortado.
+- O console web mostrou apenas o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 382 modulos e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o save original anterior a Guild Squads e adicionou `squads_json` vazio sem perder tabelas ou registros.
+- Nenhuma coluna planner/deployment/readiness/command foi criada; todas as leituras continuam derivadas.
+- Uma fixture com slot desconhecido, duplicatas, membro inexistente, role invalida, timestamp ruim e slot bloqueado persistiu somente `QA Deployment` com Lyra healer e Arkon tank.
+- Duas cargas da fixture preservaram tambem o cooldown futuro de Sewer Broodmother e mantiveram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs.
+- As cargas mantiveram `PRAGMA integrity_check: ok`; o executavel foi aberto oculto, sem QA manual por cliques na janela Tauri.
+- O banco original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`; WAL e SHM tambem voltaram byte a byte e nenhum backup temporario permaneceu.
+
+Limitacoes mantidas:
+
+- Ranking continua fixo e deterministico, sem favoritos, filtros ou ordenacao configuravel.
+- O planner nao edita formacoes e nao inicia atividades automaticamente.
+- O cabecalho mostra custo base; descontos e elegibilidade real continuam refletidos na linha de cada candidato.
+- O balanceamento de longo prazo ainda precisa de uma campanha completa.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 78 - definir a proxima camada de gerenciamento offline apos o Deployment Planner validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

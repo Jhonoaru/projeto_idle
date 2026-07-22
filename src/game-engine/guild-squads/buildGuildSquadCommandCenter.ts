@@ -44,7 +44,7 @@ export function buildGuildSquadCommandCenter(guild: Guild, characters: Character
 
     const bossRoutes = slot.squad?.members.length ? bosses.map((boss) => {
       const partyResult = createBossPartyFromGuildSquad(guild, characters, boss, slot.definition.id);
-      if (!partyResult.success) return { id: boss.id, name: boss.name, ready: false, reason: partyResult.message, power: 0, targetPower: 0 };
+      if (!partyResult.success) return { id: boss.id, name: boss.name, ready: false, reason: partyResult.message, power: 0, targetPower: 0, partySize: 0 };
       const validation = canStartBoss(characters, boss, partyResult.party, gold, now);
       const power = calculateBossPower(characters, partyResult.party, boss);
       return {
@@ -54,6 +54,7 @@ export function buildGuildSquadCommandCenter(guild: Guild, characters: Character
         reason: validation.canStart ? "Raid requirements met." : validation.reason ?? "Raid requirements pending.",
         power: normalizeMetric(power.totalPower),
         targetPower: normalizeMetric(power.targetPower),
+        partySize: partyResult.party.members.length,
       };
     }) : [];
 
