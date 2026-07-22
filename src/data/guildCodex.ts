@@ -90,6 +90,7 @@ const systemEntries: GuildCodexEntry[] = [
       "Loading a squad into Bosses still applies the selected boss party limit, access, level, status and cooldown rules.",
       "Loading a squad into Contracts fills the available support-team places, excludes dead adventurers and never dispatches automatically.",
       "Campaign Operations derives field power, role coverage, available members and valid Boss or Contract routes from the current save; no separate readiness state is stored.",
+      "Formation ready means every saved member is alive and idle; individual Boss cards still decide raid eligibility, and the assessment refreshes when a cooldown expires.",
       "Squads are organization presets only: they add no statistics, currency, cooldown or background activity.",
     ],
     relatedSystems: ["Campaign Operations", "Bosses", "Guild Contracts", "Guild Levels", "SQLite Save"],

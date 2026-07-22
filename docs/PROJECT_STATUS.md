@@ -142,6 +142,7 @@ Atualizado em: 2026-07-22
 - Etapa 75 concluida: Guild Squads adicionou tres presets persistentes de formacao, com roles, unlock por Guild Level e reutilizacao segura em Bosses e Contracts.
 - Etapa 75.5 concluida: QA ampliada dos Guild Squads corrigiu selecao de slot bloqueado, isolou a montagem de Contracts e validou 142.940 checks, responsividade e SQLite nativo.
 - Etapa 76 concluida: Squad Command Center deriva prontidao, poder, roles e rotas reais de Bosses/Contracts a partir das formacoes persistentes, sem novo estado ou automacao.
+- Etapa 76.5 concluida: QA ampliada alinhou o significado de prontidao, atualizacao de cooldowns e paridade com todas as rotas em 281.247 checks, cinco viewports e SQLite nativo.
 
 Comandos principais:
 
@@ -4956,12 +4957,62 @@ Limitacoes atuais:
 
 - A central recomenda a primeira rota pronta, sem ordenacao configuravel, filtros ou comparacao entre squads.
 - Nao ha auto-fill, auto-dispatch, auto-launch, bonus por composicao ou atividade paralela nova.
-- A avaliacao muda quando o save/roster provoca novo render; nao existe relogio separado exclusivo para atualizar cooldowns dentro do board.
+- A avaliacao permanece derivada e agenda um refresh local quando o proximo cooldown de Boss expira, sem polling permanente ou estado salvo.
 - O balanceamento das leituras de poder ainda precisa de uma campanha completa de longa duracao.
 
 Proximo passo sugerido:
 
 - Etapa 76.5 - QA aprofundada do Squad Command Center no Tauri/SQLite.
+
+## Etapa 76.5 - QA do Squad Command Center
+
+Status: concluida.
+
+Correcoes reproduzidas:
+
+- Uma formacao com todos os membros vivos e idle recebia o label `Raid ready` mesmo quando level, acesso, roles, cooldown ou gold deixavam todas as seis raids bloqueadas.
+- O estado continua sendo `ready`, mas o label agora e `Formation ready`: ele descreve disponibilidade da formacao, enquanto os cards de Boss mantem a decisao real de elegibilidade.
+- Se Campaign Operations permanecesse aberto sem hunt, training, quest ou expedition temporizada, o fim de um cooldown de Boss nao provocava novo render e a rota podia ficar bloqueada visualmente.
+- `canStartBoss` e o Command Center agora aceitam um instante injetavel; Operations agenda um unico refresh no cooldown mais proximo e limita delays extremos de saves corrompidos.
+
+Matriz automatizada:
+
+- O harness temporario passou em 281.247 checks e foi removido depois da execucao.
+- As 1.024 composicoes possiveis de tank/healer/damage/support para cinco membros foram cruzadas com os seis Bosses e com `canStartBoss`.
+- As 16.807 combinacoes de idle/hunting/training/questing/bossing/traveling/dead foram cruzadas com readiness, contagens, seis Bosses e seis Contracts reais.
+- Cada rota de Contract foi comparada com `startGuildExpedition`, incluindo limites exatos de gold, team size, personagens mortos e expedition ativa.
+- Cooldown foi testado antes e exatamente no timestamp de liberacao; a rota muda de blocked para ready na fronteira correta.
+- Estado vazio/bloqueado, membros duplicados ou inexistentes, gold/level `NaN`, metricas finitas, round-trip JSON e imutabilidade da guilda/roster tambem passaram.
+
+QA visual:
+
+- O mock vazio mostrou Awaiting formation, 0/0 rotas e os dois comandos desabilitados.
+- First Company salva com Arkon/Lyra mostrou Formation ready e 2/2 disponiveis, mas 0/6 Bosses com o motivo real de level; isso confirma que o novo label nao promete elegibilidade.
+- Adicionar Ayla apenas ao editor mudou o rascunho para 3/5, mas a central persistida permaneceu em 2/2 e 710 power ate Save Formation.
+- Open Contracts abriu o board sem dispatch, e Clear retornou a central a 0/0 com comandos desabilitados.
+- Viewports de 1280, 960, 760, 520 e 430 px ficaram sem overflow horizontal, texto cortado ou sobreposicao; as rotas viraram uma coluna no breakpoint compacto.
+- O console web mostrou somente o fallback SQLite esperado ao rodar fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 380 modulos e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o save original anterior a Guild Squads e criou `squads_json` vazio sem alterar contagens.
+- Uma fixture com slot desconhecido, membro duplicado e personagem inexistente foi carregada duas vezes; persistiu somente QA Native Command com Lyra healer e Arkon tank.
+- Um cooldown futuro de Sewer Broodmother permaneceu intacto nas duas cargas, enquanto nenhuma coluna `command` ou `readiness` foi criada.
+- As tres cargas mantiveram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs, com `PRAGMA integrity_check: ok`.
+- O executavel foi aberto de forma oculta para validar migration/load/auto-save; nao houve QA manual por cliques na janela Tauri.
+- O SQLite original foi restaurado com SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`, sem WAL, SHM ou backup restante.
+
+Limitacoes mantidas:
+
+- A central ainda recomenda somente a primeira rota pronta; nao ha filtros, ordenacao configuravel ou comparacao entre squads.
+- Nao ha auto-fill, auto-dispatch, auto-launch, bonus de composicao ou atividade paralela nova.
+- O balanceamento das leituras de poder ainda precisa de uma campanha completa de longa duracao.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 77 - definir a proxima camada de gerenciamento offline apos o Command Center.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

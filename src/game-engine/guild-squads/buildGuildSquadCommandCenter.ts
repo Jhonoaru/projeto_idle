@@ -19,7 +19,7 @@ export type GuildSquadReadiness = "locked" | "empty" | "ready" | "partial" | "as
 
 const roleOrder: readonly PartyRole[] = ["tank", "healer", "damage", "support"];
 
-export function buildGuildSquadCommandCenter(guild: Guild, characters: Character[]) {
+export function buildGuildSquadCommandCenter(guild: Guild, characters: Character[], now = new Date()) {
   const status = getGuildSquadStatus(guild, characters);
   const staffBonuses = getGuildStaffBonuses(guild.staff);
   const directiveBonuses = getGuildDirectiveBonuses(guild);
@@ -45,7 +45,7 @@ export function buildGuildSquadCommandCenter(guild: Guild, characters: Character
     const bossRoutes = slot.squad?.members.length ? bosses.map((boss) => {
       const partyResult = createBossPartyFromGuildSquad(guild, characters, boss, slot.definition.id);
       if (!partyResult.success) return { id: boss.id, name: boss.name, ready: false, reason: partyResult.message, power: 0, targetPower: 0 };
-      const validation = canStartBoss(characters, boss, partyResult.party, gold);
+      const validation = canStartBoss(characters, boss, partyResult.party, gold, now);
       const power = calculateBossPower(characters, partyResult.party, boss);
       return {
         id: boss.id,
@@ -120,8 +120,9 @@ export function getGuildSquadCommandSlot(
   guild: Guild,
   characters: Character[],
   slotId: GuildSquadSlotId,
+  now = new Date(),
 ) {
-  return buildGuildSquadCommandCenter(guild, characters).slots.find((slot) => slot.id === slotId);
+  return buildGuildSquadCommandCenter(guild, characters, now).slots.find((slot) => slot.id === slotId);
 }
 
 export type GuildSquadCommandCenterState = ReturnType<typeof buildGuildSquadCommandCenter>;
@@ -140,7 +141,7 @@ function getReadinessLabel(readiness: GuildSquadReadiness) {
   const labels: Record<GuildSquadReadiness, string> = {
     locked: "Locked",
     empty: "Awaiting formation",
-    ready: "Raid ready",
+    ready: "Formation ready",
     partial: "Partially available",
     assigned: "Support duty only",
     unavailable: "Unavailable",

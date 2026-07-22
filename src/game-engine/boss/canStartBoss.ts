@@ -6,6 +6,7 @@ export function canStartBoss(
   boss: Boss,
   selectedParty: BossParty,
   guildGold = Number.MAX_SAFE_INTEGER,
+  now = new Date(),
 ) {
   if (selectedParty.bossId !== boss.id) {
     return { canStart: false, reason: "Party selecionada nao pertence a este boss." };
@@ -86,7 +87,7 @@ export function canStartBoss(
     }
 
     const cooldown = character.bossCooldowns.find(
-      (entry) => entry.bossId === boss.id && new Date(entry.availableAt).getTime() > Date.now(),
+      (entry) => entry.bossId === boss.id && new Date(entry.availableAt).getTime() > now.getTime(),
     );
 
     if (cooldown) {

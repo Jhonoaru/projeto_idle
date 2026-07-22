@@ -12,11 +12,12 @@ interface GuildSquadsBoardProps {
   onSave: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onUseForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
   onOpenContracts: () => void;
+  now: Date;
 }
 
-export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOpenContracts }: GuildSquadsBoardProps) {
+export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOpenContracts, now }: GuildSquadsBoardProps) {
   const status = useMemo(() => getGuildSquadStatus(guild, characters), [characters, guild]);
-  const commandCenter = useMemo(() => buildGuildSquadCommandCenter(guild, characters), [characters, guild]);
+  const commandCenter = useMemo(() => buildGuildSquadCommandCenter(guild, characters, now), [characters, guild, now]);
   const [selectedSlotId, setSelectedSlotId] = useState<GuildSquadSlotId>("squad-one");
   const selectedSlot = status.slots.find((slot) => slot.definition.id === selectedSlotId) ?? status.slots[0];
   const [name, setName] = useState(selectedSlot.squad?.name ?? selectedSlot.definition.defaultName);

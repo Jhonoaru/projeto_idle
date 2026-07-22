@@ -33,14 +33,24 @@ export function CampaignOperationsDashboard({
     () => buildCampaignOperationsDashboard(guild, depot, characters, new Date(clock)),
     [characters, clock, depot, guild],
   );
+  const now = useMemo(() => new Date(clock), [clock]);
 
   useEffect(() => {
     const hasTimer = dashboard.roster.some((entry) => entry.tone === "active" && entry.remainingMs > 0)
       || (dashboard.expedition.status === "active" && dashboard.expedition.remainingMs > 0);
-    if (!hasTimer) return undefined;
-    const interval = window.setInterval(() => setClock(Date.now()), 1_000);
-    return () => window.clearInterval(interval);
-  }, [dashboard.expedition.remainingMs, dashboard.expedition.status, dashboard.roster]);
+    if (hasTimer) {
+      const interval = window.setInterval(() => setClock(Date.now()), 1_000);
+      return () => window.clearInterval(interval);
+    }
+    const nextCooldownAt = characters.flatMap((character) => character.bossCooldowns)
+      .map((cooldown) => Date.parse(cooldown.availableAt))
+      .filter((availableAt) => Number.isFinite(availableAt) && availableAt > clock)
+      .sort((left, right) => left - right)[0];
+    if (!nextCooldownAt) return undefined;
+    const delay = Math.min(2_147_000_000, Math.max(50, nextCooldownAt - clock + 10));
+    const timeout = window.setTimeout(() => setClock(Date.now()), delay);
+    return () => window.clearTimeout(timeout);
+  }, [characters, clock, dashboard.expedition.remainingMs, dashboard.expedition.status, dashboard.roster]);
 
   function openRosterOperation(characterId: string, destination: "action" | "hunts") {
     onSelectCharacter(characterId);
@@ -70,6 +80,7 @@ export function CampaignOperationsDashboard({
         onSave={onSaveGuildSquad}
         onUseForBoss={onUseGuildSquadForBoss}
         onOpenContracts={() => onOpenSystem("contracts")}
+        now={now}
       />
 
       <div className="operations-primary-grid">

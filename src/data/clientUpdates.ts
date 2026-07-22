@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-76-5",
+    stage: "Stage 76.5",
+    title: "Squad Command Center QA",
+    date: "2026-07-22",
+    category: "qa",
+    summary: "Engine, responsive and native SQLite validation aligned formation readiness with every real Boss and Contract rule.",
+    highlights: [
+      "Two hundred eighty-one thousand two hundred forty-seven checks covered all role and status combinations, every route, gold boundaries, cooldowns and malformed saves.",
+      "Formation ready now describes member availability without falsely promising raid eligibility, while expiring Boss cooldowns refresh the open command board automatically.",
+      "Five responsive widths and three native SQLite loads preserved squads, cooldowns and the original campaign without adding Command Center persistence.",
+    ],
+    systems: ["Squad Command Center QA", "Boss Cooldowns", "Guild Contracts", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-76",
     stage: "Stage 76",
     title: "Squad Command Center",
@@ -23,10 +38,9 @@ export const clientUpdates: ClientUpdateDefinition[] = [
     highlights: [
       "Each squad reports current availability, field power, role composition and readiness without adding hidden bonuses or persistent state.",
       "Boss routes reuse level, access, status, cooldown, party and gold rules, while Contract routes reuse posting, team, Headquarters and expedition rules.",
-      "Prepare Bosses and Open Contracts remain manual navigation commands: they load the saved formation but never launch or dispatch an activity.",
+      "Prepare Bosses loads the saved formation, while Open Contracts opens the local board; neither command launches or dispatches an activity.",
     ],
     systems: ["Guild Squads", "Campaign Operations", "Bosses", "Guild Contracts"],
-    featured: true,
   },
   {
     id: "stage-75-5",
