@@ -12904,6 +12904,36 @@ html[data-client-motion="reduced"] *::after {
 .guild-squad-actions button:disabled,
 .boss-squad-presets button:disabled,
 .contracts-squad-presets button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
+.guild-squad-command-center { min-width: 0; margin-top: 7px; border-top: 1px solid #3a423b; background: #111613; }
+.guild-squad-command-center > header { display: flex; justify-content: space-between; gap: 10px; align-items: center; min-height: 43px; padding: 7px 8px; border-bottom: 1px solid #303832; }
+.guild-squad-command-center > header span,
+.guild-squad-command-summary span,
+.guild-squad-role-line span,
+.guild-squad-route-grid span { display: block; color: #7f8a82; font-size: 0.49rem; text-transform: uppercase; }
+.guild-squad-command-center > header h4 { margin: 3px 0 0; color: #ddca8e; font-family: Georgia, serif; font-size: 0.72rem; }
+.guild-squad-command-center > header > strong { color: #b5a164; font-size: 0.56rem; text-transform: uppercase; }
+.guild-squad-command-center.is-ready > header > strong { color: #94bf91; }
+.guild-squad-command-center.is-partial > header > strong { color: #90aeba; }
+.guild-squad-command-center.is-unavailable > header > strong { color: #bf8175; }
+.guild-squad-command-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid #303832; }
+.guild-squad-command-summary > div { min-width: 0; min-height: 44px; padding: 7px 8px; border-right: 1px solid #303832; }
+.guild-squad-command-summary > div:last-child { border-right: 0; }
+.guild-squad-command-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #d7c78f; font-size: 0.63rem; text-overflow: ellipsis; white-space: nowrap; }
+.guild-squad-role-line { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #303832; }
+.guild-squad-role-line > div { display: flex; justify-content: space-between; gap: 6px; min-width: 0; padding: 6px 8px; background: #171c18; }
+.guild-squad-role-line strong { color: #cbb979; font-size: 0.55rem; }
+.guild-squad-route-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #303832; }
+.guild-squad-route-grid article { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px 8px; min-width: 0; min-height: 113px; padding: 8px; background: #151a17; }
+.guild-squad-route-grid article > div { min-width: 0; }
+.guild-squad-route-grid article strong { display: block; margin-top: 3px; overflow: hidden; color: #d8ca96; font-size: 0.61rem; text-overflow: ellipsis; white-space: nowrap; }
+.guild-squad-route-grid article > b { align-self: start; color: #bd8174; font-size: 0.5rem; text-transform: uppercase; }
+.guild-squad-route-grid article > b.is-ready { color: #90be94; }
+.guild-squad-route-grid article p { grid-column: 1 / -1; min-height: 25px; margin: 0; color: #89938c; font-size: 0.51rem; line-height: 1.35; }
+.guild-squad-route-grid article small { align-self: center; overflow: hidden; color: #78837b; font-size: 0.49rem; text-overflow: ellipsis; white-space: nowrap; }
+.guild-squad-route-grid article button { min-width: 104px; min-height: 27px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 700; cursor: pointer; }
+.guild-squad-route-grid article button:disabled { border-color: #384039; color: #69716b; background: #151a17; cursor: not-allowed; }
+.guild-squad-warnings { display: flex; flex-wrap: wrap; gap: 5px; padding: 7px 8px; border-top: 1px solid #303832; }
+.guild-squad-warnings span { padding-left: 7px; border-left: 2px solid #8d684f; color: #a99486; font-size: 0.49rem; line-height: 1.35; }
 .guild-squads-note { display: block; margin-top: 7px; color: #78837b; font-size: 0.51rem; line-height: 1.4; }
 .boss-squad-presets { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); gap: 5px; align-items: center; margin-bottom: 8px; }
 .boss-squad-presets > span { color: #89938d; font-size: 0.55rem; text-transform: uppercase; }
@@ -13031,6 +13061,8 @@ html[data-client-motion="reduced"] *::after {
 }
 @media (max-width: 760px) {
   .guild-squad-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .guild-squad-command-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .guild-squad-command-summary > div:nth-child(2n) { border-right: 0; }
   .boss-squad-presets { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .boss-squad-presets > span { grid-column: 1 / -1; }
   .operations-summary,
@@ -13046,6 +13078,12 @@ html[data-client-motion="reduced"] *::after {
   .guild-squad-name label { grid-column: 1 / -1; }
   .guild-squad-actions { display: grid; grid-template-columns: 1fr; }
   .guild-squad-actions button { width: 100%; }
+  .guild-squad-role-line,
+  .guild-squad-route-grid { grid-template-columns: 1fr; }
+  .guild-squad-role-line > div { min-height: 29px; align-items: center; }
+  .guild-squad-route-grid article { min-height: 122px; }
+  .guild-squad-route-grid article button { width: 100%; }
+  .guild-squad-warnings { display: grid; }
   .boss-squad-presets { grid-template-columns: 1fr; }
   .operations-hero { grid-template-columns: 1fr; text-align: center; }
   .operations-seal { justify-self: center; }

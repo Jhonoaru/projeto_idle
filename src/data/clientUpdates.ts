@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-76",
+    stage: "Stage 76",
+    title: "Squad Command Center",
+    date: "2026-07-22",
+    category: "systems",
+    summary: "Saved formations now receive a live operational assessment for Bosses and local Contracts inside Campaign Operations.",
+    highlights: [
+      "Each squad reports current availability, field power, role composition and readiness without adding hidden bonuses or persistent state.",
+      "Boss routes reuse level, access, status, cooldown, party and gold rules, while Contract routes reuse posting, team, Headquarters and expedition rules.",
+      "Prepare Bosses and Open Contracts remain manual navigation commands: they load the saved formation but never launch or dispatch an activity.",
+    ],
+    systems: ["Guild Squads", "Campaign Operations", "Bosses", "Guild Contracts"],
+    featured: true,
+  },
+  {
     id: "stage-75-5",
     stage: "Stage 75.5",
     title: "Guild Squads QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Double clicks, role preservation, party truncation, manual dispatch and two native SQLite reloads passed without changing the original campaign save.",
     ],
     systems: ["Guild Squads QA", "Boss Parties", "Guild Contracts", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-75",

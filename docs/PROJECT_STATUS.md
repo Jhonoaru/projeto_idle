@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-20
+Atualizado em: 2026-07-22
 
 ## Stack usada
 
@@ -141,6 +141,7 @@ Atualizado em: 2026-07-20
 - Etapa 74.5 concluida: QA ampliada saneou directives bloqueadas e snapshots de Training corrompidos, com 53.131 checks, responsividade e duas cargas Tauri/SQLite.
 - Etapa 75 concluida: Guild Squads adicionou tres presets persistentes de formacao, com roles, unlock por Guild Level e reutilizacao segura em Bosses e Contracts.
 - Etapa 75.5 concluida: QA ampliada dos Guild Squads corrigiu selecao de slot bloqueado, isolou a montagem de Contracts e validou 142.940 checks, responsividade e SQLite nativo.
+- Etapa 76 concluida: Squad Command Center deriva prontidao, poder, roles e rotas reais de Bosses/Contracts a partir das formacoes persistentes, sem novo estado ou automacao.
 
 Comandos principais:
 
@@ -4912,7 +4913,55 @@ Limitacoes mantidas:
 
 Proximo passo sugerido:
 
-- Etapa 76 - definir a proxima camada de gerenciamento offline a partir das formacoes persistentes.
+- Etapa 76 - Squad Command Center derivado das formacoes persistentes.
+
+## Etapa 76 - Squad Command Center
+
+Status: concluida.
+
+Conceito e regras:
+
+- Cada Guild Squad salva agora recebe uma leitura operacional em Campaign Operations: locked, awaiting formation, raid ready, partially available, support duty only ou unavailable.
+- A central exibe field power, membros vivos/disponiveis/ocupados/mortos, composicao tank/healer/damage/support e avisos objetivos da formacao.
+- O recurso e inteiramente derivado da guilda, roster, Bosses e Contracts existentes; nenhum estado, bonus, moeda, timer ou coluna SQLite foi adicionado.
+- Alteracoes ainda nao salvas no editor nao mudam a avaliacao nem podem ser enviadas por engano para outro sistema.
+
+Engine e integracoes:
+
+- `buildGuildSquadCommandCenter` avalia os tres slots normalizados e protege gold/power invalidos contra `NaN` na apresentacao.
+- As seis rotas de Boss usam `createBossPartyFromGuildSquad`, `canStartBoss` e `calculateBossPower`, preservando party size, level, access, quests, status, cooldown, roles e entry fee reais.
+- As seis rotas de Contract usam disponibilidade, limite de support team, Headquarters, Career Points, custo com staff, directive ativa e expedicao ja em andamento.
+- Mortos ficam fora do poder e das equipes de Contract; ocupados bloqueiam Bosses, mas continuam validos para support duty conforme a regra existente de expeditions.
+- `Prepare Bosses` carrega a formacao e o Boss recomendado no Raid Board; `Open Contracts` abre o board local sem dispatch automatico.
+
+Interface:
+
+- O board de Guild Squads ganhou uma area compacta de intelligence abaixo do editor, com resumo, roles, duas recomendacoes acionaveis e avisos.
+- Formacoes vazias mostram 0/0 rotas e mantem ambos os comandos desabilitados.
+- Cores discretas distinguem ready, partial e unavailable sem alterar o estilo MMORPG escuro/metálico existente.
+- Em telas estreitas, resumo, roles, rotas e acoes reorganizam em uma coluna sem sobrepor ou cortar texto.
+
+Validacoes:
+
+- O harness temporario cobriu estado vazio, pronto, parcial, ocupado, totalmente morto, gold invalido, imutabilidade e 10.000 combinacoes de status/level/gold; os seis Bosses e seis Contracts retornaram metricas finitas.
+- O fuzz encontrou e a etapa corrigiu um `NaN` de power herdado por saves numericamente invalidos antes que chegasse a interface.
+- No browser local, First Company com cinco membros mostrou 2/5 disponiveis, 0/6 Bosses e 2/6 Contracts; os motivos exibidos corresponderam ao level/status real do mock.
+- `Open Contracts` preencheu Ayla/Lyra sem dispatch e `Prepare Bosses` carregou Arkon no boss solo sem launch.
+- Viewports de 1280, 960, 700 e 430 px ficaram sem overflow horizontal ou texto cortado na nova central.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 380 modulos; o build nativo gerou executavel release, MSI e NSIS.
+- Nao houve QA manual por cliques na janela Tauri nesta etapa; a interacao foi validada no browser local e a camada nativa pelo build completo.
+
+Limitacoes atuais:
+
+- A central recomenda a primeira rota pronta, sem ordenacao configuravel, filtros ou comparacao entre squads.
+- Nao ha auto-fill, auto-dispatch, auto-launch, bonus por composicao ou atividade paralela nova.
+- A avaliacao muda quando o save/roster provoca novo render; nao existe relogio separado exclusivo para atualizar cooldowns dentro do board.
+- O balanceamento das leituras de poder ainda precisa de uma campanha completa de longa duracao.
+
+Proximo passo sugerido:
+
+- Etapa 76.5 - QA aprofundada do Squad Command Center no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

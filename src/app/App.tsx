@@ -571,10 +571,10 @@ export function App() {
     window.setTimeout(() => { savingGuildSquadRef.current = false; }, 200);
   }
 
-  function handleLoadGuildSquad(slotId: GuildSquadSlotId) {
+  function handleLoadGuildSquad(slotId: GuildSquadSlotId, bossId?: string) {
     if (loadingGuildSquadRef.current) return;
     loadingGuildSquadRef.current = true;
-    const boss = selectedBoss ?? bosses[0];
+    const boss = bosses.find((entry) => entry.id === bossId) ?? selectedBoss ?? bosses[0];
     const result = createBossPartyFromGuildSquad(guild, characters, boss, slotId);
     if (result.success) {
       setSelectedBoss(boss);

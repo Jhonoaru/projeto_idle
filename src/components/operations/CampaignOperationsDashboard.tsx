@@ -15,7 +15,7 @@ interface CampaignOperationsDashboardProps {
   onOpenSystem: (tab: MainPanelTab) => void;
   onSelectCharacter: (characterId: string) => void;
   onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
-  onUseGuildSquadForBoss: (slotId: GuildSquadSlotId) => void;
+  onUseGuildSquadForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
 }
 
 export function CampaignOperationsDashboard({
@@ -69,6 +69,7 @@ export function CampaignOperationsDashboard({
         guild={guild}
         onSave={onSaveGuildSquad}
         onUseForBoss={onUseGuildSquadForBoss}
+        onOpenContracts={() => onOpenSystem("contracts")}
       />
 
       <div className="operations-primary-grid">

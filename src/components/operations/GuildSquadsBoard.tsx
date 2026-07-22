@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
+import { buildGuildSquadCommandCenter } from "../../game-engine/guild-squads/buildGuildSquadCommandCenter";
 import type { Character, Guild, GuildSquadMember, GuildSquadSlotId, PartyRole } from "../../shared/types";
+import { GuildSquadCommandCenter } from "./GuildSquadCommandCenter";
 
 const roles: PartyRole[] = ["tank", "healer", "damage", "support"];
 
@@ -8,15 +10,18 @@ interface GuildSquadsBoardProps {
   guild: Guild;
   characters: Character[];
   onSave: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
-  onUseForBoss: (slotId: GuildSquadSlotId) => void;
+  onUseForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
+  onOpenContracts: () => void;
 }
 
-export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss }: GuildSquadsBoardProps) {
+export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOpenContracts }: GuildSquadsBoardProps) {
   const status = useMemo(() => getGuildSquadStatus(guild, characters), [characters, guild]);
+  const commandCenter = useMemo(() => buildGuildSquadCommandCenter(guild, characters), [characters, guild]);
   const [selectedSlotId, setSelectedSlotId] = useState<GuildSquadSlotId>("squad-one");
   const selectedSlot = status.slots.find((slot) => slot.definition.id === selectedSlotId) ?? status.slots[0];
   const [name, setName] = useState(selectedSlot.squad?.name ?? selectedSlot.definition.defaultName);
   const [members, setMembers] = useState<GuildSquadMember[]>(selectedSlot.squad?.members ?? []);
+  const commandSlot = commandCenter.slots.find((slot) => slot.id === selectedSlot.definition.id) ?? commandCenter.slots[0];
 
   useEffect(() => {
     if (!selectedSlot.unlocked) {
@@ -93,6 +98,11 @@ export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss }: Gu
           <button disabled={members.length === 0} onClick={() => { setMembers([]); onSave(selectedSlot.definition.id, name, []); }} type="button">Clear</button>
         </div>
       </div>
+      <GuildSquadCommandCenter
+        onOpenBosses={(bossId) => onUseForBoss(selectedSlot.definition.id, bossId)}
+        onOpenContracts={onOpenContracts}
+        slot={commandSlot}
+      />
       <small className="guild-squads-note">Squads are reusable local presets. Saving or loading a formation never starts an activity; current boss, access, cooldown and party rules still apply.</small>
     </section>
   );

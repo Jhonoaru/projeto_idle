@@ -78,7 +78,7 @@ const systemEntries: GuildCodexEntry[] = [
     code: "SQ",
     title: "Guild Squads",
     subtitle: "Reusable local formations",
-    summary: "Save named groups of adventurers and their combat roles, then reuse those formations when preparing Bosses or support Contracts.",
+    summary: "Save named groups of adventurers, inspect their live readiness and reuse those formations when preparing Bosses or support Contracts.",
     facts: [
       { label: "Formation slots", value: "3 guild-wide" },
       { label: "Members", value: "Up to 5 each" },
@@ -89,10 +89,11 @@ const systemEntries: GuildCodexEntry[] = [
       "Campaign Operations is the formation editor; every member keeps one of the existing tank, healer, damage or support roles.",
       "Loading a squad into Bosses still applies the selected boss party limit, access, level, status and cooldown rules.",
       "Loading a squad into Contracts fills the available support-team places, excludes dead adventurers and never dispatches automatically.",
+      "Campaign Operations derives field power, role coverage, available members and valid Boss or Contract routes from the current save; no separate readiness state is stored.",
       "Squads are organization presets only: they add no statistics, currency, cooldown or background activity.",
     ],
     relatedSystems: ["Campaign Operations", "Bosses", "Guild Contracts", "Guild Levels", "SQLite Save"],
-    keywords: ["squad", "formation", "party", "preset", "team", "role", "boss", "contract"],
+    keywords: ["squad", "formation", "party", "preset", "team", "role", "readiness", "command", "boss", "contract"],
   },
   {
     id: "guild-projects",

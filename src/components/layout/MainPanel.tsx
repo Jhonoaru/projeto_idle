@@ -153,7 +153,7 @@ interface MainPanelProps {
   onClaimGuildRenownObjective: (objectiveId: string) => void;
   onActivateGuildDirective: (directiveId: string) => void;
   onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
-  onLoadGuildSquad: (slotId: GuildSquadSlotId) => void;
+  onLoadGuildSquad: (slotId: GuildSquadSlotId, bossId?: string) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onAcknowledgeGuildLogisticsAlerts: () => void;
   onManualSave: () => void;
