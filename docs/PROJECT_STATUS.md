@@ -146,6 +146,7 @@ Atualizado em: 2026-07-22
 - Etapa 77 concluida: Guild Deployment Planner compara todos os squads contra o Boss ou Contract escolhido e prepara o alvo exato sem iniciar atividades ou criar estado persistente.
 - Etapa 77.5 concluida: QA ampliada alinhou membros exibidos com a party/equipe realmente preparada e validou 785.082 checks, cinco viewports e tres cargas Tauri/SQLite.
 - Etapa 78 concluida: Deployment Orders guarda ate tres combinacoes de Boss/Contract + Guild Squad, recalcula readiness ao vivo e prepara a operacao sem launch ou dispatch automatico.
+- Etapa 78.5 concluida: QA corrigiu ordem canonica do JSON, timestamp invalido, Prepare de squad vazio e truncamento tablet; 124.684 checks e duas cargas SQLite passaram.
 
 Comandos principais:
 
@@ -5159,6 +5160,53 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 78.5 - QA aprofundada dos Guild Deployment Orders no Tauri/SQLite.
+
+## Etapa 78.5 - QA dos Guild Deployment Orders
+
+Status: concluida.
+
+Correcoes reproduzidas:
+
+- Salvar Order II, III e I nessa sequencia persistia `order-one, order-three, order-two` por ordenacao alfabetica; normalizacao e escrita agora usam sempre a ordem canonica I/II/III.
+- `saveGuildDeploymentOrder` chamava `toISOString()` em uma data invalida e podia lancar `RangeError`; timestamps invalidos agora retornam bloqueio seguro sem alterar a guilda.
+- Uma ordem ligada a squad posteriormente esvaziado continuava exibindo `Prepare` habilitado; a ordem permanece para revisao, mas o comando fica disabled ate a formacao voltar a ser configurada e desbloqueada.
+- Em 760 px os tres cards permaneciam lado a lado e truncavam o motivo operacional; o quadro agora empilha a partir do breakpoint tablet.
+
+Matriz automatizada:
+
+- Harness temporario passou em 124.684 checks e foi removido.
+- Os seis Bosses e seis Contracts foram cruzados com os tres squads; alvo, readiness, motivo, membros mobilizados, power e chance ficaram identicos ao Deployment Planner.
+- As 7.776 combinacoes de idle/hunting/training/questing/bossing/traveling dos cinco personagens foram testadas com tres ordens simultaneas.
+- Todas as metricas permaneceram finitas e as tres ordens continuaram derivadas sem alterar personagens, gold, cooldown ou atividades.
+- Criacao fora de ordem, substituicao, limpeza independente, duplicatas, null, tipos desconhecidos, alvos ausentes e timestamp invalido passaram.
+
+QA visual e interativo:
+
+- First Company com Lyra registrou Sewer Broodmother; ao limpar o squad a ordem permaneceu `Needs review` com `Prepare` disabled.
+- Restaurar Lyra devolveu `Ready now` e habilitou Prepare sem recriar a ordem.
+- O mesmo slot foi substituido por Supply Route Survey sem duplicacao e abriu o posting com Lyra selecionada, sem expedition ativa ou dispatch automatico.
+- Viewports de 1440, 960, 760, 520 e 430 px ficaram sem overflow no documento, quadro ou cards e sem texto truncado.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- Uma fixture com slots fora de ordem, duplicata, alvo ausente, entrada null, tipo numerico, squad desconhecido, membro inexistente e timestamps invalidos foi carregada duas vezes pelo executavel release.
+- A primeira carga persistiu exatamente Order I Contract/Supply Route, Order II Boss/Sewer Broodmother e Order III Boss/Ember Matriarch; a segunda carga preservou o mesmo JSON canonico.
+- Squad inexistente e membros invalidos foram removidos; timestamps ruins de squad/order normalizaram para `1970-01-01T00:00:00.000Z`.
+- As duas cargas mantiveram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs com `PRAGMA integrity_check: ok`.
+- `npm.cmd run tauri:build` passou com 387 modulos e gerou executavel release, MSI e NSIS.
+- O banco original, WAL e SHM foram restaurados byte a byte; nenhum fixture ou bundle temporario permaneceu.
+
+Limitacoes mantidas:
+
+- Ordens nao reservam personagens, nao criam fila e nao iniciam atividades automaticamente.
+- Readiness pode mudar legitimamente conforme roster, gold, acesso e cooldown; a ordem bloqueada permanece salva para revisao.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser e persistencia por duas aberturas nativas controladas.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 79 - definir a proxima camada de gerenciamento offline apos Deployment Orders validados.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

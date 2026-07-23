@@ -35,7 +35,7 @@ export function GuildDeploymentOrdersBoard({ orders, selectedSlotId, onSelectSlo
             {slot.order && slot.target && slot.candidate ? (
               <div className="guild-deployment-order-actions">
                 <b>{slot.ready ? "Ready now" : "Needs review"}</b>
-                <button onClick={() => slot.order?.kind === "boss"
+                <button disabled={!slot.candidate.unlocked || !slot.candidate.configured} onClick={() => slot.order?.kind === "boss"
                   ? onPrepareBoss(slot.order.squadSlotId, slot.order.targetId)
                   : onPrepareContract(slot.order!.squadSlotId, slot.order!.targetId)} type="button">Prepare</button>
                 <button aria-label={`Clear ${slot.definition.name}`} onClick={() => onClear(slot.definition.id)} title="Clear order" type="button">X</button>

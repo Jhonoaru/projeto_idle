@@ -1,6 +1,6 @@
 import { bosses } from "../../data/bosses";
 import { guildContracts } from "../../data/guildContracts";
-import { getGuildDeploymentOrderSlot } from "../../data/guildDeploymentOrders";
+import { getGuildDeploymentOrderSlot, guildDeploymentOrderSlots } from "../../data/guildDeploymentOrders";
 import { getGuildSquadSlot } from "../../data/guildSquads";
 import type { GuildDeploymentOrder, GuildDeploymentOrdersState } from "../../shared/types";
 
@@ -16,8 +16,13 @@ export function normalizeGuildDeploymentOrdersState(value: unknown): GuildDeploy
       seen.add(order.id);
       return true;
     })
+    .sort((left, right) => orderIndex(left.id) - orderIndex(right.id))
     .slice(0, 3);
   return { orders };
+}
+
+function orderIndex(id: GuildDeploymentOrder["id"]) {
+  return guildDeploymentOrderSlots.findIndex((slot) => slot.id === id);
 }
 
 function normalizeOrder(value: unknown): GuildDeploymentOrder | undefined {

@@ -20,9 +20,13 @@ export function saveGuildDeploymentOrder(
   if (!slot || !target || !candidate || !candidate.unlocked || !candidate.configured) {
     return { success: false, guild: { ...guild, deploymentOrders: current }, message: "Choose a valid operation and a configured Guild Squad." };
   }
+  if (!Number.isFinite(now.getTime())) {
+    return { success: false, guild: { ...guild, deploymentOrders: current }, message: "Deployment order timestamp is invalid." };
+  }
   const order = { id: slot.id, kind, targetId, squadSlotId, updatedAt: now.toISOString() } as const;
-  const orders = [...current.orders.filter((entry) => entry.id !== slot.id), order]
-    .sort((left, right) => left.id.localeCompare(right.id));
+  const orders = normalizeGuildDeploymentOrdersState({
+    orders: [...current.orders.filter((entry) => entry.id !== slot.id), order],
+  }).orders;
   return {
     success: true,
     guild: { ...guild, deploymentOrders: { orders } },
