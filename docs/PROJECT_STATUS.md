@@ -149,6 +149,7 @@ Atualizado em: 2026-07-22
 - Etapa 78.5 concluida: QA corrigiu ordem canonica do JSON, timestamp invalido, Prepare de squad vazio e truncamento tablet; 124.684 checks e duas cargas SQLite passaram.
 - Etapa 79 concluida: Guild Armory Audit compara os loadouts do roster, lacunas, conjuntos e upgrades compativeis ja guardados no Guild Depot, sem auto-equip ou estado novo.
 - Etapa 79.5 concluida: QA do Armory bloqueou stacks zeradas, normalizou ratings/levels corrompidos, corrigiu filtros vazios e sincronizou personagem nos atalhos; 122.874 checks e SQLite nativo passaram.
+- Etapa 80 concluida: Equipment Acquisition Planner conecta upgrades compativeis a posses da guilda, Hunts, Bosses e Crafting reais, sem reservar itens ou iniciar atividades automaticamente.
 
 Comandos principais:
 
@@ -5299,6 +5300,46 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 80 - Equipment Acquisition Planner, conectando lacunas do Armory a fontes reais de Hunt, Boss e Crafting.
+
+## Etapa 80 - Equipment Acquisition Planner
+
+Status: concluida.
+
+Implementacao:
+
+- O Guild Armory ganhou uma segunda view `Acquisition Planner`, mantendo a auditoria existente intacta.
+- Para cada personagem e slot, o planner escolhe o equipamento mais forte que respeita slot, level, vocation e regras de offhand.
+- Equipamentos ja presentes com quantidade positiva no Guild Depot continuam sob responsabilidade do Armory Audit e nao viram meta de aquisicao.
+- Equipamentos em inventario, depot pessoal ou equipados por outro aventureiro aparecem como `Guild holding`, evitando recomendar farm desnecessario.
+- Fontes de Hunt usam as loot tables reais dos monstros, com chance, quantidade, acesso, level e disponibilidade do roster.
+- Fontes de Boss usam loot, entry fee, cooldown, acessos, quests, vocation, tamanho da party e quantidade total de roles exigidas.
+- Fontes de Crafting usam as 19 receitas reais, rank do Guild Workbench, gold e materiais disponiveis.
+- As rotas abrem Inventory do portador, Hunt Assignment, Boss review ou Forge sem mover item, iniciar hunt/raid ou craftar automaticamente.
+- Toda a leitura e derivada dos dados atuais; nenhum campo, schema, migration ou escrita de save foi criado.
+
+Validacao:
+
+- `npm.cmd run build` passou com 391 modulos.
+- Harness temporario validou IDs das fontes, compatibilidade, ganho positivo, delta, exclusao do Guild Depot, imutabilidade e referencias exatas de loot/receita.
+- Foram exercitadas 2.000 combinacoes de roster, level, status, acesso e gold, totalizando 55.231 verificacoes aleatorias; o harness foi removido.
+- QA no browser validou troca entre Audit/Planner e rotas para Inventory, Minotaur Outpost, Grunk the Camp Breaker e Forge.
+- Hunts prontas ficaram acionaveis e rotas bloqueadas ficaram desabilitadas.
+- Viewports de 1440, 1180, 960, 760, 520 e 430 px ficaram sem overflow horizontal no documento, Armory, Planner ou workspace.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- SQLite local foi consultado em modo somente leitura: `integrity_check=ok`, 1 guilda e 5 personagens.
+
+Limitacoes mantidas:
+
+- O planner recomenda uma rota por equipamento, mas nao considera tempo esperado de farm nem calcula custo de oportunidade entre Hunt, Boss e Crafting.
+- O alvo e escolhido por rating heuristico; builds especializadas ainda dependem da decisao do jogador.
+- Abrir Forge nao seleciona automaticamente a aba Guild Workbench nem a receita indicada.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser, desktop pelo build nativo e SQLite em leitura somente leitura.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 80.5 - QA aprofundada do Equipment Acquisition Planner no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

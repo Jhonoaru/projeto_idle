@@ -1152,11 +1152,83 @@ p {
 .guild-armory-note { display: block; margin-top: 9px; color: #77817a; font-size: 0.49rem; line-height: 1.4; }
 .guild-armory-empty { padding: 24px; color: #89938d; text-align: center; }
 
+/* Stage 80 - Equipment Acquisition Planner */
+.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
+.guild-armory-view-tabs button { min-height: 34px; border: 0; border-right: 1px solid #3b3b35; color: #89938d; background: #141a17; font-family: Georgia, serif; font-size: 0.56rem; font-weight: 700; cursor: pointer; }
+.guild-armory-view-tabs button:last-child { border-right: 0; }
+.guild-armory-view-tabs button[aria-selected="true"] { color: #ead18c; background: #26291f; box-shadow: inset 0 -2px #a58a4a; }
+.equipment-acquisition-planner { display: grid; gap: 8px; min-width: 0; }
+.acquisition-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #3b3b35; background: #101513; }
+.acquisition-summary > div { min-width: 0; min-height: 55px; padding: 8px 10px; border-right: 1px solid #303832; }
+.acquisition-summary > div:last-child { border-right: 0; }
+.acquisition-summary span,
+.acquisition-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acquisition-summary span { color: #7f8981; font-size: 0.48rem; text-transform: uppercase; }
+.acquisition-summary strong { margin-top: 7px; color: #dfce97; font-size: 0.7rem; }
+.acquisition-roster { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; min-width: 0; padding: 8px; border: 1px solid #3b3b35; background: #101513; }
+.acquisition-roster button { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 4px 7px; align-items: center; min-width: 0; min-height: 59px; padding: 6px; border: 1px solid #343c36; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.acquisition-roster button[aria-pressed="true"] { border-color: #927b45; background: #20241c; }
+.acquisition-roster i { grid-row: 1 / 3; display: grid; place-items: center; width: 30px; height: 39px; border: 1px solid #6d6142; color: #dcc780; background: #20251f; font-style: normal; font-weight: 900; }
+.acquisition-roster span,
+.acquisition-roster strong,
+.acquisition-roster small,
+.acquisition-roster em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acquisition-roster strong { color: #d8ca96; font-size: 0.58rem; }
+.acquisition-roster small { margin-top: 2px; font-size: 0.46rem; }
+.acquisition-roster b { color: #9ec48e; font-size: 0.47rem; white-space: nowrap; }
+.acquisition-roster em { grid-column: 2 / -1; color: #78847c; font-size: 0.44rem; font-style: normal; }
+.acquisition-workspace { display: grid; grid-template-columns: minmax(310px, 0.68fr) minmax(560px, 1.32fr); gap: 8px; min-width: 0; align-items: start; }
+.acquisition-targets,
+.acquisition-routes { min-width: 0; padding: 9px; border: 1px solid #3b3b35; background: #101513; }
+.acquisition-targets > header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; align-items: end; padding-bottom: 7px; border-bottom: 1px solid #303832; }
+.acquisition-targets > header span { grid-column: 1 / -1; color: #89938d; font-size: 0.48rem; text-transform: uppercase; }
+.acquisition-targets > header strong { color: #dfce97; font-family: Georgia, serif; font-size: 0.74rem; }
+.acquisition-targets > header small { color: #89938d; font-size: 0.48rem; }
+.acquisition-targets > div,
+.acquisition-routes > div { display: grid; gap: 5px; margin-top: 7px; }
+.acquisition-targets button { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 59px; padding: 6px; border: 1px solid #39413b; border-left: 3px solid #756845; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.acquisition-targets button[aria-pressed="true"] { border-color: #a58a4a; background: #22261e; }
+.acquisition-targets button span,
+.acquisition-targets button small,
+.acquisition-targets button strong,
+.acquisition-targets button em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acquisition-targets button small { color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
+.acquisition-targets button strong { margin: 3px 0; color: #d8cc9d; font-size: 0.58rem; }
+.acquisition-targets button em { color: #7f8981; font-size: 0.45rem; font-style: normal; }
+.acquisition-targets button > b { color: #9ec48e; font-size: 0.58rem; }
+.acquisition-routes > header { display: flex; justify-content: space-between; gap: 10px; align-items: end; padding-bottom: 7px; border-bottom: 1px solid #303832; }
+.acquisition-routes > header span,
+.acquisition-routes > header strong { display: block; }
+.acquisition-routes > header span { color: #89938d; font-size: 0.48rem; text-transform: uppercase; }
+.acquisition-routes > header strong { margin-top: 3px; color: #dfce97; font-family: Georgia, serif; font-size: 0.76rem; }
+.acquisition-routes > header > b { color: #9ec48e; font-size: 0.52rem; text-align: right; }
+.acquisition-routes article { display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(150px, 0.45fr); gap: 8px; align-items: center; min-width: 0; min-height: 64px; padding: 7px; border: 1px solid #39413b; border-left: 3px solid #65706a; background: #151a17; }
+.acquisition-routes article.is-ready { border-left-color: #769768; }
+.acquisition-routes article.is-busy { border-left-color: #a88a4a; }
+.acquisition-routes article.is-locked { border-left-color: #81554e; }
+.acquisition-routes article > i { display: grid; place-items: center; width: 32px; height: 42px; border: 1px solid #625a43; color: #dfca88; background: #20251f; font-style: normal; font-weight: 900; }
+.acquisition-routes article span,
+.acquisition-routes article small,
+.acquisition-routes article strong,
+.acquisition-routes article em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acquisition-routes article small { color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
+.acquisition-routes article strong { margin: 3px 0; color: #d8cc9d; font-size: 0.59rem; }
+.acquisition-routes article em { color: #87928b; font-size: 0.47rem; font-style: normal; }
+.acquisition-routes article > div { min-width: 0; text-align: right; }
+.acquisition-routes article > div > b { display: block; overflow: hidden; color: #98a29b; font-size: 0.46rem; text-overflow: ellipsis; white-space: nowrap; }
+.acquisition-routes article > div > button { width: 100%; min-height: 28px; margin-top: 5px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.49rem; font-weight: 700; cursor: pointer; }
+.acquisition-routes article > div > button:disabled { border-color: #3c443e; color: #68716b; background: #171c19; cursor: not-allowed; }
+.acquisition-empty { display: grid; place-items: center; min-height: 220px; padding: 30px; border: 1px solid #3b3b35; background: #101513; text-align: center; }
+.acquisition-empty strong { color: #dfce97; font-family: Georgia, serif; font-size: 0.84rem; }
+.acquisition-empty span { margin-top: 7px; color: #89938d; font-size: 0.52rem; }
+
 @media (max-width: 1180px) {
   .guild-armory-hero { grid-template-columns: 82px minmax(0, 1fr); }
   .guild-armory-summary { grid-column: 1 / -1; }
   .guild-armory-roster-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .guild-armory-workspace { grid-template-columns: 1fr; }
+  .acquisition-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .acquisition-workspace { grid-template-columns: minmax(280px, 0.62fr) minmax(450px, 1.38fr); }
 }
 @media (max-width: 760px) {
   .guild-armory-hero { grid-template-columns: 1fr; text-align: center; }
@@ -1165,6 +1237,9 @@ p {
   .guild-armory-summary > div { border-bottom: 1px solid #303832; }
   .guild-armory-roster-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-armory-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .acquisition-summary,
+  .acquisition-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .acquisition-workspace { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
   .guild-armory-roster > header,
@@ -1177,6 +1252,15 @@ p {
   .guild-armory-command-row { grid-template-columns: 1fr; max-width: none; }
   .guild-armory-summary { grid-template-columns: 1fr; }
   .guild-armory-recommendations > div > article { grid-template-columns: 38px minmax(0, 1fr) auto; }
+  .guild-armory-view-tabs,
+  .acquisition-summary,
+  .acquisition-roster { grid-template-columns: 1fr; }
+  .guild-armory-view-tabs button { border-right: 0; border-bottom: 1px solid #3b3b35; }
+  .guild-armory-view-tabs button:last-child { border-bottom: 0; }
+  .acquisition-routes > header { align-items: flex-start; flex-direction: column; }
+  .acquisition-routes > header > b { text-align: left; }
+  .acquisition-routes article { grid-template-columns: 34px minmax(0, 1fr); }
+  .acquisition-routes article > div { grid-column: 1 / -1; text-align: left; }
 }
 
 .forge-workshop-shell,

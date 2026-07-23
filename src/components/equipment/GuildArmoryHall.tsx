@@ -1,15 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildGuildArmoryAudit, type GuildArmoryStatus } from "../../game-engine/equipment/buildGuildArmoryAudit";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
-import type { Character, EquipmentSlot, GuildDepot } from "../../shared/types";
+import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, HuntArea } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
+import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
+type ArmoryView = "audit" | "acquisition";
 
 interface GuildArmoryHallProps {
   characters: Character[];
   depot: GuildDepot;
+  guild: Guild;
   selectedCharacterId: string;
+  onOpenBoss: (boss: Boss) => void;
+  onOpenHunt: (hunt: HuntArea) => void;
   onSelectCharacter: (characterId: string) => void;
   onOpenSystem: (tab: "inventory" | "depot" | "forge") => void;
 }
@@ -19,8 +24,9 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSelectCharacter, onOpenSystem }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
+  const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
   const [inspectedCharacterId, setInspectedCharacterId] = useState(selectedCharacterId);
   const filteredRoster = audit.roster.filter((entry) => filter === "all" || entry.status === filter);
@@ -52,7 +58,7 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
     <div className="guild-armory-hall">
       <section className="guild-armory-hero">
         <div className="guild-armory-seal" aria-hidden="true">A</div>
-        <div><span>Guild equipment command</span><h3>Armory Audit</h3><p>Compare every loadout and identify compatible upgrades already stored in the Guild Depot.</p></div>
+        <div><span>Guild equipment command</span><h3>{view === "audit" ? "Armory Audit" : "Acquisition Planner"}</h3><p>{view === "audit" ? "Compare every loadout and identify compatible upgrades already stored in the Guild Depot." : "Connect equipment targets to holdings, hunts, bosses and Guild Workbench recipes."}</p></div>
         <div className="guild-armory-summary">
           <Summary label="Equipped" value={`${audit.summary.equippedSlots}/${audit.summary.totalSlots}`} />
           <Summary label="Missing" value={String(audit.summary.missingSlots)} />
@@ -62,7 +68,13 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
         </div>
       </section>
 
-      <section className="guild-armory-roster">
+      <div className="guild-armory-view-tabs" role="tablist" aria-label="Armory view">
+        <button aria-selected={view === "audit"} onClick={() => setView("audit")} role="tab" type="button">Armory Audit</button>
+        <button aria-selected={view === "acquisition"} onClick={() => setView("acquisition")} role="tab" type="button">Acquisition Planner</button>
+      </div>
+
+      {view === "audit" ? <>
+        <section className="guild-armory-roster">
         <header><div><span>Roster inspection</span><h3>Loadout Status</h3></div><strong>{filteredRoster.length}/{audit.roster.length} shown</strong></header>
         <div className="guild-armory-toolbar" role="group" aria-label="Armory roster filter">
           <button aria-pressed={filter === "all"} onClick={() => setFilter("all")} type="button">All</button>
@@ -81,9 +93,9 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
           ))}
           {filteredRoster.length === 0 ? <p>No adventurers match this armory filter.</p> : null}
         </div>
-      </section>
+        </section>
 
-      {selected ? <div className="guild-armory-workspace">
+        {selected ? <div className="guild-armory-workspace">
         <section className="guild-armory-loadout">
           <SectionHeading eyebrow={`${selected.vocation} / Level ${selected.level}`} title={`${selected.name} Loadout`} value={`${selected.equippedCount}/9 equipped`} />
           <div className="guild-armory-slot-grid">
@@ -128,7 +140,20 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
           </section>
           <small className="guild-armory-note">Recommendations compare current enhanced stats and vocation relevance. Moving and equipping items remains manual.</small>
         </aside>
-      </div> : <section className="guild-armory-filter-empty"><strong>No matching loadouts</strong><p>Choose another filter to continue the armory inspection.</p></section>}
+        </div> : <section className="guild-armory-filter-empty"><strong>No matching loadouts</strong><p>Choose another filter to continue the armory inspection.</p></section>}
+      </> : (
+        <EquipmentAcquisitionPlanner
+          characters={characters}
+          depot={depot}
+          guild={guild}
+          onOpenBoss={onOpenBoss}
+          onOpenForge={() => { onSelectCharacter(inspectedCharacterId); onOpenSystem("forge"); }}
+          onOpenHunt={onOpenHunt}
+          onOpenInventory={(characterId) => { onSelectCharacter(characterId); onOpenSystem("inventory"); }}
+          onSelectCharacter={selectCharacter}
+          selectedCharacterId={inspectedCharacterId}
+        />
+      )}
     </div>
   );
 }

@@ -448,6 +448,9 @@ export function MainPanel({
           <GuildArmoryHall
             characters={characters}
             depot={depot}
+            guild={guild}
+            onOpenBoss={(boss) => { onSelectBoss(boss); onChangeTab("bosses"); }}
+            onOpenHunt={onOpenTrackedHunt}
             selectedCharacterId={selectedCharacter.id}
             onOpenSystem={onChangeTab}
             onSelectCharacter={onSelectCharacter}
