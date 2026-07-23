@@ -39,18 +39,12 @@ export function GuildEquipmentAllocationBoard({
     ?? selectedCharacter?.allocations[0];
 
   useEffect(() => {
-    if (initializedSelection.current) return;
+    if (initializedSelection.current || !plan.allocations[0]) return;
     initializedSelection.current = true;
-    if (selectedCharacter?.allocations.length === 0 && plan.allocations[0]) {
+    if (selectedCharacter?.allocations.length === 0) {
       onSelectCharacter(plan.allocations[0].characterId);
     }
   }, [onSelectCharacter, plan.allocations, selectedCharacter?.allocations.length]);
-  useEffect(() => setSelectedAllocationId(""), [selectedCharacter?.characterId]);
-  useEffect(() => {
-    if (selectedAllocation && selectedAllocation.id !== selectedAllocationId) {
-      setSelectedAllocationId(selectedAllocation.id);
-    }
-  }, [selectedAllocation, selectedAllocationId]);
 
   return (
     <section className="equipment-allocation-board">
@@ -114,7 +108,7 @@ export function GuildEquipmentAllocationBoard({
               <div><dt>Character</dt><dd>{selectedAllocation.characterName}</dd></div>
               <div><dt>Vocation</dt><dd>{selectedAllocation.vocation}</dd></div>
               <div><dt>Level</dt><dd>{selectedAllocation.level}</dd></div>
-                <div><dt>Free capacity</dt><dd>{selectedAllocation.freeCapacity.toFixed(1)}</dd></div>
+              <div><dt>Free capacity</dt><dd>{selectedAllocation.freeCapacity.toFixed(1)}</dd></div>
               </dl>
           </section> : <section className="allocation-order is-empty">
             <header><span>Quartermaster order</span><strong>No assigned item</strong></header>

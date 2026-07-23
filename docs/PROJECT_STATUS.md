@@ -152,6 +152,7 @@ Atualizado em: 2026-07-22
 - Etapa 80 concluida: Equipment Acquisition Planner conecta upgrades compativeis a posses da guilda, Hunts, Bosses e Crafting reais, sem reservar itens ou iniciar atividades automaticamente.
 - Etapa 80.5 concluida: QA do Acquisition Planner corrigiu depot legado, materiais nao finitos, boss sem gold e falsas posses; 557.731 checks e duas cargas Tauri/SQLite passaram.
 - Etapa 81 concluida: Guild Equipment Allocation Board distribui cada copia finita do Guild Depot uma unica vez e maximiza o ganho total de rating do roster sem auto-equip.
+- Etapa 81.5 concluida: QA do Allocation Board corrigiu a selecao de ordens secundarias, validou 24.039 checks, desktop/mobile e uma carga Tauri/SQLite com restauracao integral do save.
 
 Comandos principais:
 
@@ -5453,6 +5454,60 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 81.5 - QA aprofundada do Guild Equipment Allocation Board no Tauri/SQLite.
+
+## Etapa 81.5 - QA do Guild Equipment Allocation Board
+
+Status: concluida como QA aprofundada e estabilizacao.
+
+Correcao aplicada:
+
+- Uma ordem secundaria escolhida no Allocation Ledger podia voltar silenciosamente para a primeira ordem do mesmo personagem.
+- A causa era a sequencia de efeitos React que limpava e ressincronizava `selectedAllocationId` depois do clique.
+- A selecao agora preserva a ordem explicita do ledger e usa a primeira alocacao apenas como fallback derivado.
+- A sincronizacao inicial tambem espera existir uma alocacao antes de marcar a inicializacao como concluida, cobrindo carregamento tardio do Depot.
+- Personagem sem ordem continua mostrando `No assigned item`, sem reutilizar detalhes de outro aventureiro.
+
+QA da engine:
+
+- Harness temporario passou em 24.039 assertions e foi removido.
+- Oitocentos cenarios pseudoaleatorios foram comparados com busca exaustiva independente por slot.
+- Todos os cenarios alcancaram o maior ganho global e, em empate, a maior quantidade de alocacoes.
+- Os 41 equipamentos do catalogo foram exercitados contra Guardian, Ranger, Arcanist, Warden e Monk.
+- Foram validados level, vocation, offhand, slot, rating aprimorado, quantidade finita, resumo, itens sem destino e capacidade.
+- Entradas 0, negativas, NaN, infinitas, ausentes e quantidade extrema nao duplicaram copias nem quebraram o planner.
+- Nenhum personagem recebeu duas ordens no mesmo slot e nenhuma entrada do Depot excedeu a quantidade disponivel.
+- Entradas de personagens e Depot permaneceram imutaveis e o resultado repetido permaneceu deterministico.
+
+QA visual e interativo:
+
+- O fluxo real `Armory > Allocation Board` abriu com Lyra e Brass Shield sincronizados.
+- Um cenario temporario com duas ordens para Lyra confirmou por clique que `Apprentice Robe` permanece selecionada no ledger e no quartermaster.
+- Trocar para Arkon mostrou o estado vazio correto; retornar pelo ledger restaurou a ordem escolhida.
+- `Open Depot` abriu o Guild Depot com Lyra selecionada e os itens esperados visiveis.
+- Desktop em 1280 px e moldura real de 430 px ficaram sem overflow horizontal.
+- Em 430 px, icone, descricao, status e comandos ficaram separados, sem sobreposicao.
+- Dados e moldura temporarios de QA foram removidos.
+- O console web mostrou apenas o fallback SQLite esperado quando o frontend roda fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 393 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O executavel release permaneceu aberto, responsivo e estavel durante a janela controlada de 8 segundos.
+- Antes e depois do teste, `integrity_check=ok` confirmou 1 guilda, 5 personagens e 26 itens.
+- O teste nativo abriu WAL/SHM; DB, WAL e SHM foram restaurados aos hashes SHA-256 originais.
+- Nenhum backup, harness, pagina de teste ou processo de QA permaneceu no projeto.
+
+Limitacoes mantidas:
+
+- O Allocation Board permanece somente leitura e nao transfere ou equipa itens.
+- O QA interativo foi feito no browser; a janela Tauri foi validada por carga nativa controlada, sem cliques manuais.
+- O rating continua sendo uma heuristica e nao simula uma build completa de combate.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 82 - Guild Quartermaster Distribution Orders, com confirmacao explicita para transferir e equipar as ordens do Allocation Board.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
