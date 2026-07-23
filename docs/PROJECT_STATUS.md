@@ -151,6 +151,7 @@ Atualizado em: 2026-07-22
 - Etapa 79.5 concluida: QA do Armory bloqueou stacks zeradas, normalizou ratings/levels corrompidos, corrigiu filtros vazios e sincronizou personagem nos atalhos; 122.874 checks e SQLite nativo passaram.
 - Etapa 80 concluida: Equipment Acquisition Planner conecta upgrades compativeis a posses da guilda, Hunts, Bosses e Crafting reais, sem reservar itens ou iniciar atividades automaticamente.
 - Etapa 80.5 concluida: QA do Acquisition Planner corrigiu depot legado, materiais nao finitos, boss sem gold e falsas posses; 557.731 checks e duas cargas Tauri/SQLite passaram.
+- Etapa 81 concluida: Guild Equipment Allocation Board distribui cada copia finita do Guild Depot uma unica vez e maximiza o ganho total de rating do roster sem auto-equip.
 
 Comandos principais:
 
@@ -5392,6 +5393,66 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 81 - definir a proxima camada de gerenciamento offline apos o Equipment Acquisition Planner validado.
+
+## Etapa 81 - Guild Equipment Allocation Board
+
+Status: concluida.
+
+Implementacao:
+
+- O Guild Armory ganhou uma terceira view `Allocation Board`, ao lado de Armory Audit e Acquisition Planner.
+- A engine transforma quantidades validas de equipamento no Guild Depot em copias finitas e cada copia pode atender no maximo um personagem.
+- Um matching global de peso maximo escolhe a distribuicao que gera o maior ganho total de rating para todo o roster.
+- Em empate de ganho, a engine prioriza a maior quantidade de slots melhorados e mantem resultado deterministico.
+- Compatibilidade respeita slot, level, vocation, offhand, tier, upgrade e atributos aprimorados do item real.
+- Nenhum personagem recebe duas recomendacoes para o mesmo slot e nenhuma stack pode exceder sua quantidade.
+- O board mostra copias no Depot, alocacoes, ganho total, transferencias prontas, conflitos resolvidos e equipamentos sem destino.
+- Cada personagem exibe ganho individual, itens atribuidos e capacidade livre para receber a transferencia.
+- O ledger global seleciona uma ordem e abre Depot, Inventory ou Forge ja no personagem correto.
+- A selecao inicial pula personagens sem alocacao e foca a primeira ordem real.
+- O titulo amplo foi generalizado de `Guild Armory Audit` para `Guild Armory`.
+- Nenhum item e movido, reservado, equipado ou forjado automaticamente.
+- Nenhum campo, migration, tabela ou escrita de save foi criado.
+
+Validacao:
+
+- `npm.cmd run build` passou com 393 modulos.
+- Harness temporario passou em 60.767 verificacoes e foi removido.
+- Seiscentas matrizes pseudoaleatorias foram comparadas contra busca exaustiva e alcancaram o ganho global otimo.
+- Cinco mil cenarios adicionais testaram levels, vocations, capacidade, inventario corrompido, quantidades 0/negativas/NaN/infinitas e depot ausente.
+- Os 41 equipamentos do catalogo participaram da matriz de compatibilidade.
+- Ordem invertida do Depot preservou a mesma distribuicao semantica.
+- Uma copia do Brass Shield foi atribuida somente a Lyra; duas copias atenderam dois destinos sem duplicacao de slot.
+- Quantidade extrema foi limitada ao numero util de slots durante o matching, sem loop proporcional ao valor corrompido.
+
+QA visual e interativo:
+
+- Allocation Board abriu com Lyra e a ordem real do Brass Shield sincronizadas.
+- `Open Depot` abriu o Guild Depot no contexto de Lyra com o item correto disponivel.
+- Armory Audit e Acquisition Planner permaneceram acessiveis nas tabs vizinhas.
+- Viewports de 1440, 1180, 960, 760, 520 e 430 px ficaram sem overflow no documento, board, workspace ou ledger.
+- A inspecao visual encontrou e corrigiu a sobreposicao entre o icone grande e o texto da ordem em 430 px.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Uma carga nativa controlada permaneceu estavel com `integrity_check=ok`.
+- Permaneceram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs.
+- DB, WAL e SHM originais foram restaurados com hashes identicos e nenhum backup temporario restante.
+
+Limitacoes mantidas:
+
+- O matching usa apenas equipamentos que ja estao no Guild Depot; holdings pessoais continuam no Acquisition Planner.
+- Equipamento substituido nao entra em uma segunda rodada de redistribuicao em cascata.
+- Capacidade bloqueada e informativa; o jogador ainda precisa liberar espaco e executar a transferencia manualmente.
+- O rating e uma heuristica de gerenciamento e nao simula uma build completa de combate.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser e o save por carga nativa controlada.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 81.5 - QA aprofundada do Guild Equipment Allocation Board no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

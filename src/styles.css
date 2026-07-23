@@ -1153,7 +1153,7 @@ p {
 .guild-armory-empty { padding: 24px; color: #89938d; text-align: center; }
 
 /* Stage 80 - Equipment Acquisition Planner */
-.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
+.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
 .guild-armory-view-tabs button { min-height: 34px; border: 0; border-right: 1px solid #3b3b35; color: #89938d; background: #141a17; font-family: Georgia, serif; font-size: 0.56rem; font-weight: 700; cursor: pointer; }
 .guild-armory-view-tabs button:last-child { border-right: 0; }
 .guild-armory-view-tabs button[aria-selected="true"] { color: #ead18c; background: #26291f; box-shadow: inset 0 -2px #a58a4a; }
@@ -1222,6 +1222,89 @@ p {
 .acquisition-empty strong { color: #dfce97; font-family: Georgia, serif; font-size: 0.84rem; }
 .acquisition-empty span { margin-top: 7px; color: #89938d; font-size: 0.52rem; }
 
+/* Stage 81 - Guild Equipment Allocation Board */
+.equipment-allocation-board { display: grid; gap: 8px; min-width: 0; }
+.allocation-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #3b3b35; background: #101513; }
+.allocation-summary > div { min-width: 0; min-height: 55px; padding: 8px 10px; border-right: 1px solid #303832; }
+.allocation-summary > div:last-child { border-right: 0; }
+.allocation-summary span,
+.allocation-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.allocation-summary span { color: #7f8981; font-size: 0.47rem; text-transform: uppercase; }
+.allocation-summary strong { margin-top: 7px; color: #dfce97; font-size: 0.7rem; }
+.allocation-roster { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; min-width: 0; padding: 8px; border: 1px solid #3b3b35; background: #101513; }
+.allocation-roster button { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 4px 7px; align-items: center; min-width: 0; min-height: 59px; padding: 6px; border: 1px solid #343c36; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.allocation-roster button[aria-pressed="true"] { border-color: #927b45; background: #20241c; }
+.allocation-roster i { grid-row: 1 / 3; display: grid; place-items: center; width: 30px; height: 39px; border: 1px solid #6d6142; color: #dcc780; background: #20251f; font-style: normal; font-weight: 900; }
+.allocation-roster span,
+.allocation-roster strong,
+.allocation-roster small,
+.allocation-roster em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.allocation-roster strong { color: #d8ca96; font-size: 0.58rem; }
+.allocation-roster small { margin-top: 2px; font-size: 0.46rem; }
+.allocation-roster b { color: #9ec48e; font-size: 0.47rem; white-space: nowrap; }
+.allocation-roster em { grid-column: 2 / -1; color: #78847c; font-size: 0.44rem; font-style: normal; }
+.allocation-workspace { display: grid; grid-template-columns: minmax(290px, 0.72fr) minmax(390px, 1fr) minmax(230px, 0.58fr); gap: 8px; min-width: 0; align-items: start; }
+.allocation-character,
+.allocation-order,
+.allocation-ledger { min-width: 0; padding: 9px; border: 1px solid #3b3b35; background: #101513; }
+.allocation-character > header,
+.allocation-order > header,
+.allocation-ledger > header { display: flex; justify-content: space-between; gap: 8px; align-items: end; padding-bottom: 7px; border-bottom: 1px solid #303832; }
+.allocation-character header span,
+.allocation-order header span,
+.allocation-ledger header span { display: block; color: #89938d; font-size: 0.47rem; text-transform: uppercase; }
+.allocation-character header strong,
+.allocation-order header strong,
+.allocation-ledger header strong { display: block; margin-top: 3px; color: #dfce97; font-family: Georgia, serif; font-size: 0.73rem; }
+.allocation-character header b,
+.allocation-order header b,
+.allocation-ledger header b { color: #9ec48e; font-size: 0.54rem; white-space: nowrap; }
+.allocation-character > div,
+.allocation-ledger > div { display: grid; gap: 5px; margin-top: 7px; }
+.allocation-character > div > button { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 59px; padding: 6px; border: 1px solid #39413b; border-left: 3px solid #756845; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.allocation-character > div > button[aria-pressed="true"] { border-color: #a58a4a; background: #22261e; }
+.allocation-character button span,
+.allocation-character button small,
+.allocation-character button strong,
+.allocation-character button em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.allocation-character button small { color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
+.allocation-character button strong { margin: 3px 0; color: #d8cc9d; font-size: 0.58rem; }
+.allocation-character button em { color: #7f8981; font-size: 0.45rem; font-style: normal; }
+.allocation-character button > b { color: #9ec48e; font-size: 0.58rem; }
+.allocation-character > div > p { margin: 0; padding: 22px 8px; color: #89938d; font-size: 0.52rem; text-align: center; }
+.allocation-order-item { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 9px; align-items: center; min-width: 0; margin-top: 8px; padding: 9px; border: 1px solid #3c463e; border-left: 3px solid #8a7544; background: #151a17; }
+.allocation-order-item span,
+.allocation-order-item strong,
+.allocation-order-item small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.allocation-order-item span { color: #89938d; font-size: 0.47rem; text-transform: uppercase; }
+.allocation-order-item strong { margin: 4px 0; color: #ddd09e; font-size: 0.61rem; }
+.allocation-order-item small { color: #87928b; font-size: 0.49rem; }
+.allocation-order-item > em { padding: 5px 7px; border: 1px solid #53614f; color: #9fc18f; background: #192019; font-size: 0.45rem; font-style: normal; text-transform: uppercase; white-space: nowrap; }
+.allocation-order-item > em.is-blocked { border-color: #6b4e48; color: #c18f84; background: #211817; }
+.allocation-command-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
+.allocation-command-row button { min-height: 30px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.49rem; font-weight: 700; cursor: pointer; }
+.allocation-order dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 8px 0 0; }
+.allocation-order dl > div { min-width: 0; padding: 7px; border: 1px solid #303832; background: #141916; }
+.allocation-order dt { color: #7f8981; font-size: 0.44rem; text-transform: uppercase; }
+.allocation-order dd { margin: 4px 0 0; overflow: hidden; color: #c9bd90; font-size: 0.52rem; text-overflow: ellipsis; white-space: nowrap; }
+.allocation-order-empty { display: grid; place-items: center; min-height: 154px; margin-top: 8px; padding: 18px; border: 1px dashed #3a433c; color: #89938d; background: #141916; font-size: 0.52rem; line-height: 1.45; text-align: center; }
+.allocation-ledger > div { max-height: 280px; overflow-y: auto; }
+.allocation-ledger > div > button { min-width: 0; padding: 7px; border: 1px solid #343c36; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.allocation-ledger > div > button[aria-pressed="true"] { border-color: #927b45; background: #20241c; }
+.allocation-ledger button span,
+.allocation-ledger button strong,
+.allocation-ledger button small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.allocation-ledger button span { color: #7f8981; font-size: 0.44rem; text-transform: uppercase; }
+.allocation-ledger button strong { margin: 3px 0; color: #d8cc9d; font-size: 0.56rem; }
+.allocation-ledger button small { font-size: 0.46rem; }
+.allocation-ledger footer { display: grid; gap: 3px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #303832; }
+.allocation-ledger footer span { color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
+.allocation-ledger footer strong { color: #dfce97; font-size: 0.57rem; }
+.allocation-ledger footer small { color: #89938d; font-size: 0.46rem; }
+.allocation-empty { display: grid; place-items: center; min-height: 220px; padding: 30px; border: 1px solid #3b3b35; background: #101513; text-align: center; }
+.allocation-empty strong { color: #dfce97; font-family: Georgia, serif; font-size: 0.84rem; }
+.allocation-empty span { margin-top: 7px; color: #89938d; font-size: 0.52rem; }
+
 @media (max-width: 1180px) {
   .guild-armory-hero { grid-template-columns: 82px minmax(0, 1fr); }
   .guild-armory-summary { grid-column: 1 / -1; }
@@ -1229,6 +1312,10 @@ p {
   .guild-armory-workspace { grid-template-columns: 1fr; }
   .acquisition-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .acquisition-workspace { grid-template-columns: minmax(280px, 0.62fr) minmax(450px, 1.38fr); }
+  .allocation-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .allocation-workspace { grid-template-columns: minmax(280px, 0.7fr) minmax(420px, 1.3fr); }
+  .allocation-ledger { grid-column: 1 / -1; }
+  .allocation-ledger > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-width: 760px) {
   .guild-armory-hero { grid-template-columns: 1fr; text-align: center; }
@@ -1238,8 +1325,13 @@ p {
   .guild-armory-roster-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-armory-slot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .acquisition-summary,
-  .acquisition-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .acquisition-workspace { grid-template-columns: 1fr; }
+  .acquisition-roster,
+  .allocation-summary,
+  .allocation-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .acquisition-workspace,
+  .allocation-workspace { grid-template-columns: 1fr; }
+  .allocation-ledger { grid-column: auto; }
+  .allocation-ledger > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
   .guild-armory-roster > header,
@@ -1254,13 +1346,23 @@ p {
   .guild-armory-recommendations > div > article { grid-template-columns: 38px minmax(0, 1fr) auto; }
   .guild-armory-view-tabs,
   .acquisition-summary,
-  .acquisition-roster { grid-template-columns: 1fr; }
+  .acquisition-roster,
+  .allocation-summary,
+  .allocation-roster,
+  .allocation-command-row,
+  .allocation-order dl,
+  .allocation-ledger > div { grid-template-columns: 1fr; }
   .guild-armory-view-tabs button { border-right: 0; border-bottom: 1px solid #3b3b35; }
   .guild-armory-view-tabs button:last-child { border-bottom: 0; }
   .acquisition-routes > header { align-items: flex-start; flex-direction: column; }
   .acquisition-routes > header > b { text-align: left; }
   .acquisition-routes article { grid-template-columns: 34px minmax(0, 1fr); }
   .acquisition-routes article > div { grid-column: 1 / -1; text-align: left; }
+  .allocation-character > header,
+  .allocation-order > header,
+  .allocation-ledger > header { align-items: flex-start; flex-direction: column; }
+  .allocation-order-item { grid-template-columns: 74px minmax(0, 1fr); }
+  .allocation-order-item > em { grid-column: 1 / -1; white-space: normal; }
 }
 
 .forge-workshop-shell,

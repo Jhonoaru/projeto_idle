@@ -817,7 +817,7 @@ function getWindowTitle(tab: MainPanelTab) {
     home: "Guild Hunt Idle",
     character: "Character Details",
     operations: "Campaign Operations Dashboard",
-    armory: "Guild Armory Audit",
+    armory: "Guild Armory",
     headquarters: "Guild Headquarters",
     contracts: "Guild Contracts Board",
     staff: "Guild Staff",

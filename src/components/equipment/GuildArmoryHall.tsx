@@ -4,9 +4,10 @@ import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIden
 import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, HuntArea } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
 import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
+import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
-type ArmoryView = "audit" | "acquisition";
+type ArmoryView = "audit" | "acquisition" | "allocation";
 
 interface GuildArmoryHallProps {
   characters: Character[];
@@ -54,11 +55,17 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
     onOpenSystem(tab);
   }
 
+  const viewHeading = view === "audit"
+    ? ["Armory Audit", "Compare every loadout and identify compatible upgrades already stored in the Guild Depot."]
+    : view === "acquisition"
+      ? ["Acquisition Planner", "Connect equipment targets to holdings, hunts, bosses and Guild Workbench recipes."]
+      : ["Allocation Board", "Distribute finite Guild Depot equipment across the roster by compatible rating gain."];
+
   return (
     <div className="guild-armory-hall">
       <section className="guild-armory-hero">
         <div className="guild-armory-seal" aria-hidden="true">A</div>
-        <div><span>Guild equipment command</span><h3>{view === "audit" ? "Armory Audit" : "Acquisition Planner"}</h3><p>{view === "audit" ? "Compare every loadout and identify compatible upgrades already stored in the Guild Depot." : "Connect equipment targets to holdings, hunts, bosses and Guild Workbench recipes."}</p></div>
+        <div><span>Guild equipment command</span><h3>{viewHeading[0]}</h3><p>{viewHeading[1]}</p></div>
         <div className="guild-armory-summary">
           <Summary label="Equipped" value={`${audit.summary.equippedSlots}/${audit.summary.totalSlots}`} />
           <Summary label="Missing" value={String(audit.summary.missingSlots)} />
@@ -71,6 +78,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
       <div className="guild-armory-view-tabs" role="tablist" aria-label="Armory view">
         <button aria-selected={view === "audit"} onClick={() => setView("audit")} role="tab" type="button">Armory Audit</button>
         <button aria-selected={view === "acquisition"} onClick={() => setView("acquisition")} role="tab" type="button">Acquisition Planner</button>
+        <button aria-selected={view === "allocation"} onClick={() => setView("allocation")} role="tab" type="button">Allocation Board</button>
       </div>
 
       {view === "audit" ? <>
@@ -141,7 +149,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           <small className="guild-armory-note">Recommendations compare current enhanced stats and vocation relevance. Moving and equipping items remains manual.</small>
         </aside>
         </div> : <section className="guild-armory-filter-empty"><strong>No matching loadouts</strong><p>Choose another filter to continue the armory inspection.</p></section>}
-      </> : (
+      </> : view === "acquisition" ? (
         <EquipmentAcquisitionPlanner
           characters={characters}
           depot={depot}
@@ -149,6 +157,16 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onOpenBoss={onOpenBoss}
           onOpenForge={() => { onSelectCharacter(inspectedCharacterId); onOpenSystem("forge"); }}
           onOpenHunt={onOpenHunt}
+          onOpenInventory={(characterId) => { onSelectCharacter(characterId); onOpenSystem("inventory"); }}
+          onSelectCharacter={selectCharacter}
+          selectedCharacterId={inspectedCharacterId}
+        />
+      ) : (
+        <GuildEquipmentAllocationBoard
+          characters={characters}
+          depot={depot}
+          onOpenDepot={(characterId) => { onSelectCharacter(characterId); onOpenSystem("depot"); }}
+          onOpenForge={(characterId) => { onSelectCharacter(characterId); onOpenSystem("forge"); }}
           onOpenInventory={(characterId) => { onSelectCharacter(characterId); onOpenSystem("inventory"); }}
           onSelectCharacter={selectCharacter}
           selectedCharacterId={inspectedCharacterId}
