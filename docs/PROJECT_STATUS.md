@@ -147,6 +147,7 @@ Atualizado em: 2026-07-22
 - Etapa 77.5 concluida: QA ampliada alinhou membros exibidos com a party/equipe realmente preparada e validou 785.082 checks, cinco viewports e tres cargas Tauri/SQLite.
 - Etapa 78 concluida: Deployment Orders guarda ate tres combinacoes de Boss/Contract + Guild Squad, recalcula readiness ao vivo e prepara a operacao sem launch ou dispatch automatico.
 - Etapa 78.5 concluida: QA corrigiu ordem canonica do JSON, timestamp invalido, Prepare de squad vazio e truncamento tablet; 124.684 checks e duas cargas SQLite passaram.
+- Etapa 79 concluida: Guild Armory Audit compara os loadouts do roster, lacunas, conjuntos e upgrades compativeis ja guardados no Guild Depot, sem auto-equip ou estado novo.
 
 Comandos principais:
 
@@ -5207,6 +5208,44 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 79 - definir a proxima camada de gerenciamento offline apos Deployment Orders validados.
+
+## Etapa 79 - Guild Armory Audit
+
+Status: concluida.
+
+Implementacao:
+
+- Novo Armory guild-wide acessivel por Details e pelo menu lateral, em janela ampla que oculta os paineis auxiliares.
+- Resumo derivado mostra slots equipados, lacunas, aventureiros com upgrade, equipamentos no Guild Depot e bonus de conjunto ativos.
+- O roster pode ser filtrado por upgrades encontrados, equipamento incompleto ou loadout completo.
+- Cada aventureiro possui leitura dos nove slots, rating derivado dos atributos aprimorados e progresso real dos equipamentos de conjunto.
+- Recomendacoes usam somente equipamentos existentes no Guild Depot que passam pelas regras reais de slot, level, vocation e offhand.
+- O rating considera atributos relevantes da vocation, defesa, armor, vida, mana, capacity, speed, bonus percentuais, tier e upgrade.
+- Atalhos abrem Inventory do personagem inspecionado, Guild Depot e Forge; mover ou equipar continua sendo uma decisao manual.
+- A selecao do personagem permanece sincronizada entre Details, Armory e Inventory.
+- Nenhum campo, schema, migration ou escrita de save foi criado nesta etapa.
+
+Validacao:
+
+- `npm.cmd run build` passou apos a implementacao e novamente apos a correcao de sincronizacao.
+- Harness temporario cruzou 41 equipamentos do catalogo com 45 slots de cinco personagens e conferiu 39 recomendacoes.
+- O teste confirmou compatibilidade, maior ganho por slot, ordem deterministica, numeros finitos e ausencia de mutacao; o harness foi removido.
+- QA no browser validou filtros, troca de personagem, selecao preservada e atalhos para Inventory, Guild Depot e Forge.
+- Viewports de 1440, 1180, 760, 520 e 430 px ficaram sem overflow horizontal no documento ou no Armory.
+- O console web mostrou apenas o fallback SQLite esperado fora do Tauri.
+- `npm.cmd run tauri:build` passou com 389 modulos e gerou executavel release, MSI e NSIS.
+
+Limitacoes mantidas:
+
+- O Armory apenas recomenda; nao move, reserva, equipa ou aprimora itens automaticamente.
+- O rating e uma heuristica de gerenciamento e nao substitui a decisao de build do jogador.
+- Equipamentos em inventarios pessoais nao entram nas recomendacoes; somente o Guild Depot e auditado.
+- Nao houve clique manual na janela Tauri; as interacoes foram validadas no browser e a camada desktop pelo build nativo.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 79.5 - QA aprofundada do Guild Armory Audit no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

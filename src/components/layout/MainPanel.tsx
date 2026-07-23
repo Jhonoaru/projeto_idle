@@ -26,6 +26,7 @@ import { GuildProjectsHall } from "../projects/GuildProjectsHall";
 import { GuildRecruitmentBoard } from "../recruitment/GuildRecruitmentBoard";
 import { GuildLogisticsBoard } from "../logistics/GuildLogisticsBoard";
 import { CampaignOperationsDashboard } from "../operations/CampaignOperationsDashboard";
+import { GuildArmoryHall } from "../equipment/GuildArmoryHall";
 import { QuestPanel } from "../quest/QuestPanel";
 import { LocalRankingHall } from "../ranking/LocalRankingHall";
 import { RegionProgressionPanel } from "../region/RegionProgressionPanel";
@@ -80,6 +81,7 @@ export type MainPanelTab =
   | "home"
   | "character"
   | "operations"
+  | "armory"
   | "headquarters"
   | "contracts"
   | "staff"
@@ -439,6 +441,16 @@ export function MainPanel({
             onPrepareGuildSquadForContract={prepareGuildSquadForContract}
             onSaveDeploymentOrder={onSaveDeploymentOrder}
             onClearDeploymentOrder={onClearDeploymentOrder}
+          />
+        ) : null}
+
+        {activeTab === "armory" ? (
+          <GuildArmoryHall
+            characters={characters}
+            depot={depot}
+            selectedCharacterId={selectedCharacter.id}
+            onOpenSystem={onChangeTab}
+            onSelectCharacter={onSelectCharacter}
           />
         ) : null}
 
@@ -802,6 +814,7 @@ function getWindowTitle(tab: MainPanelTab) {
     home: "Guild Hunt Idle",
     character: "Character Details",
     operations: "Campaign Operations Dashboard",
+    armory: "Guild Armory Audit",
     headquarters: "Guild Headquarters",
     contracts: "Guild Contracts Board",
     staff: "Guild Staff",
@@ -850,6 +863,7 @@ function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "ranking") return "Local roster standings and guild career milestones derived from the current save.";
   if (tab === "headquarters") return "Guild-wide facilities, command directives and small local progression bonuses.";
   if (tab === "operations") return "Live local overview of roster assignments, support expeditions and permanent campaign priorities.";
+  if (tab === "armory") return "Guild-wide loadout comparison, set progress and compatible upgrades already stored in the local depot.";
   if (tab === "contracts") return "Local support expeditions with fixed outcomes, small rewards and SQLite persistence.";
   if (tab === "staff") return "Permanent local specialists with one active duty post and capped expedition bonuses.";
   if (tab === "treasury") return "Protected local reserves and a persistent ledger for the guild's existing gold.";
@@ -871,6 +885,7 @@ function getWindowIcon(tab: MainPanelTab) {
   const icons: Partial<Record<MainPanelTab, string>> = {
     character: "D",
     operations: "O",
+    armory: "A",
     headquarters: "H",
     contracts: "C",
     staff: "S",

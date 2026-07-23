@@ -27,7 +27,7 @@ import { getActiveBlessings } from "../../data/blessings";
 import { calculateBlessingsProtection } from "../../game-engine/death/calculateBlessProtection";
 import type { ActivityLogEntry, Character, EquipmentSlot, Guild, Skill } from "../../shared/types";
 
-type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings" | "market" | "quests" | "operations" | "headquarters" | "contracts" | "staff" | "treasury" | "projects" | "logistics" | "recruitment";
+type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings" | "market" | "quests" | "operations" | "armory" | "headquarters" | "contracts" | "staff" | "treasury" | "projects" | "logistics" | "recruitment";
 
 interface CharacterDetailsProps {
   character: Character;
@@ -159,6 +159,7 @@ export function CharacterDetails({
           <button onClick={() => onOpenTab("skills")} type="button">Skills</button>
           <button onClick={() => onOpenTab("destiny")} type="button">Destiny</button>
           <button onClick={() => onOpenTab("operations")} type="button">Operations</button>
+          <button onClick={() => onOpenTab("armory")} type="button">Armory</button>
           <button onClick={() => onOpenTab("headquarters")} type="button">Guild Hall</button>
           <button onClick={() => onOpenTab("contracts")} type="button">Contracts</button>
           <button onClick={() => onOpenTab("staff")} type="button">Staff</button>
