@@ -153,6 +153,7 @@ Atualizado em: 2026-07-22
 - Etapa 80.5 concluida: QA do Acquisition Planner corrigiu depot legado, materiais nao finitos, boss sem gold e falsas posses; 557.731 checks e duas cargas Tauri/SQLite passaram.
 - Etapa 81 concluida: Guild Equipment Allocation Board distribui cada copia finita do Guild Depot uma unica vez e maximiza o ganho total de rating do roster sem auto-equip.
 - Etapa 81.5 concluida: QA do Allocation Board corrigiu a selecao de ordens secundarias, validou 24.039 checks, desktop/mobile e uma carga Tauri/SQLite com restauracao integral do save.
+- Etapa 82 concluida: Quartermaster Distribution Orders executa uma ordem ou todas as transferencias prontas com confirmacao, rollback atomico e equipamento real salvo localmente.
 
 Comandos principais:
 
@@ -5508,6 +5509,73 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 82 - Guild Quartermaster Distribution Orders, com confirmacao explicita para transferir e equipar as ordens do Allocation Board.
+
+## Etapa 82 - Guild Quartermaster Distribution Orders
+
+Status: concluida.
+
+Implementacao:
+
+- O Allocation Board agora oferece `Execute Order` para a ordem selecionada e `Execute All Ready` para o lote transferivel.
+- As duas acoes exigem confirmacao explicita e nunca executam ao apenas abrir ou selecionar uma ordem.
+- A engine reconstroi o plano atual antes da execucao individual e rejeita ordem obsoleta, repetida ou alterada.
+- Cada ordem transfere exatamente uma copia do Guild Depot para o personagem e equipa o item no slot indicado.
+- O equipamento substituido retorna ao inventario pessoal preservando tier, upgrade, imbuements e demais dados.
+- Transferencia e equipamento formam uma operacao atomica: se a troca falhar, personagens e Depot originais sao devolvidos.
+- O lote usa um snapshot novo do plano, executa somente ordens marcadas como transferiveis e mantem bloqueios pendentes.
+- Quantidade compartilhada continua finita; nenhuma copia ou slot pode ser aplicado duas vezes.
+- Inventario, equipamento, capacity, level, vocation, offhand e ganho real sao revalidados pela engine existente.
+- Saves corrompidos com inventory/equipment ausente, capacity invalida, peso invalido ou quantidade invalida sao bloqueados antes da rotina de transferencia.
+- Refs no App e na UI impedem duplo clique durante a janela de processamento.
+- Sucesso individual e lote geram um unico Activity Log, evitando spam por item.
+- O autosave SQLite existente persiste as mudancas em `inventory_items`; nenhuma tabela, migration ou versao de save nova foi criada.
+
+Arquivos:
+
+- Criado `src/game-engine/equipment/executeGuildEquipmentOrder.ts`.
+- Alterados `src/components/equipment/GuildEquipmentAllocationBoard.tsx`, `GuildArmoryHall.tsx`, `MainPanel.tsx`, `src/app/App.tsx` e `src/styles.css`.
+
+QA automatizado:
+
+- Harness temporario passou em 8.452 assertions e foi removido.
+- Mil cenarios pseudoaleatorios executaram 3.427 ordens usando os 41 equipamentos do catalogo.
+- A quantidade total por item foi comparada antes/depois entre Guild Depot, inventarios e equipamentos, sem perda ou duplicacao.
+- Foram cobertos ordem individual, lote, lote parcial, substituicao, item anterior devolvido, ordem repetida, ordem obsoleta e IDs duplicados.
+- Uma falha posterior a transferencia por capacity de backpack confirmou rollback integral e referencias originais.
+- Inventario com quantidade NaN foi bloqueado sem tocar no Depot no smoke final apos as defesas adicionais.
+
+QA visual e interativo:
+
+- Cancelar a confirmacao preservou a ordem e o Depot.
+- Confirmar Brass Shield removeu a copia do Depot, equipou Lyra e elevou o resumo de 12/45 para 13/45.
+- Um cenario temporario de lote equipou Brass Shield e Apprentice Robe, elevou o resumo para 14/45 e criou um unico log.
+- Apos executar, o Allocation Board recalculou para zero ordens sem permitir um segundo claim da mesma copia.
+- Desktop em 1280 px e moldura de 430 px ficaram sem overflow horizontal.
+- Em 430 px, comandos, texto de confirmacao e botoes Cancel/Confirm permaneceram separados e legiveis.
+- O console desktop mostrou apenas o fallback SQLite esperado fora do Tauri.
+- O iframe temporario de responsividade gerou um erro interno de MutationObserver da instrumentacao; ele nao ocorreu na pagina principal e nao existe uso de MutationObserver no projeto.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 394 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O executavel final permaneceu aberto, responsivo e estavel durante 8 segundos.
+- `integrity_check=ok` confirmou 1 guilda, 5 personagens, 35 skills, 26 itens e 10 logs antes da carga.
+- DB, WAL e SHM foram restaurados aos hashes SHA-256 originais; a verificacao final manteve 5 personagens e 26 itens.
+- Nenhum harness, pagina, backup, listener Vite ou processo Tauri permaneceu.
+
+Limitacoes atuais:
+
+- A execucao usa apenas ordens derivadas de itens atualmente no Guild Depot.
+- Ordens bloqueadas por capacity exigem liberar espaco e recalcular o board.
+- O lote nao redistribui automaticamente o equipamento substituido para outro personagem.
+- Nao existe fila persistente, agendamento, custo, tempo de entrega ou automacao offline.
+- O QA interativo foi feito no browser; a janela Tauri foi validada por carga nativa controlada, sem cliques manuais.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 82.5 - QA aprofundada das Quartermaster Distribution Orders no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -49,6 +49,12 @@ import {
 } from "../game-services/actionService";
 import { equipItem } from "../game-engine/equipment/equipItem";
 import { unequipItem } from "../game-engine/equipment/unequipItem";
+import {
+  executeAllReadyGuildEquipmentOrders,
+  executeGuildEquipmentOrder,
+  type GuildEquipmentOrderRequest,
+  type GuildEquipmentOrderResult,
+} from "../game-engine/equipment/executeGuildEquipmentOrder";
 import { clearNewCollectionFlags } from "../game-engine/collections/clearNewCollectionFlags";
 import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
@@ -240,6 +246,7 @@ export function App() {
   const updatingLogisticsPinRef = useRef(false);
   const acknowledgingLogisticsAlertsRef = useRef(false);
   const startingBossRef = useRef(false);
+  const executingEquipmentOrderRef = useRef(false);
 
   useEffect(() => {
     applyClientPreferences(clientPreferences);
@@ -2123,6 +2130,62 @@ export function App() {
     }
   }
 
+  function handleExecuteEquipmentOrder(request: GuildEquipmentOrderRequest): GuildEquipmentOrderResult {
+    if (executingEquipmentOrderRef.current) {
+      return {
+        characters,
+        depot,
+        success: false,
+        completed: 0,
+        failed: 1,
+        message: "A quartermaster order is already being processed.",
+        outcomes: [],
+      };
+    }
+    executingEquipmentOrderRef.current = true;
+    const result = executeGuildEquipmentOrder(characters, depot, request);
+    applyEquipmentOrderResult(result, request.characterId);
+    window.setTimeout(() => {
+      executingEquipmentOrderRef.current = false;
+    }, 250);
+    return result;
+  }
+
+  function handleExecuteAllEquipmentOrders(): GuildEquipmentOrderResult {
+    if (executingEquipmentOrderRef.current) {
+      return {
+        characters,
+        depot,
+        success: false,
+        completed: 0,
+        failed: 1,
+        message: "Quartermaster distribution is already being processed.",
+        outcomes: [],
+      };
+    }
+    executingEquipmentOrderRef.current = true;
+    const result = executeAllReadyGuildEquipmentOrders(characters, depot);
+    applyEquipmentOrderResult(result);
+    window.setTimeout(() => {
+      executingEquipmentOrderRef.current = false;
+    }, 250);
+    return result;
+  }
+
+  function applyEquipmentOrderResult(result: GuildEquipmentOrderResult, selectedId?: string) {
+    if (result.completed > 0) {
+      charactersRef.current = result.characters;
+      setCharacters(result.characters);
+      setDepot(result.depot);
+      if (selectedId) setSelectedCharacterId(selectedId);
+    }
+    prependLog(
+      result.completed + result.failed > 1 ? "Quartermaster distribution" : "Quartermaster order",
+      result.message,
+      result.success ? "success" : "warning",
+    );
+  }
+
   function handleFinishBoss() {
     const activeBossContext = getActiveBossContext(
       selectedCharacter,
@@ -2332,6 +2395,8 @@ export function App() {
           onClearDeploymentOrder={handleClearDeploymentOrder}
           onUpdateGuildLogisticsPin={handleUpdateGuildLogisticsPin}
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
+          onExecuteAllEquipmentOrders={handleExecuteAllEquipmentOrders}
+          onExecuteEquipmentOrder={handleExecuteEquipmentOrder}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

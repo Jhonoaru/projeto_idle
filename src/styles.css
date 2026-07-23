@@ -1283,6 +1283,19 @@ p {
 .allocation-order-item > em.is-blocked { border-color: #6b4e48; color: #c18f84; background: #211817; }
 .allocation-command-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
 .allocation-command-row button { min-height: 30px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.49rem; font-weight: 700; cursor: pointer; }
+.quartermaster-execution-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 6px; }
+.quartermaster-execution-row button,
+.quartermaster-confirmation button { min-height: 32px; border: 1px solid #a18748; color: #f0d894; background: #302b1c; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 800; cursor: pointer; }
+.quartermaster-execution-row button:first-child { background: #3a311c; }
+.quartermaster-execution-row button:disabled { border-color: #3c433d; color: #667069; background: #171c19; cursor: not-allowed; }
+.quartermaster-confirmation { display: grid; gap: 5px; margin-top: 7px; padding: 9px; border: 1px solid #927b45; background: #211f17; }
+.quartermaster-confirmation > span { color: #a89971; font-size: 0.45rem; text-transform: uppercase; }
+.quartermaster-confirmation > strong { color: #ead59a; font-family: Georgia, serif; font-size: 0.6rem; line-height: 1.35; }
+.quartermaster-confirmation > small { color: #909991; font-size: 0.47rem; line-height: 1.4; }
+.quartermaster-confirmation > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 3px; }
+.quartermaster-confirmation button:first-child { border-color: #4a534c; color: #a7afa8; background: #181d1a; }
+.quartermaster-feedback { margin: 7px 0 0; padding: 7px 8px; border: 1px solid #52634f; color: #a9c79b; background: #182018; font-size: 0.49rem; line-height: 1.4; }
+.quartermaster-feedback.is-warning { border-color: #73554c; color: #d0a093; background: #231a18; }
 .allocation-order dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin: 8px 0 0; }
 .allocation-order dl > div { min-width: 0; padding: 7px; border: 1px solid #303832; background: #141916; }
 .allocation-order dt { color: #7f8981; font-size: 0.44rem; text-transform: uppercase; }
@@ -1363,6 +1376,7 @@ p {
   .allocation-ledger > header { align-items: flex-start; flex-direction: column; }
   .allocation-order-item { grid-template-columns: 74px minmax(0, 1fr); }
   .allocation-order-item > em { grid-column: 1 / -1; white-space: normal; }
+  .quartermaster-execution-row { grid-template-columns: 1fr; }
 }
 
 .forge-workshop-shell,

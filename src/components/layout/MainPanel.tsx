@@ -41,6 +41,7 @@ import { MainPlayArea } from "./MainPlayArea";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type { ClientPreferences } from "../../client-preferences/clientPreferences";
 import type { GuildLogisticsPinAction } from "../../game-engine/logistics/updateGuildLogisticsPin";
+import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import type {
   Boss,
   BossParty,
@@ -162,6 +163,8 @@ interface MainPanelProps {
   onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
   onUpdateGuildLogisticsPin: (objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) => void;
   onAcknowledgeGuildLogisticsAlerts: () => void;
+  onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
+  onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -291,6 +294,8 @@ export function MainPanel({
   onClearDeploymentOrder,
   onUpdateGuildLogisticsPin,
   onAcknowledgeGuildLogisticsAlerts,
+  onExecuteAllEquipmentOrders,
+  onExecuteEquipmentOrder,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -454,6 +459,8 @@ export function MainPanel({
             selectedCharacterId={selectedCharacter.id}
             onOpenSystem={onChangeTab}
             onSelectCharacter={onSelectCharacter}
+            onExecuteAllEquipmentOrders={onExecuteAllEquipmentOrders}
+            onExecuteEquipmentOrder={onExecuteEquipmentOrder}
           />
         ) : null}
 

@@ -3,6 +3,10 @@ import {
   buildGuildEquipmentAllocation,
   type GuildEquipmentAllocation,
 } from "../../game-engine/equipment/buildGuildEquipmentAllocation";
+import type {
+  GuildEquipmentOrderRequest,
+  GuildEquipmentOrderResult,
+} from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { Character, EquipmentSlot, GuildDepot } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
@@ -15,6 +19,8 @@ interface GuildEquipmentAllocationBoardProps {
   onOpenForge: (characterId: string) => void;
   onOpenInventory: (characterId: string) => void;
   onSelectCharacter: (characterId: string) => void;
+  onExecuteAllOrders: () => GuildEquipmentOrderResult;
+  onExecuteOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
 }
 
 const slotLabels: Record<EquipmentSlot, string> = {
@@ -30,10 +36,15 @@ export function GuildEquipmentAllocationBoard({
   onOpenForge,
   onOpenInventory,
   onSelectCharacter,
+  onExecuteAllOrders,
+  onExecuteOrder,
 }: GuildEquipmentAllocationBoardProps) {
   const plan = useMemo(() => buildGuildEquipmentAllocation(characters, depot), [characters, depot]);
   const selectedCharacter = plan.roster.find((entry) => entry.characterId === selectedCharacterId) ?? plan.roster[0];
   const [selectedAllocationId, setSelectedAllocationId] = useState("");
+  const [confirmation, setConfirmation] = useState<"all" | "single">();
+  const [feedback, setFeedback] = useState<{ message: string; success: boolean }>();
+  const executingRef = useRef(false);
   const initializedSelection = useRef(false);
   const selectedAllocation = selectedCharacter?.allocations.find((allocation) => allocation.id === selectedAllocationId)
     ?? selectedCharacter?.allocations[0];
@@ -45,6 +56,25 @@ export function GuildEquipmentAllocationBoard({
       onSelectCharacter(plan.allocations[0].characterId);
     }
   }, [onSelectCharacter, plan.allocations, selectedCharacter?.allocations.length]);
+
+  function executeConfirmedOrder() {
+    if (executingRef.current || !confirmation) return;
+    executingRef.current = true;
+    const result = confirmation === "all"
+      ? onExecuteAllOrders()
+      : selectedAllocation
+        ? onExecuteOrder({
+            characterId: selectedAllocation.characterId,
+            inventoryItemId: selectedAllocation.inventoryItem.id,
+            slot: selectedAllocation.slot,
+          })
+        : undefined;
+    if (result) setFeedback({ message: result.message, success: result.success });
+    setConfirmation(undefined);
+    window.setTimeout(() => {
+      executingRef.current = false;
+    }, 250);
+  }
 
   return (
     <section className="equipment-allocation-board">
@@ -104,6 +134,24 @@ export function GuildEquipmentAllocationBoard({
               <button onClick={() => onOpenInventory(selectedAllocation.characterId)} type="button">Open Inventory</button>
               <button onClick={() => onOpenForge(selectedAllocation.characterId)} type="button">Open Forge</button>
             </div>
+            <div className="quartermaster-execution-row">
+              <button disabled={!selectedAllocation.canCarry} onClick={() => setConfirmation("single")} type="button">Execute Order</button>
+              <button disabled={plan.summary.readyTransfers === 0} onClick={() => setConfirmation("all")} type="button">
+                Execute All Ready ({plan.summary.readyTransfers})
+              </button>
+            </div>
+            {confirmation ? <div className="quartermaster-confirmation" role="alert">
+              <span>Confirm distribution</span>
+              <strong>{confirmation === "all"
+                ? `Transfer and equip ${plan.summary.readyTransfers} ready ${plan.summary.readyTransfers === 1 ? "order" : "orders"}?`
+                : `Transfer and equip ${selectedAllocation.inventoryItem.item.name} on ${selectedAllocation.characterName}?`}</strong>
+              <small>Items currently equipped return safely to the character inventory.</small>
+              <div>
+                <button onClick={() => setConfirmation(undefined)} type="button">Cancel</button>
+                <button onClick={executeConfirmedOrder} type="button">Confirm</button>
+              </div>
+            </div> : null}
+            {feedback ? <p className={feedback.success ? "quartermaster-feedback is-success" : "quartermaster-feedback is-warning"}>{feedback.message}</p> : null}
             <dl>
               <div><dt>Character</dt><dd>{selectedAllocation.characterName}</dd></div>
               <div><dt>Vocation</dt><dd>{selectedAllocation.vocation}</dd></div>

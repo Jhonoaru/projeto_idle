@@ -5,6 +5,7 @@ import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, HuntArea } from
 import { ItemIcon } from "../items/ItemIcon";
 import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
 import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
+import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
 type ArmoryView = "audit" | "acquisition" | "allocation";
@@ -18,6 +19,8 @@ interface GuildArmoryHallProps {
   onOpenHunt: (hunt: HuntArea) => void;
   onSelectCharacter: (characterId: string) => void;
   onOpenSystem: (tab: "inventory" | "depot" | "forge") => void;
+  onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
+  onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
 }
 
 const slotLabels: Record<EquipmentSlot, string> = {
@@ -25,7 +28,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
@@ -168,6 +171,8 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onOpenDepot={(characterId) => { onSelectCharacter(characterId); onOpenSystem("depot"); }}
           onOpenForge={(characterId) => { onSelectCharacter(characterId); onOpenSystem("forge"); }}
           onOpenInventory={(characterId) => { onSelectCharacter(characterId); onOpenSystem("inventory"); }}
+          onExecuteAllOrders={onExecuteAllEquipmentOrders}
+          onExecuteOrder={onExecuteEquipmentOrder}
           onSelectCharacter={selectCharacter}
           selectedCharacterId={inspectedCharacterId}
         />
