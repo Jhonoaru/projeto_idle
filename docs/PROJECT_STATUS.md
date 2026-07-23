@@ -150,6 +150,7 @@ Atualizado em: 2026-07-22
 - Etapa 79 concluida: Guild Armory Audit compara os loadouts do roster, lacunas, conjuntos e upgrades compativeis ja guardados no Guild Depot, sem auto-equip ou estado novo.
 - Etapa 79.5 concluida: QA do Armory bloqueou stacks zeradas, normalizou ratings/levels corrompidos, corrigiu filtros vazios e sincronizou personagem nos atalhos; 122.874 checks e SQLite nativo passaram.
 - Etapa 80 concluida: Equipment Acquisition Planner conecta upgrades compativeis a posses da guilda, Hunts, Bosses e Crafting reais, sem reservar itens ou iniciar atividades automaticamente.
+- Etapa 80.5 concluida: QA do Acquisition Planner corrigiu depot legado, materiais nao finitos, boss sem gold e falsas posses; 557.731 checks e duas cargas Tauri/SQLite passaram.
 
 Comandos principais:
 
@@ -5340,6 +5341,57 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 80.5 - QA aprofundada do Equipment Acquisition Planner no Tauri/SQLite.
+
+## Etapa 80.5 - QA do Equipment Acquisition Planner
+
+Status: concluida.
+
+Correcoes reproduzidas:
+
+- Um save legado ou corrompido com `guildDepot.items` ausente derrubava o planner ao consultar receitas; a entrada agora e normalizada para uma lista vazia.
+- Quantidades `NaN` ou infinitas no Guild Depot podiam satisfazer materiais de Crafting e marcar receitas como prontas; apenas quantidades inteiras, finitas e positivas entram na disponibilidade.
+- Um Boss com party elegivel, mas sem `guild.gold` para a entry fee, aparecia como `busy`; a rota agora fica corretamente `locked` com o custo necessario.
+- Um InventoryItem inconsistente, com `itemId` diferente de `item.id`, podia criar uma falsa fonte de equipamento; holdings corrompidos agora sao ignorados pelo indice.
+
+Matriz automatizada:
+
+- Harness temporario passou em 557.731 verificacoes e foi removido.
+- As 111 referencias de Hunt, Boss e Crafting foram confrontadas com o catalogo real.
+- Cada alvo foi validado como a melhoria compativel de maior rating para slot, level, vocation e offhand.
+- Ordem de fontes, deltas, scores finitos, imutabilidade e referencias exatas de loot/receita foram conferidos.
+- O teste confirmou que equipamento positivo no Guild Depot sai do planner e permanece no Armory Audit.
+- Todas as 19 receitas foram testadas com `NaN`, infinito positivo/negativo, quantidade negativa e zero.
+- Bosses foram exercitados com gold insuficiente e cooldown global; holdings com identidade divergente foram rejeitados.
+- Cinco mil rosters combinaram levels, status, currentAction, acessos, quests, cooldowns, gold, data invalida e depot ausente.
+
+QA visual e interativo:
+
+- Armory Audit e Acquisition Planner alternaram sem perder a selecao do personagem.
+- Lyra exibiu Crafting bloqueado por Workshop Rank, Hunt bloqueada por acesso e Boss para revisao.
+- O atalho `Open Forge` abriu a Forge Workshop corretamente.
+- Viewports de 1440, 1180, 960, 760, 520 e 430 px ficaram sem overflow no documento, Armory, Planner ou rotas.
+- O layout movel em 430 px foi inspecionado sem sobreposicao ou texto cortado.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 391 modulos e gerou executavel release, MSI e NSIS.
+- Duas cargas nativas controladas permaneceram estaveis e mantiveram `integrity_check=ok`.
+- Permaneceram 1 guilda, 5 personagens, 35 skills, 26 stacks e 10 logs.
+- Nenhuma tabela, coluna ou escrita nova foi criada para o planner.
+- DB, WAL e SHM originais foram restaurados com hashes identicos e nenhum backup temporario restante.
+
+Limitacoes mantidas:
+
+- O planner continua somente leitura e nao transfere, equipa, reserva, crafta ou inicia operacoes automaticamente.
+- O rating permanece uma heuristica e nao calcula tempo esperado de farm ou custo de oportunidade.
+- Abrir Forge nao seleciona automaticamente Guild Workbench ou a receita indicada.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser e o save por cargas nativas controladas.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 81 - definir a proxima camada de gerenciamento offline apos o Equipment Acquisition Planner validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

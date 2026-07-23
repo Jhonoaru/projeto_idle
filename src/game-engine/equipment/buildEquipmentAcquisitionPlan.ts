@@ -79,12 +79,16 @@ export function buildEquipmentAcquisitionPlan(
   now = new Date(),
 ) {
   const safeCharacters = Array.isArray(characters) ? characters : [];
+  const safeDepot = {
+    ...(depot ?? {}),
+    items: Array.isArray(depot?.items) ? depot.items : [],
+  } as GuildDepot;
   const depotItemIds = new Set(
-    (Array.isArray(depot?.items) ? depot.items : [])
+    safeDepot.items
       .filter((entry) => normalizeQuantity(entry?.quantity) > 0)
       .map((entry) => entry.itemId),
   );
-  const sourceIndex = buildSourceIndex(guild, safeCharacters, depot, now);
+  const sourceIndex = buildSourceIndex(guild, safeCharacters, safeDepot, now);
   const equipmentCatalog = Object.values(items).filter((item) => item.type === "equipment" && item.equipmentSlot);
   const roster = safeCharacters.map((character) => {
     const level = normalizeInteger(character.level);
@@ -233,7 +237,8 @@ function addCharacterHoldings(
 ) {
   for (const entry of Array.isArray(entries) ? entries : []) {
     const quantity = normalizeQuantity(entry?.quantity);
-    if (entry?.item?.type !== "equipment" || quantity <= 0) continue;
+    const definition = entry ? items[entry.itemId] : undefined;
+    if (!entry?.item || entry.item.id !== entry.itemId || definition?.type !== "equipment" || quantity <= 0) continue;
     add(entry.itemId, {
       id: `holding-${character.id}-${locationLabel}-${entry.id}`,
       kind: "holding",
@@ -270,8 +275,11 @@ function getBossRouteStatus(boss: Boss, guild: Guild, characters: Character[], n
   const requiredRoleCount = Object.values(boss.requirements.requiredRoles ?? {})
     .reduce((total, count) => total + normalizeInteger(count), 0);
   const requiredPartySize = Math.max(normalizeInteger(boss.requirements.minPartySize), requiredRoleCount);
-  const status: EquipmentAcquisitionSourceStatus = ready.length >= requiredPartySize && enoughGold
-    ? "ready" : eligible.length >= requiredPartySize ? "busy" : "locked";
+  const status: EquipmentAcquisitionSourceStatus = !enoughGold
+    ? "locked"
+    : ready.length >= requiredPartySize
+      ? "ready"
+      : eligible.length >= requiredPartySize ? "busy" : "locked";
   const statusLabel = !enoughGold
     ? `Requires ${normalizeInteger(boss.entryCost).toLocaleString("en-US")}g`
     : ready.length >= requiredPartySize

@@ -14,9 +14,9 @@ export function getCraftingAvailability(guild: Guild, depot: GuildDepot, recipeI
 
   const workshop = getWorkshopRank(guild.crafting);
   const materialCounts = new Map<string, number>();
-  for (const item of depot.items) {
-    if (item.locked || item.item.type === "quest") continue;
-    materialCounts.set(item.itemId, (materialCounts.get(item.itemId) ?? 0) + Math.max(0, Math.floor(item.quantity)));
+  for (const item of Array.isArray(depot?.items) ? depot.items : []) {
+    if (!item || item.locked || item.item?.type === "quest") continue;
+    materialCounts.set(item.itemId, (materialCounts.get(item.itemId) ?? 0) + normalizeInteger(item.quantity));
   }
   const missingMaterials = recipe.materials.flatMap((requirement) => {
     const available = materialCounts.get(requirement.itemId) ?? 0;
