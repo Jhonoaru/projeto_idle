@@ -24,19 +24,28 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
   const [filter, setFilter] = useState<ArmoryFilter>("all");
   const [inspectedCharacterId, setInspectedCharacterId] = useState(selectedCharacterId);
   const filteredRoster = audit.roster.filter((entry) => filter === "all" || entry.status === filter);
-  const selected = filteredRoster.find((entry) => entry.characterId === inspectedCharacterId) ?? filteredRoster[0] ?? audit.roster[0];
+  const selected = filteredRoster.find((entry) => entry.characterId === inspectedCharacterId) ?? filteredRoster[0];
 
   useEffect(() => setInspectedCharacterId(selectedCharacterId), [selectedCharacterId]);
 
   useEffect(() => {
-    if (selected && selected.characterId !== inspectedCharacterId) setInspectedCharacterId(selected.characterId);
-  }, [selected, inspectedCharacterId]);
+    if (selected && selected.characterId !== inspectedCharacterId) {
+      setInspectedCharacterId(selected.characterId);
+      onSelectCharacter(selected.characterId);
+    }
+  }, [selected, inspectedCharacterId, onSelectCharacter]);
 
-  if (!selected) return <p className="guild-armory-empty">No adventurers are registered in this guild.</p>;
+  if (audit.roster.length === 0) return <p className="guild-armory-empty">No adventurers are registered in this guild.</p>;
 
   function selectCharacter(characterId: string) {
     setInspectedCharacterId(characterId);
     onSelectCharacter(characterId);
+  }
+
+  function openSystem(tab: "inventory" | "depot" | "forge") {
+    if (!selected) return;
+    onSelectCharacter(selected.characterId);
+    onOpenSystem(tab);
   }
 
   return (
@@ -74,7 +83,7 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
         </div>
       </section>
 
-      <div className="guild-armory-workspace">
+      {selected ? <div className="guild-armory-workspace">
         <section className="guild-armory-loadout">
           <SectionHeading eyebrow={`${selected.vocation} / Level ${selected.level}`} title={`${selected.name} Loadout`} value={`${selected.equippedCount}/9 equipped`} />
           <div className="guild-armory-slot-grid">
@@ -91,9 +100,9 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
             })}
           </div>
           <div className="guild-armory-command-row">
-            <button onClick={() => { onSelectCharacter(selected.characterId); onOpenSystem("inventory"); }} type="button">Open Inventory</button>
-            <button onClick={() => onOpenSystem("depot")} type="button">Open Guild Depot</button>
-            <button onClick={() => onOpenSystem("forge")} type="button">Open Forge</button>
+            <button onClick={() => openSystem("inventory")} type="button">Open Inventory</button>
+            <button onClick={() => openSystem("depot")} type="button">Open Guild Depot</button>
+            <button onClick={() => openSystem("forge")} type="button">Open Forge</button>
           </div>
         </section>
 
@@ -119,7 +128,7 @@ export function GuildArmoryHall({ characters, depot, selectedCharacterId, onSele
           </section>
           <small className="guild-armory-note">Recommendations compare current enhanced stats and vocation relevance. Moving and equipping items remains manual.</small>
         </aside>
-      </div>
+      </div> : <section className="guild-armory-filter-empty"><strong>No matching loadouts</strong><p>Choose another filter to continue the armory inspection.</p></section>}
     </div>
   );
 }

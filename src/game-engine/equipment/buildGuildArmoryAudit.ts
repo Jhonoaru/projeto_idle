@@ -11,7 +11,12 @@ export const armoryEquipmentSlots: readonly EquipmentSlot[] = [
 export type GuildArmoryStatus = "upgrade" | "incomplete" | "equipped";
 
 export function buildGuildArmoryAudit(characters: Character[], depot: GuildDepot) {
-  const depotEquipment = depot.items.filter((entry) => entry.item?.type === "equipment" && entry.item.equipmentSlot);
+  const depotItems = Array.isArray(depot?.items) ? depot.items : [];
+  const depotEquipment = depotItems.filter((entry) =>
+    entry?.item?.type === "equipment"
+    && Boolean(entry.item.equipmentSlot)
+    && normalizeQuantity(entry.quantity) > 0,
+  );
   const roster = characters.map((character) => buildCharacterArmoryAudit(character, depotEquipment));
   return {
     roster,
@@ -31,11 +36,13 @@ export type GuildArmoryAudit = ReturnType<typeof buildGuildArmoryAudit>;
 export type CharacterArmoryAudit = GuildArmoryAudit["roster"][number];
 
 function buildCharacterArmoryAudit(character: Character, depotEquipment: InventoryItem[]) {
+  const level = normalizeInteger(character.level);
+  const auditableCharacter = level === character.level ? character : { ...character, level };
   const slots = armoryEquipmentSlots.map((slot) => {
     const equipped = character.equipment?.[slot];
     const currentScore = scoreEquipmentItem(character, equipped);
     const candidates = depotEquipment
-      .filter((entry) => entry.item.equipmentSlot === slot && canEquipItem(character, entry).canEquip)
+      .filter((entry) => entry.item.equipmentSlot === slot && canEquipItem(auditableCharacter, entry).canEquip)
       .map((entry) => ({ item: entry, score: scoreEquipmentItem(character, entry) }))
       .filter((entry) => entry.score > currentScore)
       .sort((left, right) => right.score - left.score
@@ -58,7 +65,7 @@ function buildCharacterArmoryAudit(character: Character, depotEquipment: Invento
     characterId: character.id,
     name: character.name,
     vocation: character.vocation,
-    level: normalizeInteger(character.level),
+    level,
     characterStatus: character.status,
     status,
     slots,
@@ -73,7 +80,12 @@ function buildCharacterArmoryAudit(character: Character, depotEquipment: Invento
 
 export function scoreEquipmentItem(character: Character, inventoryItem?: InventoryItem) {
   if (!inventoryItem?.item || inventoryItem.item.type !== "equipment") return 0;
-  const bonuses = calculateEnhancedItemBonuses(inventoryItem);
+  const identity = getItemVisualIdentity(inventoryItem.item, inventoryItem);
+  const bonuses = calculateEnhancedItemBonuses({
+    ...inventoryItem,
+    tier: identity.tier,
+    upgradeLevel: identity.upgradeLevel,
+  });
   const vocationPower = character.vocation === "Ranger"
     ? bonuses.distancePower
     : character.vocation === "Arcanist" || character.vocation === "Warden"
@@ -81,7 +93,6 @@ export function scoreEquipmentItem(character: Character, inventoryItem?: Invento
       : character.vocation === "Monk"
         ? bonuses.fistPower
         : bonuses.attack;
-  const identity = getItemVisualIdentity(inventoryItem.item, inventoryItem);
   return Math.max(0, Math.round(
     bonuses.attack
     + vocationPower * 2

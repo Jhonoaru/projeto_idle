@@ -1070,6 +1070,9 @@ p {
 .game-layout.is-armory-hall-mode .character-side-menu { display: none; }
 .game-layout.is-armory-hall-mode:has(.game-window-full) { grid-template-columns: minmax(0, 1fr); }
 .guild-armory-hall { display: grid; gap: 9px; min-width: 0; }
+.guild-armory-filter-empty { display: grid; place-items: center; min-height: 210px; padding: 28px; border: 1px solid #3b3b35; background: #101513; text-align: center; }
+.guild-armory-filter-empty strong { color: #dfce97; font-family: Georgia, serif; font-size: 0.86rem; }
+.guild-armory-filter-empty p { margin: 7px 0 0; color: #89938d; font-size: 0.58rem; }
 .guild-armory-hero,
 .guild-armory-roster,
 .guild-armory-loadout,

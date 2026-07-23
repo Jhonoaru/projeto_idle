@@ -148,6 +148,7 @@ Atualizado em: 2026-07-22
 - Etapa 78 concluida: Deployment Orders guarda ate tres combinacoes de Boss/Contract + Guild Squad, recalcula readiness ao vivo e prepara a operacao sem launch ou dispatch automatico.
 - Etapa 78.5 concluida: QA corrigiu ordem canonica do JSON, timestamp invalido, Prepare de squad vazio e truncamento tablet; 124.684 checks e duas cargas SQLite passaram.
 - Etapa 79 concluida: Guild Armory Audit compara os loadouts do roster, lacunas, conjuntos e upgrades compativeis ja guardados no Guild Depot, sem auto-equip ou estado novo.
+- Etapa 79.5 concluida: QA do Armory bloqueou stacks zeradas, normalizou ratings/levels corrompidos, corrigiu filtros vazios e sincronizou personagem nos atalhos; 122.874 checks e SQLite nativo passaram.
 
 Comandos principais:
 
@@ -5246,6 +5247,58 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 79.5 - QA aprofundada do Guild Armory Audit no Tauri/SQLite.
+
+## Etapa 79.5 - QA do Guild Armory Audit
+
+Status: concluida.
+
+Correcoes reproduzidas:
+
+- Equipamento no Guild Depot com quantidade zero, negativa, `NaN` ou infinita podia aparecer como upgrade disponivel; apenas stacks com quantidade inteira positiva entram agora na auditoria.
+- `tier` ou `upgradeLevel` nao finito podia contaminar o rating com `NaN`; a pontuacao usa os mesmos valores normalizados da identidade visual.
+- Level de personagem `NaN` era exibido como 0, mas podia passar no gate de equipamento alto; compatibilidade agora recebe o level normalizado.
+- O filtro `Complete` sem resultados mantinha abaixo dele o loadout de um personagem fora do filtro; a area de trabalho agora mostra um estado vazio real.
+- Quando `Upgrades` selecionava automaticamente outro aventureiro, Forge e Depot ainda podiam abrir para o personagem global anterior; selecao visual, global e todos os atalhos ficaram sincronizados.
+
+Matriz automatizada:
+
+- Harness temporario passou em 122.874 verificacoes e foi removido.
+- Os 41 equipamentos do catalogo geraram 984 variantes entre Tier 0-3 e upgrade +0 a +5.
+- Trinta e cinco personagens sinteticos cruzaram as cinco vocacoes com levels 0, 1, 8, 25, 50, 100 e 300.
+- Cada recomendacao foi confrontada com slot, vocation, level, offhand, rating atual e melhor ganho disponivel.
+- Foram testados 2.500 Guild Depots pseudoaleatorios, desempates deterministas, estados complete/incomplete/upgrade, conjunto equipado, roster vazio e depot ausente.
+- Dados de entrada permaneceram imutaveis e todos os ratings/deltas permaneceram finitos e positivos quando aplicaveis.
+
+QA visual e interativo:
+
+- `Complete` mostrou 0/5, estado vazio dedicado e nenhuma workspace antiga.
+- `Upgrades` mudou Arkon para Lyra tanto no Armory quanto na topbar global.
+- Forge Workshop, Lyra Depot e Lyra Inventory abriram pelo Armory preservando a mesma selecao.
+- Viewports de 1440, 1180, 960, 760, 520 e 430 px ficaram sem overflow no documento, Armory ou controles internos.
+- O estado vazio compacto foi inspecionado visualmente a 430 px sem sobreposicao ou texto cortado.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 389 modulos e gerou executavel release, MSI e NSIS.
+- Duas aberturas nativas finais, repetidas durante o isolamento dos dados, mantiveram `PRAGMA integrity_check: ok`.
+- Permaneceram 1 guilda, 5 personagens, 35 skills, 26 stacks, quantidade total 95, quatro stacks no Guild Depot e dez logs.
+- Nenhuma tabela ou coluna de Armory foi criada; o sistema continua totalmente derivado.
+- Personagens, skills, inventario/equipamentos e logs ficaram semanticamente identicos entre as cargas.
+- Foi identificado comportamento preexistente do autosave: timestamps de linhas sao regravados, Rank E/Level 1 normaliza para D/2 e `headquarters.totalInvestedMaterials` ausente recebe 0.
+- Banco, WAL e SHM originais foram restaurados por hash em cada rodada; o estado final voltou ao save original com `integrity_check: ok` e nenhum backup temporario restante.
+
+Limitacoes mantidas:
+
+- O Armory nao reserva, transfere, equipa, forja ou distribui itens automaticamente.
+- O rating permanece uma heuristica de gerenciamento, nao uma simulacao completa de dano por build.
+- Apenas o Guild Depot oferece candidatos; equipamentos espalhados em inventarios pessoais ainda nao entram na recomendacao.
+- Nao houve clique manual na janela Tauri; interacoes foram validadas no browser e o SQLite por aberturas nativas controladas.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 80 - Equipment Acquisition Planner, conectando lacunas do Armory a fontes reais de Hunt, Boss e Crafting.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
