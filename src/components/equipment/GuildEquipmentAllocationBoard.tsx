@@ -151,7 +151,6 @@ export function GuildEquipmentAllocationBoard({
                 <button onClick={executeConfirmedOrder} type="button">Confirm</button>
               </div>
             </div> : null}
-            {feedback ? <p className={feedback.success ? "quartermaster-feedback is-success" : "quartermaster-feedback is-warning"}>{feedback.message}</p> : null}
             <dl>
               <div><dt>Character</dt><dd>{selectedAllocation.characterName}</dd></div>
               <div><dt>Vocation</dt><dd>{selectedAllocation.vocation}</dd></div>
@@ -192,6 +191,7 @@ export function GuildEquipmentAllocationBoard({
           <span>The Guild Depot has no compatible equipment that improves a roster slot.</span>
         </div>
       )}
+      {feedback ? <p className={feedback.success ? "quartermaster-feedback is-success" : "quartermaster-feedback is-warning"}>{feedback.message}</p> : null}
     </section>
   );
 }

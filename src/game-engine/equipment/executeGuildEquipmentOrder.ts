@@ -34,6 +34,12 @@ export function executeGuildEquipmentOrder(
   request: GuildEquipmentOrderRequest,
 ): GuildEquipmentOrderResult {
   const safeCharacters = Array.isArray(characters) ? characters : [];
+  if (!hasValidRosterEntries(safeCharacters)) {
+    return blocked(safeCharacters, depot, request?.characterId ?? "", "The guild roster contains invalid character data.");
+  }
+  if (!request || typeof request !== "object") {
+    return blocked(safeCharacters, depot, "", "The quartermaster order request is invalid.");
+  }
   const plan = buildGuildEquipmentAllocation(safeCharacters, depot);
   const allocation = plan.allocations.find((entry) =>
     entry.characterId === request.characterId
@@ -63,6 +69,9 @@ export function executeAllReadyGuildEquipmentOrders(
   depot: GuildDepot,
 ): GuildEquipmentOrderResult {
   const safeCharacters = Array.isArray(characters) ? characters : [];
+  if (!hasValidRosterEntries(safeCharacters)) {
+    return blocked(safeCharacters, depot, "", "The guild roster contains invalid character data.");
+  }
   const plan = buildGuildEquipmentAllocation(safeCharacters, depot);
   const readyOrders = plan.allocations.filter((allocation) => allocation.canCarry);
 
@@ -140,6 +149,12 @@ function executeValidatedOrder(
       || entry.item.weight < 0
       || !Number.isFinite(entry.quantity)
       || entry.quantity <= 0)
+    || Object.values(character.equipment).some((entry) =>
+      !entry?.item
+      || !Number.isFinite(entry.item.weight)
+      || entry.item.weight < 0
+      || !Number.isSafeInteger(entry.quantity)
+      || entry.quantity !== 1)
   ) {
     return failedExecution(characters, depot, allocation, `${allocation.characterName} has invalid inventory or capacity data.`);
   }
@@ -215,6 +230,14 @@ function failedExecution(
       reason,
     } satisfies GuildEquipmentOrderOutcome,
   };
+}
+
+function hasValidRosterEntries(characters: Character[]) {
+  return characters.every((character) =>
+    Boolean(character)
+    && typeof character === "object"
+    && typeof character.id === "string"
+    && character.id.length > 0);
 }
 
 function blocked(

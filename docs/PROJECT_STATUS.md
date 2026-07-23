@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-22
+Atualizado em: 2026-07-23
 
 ## Stack usada
 
@@ -154,6 +154,7 @@ Atualizado em: 2026-07-22
 - Etapa 81 concluida: Guild Equipment Allocation Board distribui cada copia finita do Guild Depot uma unica vez e maximiza o ganho total de rating do roster sem auto-equip.
 - Etapa 81.5 concluida: QA do Allocation Board corrigiu a selecao de ordens secundarias, validou 24.039 checks, desktop/mobile e uma carga Tauri/SQLite com restauracao integral do save.
 - Etapa 82 concluida: Quartermaster Distribution Orders executa uma ordem ou todas as transferencias prontas com confirmacao, rollback atomico e equipamento real salvo localmente.
+- Etapa 82.5 concluida: QA aprofundada das Distribution Orders corrigiu estados corrompidos, roster invalido e feedback final, com 17.893 checks, browser responsivo, Tauri release e SQLite restaurado por hash.
 
 Comandos principais:
 
@@ -5576,6 +5577,52 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 82.5 - QA aprofundada das Quartermaster Distribution Orders no Tauri/SQLite.
+
+## Etapa 82.5 - QA das Quartermaster Distribution Orders no Tauri/SQLite
+
+Status: concluida com tres correcoes funcionais.
+
+Correcoes reproduzidas:
+
+- Um equipamento ja vestido com quantidade `NaN`, infinita, fracionaria, zero ou diferente de uma unidade podia retornar ao inventario durante a troca e contaminar `capacityUsed`; a engine agora valida todos os slots equipados antes de transferir.
+- Um roster corrompido com entrada `null`, `undefined` ou id vazio podia lancar excecao durante a reconstrucao do plano; execucao individual e em lote agora bloqueiam o estado sem mutar personagens ou Depot.
+- Ao concluir a ultima ordem, o feedback de sucesso era desmontado junto da workspace; a mensagem agora permanece visivel no estado vazio do Allocation Board.
+
+QA da engine e persistencia:
+
+- Harness temporario passou em 17.893 assertions e foi removido.
+- Dois mil cenarios pseudoaleatorios executaram 7.853 ordens e bloquearam 36 operacoes invalidas usando os 41 equipamentos do catalogo.
+- Conservacao por item foi conferida entre Guild Depot, inventarios e equipamentos; inputs permaneceram imutaveis e os totais de lote ficaram coerentes.
+- Foram cobertos equipamento vestido corrompido, inventory/equipment ausente, capacity e peso invalidos, stacks corrompidas, roster invalido e request nulo.
+- Uma troca com Brass Shield aprimorado passou pelo `saveGameState` em banco simulado: a nova peca foi gravada como `equipped`, Wooden Shield voltou para `character_inventory` e nenhum id foi duplicado.
+- O round-trip por `mapInventoryItem` preservou tier 2, upgrade +3 e imbuement com 11 hunts restantes.
+
+QA visual e interativo:
+
+- Cancelar a confirmacao preservou a ordem, o Depot e o resumo `1/1`.
+- Confirmar removeu Brass Shield do Depot, equipou Lyra, elevou o resumo para 13/45 e criou um unico Activity Log.
+- Apos a execucao, o board recalculou para zero ordens e nao permitiu reutilizar a mesma copia.
+- Em 430x900, board e documento permaneceram sem overflow horizontal; confirmacao, Cancel e Confirm ficaram inteiros e acessiveis.
+- O console web mostrou apenas o fallback SQLite esperado quando o frontend roda fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 394 modulos antes e depois das correcoes.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O executavel final permaneceu aberto e responsivo durante a carga controlada de 8 segundos.
+- `PRAGMA integrity_check` retornou `ok`; permaneceram 1 guilda, 5 personagens, 35 skills, 26 itens e 10 logs.
+- DB, WAL e SHM foram restaurados aos hashes originais; o banco principal voltou ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes mantidas:
+
+- Ordens continuam restritas a equipamentos existentes no Guild Depot e nao redistribuem em cascata a peca substituida.
+- Nao existe fila persistente, agendamento, custo, tempo de entrega ou automacao offline.
+- O QA interativo ocorreu no browser; a janela Tauri foi validada por carga nativa controlada, sem cliques manuais.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 83 - Guild Loadout Templates, para salvar metas de equipamento por personagem e encaminhar diferencas ao Quartermaster sem auto-equip.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
