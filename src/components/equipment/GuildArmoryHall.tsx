@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildGuildArmoryAudit, type GuildArmoryStatus } from "../../game-engine/equipment/buildGuildArmoryAudit";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
-import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, HuntArea } from "../../shared/types";
+import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, GuildLoadoutTemplateSlotId, HuntArea } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
 import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
 import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
+import { GuildLoadoutTemplates } from "./GuildLoadoutTemplates";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
-type ArmoryView = "audit" | "acquisition" | "allocation";
+type ArmoryView = "audit" | "acquisition" | "allocation" | "templates";
 
 interface GuildArmoryHallProps {
   characters: Character[];
@@ -21,6 +22,8 @@ interface GuildArmoryHallProps {
   onOpenSystem: (tab: "inventory" | "depot" | "forge") => void;
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
+  onSaveLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) => void;
+  onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
 }
 
 const slotLabels: Record<EquipmentSlot, string> = {
@@ -28,7 +31,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onSaveLoadoutTemplate, onClearLoadoutTemplate }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
@@ -62,7 +65,9 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
     ? ["Armory Audit", "Compare every loadout and identify compatible upgrades already stored in the Guild Depot."]
     : view === "acquisition"
       ? ["Acquisition Planner", "Connect equipment targets to holdings, hunts, bosses and Guild Workbench recipes."]
-      : ["Allocation Board", "Distribute finite Guild Depot equipment across the roster by compatible rating gain."];
+      : view === "allocation"
+        ? ["Allocation Board", "Distribute finite Guild Depot equipment across the roster by compatible rating gain."]
+        : ["Loadout Templates", "Save equipment targets and review where every required piece is currently held."];
 
   return (
     <div className="guild-armory-hall">
@@ -82,6 +87,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
         <button aria-selected={view === "audit"} onClick={() => setView("audit")} role="tab" type="button">Armory Audit</button>
         <button aria-selected={view === "acquisition"} onClick={() => setView("acquisition")} role="tab" type="button">Acquisition Planner</button>
         <button aria-selected={view === "allocation"} onClick={() => setView("allocation")} role="tab" type="button">Allocation Board</button>
+        <button aria-selected={view === "templates"} onClick={() => setView("templates")} role="tab" type="button">Loadout Templates</button>
       </div>
 
       {view === "audit" ? <>
@@ -164,7 +170,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onSelectCharacter={selectCharacter}
           selectedCharacterId={inspectedCharacterId}
         />
-      ) : (
+      ) : view === "allocation" ? (
         <GuildEquipmentAllocationBoard
           characters={characters}
           depot={depot}
@@ -173,6 +179,24 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onOpenInventory={(characterId) => { onSelectCharacter(characterId); onOpenSystem("inventory"); }}
           onExecuteAllOrders={onExecuteAllEquipmentOrders}
           onExecuteOrder={onExecuteEquipmentOrder}
+          onSelectCharacter={selectCharacter}
+          selectedCharacterId={inspectedCharacterId}
+        />
+      ) : (
+        <GuildLoadoutTemplates
+          characters={characters}
+          depot={depot}
+          guild={guild}
+          onClearTemplate={onClearLoadoutTemplate}
+          onOpenQuartermaster={(characterId) => {
+            selectCharacter(characterId);
+            setView("allocation");
+          }}
+          onOpenSystem={(tab, characterId) => {
+            selectCharacter(characterId);
+            onOpenSystem(tab);
+          }}
+          onSaveTemplate={onSaveLoadoutTemplate}
           onSelectCharacter={selectCharacter}
           selectedCharacterId={inspectedCharacterId}
         />

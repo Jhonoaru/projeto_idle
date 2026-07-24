@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-83",
+    stage: "Stage 83",
+    title: "Guild Loadout Templates",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "The Armory can now preserve three equipment targets per adventurer and locate every required piece across local guild holdings.",
+    highlights: [
+      "Capture the equipment currently worn into any of three named templates without moving, reserving or equipping an item.",
+      "Each slot reports whether its target is equipped, in the Guild Depot, in a personal holding, held by another adventurer or still missing.",
+      "Depot-ready differences open the existing Quartermaster Allocation Board for explicit review and confirmation.",
+    ],
+    systems: ["Guild Armory", "Loadout Templates", "Quartermaster", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-77-5",
     stage: "Stage 77.5",
     title: "Deployment Planner QA",

@@ -264,6 +264,7 @@ export interface Guild {
   directives?: GuildDirectivesState;
   squads?: GuildSquadsState;
   deploymentOrders?: GuildDeploymentOrdersState;
+  loadoutTemplates?: GuildLoadoutTemplatesState;
 }
 
 export interface GuildLevelRewardClaim {
@@ -337,6 +338,27 @@ export interface GuildDeploymentOrder {
 
 export interface GuildDeploymentOrdersState {
   orders: GuildDeploymentOrder[];
+}
+
+export type GuildLoadoutTemplateSlotId = "loadout-one" | "loadout-two" | "loadout-three";
+
+export interface GuildLoadoutTemplateTarget {
+  slot: EquipmentSlot;
+  itemId: string;
+  minimumTier: EquipmentTier;
+  minimumUpgradeLevel: EquipmentUpgradeLevel;
+}
+
+export interface GuildLoadoutTemplate {
+  id: GuildLoadoutTemplateSlotId;
+  characterId: string;
+  name: string;
+  targets: GuildLoadoutTemplateTarget[];
+  updatedAt: string;
+}
+
+export interface GuildLoadoutTemplatesState {
+  templates: GuildLoadoutTemplate[];
 }
 
 export interface GuildLogisticsState {

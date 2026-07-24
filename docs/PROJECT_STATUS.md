@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-23
+Atualizado em: 2026-07-24
 
 ## Stack usada
 
@@ -155,6 +155,7 @@ Atualizado em: 2026-07-23
 - Etapa 81.5 concluida: QA do Allocation Board corrigiu a selecao de ordens secundarias, validou 24.039 checks, desktop/mobile e uma carga Tauri/SQLite com restauracao integral do save.
 - Etapa 82 concluida: Quartermaster Distribution Orders executa uma ordem ou todas as transferencias prontas com confirmacao, rollback atomico e equipamento real salvo localmente.
 - Etapa 82.5 concluida: QA aprofundada das Distribution Orders corrigiu estados corrompidos, roster invalido e feedback final, com 17.893 checks, browser responsivo, Tauri release e SQLite restaurado por hash.
+- Etapa 83 concluida: Guild Loadout Templates salva tres metas por personagem, localiza as pecas nos holdings locais e encaminha diferencas do Guild Depot ao Quartermaster.
 
 Comandos principais:
 
@@ -5623,6 +5624,69 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 83 - Guild Loadout Templates, para salvar metas de equipamento por personagem e encaminhar diferencas ao Quartermaster sem auto-equip.
+
+## Etapa 83 - Guild Loadout Templates
+
+Status: concluida.
+
+Implementacao:
+
+- O Guild Armory ganhou a quarta view `Loadout Templates`, ao lado de Audit, Acquisition Planner e Allocation Board.
+- Cada aventureiro possui tres slots independentes e nomeaveis de template.
+- `Save Current Loadout` captura somente equipamentos validos atualmente vestidos; slots vazios permanecem fora da meta.
+- Cada alvo preserva itemId, slot, tier minimo e upgrade minimo sem copiar ids de instancia ou imbuements temporarios.
+- A revisao compara os nove slots e classifica cada alvo como equipado, Guild Depot, holding pessoal, outro aventureiro, ausente ou incompatível.
+- Uma diferenca disponivel no Guild Depot habilita `Review Quartermaster`, que seleciona o personagem e abre o Allocation Board existente sem transferir ou equipar automaticamente.
+- Inventory, Guild Depot e Forge continuam acessiveis como rotas manuais do personagem inspecionado.
+- Salvar e limpar geram um unico Activity Log e possuem bloqueio contra clique duplo.
+
+Save/load e compatibilidade:
+
+- `Guild` ganhou `loadoutTemplates?: GuildLoadoutTemplatesState`.
+- SQLite ganhou a coluna aditiva `loadout_templates_json`, com default `{}` para saves antigos.
+- A normalizacao remove personagem inexistente, slot de template desconhecido, item ausente, slot incompatível, targets duplicados e timestamps invalidos.
+- Nomes sao compactados para 28 caracteres; tier e upgrade usam os limites reais 0-3 e 0-5.
+- O mapper, repository, mock inicial e migration foram atualizados; nenhum inventario ou equipamento e regravado pelo template.
+
+Validacao automatizada:
+
+- Harness temporario passou em 10.141 assertions e foi removido.
+- Dois mil saves pseudoaleatorios cobriram personagens orfaos, slots invalidos, items ausentes, nomes, timestamps, tiers, upgrades e imutabilidade.
+- Os quinze slots simultaneos de cinco personagens permaneceram independentes e sem colisao.
+- Captura, sobrescrita, limpeza idempotente e bloqueio de personagem sem equipamento passaram.
+- A revisao confirmou as cinco fontes reais: equipado, Guild Depot, holding pessoal, outro aventureiro e ausente.
+- O round-trip pelo `saveGameState` e `mapGuild` preservou nome, personagem, targets e aprimoramentos minimos.
+
+QA visual e interativo:
+
+- Arkon salvou `Starter Guard` e `Hunt Guard` em slots separados; trocar para Lyra manteve a selecao global sincronizada.
+- Limpar Loadout II preservou Loadout I e criou um unico log.
+- Wooden Shield foi removido, enviado ao Guild Depot e mudou de `Equipped` para `Guild Depot` no template salvo.
+- `Review Quartermaster` abriu Allocation Board com Arkon selecionado e Wooden Shield como ordem real.
+- Em 430x900, documento e board permaneceram sem overflow horizontal e nenhum elemento de texto medido excedeu o container.
+- O console web mostrou apenas o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 399 modulos.
+- O primeiro rebuild Rust encontrou bloqueios temporarios do Windows Application Control em build-scripts recem-gerados; apos a liberacao dos executaveis locais, `npm.cmd run tauri:build` passou e gerou EXE, MSI e NSIS.
+- A primeira carga nativa adicionou `loadout_templates_json` ao banco legado e persistiu `{ "templates": [] }`.
+- Uma fixture com duplicata, personagem orfao, entrada null, item/slot invalido, timestamp ruim e tier/upgrade extremos normalizou para um unico `Native Guard`.
+- Duas cargas nativas preservaram `loadout-two`, Arkon, Worn Sword, tier 3, upgrade +5 e timestamp epoch com `integrity_check=ok`.
+- Permaneceram 1 guilda, 5 personagens, 35 skills, 26 itens e 10 logs.
+- DB, WAL e SHM originais foram restaurados byte a byte; o banco principal voltou ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes atuais:
+
+- Templates capturam snapshots do equipamento vestido; ainda nao existe editor de item desejado a partir do catalogo.
+- `Review Quartermaster` abre a distribuicao real atual, mas nao reserva a peca nem força uma alocacao que deixe de ser a melhor melhoria global.
+- Targets nao incluem imbuements, pois cargas restantes sao temporarias; apenas item, tier e upgrade minimo formam a meta.
+- Nao existe troca automatica de build, fila, custo, cooldown, compartilhamento online ou automacao offline.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 83.5 - QA aprofundada dos Guild Loadout Templates no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

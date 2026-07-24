@@ -80,4 +80,5 @@ export const mockGuild: Guild = {
   directives: { activeDirectiveId: null, activationHistory: [] },
   squads: { squads: [] },
   deploymentOrders: { orders: [] },
+  loadoutTemplates: { templates: [] },
 };

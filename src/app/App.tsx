@@ -76,6 +76,7 @@ import { getGuildDirectiveBonuses } from "../game-engine/guild-directives/getGui
 import { saveGuildSquad } from "../game-engine/guild-squads/saveGuildSquad";
 import { createBossPartyFromGuildSquad } from "../game-engine/guild-squads/createBossPartyFromGuildSquad";
 import { clearGuildDeploymentOrder, saveGuildDeploymentOrder } from "../game-engine/deployment-orders/updateGuildDeploymentOrder";
+import { clearGuildLoadoutTemplate, saveGuildLoadoutTemplate } from "../game-engine/loadout-templates/updateGuildLoadoutTemplate";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -139,6 +140,7 @@ import type {
   GuildFacilityId,
   GuildDeploymentOrderKind,
   GuildDeploymentOrderSlotId,
+  GuildLoadoutTemplateSlotId,
   GuildSpecialistId,
   GuildSquadMember,
   GuildSquadSlotId,
@@ -239,6 +241,7 @@ export function App() {
   const savingGuildSquadRef = useRef(false);
   const loadingGuildSquadRef = useRef(false);
   const updatingDeploymentOrderRef = useRef(false);
+  const updatingLoadoutTemplateRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
@@ -612,6 +615,24 @@ export function App() {
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Deployment order cleared" : "Deployment order unchanged", result.message, result.success ? "neutral" : "warning");
     window.setTimeout(() => { updatingDeploymentOrderRef.current = false; }, 200);
+  }
+
+  function handleSaveLoadoutTemplate(characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) {
+    if (updatingLoadoutTemplateRef.current) return;
+    updatingLoadoutTemplateRef.current = true;
+    const result = saveGuildLoadoutTemplate(guild, characters, characterId, templateSlotId, name);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Loadout template saved" : "Loadout template blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function handleClearLoadoutTemplate(characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) {
+    if (updatingLoadoutTemplateRef.current) return;
+    updatingLoadoutTemplateRef.current = true;
+    const result = clearGuildLoadoutTemplate(guild, characters, characterId, templateSlotId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Loadout template cleared" : "Loadout template unchanged", result.message, result.success ? "neutral" : "warning");
+    window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
@@ -2397,6 +2418,8 @@ export function App() {
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onExecuteAllEquipmentOrders={handleExecuteAllEquipmentOrders}
           onExecuteEquipmentOrder={handleExecuteEquipmentOrder}
+          onSaveLoadoutTemplate={handleSaveLoadoutTemplate}
+          onClearLoadoutTemplate={handleClearLoadoutTemplate}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

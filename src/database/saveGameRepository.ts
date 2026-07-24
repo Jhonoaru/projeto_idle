@@ -18,6 +18,7 @@ import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progre
 import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
 import { normalizeGuildSquadsState } from "../game-engine/guild-squads/normalizeGuildSquadsState";
 import { normalizeGuildDeploymentOrdersState } from "../game-engine/deployment-orders/normalizeGuildDeploymentOrdersState";
+import { normalizeGuildLoadoutTemplatesState } from "../game-engine/loadout-templates/normalizeGuildLoadoutTemplatesState";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -116,6 +117,10 @@ export async function loadGameState(db: Database): Promise<GameStateSnapshot | n
   const normalizedGuild = {
     ...guild,
     squads: normalizeGuildSquadsState(guild.squads, guild.level, characters.map((character) => character.id)),
+    loadoutTemplates: normalizeGuildLoadoutTemplatesState(
+      guild.loadoutTemplates,
+      characters.map((character) => character.id),
+    ),
   };
 
   return {
@@ -254,9 +259,10 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       directives_json,
       squads_json,
       deployment_orders_json,
+      loadout_templates_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)`,
     [
       normalizedGuild.id,
       normalizedGuild.name,
@@ -282,6 +288,7 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       JSON.stringify(normalizeGuildDirectivesState(normalizedGuild.directives, normalizedGuild.level)),
       JSON.stringify(normalizeGuildSquadsState(normalizedGuild.squads, normalizedGuild.level, characters.map((character) => character.id))),
       JSON.stringify(normalizeGuildDeploymentOrdersState(normalizedGuild.deploymentOrders)),
+      JSON.stringify(normalizeGuildLoadoutTemplatesState(normalizedGuild.loadoutTemplates, characters.map((character) => character.id))),
       now,
       now,
     ],

@@ -20,6 +20,7 @@ import { normalizeGuildRenownObjectivesState } from "../game-engine/guild-progre
 import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/normalizeGuildDirectivesState";
 import { normalizeGuildSquadsState } from "../game-engine/guild-squads/normalizeGuildSquadsState";
 import { normalizeGuildDeploymentOrdersState } from "../game-engine/deployment-orders/normalizeGuildDeploymentOrdersState";
+import { normalizeGuildLoadoutTemplatesState } from "../game-engine/loadout-templates/normalizeGuildLoadoutTemplatesState";
 import { normalizeGuildProgression } from "../game-engine/guild-progression/getGuildProgression";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
@@ -64,6 +65,7 @@ export interface GuildRow {
   directives_json?: string | null;
   squads_json?: string | null;
   deployment_orders_json?: string | null;
+  loadout_templates_json?: string | null;
 }
 
 export interface CharacterRow {
@@ -187,12 +189,16 @@ export function mapGuild(row: GuildRow): Guild {
     deploymentOrders: normalizeGuildDeploymentOrdersState(
       row.deployment_orders_json ? parseJson(row.deployment_orders_json, undefined) : undefined,
     ),
+    loadoutTemplates: normalizeGuildLoadoutTemplatesState(
+      row.loadout_templates_json ? parseJson(row.loadout_templates_json, undefined) : undefined,
+    ),
   });
   return {
     ...guild,
     directives: normalizeGuildDirectivesState(guild.directives, guild.level),
     squads: normalizeGuildSquadsState(guild.squads, guild.level),
     deploymentOrders: normalizeGuildDeploymentOrdersState(guild.deploymentOrders),
+    loadoutTemplates: normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates),
   };
 }
 

@@ -1153,7 +1153,7 @@ p {
 .guild-armory-empty { padding: 24px; color: #89938d; text-align: center; }
 
 /* Stage 80 - Equipment Acquisition Planner */
-.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
+.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
 .guild-armory-view-tabs button { min-height: 34px; border: 0; border-right: 1px solid #3b3b35; color: #89938d; background: #141a17; font-family: Georgia, serif; font-size: 0.56rem; font-weight: 700; cursor: pointer; }
 .guild-armory-view-tabs button:last-child { border-right: 0; }
 .guild-armory-view-tabs button[aria-selected="true"] { color: #ead18c; background: #26291f; box-shadow: inset 0 -2px #a58a4a; }
@@ -1318,6 +1318,75 @@ p {
 .allocation-empty strong { color: #dfce97; font-family: Georgia, serif; font-size: 0.84rem; }
 .allocation-empty span { margin-top: 7px; color: #89938d; font-size: 0.52rem; }
 
+/* Stage 83 - Guild Loadout Templates */
+.loadout-templates { display: grid; gap: 8px; min-width: 0; }
+.loadout-template-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #3b3b35; background: #101513; }
+.loadout-template-summary > div { min-width: 0; min-height: 55px; padding: 8px 10px; border-right: 1px solid #303832; }
+.loadout-template-summary > div:last-child { border-right: 0; }
+.loadout-template-summary span,
+.loadout-template-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loadout-template-summary span { color: #7f8981; font-size: 0.47rem; text-transform: uppercase; }
+.loadout-template-summary strong { margin-top: 7px; color: #dfce97; font-size: 0.7rem; }
+.loadout-template-roster { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; min-width: 0; padding: 8px; border: 1px solid #3b3b35; background: #101513; }
+.loadout-template-roster button { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 4px 7px; align-items: center; min-width: 0; min-height: 59px; padding: 6px; border: 1px solid #343c36; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.loadout-template-roster button[aria-pressed="true"] { border-color: #927b45; background: #20241c; }
+.loadout-template-roster i { grid-row: 1 / 3; display: grid; place-items: center; width: 30px; height: 39px; border: 1px solid #6d6142; color: #dcc780; background: #20251f; font-style: normal; font-weight: 900; }
+.loadout-template-roster span,
+.loadout-template-roster strong,
+.loadout-template-roster small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loadout-template-roster strong { color: #d8ca96; font-size: 0.58rem; }
+.loadout-template-roster small { margin-top: 2px; font-size: 0.46rem; }
+.loadout-template-roster b { color: #9ec48e; font-size: 0.47rem; white-space: nowrap; }
+.loadout-template-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; min-width: 0; padding: 8px; border: 1px solid #3b3b35; background: #101513; }
+.loadout-template-slots button { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 8px; align-items: center; min-width: 0; min-height: 51px; padding: 6px; border: 1px solid #343c36; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
+.loadout-template-slots button[aria-selected="true"] { border-color: #9a8247; background: #24271e; }
+.loadout-template-slots i { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #766741; color: #e0ca89; background: #20251f; font-style: normal; font-weight: 900; }
+.loadout-template-slots span,
+.loadout-template-slots strong,
+.loadout-template-slots small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loadout-template-slots strong { color: #dacd9a; font-size: 0.61rem; }
+.loadout-template-slots small { margin-top: 3px; color: #7f8981; font-size: 0.46rem; }
+.loadout-template-workspace { display: grid; grid-template-columns: minmax(290px, 0.58fr) minmax(600px, 1.42fr); gap: 8px; min-width: 0; align-items: start; }
+.loadout-template-editor,
+.loadout-template-review { min-width: 0; padding: 9px; border: 1px solid #3b3b35; background: #101513; }
+.loadout-template-editor > header,
+.loadout-template-review > header { display: flex; justify-content: space-between; gap: 8px; align-items: end; padding-bottom: 7px; border-bottom: 1px solid #303832; }
+.loadout-template-editor header span,
+.loadout-template-review header span { display: block; color: #89938d; font-size: 0.47rem; text-transform: uppercase; }
+.loadout-template-editor header strong,
+.loadout-template-review header strong { display: block; margin-top: 3px; color: #dfce97; font-family: Georgia, serif; font-size: 0.73rem; }
+.loadout-template-editor header b,
+.loadout-template-review header b { color: #9ec48e; font-size: 0.54rem; white-space: nowrap; }
+.loadout-template-editor > label { display: grid; gap: 5px; margin-top: 8px; }
+.loadout-template-editor > label span { color: #89938d; font-size: 0.48rem; text-transform: uppercase; }
+.loadout-template-editor input { min-width: 0; height: 34px; padding: 6px 8px; border: 1px solid #424b44; color: #ded4aa; background: #121714; }
+.loadout-template-editor > p { margin: 8px 0; color: #929c94; font-size: 0.54rem; line-height: 1.45; }
+.loadout-template-editor-actions,
+.loadout-template-routing { display: grid; gap: 5px; }
+.loadout-template-editor-actions { grid-template-columns: minmax(0, 1fr) 80px; }
+.loadout-template-routing { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 6px; padding-top: 7px; border-top: 1px solid #303832; }
+.loadout-template-editor button { min-height: 31px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 700; cursor: pointer; }
+.loadout-template-editor button:disabled { border-color: #3c443e; color: #68716b; background: #171c19; cursor: not-allowed; }
+.loadout-template-editor > small { display: block; margin-top: 8px; color: #77817a; font-size: 0.48rem; line-height: 1.4; }
+.loadout-template-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
+.loadout-template-grid article { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; grid-template-rows: auto auto auto; gap: 2px 7px; align-items: center; min-width: 0; min-height: 70px; padding: 7px; border: 1px solid #39413b; border-left: 3px solid #5b655d; background: #151a17; }
+.loadout-template-grid article.is-equipped { border-left-color: #769768; }
+.loadout-template-grid article.is-guild-depot { border-left-color: #a58a4a; }
+.loadout-template-grid article.is-personal,
+.loadout-template-grid article.is-roster { border-left-color: #64859b; }
+.loadout-template-grid article.is-missing,
+.loadout-template-grid article.is-incompatible { border-left-color: #8a594f; }
+.loadout-template-grid article > span { grid-column: 1 / -1; color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
+.loadout-template-grid .item-icon { grid-row: 2 / 4; }
+.loadout-template-grid strong,
+.loadout-template-grid small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loadout-template-grid strong { color: #d8cc9d; font-size: 0.57rem; }
+.loadout-template-grid small { color: #7f8981; font-size: 0.45rem; }
+.loadout-template-grid em { grid-row: 2 / 4; grid-column: 3; color: #9bc6a3; font-size: 0.44rem; font-style: normal; text-align: right; }
+.loadout-template-grid .is-missing em,
+.loadout-template-grid .is-incompatible em { color: #cf8e80; }
+.loadout-template-empty { padding: 24px; color: #89938d; text-align: center; }
+
 @media (max-width: 1180px) {
   .guild-armory-hero { grid-template-columns: 82px minmax(0, 1fr); }
   .guild-armory-summary { grid-column: 1 / -1; }
@@ -1329,6 +1398,8 @@ p {
   .allocation-workspace { grid-template-columns: minmax(280px, 0.7fr) minmax(420px, 1.3fr); }
   .allocation-ledger { grid-column: 1 / -1; }
   .allocation-ledger > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .loadout-template-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .loadout-template-workspace { grid-template-columns: minmax(270px, 0.58fr) minmax(480px, 1.42fr); }
 }
 @media (max-width: 760px) {
   .guild-armory-hero { grid-template-columns: 1fr; text-align: center; }
@@ -1340,9 +1411,12 @@ p {
   .acquisition-summary,
   .acquisition-roster,
   .allocation-summary,
-  .allocation-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .allocation-roster,
+  .loadout-template-summary,
+  .loadout-template-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .acquisition-workspace,
-  .allocation-workspace { grid-template-columns: 1fr; }
+  .allocation-workspace,
+  .loadout-template-workspace { grid-template-columns: 1fr; }
   .allocation-ledger { grid-column: auto; }
   .allocation-ledger > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -1362,6 +1436,9 @@ p {
   .acquisition-roster,
   .allocation-summary,
   .allocation-roster,
+  .loadout-template-summary,
+  .loadout-template-roster,
+  .loadout-template-slots,
   .allocation-command-row,
   .allocation-order dl,
   .allocation-ledger > div { grid-template-columns: 1fr; }
@@ -1377,6 +1454,13 @@ p {
   .allocation-order-item { grid-template-columns: 74px minmax(0, 1fr); }
   .allocation-order-item > em { grid-column: 1 / -1; white-space: normal; }
   .quartermaster-execution-row { grid-template-columns: 1fr; }
+  .loadout-template-editor > header,
+  .loadout-template-review > header { align-items: flex-start; flex-direction: column; }
+  .loadout-template-editor-actions,
+  .loadout-template-routing,
+  .loadout-template-grid { grid-template-columns: 1fr; }
+  .loadout-template-grid article { grid-template-columns: 38px minmax(0, 1fr); }
+  .loadout-template-grid em { grid-row: auto; grid-column: 1 / -1; text-align: left; }
 }
 
 .forge-workshop-shell,
