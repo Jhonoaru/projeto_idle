@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-83-5",
+    stage: "Stage 83.5",
+    title: "Guild Loadout Templates QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Expanded engine, responsive and native SQLite validation hardened loadout capture, per-adventurer counters and malformed save recovery.",
+    highlights: [
+      "Template capture now accepts only a real catalog item with a matching slot and one valid equipped copy, while corrupt slots stay outside the saved plan.",
+      "Saved Plans now reports the selected adventurer's three slots instead of the guild-wide total, and malformed roster entries no longer break template clearing.",
+      "Eight thousand forty-eight checks, double-click flows, two responsive widths and two native fixture reloads passed before the original SQLite campaign was restored by hash.",
+    ],
+    systems: ["Loadout Templates QA", "Guild Armory", "Equipment Validation", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-83",
     stage: "Stage 83",
     title: "Guild Loadout Templates",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Depot-ready differences open the existing Quartermaster Allocation Board for explicit review and confirmation.",
     ],
     systems: ["Guild Armory", "Loadout Templates", "Quartermaster", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-77-5",

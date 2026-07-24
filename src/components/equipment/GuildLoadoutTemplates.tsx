@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { guildLoadoutTemplateSlots } from "../../data/guildLoadoutTemplates";
 import { buildGuildLoadoutTemplateReview, type GuildLoadoutTargetStatus } from "../../game-engine/loadout-templates/buildGuildLoadoutTemplateReview";
 import { normalizeGuildLoadoutTemplatesState } from "../../game-engine/loadout-templates/normalizeGuildLoadoutTemplatesState";
+import { getGuildLoadoutCaptureTargets } from "../../game-engine/loadout-templates/updateGuildLoadoutTemplate";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type {
   Character,
@@ -51,7 +52,7 @@ export function GuildLoadoutTemplates({
   onSaveTemplate,
   onSelectCharacter,
 }: GuildLoadoutTemplatesProps) {
-  const safeCharacters = characters.filter(Boolean);
+  const safeCharacters = useMemo(() => characters.filter(Boolean), [characters]);
   const state = useMemo(
     () => normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates, safeCharacters.map((character) => character.id)),
     [guild.loadoutTemplates, safeCharacters],
@@ -61,6 +62,8 @@ export function GuildLoadoutTemplates({
   const template = state.templates.find((entry) =>
     entry.characterId === character?.id && entry.id === selectedSlotId);
   const [name, setName] = useState(template?.name ?? "");
+  const capturableTargets = useMemo(() => getGuildLoadoutCaptureTargets(character), [character]);
+  const savedPlans = state.templates.filter((entry) => entry.characterId === character?.id).length;
   const review = useMemo(
     () => buildGuildLoadoutTemplateReview(template, character, safeCharacters, depot),
     [character, depot, safeCharacters, template],
@@ -75,7 +78,7 @@ export function GuildLoadoutTemplates({
   return (
     <section className="loadout-templates">
       <div className="loadout-template-summary">
-        <Summary label="Saved plans" value={String(state.templates.length)} />
+        <Summary label="Saved plans" value={`${savedPlans}/3`} />
         <Summary label="Targets" value={String(review.summary.assigned)} />
         <Summary label="Equipped" value={`${review.summary.equipped}/${review.summary.assigned}`} />
         <Summary label="Depot ready" value={String(review.summary.guildDepot)} />
@@ -116,7 +119,7 @@ export function GuildLoadoutTemplates({
           </label>
           <p>Capture the valid equipment currently worn by this adventurer. Empty slots remain outside the plan.</p>
           <div className="loadout-template-editor-actions">
-            <button disabled={!Object.values(character.equipment ?? {}).some(Boolean)} onClick={() => onSaveTemplate(character.id, selectedSlotId, name)} type="button">
+            <button disabled={capturableTargets.length === 0} onClick={() => onSaveTemplate(character.id, selectedSlotId, name)} type="button">
               Save Current Loadout
             </button>
             <button disabled={!template} onClick={() => onClearTemplate(character.id, selectedSlotId)} type="button">Clear</button>

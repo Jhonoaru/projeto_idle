@@ -156,6 +156,7 @@ Atualizado em: 2026-07-24
 - Etapa 82 concluida: Quartermaster Distribution Orders executa uma ordem ou todas as transferencias prontas com confirmacao, rollback atomico e equipamento real salvo localmente.
 - Etapa 82.5 concluida: QA aprofundada das Distribution Orders corrigiu estados corrompidos, roster invalido e feedback final, com 17.893 checks, browser responsivo, Tauri release e SQLite restaurado por hash.
 - Etapa 83 concluida: Guild Loadout Templates salva tres metas por personagem, localiza as pecas nos holdings locais e encaminha diferencas do Guild Depot ao Quartermaster.
+- Etapa 83.5 concluida: QA dos Loadout Templates bloqueou equipamento corrompido, corrigiu o contador por personagem e validou 8.048 checks, browser responsivo e duas cargas Tauri/SQLite.
 
 Comandos principais:
 
@@ -5687,6 +5688,64 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 83.5 - QA aprofundada dos Guild Loadout Templates no Tauri/SQLite.
+
+## Etapa 83.5 - QA dos Guild Loadout Templates no Tauri/SQLite
+
+Status: concluida com duas correcoes funcionais e um reforco defensivo.
+
+Correcoes reproduzidas:
+
+- A captura aceitava um objeto de equipamento aparentemente valido mesmo quando `itemId` nao existia no catalogo ou a quantidade era zero/invalida; a normalizacao removia o alvo depois e a operacao podia registrar um template vazio como sucesso.
+- O resumo `Saved plans` contava os templates da guilda inteira, fazendo outro aventureiro aparentar possuir planos que pertenciam ao personagem anterior.
+- A limpeza reutilizava o roster bruto ao procurar o nome do personagem; entradas `null`, objetos sem id ou ids vazios agora sao descartados antes da normalizacao e da mensagem.
+
+Implementacao da correcao:
+
+- `getGuildLoadoutCaptureTargets` centraliza a validacao usada pela engine e pelo estado disabled do botao.
+- Cada peca capturada precisa existir em `items`, coincidir por id e slot com o catalogo e objeto carregado, ser equipamento e possuir exatamente uma unidade inteira.
+- Slots corrompidos sao ignorados; se nenhum slot valido permanecer, salvar e bloqueado sem criar template.
+- Tier e upgrade continuam normalizados pelos limites reais 0-3 e 0-5.
+- O resumo agora exibe `0/3` a `3/3` somente para o aventureiro selecionado.
+
+QA automatizado:
+
+- Harness temporario passou em 8.048 assertions e foi removido.
+- Dois mil cenarios pseudoaleatorios cobriram tier, upgrade, nome, timestamp e slots independentes.
+- Os quinze templates simultaneos de cinco personagens permaneceram isolados; sobrescrita nao duplicou e limpeza repetida foi idempotente.
+- Foram cobertos roster com `null`/objeto vazio, personagem inexistente, data invalida, equipamento vazio, itemId ausente, quantidade zero/NaN e captura parcialmente valida.
+- A revisao confirmou as cinco origens reais: equipado, Guild Depot, holding pessoal, outro aventureiro e ausente.
+- O insert simulado manteve 27 valores alinhados e o round-trip por `saveGameState`/`mapGuild` preservou todos os templates.
+
+QA visual e interativo:
+
+- Arkon salvou `QA Vanguard` com clique duplo, resultando em um template, tres targets e um unico Activity Log.
+- Ayla salvou `Ranger Field Set` no Loadout III; trocar entre os dois personagens exibiu contagens independentes.
+- Limpar Arkon com clique duplo removeu somente seu Loadout I e gerou um unico log de limpeza.
+- Em 430x900 e 1366x768, documento e board ficaram sem overflow horizontal e nenhum texto medido excedeu o container.
+- Cards, editor, rotas e os nove slots permaneceram legiveis no layout compacto.
+- O console web exibiu apenas o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 399 modulos antes e depois das correcoes.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o banco legado e persistiu `{ "templates": [] }`.
+- Uma fixture com seis entradas incluiu duplicata, personagem orfao, slot/item invalido, `null`, timestamp ruim, espacos repetidos e limites extremos.
+- Duas cargas nativas produziram o mesmo SHA-256 `D6DB9891C1E0C91339F09592BE113A4D66D35DB5F22B3CA8B17235CC1B8732D4` para o JSON canonico com Arkon/Loadout I e Ayla/Loadout III.
+- As duas cargas ficaram responsivas e mantiveram `integrity_check=ok`, 5 personagens, 26 itens e 10 logs.
+- DB, WAL e SHM originais foram restaurados aos hashes exatos; o banco principal voltou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes mantidas:
+
+- Templates ainda capturam snapshots do equipamento vestido; o editor manual de itens desejados fica para a proxima etapa.
+- Targets nao incluem imbuements temporarios e nao reservam, movem, forjam ou equipam itens.
+- `Review Quartermaster` abre o Allocation Board real, mas nao obriga a ordem global a escolher a peca exata do template.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 84 - Editor Avancado de Loadouts, com selecao manual de itens do catalogo, tier/upgrade minimo e fontes reais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
