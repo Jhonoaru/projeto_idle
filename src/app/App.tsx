@@ -76,7 +76,11 @@ import { getGuildDirectiveBonuses } from "../game-engine/guild-directives/getGui
 import { saveGuildSquad } from "../game-engine/guild-squads/saveGuildSquad";
 import { createBossPartyFromGuildSquad } from "../game-engine/guild-squads/createBossPartyFromGuildSquad";
 import { clearGuildDeploymentOrder, saveGuildDeploymentOrder } from "../game-engine/deployment-orders/updateGuildDeploymentOrder";
-import { clearGuildLoadoutTemplate, saveGuildLoadoutTemplate } from "../game-engine/loadout-templates/updateGuildLoadoutTemplate";
+import {
+  clearGuildLoadoutTemplate,
+  saveEditedGuildLoadoutTemplate,
+  saveGuildLoadoutTemplate,
+} from "../game-engine/loadout-templates/updateGuildLoadoutTemplate";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -141,6 +145,7 @@ import type {
   GuildDeploymentOrderKind,
   GuildDeploymentOrderSlotId,
   GuildLoadoutTemplateSlotId,
+  GuildLoadoutTemplateTarget,
   GuildSpecialistId,
   GuildSquadMember,
   GuildSquadSlotId,
@@ -632,6 +637,20 @@ export function App() {
     const result = clearGuildLoadoutTemplate(guild, characters, characterId, templateSlotId);
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Loadout template cleared" : "Loadout template unchanged", result.message, result.success ? "neutral" : "warning");
+    window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function handleSaveEditedLoadoutTemplate(
+    characterId: string,
+    templateSlotId: GuildLoadoutTemplateSlotId,
+    name: string,
+    targets: GuildLoadoutTemplateTarget[],
+  ) {
+    if (updatingLoadoutTemplateRef.current) return;
+    updatingLoadoutTemplateRef.current = true;
+    const result = saveEditedGuildLoadoutTemplate(guild, characters, characterId, templateSlotId, name, targets);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Loadout plan updated" : "Loadout plan blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
   }
 
@@ -2419,6 +2438,7 @@ export function App() {
           onExecuteAllEquipmentOrders={handleExecuteAllEquipmentOrders}
           onExecuteEquipmentOrder={handleExecuteEquipmentOrder}
           onSaveLoadoutTemplate={handleSaveLoadoutTemplate}
+          onSaveEditedLoadoutTemplate={handleSaveEditedLoadoutTemplate}
           onClearLoadoutTemplate={handleClearLoadoutTemplate}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}

@@ -53,6 +53,7 @@ import type {
   GuildDeploymentOrderKind,
   GuildDeploymentOrderSlotId,
   GuildLoadoutTemplateSlotId,
+  GuildLoadoutTemplateTarget,
   GuildSpecialistId,
   GuildSquadMember,
   GuildSquadSlotId,
@@ -167,6 +168,12 @@ interface MainPanelProps {
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
   onSaveLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) => void;
+  onSaveEditedLoadoutTemplate: (
+    characterId: string,
+    templateSlotId: GuildLoadoutTemplateSlotId,
+    name: string,
+    targets: GuildLoadoutTemplateTarget[],
+  ) => void;
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
@@ -300,6 +307,7 @@ export function MainPanel({
   onExecuteAllEquipmentOrders,
   onExecuteEquipmentOrder,
   onSaveLoadoutTemplate,
+  onSaveEditedLoadoutTemplate,
   onClearLoadoutTemplate,
   onManualSave,
   onReloadSave,
@@ -467,6 +475,7 @@ export function MainPanel({
             onExecuteAllEquipmentOrders={onExecuteAllEquipmentOrders}
             onExecuteEquipmentOrder={onExecuteEquipmentOrder}
             onSaveLoadoutTemplate={onSaveLoadoutTemplate}
+            onSaveEditedLoadoutTemplate={onSaveEditedLoadoutTemplate}
             onClearLoadoutTemplate={onClearLoadoutTemplate}
           />
         ) : null}

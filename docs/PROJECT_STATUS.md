@@ -157,6 +157,7 @@ Atualizado em: 2026-07-24
 - Etapa 82.5 concluida: QA aprofundada das Distribution Orders corrigiu estados corrompidos, roster invalido e feedback final, com 17.893 checks, browser responsivo, Tauri release e SQLite restaurado por hash.
 - Etapa 83 concluida: Guild Loadout Templates salva tres metas por personagem, localiza as pecas nos holdings locais e encaminha diferencas do Guild Depot ao Quartermaster.
 - Etapa 83.5 concluida: QA dos Loadout Templates bloqueou equipamento corrompido, corrigiu o contador por personagem e validou 8.048 checks, browser responsivo e duas cargas Tauri/SQLite.
+- Etapa 84 concluida: Editor Avancado de Loadouts permite planejar itens do catalogo real, metas de tier/upgrade e fontes de aquisicao sem automatizar transacoes ou equipamento.
 
 Comandos principais:
 
@@ -5746,6 +5747,75 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 84 - Editor Avancado de Loadouts, com selecao manual de itens do catalogo, tier/upgrade minimo e fontes reais.
+
+## Etapa 84 - Editor Avancado de Loadouts
+
+Status: concluida.
+
+Implementacao:
+
+- Cada um dos tres templates por personagem ganhou um editor manual com os nove slots reais de equipamento.
+- Busca e filtros permitem consultar todos os 41 equipamentos do catalogo por nome, raridade e familia.
+- Itens prontos para uso, metas futuras bloqueadas apenas por level e incompatibilidades permanentes recebem estados distintos.
+- Conflitos de vocacao, slot e offhand permanecem visiveis com o motivo, mas nao podem ser aplicados.
+- O jogador pode definir tier minimo de 0 a 3 e upgrade minimo de 0 a 5, remover targets e sobrescrever atomicamente o plano existente.
+- O nome do template pode ser alterado no proprio editor; salvar vazio, duplicar slot ou enviar item invalido continua bloqueado pela engine.
+
+Fontes e integracoes:
+
+- O dossier de cada item mostra holdings atuais no Guild Depot, inventario, depot pessoal ou equipamento vestido.
+- Hunts exibem criaturas, chance de drop e estado de acesso; Bosses exibem cidade, custo, cooldown e prontidao.
+- Crafting reutiliza disponibilidade, materiais e facility reais da bancada.
+- O Offline Bazaar mostra a rotacao atual ou a elegibilidade deterministica para futuras rotacoes de dez minutos.
+- A revisao do template aceita metas futuras por level e continua distinguindo equipado, Guild Depot, holding pessoal, outro personagem e ausente.
+- Targets permanecem planejamento puro: nao compram, movem, reservam, forjam ou equipam itens.
+
+Engine e save:
+
+- `buildGuildLoadoutEditorCatalog` centraliza compatibilidade, catalogo e fontes reais de aquisicao.
+- `saveEditedGuildLoadoutTemplate` valida personagem, slot, item, compatibilidade, limites e timestamp antes de sobrescrever um unico template.
+- O save continua usando `loadout_templates_json`; nenhuma migration, tabela ou coluna nova foi adicionada.
+- Saves antigos, JSON ausente e templates anteriores continuam normalizados pelo fluxo existente.
+
+QA automatizado:
+
+- Harness temporario passou em 8.076 assertions e foi removido.
+- Todos os 41 equipamentos foram avaliados para os cinco personagens, cobrindo estados pronto, futuro e incompativel.
+- As cinco familias de fonte foram exercitadas: holding, Hunt, Boss, Crafting e Offline Bazaar.
+- Os quinze slots de template dos cinco personagens foram salvos e sobrescritos sem duplicacao ou mutacao da guilda de entrada.
+- Dois mil cenarios pseudoaleatorios cobriram targets compativeis, tier, upgrade, nome, timestamp e isolamento entre personagens.
+- Casos vazios, slot divergente, duplicado, personagem ausente, data invalida, NaN e infinito foram bloqueados ou normalizados.
+- O round-trip simulado por `saveGameState`/`mapGuild` preservou os templates editados.
+
+QA visual e interativo:
+
+- Arkon recebeu um plano `Endgame Vanguard` com Ember Blade T3/+5 e Dragonscale Armor como metas futuras.
+- Aplicar, remover, reaplicar, renomear e salvar com clique duplo produziram somente uma atualizacao e um Activity Log.
+- Para Ayla, Wooden Shield permaneceu visivel em `Show All`, desabilitado com a regra de quiver da vocacao Ranger.
+- O editor ficou sem overflow horizontal ou texto fora do container em 1366x768, 760x900 e 430x900.
+- Slots, busca, filtros, catalogo, dossier, fontes e steppers permaneceram acessiveis no viewport mobile.
+- O console web exibiu apenas o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 400 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Uma fixture com targets futuros, slot divergente, duplicata, personagem orfao e entrada nula foi normalizada.
+- Duas cargas nativas produziram o mesmo SHA-256 `F38941CC085154FCCACE4176938D3A2267F705D41B9BAB8A45EF3F3D5A6B037F` para o JSON canonico.
+- As duas cargas ficaram responsivas e mantiveram `integrity_check=ok`, 5 personagens, 26 itens e 10 logs.
+- O banco legado original e seus sidecars foram restaurados aos hashes exatos; o DB principal voltou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes mantidas:
+
+- Imbuements temporarios nao fazem parte dos targets.
+- O editor nao simula dano final, set completo ou resultado de combate.
+- `Review Quartermaster` continua abrindo o Allocation Board global e nao garante a selecao automatica da copia exata planejada.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 84.5 - QA aprofundada do Editor Avancado de Loadouts no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

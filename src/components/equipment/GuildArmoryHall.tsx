@@ -1,7 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildGuildArmoryAudit, type GuildArmoryStatus } from "../../game-engine/equipment/buildGuildArmoryAudit";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
-import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, GuildLoadoutTemplateSlotId, HuntArea } from "../../shared/types";
+import type {
+  Boss,
+  Character,
+  EquipmentSlot,
+  Guild,
+  GuildDepot,
+  GuildLoadoutTemplateSlotId,
+  GuildLoadoutTemplateTarget,
+  HuntArea,
+} from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
 import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
 import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
@@ -23,6 +32,12 @@ interface GuildArmoryHallProps {
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
   onSaveLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) => void;
+  onSaveEditedLoadoutTemplate: (
+    characterId: string,
+    templateSlotId: GuildLoadoutTemplateSlotId,
+    name: string,
+    targets: GuildLoadoutTemplateTarget[],
+  ) => void;
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
 }
 
@@ -31,7 +46,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onSaveLoadoutTemplate, onClearLoadoutTemplate }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
@@ -197,6 +212,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
             onOpenSystem(tab);
           }}
           onSaveTemplate={onSaveLoadoutTemplate}
+          onSaveEditedTemplate={onSaveEditedLoadoutTemplate}
           onSelectCharacter={selectCharacter}
           selectedCharacterId={inspectedCharacterId}
         />

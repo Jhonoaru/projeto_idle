@@ -8,8 +8,8 @@ import type {
   InventoryItem,
 } from "../../shared/types";
 import { armoryEquipmentSlots } from "../equipment/buildGuildArmoryAudit";
-import { canEquipItem } from "../equipment/canEquipItem";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../items/getItemVisualIdentity";
+import { getGuildLoadoutItemCompatibility } from "./buildGuildLoadoutEditorCatalog";
 
 export type GuildLoadoutTargetStatus =
   | "equipped"
@@ -26,6 +26,7 @@ export interface GuildLoadoutTargetReview {
   current?: InventoryItem;
   sourceItem?: InventoryItem;
   sourceCharacterName?: string;
+  compatibilityLabel?: string;
   status: GuildLoadoutTargetStatus | "unassigned";
 }
 
@@ -44,28 +45,20 @@ export function buildGuildLoadoutTemplateReview(
     if (!item || item.type !== "equipment" || item.equipmentSlot !== slot || !character) {
       return { slot, target, current, item, status: "incompatible" };
     }
-    const targetPreview: InventoryItem = {
-      id: `loadout-target-${character.id}-${slot}`,
-      itemId: target.itemId,
-      item,
-      quantity: 1,
-      location: "guildDepot",
-      tier: target.minimumTier,
-      upgradeLevel: target.minimumUpgradeLevel,
-    };
-    if (!canEquipItem(character, targetPreview).canEquip) {
-      return { slot, target, current, item, status: "incompatible" };
+    const compatibility = getGuildLoadoutItemCompatibility(character, item);
+    if (compatibility.status === "incompatible") {
+      return { slot, target, current, item, compatibilityLabel: compatibility.label, status: "incompatible" };
     }
     if (current?.quantity === 1 && matchesTarget(current, target)) {
-      return { slot, target, current, item, sourceItem: current, status: "equipped" };
+      return { slot, target, current, item, sourceItem: current, compatibilityLabel: compatibility.label, status: "equipped" };
     }
     const depotItem = findMatching(Array.isArray(depot?.items) ? depot.items : [], target);
-    if (depotItem) return { slot, target, current, item, sourceItem: depotItem, status: "guild-depot" };
+    if (depotItem) return { slot, target, current, item, sourceItem: depotItem, compatibilityLabel: compatibility.label, status: "guild-depot" };
     const personalItem = findMatching([
       ...(Array.isArray(character.inventory) ? character.inventory : []),
       ...(Array.isArray(character.characterDepot) ? character.characterDepot : []),
     ], target);
-    if (personalItem) return { slot, target, current, item, sourceItem: personalItem, status: "personal" };
+    if (personalItem) return { slot, target, current, item, sourceItem: personalItem, compatibilityLabel: compatibility.label, status: "personal" };
     for (const owner of safeCharacters) {
       if (owner.id === character.id) continue;
       const sourceItem = findMatching([
@@ -73,9 +66,9 @@ export function buildGuildLoadoutTemplateReview(
         ...(Array.isArray(owner.characterDepot) ? owner.characterDepot : []),
         ...Object.values(owner.equipment ?? {}).filter((entry): entry is InventoryItem => Boolean(entry)),
       ], target);
-      if (sourceItem) return { slot, target, current, item, sourceItem, sourceCharacterName: owner.name, status: "roster" };
+      if (sourceItem) return { slot, target, current, item, sourceItem, sourceCharacterName: owner.name, compatibilityLabel: compatibility.label, status: "roster" };
     }
-    return { slot, target, current, item, status: "missing" };
+    return { slot, target, current, item, compatibilityLabel: compatibility.label, status: "missing" };
   });
   const assigned = reviews.filter((entry) => entry.target);
   return {

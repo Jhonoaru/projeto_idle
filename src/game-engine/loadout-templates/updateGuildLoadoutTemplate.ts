@@ -8,6 +8,7 @@ import type {
 } from "../../shared/types";
 import { armoryEquipmentSlots } from "../equipment/buildGuildArmoryAudit";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../items/getItemVisualIdentity";
+import { getGuildLoadoutItemCompatibility } from "./buildGuildLoadoutEditorCatalog";
 import { normalizeGuildLoadoutTemplatesState } from "./normalizeGuildLoadoutTemplatesState";
 
 export function saveGuildLoadoutTemplate(
@@ -71,6 +72,69 @@ export function clearGuildLoadoutTemplate(
     guild: { ...guild, loadoutTemplates: { templates } },
     template: undefined,
     message: `${characterName}'s loadout template was cleared.`,
+  };
+}
+
+export function saveEditedGuildLoadoutTemplate(
+  guild: Guild,
+  characters: Character[],
+  characterId: string,
+  templateSlotId: GuildLoadoutTemplateSlotId,
+  name: string,
+  targets: GuildLoadoutTemplateTarget[],
+  now = new Date(),
+) {
+  const validCharacters = (Array.isArray(characters) ? characters : []).filter((entry) =>
+    entry && typeof entry.id === "string" && entry.id.length > 0);
+  const character = validCharacters.find((entry) => entry.id === characterId);
+  const slot = getGuildLoadoutTemplateSlot(templateSlotId);
+  const current = normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates, validCharacters.map((entry) => entry.id));
+  if (!character || !slot) return blocked(guild, current, "Choose a valid adventurer and loadout slot.");
+  if (!Number.isFinite(now.getTime())) return blocked(guild, current, "Loadout template timestamp is invalid.");
+  if (!Array.isArray(targets) || targets.length === 0) {
+    return blocked(guild, current, "Assign at least one compatible equipment target.");
+  }
+  const seenSlots = new Set<string>();
+  const normalizedTargets: GuildLoadoutTemplateTarget[] = [];
+  for (const target of targets) {
+    if (!target || typeof target !== "object" || seenSlots.has(target.slot)) {
+      return blocked(guild, current, "Loadout targets contain an invalid or duplicate slot.");
+    }
+    seenSlots.add(target.slot);
+    const item = typeof target.itemId === "string" ? items[target.itemId] : undefined;
+    if (!item || item.type !== "equipment" || !item.equipmentSlot || item.equipmentSlot !== target.slot) {
+      return blocked(guild, current, "Loadout target item and equipment slot do not match.");
+    }
+    if (getGuildLoadoutItemCompatibility(character, item).status === "incompatible") {
+      return blocked(guild, current, `${item.name} is incompatible with ${character.name}.`);
+    }
+    normalizedTargets.push({
+      slot: item.equipmentSlot,
+      itemId: item.id,
+      minimumTier: normalizeItemTier(target.minimumTier),
+      minimumUpgradeLevel: normalizeItemUpgradeLevel(target.minimumUpgradeLevel),
+    });
+  }
+  const loadoutTemplates = normalizeGuildLoadoutTemplatesState({
+    templates: [{
+      id: slot.id,
+      characterId: character.id,
+      name,
+      targets: normalizedTargets,
+      updatedAt: now.toISOString(),
+    }, ...current.templates.filter((template) =>
+      template.characterId !== character.id || template.id !== slot.id)],
+  }, validCharacters.map((entry) => entry.id));
+  const template = loadoutTemplates.templates.find((entry) =>
+    entry.characterId === character.id && entry.id === slot.id);
+  if (!template || template.targets.length !== normalizedTargets.length) {
+    return blocked(guild, current, "Loadout targets could not be normalized safely.");
+  }
+  return {
+    success: true,
+    guild: { ...guild, loadoutTemplates },
+    template,
+    message: `${template.name} updated for ${character.name} with ${template.targets.length} planned target${template.targets.length === 1 ? "" : "s"}.`,
   };
 }
 

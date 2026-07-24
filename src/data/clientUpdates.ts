@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-84",
+    stage: "Stage 84",
+    title: "Advanced Loadout Editor",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "Every adventurer can now plan equipment targets directly from the real item catalog, including future level goals and exact acquisition sources.",
+    highlights: [
+      "Edit any of the three saved plans through nine equipment slots, catalog search, compatibility filters and explicit target removal.",
+      "Set minimum tier and upgrade levels while permanent vocation, slot and offhand conflicts remain visible but blocked.",
+      "Inspect current holdings, Hunts, Bosses, Crafting and Offline Bazaar sources without buying, moving, reserving or equipping anything automatically.",
+    ],
+    systems: ["Loadout Editor", "Guild Armory", "Acquisition Sources", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-83-5",
     stage: "Stage 83.5",
     title: "Guild Loadout Templates QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Eight thousand forty-eight checks, double-click flows, two responsive widths and two native fixture reloads passed before the original SQLite campaign was restored by hash.",
     ],
     systems: ["Loadout Templates QA", "Guild Armory", "Equipment Validation", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-83",
