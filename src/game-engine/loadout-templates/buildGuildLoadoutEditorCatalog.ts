@@ -25,6 +25,7 @@ export interface GuildLoadoutCatalogSource {
   label: string;
   detail: string;
   availableNow: boolean;
+  targetId?: string;
 }
 
 export interface GuildLoadoutCatalogEntry {
@@ -122,6 +123,7 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
           && !entry.currentAction
           && normalizeLevel(entry.level) >= hunt.minLevel
           && (!hunt.requiredAccess || entry.accessIds?.includes(hunt.requiredAccess))),
+        targetId: hunt.id,
       });
     }
   }
@@ -136,6 +138,7 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
         label: boss.name,
         detail: `${boss.city} / ${formatChance(normalizeChance(drop.chance))} / ${route.detail}`,
         availableNow: route.availableNow,
+        targetId: boss.id,
       });
     }
   }
@@ -149,6 +152,7 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
       label: recipe.name,
       detail: `Workshop Rank ${recipe.requiredWorkshopRank} / ${normalizeLevel(recipe.goldCost).toLocaleString("en-US")}g`,
       availableNow: availability.available,
+      targetId: recipe.id,
     });
   }
 

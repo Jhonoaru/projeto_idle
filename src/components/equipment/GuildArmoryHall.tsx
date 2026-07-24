@@ -14,11 +14,12 @@ import type {
 import { ItemIcon } from "../items/ItemIcon";
 import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
 import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
+import { GuildLoadoutProcurementBoard } from "./GuildLoadoutProcurementBoard";
 import { GuildLoadoutTemplates } from "./GuildLoadoutTemplates";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
-type ArmoryView = "audit" | "acquisition" | "allocation" | "templates";
+type ArmoryView = "audit" | "acquisition" | "allocation" | "procurement" | "templates";
 
 interface GuildArmoryHallProps {
   characters: Character[];
@@ -28,7 +29,7 @@ interface GuildArmoryHallProps {
   onOpenBoss: (boss: Boss) => void;
   onOpenHunt: (hunt: HuntArea) => void;
   onSelectCharacter: (characterId: string) => void;
-  onOpenSystem: (tab: "inventory" | "depot" | "forge") => void;
+  onOpenSystem: (tab: "inventory" | "depot" | "forge" | "market") => void;
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
   onAssignLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId | null) => void;
@@ -71,7 +72,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
     onSelectCharacter(characterId);
   }
 
-  function openSystem(tab: "inventory" | "depot" | "forge") {
+  function openSystem(tab: "inventory" | "depot" | "forge" | "market") {
     if (!selected) return;
     onSelectCharacter(selected.characterId);
     onOpenSystem(tab);
@@ -83,7 +84,9 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
       ? ["Acquisition Planner", "Connect equipment targets to holdings, hunts, bosses and Guild Workbench recipes."]
       : view === "allocation"
         ? ["Allocation Board", "Distribute finite Guild Depot equipment across the roster by compatible rating gain."]
-        : ["Loadout Templates", "Save equipment targets and review where every required piece is currently held."];
+        : view === "procurement"
+          ? ["Procurement Board", "Consolidate every unresolved active loadout target into efficient manual acquisition routes."]
+          : ["Loadout Templates", "Save equipment targets and review where every required piece is currently held."];
 
   return (
     <div className="guild-armory-hall">
@@ -103,6 +106,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
         <button aria-selected={view === "audit"} onClick={() => setView("audit")} role="tab" type="button">Armory Audit</button>
         <button aria-selected={view === "acquisition"} onClick={() => setView("acquisition")} role="tab" type="button">Acquisition Planner</button>
         <button aria-selected={view === "allocation"} onClick={() => setView("allocation")} role="tab" type="button">Allocation Board</button>
+        <button aria-selected={view === "procurement"} onClick={() => setView("procurement")} role="tab" type="button">Procurement Board</button>
         <button aria-selected={view === "templates"} onClick={() => setView("templates")} role="tab" type="button">Loadout Templates</button>
       </div>
 
@@ -197,6 +201,35 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onExecuteOrder={onExecuteEquipmentOrder}
           onSelectCharacter={selectCharacter}
           selectedCharacterId={inspectedCharacterId}
+        />
+      ) : view === "procurement" ? (
+        <GuildLoadoutProcurementBoard
+          characters={characters}
+          depot={depot}
+          guild={guild}
+          onOpenAcquisition={(characterId) => {
+            selectCharacter(characterId);
+            setView("acquisition");
+          }}
+          onOpenBoss={onOpenBoss}
+          onOpenForge={(characterId) => {
+            selectCharacter(characterId);
+            onOpenSystem("forge");
+          }}
+          onOpenHunt={onOpenHunt}
+          onOpenInventory={(characterId) => {
+            selectCharacter(characterId);
+            onOpenSystem("inventory");
+          }}
+          onOpenMarket={() => onOpenSystem("market")}
+          onOpenQuartermaster={(characterId) => {
+            selectCharacter(characterId);
+            setView("allocation");
+          }}
+          onOpenTemplates={(characterId) => {
+            if (characterId) selectCharacter(characterId);
+            setView("templates");
+          }}
         />
       ) : (
         <GuildLoadoutTemplates

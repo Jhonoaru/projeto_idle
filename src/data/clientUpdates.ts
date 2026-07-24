@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-86",
+    stage: "Stage 86",
+    title: "Guild Loadout Procurement Board",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "Every unresolved active loadout target is now consolidated into efficient manual procurement routes across the guild's offline systems.",
+    highlights: [
+      "The board groups exact Guild Depot copies, personal holdings, Hunts, Bosses, Crafting, Offline Bazaar and invalid plans without duplicating objectives.",
+      "Recommendations prioritize routes available now and show how many loadout targets each operation can advance before the player commits.",
+      "Contextual commands open the existing Quartermaster, Inventory, Hunt, Boss, Workbench, Bazaar or Loadout Editor without automating any transaction.",
+    ],
+    systems: ["Loadout Procurement", "Guild Armory", "Acquisition Routes", "Offline Planning"],
+    featured: true,
+  },
+  {
     id: "stage-85-5",
     stage: "Stage 85.5",
     title: "Active Loadout Assignments QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Eighty-five thousand ninety-seven checks, five responsive widths and repeated native loads preserved assignment integrity.",
     ],
     systems: ["Active Loadouts QA", "Loadout Editor", "Guild Armory", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-85",

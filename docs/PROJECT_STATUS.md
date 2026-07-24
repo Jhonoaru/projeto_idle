@@ -161,6 +161,7 @@ Atualizado em: 2026-07-24
 - Etapa 84.5 concluida: QA do Editor Avancado corrigiu prontidao de Boss/Bazaar, nome de plano vazio e save bloqueado, com 40.667 checks, browser responsivo e duas cargas Tauri/SQLite.
 - Etapa 85 concluida: Active Loadout Assignments define um plano ativo por aventureiro e consolida prontidao, lacunas e rotas manuais no Guild Armory.
 - Etapa 85.5 concluida: QA dos Active Loadouts separou targets invalidos de itens ausentes e corrigiu a rota direta para editar planos invalidos.
+- Etapa 86 concluida: Guild Loadout Procurement Board consolida todos os targets pendentes dos planos ativos em rotas manuais eficientes e sem nova persistencia.
 
 Comandos principais:
 
@@ -5991,6 +5992,61 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 86 - definir a proxima camada de gerenciamento offline apos os Active Loadout Assignments validados.
+
+## Etapa 86 - Guild Loadout Procurement Board
+
+Status: concluida.
+
+Implementacao:
+
+- O Guild Armory ganhou uma quinta aba que consolida todos os targets ainda nao atendidos dos loadouts ativos.
+- Cada objetivo aparece exatamente uma vez na rota manual recomendada, com personagem, plano, slot, tier/upgrade desejado e rotas alternativas.
+- Guild Depot abre o Quartermaster; holdings pessoais abrem Inventory; fontes externas abrem Hunt, Boss, Forge/Workbench ou Offline Bazaar.
+- A recomendacao prioriza operacoes disponiveis agora, cobertura de mais targets e uma ordem estavel entre os sistemas.
+- Filtros separam rotas prontas, holdings, Hunts, Bosses, Crafting, Bazaar e bloqueios.
+- Plans completos, targets invalidos e fontes desconhecidas possuem estados explicitos e comandos de correcao.
+
+Engine e save:
+
+- `buildGuildLoadoutProcurementBoard` reutiliza o dashboard de assignments e o catalogo real do editor para evitar regras paralelas.
+- Fontes de Hunt, Boss e Crafting agora carregam seus IDs reais para abrir exatamente a operacao recomendada.
+- O board agrupa uma mesma operacao quando ela avanca varios targets e calcula cobertura, prontidao e resumo sem mutar guilda, roster ou depot.
+- Nenhuma tabela, coluna ou propriedade persistente foi adicionada; todo o Procurement Board e derivado do save existente.
+- Nenhuma rota compra, farma, fabrica, transfere, forja ou equipa automaticamente.
+
+QA automatizado:
+
+- Harness temporario passou em 40.028 assertions e foi removido.
+- Cinco mil cenarios pseudoaleatorios validaram imutabilidade, IDs unicos, fallback de rotas, recomendacoes validas e particionamento exato dos objetivos.
+- Foram cobertos planos vazios, completos, Guild Depot, holdings pessoais, Hunt, Boss, Crafting, Bazaar, target invalido e fonte desconhecida.
+- O filtro `Blocked` foi corrigido durante a QA para incluir tambem rotas conhecidas que ainda nao estao disponiveis.
+
+QA visual e interativo:
+
+- Fixture com quatro targets distribuidos entre Quartermaster, holding pessoal, Crafting e plano invalido produziu quatro rotas e dois comandos prontos.
+- Filtros `Holdings` e `Blocked` exibiram somente as operacoes correspondentes.
+- Os comandos abriram Allocation Board, Loadout Editor no personagem/target invalido e Forge Workshop corretos.
+- O painel ficou sem overflow horizontal ou filhos fora do container em 1366x768, 1024x768, 760x900, 520x900 e 430x900.
+- O console mostrou somente o fallback SQLite esperado ao executar o frontend fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 403 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- Duas cargas nativas consecutivas mantiveram o banco principal no SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- DB, WAL e SHM originais foram restaurados aos hashes exatos apos a validacao.
+
+Limitacoes mantidas:
+
+- O jogador ainda confirma cada transferencia, compra, hunt, boss, craft, forge e troca de equipamento no sistema de origem.
+- Rotas bloqueadas explicam o destino, mas requisitos detalhados continuam sendo revisados na tela especializada.
+- Imbuements temporarios permanecem fora dos targets de loadout.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por duas cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 86.5 - QA aprofundada do Guild Loadout Procurement Board no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
