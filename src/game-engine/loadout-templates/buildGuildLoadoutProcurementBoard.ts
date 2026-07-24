@@ -4,6 +4,7 @@ import type {
   EquipmentSlot,
   Guild,
   GuildDepot,
+  GuildLoadoutTemplateSlotId,
   GuildLoadoutTemplateTarget,
   Item,
 } from "../../shared/types";
@@ -40,6 +41,7 @@ export interface GuildLoadoutProcurementCandidate {
 export interface GuildLoadoutProcurementObjective {
   id: string;
   character: Character;
+  templateId: GuildLoadoutTemplateSlotId;
   templateName: string;
   slot: EquipmentSlot;
   target: GuildLoadoutTemplateTarget;
@@ -99,6 +101,7 @@ export function buildGuildLoadoutProcurementBoard(
       return [{
         id: `${entry.character.id}:${template.id}:${review.target.slot}`,
         character: entry.character,
+        templateId: template.id,
         templateName: template.name,
         slot: review.target.slot,
         target: review.target,

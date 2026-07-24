@@ -3,6 +3,7 @@ import { items } from "../../data/items";
 import type {
   EquipmentSlot,
   GuildLoadoutActiveAssignment,
+  GuildLoadoutProcurementOrder,
   GuildLoadoutTemplate,
   GuildLoadoutTemplatesState,
   GuildLoadoutTemplateTarget,
@@ -14,7 +15,9 @@ export function normalizeGuildLoadoutTemplatesState(
   value: unknown,
   validCharacterIds?: readonly string[],
 ): GuildLoadoutTemplatesState {
-  if (!value || typeof value !== "object") return { templates: [], activeAssignments: [] };
+  if (!value || typeof value !== "object") {
+    return { templates: [], activeAssignments: [], procurementOrders: [] };
+  }
   const candidate = value as Partial<GuildLoadoutTemplatesState>;
   const characterIds = validCharacterIds ? new Set(validCharacterIds) : undefined;
   const seen = new Set<string>();
@@ -47,7 +50,58 @@ export function normalizeGuildLoadoutTemplatesState(
     })
     .sort((left, right) => left.characterId.localeCompare(right.characterId))
     .slice(0, 50);
-  return { templates, activeAssignments };
+  const assignmentKeys = new Set(activeAssignments.map((assignment) =>
+    `${assignment.characterId}:${assignment.templateId}`));
+  const targetKeys = new Set(templates.flatMap((template) =>
+    template.targets.map((target) =>
+      `${template.characterId}:${template.id}:${target.slot}:${target.itemId}`)));
+  const seenOrders = new Set<string>();
+  const procurementOrders = (Array.isArray(candidate.procurementOrders) ? candidate.procurementOrders : [])
+    .map((entry) => normalizeProcurementOrder(entry, characterIds, assignmentKeys, targetKeys))
+    .filter((entry): entry is GuildLoadoutProcurementOrder => Boolean(entry))
+    .filter((entry) => {
+      const key = procurementOrderKey(entry);
+      if (seenOrders.has(key)) return false;
+      seenOrders.add(key);
+      return true;
+    })
+    .slice(0, 5);
+  return { templates, activeAssignments, procurementOrders };
+}
+
+function normalizeProcurementOrder(
+  value: unknown,
+  validCharacterIds: Set<string> | undefined,
+  assignmentKeys: Set<string>,
+  targetKeys: Set<string>,
+) {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<GuildLoadoutProcurementOrder>;
+  const characterId = typeof candidate.characterId === "string" ? candidate.characterId.trim() : "";
+  const template = getGuildLoadoutTemplateSlot(candidate.templateId);
+  const slot = armoryEquipmentSlots.includes(candidate.slot as EquipmentSlot)
+    ? candidate.slot as EquipmentSlot
+    : undefined;
+  const itemId = typeof candidate.itemId === "string" ? candidate.itemId : "";
+  if (
+    !characterId
+    || !template
+    || !slot
+    || (validCharacterIds && !validCharacterIds.has(characterId))
+    || !assignmentKeys.has(`${characterId}:${template.id}`)
+    || !targetKeys.has(`${characterId}:${template.id}:${slot}:${itemId}`)
+  ) return undefined;
+  return {
+    characterId,
+    templateId: template.id,
+    slot,
+    itemId,
+    queuedAt: normalizeTimestamp(candidate.queuedAt),
+  } satisfies GuildLoadoutProcurementOrder;
+}
+
+function procurementOrderKey(order: Pick<GuildLoadoutProcurementOrder, "characterId" | "templateId" | "slot">) {
+  return `${order.characterId}:${order.templateId}:${order.slot}`;
 }
 
 function normalizeActiveAssignment(

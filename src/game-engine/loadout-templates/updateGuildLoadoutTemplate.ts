@@ -41,6 +41,7 @@ export function saveGuildLoadoutTemplate(
         template.characterId !== character.id || template.id !== slot.id),
     ],
     activeAssignments: current.activeAssignments,
+    procurementOrders: current.procurementOrders,
   }, validCharacters.map((entry) => entry.id));
   const template = loadoutTemplates.templates.find((entry) =>
     entry.characterId === character.id && entry.id === slot.id)!;
@@ -72,11 +73,12 @@ export function clearGuildLoadoutTemplate(
     success: true,
     guild: {
       ...guild,
-      loadoutTemplates: {
+      loadoutTemplates: normalizeGuildLoadoutTemplatesState({
         templates,
         activeAssignments: current.activeAssignments.filter((assignment) =>
           assignment.characterId !== characterId || assignment.templateId !== templateSlotId),
-      },
+        procurementOrders: current.procurementOrders,
+      }, validCharacterIds),
     },
     template: undefined,
     message: `${characterName}'s loadout template was cleared.`,
@@ -105,11 +107,11 @@ export function assignGuildLoadoutTemplate(
       success: true,
       guild: {
         ...guild,
-        loadoutTemplates: {
+        loadoutTemplates: normalizeGuildLoadoutTemplatesState({
           ...current,
           activeAssignments: current.activeAssignments.filter((assignment) =>
             assignment.characterId !== character.id),
-        },
+        }, validCharacters.map((entry) => entry.id)),
       },
       template: undefined,
       message: `${activeTemplate?.name ?? "Loadout plan"} is no longer active for ${character.name}.`,
@@ -134,7 +136,13 @@ export function assignGuildLoadoutTemplate(
   ].sort((left, right) => left.characterId.localeCompare(right.characterId));
   return {
     success: true,
-    guild: { ...guild, loadoutTemplates: { ...current, activeAssignments } },
+    guild: {
+      ...guild,
+      loadoutTemplates: normalizeGuildLoadoutTemplatesState(
+        { ...current, activeAssignments },
+        validCharacters.map((entry) => entry.id),
+      ),
+    },
     template,
     message: `${template.name} is now the active loadout plan for ${character.name}.`,
   };
@@ -190,6 +198,7 @@ export function saveEditedGuildLoadoutTemplate(
     }, ...current.templates.filter((template) =>
       template.characterId !== character.id || template.id !== slot.id)],
     activeAssignments: current.activeAssignments,
+    procurementOrders: current.procurementOrders,
   }, validCharacters.map((entry) => entry.id));
   const template = loadoutTemplates.templates.find((entry) =>
     entry.characterId === character.id && entry.id === slot.id);

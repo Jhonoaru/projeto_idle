@@ -17,6 +17,7 @@ import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
 import { GuildLoadoutProcurementBoard } from "./GuildLoadoutProcurementBoard";
 import { GuildLoadoutTemplates } from "./GuildLoadoutTemplates";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
+import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
 type ArmoryView = "audit" | "acquisition" | "allocation" | "procurement" | "templates";
@@ -41,6 +42,7 @@ interface GuildArmoryHallProps {
     targets: GuildLoadoutTemplateTarget[],
   ) => boolean;
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
+  onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
 }
 
 const slotLabels: Record<EquipmentSlot, string> = {
@@ -48,7 +50,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onUpdateLoadoutProcurementOrder }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
@@ -233,6 +235,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
             if (characterId) selectCharacter(characterId);
             setView("templates");
           }}
+          onUpdateProcurementOrder={onUpdateLoadoutProcurementOrder}
         />
       ) : (
         <GuildLoadoutTemplates

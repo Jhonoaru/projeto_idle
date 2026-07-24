@@ -6,8 +6,17 @@ import {
   type GuildLoadoutProcurementRoute,
   type GuildLoadoutProcurementRouteKind,
 } from "../../game-engine/loadout-templates/buildGuildLoadoutProcurementBoard";
+import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
-import type { Boss, Character, EquipmentSlot, Guild, GuildDepot, HuntArea } from "../../shared/types";
+import type {
+  Boss,
+  Character,
+  EquipmentSlot,
+  Guild,
+  GuildDepot,
+  GuildLoadoutProcurementOrder,
+  HuntArea,
+} from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
 
 interface GuildLoadoutProcurementBoardProps {
@@ -22,6 +31,7 @@ interface GuildLoadoutProcurementBoardProps {
   onOpenMarket: () => void;
   onOpenQuartermaster: (characterId: string) => void;
   onOpenTemplates: (characterId: string) => void;
+  onUpdateProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
 }
 
 type ProcurementFilter =
@@ -51,6 +61,7 @@ export function GuildLoadoutProcurementBoard({
   onOpenMarket,
   onOpenQuartermaster,
   onOpenTemplates,
+  onUpdateProcurementOrder,
 }: GuildLoadoutProcurementBoardProps) {
   const board = useMemo(
     () => buildGuildLoadoutProcurementBoard(guild, characters, depot),
@@ -67,6 +78,9 @@ export function GuildLoadoutProcurementBoard({
       setSelectedRouteKey(selectedRoute.key);
     }
   }, [selectedRoute, selectedRouteKey]);
+  const procurementOrders = board.dashboard.state.procurementOrders;
+  const queuedKeys = new Set(procurementOrders.map((order) =>
+    `${order.characterId}:${order.templateId}:${order.slot}`));
 
   return (
     <section className="loadout-procurement-board">
@@ -99,6 +113,80 @@ export function GuildLoadoutProcurementBoard({
             <button aria-pressed={filter === id} key={id} onClick={() => setFilter(id)} type="button">{label}</button>
           ))}
         </div>
+      </section>
+
+      <section className="procurement-priority-queue">
+        <header>
+          <div><span>Manual priority ledger</span><strong>Procurement Orders</strong></div>
+          <b>{procurementOrders.length}/5 queued</b>
+        </header>
+        {procurementOrders.length > 0 ? (
+          <div>
+            {procurementOrders.map((order, index) => {
+              const objectiveId = `${order.characterId}:${order.templateId}:${order.slot}`;
+              const objective = board.objectives.find((entry) => entry.id === objectiveId);
+              const dashboardEntry = board.dashboard.entries.find((entry) =>
+                entry.character.id === order.characterId && entry.template?.id === order.templateId);
+              const review = dashboardEntry?.review.reviews.find((entry) => entry.slot === order.slot);
+              const fulfilled = review?.status === "equipped";
+              const item = review?.item;
+              return (
+                <article className={fulfilled ? "is-fulfilled" : ""} key={objectiveId}>
+                  <i>{index + 1}</i>
+                  <ItemIcon item={item} showQuantity={false} size="small" />
+                  <span>
+                    <small>{dashboardEntry?.character.name ?? "Adventurer"} / {slotLabels[order.slot]}</small>
+                    <strong>{item?.name ?? order.itemId}</strong>
+                    <em>{fulfilled ? "Target fulfilled / remove when reviewed" : objective ? objective.recommended.label : "Route unavailable"}</em>
+                  </span>
+                  <div>
+                    <button
+                      aria-label={`Move ${item?.name ?? order.itemId} up`}
+                      disabled={index === 0}
+                      onClick={() => onUpdateProcurementOrder(orderRequest("move-up", order))}
+                      title="Move priority up"
+                      type="button"
+                    >
+                      ^
+                    </button>
+                    <button
+                      aria-label={`Move ${item?.name ?? order.itemId} down`}
+                      disabled={index === procurementOrders.length - 1}
+                      onClick={() => onUpdateProcurementOrder(orderRequest("move-down", order))}
+                      title="Move priority down"
+                      type="button"
+                    >
+                      v
+                    </button>
+                    {objective ? (
+                      <button
+                        className="is-view-route"
+                        onClick={() => {
+                          setFilter("all");
+                          setSelectedRouteKey(objective.recommended.key);
+                        }}
+                        type="button"
+                      >
+                        View Route
+                      </button>
+                    ) : null}
+                    <button
+                      aria-label={`Remove ${item?.name ?? order.itemId} from procurement orders`}
+                      className="is-remove"
+                      onClick={() => onUpdateProcurementOrder(orderRequest("remove", order))}
+                      title="Remove priority"
+                      type="button"
+                    >
+                      x
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <p>Select unresolved targets below to build a five-item manual priority queue.</p>
+        )}
       </section>
 
       {board.summary.activePlans === 0 ? (
@@ -170,6 +258,19 @@ export function GuildLoadoutProcurementBoard({
                       <em>{objective.templateName} / T{objective.target.minimumTier} +{objective.target.minimumUpgradeLevel}</em>
                     </span>
                     <b>{objective.candidates.length} route{objective.candidates.length === 1 ? "" : "s"}</b>
+                    <button
+                      disabled={queuedKeys.has(objective.id) || procurementOrders.length >= 5}
+                      onClick={() => onUpdateProcurementOrder({
+                        action: "add",
+                        characterId: objective.character.id,
+                        templateId: objective.templateId,
+                        slot: objective.slot,
+                        itemId: objective.item.id,
+                      })}
+                      type="button"
+                    >
+                      {queuedKeys.has(objective.id) ? "Queued" : "Queue Target"}
+                    </button>
                   </article>
                 );
               })}
@@ -195,6 +296,19 @@ export function GuildLoadoutProcurementBoard({
   );
 }
 
+function orderRequest(
+  action: GuildLoadoutProcurementOrderRequest["action"],
+  order: GuildLoadoutProcurementOrder,
+): GuildLoadoutProcurementOrderRequest {
+  return {
+    action,
+    characterId: order.characterId,
+    templateId: order.templateId,
+    slot: order.slot,
+    itemId: order.itemId,
+  };
+}
+
 function Summary({ label, value }: { label: string; value: string }) {
   return <div><span>{label}</span><strong>{value}</strong></div>;
 }
@@ -209,7 +323,10 @@ function matchesFilter(route: GuildLoadoutProcurementRoute, filter: ProcurementF
 
 function routeAction(
   route: GuildLoadoutProcurementRoute,
-  actions: Omit<GuildLoadoutProcurementBoardProps, "characters" | "depot" | "guild">,
+  actions: Omit<
+    GuildLoadoutProcurementBoardProps,
+    "characters" | "depot" | "guild" | "onUpdateProcurementOrder"
+  >,
 ) {
   const characterId = route.objectives[0]?.character.id ?? "";
   if (route.kind === "quartermaster") {

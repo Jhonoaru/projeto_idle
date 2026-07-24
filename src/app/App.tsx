@@ -82,6 +82,10 @@ import {
   saveEditedGuildLoadoutTemplate,
   saveGuildLoadoutTemplate,
 } from "../game-engine/loadout-templates/updateGuildLoadoutTemplate";
+import {
+  updateGuildLoadoutProcurementOrder,
+  type GuildLoadoutProcurementOrderRequest,
+} from "../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -670,6 +674,19 @@ export function App() {
     prependLog(result.success ? "Loadout plan updated" : "Loadout plan blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
     return result.success;
+  }
+
+  function handleUpdateLoadoutProcurementOrder(request: GuildLoadoutProcurementOrderRequest) {
+    if (updatingLoadoutTemplateRef.current) return;
+    updatingLoadoutTemplateRef.current = true;
+    const result = updateGuildLoadoutProcurementOrder(guild, characters, request);
+    if (result.changed) setGuild(result.guild);
+    prependLog(
+      result.changed ? "Procurement orders updated" : "Procurement orders unchanged",
+      result.message,
+      result.changed ? "success" : "warning",
+    );
+    window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
@@ -2459,6 +2476,7 @@ export function App() {
           onSaveLoadoutTemplate={handleSaveLoadoutTemplate}
           onSaveEditedLoadoutTemplate={handleSaveEditedLoadoutTemplate}
           onClearLoadoutTemplate={handleClearLoadoutTemplate}
+          onUpdateLoadoutProcurementOrder={handleUpdateLoadoutProcurementOrder}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

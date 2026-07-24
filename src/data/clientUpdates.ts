@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-87",
+    stage: "Stage 87",
+    title: "Guild Loadout Procurement Orders",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "The guild manager can now preserve and reorder five manual equipment priorities directly from active loadout procurement routes.",
+    highlights: [
+      "Queue unresolved targets, reorder them with compact controls, reopen their live route and remove fulfilled priorities after review.",
+      "Orders remain bound to the exact adventurer, active template, slot and item while edited, cleared or inactive plans are pruned safely.",
+      "The queue persists inside the existing loadout JSON without reserving gear or automating hunts, purchases, crafts, transfers, Forge or equipment.",
+    ],
+    systems: ["Procurement Orders", "Active Loadouts", "Guild Armory", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-86-5",
     stage: "Stage 86.5",
     title: "Loadout Procurement QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Ninety-one thousand one hundred seventeen checks, five responsive widths and repeated native loads preserved canonical loadout state.",
     ],
     systems: ["Loadout Procurement QA", "Hunt Routing", "Guild Armory", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-86",

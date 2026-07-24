@@ -363,9 +363,18 @@ export interface GuildLoadoutActiveAssignment {
   assignedAt: string;
 }
 
+export interface GuildLoadoutProcurementOrder {
+  characterId: string;
+  templateId: GuildLoadoutTemplateSlotId;
+  slot: EquipmentSlot;
+  itemId: string;
+  queuedAt: string;
+}
+
 export interface GuildLoadoutTemplatesState {
   templates: GuildLoadoutTemplate[];
   activeAssignments: GuildLoadoutActiveAssignment[];
+  procurementOrders: GuildLoadoutProcurementOrder[];
 }
 
 export interface GuildLogisticsState {
