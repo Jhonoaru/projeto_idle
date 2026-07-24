@@ -17,7 +17,7 @@ interface GuildLoadoutProcurementBoardProps {
   onOpenAcquisition: (characterId: string) => void;
   onOpenBoss: (boss: Boss) => void;
   onOpenForge: (characterId: string) => void;
-  onOpenHunt: (hunt: HuntArea) => void;
+  onOpenHunt: (hunt: HuntArea, characterId?: string) => void;
   onOpenInventory: (characterId: string) => void;
   onOpenMarket: () => void;
   onOpenQuartermaster: (characterId: string) => void;
@@ -220,7 +220,15 @@ function routeAction(
   }
   if (route.kind === "hunt") {
     const hunt = hunts.find((entry) => entry.id === route.targetId);
-    return <button disabled={!hunt || !route.availableNow} onClick={() => hunt && actions.onOpenHunt(hunt)} type="button">Open Hunt</button>;
+    return (
+      <button
+        disabled={!hunt || !route.availableNow || !route.actorCharacterId}
+        onClick={() => hunt && actions.onOpenHunt(hunt, route.actorCharacterId)}
+        type="button"
+      >
+        Open Hunt
+      </button>
+    );
   }
   if (route.kind === "boss") {
     const boss = bosses.find((entry) => entry.id === route.targetId);

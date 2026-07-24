@@ -216,7 +216,10 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
             selectCharacter(characterId);
             onOpenSystem("forge");
           }}
-          onOpenHunt={onOpenHunt}
+          onOpenHunt={(hunt, characterId) => {
+            if (characterId) selectCharacter(characterId);
+            onOpenHunt(hunt);
+          }}
           onOpenInventory={(characterId) => {
             selectCharacter(characterId);
             onOpenSystem("inventory");

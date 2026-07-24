@@ -26,6 +26,7 @@ export interface GuildLoadoutCatalogSource {
   detail: string;
   availableNow: boolean;
   targetId?: string;
+  actorCharacterId?: string;
 }
 
 export interface GuildLoadoutCatalogEntry {
@@ -114,16 +115,18 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
       }
     }
     for (const [itemId, entries] of drops) {
+      const readyHunter = characters.find((entry) => entry.status === "idle"
+        && !entry.currentAction
+        && normalizeLevel(entry.level) >= hunt.minLevel
+        && (!hunt.requiredAccess || entry.accessIds?.includes(hunt.requiredAccess)));
       add(itemId, {
         id: `hunt-${hunt.id}-${itemId}`,
         kind: "hunt",
         label: hunt.name,
         detail: `${[...new Set(entries.map((entry) => entry.monster))].join(", ")} / ${formatChance(Math.max(...entries.map((entry) => entry.chance)))}`,
-        availableNow: characters.some((entry) => entry.status === "idle"
-          && !entry.currentAction
-          && normalizeLevel(entry.level) >= hunt.minLevel
-          && (!hunt.requiredAccess || entry.accessIds?.includes(hunt.requiredAccess))),
+        availableNow: Boolean(readyHunter),
         targetId: hunt.id,
+        actorCharacterId: readyHunter?.id,
       });
     }
   }

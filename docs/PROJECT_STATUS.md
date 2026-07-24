@@ -162,6 +162,7 @@ Atualizado em: 2026-07-24
 - Etapa 85 concluida: Active Loadout Assignments define um plano ativo por aventureiro e consolida prontidao, lacunas e rotas manuais no Guild Armory.
 - Etapa 85.5 concluida: QA dos Active Loadouts separou targets invalidos de itens ausentes e corrigiu a rota direta para editar planos invalidos.
 - Etapa 86 concluida: Guild Loadout Procurement Board consolida todos os targets pendentes dos planos ativos em rotas manuais eficientes e sem nova persistencia.
+- Etapa 86.5 concluida: QA do Procurement Board corrigiu roster duplicado e preparacao de Hunt com o aventureiro elegivel exato.
 
 Comandos principais:
 
@@ -6047,6 +6048,62 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 86.5 - QA aprofundada do Guild Loadout Procurement Board no Tauri/SQLite.
+
+## Etapa 86.5 - QA do Guild Loadout Procurement Board no Tauri/SQLite
+
+Status: concluida com duas correcoes funcionais e uma correcao de integracao.
+
+Falhas reproduzidas:
+
+- Um roster corrompido com o mesmo `characterId` repetido duplicava plano ativo, targets, objetivos e contadores do Procurement Board.
+- Uma Hunt podia ser marcada como pronta por outro aventureiro, mas a rota nao registrava qual personagem justificava a disponibilidade.
+- A primeira ligacao do novo ator elegivel foi aplicada ao Acquisition Planner durante a QA; o build TypeScript bloqueou a regressao antes do commit.
+
+Correcoes:
+
+- O builder agora deduplica o roster por ID antes de montar dashboard, catalogos, objetivos e operacoes.
+- Fontes de Hunt carregam `actorCharacterId` junto do `targetId` exato.
+- O botao `Open Hunt` exige Hunt valida, rota pronta e ator elegivel.
+- O Guild Armory seleciona o ator indicado antes de abrir o assignment, preservando o personagem dono do loadout apenas como objetivo.
+- A ligacao equivocada foi removida do Acquisition Planner e aplicada somente ao Procurement Board.
+
+QA automatizado:
+
+- Harness temporario passou em 91.117 assertions e foi removido.
+- Cinco mil cenarios pseudoaleatorios combinaram equipamento vestido, Inventory, Guild Depot, holding de outro aventureiro e fonte externa.
+- Foram validados imutabilidade, contadores, IDs unicos, particionamento exato por rota, fallback, recomendacao pertencente aos candidatos e operacoes prontas.
+- Roster duplicado confirmou um plano, um target e um objetivo, sem inflar os totais.
+- Hunt pronta com personagem alvo ocupado confirmou `actorCharacterId` apontando para o helper idle e elegivel.
+
+QA visual e interativo:
+
+- Arkon manteve o plano de Training Axe enquanto Minotaur Outpost foi recomendada pela disponibilidade real de Lyra.
+- `Open Hunt` selecionou Lyra e abriu diretamente o assignment de Minotaur Outpost.
+- Os filtros `Holdings` e `Ready` alternaram corretamente entre empty state e a rota disponivel.
+- O board ficou sem overflow horizontal ou botoes truncados em 1366x768, 1024x768, 760x900, 520x900 e 430x900.
+- O console mostrou apenas as duas tentativas esperadas do fallback SQLite fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 403 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- A carga inicial migrou o banco legado para incluir `loadout_templates_json`.
+- A fixture persistida continha template duplicado, assignment duplicado, personagem orfao, entradas nulas, data invalida e tier/upgrade nao validos.
+- Duas cargas nativas medidas normalizaram e preservaram dois templates e dois assignments com SHA-256 canonico `5AD5D6E9544E11B933C87D5A1700E690267ADED1780F7B26843CA6D131BBC71`.
+- Ambas as cargas mantiveram `integrity_check=ok`.
+- O banco original foi restaurado ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` e ao schema legado sem `loadout_templates_json`.
+
+Limitacoes mantidas:
+
+- O Procurement Board continua derivado e nao persiste estado proprio.
+- Hunts, Bosses, compras, crafts, transferencias, Forge e equipamento permanecem manuais.
+- O ator de Hunt representa a disponibilidade no instante em que o board foi calculado; o sistema de Hunt revalida o roster ao abrir.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 87 - definir a proxima camada de gerenciamento offline apos o Procurement Board validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-86-5",
+    stage: "Stage 86.5",
+    title: "Loadout Procurement QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Deep engine, responsive and native SQLite validation hardened roster identity and exact Hunt preparation across the Procurement Board.",
+    highlights: [
+      "Duplicate roster IDs can no longer duplicate active plans, target counters, procurement objectives or grouped operations.",
+      "Every ready Hunt route now records the exact eligible adventurer that made it available and selects that character before opening the assignment.",
+      "Ninety-one thousand one hundred seventeen checks, five responsive widths and repeated native loads preserved canonical loadout state.",
+    ],
+    systems: ["Loadout Procurement QA", "Hunt Routing", "Guild Armory", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-86",
     stage: "Stage 86",
     title: "Guild Loadout Procurement Board",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Contextual commands open the existing Quartermaster, Inventory, Hunt, Boss, Workbench, Bazaar or Loadout Editor without automating any transaction.",
     ],
     systems: ["Loadout Procurement", "Guild Armory", "Acquisition Routes", "Offline Planning"],
-    featured: true,
   },
   {
     id: "stage-85-5",

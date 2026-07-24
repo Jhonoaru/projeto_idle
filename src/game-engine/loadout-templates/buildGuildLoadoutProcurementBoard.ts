@@ -34,6 +34,7 @@ export interface GuildLoadoutProcurementCandidate {
   detail: string;
   availableNow: boolean;
   targetId?: string;
+  actorCharacterId?: string;
 }
 
 export interface GuildLoadoutProcurementObjective {
@@ -55,6 +56,7 @@ export interface GuildLoadoutProcurementRoute {
   detail: string;
   availableNow: boolean;
   targetId?: string;
+  actorCharacterId?: string;
   objectives: GuildLoadoutProcurementObjective[];
   characterNames: string[];
 }
@@ -65,8 +67,14 @@ export function buildGuildLoadoutProcurementBoard(
   depot: GuildDepot,
   now = new Date(),
 ) {
-  const safeCharacters = (Array.isArray(characters) ? characters : []).filter((entry) =>
-    entry && typeof entry.id === "string" && entry.id.length > 0);
+  const seenCharacterIds = new Set<string>();
+  const safeCharacters = (Array.isArray(characters) ? characters : []).filter((entry) => {
+    if (!entry || typeof entry.id !== "string" || entry.id.length === 0 || seenCharacterIds.has(entry.id)) {
+      return false;
+    }
+    seenCharacterIds.add(entry.id);
+    return true;
+  });
   const dashboard = buildGuildActiveLoadoutDashboard(guild, safeCharacters, depot);
   const catalogs = new Map(safeCharacters.map((character) => [
     character.id,
@@ -214,6 +222,7 @@ function buildCandidates(
       detail: `${source.detail}${forgeSuffix}`,
       availableNow: source.availableNow,
       targetId: source.targetId,
+      actorCharacterId: source.actorCharacterId,
     }];
   });
   return candidates.length > 0 ? candidates : [{
