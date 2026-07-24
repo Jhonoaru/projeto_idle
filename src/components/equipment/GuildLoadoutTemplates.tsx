@@ -101,6 +101,10 @@ export function GuildLoadoutTemplates({
   const [selectedCatalogItemId, setSelectedCatalogItemId] = useState("");
   const [minimumTier, setMinimumTier] = useState(0);
   const [minimumUpgradeLevel, setMinimumUpgradeLevel] = useState(0);
+  const [pendingEditor, setPendingEditor] = useState<{
+    characterId: string;
+    templateSlotId: GuildLoadoutTemplateSlotId;
+  } | null>(null);
   const capturableTargets = useMemo(() => getGuildLoadoutCaptureTargets(character), [character]);
   const savedPlans = state.templates.filter((entry) => entry.characterId === character?.id).length;
   const activeAssignment = state.activeAssignments.find((entry) => entry.characterId === character?.id);
@@ -137,6 +141,28 @@ export function GuildLoadoutTemplates({
     setMinimumUpgradeLevel(target?.minimumUpgradeLevel ?? 0);
   }, [draftTargets, editingTargets, editorSlot]);
 
+  useEffect(() => {
+    if (
+      !pendingEditor
+      || character?.id !== pendingEditor.characterId
+      || selectedSlotId !== pendingEditor.templateSlotId
+    ) return;
+    const pendingTemplate = state.templates.find((entry) =>
+      entry.characterId === pendingEditor.characterId
+      && entry.id === pendingEditor.templateSlotId);
+    if (!pendingTemplate) {
+      setPendingEditor(null);
+      return;
+    }
+    setName(pendingTemplate.name);
+    setDraftTargets(pendingTemplate.targets.map((target) => ({ ...target })));
+    setEditorSlot(pendingTemplate.targets[0]?.slot ?? "weapon");
+    setCatalogSearch("");
+    setShowIncompatible(false);
+    setEditingTargets(true);
+    setPendingEditor(null);
+  }, [character?.id, pendingEditor, selectedSlotId, state.templates]);
+
   if (!character) return <p className="loadout-template-empty">No adventurers are registered in this guild.</p>;
 
   return (
@@ -147,6 +173,7 @@ export function GuildLoadoutTemplates({
         <Summary label="Equipped" value={`${review.summary.equipped}/${review.summary.assigned}`} />
         <Summary label="Depot ready" value={String(review.summary.guildDepot)} />
         <Summary label="Missing" value={String(review.summary.missing)} />
+        <Summary label="Invalid" value={String(review.summary.invalid)} />
       </div>
 
       <section className="active-loadout-command">
@@ -161,6 +188,7 @@ export function GuildLoadoutTemplates({
           <Summary label="Equipped" value={String(activeDashboard.summary.equipped)} />
           <Summary label="Depot ready" value={String(activeDashboard.summary.depotReady)} />
           <Summary label="Missing" value={String(activeDashboard.summary.missing)} />
+          <Summary label="Invalid" value={String(activeDashboard.summary.invalid)} />
         </div>
         <div className="active-loadout-grid">
           {activeDashboard.entries.map((entry) => (
@@ -202,8 +230,13 @@ export function GuildLoadoutTemplates({
                   <button onClick={() => onOpenAcquisition(entry.character.id)} type="button">Acquisition</button>
                 ) : entry.status === "invalid" ? (
                   <button onClick={() => {
+                    if (!entry.assignment) return;
+                    setPendingEditor({
+                      characterId: entry.character.id,
+                      templateSlotId: entry.assignment.templateId,
+                    });
                     onSelectCharacter(entry.character.id);
-                    if (entry.assignment) setSelectedSlotId(entry.assignment.templateId);
+                    setSelectedSlotId(entry.assignment.templateId);
                   }} type="button">Edit Plan</button>
                 ) : (
                   <button disabled type="button">{entry.status === "ready" ? "Complete" : "No assignment"}</button>
@@ -386,6 +419,7 @@ export function GuildLoadoutTemplates({
               setEditorSlot(template?.targets[0]?.slot ?? "weapon");
               setCatalogSearch("");
               setShowIncompatible(false);
+              setPendingEditor(null);
               setEditingTargets(true);
             }} type="button">Edit Targets</button>
             <button

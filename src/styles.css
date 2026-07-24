@@ -1320,7 +1320,7 @@ p {
 
 /* Stage 83 - Guild Loadout Templates */
 .loadout-templates { display: grid; gap: 8px; min-width: 0; }
-.loadout-template-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #3b3b35; background: #101513; }
+.loadout-template-summary { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid #3b3b35; background: #101513; }
 .loadout-template-summary > div { min-width: 0; min-height: 55px; padding: 8px 10px; border-right: 1px solid #303832; }
 .loadout-template-summary > div:last-child { border-right: 0; }
 .loadout-template-summary span,
@@ -1335,7 +1335,7 @@ p {
 .active-loadout-command > header strong { margin-top: 3px; color: #e1cd91; font-family: Georgia, serif; font-size: 0.76rem; }
 .active-loadout-command > header p { margin: 0; color: #8e9991; font-size: 0.49rem; line-height: 1.45; }
 .active-loadout-command > header b { color: #9fc58e; font-size: 0.56rem; white-space: nowrap; }
-.active-loadout-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 7px; border: 1px solid #343b34; background: #0e1310; }
+.active-loadout-summary { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 7px; border: 1px solid #343b34; background: #0e1310; }
 .active-loadout-summary > div { min-width: 0; padding: 6px 8px; border-right: 1px solid #303731; }
 .active-loadout-summary > div:last-child { border-right: 0; }
 .active-loadout-summary span,

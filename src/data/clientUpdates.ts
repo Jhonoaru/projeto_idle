@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-85-5",
+    stage: "Stage 85.5",
+    title: "Active Loadout Assignments QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Deep engine, interface and native SQLite validation separated invalid targets from missing gear and completed the repair workflow.",
+    highlights: [
+      "Invalid targets now have independent counters instead of inflating missing-item totals.",
+      "Edit Plan opens the exact adventurer, active template and incompatible slot directly in the advanced editor.",
+      "Eighty-five thousand ninety-seven checks, five responsive widths and repeated native loads preserved assignment integrity.",
+    ],
+    systems: ["Active Loadouts QA", "Loadout Editor", "Guild Armory", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-85",
     stage: "Stage 85",
     title: "Active Loadout Assignments",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Contextual commands open the existing Inventory, Acquisition Planner or Quartermaster for explicit player review.",
     ],
     systems: ["Active Loadouts", "Guild Armory", "Acquisition Planner", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-84-5",

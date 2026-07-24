@@ -82,7 +82,8 @@ export function buildGuildLoadoutTemplateReview(
       guildDepot: assigned.filter((entry) => entry.status === "guild-depot").length,
       personal: assigned.filter((entry) => entry.status === "personal").length,
       roster: assigned.filter((entry) => entry.status === "roster").length,
-      missing: assigned.filter((entry) => entry.status === "missing" || entry.status === "incompatible").length,
+      missing: assigned.filter((entry) => entry.status === "missing").length,
+      invalid: assigned.filter((entry) => entry.status === "incompatible").length,
     },
   };
 }

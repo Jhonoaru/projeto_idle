@@ -28,7 +28,7 @@ export function buildGuildActiveLoadoutDashboard(
           entry.characterId === character.id && entry.id === assignment.templateId)
       : undefined;
     const review = buildGuildLoadoutTemplateReview(template, character, safeCharacters, depot);
-    const incompatible = review.reviews.filter((entry) => entry.status === "incompatible").length;
+    const incompatible = review.summary.invalid;
     const status: GuildActiveLoadoutStatus = !template
       ? "inactive"
       : incompatible > 0
@@ -64,6 +64,7 @@ export function buildGuildActiveLoadoutDashboard(
       equipped: active.reduce((total, entry) => total + entry.review.summary.equipped, 0),
       depotReady: active.reduce((total, entry) => total + entry.review.summary.guildDepot, 0),
       missing: active.reduce((total, entry) => total + entry.review.summary.missing, 0),
+      invalid: active.reduce((total, entry) => total + entry.review.summary.invalid, 0),
     },
   };
 }

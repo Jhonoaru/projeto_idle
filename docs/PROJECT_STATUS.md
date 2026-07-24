@@ -160,6 +160,7 @@ Atualizado em: 2026-07-24
 - Etapa 84 concluida: Editor Avancado de Loadouts permite planejar itens do catalogo real, metas de tier/upgrade e fontes de aquisicao sem automatizar transacoes ou equipamento.
 - Etapa 84.5 concluida: QA do Editor Avancado corrigiu prontidao de Boss/Bazaar, nome de plano vazio e save bloqueado, com 40.667 checks, browser responsivo e duas cargas Tauri/SQLite.
 - Etapa 85 concluida: Active Loadout Assignments define um plano ativo por aventureiro e consolida prontidao, lacunas e rotas manuais no Guild Armory.
+- Etapa 85.5 concluida: QA dos Active Loadouts separou targets invalidos de itens ausentes e corrigiu a rota direta para editar planos invalidos.
 
 Comandos principais:
 
@@ -5937,6 +5938,59 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 85.5 - QA aprofundada dos Active Loadout Assignments no Tauri/SQLite.
+
+## Etapa 85.5 - QA dos Active Loadout Assignments no Tauri/SQLite
+
+Status: concluida com duas correcoes funcionais.
+
+Falhas reproduzidas:
+
+- Target incompativel era somado em `Missing`, fazendo o dashboard misturar item ausente com plano estruturalmente invalido.
+- O comando `Edit Plan` de um card invalido apenas selecionava personagem/template; o editor prometido nao era aberto.
+
+Correcoes:
+
+- A revisao agora separa `missing` e `invalid`, e ambos os resumos exibem contadores independentes.
+- O dashboard usa o novo total `invalid` para classificar `Plan Invalid` sem inflar itens ausentes.
+- `Edit Plan` guarda a rota pendente, troca para o personagem e template corretos e abre diretamente o editor no primeiro slot do plano.
+- Corrigir e salvar um target invalido preserva o assignment ativo e recalcula imediatamente a prontidao.
+
+QA automatizado:
+
+- Harness temporario passou em 85.097 assertions e foi removido.
+- Vinte mil operacoes pseudoaleatorias cobriram ativacao, substituicao, desativacao, bloqueios, imutabilidade e um assignment por personagem.
+- Os quinze templates dos cinco aventureiros permaneceram intactos durante todas as sequencias.
+- Round-trip JSON canonico, templates duplicados, entries nulas, personagem orfao e timestamps invalidos foram validados.
+- Mudanca de equipamento depois da ativacao atualizou o plano de `Ready` para `Source Items` sem alterar o assignment.
+- Target incompativel confirmou `Invalid 1 / Missing 0`; item realmente ausente confirmou `Missing 1 / Invalid 0`.
+
+QA visual e interativo:
+
+- Um fixture antigo carregou Ayla com Wooden Shield incompativel e exibiu `Plan Invalid`, `Invalid 1` e `Missing 0`.
+- `Edit Plan` trocou de Arkon para Ayla, selecionou Loadout I e abriu o editor diretamente em Offhand.
+- Substituir por Light Quiver e salvar com clique duplo produziu um unico log, manteve `/ Active` e mudou o dashboard para `Ready 1/1`.
+- O painel e seus seis indicadores ficaram sem overflow horizontal em 1366x768, 1024x768, 760x900, 520x900 e 430x900.
+- O console exibiu apenas o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 401 modulos e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o banco legado com `activeAssignments`.
+- Fixture com dois templates, assignment duplicado, personagem orfao, entry nula e data invalida foi normalizada.
+- Duas cargas nativas medidas preservaram dois templates e dois assignments com o mesmo SHA-256 canonico `8559A8615FE788E7D2FF4F8119233FDBF8D01E6E3BD9B22C3F8616FE877B4F94`.
+- O timestamp ruim de Ayla virou `1970-01-01T00:00:00.000Z` e ambas as cargas mantiveram `integrity_check=ok`.
+- DB, WAL e SHM originais foram restaurados aos hashes exatos; o DB principal voltou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` e ao schema legado.
+
+Limitacoes mantidas:
+
+- Assignments continuam manuais e nao compram, transferem, forjam, reservam ou equipam itens.
+- Imbuements temporarios continuam fora dos targets.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 86 - definir a proxima camada de gerenciamento offline apos os Active Loadout Assignments validados.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
