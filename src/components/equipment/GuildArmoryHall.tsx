@@ -37,7 +37,7 @@ interface GuildArmoryHallProps {
     templateSlotId: GuildLoadoutTemplateSlotId,
     name: string,
     targets: GuildLoadoutTemplateTarget[],
-  ) => void;
+  ) => boolean;
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
 }
 

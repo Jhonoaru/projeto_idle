@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-84-5",
+    stage: "Stage 84.5",
+    title: "Advanced Loadout Editor QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Deep engine, responsive and native SQLite validation aligned every acquisition source and empty-template workflow with the real offline rules.",
+    highlights: [
+      "Boss sources now require the complete idle party, entry gold and expired cooldowns before reporting Ready; busy and blocked routes explain the real reason.",
+      "Current Offline Bazaar offers report Ready only when they remain unpurchased and the guild can afford the listed price.",
+      "Empty plans persist the visible adventurer loadout name, blocked saves remain open for correction and malformed roster entries stay outside the editor.",
+    ],
+    systems: ["Loadout Editor QA", "Boss Sources", "Offline Bazaar", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-84",
     stage: "Stage 84",
     title: "Advanced Loadout Editor",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Inspect current holdings, Hunts, Bosses, Crafting and Offline Bazaar sources without buying, moving, reserving or equipping anything automatically.",
     ],
     systems: ["Loadout Editor", "Guild Armory", "Acquisition Sources", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-83-5",

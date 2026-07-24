@@ -4,6 +4,7 @@ import { craftingRecipes } from "../../data/craftingRecipes";
 import { hunts } from "../../data/hunts";
 import { items } from "../../data/items";
 import type {
+  Boss,
   Character,
   EquipmentSlot,
   Guild,
@@ -39,12 +40,13 @@ export function buildGuildLoadoutEditorCatalog(
   characters: Character[],
   depot: GuildDepot,
   characterId: string,
+  now = new Date(),
 ) {
   const safeCharacters = (Array.isArray(characters) ? characters : []).filter((entry) =>
     entry && typeof entry.id === "string" && entry.id.length > 0);
   const character = safeCharacters.find((entry) => entry.id === characterId);
   if (!character) return { character: undefined, entries: [] as GuildLoadoutCatalogEntry[] };
-  const sourceIndex = buildSourceIndex(guild, safeCharacters, depot);
+  const sourceIndex = buildSourceIndex(guild, safeCharacters, depot, now);
   const entries = Object.values(items)
     .filter((item): item is Item & { equipmentSlot: EquipmentSlot } =>
       item.type === "equipment" && Boolean(item.equipmentSlot) && armoryEquipmentSlots.includes(item.equipmentSlot!))
@@ -72,7 +74,7 @@ export function getGuildLoadoutItemCompatibility(character: Character, item: Ite
     return { status: "incompatible" as const, label: "Not equippable" };
   }
   const candidate = createCandidate(item);
-  const current = canEquipItem(character, candidate);
+  const current = canEquipItem({ ...character, level: normalizeLevel(character.level) }, candidate);
   if (current.canEquip) return { status: "ready" as const, label: "Compatible now" };
   const requiredLevel = normalizeLevel(item.levelRequirement);
   if (requiredLevel > normalizeLevel(character.level)) {
@@ -85,7 +87,7 @@ export function getGuildLoadoutItemCompatibility(character: Character, item: Ite
   };
 }
 
-function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDepot) {
+function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDepot, now: Date) {
   const index = new Map<string, GuildLoadoutCatalogSource[]>();
   const add = (itemId: string, source: GuildLoadoutCatalogSource) => {
     const current = index.get(itemId) ?? [];
@@ -125,20 +127,15 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
   }
 
   for (const boss of bosses) {
+    const route = getBossRouteAvailability(boss, guild, characters, now);
     for (const drop of boss.reward.lootTable) {
       if (items[drop.itemId]?.type !== "equipment") continue;
       add(drop.itemId, {
         id: `boss-${boss.id}-${drop.itemId}`,
         kind: "boss",
         label: boss.name,
-        detail: `${boss.city} / ${formatChance(normalizeChance(drop.chance))} / Entry ${normalizeLevel(boss.entryCost).toLocaleString("en-US")}g`,
-        availableNow: normalizeLevel(guild.gold) >= normalizeLevel(boss.entryCost)
-          && characters.some((entry) => entry.status === "idle"
-            && !entry.currentAction
-            && normalizeLevel(entry.level) >= boss.requirements.requiredLevel
-            && (boss.requirements.requiredAccessIds ?? []).every((id) => entry.accessIds?.includes(id))
-            && (boss.requirements.requiredQuestIds ?? []).every((id) => entry.completedQuestIds?.includes(id))
-            && (!boss.requirements.requiredVocations || boss.requirements.requiredVocations.includes(entry.vocation))),
+        detail: `${boss.city} / ${formatChance(normalizeChance(drop.chance))} / ${route.detail}`,
+        availableNow: route.availableNow,
       });
     }
   }
@@ -162,14 +159,17 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
   );
   for (const itemId of bazaarEquipmentItemIds) {
     const offer = currentOffers.get(itemId);
+    const price = normalizeLevel(offer?.price);
+    const purchased = Boolean(offer?.purchasedAt);
+    const affordable = normalizeLevel(guild.gold) >= price;
     add(itemId, {
       id: `bazaar-${itemId}`,
       kind: "bazaar",
       label: offer ? "Current Bazaar Rotation" : "Offline Bazaar Rotation",
       detail: offer
-        ? `${normalizeLevel(offer.price).toLocaleString("en-US")}g / ${offer.purchasedAt ? "Already purchased" : "Available now"}`
+        ? `${price.toLocaleString("en-US")}g / ${purchased ? "Already purchased" : affordable ? "Available now" : "Insufficient guild gold"}`
         : "Eligible for a deterministic 10-minute rotation",
-      availableNow: Boolean(offer && !offer.purchasedAt),
+      availableNow: Boolean(offer && !purchased && affordable),
     });
   }
 
@@ -181,6 +181,42 @@ function buildSourceIndex(guild: Guild, characters: Character[], depot: GuildDep
       || left.id.localeCompare(right.id)));
   }
   return index;
+}
+
+function getBossRouteAvailability(boss: Boss, guild: Guild, characters: Character[], now: Date) {
+  const nowMs = Number.isFinite(now.getTime()) ? now.getTime() : Date.now();
+  const eligible = characters.filter((character) =>
+    normalizeLevel(character.level) >= boss.requirements.requiredLevel
+    && (boss.requirements.requiredAccessIds ?? []).every((id) =>
+      Array.isArray(character.accessIds) && character.accessIds.includes(id))
+    && (boss.requirements.requiredQuestIds ?? []).every((id) =>
+      Array.isArray(character.completedQuestIds) && character.completedQuestIds.includes(id))
+    && (!boss.requirements.requiredVocations || boss.requirements.requiredVocations.includes(character.vocation)));
+  const offCooldown = eligible.filter((character) =>
+    !(Array.isArray(character.bossCooldowns) ? character.bossCooldowns : [])
+      .some((cooldown) => cooldown?.bossId === boss.id && safeDateMs(cooldown.availableAt) > nowMs));
+  const ready = offCooldown.filter((character) => character.status === "idle" && !character.currentAction);
+  const requiredRoles = Object.values(boss.requirements.requiredRoles ?? {})
+    .reduce((total, count) => total + normalizeLevel(count), 0);
+  const requiredPartySize = Math.max(normalizeLevel(boss.requirements.minPartySize), requiredRoles);
+  const entryCost = normalizeLevel(boss.entryCost);
+  const enoughGold = normalizeLevel(guild.gold) >= entryCost;
+  if (!enoughGold) {
+    return { availableNow: false, detail: `Requires ${entryCost.toLocaleString("en-US")}g entry` };
+  }
+  if (ready.length >= requiredPartySize) {
+    return {
+      availableNow: true,
+      detail: `Ready party: ${ready.slice(0, boss.requirements.maxPartySize).map((character) => character.name).join(", ")}`,
+    };
+  }
+  if (offCooldown.length >= requiredPartySize) {
+    return { availableNow: false, detail: "Eligible adventurers are busy" };
+  }
+  if (eligible.length >= requiredPartySize) {
+    return { availableNow: false, detail: "Eligible party is on cooldown" };
+  }
+  return { availableNow: false, detail: `Requires ${requiredPartySize} eligible adventurer${requiredPartySize === 1 ? "" : "s"}` };
 }
 
 function addHoldings(
@@ -235,6 +271,11 @@ function normalizeQuantity(value: unknown) {
 function normalizeChance(value: unknown) {
   const parsed = typeof value === "number" ? value : Number(value);
   return Number.isFinite(parsed) ? Math.max(0, Math.min(1, parsed)) : 0;
+}
+
+function safeDateMs(value: unknown) {
+  const time = typeof value === "string" ? new Date(value).getTime() : Number.NaN;
+  return Number.isFinite(time) ? time : 0;
 }
 
 function formatChance(value: number) {

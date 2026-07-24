@@ -35,7 +35,7 @@ interface GuildLoadoutTemplatesProps {
     templateSlotId: GuildLoadoutTemplateSlotId,
     name: string,
     targets: GuildLoadoutTemplateTarget[],
-  ) => void;
+  ) => boolean;
   onSelectCharacter: (characterId: string) => void;
 }
 
@@ -66,16 +66,21 @@ export function GuildLoadoutTemplates({
   onSaveEditedTemplate,
   onSelectCharacter,
 }: GuildLoadoutTemplatesProps) {
-  const safeCharacters = useMemo(() => characters.filter(Boolean), [characters]);
+  const safeCharacters = useMemo(
+    () => (Array.isArray(characters) ? characters : []).filter((entry) =>
+      entry && typeof entry.id === "string" && entry.id.length > 0),
+    [characters],
+  );
   const state = useMemo(
     () => normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates, safeCharacters.map((character) => character.id)),
     [guild.loadoutTemplates, safeCharacters],
   );
   const character = safeCharacters.find((entry) => entry.id === selectedCharacterId) ?? safeCharacters[0];
+  const defaultTemplateName = character ? `${character.name} Loadout`.slice(0, 28) : "Guild Loadout";
   const [selectedSlotId, setSelectedSlotId] = useState<GuildLoadoutTemplateSlotId>("loadout-one");
   const template = state.templates.find((entry) =>
     entry.characterId === character?.id && entry.id === selectedSlotId);
-  const [name, setName] = useState(template?.name ?? "");
+  const [name, setName] = useState(template?.name ?? defaultTemplateName);
   const [editingTargets, setEditingTargets] = useState(false);
   const [editorSlot, setEditorSlot] = useState<EquipmentSlot>("weapon");
   const [draftTargets, setDraftTargets] = useState<GuildLoadoutTemplateTarget[]>([]);
@@ -106,9 +111,9 @@ export function GuildLoadoutTemplates({
     ?? editorEntries[0];
 
   useEffect(() => {
-    setName(template?.name ?? "");
+    setName(template?.name ?? defaultTemplateName);
     setEditingTargets(false);
-  }, [character?.id, selectedSlotId, template?.name]);
+  }, [character?.id, defaultTemplateName, selectedSlotId, template?.name]);
 
   useEffect(() => {
     if (!editingTargets) return;
@@ -274,8 +279,9 @@ export function GuildLoadoutTemplates({
               <button
                 disabled={draftTargets.length === 0}
                 onClick={() => {
-                  onSaveEditedTemplate(character.id, selectedSlotId, name, draftTargets);
-                  setEditingTargets(false);
+                  if (onSaveEditedTemplate(character.id, selectedSlotId, name, draftTargets)) {
+                    setEditingTargets(false);
+                  }
                 }}
                 type="button"
               >

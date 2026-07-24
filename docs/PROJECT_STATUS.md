@@ -158,6 +158,7 @@ Atualizado em: 2026-07-24
 - Etapa 83 concluida: Guild Loadout Templates salva tres metas por personagem, localiza as pecas nos holdings locais e encaminha diferencas do Guild Depot ao Quartermaster.
 - Etapa 83.5 concluida: QA dos Loadout Templates bloqueou equipamento corrompido, corrigiu o contador por personagem e validou 8.048 checks, browser responsivo e duas cargas Tauri/SQLite.
 - Etapa 84 concluida: Editor Avancado de Loadouts permite planejar itens do catalogo real, metas de tier/upgrade e fontes de aquisicao sem automatizar transacoes ou equipamento.
+- Etapa 84.5 concluida: QA do Editor Avancado corrigiu prontidao de Boss/Bazaar, nome de plano vazio e save bloqueado, com 40.667 checks, browser responsivo e duas cargas Tauri/SQLite.
 
 Comandos principais:
 
@@ -5816,6 +5817,69 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 84.5 - QA aprofundada do Editor Avancado de Loadouts no Tauri/SQLite.
+
+## Etapa 84.5 - QA do Editor Avancado de Loadouts no Tauri/SQLite
+
+Status: concluida com quatro correcoes funcionais e defensivas.
+
+Correcoes reproduzidas:
+
+- Uma fonte de Boss podia aparecer como `Ready` quando apenas um aventureiro atendia os requisitos, mesmo para raids de party com minimo de tres membros.
+- Cooldown ativo e party parcialmente ocupada nao participavam da leitura do editor; a fonte podia prometer prontidao diferente da operacao real.
+- Uma oferta atual do Offline Bazaar aparecia como pronta enquanto a guilda nao possuia gold suficiente para compra-la.
+- Template vazio mostrava `Arkon Loadout` ou equivalente no input, mas enviava uma string vazia e persistia outro fallback; alem disso, a UI fechava o editor mesmo se a engine bloqueasse o save.
+
+Implementacao das correcoes:
+
+- Fontes de Boss agora verificam level, access, quests, vocation, cooldown, estado idle, current action, tamanho minimo de party, contagem de roles e custo de entrada.
+- O dossier diferencia party pronta, aventureiros ocupados, cooldown, requisitos de elegibilidade e gold insuficiente.
+- Ofertas atuais do Bazaar exigem preco acessivel e ausencia de `purchasedAt`; ofertas futuras continuam identificadas apenas como elegiveis para rotacao.
+- Level `NaN` e normalizado antes da checagem de equipamento e nao consegue ignorar level requirement.
+- O nome padrao visivel passa a ser o valor real enviado ao save e acompanha a troca de personagem.
+- O callback de save editado retorna sucesso; operacoes bloqueadas mantem o editor aberto para correcao.
+- Roster da UI e review descartam entradas sem id valido antes de procurar holdings ou renderizar personagens.
+
+QA automatizado:
+
+- Harness temporario passou em 40.667 assertions e foi removido.
+- Todos os 41 equipamentos foram avaliados para os cinco personagens, sem ids duplicados, slots divergentes ou fontes ausentes.
+- Foram cobertas party completa, party insuficiente, membros ocupados, cooldown ativo e gold insuficiente para Ember Matriarch.
+- Bazaar atual foi validado nos limites de gold abaixo, igual ao preco e com oferta ja comprada.
+- Roster com `null`, objeto vazio e id vazio nao quebrou catalogo ou review.
+- Level `NaN` nao tornou nenhum equipamento com requisito de level imediatamente compativel.
+- Dez mil saves pseudoaleatorios validaram isolamento, imutabilidade, deduplicacao e limites T0-T3/+0-+5.
+- Planos vazios, slot duplicado, personagem inexistente, data invalida e incompatibilidade permanente permaneceram bloqueados.
+
+QA visual e interativo:
+
+- Um template vazio de Arkon exibiu e persistiu exatamente `Arkon Loadout`.
+- Aplicar Wooden Club e salvar com clique duplo criou um template, um target e somente um Activity Log.
+- Trocar para Ayla atualizou imediatamente o input para `Ayla Loadout`.
+- Em `Show All`, Wooden Shield e Brass Shield permaneceram visiveis, desabilitados e com a regra de quiver da Ranger.
+- O editor ficou sem overflow horizontal ou filhos fora do container em 1366x768, 760x900 e 430x900.
+- Slots, filtros, itens desabilitados, dossier, steppers, fontes e comandos permaneceram legiveis no mobile.
+- O console mostrou somente as duas tentativas esperadas do fallback SQLite do React Strict Mode fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 400 modulos antes e depois das correcoes.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o banco legado e persistiu `{ "templates": [] }`.
+- A fixture incluiu metas futuras, limites extremos, target duplicado, slot divergente, template duplicado, personagem orfao, data invalida e entrada nula.
+- Duas cargas nativas produziram o mesmo SHA-256 `1CC0C1DBEDBEC6DB5667217332EAAF1E0752E987D5249BF19CCF3C50C1FB1D2D` para o JSON canonico.
+- As duas cargas ficaram responsivas e mantiveram `integrity_check=ok`, 5 personagens, 26 itens e 10 logs.
+- DB, WAL e SHM originais foram restaurados aos hashes exatos; o banco principal voltou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes mantidas:
+
+- A prontidao de Boss indica que existe quantidade suficiente de aventureiros elegiveis; a composicao final de roles continua sendo escolhida no Raid Board.
+- O editor permanece planejamento puro e nao compra, reserva, move, forja ou equipa itens.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 85 - definir a proxima camada de gerenciamento offline apos o Editor Avancado de Loadouts validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

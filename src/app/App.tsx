@@ -646,12 +646,13 @@ export function App() {
     name: string,
     targets: GuildLoadoutTemplateTarget[],
   ) {
-    if (updatingLoadoutTemplateRef.current) return;
+    if (updatingLoadoutTemplateRef.current) return false;
     updatingLoadoutTemplateRef.current = true;
     const result = saveEditedGuildLoadoutTemplate(guild, characters, characterId, templateSlotId, name, targets);
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Loadout plan updated" : "Loadout plan blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+    return result.success;
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {

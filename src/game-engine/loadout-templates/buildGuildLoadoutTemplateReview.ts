@@ -36,7 +36,8 @@ export function buildGuildLoadoutTemplateReview(
   characters: Character[],
   depot: GuildDepot,
 ) {
-  const safeCharacters = (Array.isArray(characters) ? characters : []).filter(Boolean);
+  const safeCharacters = (Array.isArray(characters) ? characters : []).filter((entry) =>
+    entry && typeof entry.id === "string" && entry.id.length > 0);
   const reviews = armoryEquipmentSlots.map((slot): GuildLoadoutTargetReview => {
     const target = template?.targets.find((entry) => entry.slot === slot);
     const current = character?.equipment?.[slot];
