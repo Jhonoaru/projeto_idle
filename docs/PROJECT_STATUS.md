@@ -164,6 +164,7 @@ Atualizado em: 2026-07-24
 - Etapa 86 concluida: Guild Loadout Procurement Board consolida todos os targets pendentes dos planos ativos em rotas manuais eficientes e sem nova persistencia.
 - Etapa 86.5 concluida: QA do Procurement Board corrigiu roster duplicado e preparacao de Hunt com o aventureiro elegivel exato.
 - Etapa 87 concluida: Guild Loadout Procurement Orders adiciona uma fila persistente de cinco prioridades manuais ligadas aos planos ativos.
+- Etapa 87.5 concluida: QA das Procurement Orders corrigiu identidade obsoleta e bloqueou novos pedidos de targets ja equipados, com harness, browser responsivo e Tauri/SQLite real.
 
 Comandos principais:
 
@@ -6168,6 +6169,58 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 87.5 - QA aprofundada dos Guild Loadout Procurement Orders no Tauri/SQLite.
+
+## Etapa 87.5 - QA dos Guild Loadout Procurement Orders no Tauri/SQLite
+
+Status: concluida.
+
+Correcoes:
+
+- Acoes de remover, subir e descer agora exigem aventureiro, template, slot e `itemId` identicos a ordem persistida.
+- Uma requisicao obsoleta do mesmo slot nao pode mais remover ou reordenar o novo target.
+- A engine passou a receber o Guild Depot e revisar o loadout real antes de adicionar uma prioridade.
+- Target que ja atende o plano equipado nao pode ser enfileirado como novo pedido.
+- Uma ordem que foi cumprida depois de entrar na fila continua visivel ate a revisao e remocao manual, como planejado.
+
+QA automatizado:
+
+- Harness temporario passou em 80.020 assertions e foi removido.
+- Vinte mil reordenacoes pseudoaleatorias preservaram cinco identidades unicas, tamanho da fila, membership e imutabilidade.
+- Foram validados item obsoleto, target equipado, target pendente no Guild Depot, limite de cinco e remocao dupla.
+- JSON hostil removeu template/assignment orfao, duplicatas, item divergente e timestamps invalidos.
+- Editar target, desativar assignment e limpar template removeram ordens obsoletas.
+
+QA visual e interativo:
+
+- A fixture abriu com Leather Armor cumprida, Training Axe em Hunt e Brass Shield disponivel no Guild Depot.
+- Brass Shield entrou como terceira prioridade e Training Axe desceu mantendo a numeracao correta.
+- `View Route` selecionou Minotaur Outpost.
+- Clique duplo removeu Brass Shield uma unica vez e atualizou o contador de `3/5` para `2/5`.
+- O target cumprido permaneceu revisavel e nao ofereceu novo botao de queue.
+- O board ficou sem overflow horizontal em 1366x900, 1024x900, 760x900, 520x900 e 430x900.
+- O console mostrou somente o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 404 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o banco legado e criou `loadout_templates_json`.
+- A fixture persistida continha cinco ordens: duas validas, uma duplicada, uma com item divergente e uma de personagem orfao.
+- Duas cargas nativas preservaram exatamente duas prioridades com SHA-256 canonico `6B5BC22B54832D7AA10B3EACDC907BAF68E088835F5F5C8F5096F3BE9C435C3C`.
+- As cargas mantiveram `integrity_check=ok`.
+- O banco original foi restaurado byte a byte ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` e ao schema legado.
+
+Limitacoes mantidas:
+
+- Procurement Orders continuam sendo prioridades manuais e nao reservam itens.
+- Nenhuma ordem inicia Hunt/Boss, compra, craft, transferencia, Forge ou equipamento.
+- Target cumprido exige remocao manual para preservar a revisao do jogador.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 88 - definir a proxima camada de gerenciamento offline apos as Procurement Orders validadas.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

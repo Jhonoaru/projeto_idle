@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-87-5",
+    stage: "Stage 87.5",
+    title: "Procurement Orders QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Deep engine, responsive and native SQLite validation hardened exact order identity and prevented completed loadout targets from entering the queue.",
+    highlights: [
+      "Remove and reorder actions now require the exact queued item, so stale UI requests cannot mutate a newer target in the same equipment slot.",
+      "The engine rejects newly queued targets that already satisfy the active loadout while preserving priorities fulfilled after queuing for manual review.",
+      "Eighty thousand twenty checks, five responsive widths and repeated native loads preserved a canonical five-priority ledger.",
+    ],
+    systems: ["Procurement Orders QA", "Active Loadouts", "Guild Armory", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-87",
     stage: "Stage 87",
     title: "Guild Loadout Procurement Orders",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The queue persists inside the existing loadout JSON without reserving gear or automating hunts, purchases, crafts, transfers, Forge or equipment.",
     ],
     systems: ["Procurement Orders", "Active Loadouts", "Guild Armory", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-86-5",

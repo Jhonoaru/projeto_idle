@@ -679,7 +679,7 @@ export function App() {
   function handleUpdateLoadoutProcurementOrder(request: GuildLoadoutProcurementOrderRequest) {
     if (updatingLoadoutTemplateRef.current) return;
     updatingLoadoutTemplateRef.current = true;
-    const result = updateGuildLoadoutProcurementOrder(guild, characters, request);
+    const result = updateGuildLoadoutProcurementOrder(guild, characters, depot, request);
     if (result.changed) setGuild(result.guild);
     prependLog(
       result.changed ? "Procurement orders updated" : "Procurement orders unchanged",
