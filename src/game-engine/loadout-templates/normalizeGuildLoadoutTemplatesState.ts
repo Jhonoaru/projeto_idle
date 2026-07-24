@@ -2,6 +2,7 @@ import { guildLoadoutTemplateSlots, getGuildLoadoutTemplateSlot } from "../../da
 import { items } from "../../data/items";
 import type {
   EquipmentSlot,
+  GuildLoadoutActiveAssignment,
   GuildLoadoutTemplate,
   GuildLoadoutTemplatesState,
   GuildLoadoutTemplateTarget,
@@ -13,7 +14,7 @@ export function normalizeGuildLoadoutTemplatesState(
   value: unknown,
   validCharacterIds?: readonly string[],
 ): GuildLoadoutTemplatesState {
-  if (!value || typeof value !== "object") return { templates: [] };
+  if (!value || typeof value !== "object") return { templates: [], activeAssignments: [] };
   const candidate = value as Partial<GuildLoadoutTemplatesState>;
   const characterIds = validCharacterIds ? new Set(validCharacterIds) : undefined;
   const seen = new Set<string>();
@@ -30,7 +31,45 @@ export function normalizeGuildLoadoutTemplatesState(
       left.characterId.localeCompare(right.characterId)
       || templateSlotIndex(left.id) - templateSlotIndex(right.id))
     .slice(0, 150);
-  return { templates };
+  const templateKeys = new Set(
+    templates
+      .filter((template) => template.targets.length > 0)
+      .map((template) => `${template.characterId}:${template.id}`),
+  );
+  const assignedCharacters = new Set<string>();
+  const activeAssignments = (Array.isArray(candidate.activeAssignments) ? candidate.activeAssignments : [])
+    .map((entry) => normalizeActiveAssignment(entry, characterIds, templateKeys))
+    .filter((entry): entry is GuildLoadoutActiveAssignment => Boolean(entry))
+    .filter((entry) => {
+      if (assignedCharacters.has(entry.characterId)) return false;
+      assignedCharacters.add(entry.characterId);
+      return true;
+    })
+    .sort((left, right) => left.characterId.localeCompare(right.characterId))
+    .slice(0, 50);
+  return { templates, activeAssignments };
+}
+
+function normalizeActiveAssignment(
+  value: unknown,
+  validCharacterIds: Set<string> | undefined,
+  templateKeys: Set<string>,
+) {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<GuildLoadoutActiveAssignment>;
+  const characterId = typeof candidate.characterId === "string" ? candidate.characterId.trim() : "";
+  const template = getGuildLoadoutTemplateSlot(candidate.templateId);
+  if (
+    !characterId
+    || !template
+    || (validCharacterIds && !validCharacterIds.has(characterId))
+    || !templateKeys.has(`${characterId}:${template.id}`)
+  ) return undefined;
+  return {
+    characterId,
+    templateId: template.id,
+    assignedAt: normalizeTimestamp(candidate.assignedAt),
+  } satisfies GuildLoadoutActiveAssignment;
 }
 
 function normalizeTemplate(value: unknown, validCharacterIds?: Set<string>) {

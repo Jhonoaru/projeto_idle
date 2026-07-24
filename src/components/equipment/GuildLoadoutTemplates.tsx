@@ -6,6 +6,10 @@ import {
   type GuildLoadoutCatalogEntry,
   type GuildLoadoutCatalogSourceKind,
 } from "../../game-engine/loadout-templates/buildGuildLoadoutEditorCatalog";
+import {
+  buildGuildActiveLoadoutDashboard,
+  type GuildActiveLoadoutStatus,
+} from "../../game-engine/loadout-templates/buildGuildActiveLoadoutDashboard";
 import { buildGuildLoadoutTemplateReview, type GuildLoadoutTargetStatus } from "../../game-engine/loadout-templates/buildGuildLoadoutTemplateReview";
 import { normalizeGuildLoadoutTemplatesState } from "../../game-engine/loadout-templates/normalizeGuildLoadoutTemplatesState";
 import { getGuildLoadoutCaptureTargets } from "../../game-engine/loadout-templates/updateGuildLoadoutTemplate";
@@ -26,7 +30,9 @@ interface GuildLoadoutTemplatesProps {
   depot: GuildDepot;
   guild: Guild;
   selectedCharacterId: string;
+  onAssignTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId | null) => void;
   onClearTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
+  onOpenAcquisition: (characterId: string) => void;
   onOpenQuartermaster: (characterId: string) => void;
   onOpenSystem: (tab: "inventory" | "depot" | "forge", characterId: string) => void;
   onSaveTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) => void;
@@ -59,7 +65,9 @@ export function GuildLoadoutTemplates({
   depot,
   guild,
   selectedCharacterId,
+  onAssignTemplate,
   onClearTemplate,
+  onOpenAcquisition,
   onOpenQuartermaster,
   onOpenSystem,
   onSaveTemplate,
@@ -74,6 +82,10 @@ export function GuildLoadoutTemplates({
   const state = useMemo(
     () => normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates, safeCharacters.map((character) => character.id)),
     [guild.loadoutTemplates, safeCharacters],
+  );
+  const activeDashboard = useMemo(
+    () => buildGuildActiveLoadoutDashboard(guild, safeCharacters, depot),
+    [depot, guild, safeCharacters],
   );
   const character = safeCharacters.find((entry) => entry.id === selectedCharacterId) ?? safeCharacters[0];
   const defaultTemplateName = character ? `${character.name} Loadout`.slice(0, 28) : "Guild Loadout";
@@ -91,6 +103,8 @@ export function GuildLoadoutTemplates({
   const [minimumUpgradeLevel, setMinimumUpgradeLevel] = useState(0);
   const capturableTargets = useMemo(() => getGuildLoadoutCaptureTargets(character), [character]);
   const savedPlans = state.templates.filter((entry) => entry.characterId === character?.id).length;
+  const activeAssignment = state.activeAssignments.find((entry) => entry.characterId === character?.id);
+  const selectedTemplateIsActive = activeAssignment?.templateId === selectedSlotId;
   const review = useMemo(
     () => buildGuildLoadoutTemplateReview(template, character, safeCharacters, depot),
     [character, depot, safeCharacters, template],
@@ -135,6 +149,71 @@ export function GuildLoadoutTemplates({
         <Summary label="Missing" value={String(review.summary.missing)} />
       </div>
 
+      <section className="active-loadout-command">
+        <header>
+          <div><span>Guild-wide objectives</span><strong>Active Loadout Command</strong></div>
+          <p>Choose one saved plan per adventurer and route every remaining target through manual guild systems.</p>
+          <b>{activeDashboard.summary.readyPlans}/{activeDashboard.summary.activePlans} ready</b>
+        </header>
+        <div className="active-loadout-summary">
+          <Summary label="Active plans" value={`${activeDashboard.summary.activePlans}/${safeCharacters.length}`} />
+          <Summary label="Targets" value={String(activeDashboard.summary.targets)} />
+          <Summary label="Equipped" value={String(activeDashboard.summary.equipped)} />
+          <Summary label="Depot ready" value={String(activeDashboard.summary.depotReady)} />
+          <Summary label="Missing" value={String(activeDashboard.summary.missing)} />
+        </div>
+        <div className="active-loadout-grid">
+          {activeDashboard.entries.map((entry) => (
+            <article className={`is-${entry.status}`} key={entry.character.id}>
+              <header>
+                <i>{entry.character.name.charAt(0)}</i>
+                <div><strong>{entry.character.name}</strong><small>Lv {entry.character.level} {entry.character.vocation}</small></div>
+                <b>{activeStatusLabel(entry.status)}</b>
+              </header>
+              <div className="active-loadout-plan">
+                <span>{entry.template?.name ?? "No active plan"}</span>
+                <strong>{entry.template ? `${entry.review.summary.equipped}/${entry.review.summary.assigned}` : "-"}</strong>
+              </div>
+              <div className="active-loadout-progress" aria-label={`${entry.character.name} active loadout progress`}>
+                <i style={{ width: `${entry.completionPercent}%` }} />
+              </div>
+              <dl>
+                <div><dt>Depot</dt><dd>{entry.review.summary.guildDepot}</dd></div>
+                <div><dt>Holdings</dt><dd>{entry.review.summary.personal + entry.review.summary.roster}</dd></div>
+                <div><dt>Missing</dt><dd>{entry.review.summary.missing}</dd></div>
+              </dl>
+              <p>{entry.nextAction}</p>
+              <footer>
+                <button
+                  disabled={!entry.template}
+                  onClick={() => {
+                    onSelectCharacter(entry.character.id);
+                    if (entry.assignment) setSelectedSlotId(entry.assignment.templateId);
+                  }}
+                  type="button"
+                >
+                  Inspect Plan
+                </button>
+                {entry.status === "quartermaster" ? (
+                  <button onClick={() => onOpenQuartermaster(entry.character.id)} type="button">Quartermaster</button>
+                ) : entry.status === "transfer" ? (
+                  <button onClick={() => onOpenSystem("inventory", entry.character.id)} type="button">Inventory</button>
+                ) : entry.status === "sourcing" ? (
+                  <button onClick={() => onOpenAcquisition(entry.character.id)} type="button">Acquisition</button>
+                ) : entry.status === "invalid" ? (
+                  <button onClick={() => {
+                    onSelectCharacter(entry.character.id);
+                    if (entry.assignment) setSelectedSlotId(entry.assignment.templateId);
+                  }} type="button">Edit Plan</button>
+                ) : (
+                  <button disabled type="button">{entry.status === "ready" ? "Complete" : "No assignment"}</button>
+                )}
+              </footer>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <div className="loadout-template-roster" aria-label="Loadout template roster">
         {safeCharacters.map((entry) => {
           const saved = state.templates.filter((candidate) => candidate.characterId === entry.id).length;
@@ -154,7 +233,7 @@ export function GuildLoadoutTemplates({
           return (
             <button aria-selected={slot.id === selectedSlotId} key={slot.id} onClick={() => setSelectedSlotId(slot.id)} role="tab" type="button">
               <i>{slot.shortName}</i>
-              <span><strong>{saved?.name ?? slot.name}</strong><small>{saved ? `${saved.targets.length} targets` : "Empty template"}</small></span>
+              <span><strong>{saved?.name ?? slot.name}</strong><small>{saved ? `${saved.targets.length} targets${activeAssignment?.templateId === slot.id ? " / Active" : ""}` : "Empty template"}</small></span>
             </button>
           );
         })}
@@ -309,6 +388,13 @@ export function GuildLoadoutTemplates({
               setShowIncompatible(false);
               setEditingTargets(true);
             }} type="button">Edit Targets</button>
+            <button
+              disabled={!template}
+              onClick={() => onAssignTemplate(character.id, selectedTemplateIsActive ? null : selectedSlotId)}
+              type="button"
+            >
+              {selectedTemplateIsActive ? "Deactivate Plan" : "Activate Plan"}
+            </button>
             <button disabled={!template} onClick={() => onClearTemplate(character.id, selectedSlotId)} type="button">Clear</button>
           </div>
           <div className="loadout-template-routing">
@@ -397,6 +483,15 @@ function sourceKindLabel(kind: GuildLoadoutCatalogSourceKind) {
   if (kind === "boss") return "Boss";
   if (kind === "crafting") return "Workbench";
   return "Bazaar";
+}
+
+function activeStatusLabel(status: GuildActiveLoadoutStatus) {
+  if (status === "ready") return "Ready";
+  if (status === "quartermaster") return "Depot Action";
+  if (status === "transfer") return "Transfer";
+  if (status === "sourcing") return "Source Items";
+  if (status === "invalid") return "Plan Invalid";
+  return "Inactive";
 }
 
 function itemsName(itemId: string) {

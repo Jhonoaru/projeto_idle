@@ -1327,6 +1327,48 @@ p {
 .loadout-template-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .loadout-template-summary span { color: #7f8981; font-size: 0.47rem; text-transform: uppercase; }
 .loadout-template-summary strong { margin-top: 7px; color: #dfce97; font-size: 0.7rem; }
+.active-loadout-command { min-width: 0; padding: 9px; border: 1px solid #4b4735; background: #111613; }
+.active-loadout-command > header { display: grid; grid-template-columns: minmax(190px, 0.75fr) minmax(280px, 1.25fr) auto; gap: 12px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #343b34; }
+.active-loadout-command > header span,
+.active-loadout-command > header strong { display: block; }
+.active-loadout-command > header span { color: #879189; font-size: 0.46rem; text-transform: uppercase; }
+.active-loadout-command > header strong { margin-top: 3px; color: #e1cd91; font-family: Georgia, serif; font-size: 0.76rem; }
+.active-loadout-command > header p { margin: 0; color: #8e9991; font-size: 0.49rem; line-height: 1.45; }
+.active-loadout-command > header b { color: #9fc58e; font-size: 0.56rem; white-space: nowrap; }
+.active-loadout-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 7px; border: 1px solid #343b34; background: #0e1310; }
+.active-loadout-summary > div { min-width: 0; padding: 6px 8px; border-right: 1px solid #303731; }
+.active-loadout-summary > div:last-child { border-right: 0; }
+.active-loadout-summary span,
+.active-loadout-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.active-loadout-summary span { color: #77827a; font-size: 0.42rem; text-transform: uppercase; }
+.active-loadout-summary strong { margin-top: 4px; color: #d9c98f; font-size: 0.59rem; }
+.active-loadout-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; min-width: 0; margin-top: 7px; }
+.active-loadout-grid article { min-width: 0; padding: 6px; border: 1px solid #353d37; border-top: 3px solid #555f57; background: #151a17; }
+.active-loadout-grid article.is-ready { border-top-color: #739667; }
+.active-loadout-grid article.is-quartermaster { border-top-color: #a58b4d; }
+.active-loadout-grid article.is-transfer { border-top-color: #64879a; }
+.active-loadout-grid article.is-sourcing,
+.active-loadout-grid article.is-invalid { border-top-color: #966254; }
+.active-loadout-grid article > header { display: grid; grid-template-columns: 29px minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.active-loadout-grid article > header i { display: grid; place-items: center; width: 27px; height: 31px; border: 1px solid #6c6041; color: #dcc681; background: #20251f; font-style: normal; font-weight: 900; }
+.active-loadout-grid article > header strong,
+.active-loadout-grid article > header small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.active-loadout-grid article > header strong { color: #d8ca96; font-size: 0.54rem; }
+.active-loadout-grid article > header small { margin-top: 2px; color: #7f8a82; font-size: 0.41rem; }
+.active-loadout-grid article > header b { color: #a8ba93; font-size: 0.4rem; text-align: right; }
+.active-loadout-plan { display: flex; justify-content: space-between; gap: 6px; min-width: 0; margin-top: 7px; padding-top: 6px; border-top: 1px solid #303731; }
+.active-loadout-plan span { min-width: 0; color: #cfc293; font-size: 0.48rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.active-loadout-plan strong { color: #dfcc8f; font-size: 0.47rem; white-space: nowrap; }
+.active-loadout-progress { height: 5px; margin-top: 5px; border: 1px solid #333a34; background: #090c0a; overflow: hidden; }
+.active-loadout-progress i { display: block; height: 100%; background: #809c6c; }
+.active-loadout-grid dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; margin: 6px 0 0; }
+.active-loadout-grid dl div { min-width: 0; padding: 4px; border: 1px solid #303731; background: #111613; }
+.active-loadout-grid dt { color: #747f77; font-size: 0.38rem; text-transform: uppercase; }
+.active-loadout-grid dd { margin: 2px 0 0; color: #cfc18d; font-size: 0.48rem; font-weight: 800; }
+.active-loadout-grid article > p { min-height: 25px; margin: 6px 0; color: #89948c; font-size: 0.43rem; line-height: 1.35; }
+.active-loadout-grid article > footer { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+.active-loadout-grid button { min-width: 0; min-height: 28px; padding: 4px; border: 1px solid #655c40; color: #d7c58a; background: #21251d; font-family: Georgia, serif; font-size: 0.43rem; font-weight: 800; cursor: pointer; }
+.active-loadout-grid button:disabled { border-color: #353d37; color: #626c65; background: #151a17; cursor: not-allowed; }
 .loadout-template-roster { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; min-width: 0; padding: 8px; border: 1px solid #3b3b35; background: #101513; }
 .loadout-template-roster button { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 4px 7px; align-items: center; min-width: 0; min-height: 59px; padding: 6px; border: 1px solid #343c36; color: #89938d; background: #151a17; text-align: left; cursor: pointer; }
 .loadout-template-roster button[aria-pressed="true"] { border-color: #927b45; background: #20241c; }
@@ -1363,7 +1405,7 @@ p {
 .loadout-template-editor > p { margin: 8px 0; color: #929c94; font-size: 0.54rem; line-height: 1.45; }
 .loadout-template-editor-actions,
 .loadout-template-routing { display: grid; gap: 5px; }
-.loadout-template-editor-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) 70px; }
+.loadout-template-editor-actions { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.8fr) minmax(0, 0.9fr) 58px; }
 .loadout-template-routing { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 6px; padding-top: 7px; border-top: 1px solid #303832; }
 .loadout-template-editor button { min-height: 31px; border: 1px solid #806f47; color: #dfca8d; background: #24271e; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 700; cursor: pointer; }
 .loadout-template-editor button:disabled { border-color: #3c443e; color: #68716b; background: #171c19; cursor: not-allowed; }
@@ -1479,6 +1521,7 @@ p {
   .allocation-ledger { grid-column: 1 / -1; }
   .allocation-ledger > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .loadout-template-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .active-loadout-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .loadout-template-workspace { grid-template-columns: minmax(270px, 0.58fr) minmax(480px, 1.42fr); }
   .loadout-editor-layout { grid-template-columns: minmax(210px, 0.55fr) minmax(380px, 1fr); }
   .loadout-editor-dossier { grid-column: 1 / -1; }
@@ -1497,7 +1540,11 @@ p {
   .allocation-summary,
   .allocation-roster,
   .loadout-template-summary,
-  .loadout-template-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .loadout-template-roster,
+  .active-loadout-summary,
+  .active-loadout-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .active-loadout-command > header { grid-template-columns: 1fr auto; }
+  .active-loadout-command > header p { grid-row: 2; grid-column: 1 / -1; }
   .acquisition-workspace,
   .allocation-workspace,
   .loadout-template-workspace { grid-template-columns: 1fr; }
@@ -1528,6 +1575,8 @@ p {
   .loadout-template-summary,
   .loadout-template-roster,
   .loadout-template-slots,
+  .active-loadout-summary,
+  .active-loadout-grid,
   .allocation-command-row,
   .allocation-order dl,
   .allocation-ledger > div { grid-template-columns: 1fr; }
@@ -1545,6 +1594,9 @@ p {
   .quartermaster-execution-row { grid-template-columns: 1fr; }
   .loadout-template-editor > header,
   .loadout-template-review > header { align-items: flex-start; flex-direction: column; }
+  .active-loadout-command > header { grid-template-columns: 1fr; }
+  .active-loadout-command > header p { grid-row: auto; grid-column: auto; }
+  .active-loadout-command > header b { white-space: normal; }
   .loadout-template-editor-actions,
   .loadout-template-routing,
   .loadout-template-grid { grid-template-columns: 1fr; }

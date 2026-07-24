@@ -31,6 +31,7 @@ interface GuildArmoryHallProps {
   onOpenSystem: (tab: "inventory" | "depot" | "forge") => void;
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
+  onAssignLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId | null) => void;
   onSaveLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) => void;
   onSaveEditedLoadoutTemplate: (
     characterId: string,
@@ -46,7 +47,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
@@ -202,7 +203,12 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           characters={characters}
           depot={depot}
           guild={guild}
+          onAssignTemplate={onAssignLoadoutTemplate}
           onClearTemplate={onClearLoadoutTemplate}
+          onOpenAcquisition={(characterId) => {
+            selectCharacter(characterId);
+            setView("acquisition");
+          }}
           onOpenQuartermaster={(characterId) => {
             selectCharacter(characterId);
             setView("allocation");

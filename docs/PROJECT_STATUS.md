@@ -159,6 +159,7 @@ Atualizado em: 2026-07-24
 - Etapa 83.5 concluida: QA dos Loadout Templates bloqueou equipamento corrompido, corrigiu o contador por personagem e validou 8.048 checks, browser responsivo e duas cargas Tauri/SQLite.
 - Etapa 84 concluida: Editor Avancado de Loadouts permite planejar itens do catalogo real, metas de tier/upgrade e fontes de aquisicao sem automatizar transacoes ou equipamento.
 - Etapa 84.5 concluida: QA do Editor Avancado corrigiu prontidao de Boss/Bazaar, nome de plano vazio e save bloqueado, com 40.667 checks, browser responsivo e duas cargas Tauri/SQLite.
+- Etapa 85 concluida: Active Loadout Assignments define um plano ativo por aventureiro e consolida prontidao, lacunas e rotas manuais no Guild Armory.
 
 Comandos principais:
 
@@ -5880,6 +5881,62 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 85 - definir a proxima camada de gerenciamento offline apos o Editor Avancado de Loadouts validado.
+
+## Etapa 85 - Active Loadout Assignments
+
+Status: concluida.
+
+Implementacao:
+
+- Cada aventureiro pode ativar exatamente um dos tres templates salvos que possua ao menos um target.
+- Ativar outro plano substitui o anterior atomicamente; desativar ou limpar o template ativo remove o assignment.
+- Sobrescrever um template ativo preserva o assignment, o nome novo e seus targets atualizados.
+- O painel `Active Loadout Command` cobre o roster inteiro com plano, progresso, targets equipados, Guild Depot, holdings e itens ausentes.
+- Estados distintos identificam `Ready`, `Quartermaster`, `Inventory Transfer`, `Source Items`, `Plan Invalid` e `Inactive`.
+- Comandos contextuais abrem Inventory, Acquisition Planner ou Quartermaster existentes; nenhuma rota executa compra, transferencia ou equipamento.
+
+Engine e save:
+
+- `GuildLoadoutTemplatesState` ganhou `activeAssignments`, com `characterId`, `templateId` e `assignedAt`.
+- `normalizeGuildLoadoutTemplatesState` remove assignments nulos, duplicados, orfaos, sem template correspondente ou com slot invalido.
+- Datas invalidas sao normalizadas para epoch, enquanto saves antigos recebem `activeAssignments: []`.
+- O dashboard reutiliza a revisao real de holdings e compatibilidade dos templates, sem duplicar regras de equipamento.
+- A persistencia continua em `loadout_templates_json`; nenhuma migration, tabela ou coluna nova foi adicionada.
+
+QA automatizado:
+
+- Harness temporario passou em 20.039 assertions e foi removido.
+- Cinco mil cenarios pseudoaleatorios validaram ativacao, troca, desativacao, deduplicacao, isolamento entre personagens e imutabilidade.
+- Os seis estados do dashboard foram exercitados com equipamento vestido, Guild Depot, inventario pessoal, item ausente, target incompatível e personagem inativo.
+- O harness encontrou uma regressao real: salvar ou editar um template apagava `activeAssignments`; ambos os fluxos agora preservam os assignments.
+
+QA visual e interativo:
+
+- Arkon salvou o equipamento atual, ativou o plano e apareceu como `Ready` com 3/3 targets.
+- Sobrescrever o plano manteve `/ Active`, 1/1 ready e o comando `Deactivate Plan`.
+- Clique duplo em desativar gerou uma unica transicao e um unico novo Activity Log; reativacao tambem funcionou.
+- O dashboard ficou sem overflow horizontal em 1366x768, 760x900 e 430x900, com cinco cards acessiveis.
+- O console web exibiu apenas as duas tentativas esperadas do fallback SQLite fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run tauri:build` passou com 401 modulos e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o banco legado para `{ "templates": [], "activeAssignments": [] }`.
+- Uma fixture com assignments duplicados, orfao, nulo, data invalida e template inexistente foi normalizada para um assignment valido.
+- Duas cargas nativas consecutivas preservaram o resultado com `integrity_check=ok`.
+- DB, WAL e SHM originais foram restaurados aos hashes exatos; o banco principal voltou a `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` e ao schema legado.
+
+Limitacoes mantidas:
+
+- Assignments sao objetivos manuais e nao reservam, compram, transferem, forjam ou equipam itens.
+- Imbuements temporarios continuam fora dos targets.
+- O Quartermaster abre o Allocation Board global sem preselecionar uma copia exata.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 85.5 - QA aprofundada dos Active Loadout Assignments no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

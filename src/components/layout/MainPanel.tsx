@@ -167,6 +167,7 @@ interface MainPanelProps {
   onAcknowledgeGuildLogisticsAlerts: () => void;
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
+  onAssignLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId | null) => void;
   onSaveLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId, name: string) => void;
   onSaveEditedLoadoutTemplate: (
     characterId: string,
@@ -306,6 +307,7 @@ export function MainPanel({
   onAcknowledgeGuildLogisticsAlerts,
   onExecuteAllEquipmentOrders,
   onExecuteEquipmentOrder,
+  onAssignLoadoutTemplate,
   onSaveLoadoutTemplate,
   onSaveEditedLoadoutTemplate,
   onClearLoadoutTemplate,
@@ -474,6 +476,7 @@ export function MainPanel({
             onSelectCharacter={onSelectCharacter}
             onExecuteAllEquipmentOrders={onExecuteAllEquipmentOrders}
             onExecuteEquipmentOrder={onExecuteEquipmentOrder}
+            onAssignLoadoutTemplate={onAssignLoadoutTemplate}
             onSaveLoadoutTemplate={onSaveLoadoutTemplate}
             onSaveEditedLoadoutTemplate={onSaveEditedLoadoutTemplate}
             onClearLoadoutTemplate={onClearLoadoutTemplate}

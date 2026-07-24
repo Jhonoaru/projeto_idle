@@ -77,6 +77,7 @@ import { saveGuildSquad } from "../game-engine/guild-squads/saveGuildSquad";
 import { createBossPartyFromGuildSquad } from "../game-engine/guild-squads/createBossPartyFromGuildSquad";
 import { clearGuildDeploymentOrder, saveGuildDeploymentOrder } from "../game-engine/deployment-orders/updateGuildDeploymentOrder";
 import {
+  assignGuildLoadoutTemplate,
   clearGuildLoadoutTemplate,
   saveEditedGuildLoadoutTemplate,
   saveGuildLoadoutTemplate,
@@ -637,6 +638,22 @@ export function App() {
     const result = clearGuildLoadoutTemplate(guild, characters, characterId, templateSlotId);
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Loadout template cleared" : "Loadout template unchanged", result.message, result.success ? "neutral" : "warning");
+    window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function handleAssignLoadoutTemplate(
+    characterId: string,
+    templateSlotId: GuildLoadoutTemplateSlotId | null,
+  ) {
+    if (updatingLoadoutTemplateRef.current) return;
+    updatingLoadoutTemplateRef.current = true;
+    const result = assignGuildLoadoutTemplate(guild, characters, characterId, templateSlotId);
+    if (result.success) setGuild(result.guild);
+    prependLog(
+      result.success ? "Active loadout updated" : "Active loadout unchanged",
+      result.message,
+      result.success ? "success" : "warning",
+    );
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
   }
 
@@ -2438,6 +2455,7 @@ export function App() {
           onAcknowledgeGuildLogisticsAlerts={handleAcknowledgeGuildLogisticsAlerts}
           onExecuteAllEquipmentOrders={handleExecuteAllEquipmentOrders}
           onExecuteEquipmentOrder={handleExecuteEquipmentOrder}
+          onAssignLoadoutTemplate={handleAssignLoadoutTemplate}
           onSaveLoadoutTemplate={handleSaveLoadoutTemplate}
           onSaveEditedLoadoutTemplate={handleSaveEditedLoadoutTemplate}
           onClearLoadoutTemplate={handleClearLoadoutTemplate}

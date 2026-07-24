@@ -357,8 +357,15 @@ export interface GuildLoadoutTemplate {
   updatedAt: string;
 }
 
+export interface GuildLoadoutActiveAssignment {
+  characterId: string;
+  templateId: GuildLoadoutTemplateSlotId;
+  assignedAt: string;
+}
+
 export interface GuildLoadoutTemplatesState {
   templates: GuildLoadoutTemplate[];
+  activeAssignments: GuildLoadoutActiveAssignment[];
 }
 
 export interface GuildLogisticsState {

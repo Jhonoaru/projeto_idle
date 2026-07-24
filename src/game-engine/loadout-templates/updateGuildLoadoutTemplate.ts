@@ -40,6 +40,7 @@ export function saveGuildLoadoutTemplate(
       ...current.templates.filter((template) =>
         template.characterId !== character.id || template.id !== slot.id),
     ],
+    activeAssignments: current.activeAssignments,
   }, validCharacters.map((entry) => entry.id));
   const template = loadoutTemplates.templates.find((entry) =>
     entry.characterId === character.id && entry.id === slot.id)!;
@@ -69,9 +70,73 @@ export function clearGuildLoadoutTemplate(
   const characterName = validCharacters.find((character) => character.id === characterId)?.name ?? "Adventurer";
   return {
     success: true,
-    guild: { ...guild, loadoutTemplates: { templates } },
+    guild: {
+      ...guild,
+      loadoutTemplates: {
+        templates,
+        activeAssignments: current.activeAssignments.filter((assignment) =>
+          assignment.characterId !== characterId || assignment.templateId !== templateSlotId),
+      },
+    },
     template: undefined,
     message: `${characterName}'s loadout template was cleared.`,
+  };
+}
+
+export function assignGuildLoadoutTemplate(
+  guild: Guild,
+  characters: Character[],
+  characterId: string,
+  templateSlotId: GuildLoadoutTemplateSlotId | null,
+  now = new Date(),
+) {
+  const validCharacters = (Array.isArray(characters) ? characters : []).filter((entry) =>
+    entry && typeof entry.id === "string" && entry.id.length > 0);
+  const character = validCharacters.find((entry) => entry.id === characterId);
+  const current = normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates, validCharacters.map((entry) => entry.id));
+  if (!character) return blocked(guild, current, "Choose a valid adventurer.");
+  if (!Number.isFinite(now.getTime())) return blocked(guild, current, "Loadout assignment timestamp is invalid.");
+  const existing = current.activeAssignments.find((assignment) => assignment.characterId === character.id);
+  if (templateSlotId === null) {
+    if (!existing) return blocked(guild, current, `${character.name} has no active loadout plan.`);
+    const activeTemplate = current.templates.find((entry) =>
+      entry.characterId === character.id && entry.id === existing.templateId);
+    return {
+      success: true,
+      guild: {
+        ...guild,
+        loadoutTemplates: {
+          ...current,
+          activeAssignments: current.activeAssignments.filter((assignment) =>
+            assignment.characterId !== character.id),
+        },
+      },
+      template: undefined,
+      message: `${activeTemplate?.name ?? "Loadout plan"} is no longer active for ${character.name}.`,
+    };
+  }
+  const slot = getGuildLoadoutTemplateSlot(templateSlotId);
+  const template = current.templates.find((entry) =>
+    entry.characterId === character.id && entry.id === slot?.id && entry.targets.length > 0);
+  if (!slot || !template) {
+    return blocked(guild, current, "Only a saved loadout with at least one target can become active.");
+  }
+  if (existing?.templateId === slot.id) {
+    return blocked(guild, current, `${template.name} is already active for ${character.name}.`);
+  }
+  const activeAssignments = [
+    {
+      characterId: character.id,
+      templateId: slot.id,
+      assignedAt: now.toISOString(),
+    },
+    ...current.activeAssignments.filter((assignment) => assignment.characterId !== character.id),
+  ].sort((left, right) => left.characterId.localeCompare(right.characterId));
+  return {
+    success: true,
+    guild: { ...guild, loadoutTemplates: { ...current, activeAssignments } },
+    template,
+    message: `${template.name} is now the active loadout plan for ${character.name}.`,
   };
 }
 
@@ -124,6 +189,7 @@ export function saveEditedGuildLoadoutTemplate(
       updatedAt: now.toISOString(),
     }, ...current.templates.filter((template) =>
       template.characterId !== character.id || template.id !== slot.id)],
+    activeAssignments: current.activeAssignments,
   }, validCharacters.map((entry) => entry.id));
   const template = loadoutTemplates.templates.find((entry) =>
     entry.characterId === character.id && entry.id === slot.id);

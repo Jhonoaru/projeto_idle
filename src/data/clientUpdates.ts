@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-85",
+    stage: "Stage 85",
+    title: "Active Loadout Assignments",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "Every adventurer can now nominate one saved equipment plan while the Armory tracks guild-wide readiness and the next manual route.",
+    highlights: [
+      "Activate, replace or deactivate one non-empty saved loadout per adventurer without moving, reserving, forging or equipping any item.",
+      "The command dashboard separates complete plans, Guild Depot transfers, personal holdings, missing sources, invalid targets and inactive adventurers.",
+      "Contextual commands open the existing Inventory, Acquisition Planner or Quartermaster for explicit player review.",
+    ],
+    systems: ["Active Loadouts", "Guild Armory", "Acquisition Planner", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-84-5",
     stage: "Stage 84.5",
     title: "Advanced Loadout Editor QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Empty plans persist the visible adventurer loadout name, blocked saves remain open for correction and malformed roster entries stay outside the editor.",
     ],
     systems: ["Loadout Editor QA", "Boss Sources", "Offline Bazaar", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-84",
