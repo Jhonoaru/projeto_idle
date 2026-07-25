@@ -94,6 +94,10 @@ import {
   type GuildLoadoutProcurementReservationRequest,
 } from "../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
 import {
+  fulfillGuildLoadoutProcurementReservation,
+  type GuildLoadoutProcurementFulfillmentRequest,
+} from "../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
+import {
   acknowledgeGuildLoadoutProcurementAlerts,
   describeProcurementAlerts,
   syncGuildLoadoutProcurementAlerts,
@@ -265,6 +269,7 @@ export function App() {
   const loadingGuildSquadRef = useRef(false);
   const updatingDeploymentOrderRef = useRef(false);
   const updatingLoadoutTemplateRef = useRef(false);
+  const fulfillingLoadoutReservationRef = useRef(false);
   const acknowledgingLoadoutProcurementAlertsRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
@@ -735,6 +740,26 @@ export function App() {
       result.changed ? "success" : "warning",
     );
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function handleFulfillLoadoutProcurementReservation(
+    request: GuildLoadoutProcurementFulfillmentRequest,
+  ) {
+    if (fulfillingLoadoutReservationRef.current) return;
+    fulfillingLoadoutReservationRef.current = true;
+    const result = fulfillGuildLoadoutProcurementReservation(guild, characters, depot, request);
+    if (result.success) {
+      setGuild(result.guild);
+      setCharacters(result.characters);
+      charactersRef.current = result.characters;
+      setDepot(result.depot);
+    }
+    prependLog(
+      result.success ? "Reserved gear issued" : "Reserved gear issue blocked",
+      result.message,
+      result.success ? "success" : "warning",
+    );
+    window.setTimeout(() => { fulfillingLoadoutReservationRef.current = false; }, 250);
   }
 
   function applyLoadoutGuildMutation(nextGuild: Guild) {
@@ -2576,6 +2601,7 @@ export function App() {
           onAcknowledgeLoadoutProcurementAlerts={handleAcknowledgeLoadoutProcurementAlerts}
           onUpdateLoadoutProcurementOrder={handleUpdateLoadoutProcurementOrder}
           onUpdateLoadoutProcurementReservation={handleUpdateLoadoutProcurementReservation}
+          onFulfillLoadoutProcurementReservation={handleFulfillLoadoutProcurementReservation}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

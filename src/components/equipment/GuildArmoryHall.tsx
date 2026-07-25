@@ -21,6 +21,7 @@ import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/load
 import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
 import { getGuildLoadoutProcurementUnreadCount } from "../../game-engine/loadout-templates/syncGuildLoadoutProcurementAlerts";
 import { getUnreservedGuildLoadoutProcurementDepot } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
+import type { GuildLoadoutProcurementFulfillmentRequest } from "../../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
 type ArmoryView = "audit" | "acquisition" | "allocation" | "procurement" | "templates";
@@ -48,6 +49,7 @@ interface GuildArmoryHallProps {
   onAcknowledgeLoadoutProcurementAlerts: () => void;
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onUpdateLoadoutProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
+  onFulfillLoadoutProcurementReservation: (request: GuildLoadoutProcurementFulfillmentRequest) => void;
 }
 
 const slotLabels: Record<EquipmentSlot, string> = {
@@ -55,7 +57,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onAcknowledgeLoadoutProcurementAlerts, onUpdateLoadoutProcurementOrder, onUpdateLoadoutProcurementReservation }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onAcknowledgeLoadoutProcurementAlerts, onUpdateLoadoutProcurementOrder, onUpdateLoadoutProcurementReservation, onFulfillLoadoutProcurementReservation }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const procurementUnreadCount = getGuildLoadoutProcurementUnreadCount(guild);
   const unreservedDepot = useMemo(
@@ -251,6 +253,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onAcknowledgeProcurementAlerts={onAcknowledgeLoadoutProcurementAlerts}
           onUpdateProcurementOrder={onUpdateLoadoutProcurementOrder}
           onUpdateProcurementReservation={onUpdateLoadoutProcurementReservation}
+          onFulfillProcurementReservation={onFulfillLoadoutProcurementReservation}
         />
       ) : (
         <GuildLoadoutTemplates

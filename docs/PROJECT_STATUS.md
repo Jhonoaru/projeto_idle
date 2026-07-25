@@ -169,6 +169,7 @@ Atualizado em: 2026-07-24
 - Etapa 88.5 concluida: QA dos Procurement Alerts normalizou leitura/reconhecimento de dados hostis e validou 90.027 checks, Tauri release e SQLite legado com restauracao integral.
 - Etapa 89 concluida: Procurement Item Reservations protege uma copia exata do Guild Depot para uma ordem ativa, sem transferencia ou equipamento automatico.
 - Etapa 89.5 concluida: QA das Item Reservations isolou copias disputadas, preservou alternativas livres no Quartermaster e validou 60.035 checks com dois reloads SQLite.
+- Etapa 90 concluida: Reserved Gear Fulfillment entrega manualmente a copia reservada ao aventureiro correto, equipa o alvo e conclui ordem/reserva de forma atomica.
 
 Comandos principais:
 
@@ -6448,6 +6449,50 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 90 - definir a proxima camada offline apos concluir o ciclo de planejamento, procurement e reservas de loadout.
+
+## Etapa 90 - Reserved Gear Fulfillment
+
+Status: concluida.
+
+Implementacao:
+
+- O Procurement Ledger ganhou a acao explicita `Issue Gear` apenas para ordens com uma copia reservada.
+- A acao abre uma confirmacao compacta e nao transfere nada ao abrir, fechar ou revisar o painel.
+- O fulfillment valida a ordem, reserva, template ativo, alvo, personagem e identidade exata da copia no Guild Depot.
+- A copia precisa continuar locked, no root do Guild Depot, sem owner, com quantidade um e atendendo tier/upgrade minimos.
+- A transferencia reutiliza as regras reais de capacidade e o equipamento reutiliza as regras reais de level, vocation e slot.
+- A peca anteriormente equipada volta ao inventario do mesmo personagem.
+- Ordem e reserva sao removidas somente depois que transferencia e equipamento terminam com sucesso.
+- Qualquer falha devolve guilda, roster e depot originais; nao existe estado intermediario parcialmente aplicado.
+- Uma trava curta no App evita duas confirmacoes processadas no mesmo intervalo.
+- O Activity Log registra sucesso ou motivo do bloqueio.
+
+QA automatizado:
+
+- Harness temporario passou em 50.024 assertions e foi removido.
+- Dez mil ciclos entregaram e equiparam exatamente o Brass Shield reservado.
+- Foram validados retorno da peca anterior, consumo da copia do depot e remocao da ordem/reserva.
+- A segunda tentativa da mesma requisicao foi bloqueada sem alterar referencias.
+- Capacidade insuficiente, lock adulterado, inventory identity duplicada e request malformada fizeram rollback integral.
+- Renderizacao React estatica confirmou a acao `Issue Gear` e o aviso de protecao da reserva.
+
+Build e validacao nativa:
+
+- `npm.cmd run build` passou com 408 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O executavel release abriu em uma carga controlada de seis segundos.
+- O SQLite manteve `integrity_check=ok`, nenhuma violacao de foreign key e SHA-256 inalterado em `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes:
+
+- A confirmacao foi validada por renderizacao React estatica, nao por clique manual na janela Tauri.
+- O fulfillment e estritamente manual e nao escolhe alternativa, compra, forja, inicia atividade ou entrega equipamento sem reserva.
+- A entrega processa uma ordem por vez.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 90.5 - QA interativo e de persistencia do Reserved Gear Fulfillment.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -44,6 +44,7 @@ import type { GuildLogisticsPinAction } from "../../game-engine/logistics/update
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
+import type { GuildLoadoutProcurementFulfillmentRequest } from "../../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
 import type {
   Boss,
   BossParty,
@@ -181,6 +182,7 @@ interface MainPanelProps {
   onAcknowledgeLoadoutProcurementAlerts: () => void;
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onUpdateLoadoutProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
+  onFulfillLoadoutProcurementReservation: (request: GuildLoadoutProcurementFulfillmentRequest) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -319,6 +321,7 @@ export function MainPanel({
   onAcknowledgeLoadoutProcurementAlerts,
   onUpdateLoadoutProcurementOrder,
   onUpdateLoadoutProcurementReservation,
+  onFulfillLoadoutProcurementReservation,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -491,6 +494,7 @@ export function MainPanel({
             onAcknowledgeLoadoutProcurementAlerts={onAcknowledgeLoadoutProcurementAlerts}
             onUpdateLoadoutProcurementOrder={onUpdateLoadoutProcurementOrder}
             onUpdateLoadoutProcurementReservation={onUpdateLoadoutProcurementReservation}
+            onFulfillLoadoutProcurementReservation={onFulfillLoadoutProcurementReservation}
           />
         ) : null}
 

@@ -9,6 +9,7 @@ import {
 import { buildGuildLoadoutProcurementOrderTracker } from "../../game-engine/loadout-templates/buildGuildLoadoutProcurementOrderTracker";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
+import type { GuildLoadoutProcurementFulfillmentRequest } from "../../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type {
   Boss,
@@ -36,6 +37,7 @@ interface GuildLoadoutProcurementBoardProps {
   onAcknowledgeProcurementAlerts: () => void;
   onUpdateProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onUpdateProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
+  onFulfillProcurementReservation: (request: GuildLoadoutProcurementFulfillmentRequest) => void;
 }
 
 type ProcurementFilter =
@@ -68,6 +70,7 @@ export function GuildLoadoutProcurementBoard({
   onAcknowledgeProcurementAlerts,
   onUpdateProcurementOrder,
   onUpdateProcurementReservation,
+  onFulfillProcurementReservation,
 }: GuildLoadoutProcurementBoardProps) {
   const board = useMemo(
     () => buildGuildLoadoutProcurementBoard(guild, characters, depot),
@@ -80,6 +83,7 @@ export function GuildLoadoutProcurementBoard({
   );
   const filteredRoutes = board.routes.filter((route) => matchesFilter(route, filter));
   const [selectedRouteKey, setSelectedRouteKey] = useState("");
+  const [pendingFulfillment, setPendingFulfillment] = useState<GuildLoadoutProcurementFulfillmentRequest>();
   const selectedRoute = filteredRoutes.find((route) => route.key === selectedRouteKey)
     ?? filteredRoutes[0];
 
@@ -134,6 +138,25 @@ export function GuildLoadoutProcurementBoard({
           <aside className="procurement-readiness-alert" role="status">
             <span><strong>{tracker.summary.unread} order alert{tracker.summary.unread === 1 ? "" : "s"}</strong><small>Exact targets are ready or already fulfilled.</small></span>
             <button onClick={onAcknowledgeProcurementAlerts} type="button">Mark Reviewed</button>
+          </aside>
+        ) : null}
+        {pendingFulfillment ? (
+          <aside className="procurement-fulfillment-confirm" role="alertdialog" aria-label="Confirm reserved gear issue">
+            <span>
+              <strong>Issue this exact reserved copy?</strong>
+              <small>The item will move from the Guild Depot and equip on its assigned adventurer.</small>
+            </span>
+            <button onClick={() => setPendingFulfillment(undefined)} type="button">Cancel</button>
+            <button
+              className="is-confirm"
+              onClick={() => {
+                onFulfillProcurementReservation(pendingFulfillment);
+                setPendingFulfillment(undefined);
+              }}
+              type="button"
+            >
+              Issue Gear
+            </button>
           </aside>
         ) : null}
         {procurementOrders.length > 0 ? (
@@ -210,13 +233,22 @@ export function GuildLoadoutProcurementBoard({
                       </button>
                     ) : null}
                     {reservation ? (
-                      <button
-                        className="is-reservation"
-                        onClick={() => onUpdateProcurementReservation(reservationRequest("release", order, reservation.inventoryItemId))}
-                        type="button"
-                      >
-                        Release
-                      </button>
+                      <>
+                        <button
+                          className="is-fulfillment"
+                          onClick={() => setPendingFulfillment(fulfillmentRequest(order, reservation.inventoryItemId))}
+                          type="button"
+                        >
+                          Issue Gear
+                        </button>
+                        <button
+                          className="is-reservation"
+                          onClick={() => onUpdateProcurementReservation(reservationRequest("release", order, reservation.inventoryItemId))}
+                          type="button"
+                        >
+                          Release
+                        </button>
+                      </>
                     ) : (
                       <button
                         className="is-reservation"
@@ -382,6 +414,19 @@ function reservationRequest(
   };
 }
 
+function fulfillmentRequest(
+  order: GuildLoadoutProcurementOrder,
+  inventoryItemId: string,
+): GuildLoadoutProcurementFulfillmentRequest {
+  return {
+    characterId: order.characterId,
+    templateId: order.templateId,
+    slot: order.slot,
+    itemId: order.itemId,
+    inventoryItemId,
+  };
+}
+
 function findReservableDepotItem(
   depot: GuildDepot,
   target: NonNullable<ReturnType<typeof buildGuildLoadoutProcurementBoard>["dashboard"]["entries"][number]["review"]["reviews"][number]["target"]>,
@@ -417,7 +462,7 @@ function routeAction(
   route: GuildLoadoutProcurementRoute,
   actions: Omit<
     GuildLoadoutProcurementBoardProps,
-    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder" | "onUpdateProcurementReservation"
+    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder" | "onUpdateProcurementReservation" | "onFulfillProcurementReservation"
   >,
 ) {
   const characterId = route.objectives[0]?.character.id ?? "";
