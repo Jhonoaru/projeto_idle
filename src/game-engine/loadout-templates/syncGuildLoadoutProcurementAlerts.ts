@@ -3,6 +3,7 @@ import {
   buildGuildLoadoutProcurementOrderTracker,
   type GuildLoadoutProcurementOrderTrackingEntry,
 } from "./buildGuildLoadoutProcurementOrderTracker";
+import { normalizeGuildLoadoutTemplatesState } from "./normalizeGuildLoadoutTemplatesState";
 
 export function syncGuildLoadoutProcurementAlerts(
   guild: Guild,
@@ -36,8 +37,8 @@ export function syncGuildLoadoutProcurementAlerts(
 }
 
 export function acknowledgeGuildLoadoutProcurementAlerts(guild: Guild) {
-  const loadoutTemplates = guild.loadoutTemplates;
-  if (!loadoutTemplates?.procurementAlerts?.unreadReadyKeys?.length) return guild;
+  const loadoutTemplates = normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates);
+  if (loadoutTemplates.procurementAlerts.unreadReadyKeys.length === 0) return guild;
   return {
     ...guild,
     loadoutTemplates: {
@@ -51,7 +52,8 @@ export function acknowledgeGuildLoadoutProcurementAlerts(guild: Guild) {
 }
 
 export function getGuildLoadoutProcurementUnreadCount(guild: Guild) {
-  return guild.loadoutTemplates?.procurementAlerts?.unreadReadyKeys?.length ?? 0;
+  return normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates)
+    .procurementAlerts.unreadReadyKeys.length;
 }
 
 export function describeProcurementAlerts(entries: GuildLoadoutProcurementOrderTrackingEntry[]) {

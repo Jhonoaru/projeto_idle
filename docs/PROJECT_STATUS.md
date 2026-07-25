@@ -166,6 +166,7 @@ Atualizado em: 2026-07-24
 - Etapa 87 concluida: Guild Loadout Procurement Orders adiciona uma fila persistente de cinco prioridades manuais ligadas aos planos ativos.
 - Etapa 87.5 concluida: QA das Procurement Orders corrigiu identidade obsoleta e bloqueou novos pedidos de targets ja equipados, com harness, browser responsivo e Tauri/SQLite real.
 - Etapa 88 concluida: Procurement Readiness Alerts rastreia ordens cumpridas/disponiveis e persiste badge, reconhecimento e notificacao unica sem automacao.
+- Etapa 88.5 concluida: QA dos Procurement Alerts normalizou leitura/reconhecimento de dados hostis e validou 90.027 checks, Tauri release e SQLite legado com restauracao integral.
 
 Comandos principais:
 
@@ -6290,6 +6291,55 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 88.5 - QA aprofundada dos Procurement Readiness Alerts no Tauri/SQLite.
+
+## Etapa 88.5 - QA dos Procurement Readiness Alerts
+
+Status: concluida.
+
+Correcao aplicada:
+
+- `getGuildLoadoutProcurementUnreadCount` normaliza o estado antes de calcular o badge.
+- `acknowledgeGuildLoadoutProcurementAlerts` normaliza arrays, chaves e referencias antes de limpar os nao lidos.
+- Valores hostis como string no lugar de array, numeros, duplicatas e chaves orfas nao vazam para a interface nem quebram `Mark Reviewed`.
+- O reconhecimento continua idempotente quando nao existe alerta valido.
+
+QA automatizado:
+
+- Harness temporario passou em 90.027 assertions e foi removido.
+- Quinze mil transicoes alternaram Brass Shield ausente/presente no Guild Depot.
+- Cada regressao liberou a memoria sem falso alerta e cada retorno gerou exatamente um novo aviso.
+- Dez mil ciclos estaveis preservaram referencia, fila e memoria sem duplicacao.
+- Roster duplicado nao inflou tracker, badge ou ordens.
+- Remover ordem, editar plano, desativar assignment e limpar template podaram alertas orfaos.
+- Estados `fulfilled`, `available` e `sourcing` permaneceram coerentes para Leather Armor, Brass Shield e Training Axe.
+
+QA visual:
+
+- A primeira carga local abriu o Guild Armory e a Procurement Board sem erro de renderizacao.
+- A recarga da fixture foi bloqueada pela politica interna de URLs do navegador de QA.
+- Por isso, clique duplo, remocao de ordem nao lida e a matriz de cinco viewports nao foram revalidados interativamente nesta etapa.
+- Esses fluxos permanecem cobertos pelo harness de engine; a validacao responsiva completa da Etapa 88 continua como referencia visual mais recente.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 406 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O executavel migrou o banco legado antes da injecao controlada.
+- JSON hostil com colecoes de tipo incorreto, duplicatas, orfaos e numero foi normalizado para arrays vazios seguros.
+- Duas cargas nativas produziram JSON canonico identico, SHA-256 `F2CA650FA27FF5BD0158C4FA11ED41031BC6E947FAD2FA56985DDF472CA43C06`.
+- O SQLite manteve `integrity_check=ok`.
+- O banco original foi restaurado byte a byte ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` e ao schema legado.
+
+Limitacoes atuais:
+
+- Alertas continuam informativos e nao automatizam compra, transferencia, equipamento, Forge, Hunt ou Boss.
+- O executavel Tauri foi validado por cargas nativas controladas, sem QA manual por cliques na janela desktop.
+- A matriz responsiva nao foi repetida por causa do bloqueio do navegador local nesta rodada.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 89 - definir a proxima camada de gerenciamento offline apos o ciclo de loadouts e procurement validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

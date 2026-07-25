@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-88-5",
+    stage: "Stage 88.5",
+    title: "Procurement Alerts QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Deep engine and native SQLite validation hardened malformed alert data, repeated readiness transitions and legacy-save normalization.",
+    highlights: [
+      "Unread counts and Mark Reviewed now normalize malformed persisted values before reading or changing alert state.",
+      "Ninety thousand twenty-seven checks covered repeated readiness regressions, duplicate roster entries, stale orders and idempotent stable cycles.",
+      "The Tauri release migrated a legacy database, canonicalized hostile loadout JSON twice and restored the original save byte-for-byte.",
+    ],
+    systems: ["Procurement Alerts QA", "Procurement Orders", "Guild Armory", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-88",
     stage: "Stage 88",
     title: "Procurement Readiness Alerts",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Mark Reviewed clears only the badge while order removal, template changes and readiness regressions prune stale notification memory safely.",
     ],
     systems: ["Readiness Alerts", "Procurement Orders", "Guild Armory", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-87-5",
