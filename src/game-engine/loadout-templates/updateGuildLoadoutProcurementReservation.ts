@@ -134,6 +134,22 @@ export function enforceGuildLoadoutProcurementReservationLocks(
   return changed ? { ...depot, items } : depot;
 }
 
+export function getUnreservedGuildLoadoutProcurementDepot(
+  guild: Guild,
+  depot: GuildDepot,
+) {
+  const reservedIds = new Set(
+    normalizeGuildLoadoutTemplatesState(guild.loadoutTemplates)
+      .procurementReservations
+      .map((entry) => entry.inventoryItemId),
+  );
+  if (reservedIds.size === 0) return depot;
+  return {
+    ...depot,
+    items: depot.items.filter((entry) => !reservedIds.has(entry.id)),
+  };
+}
+
 function uniqueCharacterIds(characters: Character[]) {
   return [...new Set((Array.isArray(characters) ? characters : [])
     .filter((entry) => entry && typeof entry.id === "string" && entry.id)

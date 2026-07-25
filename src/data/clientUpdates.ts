@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-89-5",
+    stage: "Stage 89.5",
+    title: "Procurement Reservations QA",
+    date: "2026-07-24",
+    category: "qa",
+    summary: "Contested equipment, alternate-copy allocation and native SQLite reloads hardened the complete reservation lifecycle.",
+    highlights: [
+      "A reserved copy now remains available only to its exact loadout order while competing plans return to sourcing.",
+      "Acquisition, Allocation and Quartermaster planning exclude reserved copies before optimization, so free alternatives remain usable.",
+      "Sixty thousand thirty-five checks and two native reloads preserved one reservation, its repaired lock and the original campaign backup.",
+    ],
+    systems: ["Reservations QA", "Allocation Board", "Quartermaster", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-89",
     stage: "Stage 89",
     title: "Procurement Item Reservations",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Removing the order, editing or clearing its template and deactivating the loadout release the reservation and its lock safely.",
     ],
     systems: ["Item Reservations", "Procurement Orders", "Guild Depot", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-88-5",

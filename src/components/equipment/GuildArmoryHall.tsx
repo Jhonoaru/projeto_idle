@@ -20,6 +20,7 @@ import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../.
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
 import { getGuildLoadoutProcurementUnreadCount } from "../../game-engine/loadout-templates/syncGuildLoadoutProcurementAlerts";
+import { getUnreservedGuildLoadoutProcurementDepot } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
 type ArmoryView = "audit" | "acquisition" | "allocation" | "procurement" | "templates";
@@ -57,6 +58,10 @@ const slotLabels: Record<EquipmentSlot, string> = {
 export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onAcknowledgeLoadoutProcurementAlerts, onUpdateLoadoutProcurementOrder, onUpdateLoadoutProcurementReservation }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const procurementUnreadCount = getGuildLoadoutProcurementUnreadCount(guild);
+  const unreservedDepot = useMemo(
+    () => getUnreservedGuildLoadoutProcurementDepot(guild, depot),
+    [depot, guild],
+  );
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
   const [inspectedCharacterId, setInspectedCharacterId] = useState(selectedCharacterId);
@@ -191,7 +196,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
       </> : view === "acquisition" ? (
         <EquipmentAcquisitionPlanner
           characters={characters}
-          depot={depot}
+          depot={unreservedDepot}
           guild={guild}
           onOpenBoss={onOpenBoss}
           onOpenForge={() => { onSelectCharacter(inspectedCharacterId); onOpenSystem("forge"); }}
@@ -203,7 +208,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
       ) : view === "allocation" ? (
         <GuildEquipmentAllocationBoard
           characters={characters}
-          depot={depot}
+          depot={unreservedDepot}
           onOpenDepot={(characterId) => { onSelectCharacter(characterId); onOpenSystem("depot"); }}
           onOpenForge={(characterId) => { onSelectCharacter(characterId); onOpenSystem("forge"); }}
           onOpenInventory={(characterId) => { onSelectCharacter(characterId); onOpenSystem("inventory"); }}

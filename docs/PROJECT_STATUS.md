@@ -168,6 +168,7 @@ Atualizado em: 2026-07-24
 - Etapa 88 concluida: Procurement Readiness Alerts rastreia ordens cumpridas/disponiveis e persiste badge, reconhecimento e notificacao unica sem automacao.
 - Etapa 88.5 concluida: QA dos Procurement Alerts normalizou leitura/reconhecimento de dados hostis e validou 90.027 checks, Tauri release e SQLite legado com restauracao integral.
 - Etapa 89 concluida: Procurement Item Reservations protege uma copia exata do Guild Depot para uma ordem ativa, sem transferencia ou equipamento automatico.
+- Etapa 89.5 concluida: QA das Item Reservations isolou copias disputadas, preservou alternativas livres no Quartermaster e validou 60.035 checks com dois reloads SQLite.
 
 Comandos principais:
 
@@ -6397,6 +6398,56 @@ Limitacoes desta validacao:
 Proximo passo sugerido:
 
 - Etapa 89.5 - QA interativo e SQLite das Procurement Item Reservations quando as politicas locais permitirem executar as superficies.
+
+## Etapa 89.5 - QA das Procurement Item Reservations
+
+Status: concluida.
+
+Correcoes aplicadas:
+
+- Uma copia reservada ainda aparecia como disponivel para outro plano ativo que buscava o mesmo item.
+- O Active Loadout Dashboard e o Procurement Board agora devolvem a copia reservada somente ao aventureiro/template exatos da reserva.
+- Planos concorrentes voltam para `sourcing` e deixam de anunciar rota Quartermaster pronta quando nao existe outra copia livre.
+- O Quartermaster montava o plano com todas as pecas e descartava reservas somente depois da otimizacao.
+- Isso podia ocultar uma segunda copia livre quando a copia reservada recebia a alocacao preferida.
+- Allocation, Acquisition e Quartermaster agora filtram reservas antes de calcular as recomendacoes.
+- Com duas copias equivalentes, uma reservada e outra livre, a livre continua elegivel e a reservada permanece intocada.
+
+QA automatizado:
+
+- Harness temporario passou em 60.035 assertions e foi removido.
+- Dez mil ciclos concorridos preservaram um plano owner em `quartermaster` e um plano concorrente em `sourcing`.
+- Tracker manteve exatamente uma ordem `available` e uma `sourcing`.
+- Procurement Board removeu a rota Quartermaster pronta do pedido concorrente.
+- Allocation Board vazio ignorou a unica copia reservada.
+- Com uma segunda copia livre, Allocation e Quartermaster individual/em lote usaram somente a alternativa.
+- Market, Quick Sell e Salvage continuaram bloqueando a copia reservada.
+- Normalizacao removeu colisao por ordem, colisao por inventoryItemId, identity vazia e registro invalido.
+- Release com inventoryItemId obsoleto nao alterou guilda ou depot.
+- Remover a ordem limpou a reserva e liberou o lock no mesmo fluxo.
+- Renderizacao React estatica confirmou contador, estado reservado, `Release` e motivo do `Reserve` desabilitado.
+
+QA build e Tauri/SQLite:
+
+- `npm.cmd run build` passou com 407 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O executavel Tauri abriu com sucesso nesta rodada.
+- A fixture nativa persistiu um Brass Shield reservado com o lock adulterado para zero.
+- A primeira carga restaurou o lock para `1`; a segunda preservou JSON e lock sem nova mutacao.
+- Duas cargas produziram estado canonico identico com SHA-256 `D92C4FBFE816A72CE594B03AF571E3A1404306E9B95A097F544EAE7F1B7750ED`.
+- O SQLite manteve `integrity_check=ok`.
+- O banco original foi restaurado byte a byte ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+
+Limitacoes:
+
+- O navegador local permaneceu indisponivel pela politica de URLs registrada na etapa anterior; a UI foi validada por renderizacao React estatica, nao por cliques responsivos.
+- O executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Reservas continuam manuais e nao equipam, transferem, compram, forjam ou iniciam atividades.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 90 - definir a proxima camada offline apos concluir o ciclo de planejamento, procurement e reservas de loadout.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

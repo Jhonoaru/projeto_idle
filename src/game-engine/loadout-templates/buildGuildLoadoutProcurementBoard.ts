@@ -78,10 +78,25 @@ export function buildGuildLoadoutProcurementBoard(
     return true;
   });
   const dashboard = buildGuildActiveLoadoutDashboard(guild, safeCharacters, depot);
-  const catalogs = new Map(safeCharacters.map((character) => [
-    character.id,
-    buildGuildLoadoutEditorCatalog(guild, safeCharacters, depot, character.id, now),
-  ]));
+  const catalogs = new Map(safeCharacters.map((character) => {
+    const assignment = dashboard.state.activeAssignments.find((entry) =>
+      entry.characterId === character.id);
+    const ownReservationIds = new Set(dashboard.state.procurementReservations
+      .filter((reservation) =>
+        reservation.characterId === character.id
+        && reservation.templateId === assignment?.templateId)
+      .map((reservation) => reservation.inventoryItemId));
+    const unavailableReservationIds = new Set(dashboard.state.procurementReservations
+      .filter((reservation) => !ownReservationIds.has(reservation.inventoryItemId))
+      .map((reservation) => reservation.inventoryItemId));
+    const catalogDepot = unavailableReservationIds.size > 0
+      ? { ...depot, items: depot.items.filter((item) => !unavailableReservationIds.has(item.id)) }
+      : depot;
+    return [
+      character.id,
+      buildGuildLoadoutEditorCatalog(guild, safeCharacters, catalogDepot, character.id, now),
+    ];
+  }));
   const drafts = dashboard.entries.flatMap((entry) => {
     if (!entry.assignment || !entry.template) return [];
     const template = entry.template;

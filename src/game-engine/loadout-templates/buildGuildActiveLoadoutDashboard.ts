@@ -27,7 +27,18 @@ export function buildGuildActiveLoadoutDashboard(
       ? state.templates.find((entry) =>
           entry.characterId === character.id && entry.id === assignment.templateId)
       : undefined;
-    const review = buildGuildLoadoutTemplateReview(template, character, safeCharacters, depot);
+    const ownReservationIds = new Set(state.procurementReservations
+      .filter((reservation) =>
+        reservation.characterId === character.id
+        && reservation.templateId === template?.id)
+      .map((reservation) => reservation.inventoryItemId));
+    const unavailableReservationIds = new Set(state.procurementReservations
+      .filter((reservation) => !ownReservationIds.has(reservation.inventoryItemId))
+      .map((reservation) => reservation.inventoryItemId));
+    const reviewDepot = unavailableReservationIds.size > 0
+      ? { ...depot, items: depot.items.filter((item) => !unavailableReservationIds.has(item.id)) }
+      : depot;
+    const review = buildGuildLoadoutTemplateReview(template, character, safeCharacters, reviewDepot);
     const incompatible = review.summary.invalid;
     const status: GuildActiveLoadoutStatus = !template
       ? "inactive"
