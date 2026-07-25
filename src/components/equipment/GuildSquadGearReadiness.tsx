@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   buildGuildSquadGearReadiness,
   type GuildSquadGearReadinessSlot,
@@ -33,6 +33,14 @@ export function GuildSquadGearReadiness({
   const selected = readiness.slots.find((slot) => slot.id === selectedSlotId)
     ?? readiness.slots[0];
 
+  useEffect(() => {
+    if (selected?.unlocked && selected.configured) return;
+    const fallback = readiness.slots.find((slot) => slot.unlocked && slot.configured)
+      ?? readiness.slots.find((slot) => slot.unlocked)
+      ?? readiness.slots[0];
+    if (fallback && fallback.id !== selectedSlotId) setSelectedSlotId(fallback.id);
+  }, [readiness.slots, selected, selectedSlotId]);
+
   return (
     <section className="squad-gear-readiness">
       <div className="squad-gear-summary">
@@ -46,9 +54,11 @@ export function GuildSquadGearReadiness({
       <div className="squad-gear-tabs" role="tablist" aria-label="Squad gear readiness slots">
         {readiness.slots.map((slot) => (
           <button
+            aria-controls={selected?.id === slot.id ? `squad-gear-panel-${slot.id}` : undefined}
             aria-selected={selected?.id === slot.id}
             className={`is-${slot.status}`}
             disabled={!slot.unlocked}
+            id={`squad-gear-tab-${slot.id}`}
             key={slot.id}
             onClick={() => setSelectedSlotId(slot.id)}
             role="tab"
@@ -62,12 +72,18 @@ export function GuildSquadGearReadiness({
       </div>
 
       {selected ? (
-        <SquadDossier
-          onOpenOperations={onOpenOperations}
-          onOpenProcurement={onOpenProcurement}
-          onOpenTemplates={onOpenTemplates}
-          slot={selected}
-        />
+        <div
+          aria-labelledby={`squad-gear-tab-${selected.id}`}
+          id={`squad-gear-panel-${selected.id}`}
+          role="tabpanel"
+        >
+          <SquadDossier
+            onOpenOperations={onOpenOperations}
+            onOpenProcurement={onOpenProcurement}
+            onOpenTemplates={onOpenTemplates}
+            slot={selected}
+          />
+        </div>
       ) : null}
 
       <small className="squad-gear-note">

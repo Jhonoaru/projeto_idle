@@ -176,6 +176,7 @@ Atualizado em: 2026-07-25
 - Etapa 92 concluida: Reserved Gear Batch Dispatch revisa e entrega ate cinco reservas exatas em uma unica confirmacao atomica.
 - Etapa 92.5 concluida: QA do Batch Dispatch congelou a revisao, reforcou exclusividade/acessibilidade do dialogo e validou 75.022 checks com lote maximo.
 - Etapa 93 concluida: Squad Gear Readiness conecta squads, deployment orders e loadouts ativos em uma visao derivada de preparacao do arsenal.
+- Etapa 93.5 concluida: QA do Squad Gear Readiness corrigiu selecao obsoleta apos mudanca de save e completou a semantica acessivel das tabs.
 
 Comandos principais:
 
@@ -6864,6 +6865,59 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 93.5 - QA aprofundada do Squad Gear Readiness.
+
+## Etapa 93.5 - QA do Squad Gear Readiness
+
+Status: concluida.
+
+Correcoes:
+
+- A formacao selecionada agora e revalidada quando squads, guild level ou save carregado mudam.
+- Se a tab atual deixar de estar desbloqueada/configurada, o painel escolhe a primeira formacao configurada, a primeira desbloqueada ou o primeiro slot seguro.
+- A selecao valida permanece preservada para evitar saltos durante atualizacoes normais do roster.
+- Tabs receberam IDs estaveis e o painel ativo usa `role="tabpanel"` com `aria-labelledby`.
+- `aria-controls` fica somente na tab ativa, sem referencias para paineis inexistentes.
+- Nenhuma correcao altera squads, loadouts, ordens, equipamento ou persistencia.
+
+QA automatizado:
+
+- Harness temporario passou em 140.022 assertions e foi removido.
+- A matriz validou `locked`, `empty`, `ready`, `partial`, `unplanned` e `invalid`.
+- O cenario principal agregou quatro membros, cinco targets, tres equipados e 60% de prontidao.
+- Arkon ficou `ready`, Ayla `incomplete`, Mira `invalid` e Lyra `unplanned`.
+- Formacao completa atingiu 100%; guild level baixo bloqueou os slots II e III.
+- Dez mil derivacoes hostis cobriram `NaN`, squads duplicados, membros nulos/ausentes, ordens invalidas, loadouts corrompidos e depot hostil.
+- Guild, personagens e depot permaneceram imutaveis.
+
+QA visual:
+
+- Fixture temporaria confirmou 2/3 formations, 3/4 members planned, 3/5 targets equipped e 60%.
+- Desktop 1280x720 permaneceu sem overflow horizontal ou vertical da pagina.
+- Vanguard, Reserve e Third Company apresentaram os estados e contadores esperados.
+- A ordem ligada resolveu `Sewer Broodmother` pelo catalogo real.
+- `Plan Loadout` abriu Loadout Templates com Lyra selecionada.
+- A semantica de tablist, tab ativa e tabpanel foi inspecionada no DOM.
+- A conexao do navegador bloqueou o ultimo reload local por politica; por isso o QA mobile de 390x844 da Etapa 93 nao foi repetido nesta rodada.
+- A fixture foi removida integralmente e `mockGuild.ts` ficou sem diff real.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou com 411 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- SQLite em `mode=ro` retornou `integrity_check=ok` e zero violacoes de foreign key.
+- `squads_json`, `deployment_orders_json` e `loadout_templates_json` permaneceram JSON valido.
+- O save preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Nao existe test runner persistente no `package.json`; o harness desta etapa foi propositalmente temporario.
+- O readiness continua derivado e nao substitui a validacao operacional final.
+- Nao existe auto-equip, auto-assign ou inicio automatico de operacao.
+
+Proximo passo sugerido:
+
+- Etapa 94 - Operation Readiness Briefing, consolidando squad, gear e requisitos do alvo antes do despacho manual.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
