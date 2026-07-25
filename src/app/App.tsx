@@ -134,6 +134,11 @@ import { craftEquipment } from "../game-engine/crafting/craftEquipment";
 import { salvageEquipment } from "../game-engine/crafting/salvageEquipment";
 import { reviveCharacter } from "../game-engine/death/reviveCharacter";
 import { recordBossOperationOutcome } from "../game-engine/operations/recordBossOperationOutcome";
+import {
+  buildGuildRegionMastery,
+  getGuildRegionMasteryBonuses,
+  recordGuildRegionMastery,
+} from "../game-engine/region-mastery/guildRegionMastery";
 import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
 import {
@@ -1038,11 +1043,12 @@ export function App() {
     if (!selectedHunt) return;
 
     try {
+      const regionBonuses = getGuildRegionMasteryBonuses(guild, selectedHunt.city);
       let updatedCharacter = startHunt(
         selectedCharacter,
         selectedHunt,
         durationMinutes,
-        guildOperationBonuses.huntXpBonusPercent,
+        guildOperationBonuses.huntXpBonusPercent + regionBonuses.huntXpBonusPercent,
       );
       if (autoRepeat?.enabled) {
         const now = new Date().toISOString();
@@ -1153,6 +1159,7 @@ export function App() {
 
     try {
       const activeDuration = selectedCharacter.currentAction.durationMinutes ?? durationMinutes;
+      const activeRegionBonuses = getGuildRegionMasteryBonuses(guild, activeHunt.city);
 
       const previousAutoRepeat = selectedCharacter.currentAction?.autoRepeat;
       const { character, result } = finishHunt(
@@ -1161,28 +1168,39 @@ export function App() {
         activeDuration,
         guild.gold,
         guild.bestiary,
-        guildOperationBonuses.huntXpBonusPercent,
+        guildOperationBonuses.huntXpBonusPercent + activeRegionBonuses.huntXpBonusPercent,
+        activeRegionBonuses.huntGoldBonusPercent,
       );
       const bestiaryUpdate = addMonsterKillsToBestiary(guild.bestiary, result.monsterKills ?? []);
       result.bestiaryLogs = bestiaryUpdate.logs;
       result.logs = [...result.logs, ...bestiaryUpdate.logs];
+      const masteryResult = recordGuildRegionMastery(
+        {
+          ...guild,
+          gold: Math.max(0, guild.gold + result.netProfit),
+          bestiary: bestiaryUpdate.bestiary,
+        },
+        {
+          kind: "hunt",
+          city: activeHunt.city,
+          durationMinutes: activeDuration,
+          succeeded: !result.died,
+        },
+      );
+      const nextRegionBonuses = getGuildRegionMasteryBonuses(masteryResult.guild, activeHunt.city);
 
       const autoRepeatResult = resolveAutoRepeatAfterHunt({
         character,
         hunt: activeHunt,
-        guild,
+        guild: masteryResult.guild,
         depot,
         previousConfig: previousAutoRepeat,
         durationMinutes: activeDuration,
-        guildXpBonusPercent: guildOperationBonuses.huntXpBonusPercent,
+        guildXpBonusPercent: guildOperationBonuses.huntXpBonusPercent + nextRegionBonuses.huntXpBonusPercent,
       });
 
       updateSelectedCharacter(autoRepeatResult.character);
-      setGuild((currentGuild) => ({
-        ...currentGuild,
-        gold: Math.max(0, currentGuild.gold + result.netProfit),
-        bestiary: bestiaryUpdate.bestiary,
-      }));
+      setGuild(masteryResult.guild);
       setLastHuntResult({
         characterName: selectedCharacter.name,
         character: autoRepeatResult.character,
@@ -1192,6 +1210,15 @@ export function App() {
 
       for (const message of [...result.logs].reverse()) {
         prependLog(result.died ? "Hunt failed" : "Hunt result", message, result.died ? "warning" : "success");
+      }
+      if (masteryResult.status && masteryResult.pointsGained > 0) {
+        prependLog(
+          masteryResult.rankedUp ? "Region mastery advanced" : "Region mastery",
+          masteryResult.rankedUp
+            ? `${masteryResult.status.definition.name} reached ${masteryResult.status.rankName}. Local hunts now grant +${masteryResult.status.rank}% XP and gold.`
+            : `${masteryResult.status.definition.name} gained ${masteryResult.pointsGained} mastery point(s).`,
+          "success",
+        );
       }
 
       if (result.rejectedLoot && result.rejectedLoot.length > 0) {
@@ -2436,6 +2463,8 @@ export function App() {
 
     try {
       const operationStartedAt = selectedCharacter.currentAction?.startedAt;
+      const previousRegionMastery = buildGuildRegionMastery(guild)
+        .find((entry) => entry.definition.cities.includes(activeBossContext.boss.city));
       const result = finishBoss(
         characters,
         depot,
@@ -2459,6 +2488,18 @@ export function App() {
         result.guildGoldLost,
         { operationStartedAt },
       );
+      const currentRegionMastery = buildGuildRegionMastery(bossGuild)
+        .find((entry) => entry.definition.id === previousRegionMastery?.definition.id);
+      if (previousRegionMastery && currentRegionMastery && currentRegionMastery.points > previousRegionMastery.points) {
+        const rankedUp = currentRegionMastery.rank > previousRegionMastery.rank;
+        prependLog(
+          rankedUp ? "Region mastery advanced" : "Region mastery",
+          rankedUp
+            ? `${currentRegionMastery.definition.name} reached ${currentRegionMastery.rankName}. Local hunts now grant +${currentRegionMastery.rank}% XP and gold.`
+            : `${currentRegionMastery.definition.name} gained ${currentRegionMastery.points - previousRegionMastery.points} mastery point(s) from the Boss report.`,
+          "success",
+        );
+      }
       if (result.result.defeated) {
         const collectionUnlock = unlockCollectionItem(bossGuild, "avatar-dungeon-victor-sigil");
         setGuild(collectionUnlock.guild);

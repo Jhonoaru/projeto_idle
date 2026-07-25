@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-98",
+    stage: "Stage 98",
+    title: "Campaign Region Mastery",
+    date: "2026-07-25",
+    category: "systems",
+    summary: "Successful Hunts, Boss reports and support Contracts now establish permanent expertise across three offline campaign regions.",
+    highlights: [
+      "Thaeron Marches, Khazgrim Frontier and Eldoria Reaches each advance through Uncharted, Surveyed, Established, Veteran and Mastered patents.",
+      "Every 15 successful hunt minutes, Boss attempt or victory and Contract return or success contributes a small canonical mastery score.",
+      "Regional patents grant up to +4% Hunt XP and gold only inside their own mapped territory, with progress stored in the existing operation ledger.",
+    ],
+    systems: ["Region Mastery", "Hunts", "Bosses", "Guild Contracts", "Campaign Operations", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-97-5",
     stage: "Stage 97.5",
     title: "Guild Campaign Milestones QA",

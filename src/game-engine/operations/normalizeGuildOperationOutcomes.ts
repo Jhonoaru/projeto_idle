@@ -1,13 +1,15 @@
 import { bosses } from "../../data/bosses";
+import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { items } from "../../data/items";
 import type {
   GuildBossOutcome,
   GuildBossOutcomeLoot,
   GuildOperationOutcomesState,
+  GuildRegionMasteryProgress,
 } from "../../shared/types";
 
 export function createDefaultGuildOperationOutcomes(): GuildOperationOutcomesState {
-  return { bossHistory: [], totalBossAttempts: 0, totalBossDefeats: 0 };
+  return { bossHistory: [], totalBossAttempts: 0, totalBossDefeats: 0, regionMastery: [] };
 }
 
 export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationOutcomesState {
@@ -29,7 +31,54 @@ export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationO
     totalBossAttempts,
     Math.max(normalizeInteger(candidate.totalBossDefeats), bossHistory.filter((entry) => entry.defeated).length),
   );
-  return { bossHistory, totalBossAttempts, totalBossDefeats };
+  return {
+    bossHistory,
+    totalBossAttempts,
+    totalBossDefeats,
+    regionMastery: normalizeRegionMastery(candidate.regionMastery),
+  };
+}
+
+function normalizeRegionMastery(value: unknown): GuildRegionMasteryProgress[] {
+  if (!Array.isArray(value)) return [];
+  const validRegionIds = new Set(guildCampaignRegions.map((region) => region.id));
+  const progressByRegion = new Map<string, GuildRegionMasteryProgress>();
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object") continue;
+    const candidate = entry as Partial<GuildRegionMasteryProgress>;
+    if (typeof candidate.regionId !== "string" || !validRegionIds.has(candidate.regionId)) continue;
+    const current = progressByRegion.get(candidate.regionId);
+    const bossAttempts = normalizeInteger(candidate.bossAttempts);
+    const contractsCompleted = normalizeInteger(candidate.contractsCompleted);
+    const normalized = {
+      regionId: candidate.regionId,
+      successfulHunts: normalizeInteger(candidate.successfulHunts),
+      successfulHuntMinutes: normalizeInteger(candidate.successfulHuntMinutes),
+      bossAttempts,
+      bossDefeats: Math.min(bossAttempts, normalizeInteger(candidate.bossDefeats)),
+      contractsCompleted,
+      contractsSucceeded: Math.min(contractsCompleted, normalizeInteger(candidate.contractsSucceeded)),
+    };
+    progressByRegion.set(candidate.regionId, current ? mergeRegionProgress(current, normalized) : normalized);
+  }
+  return guildCampaignRegions.flatMap((region) => progressByRegion.get(region.id) ?? []);
+}
+
+function mergeRegionProgress(
+  left: GuildRegionMasteryProgress,
+  right: GuildRegionMasteryProgress,
+): GuildRegionMasteryProgress {
+  const bossAttempts = Math.max(left.bossAttempts, right.bossAttempts);
+  const contractsCompleted = Math.max(left.contractsCompleted, right.contractsCompleted);
+  return {
+    regionId: left.regionId,
+    successfulHunts: Math.max(left.successfulHunts, right.successfulHunts),
+    successfulHuntMinutes: Math.max(left.successfulHuntMinutes, right.successfulHuntMinutes),
+    bossAttempts,
+    bossDefeats: Math.min(bossAttempts, Math.max(left.bossDefeats, right.bossDefeats)),
+    contractsCompleted,
+    contractsSucceeded: Math.min(contractsCompleted, Math.max(left.contractsSucceeded, right.contractsSucceeded)),
+  };
 }
 
 function normalizeBossOutcome(value: unknown): GuildBossOutcome | undefined {

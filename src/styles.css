@@ -14338,3 +14338,91 @@ html[data-client-motion="reduced"] *::after {
   .procurement-priority-queue article > div button.is-reservation,
   .procurement-priority-queue article > div button.is-fulfillment { grid-column: auto; }
 }
+
+.guild-region-mastery { min-width: 0; border: 1px solid #465346; background: #101513; }
+.guild-region-mastery > header { display: grid; grid-template-columns: 56px minmax(230px, 0.62fr) minmax(540px, 1.38fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #344038; background: #131914; }
+.guild-region-mastery > header > div:nth-child(2) { min-width: 0; }
+.guild-region-mastery > header span,
+.guild-region-mastery-summary span,
+.guild-region-mastery-dossier span { display: block; color: #7f8a82; font-size: 0.47rem; text-transform: uppercase; }
+.guild-region-mastery > header h4 { margin: 3px 0; color: #d9d09e; font-family: Georgia, serif; font-size: 0.78rem; }
+.guild-region-mastery > header p { margin: 0; color: #818c84; font-size: 0.49rem; line-height: 1.4; }
+.guild-region-mastery-seal { display: grid; place-items: center; width: 52px; height: 58px; border: 1px solid #667653; background: #20251f; }
+.guild-region-mastery-seal i,
+.guild-region-mastery-seal span { font-style: normal; }
+.guild-region-mastery-seal i { color: #c9d08d; font: 700 0.76rem Georgia, serif; }
+.guild-region-mastery-seal span { color: #8e9b86; font-size: 0.45rem; }
+.guild-region-mastery-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #354038; }
+.guild-region-mastery-summary > div { min-width: 0; min-height: 43px; padding: 7px; border-right: 1px solid #354038; background: #111613; }
+.guild-region-mastery-summary > div:last-child { border-right: 0; }
+.guild-region-mastery-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cbd09a; font-size: 0.58rem; text-overflow: ellipsis; white-space: nowrap; }
+.guild-region-mastery-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #344038; }
+.guild-region-mastery-tabs > button { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 4px 8px; align-items: center; min-width: 0; min-height: 72px; padding: 7px; border: 0; border-top: 3px solid #536055; color: #89948c; background: #151a17; text-align: left; cursor: pointer; }
+.guild-region-mastery-tabs > button[aria-selected="true"] { border-top-color: #9c884a; outline: 1px solid #81703e; outline-offset: -2px; background: #20241c; }
+.guild-region-mastery-tabs > button > i { display: grid; grid-row: 1 / 3; place-items: center; width: 36px; height: 44px; border: 1px solid #66704f; color: #d4cf8c; background: #20251f; font: 700 normal 0.58rem Georgia, serif; }
+.guild-region-mastery-tabs > button > span { min-width: 0; }
+.guild-region-mastery-tabs small,
+.guild-region-mastery-tabs strong,
+.guild-region-mastery-tabs em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild-region-mastery-tabs small { color: #7f8a82; font-size: 0.42rem; text-transform: uppercase; }
+.guild-region-mastery-tabs strong { margin: 3px 0; color: #d8cc9d; font: 700 0.59rem Georgia, serif; }
+.guild-region-mastery-tabs em { color: #87938a; font-size: 0.43rem; font-style: normal; }
+.guild-region-mastery-tabs > button > b { color: #a8c09a; font-size: 0.59rem; }
+.guild-region-mastery-tabs progress { grid-column: 2 / -1; width: 100%; height: 6px; accent-color: #7d945f; }
+.guild-region-mastery-dossier { min-width: 0; background: #121714; }
+.guild-region-mastery-dossier > header { display: grid; grid-template-columns: 48px minmax(260px, 1fr) minmax(180px, 0.38fr); gap: 10px; align-items: center; min-width: 0; padding: 9px; border-bottom: 1px solid #344038; }
+.guild-region-mastery-dossier > header > i { display: grid; place-items: center; width: 46px; height: 54px; border: 1px solid #6d704c; color: #ddd18c; background: #20251f; font: 700 normal 0.7rem Georgia, serif; }
+.guild-region-mastery-dossier > header > div { min-width: 0; }
+.guild-region-mastery-dossier h5 { margin: 3px 0; color: #ded09c; font-family: Georgia, serif; font-size: 0.72rem; }
+.guild-region-mastery-dossier p { margin: 0; color: #818c84; font-size: 0.48rem; line-height: 1.4; }
+.guild-region-mastery-dossier > header > div:last-child { padding: 7px; border: 1px solid #3c473e; background: #151b17; }
+.guild-region-mastery-dossier > header > div:last-child strong { display: block; margin: 4px 0; color: #cbd29a; font-size: 0.62rem; }
+.guild-region-mastery-dossier > header > div:last-child small { color: #89948c; font-size: 0.44rem; }
+.guild-region-mastery-progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 7px 9px; border-bottom: 1px solid #344038; }
+.guild-region-mastery-progress > span { height: 8px; overflow: hidden; border: 1px solid #3c473e; background: #0c110e; }
+.guild-region-mastery-progress > span > i { display: block; height: 100%; background: #7c8f5b; }
+.guild-region-mastery-progress > strong { color: #c9bd84; font-size: 0.5rem; }
+.guild-region-mastery-sources { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(190px, 0.8fr); gap: 1px; padding: 1px; background: #344038; }
+.guild-region-mastery-sources > article,
+.guild-region-mastery-bonus { position: relative; min-width: 0; min-height: 76px; padding: 8px; background: #151a17; }
+.guild-region-mastery-sources article strong,
+.guild-region-mastery-sources article small,
+.guild-region-mastery-bonus strong,
+.guild-region-mastery-bonus small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guild-region-mastery-sources article strong { margin: 5px 0; color: #d2c797; font-size: 0.59rem; }
+.guild-region-mastery-sources article small { color: #7f8a82; font-size: 0.43rem; }
+.guild-region-mastery-sources article b { position: absolute; top: 8px; right: 8px; color: #9db28f; font-size: 0.48rem; }
+.guild-region-mastery-bonus { border-left: 3px solid #778b59; background: #192019; }
+.guild-region-mastery-bonus strong { margin-top: 5px; color: #b7cc9e; font-size: 0.54rem; }
+.guild-region-mastery-bonus small { margin-top: 5px; color: #819087; font-size: 0.42rem; }
+.guild-region-mastery-dossier > footer { display: grid; grid-template-columns: auto auto minmax(220px, 1fr); gap: 9px; align-items: center; padding: 8px 9px; border-top: 1px solid #344038; }
+.guild-region-mastery-dossier > footer > span { color: #a89c71; }
+.guild-region-mastery-dossier > footer > div { display: flex; gap: 5px; }
+.guild-region-mastery-dossier > footer button { min-height: 28px; padding: 4px 9px; border: 1px solid #626348; color: #cabc88; background: #20251e; font: 700 0.45rem Georgia, serif; cursor: pointer; }
+.guild-region-mastery-dossier > footer p { text-align: right; }
+
+@media (max-width: 980px) {
+  .guild-region-mastery > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .guild-region-mastery-summary { grid-column: 1 / -1; }
+  .guild-region-mastery-sources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .guild-region-mastery-tabs { grid-template-columns: 1fr; }
+  .guild-region-mastery-dossier > header { grid-template-columns: 48px minmax(0, 1fr); }
+  .guild-region-mastery-dossier > header > div:last-child { grid-column: 1 / -1; }
+  .guild-region-mastery-dossier > footer { grid-template-columns: 1fr; }
+  .guild-region-mastery-dossier > footer p { text-align: left; }
+}
+
+@media (max-width: 520px) {
+  .guild-region-mastery > header { grid-template-columns: 1fr; text-align: center; }
+  .guild-region-mastery-seal { justify-self: center; }
+  .guild-region-mastery-summary,
+  .guild-region-mastery-sources { grid-template-columns: 1fr; text-align: left; }
+  .guild-region-mastery-summary > div { border-right: 0; border-bottom: 1px solid #354038; }
+  .guild-region-mastery-dossier > header { grid-template-columns: 1fr; }
+  .guild-region-mastery-dossier > header > i { justify-self: center; }
+  .guild-region-mastery-dossier > header > div:last-child { grid-column: auto; }
+  .guild-region-mastery-dossier > footer > div { display: grid; grid-template-columns: 1fr; }
+}

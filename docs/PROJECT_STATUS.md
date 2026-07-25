@@ -185,6 +185,7 @@ Atualizado em: 2026-07-25
 - Etapa 96.5 concluida: QA do Operation Performance Analytics isolou destaques e tendencia por escopo, tornou confiabilidade mais representativa e validou 36.030 assercoes, browser responsivo, Tauri release e integridade SQLite.
 - Etapa 97 concluida: Guild Campaign Milestones adiciona uma trilha operacional lifetime de seis capitulos, claims manuais de Renown e integracao com Bosses, Contracts e Campaign Operations.
 - Etapa 97.5 concluida: QA dos Guild Campaign Milestones corrigiu classificacao de claims bloqueados, reparo canonico de rewards e roster hostil, com 80.085 assercoes e QA responsivo.
+- Etapa 98 concluida: Campaign Region Mastery conecta Hunts, Bosses e Contracts a tres patentes regionais lifetime, com bonus local de ate +4% XP e gold.
 
 Comandos principais:
 
@@ -7410,6 +7411,98 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 98 - Campaign Region Mastery.
+
+## Etapa 98 - Campaign Region Mastery
+
+Status: concluida.
+
+Conceito e regioes:
+
+- Campaign Operations ganhou maestria permanente para Thaeron Marches, Khazgrim Frontier e Eldoria Reaches.
+- Cada regiao mapeia suas cidades, Hunts, Bosses e dois support Contracts.
+- As patentes sao Uncharted, Surveyed, Established, Veteran e Mastered.
+- Os thresholds sao 0, 10, 30, 70 e 140 mastery points.
+- A progressao e guild-wide, totalmente offline e nao inicia operacoes automaticamente.
+
+Pontuacao:
+
+- Cada 15 minutos acumulados de Hunt concluida sem morte oferece 1 ponto.
+- Um Boss report oferece 1 ponto pela tentativa e mais 4 pela vitoria.
+- Um Contract retornado oferece 1 ponto e mais 3 quando bem-sucedido.
+- Hunt com morte nao registra tempo regional.
+- Duracoes invalidas sao normalizadas e uma unica operacao nao registra mais de 24 horas.
+- Contadores duplicados no JSON usam o maior valor valido, sem somar duplicatas hostis.
+
+Bonus:
+
+- Cada patente acima de Uncharted oferece +1% Hunt XP e +1% Hunt gold.
+- O teto em Mastered e +4% XP e gold.
+- O bonus vale apenas nas Hunts das cidades mapeadas para a regiao.
+- XP regional entra no snapshot da Hunt e o auto-repeat seguinte recebe a patente mais recente.
+- Gold regional entra antes do calculo final de lucro liquido.
+- Nenhum bonus e aplicado a regioes desconhecidas ou a saves corrompidos.
+
+Engine e persistencia:
+
+- `GuildOperationOutcomesState` recebeu `regionMastery` opcional com seis contadores canonicos por regiao.
+- Saves antigos normalizam para uma lista vazia e todas as regioes aparecem como Uncharted.
+- A persistencia reutiliza `operation_outcomes_json`; nenhuma coluna SQLite nova foi criada.
+- O normalizador remove regioes desconhecidas, limita inteiros, deduplica IDs e garante `defeats <= attempts` e `succeeded <= completed`.
+- Bosses preservam a protecao existente contra outcome duplicado antes de registrar maestria.
+- Contracts registram maestria junto ao unico retorno da expedition.
+- Hunts registram depois da resolucao protegida e antes de preparar um eventual auto-repeat.
+- Activity Log comunica pontos e mudanca de patente para Hunts e Bosses; Contracts incluem o progresso na mensagem de retorno.
+
+UI:
+
+- Campaign Region Mastery foi adicionado ao Command Office abaixo dos Campaign Milestones.
+- O cabecalho resume regioes mapeadas, pontos totais, maior patente e teto local.
+- Tres tabs mostram patente, pontos, bonus e progresso para o proximo rank.
+- O dossier detalha minutos de Hunt, Bosses, Contracts e os pontos de cada fonte.
+- Comandos abrem Hunts, Bosses ou Contracts sem iniciar atividade.
+- Progressbars possuem nomes acessiveis e a selecao usa tabs/tabpanel nativos.
+
+QA:
+
+- Tres harnesses temporarios passaram em 50.036, 30.011 e 7 assercoes, totalizando 80.054 verificacoes, e foram removidos.
+- Foram validados todos os Hunts, Bosses e Contracts do catalogo contra uma regiao.
+- Thresholds, isolamento regional, bonus, operacoes malsucedidas e combinacao das tres fontes passaram.
+- JSON ausente, malformado, duplicado, hostil e valores extremos foram normalizados.
+- `mapGuild` preservou o estado em round-trip de `operation_outcomes_json`.
+- Cinco mil estados deterministas validaram limites de pontos, ranks, percentuais e invariantes.
+- Integracao direta confirmou que relatorio duplicado de Boss e segunda coleta do mesmo Contract nao concedem maestria novamente.
+- Build intermediario passou com 423 modulos.
+
+QA visual:
+
+- Estado vazio exibiu 0/3 regioes, tres tabs, tres progressbars, dossier e comandos.
+- Fixture mostrou Thaeron Established com 31 pontos, Khazgrim Uncharted com 9 e Eldoria Mastered com 155.
+- Patentes, bonus de +2%/+4%, selecao de regiao e estado MAX foram atualizados corretamente.
+- Open Hunts navegou para o modo de jogo sem iniciar uma Hunt.
+- Em 1280x720 o painel nao apresentou overflow interno ou horizontal.
+- As regras responsivas de 980, 760 e 520 px foram revisadas no CSS; o browser desta sessao permaneceu fixo em 1280 px, portanto clique visual mobile nao foi alegado.
+- Fixture e servidor Vite foram removidos e o mock original voltou a 0/3.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` e `npm.cmd run tauri:build` passaram com 423 modulos.
+- Tauri gerou executavel, MSI e NSIS.
+- O banco real respondeu `integrity=ok`, com 27 colunas e Renown 12.
+- Banco, WAL e SHM permaneceram byte a byte iguais ao backup; o SHA-256 principal continuou `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- A politica de Controle de Aplicativo do Windows bloqueou a execucao do `.exe` release; o processo nao abriu e nenhuma migration foi alegada como validada.
+
+Limitacoes:
+
+- Operacoes anteriores a esta etapa nao podem ser distribuidas retroativamente por regiao.
+- O save real legado ainda precisa executar a migration existente de `operation_outcomes_json` em ambiente sem o bloqueio do Windows.
+- Existem tres regioes nesta primeira versao; novas cidades exigem mapeamento explicito.
+- O bonus regional atua apenas em Hunts nesta etapa.
+- Nao existe test runner persistente no `package.json`; os harnesses foram temporarios.
+
+Proximo passo sugerido:
+
+- Etapa 98.5 - QA aprofundada do Campaign Region Mastery.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

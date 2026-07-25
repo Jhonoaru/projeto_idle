@@ -1,4 +1,5 @@
 import type { Boss, BossParty, BossSimulationResult, Guild } from "../../shared/types";
+import { recordGuildRegionMastery } from "../region-mastery/guildRegionMastery";
 import { normalizeGuildOperationOutcomes } from "./normalizeGuildOperationOutcomes";
 
 interface RecordBossOperationOutcomeOptions {
@@ -47,14 +48,20 @@ export function recordBossOperationOutcome(
       quantity: normalizeInteger(loot.quantity),
     })),
   };
-  return {
+  const guildWithOutcome = {
     ...guild,
     operationOutcomes: normalizeGuildOperationOutcomes({
       bossHistory: [entry, ...outcomes.bossHistory],
       totalBossAttempts: outcomes.totalBossAttempts + 1,
       totalBossDefeats: outcomes.totalBossDefeats + (result.defeated ? 1 : 0),
+      regionMastery: outcomes.regionMastery,
     }),
   };
+  return recordGuildRegionMastery(guildWithOutcome, {
+    kind: "boss",
+    city: boss.city,
+    defeated: result.defeated,
+  }).guild;
 }
 
 function normalizeInteger(value: unknown) {

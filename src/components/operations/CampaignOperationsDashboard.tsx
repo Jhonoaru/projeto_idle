@@ -7,6 +7,7 @@ import {
 } from "../../game-engine/operations/buildCampaignOperationsDashboard";
 import { GuildSquadsBoard } from "./GuildSquadsBoard";
 import { GuildCampaignMilestones } from "./GuildCampaignMilestones";
+import { GuildRegionMastery } from "./GuildRegionMastery";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
 
@@ -107,6 +108,7 @@ export function CampaignOperationsDashboard({
         onClaim={onClaimCampaignMilestone}
         onOpenSystem={onOpenSystem}
       />
+      <GuildRegionMastery guild={guild} onOpenSystem={onOpenSystem} />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">

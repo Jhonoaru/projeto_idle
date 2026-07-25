@@ -6,6 +6,7 @@ import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
 import type { Guild, GuildDepot } from "../../shared/types";
 import { normalizeGuildExpeditionState } from "./normalizeGuildExpeditionState";
 import { getGuildSpecialistBonuses } from "../staff/getGuildStaffBonuses";
+import { recordGuildRegionMastery } from "../region-mastery/guildRegionMastery";
 
 export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new Date()) {
   const safeDepot = { ...depot, items: Array.isArray(depot?.items) ? depot.items : [] };
@@ -50,20 +51,28 @@ export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new
   const currentGold = Number.isFinite(guild.gold) ? Math.max(0, Math.floor(guild.gold)) : 0;
   const currentRenown = Number.isFinite(guild.renown) ? Math.max(0, Math.floor(guild.renown)) : 0;
 
+  const guildWithRewards = {
+    ...guild,
+    gold: currentGold + historyEntry.goldGained,
+    renown: currentRenown + historyEntry.renownGained,
+    expeditions: updatedExpeditions,
+  };
+  const regionMastery = recordGuildRegionMastery(guildWithRewards, {
+    kind: "contract",
+    contractId: contract.id,
+    succeeded,
+  });
+
   return {
     success: true,
     succeeded,
-    guild: {
-      ...guild,
-      gold: currentGold + historyEntry.goldGained,
-      renown: currentRenown + historyEntry.renownGained,
-      expeditions: updatedExpeditions,
-    },
+    guild: regionMastery.guild,
     depot: rewardedDepot,
     historyEntry,
+    regionMastery,
     message: succeeded
-      ? `${contract.name} completed: +${rewardGold.toLocaleString("en-US")}g, +${rewardRenown} renown${rewardItem ? `, ${rewardItem.name} x${itemQuantity}` : ""}${staffBonuses.specialist ? ` with ${staffBonuses.specialist.name} on duty` : ""}.`
-      : `${contract.name} returned without rewards. The dispatch cost was not recovered.`,
+      ? `${contract.name} completed: +${rewardGold.toLocaleString("en-US")}g, +${rewardRenown} renown${rewardItem ? `, ${rewardItem.name} x${itemQuantity}` : ""}${staffBonuses.specialist ? ` with ${staffBonuses.specialist.name} on duty` : ""}.${formatMasteryProgress(regionMastery)}`
+      : `${contract.name} returned without rewards. The dispatch cost was not recovered.${formatMasteryProgress(regionMastery)}`,
   };
 }
 
@@ -74,4 +83,11 @@ export function getGuildExpeditionRemainingMs(guild: Guild, now = new Date()) {
 
 function blocked(guild: Guild, depot: GuildDepot, message: string) {
   return { success: false, succeeded: false, guild, depot, historyEntry: undefined, message };
+}
+
+function formatMasteryProgress(result: ReturnType<typeof recordGuildRegionMastery>) {
+  if (!result.status || result.pointsGained <= 0) return "";
+  return result.rankedUp
+    ? ` ${result.status.definition.name} advanced to ${result.status.rankName}.`
+    : ` ${result.status.definition.name} gained ${result.pointsGained} mastery point(s).`;
 }

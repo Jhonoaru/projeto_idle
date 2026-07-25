@@ -97,8 +97,10 @@ export function finishHunt(
   guildGold = 0,
   bestiary?: GuildBestiaryState,
   guildXpBonusPercent = 0,
+  guildGoldBonusPercent = 0,
 ): { character: Character; result: HuntSimulationResult; guildGoldLost: number } {
   const appliedGuildXpBonus = normalizeGuildBonus(character.currentAction?.guildXpBonusPercent ?? guildXpBonusPercent);
+  const appliedGuildGoldBonus = normalizeGuildBonus(guildGoldBonusPercent);
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
   const imbuementBonuses = calculateActiveImbuementBonuses(character);
   const proficiencyBonuses = calculateWeaponProficiencyBonuses(character);
@@ -120,7 +122,12 @@ export function finishHunt(
       focusBonuses.experienceMultiplier *
       (1 + appliedGuildXpBonus / 100),
   );
-  result.goldGained = Math.round(result.goldGained * (1 + (destinyBonuses.goldBonusPercent ?? 0) / 100) * focusBonuses.goldMultiplier);
+  result.goldGained = Math.round(
+    result.goldGained *
+      (1 + (destinyBonuses.goldBonusPercent ?? 0) / 100) *
+      focusBonuses.goldMultiplier *
+      (1 + appliedGuildGoldBonus / 100),
+  );
   result.totalLootValue = Math.round(result.totalLootValue * (1 + (destinyBonuses.lootBonusPercent ?? 0) / 100) * focusBonuses.lootMultiplier);
   const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
     ...usage,
@@ -222,6 +229,9 @@ export function finishHunt(
       ...formatDestinyLogs(destinyBonuses),
       ...(appliedGuildXpBonus > 0
         ? [`Guild bonus applied: +${appliedGuildXpBonus}% hunt XP.`]
+        : []),
+      ...(appliedGuildGoldBonus > 0
+        ? [`Regional mastery applied: +${appliedGuildGoldBonus}% hunt gold.`]
         : []),
       ...focusBonuses.logs,
       ...supplyConsumption.logs,

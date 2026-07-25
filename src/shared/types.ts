@@ -650,6 +650,17 @@ export interface GuildOperationOutcomesState {
   bossHistory: GuildBossOutcome[];
   totalBossAttempts: number;
   totalBossDefeats: number;
+  regionMastery?: GuildRegionMasteryProgress[];
+}
+
+export interface GuildRegionMasteryProgress {
+  regionId: string;
+  successfulHunts: number;
+  successfulHuntMinutes: number;
+  bossAttempts: number;
+  bossDefeats: number;
+  contractsCompleted: number;
+  contractsSucceeded: number;
 }
 
 export interface GuildCareerIdentity {
