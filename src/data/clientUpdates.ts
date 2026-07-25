@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-97",
+    stage: "Stage 97",
+    title: "Guild Campaign Milestones",
+    date: "2026-07-25",
+    category: "systems",
+    summary: "Lifetime Boss and Contract totals now advance a six-chapter command track inside Campaign Operations.",
+    highlights: [
+      "Six operational milestones cover first report, Boss victories, successful Contracts, total operations and successful outcomes.",
+      "Each completed chapter offers one small manual Guild Renown claim protected by the existing local objective ledger.",
+      "Campaign milestones use permanent counters beyond the visible 24-report analytics window and require no new SQLite column.",
+    ],
+    systems: ["Campaign Operations", "Bosses", "Guild Contracts", "Guild Renown", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-89-5",
     stage: "Stage 89.5",
     title: "Procurement Reservations QA",

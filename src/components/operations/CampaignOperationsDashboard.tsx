@@ -6,6 +6,7 @@ import {
   type CampaignOperationTone,
 } from "../../game-engine/operations/buildCampaignOperationsDashboard";
 import { GuildSquadsBoard } from "./GuildSquadsBoard";
+import { GuildCampaignMilestones } from "./GuildCampaignMilestones";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
 
@@ -21,6 +22,7 @@ interface CampaignOperationsDashboardProps {
   onPrepareGuildSquadForContract: (slotId: GuildSquadSlotId, contractId: string) => void;
   onSaveDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
   onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
+  onClaimCampaignMilestone: (objectiveId: string) => void;
 }
 
 export function CampaignOperationsDashboard({
@@ -35,6 +37,7 @@ export function CampaignOperationsDashboard({
   onPrepareGuildSquadForContract,
   onSaveDeploymentOrder,
   onClearDeploymentOrder,
+  onClaimCampaignMilestone,
 }: CampaignOperationsDashboardProps) {
   const [clock, setClock] = useState(() => Date.now());
   const dashboard = useMemo(
@@ -98,6 +101,12 @@ export function CampaignOperationsDashboard({
 
       <OperationOutcomeLedger characters={characters} guild={guild} />
       <OperationPerformanceAnalytics characters={characters} guild={guild} />
+      <GuildCampaignMilestones
+        characters={characters}
+        guild={guild}
+        onClaim={onClaimCampaignMilestone}
+        onOpenSystem={onOpenSystem}
+      />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">

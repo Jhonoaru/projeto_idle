@@ -76,7 +76,7 @@ export function CharacterDetails({
   const capacityPercent = Math.min(100, Math.round((character.capacityUsed / Math.max(1, character.capacityMax)) * 100));
   const guildRewardStatus = getGuildLevelRewardStatus(guild);
   const renownObjectiveStatus = getGuildRenownObjectiveStatus(guild, characters);
-  const recruitmentNoticeCount = guildRewardStatus.claimableCount + renownObjectiveStatus.claimableCount;
+  const recruitmentNoticeCount = guildRewardStatus.claimableCount + renownObjectiveStatus.groups.foundation.claimableCount;
 
   useEffect(() => {
     if (!character.currentAction?.expectedXp) return undefined;

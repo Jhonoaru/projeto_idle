@@ -32,6 +32,7 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
   const progression = useMemo(() => getGuildProgression(guild), [guild]);
   const rewardStatus = useMemo(() => getGuildLevelRewardStatus(guild), [guild]);
   const objectiveStatus = useMemo(() => getGuildRenownObjectiveStatus(guild, characters), [characters, guild]);
+  const foundationObjectives = objectiveStatus.groups.foundation;
   const recruitedCount = guildRecruitCandidates.filter((candidate) => isRecruited(candidate, characters)).length;
   const availableCount = guildRecruitCandidates.filter((candidate) => getGuildRecruitmentAvailability(guild, characters, candidate.id).available).length;
   const availability = getGuildRecruitmentAvailability(guild, characters, selected.id);
@@ -54,14 +55,14 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
           <Summary label="Roster" value={`${characters.length}/${progression.rosterCapacity}`} />
           <Summary label="Guild Level" value={`${progression.level}/${progression.maxLevel}`} />
           <Summary label="Renown" value={progression.renown.toLocaleString("en-US")} />
-          <Summary label="Renown Orders" value={`${objectiveStatus.claimedCount}/${objectiveStatus.objectives.length}`} />
+          <Summary label="Renown Orders" value={`${foundationObjectives.claimedCount}/${foundationObjectives.objectives.length}`} />
         </div>
       </section>
 
       <section className="recruitment-standing">
         <header>
           <div><span>Guild standing</span><h3>Rank {progression.rank} / {progression.title}</h3></div>
-          <strong>{progression.next ? `${progression.renownToNext} renown to Level ${progression.next.level}` : "Maximum standing reached"} / {career.points.toLocaleString("en-US")} CP / {objectiveStatus.claimableCount + rewardStatus.claimableCount} claim{objectiveStatus.claimableCount + rewardStatus.claimableCount === 1 ? "" : "s"} ready</strong>
+          <strong>{progression.next ? `${progression.renownToNext} renown to Level ${progression.next.level}` : "Maximum standing reached"} / {career.points.toLocaleString("en-US")} CP / {foundationObjectives.claimableCount + rewardStatus.claimableCount} claim{foundationObjectives.claimableCount + rewardStatus.claimableCount === 1 ? "" : "s"} ready</strong>
         </header>
         <div className="recruitment-renown-track" aria-label={`${progression.progressPercent}% guild level progress`}>
           <i style={{ width: `${progression.progressPercent}%` }} />
@@ -83,10 +84,10 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
       <section className="guild-renown-objectives-board">
         <header>
           <div><span>Local progression orders</span><h3>Guild Renown Objectives</h3></div>
-          <strong>{objectiveStatus.claimedCount}/{objectiveStatus.objectives.length} claimed / {objectiveStatus.totalRenownAvailable} total renown</strong>
+          <strong>{foundationObjectives.claimedCount}/{foundationObjectives.objectives.length} claimed / {foundationObjectives.totalRenownAvailable} total renown</strong>
         </header>
         <div className="guild-renown-objective-grid">
-          {objectiveStatus.objectives.map(({ definition, current, progressPercent, claimed, claimable }) => (
+          {foundationObjectives.objectives.map(({ definition, current, progressPercent, claimed, claimable }) => (
             <article className={`${claimed ? "is-claimed" : ""} ${claimable ? "is-claimable" : ""}`.trim()} key={definition.id}>
               <div className="guild-renown-objective-heading">
                 <i>{definition.sigil}</i>
@@ -203,6 +204,8 @@ function formatObjectiveSource(destination: GuildRenownObjectiveDefinition["dest
     headquarters: "Guild Headquarters",
     projects: "Guild Projects",
     recruitment: "Applicant Register",
+    bosses: "Boss Board",
+    operations: "Campaign Operations",
   };
   return labels[destination];
 }

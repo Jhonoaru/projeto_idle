@@ -183,6 +183,7 @@ Atualizado em: 2026-07-25
 - Etapa 95.5 concluida: QA do Operation Outcome Ledger estabilizou identidade de Boss, saneou historico de Contracts, blindou somas e completou acessibilidade dos filtros.
 - Etapa 96 concluida: Operation Performance Analytics transforma os relatorios recentes em taxa de sucesso, economia, ranking por alvo e tendencia operacional sem novo estado.
 - Etapa 96.5 concluida: QA do Operation Performance Analytics isolou destaques e tendencia por escopo, tornou confiabilidade mais representativa e validou 36.030 assercoes, browser responsivo, Tauri release e integridade SQLite.
+- Etapa 97 concluida: Guild Campaign Milestones adiciona uma trilha operacional lifetime de seis capitulos, claims manuais de Renown e integracao com Bosses, Contracts e Campaign Operations.
 
 Comandos principais:
 
@@ -7278,6 +7279,86 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 97 - Guild Campaign Milestones.
+
+## Etapa 97 - Guild Campaign Milestones
+
+Status: concluida.
+
+Conceito e modelo:
+
+- Campaign Operations ganhou uma trilha permanente de seis capitulos baseada em Bosses e support Contracts.
+- O progresso usa `totalBossAttempts`, `totalBossDefeats`, `expeditions.totalCompleted` e `expeditions.totalSucceeded`.
+- Os contadores lifetime permanecem validos quando relatorios antigos saem da janela visual de 24 entradas.
+- As definicoes usam o ledger existente de Renown Objectives com o novo grupo `campaign`.
+- As seis ordens anteriores receberam o grupo `foundation` e continuam isoladas no Recruitment Board.
+- Nenhuma nova moeda, premium, automacao, online ou bonus oculto foi criado.
+
+Capitulos e recompensas:
+
+- First After-Action Report: uma operacao concluida, +2 Renown.
+- Break the Boss Line: tres Bosses derrotados, +3 Renown.
+- Reliable Contract Network: cinco support Contracts bem-sucedidos, +3 Renown.
+- Seasoned Command: dez operacoes concluidas, +4 Renown.
+- Proven Field Command: dez operacoes bem-sucedidas, +5 Renown.
+- Veteran Campaign Office: vinte e cinco operacoes concluidas, +6 Renown.
+- A trilha completa oferece 23 Renown, sempre por claim manual e unico.
+
+Engine e protecoes:
+
+- `getGuildRenownObjectiveStatus` calcula metricas combinadas com inteiros nao negativos e soma limitada a `Number.MAX_SAFE_INTEGER`.
+- Progresso, conclusao, claimable e resumo sao derivados sem mutar guilda ou personagens.
+- `claimGuildRenownObjective` continua validando definicao, timestamp, conclusao e duplicacao antes de aplicar Renown.
+- `normalizeGuildRenownObjectivesState` reconhece os novos IDs, remove IDs invalidos, deduplica claims e normaliza historico.
+- O bloqueio React existente impede claims simultaneos; depois do claim o botao vira `Recorded`.
+- Activity Log diferencia `Campaign milestone claimed` das ordens de Renown do Recruitment.
+
+UI e integracoes:
+
+- O novo painel mostra command rank, capitulos completos, claims prontos e Renown disponivel.
+- Cada card apresenta fonte, descricao, recompensa, progresso lifetime e comando contextual.
+- Metas incompletas encaminham para Bosses ou Contracts sem iniciar uma atividade automaticamente.
+- Recruitment continua mostrando exatamente as seis ordens de fundacao e seu badge ignora claims exclusivos de Campaign Operations.
+- Updates recebeu a nota instalada da Etapa 97.
+
+QA automatizado:
+
+- Harness temporario passou em 36.035 assercoes e foi removido.
+- Foram validados IDs, grupos, targets, 23 Renown total, estado vazio, thresholds, claim, timestamp e bloqueio de duplicacao.
+- Saves antigos sem claims e estados com IDs duplicados/invalidos foram normalizados.
+- Valores em `Number.MAX_SAFE_INTEGER` permaneceram seguros.
+- Tres mil campanhas deterministicas validaram totais, sucessos, Bosses, Contracts, resumos de grupo e progresso entre 0% e 100%.
+- A derivacao permaneceu imutavel.
+
+QA visual:
+
+- Estado vazio exibiu 0/6 capitulos, zero claim e seis rotas contextuais.
+- Fixture parcial combinou tres Bosses e dois Contracts: dois capitulos completos, dois claims e +5 Renown disponivel.
+- Claims de +2 e +3 Renown mudaram os cards para `Recorded`, reduziram o resumo e geraram Activity Log de Campaign Milestone.
+- Contract Network mostrou 2/5 e Veteran Campaign Office mostrou 5/25.
+- Recruitment permaneceu com seis cards e nao exibiu First After-Action Report.
+- Em 1280x720 os seis cards ficaram em uma linha sem texto ou botao cortado.
+- Em 390x844 resumo e trilha refluiram para uma coluna sem overflow horizontal.
+- Fixture, servidor, logs e harness temporarios foram removidos; reload final confirmou 0/6 no mock.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou com 420 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- A persistencia reutiliza `renown_objectives_json`; nenhuma migration ou coluna nova foi necessaria.
+- O save real preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- WAL e SHM terminaram com 0 bytes.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Operacoes historicas anteriores aos contadores permanentes existentes nao podem ser reconstruidas.
+- Os capitulos medem volume e sucesso lifetime; lucro, party e alvo unico continuam apenas no analytics recente.
+- Nao ha tiers infinitos, temporadas ou repeticao de recompensa nesta primeira trilha.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 97.5 - QA aprofundada dos Guild Campaign Milestones.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

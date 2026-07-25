@@ -474,6 +474,7 @@ export function MainPanel({
             onPrepareGuildSquadForContract={prepareGuildSquadForContract}
             onSaveDeploymentOrder={onSaveDeploymentOrder}
             onClearDeploymentOrder={onClearDeploymentOrder}
+            onClaimCampaignMilestone={onClaimGuildRenownObjective}
           />
         ) : null}
 

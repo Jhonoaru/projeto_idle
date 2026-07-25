@@ -610,7 +610,14 @@ export function App() {
     claimingGuildRenownObjectiveRef.current = true;
     const result = claimGuildRenownObjective(guild, characters, objectiveId);
     if (result.success) setGuild(result.guild);
-    prependLog(result.success ? "Renown objective claimed" : "Renown objective blocked", result.message, result.success ? "success" : "warning");
+    const isCampaignMilestone = result.definition?.group === "campaign";
+    prependLog(
+      result.success
+        ? isCampaignMilestone ? "Campaign milestone claimed" : "Renown objective claimed"
+        : isCampaignMilestone ? "Campaign milestone blocked" : "Renown objective blocked",
+      result.message,
+      result.success ? "success" : "warning",
+    );
     window.setTimeout(() => { claimingGuildRenownObjectiveRef.current = false; }, 250);
   }
 
