@@ -181,6 +181,7 @@ Atualizado em: 2026-07-25
 - Etapa 94.5 concluida: QA do Operation Readiness Briefing adicionou blocked summary, taxa base e navegacao completa de teclado.
 - Etapa 95 concluida: Operation Outcome Ledger registra Bosses e Contracts concluidos, consolida custos, ganhos, participantes e loot e persiste o historico de Bosses no SQLite local.
 - Etapa 95.5 concluida: QA do Operation Outcome Ledger estabilizou identidade de Boss, saneou historico de Contracts, blindou somas e completou acessibilidade dos filtros.
+- Etapa 96 concluida: Operation Performance Analytics transforma os relatorios recentes em taxa de sucesso, economia, ranking por alvo e tendencia operacional sem novo estado.
 
 Comandos principais:
 
@@ -7156,6 +7157,71 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 96 - Operation Performance Analytics, derivando desempenho historico da guilda sem nova automacao.
+
+## Etapa 96 - Operation Performance Analytics
+
+Status: concluida.
+
+Implementacao:
+
+- Operations ganhou um painel analitico totalmente derivado do Operation Outcome Ledger.
+- O resumo mostra operacoes, taxa de sucesso, gold bruto, custos, saldo liquido e media liquida.
+- Filtros All Operations, Bosses e Contracts recalculam o resumo e o ranking sem alterar o save.
+- Resultados sao agrupados por alvo real; tentativas repetidas do mesmo Boss ou Contract formam uma unica linha.
+- Cada alvo mostra tentativas, vitorias/derrotas, taxa de sucesso, receita, custo, saldo, media, renown, loot, XP e runs lucrativas.
+- Ranking principal usa saldo liquido, media, atividade e nome como desempates deterministas.
+- Destaques identificam alvo mais lucrativo, mais confiavel e mais ativo.
+- A forma recente compara os cinco relatorios mais novos aos cinco anteriores e classifica como improving, declining, positive ou negative.
+- Estado vazio orienta o jogador a concluir um Boss ou Contract.
+
+Regras e limites:
+
+- Analytics usa somente os 24 relatorios mais recentes ja expostos pelo Ledger.
+- Nenhuma recompensa, custo, chance, cooldown ou balanceamento foi alterado.
+- Nenhum novo campo de save, migration ou automacao foi criado.
+- Todas as somas permanecem limitadas a inteiros seguros.
+
+QA automatizado:
+
+- Harness temporario passou em 30.043 assercoes e foi removido.
+- Uma janela completa validou 24 relatorios, 12 alvos, 12 Bosses e 12 Contracts.
+- Totais de gold, custos, saldo, renown e loot foram comparados diretamente ao Outcome Ledger.
+- Cada um dos seis Bosses e seis Contracts agregou duas tentativas no cenario completo.
+- Taxa, falhas, media liquida, ranking e destaques foram validados.
+- Cenarios separados confirmaram tendencias improving e declining.
+- Valores em `Number.MAX_SAFE_INTEGER` permaneceram seguros.
+- Cinco mil historicos hostis cobriram dados ausentes, strings, negativos, `NaN`, infinito, objetos, arrays, referencias invalidas e datas quebradas.
+- A derivacao permaneceu imutavel sobre a guilda.
+
+QA visual:
+
+- Fixture temporaria agregou sete relatorios em quatro alvos.
+- Resumo geral exibiu 7 operacoes, 71% de sucesso e saldo `+1.355g`.
+- Filtro Bosses exibiu 4 operacoes e `+1.220g`; Contracts exibiu 3 operacoes e `+135g`.
+- Supply Route Survey consolidou duas tentativas em 50% de sucesso, saldo `+30g` e media `+15g`.
+- Destaques exibiram Grunk como mais lucrativo/confiavel, Sewer Broodmother como mais ativo e forma recente improving.
+- Desktop 1280x720 apresentou zero overflow na pagina, painel e dossie.
+- Reload apos restaurar a fixture confirmou estado vazio, zero operacoes e insights sem relatorio.
+- Fixture, servidor e harness foram removidos.
+- O navegador integrado permaneceu fixo em desktop; mobile foi revisado pelas media queries e pelo build.
+
+Build e Tauri:
+
+- `npm.cmd run build` passou com 419 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- SQLite nao foi aberto nem migrado nesta etapa derivada e preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A amostra nao representa lifetime completo quando houver mais de 24 relatorios.
+- O painel ainda nao possui recortes manuais por periodo ou personagem.
+- Nao existe grafico temporal longo porque o historico atual e intencionalmente curto.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 96.5 - QA aprofundada do Operation Performance Analytics.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

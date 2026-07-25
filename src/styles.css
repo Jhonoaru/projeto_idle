@@ -13800,6 +13800,73 @@ html[data-client-motion="reduced"] *::after {
 .operation-outcome-empty span { margin-top: 4px; font-size: 0.51rem; }
 .operation-outcome-note { display: block; padding: 7px 8px; border-top: 1px solid #303832; color: #78837b; font-size: 0.48rem; line-height: 1.4; }
 
+/* Stage 96 - Operation Performance Analytics */
+.operation-performance-analytics { min-width: 0; border: 1px solid #3f493f; background: #101513; }
+.operation-performance-analytics > header { display: grid; grid-template-columns: minmax(210px, 0.52fr) minmax(620px, 1.48fr); gap: 10px; align-items: center; min-height: 65px; padding: 8px; border-bottom: 1px solid #303832; }
+.operation-performance-analytics > header span,
+.operation-performance-dossier span,
+.operation-performance-insights span { display: block; color: #7f8a82; font-size: 0.47rem; text-transform: uppercase; }
+.operation-performance-analytics > header h4 { margin: 3px 0; color: #d9d09e; font-family: Georgia, serif; font-size: 0.76rem; }
+.operation-performance-analytics > header small { display: block; color: #78837b; font-size: 0.48rem; }
+.operation-performance-summary,
+.operation-performance-dossier-metrics { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border: 1px solid #303832; }
+.operation-performance-summary > div,
+.operation-performance-dossier-metrics > div { min-width: 0; min-height: 42px; padding: 6px 7px; border-right: 1px solid #303832; background: #151a17; }
+.operation-performance-summary > div:last-child,
+.operation-performance-dossier-metrics > div:last-child { border-right: 0; }
+.operation-performance-summary strong,
+.operation-performance-dossier-metrics strong { display: block; margin-top: 5px; overflow: hidden; color: #daca96; font-size: 0.61rem; text-overflow: ellipsis; white-space: nowrap; }
+.operation-performance-summary .is-positive strong,
+.operation-performance-dossier-metrics .is-positive strong { color: #91bf93; }
+.operation-performance-summary .is-negative strong,
+.operation-performance-dossier-metrics .is-negative strong { color: #d48676; }
+.operation-performance-toolbar { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 6px 8px; border-bottom: 1px solid #303832; background: #141916; }
+.operation-performance-toolbar > div { display: grid; grid-template-columns: repeat(3, minmax(98px, 1fr)); }
+.operation-performance-toolbar button { min-height: 29px; border: 1px solid #3d463f; color: #8e9891; background: #111613; font-family: Georgia, serif; font-size: 0.5rem; font-weight: 700; cursor: pointer; }
+.operation-performance-toolbar button[aria-pressed="true"] { border-color: #9d8448; color: #e0cd91; background: #20241c; }
+.operation-performance-toolbar > span { color: #8c978f; font-size: 0.49rem; text-align: right; }
+.operation-performance-body { display: grid; grid-template-columns: minmax(300px, 0.7fr) minmax(540px, 1.3fr); min-width: 0; min-height: 255px; }
+.operation-performance-ranking { max-height: 300px; overflow: auto; border-right: 1px solid #303832; background: #111613; }
+.operation-performance-ranking > button { display: grid; grid-template-columns: 27px minmax(0, 1fr) auto; gap: 8px; align-items: center; width: 100%; min-width: 0; min-height: 57px; padding: 7px 8px; border: 0; border-bottom: 1px solid #303832; border-left: 3px solid #7b574c; color: #89938c; background: #151a17; text-align: left; cursor: pointer; }
+.operation-performance-ranking > button.is-positive { border-left-color: #63845f; }
+.operation-performance-ranking > button[aria-pressed="true"] { outline: 1px solid #a58a49; outline-offset: -2px; background: #20241c; }
+.operation-performance-ranking > button > i { display: grid; place-items: center; width: 25px; height: 29px; border: 1px solid #665c41; color: #d8c37f; background: #20251f; font-style: normal; font-weight: 900; }
+.operation-performance-ranking > button > span { min-width: 0; }
+.operation-performance-ranking small,
+.operation-performance-ranking strong,
+.operation-performance-ranking em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.operation-performance-ranking small { color: #7f8982; font-size: 0.44rem; text-transform: uppercase; }
+.operation-performance-ranking strong { margin: 3px 0; color: #d8ca96; font-size: 0.59rem; }
+.operation-performance-ranking em { color: #89938c; font-size: 0.47rem; font-style: normal; }
+.operation-performance-ranking > button > b { color: #d48676; font-size: 0.56rem; white-space: nowrap; }
+.operation-performance-ranking > button.is-positive > b { color: #91bf93; }
+.operation-performance-dossier { min-width: 0; background: #121714; }
+.operation-performance-dossier > header { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 9px; align-items: center; min-height: 66px; padding: 8px; border-bottom: 1px solid #303832; }
+.operation-performance-dossier > header > i { display: grid; place-items: center; width: 40px; height: 46px; border: 1px solid #746642; color: #e0ca86; background: #20251f; font-style: normal; font-weight: 900; }
+.operation-performance-dossier h5 { margin: 3px 0; overflow: hidden; color: #decf9b; font-family: Georgia, serif; font-size: 0.7rem; text-overflow: ellipsis; white-space: nowrap; }
+.operation-performance-dossier > header small { color: #89938c; font-size: 0.48rem; }
+.operation-performance-dossier > header > b { padding: 6px 8px; border: 1px solid #567552; color: #a5c99c; background: #172019; font-size: 0.49rem; text-transform: uppercase; }
+.operation-performance-dossier-metrics { border-width: 0 0 1px; }
+.operation-performance-yields { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #303832; }
+.operation-performance-yields > div { min-width: 0; min-height: 50px; padding: 8px; background: #151a17; }
+.operation-performance-yields strong { display: block; margin-top: 6px; overflow: hidden; color: #b8c99f; font-size: 0.62rem; text-overflow: ellipsis; white-space: nowrap; }
+.operation-performance-rate { display: grid; grid-template-columns: 130px minmax(0, 1fr) 42px; gap: 8px; align-items: center; padding: 9px; }
+.operation-performance-rate > span { font-size: 0.48rem; }
+.operation-performance-rate progress { width: 100%; height: 8px; accent-color: #789c71; }
+.operation-performance-rate > strong { color: #cabb83; font-size: 0.58rem; text-align: right; }
+.operation-performance-empty { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 9px; align-items: center; min-height: 110px; padding: 12px; color: #89938c; background: #121714; }
+.operation-performance-empty > i { display: grid; place-items: center; width: 36px; height: 42px; border: 1px solid #5e684f; color: #c7c98c; background: #20251f; font-style: normal; font-weight: 900; }
+.operation-performance-empty strong,
+.operation-performance-empty span { display: block; }
+.operation-performance-empty strong { color: #c9bc8d; font-size: 0.63rem; }
+.operation-performance-empty span { margin-top: 4px; font-size: 0.51rem; }
+.operation-performance-insights { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; border-top: 1px solid #303832; background: #303832; }
+.operation-performance-insights > div { min-width: 0; min-height: 62px; padding: 8px; background: #151a17; }
+.operation-performance-insights strong,
+.operation-performance-insights small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.operation-performance-insights strong { margin: 5px 0 3px; color: #d5c990; font-size: 0.59rem; }
+.operation-performance-insights small { color: #89938c; font-size: 0.47rem; }
+
 @media (max-width: 1180px) {
   .operations-hero { grid-template-columns: 104px minmax(0, 1fr); }
   .operations-summary { grid-column: 1 / -1; }
@@ -13807,6 +13874,8 @@ html[data-client-motion="reduced"] *::after {
   .operations-secondary-grid { grid-template-columns: 1fr; }
   .operation-outcome-ledger > header { grid-template-columns: 1fr; }
   .operation-outcome-body { grid-template-columns: minmax(280px, 0.8fr) minmax(430px, 1.2fr); }
+  .operation-performance-analytics > header { grid-template-columns: 1fr; }
+  .operation-performance-body { grid-template-columns: minmax(280px, 0.8fr) minmax(450px, 1.2fr); }
 }
 @media (max-width: 760px) {
   .guild-squad-roster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -13835,6 +13904,13 @@ html[data-client-motion="reduced"] *::after {
   .operation-outcome-economy > div:nth-child(3n) { border-right: 0; }
   .operation-outcome-body { grid-template-columns: 1fr; }
   .operation-outcome-list { max-height: 248px; border-right: 0; border-bottom: 1px solid #303832; }
+  .operation-performance-summary,
+  .operation-performance-dossier-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .operation-performance-summary > div:nth-child(3n),
+  .operation-performance-dossier-metrics > div:nth-child(3n) { border-right: 0; }
+  .operation-performance-body { grid-template-columns: 1fr; }
+  .operation-performance-ranking { max-height: 232px; border-right: 0; border-bottom: 1px solid #303832; }
+  .operation-performance-insights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 520px) {
   .guild-squad-tabs,
@@ -13895,6 +13971,21 @@ html[data-client-motion="reduced"] *::after {
   .operation-outcome-dossier > header { grid-template-columns: 42px minmax(0, 1fr); }
   .operation-outcome-dossier > header > b { grid-column: 2; justify-self: start; }
   .operation-outcome-detail-grid { grid-template-columns: 1fr; }
+  .operation-performance-toolbar { align-items: stretch; flex-direction: column; }
+  .operation-performance-toolbar > div { grid-template-columns: 1fr; }
+  .operation-performance-toolbar > span { text-align: left; }
+  .operation-performance-summary,
+  .operation-performance-dossier-metrics,
+  .operation-performance-yields,
+  .operation-performance-insights { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .operation-performance-summary > div:nth-child(3n),
+  .operation-performance-dossier-metrics > div:nth-child(3n) { border-right: 1px solid #303832; }
+  .operation-performance-summary > div:nth-child(2n),
+  .operation-performance-dossier-metrics > div:nth-child(2n) { border-right: 0; }
+  .operation-performance-dossier > header { grid-template-columns: 42px minmax(0, 1fr); }
+  .operation-performance-dossier > header > b { grid-column: 2; justify-self: start; }
+  .operation-performance-rate { grid-template-columns: 1fr auto; }
+  .operation-performance-rate progress { grid-column: 1 / -1; grid-row: 2; }
 }
 
 /* Stage 86 - Guild Loadout Procurement Board */

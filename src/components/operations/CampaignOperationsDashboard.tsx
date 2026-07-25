@@ -7,6 +7,7 @@ import {
 } from "../../game-engine/operations/buildCampaignOperationsDashboard";
 import { GuildSquadsBoard } from "./GuildSquadsBoard";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
+import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
 
 interface CampaignOperationsDashboardProps {
   guild: Guild;
@@ -96,6 +97,7 @@ export function CampaignOperationsDashboard({
       />
 
       <OperationOutcomeLedger characters={characters} guild={guild} />
+      <OperationPerformanceAnalytics characters={characters} guild={guild} />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">
