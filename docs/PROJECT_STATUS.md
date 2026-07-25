@@ -167,6 +167,7 @@ Atualizado em: 2026-07-24
 - Etapa 87.5 concluida: QA das Procurement Orders corrigiu identidade obsoleta e bloqueou novos pedidos de targets ja equipados, com harness, browser responsivo e Tauri/SQLite real.
 - Etapa 88 concluida: Procurement Readiness Alerts rastreia ordens cumpridas/disponiveis e persiste badge, reconhecimento e notificacao unica sem automacao.
 - Etapa 88.5 concluida: QA dos Procurement Alerts normalizou leitura/reconhecimento de dados hostis e validou 90.027 checks, Tauri release e SQLite legado com restauracao integral.
+- Etapa 89 concluida: Procurement Item Reservations protege uma copia exata do Guild Depot para uma ordem ativa, sem transferencia ou equipamento automatico.
 
 Comandos principais:
 
@@ -6340,6 +6341,62 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 89 - definir a proxima camada de gerenciamento offline apos o ciclo de loadouts e procurement validado.
+
+## Etapa 89 - Procurement Item Reservations
+
+Status: concluida.
+
+Implementacao:
+
+- Cada Procurement Order pode reservar manualmente uma copia exata ja disponivel no Guild Depot.
+- A reserva exige item de equipamento compativel com itemId, slot, tier e upgrade minimos do target.
+- Somente copia root, guild-owned, destravada, com quantidade unitaria e identidade valida pode ser reservada.
+- Uma copia nao pode atender duas ordens e uma ordem nao pode manter duas reservas.
+- O ledger mostra contador `reserved`, destaque visual, estado `Reserved in Guild Depot` e comandos `Reserve`/`Release`.
+- A reserva nao transfere, equipa, compra, forja, vende ou inicia atividade.
+
+Protecoes:
+
+- Reservar aplica o `locked` persistente ja usado pelo inventario.
+- Market, Quick Sell e Salvage respeitam o lock existente.
+- O Market nao permite destravar manualmente uma copia enquanto a reserva estiver ativa.
+- Retirada manual do Guild Depot e distribuicao pelo Quartermaster bloqueiam a copia reservada.
+- `Execute All` ignora equipamentos reservados e continua processando somente ordens livres.
+- Carregar uma reserva valida com lock ausente restaura a protecao no estado do Depot.
+
+Lifecycle e save:
+
+- `GuildLoadoutTemplatesState` ganhou `procurementReservations`.
+- Cada registro guarda aventureiro, template, slot, item, inventoryItemId exato e timestamp.
+- O estado usa o `loadout_templates_json` existente; nao foi criada tabela ou coluna nova.
+- Saves antigos recebem `procurementReservations: []`.
+- Normalizacao remove registros invalidos, duplicados, orfaos, sem ordem ativa ou que reutilizam a mesma copia.
+- Remover ordem, editar/limpar template ou desativar assignment poda a reserva e destrava a copia no mesmo fluxo.
+- Inventory `locked` continua persistido pela coluna existente da tabela `inventory_items`.
+
+QA executado:
+
+- Harnesses temporarios passaram em 30.047 assertions e foram removidos.
+- Cinco mil ciclos completos de Reserve/Release preservaram uma reserva, um lock e nenhuma duplicacao.
+- Foram validados item correto, item ausente, lock previo, item nested, quantidade invalida, timestamp invalido e JSON hostil.
+- Quick Sell/Market e Salvage bloquearam a copia reservada.
+- Remocao de ordem, edicao, desativacao e limpeza de template liberaram reserva e lock.
+- Quartermaster individual e em lote preservou o item excluido.
+- Renderizacao React estatica confirmou contador `0 reserved`/`1 reserved`, comandos Reserve/Release e estado protegido.
+- `npm.cmd run build` passou com 407 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- O aviso conhecido do bundle JavaScript acima de 500 kB permanece.
+
+Limitacoes desta validacao:
+
+- A politica interna do navegador local impediu repetir a matriz responsiva por cliques nesta sessao.
+- O Windows Application Control bloqueou a abertura do executavel release apos o build.
+- O teste de round-trip nativo foi interrompido antes da fixture; o banco original foi restaurado byte a byte ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5`.
+- Persistencia foi validada por tipos, normalizacao, harness, build web e build Tauri, mas nao por reload SQLite executado nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 89.5 - QA interativo e SQLite das Procurement Item Reservations quando as politicas locais permitirem executar as superficies.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -43,6 +43,7 @@ import type { ClientPreferences } from "../../client-preferences/clientPreferenc
 import type { GuildLogisticsPinAction } from "../../game-engine/logistics/updateGuildLogisticsPin";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
+import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
 import type {
   Boss,
   BossParty,
@@ -179,6 +180,7 @@ interface MainPanelProps {
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
   onAcknowledgeLoadoutProcurementAlerts: () => void;
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
+  onUpdateLoadoutProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -316,6 +318,7 @@ export function MainPanel({
   onClearLoadoutTemplate,
   onAcknowledgeLoadoutProcurementAlerts,
   onUpdateLoadoutProcurementOrder,
+  onUpdateLoadoutProcurementReservation,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -487,6 +490,7 @@ export function MainPanel({
             onClearLoadoutTemplate={onClearLoadoutTemplate}
             onAcknowledgeLoadoutProcurementAlerts={onAcknowledgeLoadoutProcurementAlerts}
             onUpdateLoadoutProcurementOrder={onUpdateLoadoutProcurementOrder}
+            onUpdateLoadoutProcurementReservation={onUpdateLoadoutProcurementReservation}
           />
         ) : null}
 

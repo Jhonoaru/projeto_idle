@@ -376,10 +376,20 @@ export interface GuildLoadoutProcurementAlertsState {
   unreadReadyKeys: string[];
 }
 
+export interface GuildLoadoutProcurementReservation {
+  characterId: string;
+  templateId: GuildLoadoutTemplateSlotId;
+  slot: EquipmentSlot;
+  itemId: string;
+  inventoryItemId: string;
+  reservedAt: string;
+}
+
 export interface GuildLoadoutTemplatesState {
   templates: GuildLoadoutTemplate[];
   activeAssignments: GuildLoadoutActiveAssignment[];
   procurementOrders: GuildLoadoutProcurementOrder[];
+  procurementReservations: GuildLoadoutProcurementReservation[];
   procurementAlerts: GuildLoadoutProcurementAlertsState;
 }
 

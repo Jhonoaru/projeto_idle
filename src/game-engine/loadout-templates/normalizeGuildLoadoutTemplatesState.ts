@@ -4,6 +4,7 @@ import type {
   EquipmentSlot,
   GuildLoadoutActiveAssignment,
   GuildLoadoutProcurementOrder,
+  GuildLoadoutProcurementReservation,
   GuildLoadoutTemplate,
   GuildLoadoutTemplatesState,
   GuildLoadoutTemplateTarget,
@@ -20,6 +21,7 @@ export function normalizeGuildLoadoutTemplatesState(
       templates: [],
       activeAssignments: [],
       procurementOrders: [],
+      procurementReservations: [],
       procurementAlerts: { notifiedReadyKeys: [], unreadReadyKeys: [] },
     };
   }
@@ -71,6 +73,25 @@ export function normalizeGuildLoadoutTemplatesState(
       return true;
     })
     .slice(0, 5);
+  const orderKeys = new Set(procurementOrders.map(procurementAlertKey));
+  const reservedOrderKeys = new Set<string>();
+  const reservedInventoryItemIds = new Set<string>();
+  const procurementReservations = (
+    Array.isArray(candidate.procurementReservations) ? candidate.procurementReservations : []
+  )
+    .map((entry) => normalizeProcurementReservation(entry, orderKeys))
+    .filter((entry): entry is GuildLoadoutProcurementReservation => Boolean(entry))
+    .filter((entry) => {
+      const orderKey = procurementAlertKey(entry);
+      if (
+        reservedOrderKeys.has(orderKey)
+        || reservedInventoryItemIds.has(entry.inventoryItemId)
+      ) return false;
+      reservedOrderKeys.add(orderKey);
+      reservedInventoryItemIds.add(entry.inventoryItemId);
+      return true;
+    })
+    .slice(0, 5);
   const activeOrderKeys = procurementOrders.map(procurementAlertKey);
   const notifiedReadyKeys = normalizeAlertKeys(
     candidate.procurementAlerts?.notifiedReadyKeys,
@@ -84,8 +105,36 @@ export function normalizeGuildLoadoutTemplatesState(
     templates,
     activeAssignments,
     procurementOrders,
+    procurementReservations,
     procurementAlerts: { notifiedReadyKeys, unreadReadyKeys },
   };
+}
+
+function normalizeProcurementReservation(
+  value: unknown,
+  orderKeys: Set<string>,
+) {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<GuildLoadoutProcurementReservation>;
+  const characterId = typeof candidate.characterId === "string" ? candidate.characterId.trim() : "";
+  const template = getGuildLoadoutTemplateSlot(candidate.templateId);
+  const slot = armoryEquipmentSlots.includes(candidate.slot as EquipmentSlot)
+    ? candidate.slot as EquipmentSlot
+    : undefined;
+  const itemId = typeof candidate.itemId === "string" ? candidate.itemId : "";
+  const inventoryItemId = typeof candidate.inventoryItemId === "string"
+    ? candidate.inventoryItemId.trim()
+    : "";
+  if (!characterId || !template || !slot || !itemId || !inventoryItemId) return undefined;
+  const reservation = {
+    characterId,
+    templateId: template.id,
+    slot,
+    itemId,
+    inventoryItemId,
+    reservedAt: normalizeTimestamp(candidate.reservedAt),
+  } satisfies GuildLoadoutProcurementReservation;
+  return orderKeys.has(procurementAlertKey(reservation)) ? reservation : undefined;
 }
 
 function normalizeProcurementOrder(
@@ -123,7 +172,9 @@ function procurementOrderKey(order: Pick<GuildLoadoutProcurementOrder, "characte
   return `${order.characterId}:${order.templateId}:${order.slot}`;
 }
 
-function procurementAlertKey(order: GuildLoadoutProcurementOrder) {
+function procurementAlertKey(
+  order: Pick<GuildLoadoutProcurementOrder, "characterId" | "templateId" | "slot" | "itemId">,
+) {
   return `${order.characterId}:${order.templateId}:${order.slot}:${order.itemId}`;
 }
 

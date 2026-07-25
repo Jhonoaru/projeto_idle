@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-89",
+    stage: "Stage 89",
+    title: "Procurement Item Reservations",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "The guild manager can now reserve an exact Guild Depot copy for a queued loadout target without moving or equipping it automatically.",
+    highlights: [
+      "Reserve and Release commands bind one unlocked matching equipment copy to one active procurement order.",
+      "Reserved equipment is locked against Market sales, Quick Sell, Salvage, manual withdrawal and Quartermaster distribution.",
+      "Removing the order, editing or clearing its template and deactivating the loadout release the reservation and its lock safely.",
+    ],
+    systems: ["Item Reservations", "Procurement Orders", "Guild Depot", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-88-5",
     stage: "Stage 88.5",
     title: "Procurement Alerts QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "The Tauri release migrated a legacy database, canonicalized hostile loadout JSON twice and restored the original save byte-for-byte.",
     ],
     systems: ["Procurement Alerts QA", "Procurement Orders", "Guild Armory", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-88",

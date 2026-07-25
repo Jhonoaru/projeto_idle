@@ -32,6 +32,7 @@ export function executeGuildEquipmentOrder(
   characters: Character[],
   depot: GuildDepot,
   request: GuildEquipmentOrderRequest,
+  excludedInventoryItemIds: string[] = [],
 ): GuildEquipmentOrderResult {
   const safeCharacters = Array.isArray(characters) ? characters : [];
   if (!hasValidRosterEntries(safeCharacters)) {
@@ -39,6 +40,9 @@ export function executeGuildEquipmentOrder(
   }
   if (!request || typeof request !== "object") {
     return blocked(safeCharacters, depot, "", "The quartermaster order request is invalid.");
+  }
+  if (excludedInventoryItemIds.includes(request.inventoryItemId)) {
+    return blocked(safeCharacters, depot, request.characterId, "This Guild Depot item is reserved by a loadout procurement order.");
   }
   const plan = buildGuildEquipmentAllocation(safeCharacters, depot);
   const allocation = plan.allocations.find((entry) =>
@@ -67,13 +71,16 @@ export function executeGuildEquipmentOrder(
 export function executeAllReadyGuildEquipmentOrders(
   characters: Character[],
   depot: GuildDepot,
+  excludedInventoryItemIds: string[] = [],
 ): GuildEquipmentOrderResult {
   const safeCharacters = Array.isArray(characters) ? characters : [];
   if (!hasValidRosterEntries(safeCharacters)) {
     return blocked(safeCharacters, depot, "", "The guild roster contains invalid character data.");
   }
   const plan = buildGuildEquipmentAllocation(safeCharacters, depot);
-  const readyOrders = plan.allocations.filter((allocation) => allocation.canCarry);
+  const excludedIds = new Set(excludedInventoryItemIds);
+  const readyOrders = plan.allocations.filter((allocation) =>
+    allocation.canCarry && !excludedIds.has(allocation.inventoryItem.id));
 
   if (readyOrders.length === 0) {
     return {

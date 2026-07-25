@@ -84,6 +84,7 @@ export const mockGuild: Guild = {
     templates: [],
     activeAssignments: [],
     procurementOrders: [],
+    procurementReservations: [],
     procurementAlerts: { notifiedReadyKeys: [], unreadReadyKeys: [] },
   },
 };

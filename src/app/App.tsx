@@ -87,6 +87,13 @@ import {
   type GuildLoadoutProcurementOrderRequest,
 } from "../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import {
+  getGuildLoadoutProcurementReservationByInventoryItemId,
+  enforceGuildLoadoutProcurementReservationLocks,
+  releaseRemovedGuildLoadoutProcurementReservations,
+  updateGuildLoadoutProcurementReservation,
+  type GuildLoadoutProcurementReservationRequest,
+} from "../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
+import {
   acknowledgeGuildLoadoutProcurementAlerts,
   describeProcurementAlerts,
   syncGuildLoadoutProcurementAlerts,
@@ -152,6 +159,7 @@ import type {
   HuntSimulationResult,
   EquipmentSlot,
   GuildFacilityId,
+  Guild,
   GuildDeploymentOrderKind,
   GuildDeploymentOrderSlotId,
   GuildLoadoutTemplateSlotId,
@@ -653,7 +661,7 @@ export function App() {
     if (updatingLoadoutTemplateRef.current) return;
     updatingLoadoutTemplateRef.current = true;
     const result = saveGuildLoadoutTemplate(guild, characters, characterId, templateSlotId, name);
-    if (result.success) setGuild(result.guild);
+    if (result.success) applyLoadoutGuildMutation(result.guild);
     prependLog(result.success ? "Loadout template saved" : "Loadout template blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
   }
@@ -662,7 +670,7 @@ export function App() {
     if (updatingLoadoutTemplateRef.current) return;
     updatingLoadoutTemplateRef.current = true;
     const result = clearGuildLoadoutTemplate(guild, characters, characterId, templateSlotId);
-    if (result.success) setGuild(result.guild);
+    if (result.success) applyLoadoutGuildMutation(result.guild);
     prependLog(result.success ? "Loadout template cleared" : "Loadout template unchanged", result.message, result.success ? "neutral" : "warning");
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
   }
@@ -674,7 +682,7 @@ export function App() {
     if (updatingLoadoutTemplateRef.current) return;
     updatingLoadoutTemplateRef.current = true;
     const result = assignGuildLoadoutTemplate(guild, characters, characterId, templateSlotId);
-    if (result.success) setGuild(result.guild);
+    if (result.success) applyLoadoutGuildMutation(result.guild);
     prependLog(
       result.success ? "Active loadout updated" : "Active loadout unchanged",
       result.message,
@@ -692,7 +700,7 @@ export function App() {
     if (updatingLoadoutTemplateRef.current) return false;
     updatingLoadoutTemplateRef.current = true;
     const result = saveEditedGuildLoadoutTemplate(guild, characters, characterId, templateSlotId, name, targets);
-    if (result.success) setGuild(result.guild);
+    if (result.success) applyLoadoutGuildMutation(result.guild);
     prependLog(result.success ? "Loadout plan updated" : "Loadout plan blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
     return result.success;
@@ -702,13 +710,37 @@ export function App() {
     if (updatingLoadoutTemplateRef.current) return;
     updatingLoadoutTemplateRef.current = true;
     const result = updateGuildLoadoutProcurementOrder(guild, characters, depot, request);
-    if (result.changed) setGuild(result.guild);
+    if (result.changed) applyLoadoutGuildMutation(result.guild);
     prependLog(
       result.changed ? "Procurement orders updated" : "Procurement orders unchanged",
       result.message,
       result.changed ? "success" : "warning",
     );
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function handleUpdateLoadoutProcurementReservation(
+    request: GuildLoadoutProcurementReservationRequest,
+  ) {
+    if (updatingLoadoutTemplateRef.current) return;
+    updatingLoadoutTemplateRef.current = true;
+    const result = updateGuildLoadoutProcurementReservation(guild, characters, depot, request);
+    if (result.changed) {
+      setGuild(result.guild);
+      setDepot(result.depot);
+    }
+    prependLog(
+      result.changed ? "Procurement reservation updated" : "Procurement reservation blocked",
+      result.message,
+      result.changed ? "success" : "warning",
+    );
+    window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function applyLoadoutGuildMutation(nextGuild: Guild) {
+    const nextDepot = releaseRemovedGuildLoadoutProcurementReservations(guild, nextGuild, depot);
+    setGuild(nextGuild);
+    if (nextDepot !== depot) setDepot(nextDepot);
   }
 
   function handleAcknowledgeLoadoutProcurementAlerts() {
@@ -777,7 +809,7 @@ export function App() {
   function applyGameState(state: GameStateSnapshot) {
     setGuild(state.guild);
     setCharacters(state.characters);
-    setDepot(state.depot);
+    setDepot(enforceGuildLoadoutProcurementReservationLocks(state.guild, state.depot));
     setLogs(state.logs);
   }
 
@@ -1473,6 +1505,14 @@ export function App() {
   }
 
   function handleSendToCharacter(inventoryItem: InventoryItem) {
+    if (getGuildLoadoutProcurementReservationByInventoryItemId(guild, inventoryItem.id)) {
+      prependLog(
+        "Depot transfer blocked",
+        `${inventoryItem.item.name} is reserved by a loadout procurement order. Release it in the Procurement Board first.`,
+        "warning",
+      );
+      return;
+    }
     const transfer = transferItem(
       selectedCharacter,
       depot,
@@ -1650,6 +1690,17 @@ export function App() {
 
     if (source === "guild_depot") {
       const item = depot.items.find((entry) => entry.id === inventoryItemId);
+      if (
+        item?.locked
+        && getGuildLoadoutProcurementReservationByInventoryItemId(guild, inventoryItemId)
+      ) {
+        prependLog(
+          "Market lock blocked",
+          `${item.item.name} is reserved by a loadout procurement order. Release it in the Procurement Board first.`,
+          "warning",
+        );
+        return;
+      }
       setDepot((currentDepot) => ({
         ...currentDepot,
         items: toggleInventoryItemLock(currentDepot.items, inventoryItemId),
@@ -2255,7 +2306,12 @@ export function App() {
       };
     }
     executingEquipmentOrderRef.current = true;
-    const result = executeGuildEquipmentOrder(characters, depot, request);
+    const result = executeGuildEquipmentOrder(
+      characters,
+      depot,
+      request,
+      guild.loadoutTemplates?.procurementReservations.map((entry) => entry.inventoryItemId) ?? [],
+    );
     applyEquipmentOrderResult(result, request.characterId);
     window.setTimeout(() => {
       executingEquipmentOrderRef.current = false;
@@ -2276,7 +2332,11 @@ export function App() {
       };
     }
     executingEquipmentOrderRef.current = true;
-    const result = executeAllReadyGuildEquipmentOrders(characters, depot);
+    const result = executeAllReadyGuildEquipmentOrders(
+      characters,
+      depot,
+      guild.loadoutTemplates?.procurementReservations.map((entry) => entry.inventoryItemId) ?? [],
+    );
     applyEquipmentOrderResult(result);
     window.setTimeout(() => {
       executingEquipmentOrderRef.current = false;
@@ -2515,6 +2575,7 @@ export function App() {
           onClearLoadoutTemplate={handleClearLoadoutTemplate}
           onAcknowledgeLoadoutProcurementAlerts={handleAcknowledgeLoadoutProcurementAlerts}
           onUpdateLoadoutProcurementOrder={handleUpdateLoadoutProcurementOrder}
+          onUpdateLoadoutProcurementReservation={handleUpdateLoadoutProcurementReservation}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

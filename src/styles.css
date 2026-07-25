@@ -13781,6 +13781,7 @@ html[data-client-motion="reduced"] *::after {
 .procurement-priority-queue article.is-available { border-left-color: #88a674; }
 .procurement-priority-queue article.is-sourcing { border-left-color: #668da0; }
 .procurement-priority-queue article.is-blocked { border-left-color: #94584f; }
+.procurement-priority-queue article.is-reserved { border-left-color: #c1a65e; background: #1d1e17; }
 .procurement-priority-queue article.is-unread { box-shadow: inset 0 0 0 1px #8aa476; }
 .procurement-priority-queue article > i { display: grid; place-items: center; width: 22px; height: 34px; border: 1px solid #5f5942; color: #dfca8c; background: #20251f; font-style: normal; font-size: 0.55rem; font-weight: 900; }
 .procurement-priority-queue article span,
@@ -13793,6 +13794,7 @@ html[data-client-motion="reduced"] *::after {
 .procurement-priority-queue article > div { display: grid; grid-template-columns: repeat(2, 25px); gap: 3px; }
 .procurement-priority-queue article > div button { min-width: 0; min-height: 24px; padding: 2px; border: 1px solid #4b554e; color: #b9ad81; background: #1c221e; font-size: 0.48rem; cursor: pointer; }
 .procurement-priority-queue article > div button.is-view-route { grid-column: 1 / -1; padding-inline: 5px; font-family: Georgia, serif; font-size: 0.4rem; white-space: nowrap; }
+.procurement-priority-queue article > div button.is-reservation { grid-column: 1 / -1; padding-inline: 5px; border-color: #75683f; color: #ddc77f; background: #28271b; font-family: Georgia, serif; font-size: 0.4rem; font-weight: 700; white-space: nowrap; }
 .procurement-priority-queue article > div button:disabled { color: #5f6862; background: #151a17; cursor: not-allowed; }
 .procurement-workspace { display: grid; grid-template-columns: minmax(300px, 0.65fr) minmax(560px, 1.35fr); gap: 8px; min-width: 0; align-items: start; }
 .procurement-routes,
@@ -13897,5 +13899,6 @@ html[data-client-motion="reduced"] *::after {
   .procurement-dossier > header { align-items: flex-start; flex-direction: column; }
   .procurement-priority-queue article { grid-template-columns: 24px 38px minmax(0, 1fr); }
   .procurement-priority-queue article > div { grid-column: 2 / -1; grid-template-columns: 25px 25px minmax(90px, 1fr) 25px; }
-  .procurement-priority-queue article > div button.is-view-route { grid-column: auto; }
+  .procurement-priority-queue article > div button.is-view-route,
+  .procurement-priority-queue article > div button.is-reservation { grid-column: auto; }
 }

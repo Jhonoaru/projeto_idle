@@ -42,6 +42,7 @@ export function saveGuildLoadoutTemplate(
     ],
     activeAssignments: current.activeAssignments,
     procurementOrders: current.procurementOrders,
+    procurementReservations: current.procurementReservations,
     procurementAlerts: current.procurementAlerts,
   }, validCharacters.map((entry) => entry.id));
   const template = loadoutTemplates.templates.find((entry) =>
@@ -79,6 +80,7 @@ export function clearGuildLoadoutTemplate(
         activeAssignments: current.activeAssignments.filter((assignment) =>
           assignment.characterId !== characterId || assignment.templateId !== templateSlotId),
         procurementOrders: current.procurementOrders,
+        procurementReservations: current.procurementReservations,
         procurementAlerts: current.procurementAlerts,
       }, validCharacterIds),
     },
@@ -201,6 +203,7 @@ export function saveEditedGuildLoadoutTemplate(
       template.characterId !== character.id || template.id !== slot.id)],
     activeAssignments: current.activeAssignments,
     procurementOrders: current.procurementOrders,
+    procurementReservations: current.procurementReservations,
     procurementAlerts: current.procurementAlerts,
   }, validCharacters.map((entry) => entry.id));
   const template = loadoutTemplates.templates.find((entry) =>

@@ -8,6 +8,7 @@ import {
 } from "../../game-engine/loadout-templates/buildGuildLoadoutProcurementBoard";
 import { buildGuildLoadoutProcurementOrderTracker } from "../../game-engine/loadout-templates/buildGuildLoadoutProcurementOrderTracker";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
+import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type {
   Boss,
@@ -34,6 +35,7 @@ interface GuildLoadoutProcurementBoardProps {
   onOpenTemplates: (characterId: string) => void;
   onAcknowledgeProcurementAlerts: () => void;
   onUpdateProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
+  onUpdateProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
 }
 
 type ProcurementFilter =
@@ -65,6 +67,7 @@ export function GuildLoadoutProcurementBoard({
   onOpenTemplates,
   onAcknowledgeProcurementAlerts,
   onUpdateProcurementOrder,
+  onUpdateProcurementReservation,
 }: GuildLoadoutProcurementBoardProps) {
   const board = useMemo(
     () => buildGuildLoadoutProcurementBoard(guild, characters, depot),
@@ -125,7 +128,7 @@ export function GuildLoadoutProcurementBoard({
       <section className="procurement-priority-queue">
         <header>
           <div><span>Manual priority ledger</span><strong>Procurement Orders</strong></div>
-          <b>{procurementOrders.length}/5 queued / {tracker.summary.unread} unread</b>
+          <b>{procurementOrders.length}/5 queued / {tracker.state.procurementReservations.length} reserved / {tracker.summary.unread} unread</b>
         </header>
         {tracker.summary.unread > 0 ? (
           <aside className="procurement-readiness-alert" role="status">
@@ -151,9 +154,17 @@ export function GuildLoadoutProcurementBoard({
               const unread = tracking
                 ? tracker.state.procurementAlerts.unreadReadyKeys.includes(tracking.key)
                 : false;
+              const reservation = tracker.state.procurementReservations.find((entry) =>
+                entry.characterId === order.characterId
+                && entry.templateId === order.templateId
+                && entry.slot === order.slot
+                && entry.itemId === order.itemId);
+              const reservableItem = review?.target
+                ? findReservableDepotItem(depot, review.target)
+                : undefined;
               return (
                 <article
-                  className={`is-${tracking?.status ?? "blocked"}${unread ? " is-unread" : ""}`}
+                  className={`is-${tracking?.status ?? "blocked"}${unread ? " is-unread" : ""}${reservation ? " is-reserved" : ""}`}
                   key={objectiveId}
                 >
                   <i>{index + 1}</i>
@@ -161,7 +172,11 @@ export function GuildLoadoutProcurementBoard({
                   <span>
                     <small>{dashboardEntry?.character.name ?? "Adventurer"} / {slotLabels[order.slot]}</small>
                     <strong>{item?.name ?? order.itemId}</strong>
-                    <em>{tracking?.statusLabel ?? (fulfilled ? "Target fulfilled" : "Route unavailable")} / {fulfilled ? "remove when reviewed" : objective?.recommended.label ?? "review plan"}</em>
+                    <em>
+                      {reservation
+                        ? "Reserved in Guild Depot / protected from sale and salvage"
+                        : `${tracking?.statusLabel ?? (fulfilled ? "Target fulfilled" : "Route unavailable")} / ${fulfilled ? "remove when reviewed" : objective?.recommended.label ?? "review plan"}`}
+                    </em>
                   </span>
                   <div>
                     <button
@@ -194,6 +209,25 @@ export function GuildLoadoutProcurementBoard({
                         View Route
                       </button>
                     ) : null}
+                    {reservation ? (
+                      <button
+                        className="is-reservation"
+                        onClick={() => onUpdateProcurementReservation(reservationRequest("release", order, reservation.inventoryItemId))}
+                        type="button"
+                      >
+                        Release
+                      </button>
+                    ) : (
+                      <button
+                        className="is-reservation"
+                        disabled={!reservableItem || fulfilled}
+                        onClick={() => reservableItem && onUpdateProcurementReservation(reservationRequest("reserve", order, reservableItem.id))}
+                        title={reservableItem ? "Protect this exact Guild Depot copy" : "No unlocked matching Guild Depot copy"}
+                        type="button"
+                      >
+                        Reserve
+                      </button>
+                    )}
                     <button
                       aria-label={`Remove ${item?.name ?? order.itemId} from procurement orders`}
                       className="is-remove"
@@ -333,6 +367,40 @@ function orderRequest(
   };
 }
 
+function reservationRequest(
+  action: GuildLoadoutProcurementReservationRequest["action"],
+  order: GuildLoadoutProcurementOrder,
+  inventoryItemId: string,
+): GuildLoadoutProcurementReservationRequest {
+  return {
+    action,
+    characterId: order.characterId,
+    templateId: order.templateId,
+    slot: order.slot,
+    itemId: order.itemId,
+    inventoryItemId,
+  };
+}
+
+function findReservableDepotItem(
+  depot: GuildDepot,
+  target: NonNullable<ReturnType<typeof buildGuildLoadoutProcurementBoard>["dashboard"]["entries"][number]["review"]["reviews"][number]["target"]>,
+) {
+  return depot.items.find((entry) =>
+    entry.itemId === target.itemId
+    && entry.item?.id === target.itemId
+    && entry.item.type === "equipment"
+    && entry.item.equipmentSlot === target.slot
+    && entry.location === "guildDepot"
+    && !entry.ownerCharacterId
+    && !entry.parentContainerId
+    && !entry.locked
+    && Number.isSafeInteger(entry.quantity)
+    && entry.quantity === 1
+    && (entry.tier ?? 0) >= target.minimumTier
+    && (entry.upgradeLevel ?? 0) >= target.minimumUpgradeLevel);
+}
+
 function Summary({ label, value }: { label: string; value: string }) {
   return <div><span>{label}</span><strong>{value}</strong></div>;
 }
@@ -349,7 +417,7 @@ function routeAction(
   route: GuildLoadoutProcurementRoute,
   actions: Omit<
     GuildLoadoutProcurementBoardProps,
-    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder"
+    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder" | "onUpdateProcurementReservation"
   >,
 ) {
   const characterId = route.objectives[0]?.character.id ?? "";
