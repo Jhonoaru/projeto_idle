@@ -34,9 +34,13 @@ export function fulfillGuildLoadoutProcurementReservation(
   characters: Character[],
   depot: GuildDepot,
   request: GuildLoadoutProcurementFulfillmentRequest,
+  now = new Date(),
 ): GuildLoadoutProcurementFulfillmentResult {
   if (!isValidRequest(request)) {
     return blocked(guild, characters, depot, "The reserved gear request is invalid.");
+  }
+  if (!Number.isFinite(now.getTime())) {
+    return blocked(guild, characters, depot, "The fulfillment timestamp is invalid.");
   }
 
   const characterMatches = characters
@@ -58,7 +62,7 @@ export function fulfillGuildLoadoutProcurementReservation(
     entry.characterId === request.characterId && entry.id === request.templateId);
   const target = template?.targets.find((entry) =>
     entry.slot === request.slot && entry.itemId === request.itemId);
-  if (!target) {
+  if (!template || !target) {
     return blocked(guild, characters, depot, "The active loadout target no longer matches this reservation.");
   }
 
@@ -91,7 +95,8 @@ export function fulfillGuildLoadoutProcurementReservation(
   if (!Number.isFinite(reservedItem.item.weight) || reservedItem.item.weight < 0) {
     return blocked(guild, characters, depot, "The reserved equipment has invalid transfer data.");
   }
-  const previousItemName = character.equipment[request.slot]?.item.name;
+  const previousItem = character.equipment[request.slot];
+  const previousItemName = previousItem?.item.name;
   const existingOwnedItemIds = new Set([
     ...character.inventory.map((entry) => entry.id),
     ...character.characterDepot.map((entry) => entry.id),
@@ -136,6 +141,23 @@ export function fulfillGuildLoadoutProcurementReservation(
     procurementOrders: current.procurementOrders.filter((entry) => !matchesRequest(entry, request)),
     procurementReservations: current.procurementReservations.filter((entry) =>
       entry.inventoryItemId !== request.inventoryItemId),
+    fulfillmentHistory: [
+      ...current.fulfillmentHistory,
+      {
+        id: `fulfillment-${now.getTime()}-${request.inventoryItemId}`,
+        characterId: character.id,
+        characterName: character.name,
+        templateId: template.id,
+        templateName: template.name,
+        slot: request.slot,
+        itemId: reservedItem.itemId,
+        itemName: reservedItem.item.name,
+        inventoryItemId: reservedItem.id,
+        previousItemId: previousItem?.itemId,
+        previousItemName,
+        fulfilledAt: now.toISOString(),
+      },
+    ],
   }, characterIds);
   const nextCharacters = characters.map((entry, entryIndex) =>
     entryIndex === index ? equipped.character : entry);

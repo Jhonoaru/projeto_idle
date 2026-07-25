@@ -13805,6 +13805,24 @@ html[data-client-motion="reduced"] *::after {
 .procurement-priority-queue article > div button.is-reservation { grid-column: 1 / -1; padding-inline: 5px; border-color: #75683f; color: #ddc77f; background: #28271b; font-family: Georgia, serif; font-size: 0.4rem; font-weight: 700; white-space: nowrap; }
 .procurement-priority-queue article > div button.is-fulfillment { grid-column: 1 / -1; padding-inline: 5px; border-color: #9b7d38; color: #f0d47f; background: #3a3019; font-family: Georgia, serif; font-size: 0.4rem; font-weight: 700; white-space: nowrap; }
 .procurement-priority-queue article > div button:disabled { color: #5f6862; background: #151a17; cursor: not-allowed; }
+.procurement-fulfillment-history { padding: 9px; border: 1px solid #40483f; background: #111613; }
+.procurement-fulfillment-history > header { display: flex; justify-content: space-between; gap: 8px; align-items: end; padding-bottom: 7px; border-bottom: 1px solid #303832; }
+.procurement-fulfillment-history > header span,
+.procurement-fulfillment-history > header strong { display: block; }
+.procurement-fulfillment-history > header span { color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
+.procurement-fulfillment-history > header strong { margin-top: 3px; color: #dfce97; font-family: Georgia, serif; font-size: 0.7rem; }
+.procurement-fulfillment-history > header b { color: #8fa184; font-size: 0.48rem; }
+.procurement-fulfillment-history > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 7px; }
+.procurement-fulfillment-history article { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; padding: 6px; border: 1px solid #364038; border-left: 3px solid #6f966b; background: #151c18; }
+.procurement-fulfillment-history article span,
+.procurement-fulfillment-history article small,
+.procurement-fulfillment-history article strong,
+.procurement-fulfillment-history article em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.procurement-fulfillment-history article small { color: #819087; font-size: 0.4rem; text-transform: uppercase; }
+.procurement-fulfillment-history article strong { margin: 2px 0; color: #d8cc9d; font-size: 0.53rem; }
+.procurement-fulfillment-history article em { color: #8ea084; font-size: 0.4rem; font-style: normal; }
+.procurement-fulfillment-history article time { color: #a79a72; font-size: 0.4rem; white-space: nowrap; }
+.procurement-fulfillment-history > p { margin: 7px 0 0; padding: 10px; border: 1px dashed #384039; color: #7f8981; font-size: 0.48rem; text-align: center; }
 .procurement-workspace { display: grid; grid-template-columns: minmax(300px, 0.65fr) minmax(560px, 1.35fr); gap: 8px; min-width: 0; align-items: start; }
 .procurement-routes,
 .procurement-dossier { min-width: 0; padding: 9px; border: 1px solid #3b3b35; background: #101513; }
@@ -13883,6 +13901,7 @@ html[data-client-motion="reduced"] *::after {
   .procurement-workspace { grid-template-columns: minmax(270px, 0.58fr) minmax(440px, 1fr); }
   .procurement-targets { grid-template-columns: 1fr; }
   .procurement-priority-queue > div { grid-template-columns: 1fr; }
+  .procurement-fulfillment-history > div { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {

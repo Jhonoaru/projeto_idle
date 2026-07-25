@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { bosses } from "../../data/bosses";
 import { hunts } from "../../data/hunts";
+import { items } from "../../data/items";
 import {
   buildGuildLoadoutProcurementBoard,
   type GuildLoadoutProcurementRoute,
@@ -93,6 +94,7 @@ export function GuildLoadoutProcurementBoard({
     }
   }, [selectedRoute, selectedRouteKey]);
   const procurementOrders = board.dashboard.state.procurementOrders;
+  const fulfillmentHistory = tracker.state.fulfillmentHistory.slice(-6).reverse();
   const queuedKeys = new Set(procurementOrders.map((order) =>
     `${order.characterId}:${order.templateId}:${order.slot}`));
 
@@ -127,6 +129,30 @@ export function GuildLoadoutProcurementBoard({
             <button aria-pressed={filter === id} key={id} onClick={() => setFilter(id)} type="button">{label}</button>
           ))}
         </div>
+      </section>
+
+      <section className="procurement-fulfillment-history">
+        <header>
+          <div><span>Armory audit trail</span><strong>Recent Gear Issues</strong></div>
+          <b>{tracker.state.fulfillmentHistory.length}/30 retained</b>
+        </header>
+        {fulfillmentHistory.length > 0 ? (
+          <div>
+            {fulfillmentHistory.map((record) => (
+              <article key={record.id}>
+                <ItemIcon item={items[record.itemId]} showQuantity={false} size="small" />
+                <span>
+                  <small>{record.characterName} / {slotLabels[record.slot]} / {record.templateName}</small>
+                  <strong>{record.itemName}</strong>
+                  <em>{record.previousItemName ? `Replaced ${record.previousItemName}` : "Filled empty equipment slot"}</em>
+                </span>
+                <time dateTime={record.fulfilledAt}>{formatFulfillmentTime(record.fulfilledAt)}</time>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p>No reserved gear has been issued yet.</p>
+        )}
       </section>
 
       <section className="procurement-priority-queue">
@@ -448,6 +474,18 @@ function findReservableDepotItem(
 
 function Summary({ label, value }: { label: string; value: string }) {
   return <div><span>{label}</span><strong>{value}</strong></div>;
+}
+
+function formatFulfillmentTime(value: string) {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime())
+    ? new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(date)
+    : "Unknown";
 }
 
 function matchesFilter(route: GuildLoadoutProcurementRoute, filter: ProcurementFilter) {

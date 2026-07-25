@@ -3,6 +3,7 @@ import { items } from "../../data/items";
 import type {
   EquipmentSlot,
   GuildLoadoutActiveAssignment,
+  GuildLoadoutFulfillmentRecord,
   GuildLoadoutProcurementOrder,
   GuildLoadoutProcurementReservation,
   GuildLoadoutTemplate,
@@ -23,6 +24,7 @@ export function normalizeGuildLoadoutTemplatesState(
       procurementOrders: [],
       procurementReservations: [],
       procurementAlerts: { notifiedReadyKeys: [], unreadReadyKeys: [] },
+      fulfillmentHistory: [],
     };
   }
   const candidate = value as Partial<GuildLoadoutTemplatesState>;
@@ -101,13 +103,88 @@ export function normalizeGuildLoadoutTemplatesState(
     candidate.procurementAlerts?.unreadReadyKeys,
     notifiedReadyKeys,
   );
+  const seenFulfillmentIds = new Set<string>();
+  const seenFulfillmentInventoryIds = new Set<string>();
+  const fulfillmentHistory = (
+    Array.isArray(candidate.fulfillmentHistory) ? candidate.fulfillmentHistory : []
+  )
+    .map(normalizeFulfillmentRecord)
+    .filter((entry): entry is GuildLoadoutFulfillmentRecord => Boolean(entry))
+    .filter((entry) => {
+      if (
+        seenFulfillmentIds.has(entry.id)
+        || seenFulfillmentInventoryIds.has(entry.inventoryItemId)
+      ) return false;
+      seenFulfillmentIds.add(entry.id);
+      seenFulfillmentInventoryIds.add(entry.inventoryItemId);
+      return true;
+    })
+    .slice(-30);
   return {
     templates,
     activeAssignments,
     procurementOrders,
     procurementReservations,
     procurementAlerts: { notifiedReadyKeys, unreadReadyKeys },
+    fulfillmentHistory,
   };
+}
+
+function normalizeFulfillmentRecord(value: unknown): GuildLoadoutFulfillmentRecord | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<GuildLoadoutFulfillmentRecord>;
+  const id = normalizeIdentity(candidate.id, 120);
+  const characterId = normalizeIdentity(candidate.characterId, 80);
+  const characterName = normalizeHistoricalName(candidate.characterName, 40);
+  const template = getGuildLoadoutTemplateSlot(candidate.templateId);
+  const templateName = normalizeHistoricalName(candidate.templateName, 40);
+  const slot = armoryEquipmentSlots.includes(candidate.slot as EquipmentSlot)
+    ? candidate.slot as EquipmentSlot
+    : undefined;
+  const itemId = normalizeIdentity(candidate.itemId, 80);
+  const item = items[itemId];
+  const itemName = normalizeHistoricalName(candidate.itemName, 60);
+  const inventoryItemId = normalizeIdentity(candidate.inventoryItemId, 140);
+  const fulfilledAt = normalizeValidTimestamp(candidate.fulfilledAt);
+  if (
+    !id
+    || !characterId
+    || !characterName
+    || !template
+    || !templateName
+    || !slot
+    || !item
+    || item.type !== "equipment"
+    || item.equipmentSlot !== slot
+    || !itemName
+    || !inventoryItemId
+    || !fulfilledAt
+  ) return undefined;
+  const previousItemId = normalizeIdentity(candidate.previousItemId, 80);
+  const previousCatalogItem = previousItemId ? items[previousItemId] : undefined;
+  const previousItemName = normalizeHistoricalName(candidate.previousItemName, 60);
+  return {
+    id,
+    characterId,
+    characterName,
+    templateId: template.id,
+    templateName,
+    slot,
+    itemId,
+    itemName,
+    inventoryItemId,
+    previousItemId: previousCatalogItem?.type === "equipment"
+      && previousCatalogItem.equipmentSlot === slot
+      && previousItemName
+      ? previousItemId
+      : undefined,
+    previousItemName: previousCatalogItem?.type === "equipment"
+      && previousCatalogItem.equipmentSlot === slot
+      && previousItemName
+      ? previousItemName
+      : undefined,
+    fulfilledAt,
+  } satisfies GuildLoadoutFulfillmentRecord;
 }
 
 function normalizeProcurementReservation(
@@ -259,6 +336,21 @@ function normalizeName(value: unknown, fallback: string) {
   if (typeof value !== "string") return fallback;
   const clean = value.replace(/\s+/g, " ").trim().slice(0, 28);
   return clean || fallback;
+}
+
+function normalizeHistoricalName(value: unknown, limit: number) {
+  if (typeof value !== "string") return "";
+  return value.replace(/\s+/g, " ").trim().slice(0, limit);
+}
+
+function normalizeIdentity(value: unknown, limit: number) {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, limit);
+}
+
+function normalizeValidTimestamp(value: unknown) {
+  if (typeof value !== "string" || !Number.isFinite(Date.parse(value))) return undefined;
+  return new Date(value).toISOString();
 }
 
 function normalizeTimestamp(value: unknown) {

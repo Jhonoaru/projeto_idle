@@ -171,6 +171,7 @@ Atualizado em: 2026-07-24
 - Etapa 89.5 concluida: QA das Item Reservations isolou copias disputadas, preservou alternativas livres no Quartermaster e validou 60.035 checks com dois reloads SQLite.
 - Etapa 90 concluida: Reserved Gear Fulfillment entrega manualmente a copia reservada ao aventureiro correto, equipa o alvo e conclui ordem/reserva de forma atomica.
 - Etapa 90.5 concluida: QA interativo e SQLite do Reserved Gear Fulfillment validou confirmacao, clique duplo, persistencia e rollback defensivo em 90.035 checks.
+- Etapa 91 concluida: Armory Fulfillment Ledger registra as 30 entregas manuais mais recentes com peca, aventureiro, template, slot, substituicao e horario.
 
 Comandos principais:
 
@@ -6545,6 +6546,71 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 91 - definir a proxima camada offline apos fechar o ciclo de loadout, procurement, reserva e entrega.
+
+## Etapa 91 - Armory Fulfillment Ledger
+
+Status: concluida.
+
+Implementacao:
+
+- Cada `Issue Gear` concluido cria um registro historico no mesmo commit atomico da entrega.
+- O registro preserva aventureiro, template, slot, item, inventoryItemId exato, equipamento substituido e horario.
+- O historico guarda snapshots dos nomes para continuar legivel se o personagem ou template forem removidos depois.
+- O Procurement Board ganhou `Recent Gear Issues`, com ate seis registros visiveis e contador de retencao.
+- Cada linha mostra item, aventureiro, slot, template, contexto da substituicao e data local.
+- O ledger permanece visivel quando a fila fica vazia e o plano aparece como completo.
+- O sistema retém os 30 registros validos mais recentes.
+
+Normalizacao e save:
+
+- `GuildLoadoutTemplatesState` ganhou `fulfillmentHistory`.
+- O array usa o `loadout_templates_json` existente; nenhuma tabela, coluna ou migration nova foi criada.
+- Saves antigos recebem `fulfillmentHistory: []`.
+- IDs de registro e inventoryItemId duplicados sao removidos.
+- Timestamp, template slot, equipment slot, item e campos de identidade invalidos sao descartados.
+- Limpar/editar template, desativar assignment ou remover personagem nao apaga o historico valido.
+- Fulfillment bloqueado ou repetido nao cria registro.
+
+QA automatizado:
+
+- Harness temporario passou em 60.025 assertions e foi removido.
+- Dez mil ciclos criaram um registro canonico junto da entrega.
+- A retencao variou de zero a 31 entradas e permaneceu limitada aos 30 registros mais recentes.
+- Todos os ciclos mantiveram IDs de registro e inventoryItemId unicos.
+- Repeticao bloqueada nao adicionou historico.
+- Limpeza do template e roster vazio preservaram o registro historico.
+- JSON hostil com duplicatas, timestamp invalido, slot invalido, `null` e numero manteve somente a entrada valida.
+- Renderizacao React estatica confirmou titulo, item, substituicao e contador.
+
+QA visual:
+
+- O fluxo real criou um template de Brass Shield para Lyra, ativou, enfileirou, reservou e emitiu a peca.
+- O board final mostrou `1/30 retained`, Lyra, Offhand, Lyra Loadout e Brass Shield.
+- O ledger permaneceu acima da fila vazia enquanto o plano mostrava `1/1 plans complete`.
+- A captura visual nao apresentou sobreposicao ou overflow aparente.
+- O console web mostrou somente o fallback SQLite esperado fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 408 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Uma fixture com 35 registros validos, colisao de inventoryItemId e timestamp invalido normalizou para 30 entradas.
+- A primeira entrada retida foi `history-5` e a ultima `history-34`.
+- Duas cargas nativas produziram o mesmo SHA-256 canonico `9D460CB64829AFA44EE3ACAC5AABF438B0F1C26785F3A4D61A0FC33E03861AA4`.
+- Ambas mantiveram `integrity_check=ok` e nenhuma violacao de foreign key.
+- O save original foi restaurado byte a byte ao SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O ledger e somente leitura; nao desfaz equipamento nem devolve itens.
+- Nao concede gold, XP, bonus ou recompensa.
+- Nao executa fulfillment em lote nem escolhe alternativas.
+- O clique interativo ocorreu no cliente web; o Tauri foi validado por cargas nativas controladas.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 91.5 - QA aprofundada do Armory Fulfillment Ledger.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

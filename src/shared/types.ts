@@ -385,12 +385,28 @@ export interface GuildLoadoutProcurementReservation {
   reservedAt: string;
 }
 
+export interface GuildLoadoutFulfillmentRecord {
+  id: string;
+  characterId: string;
+  characterName: string;
+  templateId: GuildLoadoutTemplateSlotId;
+  templateName: string;
+  slot: EquipmentSlot;
+  itemId: string;
+  itemName: string;
+  inventoryItemId: string;
+  previousItemId?: string;
+  previousItemName?: string;
+  fulfilledAt: string;
+}
+
 export interface GuildLoadoutTemplatesState {
   templates: GuildLoadoutTemplate[];
   activeAssignments: GuildLoadoutActiveAssignment[];
   procurementOrders: GuildLoadoutProcurementOrder[];
   procurementReservations: GuildLoadoutProcurementReservation[];
   procurementAlerts: GuildLoadoutProcurementAlertsState;
+  fulfillmentHistory: GuildLoadoutFulfillmentRecord[];
 }
 
 export interface GuildLogisticsState {
