@@ -13515,7 +13515,7 @@ html[data-client-motion="reduced"] *::after {
 .operation-readiness-briefing > header { display: grid; grid-template-columns: minmax(190px, 0.55fr) minmax(420px, 1fr); gap: 10px; align-items: center; min-height: 55px; padding: 7px 8px; border-bottom: 1px solid #303832; }
 .operation-readiness-briefing > header span { display: block; color: #7f8a82; font-size: 0.49rem; text-transform: uppercase; }
 .operation-readiness-briefing > header h4 { margin: 3px 0 0; color: #e1cd91; font-family: Georgia, serif; font-size: 0.76rem; }
-.operation-briefing-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #303832; }
+.operation-briefing-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid #303832; }
 .operation-briefing-summary > div { min-width: 0; min-height: 42px; padding: 6px 7px; border-right: 1px solid #303832; background: #151a17; }
 .operation-briefing-summary > div:last-child { border-right: 0; }
 .operation-briefing-summary strong { display: block; margin-top: 4px; color: #daca96; font-size: 0.61rem; }

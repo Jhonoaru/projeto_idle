@@ -51,6 +51,7 @@ export function OperationReadinessBriefing({
           <Summary label="Operational" value={String(briefing.summary.operationReady)} />
           <Summary label="Fully ready" value={String(briefing.summary.fullyReady)} />
           <Summary label="Gear review" value={String(briefing.summary.gearPending)} />
+          <Summary label="Blocked" value={String(briefing.summary.blocked)} />
         </div>
       </header>
 
@@ -62,8 +63,22 @@ export function OperationReadinessBriefing({
             className={`is-${slot.status}`}
             id={`operation-briefing-tab-${slot.id}`}
             key={slot.id}
+            onKeyDown={(event) => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              const currentIndex = briefing.slots.findIndex((entry) => entry.id === selected.id);
+              const nextIndex = event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? briefing.slots.length - 1
+                  : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + briefing.slots.length)
+                    % briefing.slots.length;
+              onSelectOrder(briefing.slots[nextIndex].id);
+              document.getElementById(`operation-briefing-tab-${briefing.slots[nextIndex].id}`)?.focus();
+            }}
             onClick={() => onSelectOrder(slot.id)}
             role="tab"
+            tabIndex={selected.id === slot.id ? 0 : -1}
             type="button"
           >
             <i>{slot.sigil}</i>
@@ -145,6 +160,7 @@ function BriefingDossier({
           <span>Field power <strong>{slot.candidate.power.toLocaleString("en-US")}</strong></span>
           {slot.candidate.targetPower !== undefined ? <span>Target <strong>{slot.candidate.targetPower.toLocaleString("en-US")}</strong></span> : null}
           {slot.candidate.chance !== undefined ? <span>Success <strong>{slot.candidate.chance}%</strong></span> : null}
+          <span>Base fee <strong>{slot.target.cost.toLocaleString("en-US")}g</strong></span>
           <span>Gear <strong>{slot.gear?.summary.completionPercent ?? 0}%</strong></span>
         </div>
         <div>

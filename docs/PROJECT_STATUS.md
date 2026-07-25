@@ -178,6 +178,7 @@ Atualizado em: 2026-07-25
 - Etapa 93 concluida: Squad Gear Readiness conecta squads, deployment orders e loadouts ativos em uma visao derivada de preparacao do arsenal.
 - Etapa 93.5 concluida: QA do Squad Gear Readiness corrigiu selecao obsoleta apos mudanca de save e completou a semantica acessivel das tabs.
 - Etapa 94 concluida: Operation Readiness Briefing consolida ordem, formacao, requisitos do alvo e gear antes da preparacao manual.
+- Etapa 94.5 concluida: QA do Operation Readiness Briefing adicionou blocked summary, taxa base e navegacao completa de teclado.
 
 Comandos principais:
 
@@ -6992,6 +6993,63 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 94.5 - QA aprofundada do Operation Readiness Briefing.
+
+## Etapa 94.5 - QA do Operation Readiness Briefing
+
+Status: concluida.
+
+Correcoes:
+
+- O resumo agora mostra explicitamente o total `Blocked`, que ja era calculado pela engine.
+- O dossie exibe `Base fee` com a taxa do Boss ou Contract selecionado.
+- Tabs implementam roving `tabIndex`: somente a tab ativa participa da sequencia principal de foco.
+- `ArrowLeft` e `ArrowRight` navegam circularmente entre ordens.
+- `Home` seleciona a primeira ordem e `End` seleciona a ultima.
+- Foco, `aria-selected`, `aria-controls` e `tabpanel` permanecem sincronizados apos navegacao por teclado.
+- Nenhuma regra de custo, disponibilidade, gear ou despacho foi alterada.
+
+QA automatizado:
+
+- Harness temporario passou em 150.410 assertions e foi removido.
+- Todos os Bosses e Contracts do catalogo foram comparados ao resultado direto de `buildGuildDeploymentOrders`.
+- A matriz confirmou 3/3 orders, duas operacionais, uma ready, uma gear-pending e uma blocked.
+- A particao `fullyReady + gearPending + blocked = configured` permaneceu verdadeira.
+- `operationReady` permaneceu exatamente igual a `fullyReady + gearPending`.
+- Ordem ready preservou 100% de gear; ordem sem candidato pronto permaneceu blocked.
+- Data invalida usou fallback seguro.
+- Doze mil derivacoes hostis cobriram gold `NaN`, roster duplicado/nulo, squads e ordens invalidas, loadouts corrompidos, depot hostil e mudancas de status.
+- Guild, roster e depot permaneceram imutaveis.
+
+QA visual e acessibilidade:
+
+- Fixture temporaria repetiu os estados ready, gear review e operation blocked.
+- O resumo exibiu Orders 3/3, Operational 2, Fully ready 1, Gear review 1 e Blocked 1.
+- Supply Route Survey exibiu `Base fee 40g`.
+- `ArrowRight` moveu foco/selecao de Order I para Order II.
+- `End` moveu para Order III; `Home` retornou para Order I; `ArrowLeft` em Order I voltou circularmente para Order III.
+- DOM confirmou uma unica tab com `tabIndex=0` e `aria-controls`; tabs inativas ficaram com `tabIndex=-1`.
+- Desktop 1280x720 manteve largura de 1.197px para o briefing e zero overflow da pagina.
+- O navegador permaneceu fixo em desktop; o QA mobile continuou por media queries e build.
+- Fixture visual e servidor local foram removidos.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou com 413 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- SQLite em `mode=ro` retornou `integrity_check=ok` e zero violacoes de foreign key.
+- `squads_json`, `deployment_orders_json` e `loadout_templates_json` permaneceram JSON valido.
+- O save preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O briefing continua consultivo e nao exige gear completo para abrir um fluxo operacional valido.
+- Nao existe auto-dispatch, auto-equip ou consumo automatico da Deployment Order.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 95 - Operation Outcome Ledger, registrando resultados manuais de Bosses e Contracts no historico de Operations.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
