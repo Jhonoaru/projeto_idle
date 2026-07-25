@@ -85,7 +85,18 @@ export function fulfillGuildLoadoutProcurementReservation(
   }
 
   const { character, index } = characterMatches[0];
+  if (!hasValidCharacterEquipmentData(character)) {
+    return blocked(guild, characters, depot, `${character.name} has invalid inventory or capacity data.`);
+  }
+  if (!Number.isFinite(reservedItem.item.weight) || reservedItem.item.weight < 0) {
+    return blocked(guild, characters, depot, "The reserved equipment has invalid transfer data.");
+  }
   const previousItemName = character.equipment[request.slot]?.item.name;
+  const existingOwnedItemIds = new Set([
+    ...character.inventory.map((entry) => entry.id),
+    ...character.characterDepot.map((entry) => entry.id),
+    ...Object.values(character.equipment).flatMap((entry) => entry ? [entry.id] : []),
+  ]);
   const workingDepot = {
     ...depot,
     items: depot.items.map((entry) =>
@@ -101,15 +112,15 @@ export function fulfillGuildLoadoutProcurementReservation(
     );
   }
 
-  const transferredItem = transfer.character.inventory.at(-1);
-  if (
-    !transferredItem
-    || transferredItem.itemId !== request.itemId
-    || transferredItem.item.equipmentSlot !== request.slot
-    || transferredItem.quantity !== 1
-  ) {
+  const transferredMatches = transfer.character.inventory.filter((entry) =>
+    !existingOwnedItemIds.has(entry.id)
+    && entry.itemId === request.itemId
+    && entry.item.equipmentSlot === request.slot
+    && entry.quantity === 1);
+  if (transferredMatches.length !== 1) {
     return blocked(guild, characters, depot, "The transferred reserved equipment could not be verified.");
   }
+  const transferredItem = transferredMatches[0];
   const equipped = equipItem(transfer.character, transferredItem);
   if (!equipped.equipped) {
     return blocked(
@@ -164,6 +175,39 @@ function matchesRequest(
     && entry.templateId === request.templateId
     && entry.slot === request.slot
     && entry.itemId === request.itemId;
+}
+
+function hasValidCharacterEquipmentData(character: Character) {
+  if (
+    !Array.isArray(character.inventory)
+    || !Array.isArray(character.characterDepot)
+    || !character.equipment
+    || typeof character.equipment !== "object"
+    || !Number.isFinite(character.capacityMax)
+    || character.capacityMax < 0
+  ) return false;
+
+  const ownedItems = [
+    ...character.inventory,
+    ...character.characterDepot,
+    ...Object.values(character.equipment).flatMap((entry) => entry ? [entry] : []),
+  ];
+  const itemIds = new Set<string>();
+  return ownedItems.every((entry) => {
+    if (
+      !entry
+      || typeof entry.id !== "string"
+      || !entry.id
+      || itemIds.has(entry.id)
+      || !entry.item
+      || !Number.isFinite(entry.item.weight)
+      || entry.item.weight < 0
+      || !Number.isSafeInteger(entry.quantity)
+      || entry.quantity < 1
+    ) return false;
+    itemIds.add(entry.id);
+    return true;
+  }) && Object.values(character.equipment).every((entry) => !entry || entry.quantity === 1);
 }
 
 function blocked(

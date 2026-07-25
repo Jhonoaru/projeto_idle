@@ -170,6 +170,7 @@ Atualizado em: 2026-07-24
 - Etapa 89 concluida: Procurement Item Reservations protege uma copia exata do Guild Depot para uma ordem ativa, sem transferencia ou equipamento automatico.
 - Etapa 89.5 concluida: QA das Item Reservations isolou copias disputadas, preservou alternativas livres no Quartermaster e validou 60.035 checks com dois reloads SQLite.
 - Etapa 90 concluida: Reserved Gear Fulfillment entrega manualmente a copia reservada ao aventureiro correto, equipa o alvo e conclui ordem/reserva de forma atomica.
+- Etapa 90.5 concluida: QA interativo e SQLite do Reserved Gear Fulfillment validou confirmacao, clique duplo, persistencia e rollback defensivo em 90.035 checks.
 
 Comandos principais:
 
@@ -6493,6 +6494,57 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 90.5 - QA interativo e de persistencia do Reserved Gear Fulfillment.
+
+## Etapa 90.5 - QA do Reserved Gear Fulfillment
+
+Status: concluida.
+
+Fluxo interativo validado:
+
+- No cliente web local, Lyra recebeu um template com Brass Shield no slot Offhand.
+- O plano foi ativado, o alvo entrou na Procurement Queue e uma copia exata do Guild Depot foi reservada.
+- `Issue Gear` abriu a confirmacao sem alterar equipamento, ordem ou reserva.
+- `Cancel` fechou a confirmacao e manteve a reserva protegida.
+- A confirmacao final foi acionada com clique duplo e produziu somente uma entrega.
+- O Procurement Board terminou em `1/1 plans complete`, `0/5 queued`, `0 reserved` e `0 unread`.
+- O Character Hall mostrou Brass Shield equipado em Lyra.
+- O Activity Log mostrou uma unica entrada `Reserved gear issued`.
+- A captura visual confirmou o estado completo sem sobreposicao ou overflow aparente.
+- O console web registrou apenas o fallback esperado do SQLite fora do runtime Tauri.
+
+Correcoes defensivas:
+
+- Fulfillment agora bloqueia `capacityMax`, pesos, quantidades ou estruturas de inventario/equipamento invalidas.
+- IDs de itens pertencentes ao personagem precisam ser unicos antes da entrega.
+- A identidade gerada pela transferencia e conferida contra inventario, character depot e equipamento existentes.
+- Colisao de ID bloqueia a operacao com rollback integral, evitando duplicidade no save SQLite.
+
+QA automatizado:
+
+- Harness temporario passou em 90.035 assertions e foi removido.
+- Dez mil ciclos validos equiparam a copia exata, consumiram o item do depot e removeram ordem/reserva.
+- Dez mil repeticoes foram bloqueadas sem mutar guilda, roster ou depot.
+- Foram cobertos capacidade `NaN`/negativa, peso `NaN`, quantidade equipada invalida, identidade duplicada e colisao do ID transferido.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 408 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Uma fixture concluida persistiu Brass Shield equipado em Lyra, sem copia no Guild Depot e sem ordem/reserva.
+- Duas cargas nativas produziram estado canonico identico com SHA-256 `7C184548EE56ACE7147821B0947992B0DA74FDA8871B020A1C89C1E674F9FA72`.
+- As duas cargas mantiveram `integrity_check=ok` e nenhuma violacao de foreign key.
+- O save original foi restaurado byte a byte ao SHA-256 `0B989893FE64D8F0E16EF871887817B1B0D75874B3384C18946EE876FC1F31D3`.
+- Uma carga final com o executavel corrigido manteve esse mesmo SHA e a integridade do banco.
+
+Limitacoes:
+
+- O clique interativo foi feito no cliente web com mock local; o Tauri foi validado por cargas nativas controladas.
+- Nao existe entrega em lote, escolha automatica de alternativa ou fulfillment sem reserva.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 91 - definir a proxima camada offline apos fechar o ciclo de loadout, procurement, reserva e entrega.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
