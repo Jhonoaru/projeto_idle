@@ -47,13 +47,15 @@ export function getGuildRenownObjectiveStatus(guild: Guild, characters: Characte
 }
 
 function getMetrics(guild: Guild, characters: Character[]): Record<GuildRenownObjectiveMetric, number> {
+  const safeCharacters = (Array.isArray(characters) ? characters : [])
+    .filter((character): character is Character => Boolean(character && typeof character === "object"));
   const bestiary = normalizeBestiaryState(guild.bestiary);
   const expeditions = normalizeGuildExpeditionState(guild.expeditions);
   const headquarters = normalizeGuildHeadquarters(guild.headquarters);
   const operationOutcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
   const projects = normalizeGuildProjectsState(guild.projects);
   const candidateCharacterIds = new Set(guildRecruitCandidates.map((candidate) => candidate.characterId));
-  const completedQuestIds = characters.flatMap((character) =>
+  const completedQuestIds = safeCharacters.flatMap((character) =>
     Array.isArray(character.completedQuestIds)
       ? character.completedQuestIds.filter((questId): questId is string => typeof questId === "string" && questId.length > 0)
       : [],
@@ -67,7 +69,7 @@ function getMetrics(guild: Guild, characters: Character[]): Record<GuildRenownOb
     successful_expeditions: expeditions.totalSucceeded,
     facility_upgrades: Object.values(headquarters.facilityLevels).reduce((total, level) => total + normalizeInteger(level), 0),
     completed_projects: projects.totalCompleted,
-    recruited_adventurers: new Set(characters.filter((character) => candidateCharacterIds.has(character.id)).map((character) => character.id)).size,
+    recruited_adventurers: new Set(safeCharacters.filter((character) => candidateCharacterIds.has(character.id)).map((character) => character.id)).size,
     total_operations: totalOperations,
     successful_operations: Math.min(totalOperations, successfulOperations),
     boss_defeats: operationOutcomes.totalBossDefeats,

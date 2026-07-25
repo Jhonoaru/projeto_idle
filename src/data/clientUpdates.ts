@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-97-5",
+    stage: "Stage 97.5",
+    title: "Guild Campaign Milestones QA",
+    date: "2026-07-25",
+    category: "qa",
+    summary: "Deep engine and responsive validation hardened campaign claims, hostile saves and the six lifetime milestone thresholds.",
+    highlights: [
+      "Blocked known claims now retain their campaign identity, keeping Activity Log classification and feedback accurate.",
+      "Persisted claim history repairs altered Renown rewards from the canonical milestone definitions.",
+      "Eighty thousand eighty-five checks, five responsive widths and a release build validated all six chapters and their exact 23 Renown total.",
+    ],
+    systems: ["Campaign Milestones QA", "Guild Renown", "Campaign Operations", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-97",
     stage: "Stage 97",
     title: "Guild Campaign Milestones",

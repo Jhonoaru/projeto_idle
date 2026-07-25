@@ -184,6 +184,7 @@ Atualizado em: 2026-07-25
 - Etapa 96 concluida: Operation Performance Analytics transforma os relatorios recentes em taxa de sucesso, economia, ranking por alvo e tendencia operacional sem novo estado.
 - Etapa 96.5 concluida: QA do Operation Performance Analytics isolou destaques e tendencia por escopo, tornou confiabilidade mais representativa e validou 36.030 assercoes, browser responsivo, Tauri release e integridade SQLite.
 - Etapa 97 concluida: Guild Campaign Milestones adiciona uma trilha operacional lifetime de seis capitulos, claims manuais de Renown e integracao com Bosses, Contracts e Campaign Operations.
+- Etapa 97.5 concluida: QA dos Guild Campaign Milestones corrigiu classificacao de claims bloqueados, reparo canonico de rewards e roster hostil, com 80.085 assercoes e QA responsivo.
 
 Comandos principais:
 
@@ -7359,6 +7360,56 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 97.5 - QA aprofundada dos Guild Campaign Milestones.
+
+## Etapa 97.5 - QA aprofundada dos Guild Campaign Milestones
+
+Status: concluida.
+
+Correcoes:
+
+- Claims bloqueados de objetivos conhecidos agora preservam a definicao e o grupo `campaign`, mantendo titulo e Activity Log corretos.
+- Apenas um ID realmente desconhecido retorna sem definicao.
+- O historico persistido restaura `renownGained` pela recompensa canonica da definicao, impedindo valores alterados, zerados ou hostis no save.
+- O calculo de metricas ignora entradas nulas ou nao-objeto em rosters corrompidos antes de ler quests e candidatos recrutados.
+
+QA automatizado:
+
+- Harness temporario passou em 80.085 assercoes e foi removido.
+- As seis definicoes de Campaign e as seis de Foundation foram verificadas sem mistura entre os paineis.
+- Cada milestone passou em `target - 1`, threshold exato e `target + 1`.
+- Os seis claims somaram exatamente 23 Renown e bloquearam duplicacao, timestamp invalido e objetivo incompleto.
+- Foram validados Renown `NaN`/`Number.MAX_SAFE_INTEGER`, historico adulterado, roster hostil e objetivo desconhecido.
+- `mapGuild` passou em round-trip do JSON SQLite e JSON malformado retornou defaults seguros.
+- Cinco mil campanhas deterministicas preservaram limites, totais, sucessos e invariantes de progresso.
+
+QA visual e acessibilidade:
+
+- Estado vazio exibiu os seis cards, seis progressbars nomeadas, resumo `aria-live` e seis rotas de origem.
+- Fixture veterana mostrou 6/6 completos, dois registros persistidos e quatro claims oferecendo +18 Renown.
+- Claim de Contract +3 mudou para `Recorded`, atualizou o resumo para +15 e produziu um unico Activity Log.
+- A grade refluiu em 1280, 960, 760, 520 e 390 px, respectivamente para 6, 3, 2, 1 e 1 colunas, sem overflow.
+- A ativacao por teclado automatizada do browser ficou inconclusiva; os controles continuam botoes HTML nativos, mas navegacao manual por teclado nao foi confirmada.
+- Fixture, harness e servidor Vite temporarios foram removidos e o mock original foi restaurado.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou com 420 modulos antes e depois das correcoes.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- O banco real respondeu `integrity=ok`, preservou Renown 12 e os claims vazios.
+- Banco, WAL e SHM permaneceram byte a byte iguais ao backup; o SHA-256 principal continuou `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- O banco legado possui 27 colunas e ainda nao recebeu `operation_outcomes_json`, pois o app nativo nao chegou a iniciar nesta maquina.
+- `npm.cmd run tauri:dev` ficou bloqueado pela politica de Controle de Aplicativo do Windows ao executar build scripts Rust (`os error 4551`); por isso a migration nativa interativa nao foi alegada como validada.
+
+Limitacoes:
+
+- Operacoes historicas anteriores aos contadores lifetime nao podem ser reconstruidas.
+- Lucro e ranking por alvo continuam restritos a janela recente do analytics.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+- A migration do banco legado ainda precisa de uma inicializacao nativa em ambiente sem o bloqueio de politica observado.
+
+Proximo passo sugerido:
+
+- Etapa 98 - Campaign Region Mastery.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -8,10 +8,10 @@ export function claimGuildRenownObjective(guild: Guild, characters: Character[],
   const status = getGuildRenownObjectiveStatus(guild, characters);
   const objective = status.objectives.find((entry) => entry.definition.id === objectiveId);
 
-  if (!definition || !objective) return blocked(guild, status.state, "Renown objective not found.");
-  if (!Number.isFinite(now.getTime())) return blocked(guild, status.state, "Objective timestamp is invalid.");
-  if (objective.claimed) return blocked(guild, status.state, `${definition.title} was already claimed.`);
-  if (!objective.completed) return blocked(guild, status.state, `${definition.title} is not complete.`);
+  if (!definition || !objective) return blocked(guild, status.state, undefined, "Renown objective not found.");
+  if (!Number.isFinite(now.getTime())) return blocked(guild, status.state, definition, "Objective timestamp is invalid.");
+  if (objective.claimed) return blocked(guild, status.state, definition, `${definition.title} was already claimed.`);
+  if (!objective.completed) return blocked(guild, status.state, definition, `${definition.title} is not complete.`);
 
   const currentRenown = normalizeInteger(guild.renown);
   const claimedAt = now.toISOString();
@@ -32,8 +32,13 @@ export function claimGuildRenownObjective(guild: Guild, characters: Character[],
   };
 }
 
-function blocked(guild: Guild, state: ReturnType<typeof normalizeGuildRenownObjectivesState>, message: string) {
-  return { success: false, guild: { ...guild, renownObjectives: state }, definition: undefined, renownGained: 0, message };
+function blocked(
+  guild: Guild,
+  state: ReturnType<typeof normalizeGuildRenownObjectivesState>,
+  definition: ReturnType<typeof getGuildRenownObjective>,
+  message: string,
+) {
+  return { success: false, guild: { ...guild, renownObjectives: state }, definition, renownGained: 0, message };
 }
 
 function normalizeInteger(value: unknown) {
