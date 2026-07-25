@@ -172,6 +172,7 @@ Atualizado em: 2026-07-24
 - Etapa 90 concluida: Reserved Gear Fulfillment entrega manualmente a copia reservada ao aventureiro correto, equipa o alvo e conclui ordem/reserva de forma atomica.
 - Etapa 90.5 concluida: QA interativo e SQLite do Reserved Gear Fulfillment validou confirmacao, clique duplo, persistencia e rollback defensivo em 90.035 checks.
 - Etapa 91 concluida: Armory Fulfillment Ledger registra as 30 entregas manuais mais recentes com peca, aventureiro, template, slot, substituicao e horario.
+- Etapa 91.5 concluida: QA do Fulfillment Ledger preservou itens aposentados, priorizou ordens ativas e validou 60.016 checks com duas cargas SQLite.
 
 Comandos principais:
 
@@ -6567,7 +6568,7 @@ Normalizacao e save:
 - O array usa o `loadout_templates_json` existente; nenhuma tabela, coluna ou migration nova foi criada.
 - Saves antigos recebem `fulfillmentHistory: []`.
 - IDs de registro e inventoryItemId duplicados sao removidos.
-- Timestamp, template slot, equipment slot, item e campos de identidade invalidos sao descartados.
+- Timestamp, template slot, equipment slot e campos de identidade vazios ou invalidos sao descartados.
 - Limpar/editar template, desativar assignment ou remover personagem nao apaga o historico valido.
 - Fulfillment bloqueado ou repetido nao cria registro.
 
@@ -6611,6 +6612,61 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 91.5 - QA aprofundada do Armory Fulfillment Ledger.
+
+## Etapa 91.5 - QA do Armory Fulfillment Ledger
+
+Status: concluida.
+
+Correcoes aplicadas:
+
+- Registros historicos dependiam do item continuar presente no catalogo atual.
+- Uma futura remocao ou substituicao de item apagaria silenciosamente entregas antigas.
+- O normalizador agora preserva itemId e nomes historicos validos mesmo sem definicao atual no catalogo.
+- Equipamentos substituidos aposentados tambem permanecem legiveis pelo snapshot.
+- Se a definicao atual existe, o slot continua sendo validado; uma arma conhecida nao pode aparecer como substituicao de Offhand.
+- Itens historicos sem catalogo recebem icone fallback com iniciais e label propria, em vez de parecer slot vazio.
+- Procurement Orders passou a aparecer antes do historico, mantendo o trabalho ativo como primeira prioridade.
+- Em telas estreitas, horario passa para uma linha propria dentro do registro e nao comprime o nome do item.
+
+QA automatizado:
+
+- Harness temporario passou em 60.016 assertions e foi removido.
+- Dez mil ciclos hostis combinaram registro valido, item aposentado, colisao de ID, colisao de inventoryItemId e timestamp invalido.
+- Cada ciclo preservou exatamente o registro valido e o aposentado.
+- Snapshots de item e substituicao aposentados permaneceram intactos.
+- Substituicao conhecida em slot divergente foi removida sem apagar o registro principal.
+- Ledger cheio continuou limitado aos 30 registros mais recentes.
+- Renderizacao React confirmou fila antes do historico, apenas seis entradas visiveis, ordem mais recente primeiro e fallback `RS`.
+
+QA visual:
+
+- O fluxo real de Lyra foi repetido ate a entrega do Brass Shield.
+- Procurement Orders apareceu antes de Recent Gear Issues.
+- O ledger mostrou `1/30 retained` e o plano permaneceu `1/1 plans complete`.
+- A captura final nao apresentou sobreposicao ou overflow aparente.
+- Nenhum erro inesperado apareceu no console; somente o fallback SQLite esperado fora do Tauri.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 408 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Fixture nativa incluiu item/substituicao aposentados, substituicao conhecida no slot errado, colisao de inventoryItemId e timestamp invalido.
+- Duas cargas preservaram `Retired Shield` e `Retired Buckler`.
+- As cargas removeram `Worn Sword` como substituicao invalida de Offhand.
+- Ambas produziram SHA-256 canonico `F56002395DC1642DF8BCAFB3B632AA7EFB6EC57A416095B03D289747C31A57DA`.
+- SQLite manteve `integrity_check=ok` e nenhuma violacao de foreign key.
+- O save original foi restaurado byte a byte ao SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes mantidas:
+
+- O ledger continua somente leitura e sem rewards.
+- O catalogo aposentado usa snapshot textual e iniciais, sem reconstruir stats antigos.
+- O clique interativo ocorreu no cliente web; Tauri foi validado por cargas nativas controladas.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 92 - definir a proxima camada offline apos o ledger de entregas validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -142,7 +142,6 @@ function normalizeFulfillmentRecord(value: unknown): GuildLoadoutFulfillmentReco
     ? candidate.slot as EquipmentSlot
     : undefined;
   const itemId = normalizeIdentity(candidate.itemId, 80);
-  const item = items[itemId];
   const itemName = normalizeHistoricalName(candidate.itemName, 60);
   const inventoryItemId = normalizeIdentity(candidate.inventoryItemId, 140);
   const fulfilledAt = normalizeValidTimestamp(candidate.fulfilledAt);
@@ -153,9 +152,7 @@ function normalizeFulfillmentRecord(value: unknown): GuildLoadoutFulfillmentReco
     || !template
     || !templateName
     || !slot
-    || !item
-    || item.type !== "equipment"
-    || item.equipmentSlot !== slot
+    || !itemId
     || !itemName
     || !inventoryItemId
     || !fulfilledAt
@@ -163,6 +160,17 @@ function normalizeFulfillmentRecord(value: unknown): GuildLoadoutFulfillmentReco
   const previousItemId = normalizeIdentity(candidate.previousItemId, 80);
   const previousCatalogItem = previousItemId ? items[previousItemId] : undefined;
   const previousItemName = normalizeHistoricalName(candidate.previousItemName, 60);
+  const validPreviousItem = Boolean(
+    previousItemId
+    && previousItemName
+    && (
+      !previousCatalogItem
+      || (
+        previousCatalogItem.type === "equipment"
+        && previousCatalogItem.equipmentSlot === slot
+      )
+    )
+  );
   return {
     id,
     characterId,
@@ -173,16 +181,8 @@ function normalizeFulfillmentRecord(value: unknown): GuildLoadoutFulfillmentReco
     itemId,
     itemName,
     inventoryItemId,
-    previousItemId: previousCatalogItem?.type === "equipment"
-      && previousCatalogItem.equipmentSlot === slot
-      && previousItemName
-      ? previousItemId
-      : undefined,
-    previousItemName: previousCatalogItem?.type === "equipment"
-      && previousCatalogItem.equipmentSlot === slot
-      && previousItemName
-      ? previousItemName
-      : undefined,
+    previousItemId: validPreviousItem ? previousItemId : undefined,
+    previousItemName: validPreviousItem ? previousItemName : undefined,
     fulfilledAt,
   } satisfies GuildLoadoutFulfillmentRecord;
 }

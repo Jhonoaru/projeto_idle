@@ -131,30 +131,6 @@ export function GuildLoadoutProcurementBoard({
         </div>
       </section>
 
-      <section className="procurement-fulfillment-history">
-        <header>
-          <div><span>Armory audit trail</span><strong>Recent Gear Issues</strong></div>
-          <b>{tracker.state.fulfillmentHistory.length}/30 retained</b>
-        </header>
-        {fulfillmentHistory.length > 0 ? (
-          <div>
-            {fulfillmentHistory.map((record) => (
-              <article key={record.id}>
-                <ItemIcon item={items[record.itemId]} showQuantity={false} size="small" />
-                <span>
-                  <small>{record.characterName} / {slotLabels[record.slot]} / {record.templateName}</small>
-                  <strong>{record.itemName}</strong>
-                  <em>{record.previousItemName ? `Replaced ${record.previousItemName}` : "Filled empty equipment slot"}</em>
-                </span>
-                <time dateTime={record.fulfilledAt}>{formatFulfillmentTime(record.fulfilledAt)}</time>
-              </article>
-            ))}
-          </div>
-        ) : (
-          <p>No reserved gear has been issued yet.</p>
-        )}
-      </section>
-
       <section className="procurement-priority-queue">
         <header>
           <div><span>Manual priority ledger</span><strong>Procurement Orders</strong></div>
@@ -302,6 +278,43 @@ export function GuildLoadoutProcurementBoard({
           </div>
         ) : (
           <p>Select unresolved targets below to build a five-item manual priority queue.</p>
+        )}
+      </section>
+
+      <section className="procurement-fulfillment-history">
+        <header>
+          <div><span>Armory audit trail</span><strong>Recent Gear Issues</strong></div>
+          <b>{tracker.state.fulfillmentHistory.length}/30 retained</b>
+        </header>
+        {fulfillmentHistory.length > 0 ? (
+          <div>
+            {fulfillmentHistory.map((record) => {
+              const catalogItem = getHistoricalCatalogItem(record.itemId);
+              return (
+                <article key={record.id}>
+                  {catalogItem ? (
+                    <ItemIcon item={catalogItem} showQuantity={false} size="small" />
+                  ) : (
+                    <div
+                      aria-label={record.itemName}
+                      className="item-icon item-icon-small fulfillment-history-fallback"
+                      title={`${record.itemName} / Historical item`}
+                    >
+                      <strong>{historicalItemSymbol(record.itemName)}</strong>
+                    </div>
+                  )}
+                  <span>
+                    <small>{record.characterName} / {slotLabels[record.slot]} / {record.templateName}</small>
+                    <strong>{record.itemName}</strong>
+                    <em>{record.previousItemName ? `Replaced ${record.previousItemName}` : "Filled empty equipment slot"}</em>
+                  </span>
+                  <time dateTime={record.fulfilledAt}>{formatFulfillmentTime(record.fulfilledAt)}</time>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <p>No reserved gear has been issued yet.</p>
         )}
       </section>
 
@@ -486,6 +499,15 @@ function formatFulfillmentTime(value: string) {
         minute: "2-digit",
       }).format(date)
     : "Unknown";
+}
+
+function getHistoricalCatalogItem(itemId: string) {
+  return Object.prototype.hasOwnProperty.call(items, itemId) ? items[itemId] : undefined;
+}
+
+function historicalItemSymbol(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  return (words.length > 1 ? `${words[0][0]}${words[1][0]}` : words[0]?.slice(0, 2) ?? "?").toUpperCase();
 }
 
 function matchesFilter(route: GuildLoadoutProcurementRoute, filter: ProcurementFilter) {

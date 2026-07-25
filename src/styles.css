@@ -13822,6 +13822,7 @@ html[data-client-motion="reduced"] *::after {
 .procurement-fulfillment-history article strong { margin: 2px 0; color: #d8cc9d; font-size: 0.53rem; }
 .procurement-fulfillment-history article em { color: #8ea084; font-size: 0.4rem; font-style: normal; }
 .procurement-fulfillment-history article time { color: #a79a72; font-size: 0.4rem; white-space: nowrap; }
+.procurement-fulfillment-history .fulfillment-history-fallback { border-color: #596158; color: #b6ad8e; background: #20251f; }
 .procurement-fulfillment-history > p { margin: 7px 0 0; padding: 10px; border: 1px dashed #384039; color: #7f8981; font-size: 0.48rem; text-align: center; }
 .procurement-workspace { display: grid; grid-template-columns: minmax(300px, 0.65fr) minmax(560px, 1.35fr); gap: 8px; min-width: 0; align-items: start; }
 .procurement-routes,
@@ -13927,6 +13928,8 @@ html[data-client-motion="reduced"] *::after {
   .procurement-fulfillment-confirm { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .procurement-fulfillment-confirm span { grid-column: 1 / -1; }
   .procurement-dossier > header { align-items: flex-start; flex-direction: column; }
+  .procurement-fulfillment-history article { grid-template-columns: 38px minmax(0, 1fr); }
+  .procurement-fulfillment-history article time { grid-column: 2; }
   .procurement-priority-queue article { grid-template-columns: 24px 38px minmax(0, 1fr); }
   .procurement-priority-queue article > div { grid-column: 2 / -1; grid-template-columns: 25px 25px minmax(90px, 1fr) 25px; }
   .procurement-priority-queue article > div button.is-view-route,
