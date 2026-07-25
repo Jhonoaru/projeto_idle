@@ -41,6 +41,7 @@ export function startHunt(
   hunt: HuntArea,
   durationMinutes: number,
   guildXpBonusPercent = 0,
+  guildGoldBonusPercent = 0,
 ): Character {
   if (blockedStatuses.includes(character.status)) {
     throw new Error(`${character.name} cannot start a hunt while ${character.status}.`);
@@ -67,6 +68,7 @@ export function startHunt(
   const startedAt = new Date();
   const endsAt = new Date(startedAt.getTime() + durationMinutes * 60_000);
   const appliedGuildXpBonus = normalizeGuildBonus(guildXpBonusPercent);
+  const appliedGuildGoldBonus = normalizeGuildBonus(guildGoldBonusPercent);
 
   return {
     ...character,
@@ -85,7 +87,11 @@ export function startHunt(
         (1 + appliedGuildXpBonus / 100),
       ),
       guildXpBonusPercent: appliedGuildXpBonus,
-      expectedGold: Math.round((hunt.estimatedGoldPerHour / 60) * durationMinutes),
+      guildGoldBonusPercent: appliedGuildGoldBonus,
+      expectedGold: Math.round(
+        (hunt.estimatedGoldPerHour / 60) * durationMinutes *
+        (1 + appliedGuildGoldBonus / 100),
+      ),
     },
   };
 }
@@ -100,7 +106,7 @@ export function finishHunt(
   guildGoldBonusPercent = 0,
 ): { character: Character; result: HuntSimulationResult; guildGoldLost: number } {
   const appliedGuildXpBonus = normalizeGuildBonus(character.currentAction?.guildXpBonusPercent ?? guildXpBonusPercent);
-  const appliedGuildGoldBonus = normalizeGuildBonus(guildGoldBonusPercent);
+  const appliedGuildGoldBonus = normalizeGuildBonus(character.currentAction?.guildGoldBonusPercent ?? guildGoldBonusPercent);
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
   const imbuementBonuses = calculateActiveImbuementBonuses(character);
   const proficiencyBonuses = calculateWeaponProficiencyBonuses(character);

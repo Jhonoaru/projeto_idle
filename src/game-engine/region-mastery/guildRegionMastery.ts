@@ -60,11 +60,18 @@ export function getGuildRegionMasteryBonuses(guild: Guild, city: string) {
 }
 
 export function recordGuildRegionMastery(guild: Guild, operation: RegionMasteryOperation) {
+  if (!isRegionMasteryOperation(operation)) {
+    const operationOutcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
+    return { guild: { ...guild, operationOutcomes }, pointsGained: 0, rankedUp: false, status: undefined };
+  }
   const definition = operation.kind === "contract"
     ? getGuildCampaignRegionByContract(operation.contractId)
     : getGuildCampaignRegionByCity(operation.city);
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
-  if (!definition || (operation.kind === "hunt" && !operation.succeeded)) {
+  if (
+    !definition ||
+    (operation.kind === "hunt" && (operation.succeeded !== true || normalizeDuration(operation.durationMinutes) <= 0))
+  ) {
     return { guild: { ...guild, operationOutcomes: outcomes }, pointsGained: 0, rankedUp: false, status: undefined };
   }
 
@@ -137,13 +144,13 @@ function incrementProgress(progress: GuildRegionMasteryProgress, operation: Regi
     return {
       ...progress,
       bossAttempts: safeIncrement(progress.bossAttempts),
-      bossDefeats: safeAdd(progress.bossDefeats, operation.defeated ? 1 : 0),
+      bossDefeats: safeAdd(progress.bossDefeats, operation.defeated === true ? 1 : 0),
     };
   }
   return {
     ...progress,
     contractsCompleted: safeIncrement(progress.contractsCompleted),
-    contractsSucceeded: safeAdd(progress.contractsSucceeded, operation.succeeded ? 1 : 0),
+    contractsSucceeded: safeAdd(progress.contractsSucceeded, operation.succeeded === true ? 1 : 0),
   };
 }
 
@@ -160,7 +167,21 @@ function createProgress(regionId: string): GuildRegionMasteryProgress {
 }
 
 function normalizeDuration(value: unknown) {
-  return Math.min(24 * 60, Math.max(1, safeInteger(value)));
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) && parsed > 0
+    ? Math.min(24 * 60, Math.floor(parsed))
+    : 0;
+}
+
+function isRegionMasteryOperation(value: unknown): value is RegionMasteryOperation {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<RegionMasteryOperation>;
+  if (candidate.kind === "hunt" || candidate.kind === "boss") {
+    return typeof candidate.city === "string" && candidate.city.length > 0;
+  }
+  return candidate.kind === "contract"
+    && typeof candidate.contractId === "string"
+    && candidate.contractId.length > 0;
 }
 
 function safeIncrement(value: unknown) {

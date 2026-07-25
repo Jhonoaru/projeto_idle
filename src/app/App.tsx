@@ -1049,6 +1049,7 @@ export function App() {
         selectedHunt,
         durationMinutes,
         guildOperationBonuses.huntXpBonusPercent + regionBonuses.huntXpBonusPercent,
+        regionBonuses.huntGoldBonusPercent,
       );
       if (autoRepeat?.enabled) {
         const now = new Date().toISOString();
@@ -1197,6 +1198,7 @@ export function App() {
         previousConfig: previousAutoRepeat,
         durationMinutes: activeDuration,
         guildXpBonusPercent: guildOperationBonuses.huntXpBonusPercent + nextRegionBonuses.huntXpBonusPercent,
+        guildGoldBonusPercent: nextRegionBonuses.huntGoldBonusPercent,
       });
 
       updateSelectedCharacter(autoRepeatResult.character);

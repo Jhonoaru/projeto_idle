@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-98-5",
+    stage: "Stage 98.5",
+    title: "Campaign Region Mastery QA",
+    date: "2026-07-25",
+    category: "qa",
+    summary: "Snapshot, hostile-save and keyboard validation hardened the complete regional progression loop.",
+    highlights: [
+      "Regional Hunt gold now snapshots when the action starts, matching XP and preventing mid-hunt patent changes from altering past rewards.",
+      "Auto-repeat carries both current regional bonuses while legacy actions safely fall back to the guild's current mastery.",
+      "One hundred thousand sixty-seven checks and exact 9/30/140-point UI fixtures validated thresholds, duplicate reports and corrupted operation events.",
+    ],
+    systems: ["Region Mastery QA", "Hunt Snapshots", "Auto-repeat", "Campaign Operations", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-98",
     stage: "Stage 98",
     title: "Campaign Region Mastery",

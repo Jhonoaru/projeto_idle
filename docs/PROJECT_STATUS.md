@@ -186,6 +186,7 @@ Atualizado em: 2026-07-25
 - Etapa 97 concluida: Guild Campaign Milestones adiciona uma trilha operacional lifetime de seis capitulos, claims manuais de Renown e integracao com Bosses, Contracts e Campaign Operations.
 - Etapa 97.5 concluida: QA dos Guild Campaign Milestones corrigiu classificacao de claims bloqueados, reparo canonico de rewards e roster hostil, com 80.085 assercoes e QA responsivo.
 - Etapa 98 concluida: Campaign Region Mastery conecta Hunts, Bosses e Contracts a tres patentes regionais lifetime, com bonus local de ate +4% XP e gold.
+- Etapa 98.5 concluida: QA da Region Mastery congelou bonus de gold por Hunt, protegeu eventos hostis, completou o auto-repeat e validou 100.067 assercoes.
 
 Comandos principais:
 
@@ -7503,6 +7504,70 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 98.5 - QA aprofundada do Campaign Region Mastery.
+
+## Etapa 98.5 - QA aprofundada do Campaign Region Mastery
+
+Status: concluida.
+
+Problemas encontrados e corrigidos:
+
+- O bonus regional de XP era congelado ao iniciar a Hunt, mas o gold era recalculado na coleta.
+- `CharacterAction` agora persiste `guildGoldBonusPercent` junto ao snapshot de XP.
+- Uma mudanca de patente enquanto a Hunt esta ativa nao altera retroativamente o gold daquela operacao.
+- `expectedGold` de Hunts iniciais e repetidas agora inclui o bonus regional congelado.
+- Auto-repeat recebe os snapshots atuais de XP e gold depois de registrar uma possivel mudanca de patente.
+- Acoes antigas sem `guildGoldBonusPercent` continuam usando o bonus regional atual como fallback.
+- `normalizeCharacterAction` limita snapshots carregados ao intervalo seguro de 0% a 25% e preserva `undefined` em saves legados.
+- Eventos runtime com tipo desconhecido podiam cair no ramo de Contract; agora tipos, IDs/cidades e duracao sao validados antes do registro.
+- Hunt com duracao `NaN`, zero ou negativa nao registra report nem minutos.
+- Flags hostis como a string `"true"` nao contam como sucesso de Hunt, Boss ou Contract.
+- Uma unica Hunt valida continua limitada a 24 horas de progresso regional.
+
+QA automatizado:
+
+- Harness temporario passou em 100.067 assercoes e foi removido.
+- Todos os Hunts, Bosses e Contracts permaneceram mapeados para uma das tres regioes.
+- Os thresholds 0, 10, 30, 70 e 140 passaram no valor exato e imediatamente abaixo.
+- Foram validados bonuses de XP/gold, teto de +4%, isolamento regional e estado MAX.
+- JSON ausente, malformado, duplicado, desconhecido e com valores extremos retornou estado canonico.
+- Duplicatas preservam o maior contador valido sem somar progresso artificial.
+- `mapGuild` manteve round-trip de `operation_outcomes_json`.
+- Start Hunt, load normalization, finish Hunt e auto-repeat preservaram os snapshots esperados.
+- A segunda coleta do mesmo Boss report ou Contract nao concedeu pontos novamente.
+- Dez mil campanhas deterministicas mantiveram limites, ranks, percentuais e invariantes.
+
+QA visual e acessibilidade:
+
+- Save vazio continuou mostrando tres regioes Uncharted, tres tabs e tres progressbars nomeadas.
+- Fixture de borda mostrou Thaeron com 9 pontos ainda Uncharted, Khazgrim com 30 exatamente Established e Eldoria com 140 exatamente Mastered.
+- Resumo mostrou 179 pontos e bonus 0%, 2% e 4% sem arredondamento incorreto.
+- Tabs agora usam `tabIndex` roving e respondem a ArrowLeft, ArrowRight, ArrowUp, ArrowDown, Home e End.
+- O tabpanel e focavel e atualiza corretamente `aria-labelledby`.
+- O painel nao apresentou elementos cortados ou overflow em 1280x720.
+- O browser recusou a pagina auxiliar usada para viewports controlados; os breakpoints de 980, 760 e 520 px foram revisados em CSS, mas QA interativo mobile nao foi alegado.
+- Fixture, harness, servidor e logs temporarios foram removidos; o mock voltou a 0/3.
+- No Vite permaneceu apenas o fallback esperado do Tauri SQL sem `invoke`.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou antes e depois das correcoes com 423 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- O save real respondeu `integrity=ok`, manteve 27 colunas e Renown 12.
+- Banco, WAL e SHM preservaram seus hashes; o SHA-256 principal continuou `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- A execucao nativa nao foi repetida porque a politica de Controle de Aplicativo ja bloqueou o mesmo release na Etapa 98.
+- Nenhuma migration ou escrita no save real foi realizada nesta QA.
+
+Limitacoes:
+
+- O save legado real ainda precisa executar a migration existente de `operation_outcomes_json` em ambiente sem o bloqueio do Windows.
+- Operacoes anteriores a Etapa 98 nao podem ser reconstruidas por regiao.
+- QA interativo mobile permanece pendente em um browser que permita controlar viewport.
+- O bonus regional continua restrito a Hunts.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 99 - Regional Campaign Orders.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

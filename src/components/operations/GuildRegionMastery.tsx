@@ -36,7 +36,12 @@ export function GuildRegionMastery({ guild, onOpenSystem }: GuildRegionMasteryPr
         </div>
       </header>
 
-      <div className="guild-region-mastery-tabs" aria-label="Campaign regions" role="tablist">
+      <div
+        aria-label="Campaign regions"
+        aria-orientation="horizontal"
+        className="guild-region-mastery-tabs"
+        role="tablist"
+      >
         {regions.map((region) => (
           <button
             aria-controls="guild-region-mastery-dossier"
@@ -44,7 +49,9 @@ export function GuildRegionMastery({ guild, onOpenSystem }: GuildRegionMasteryPr
             id={`guild-region-tab-${region.definition.id}`}
             key={region.definition.id}
             onClick={() => setSelectedRegionId(region.definition.id)}
+            onKeyDown={handleTabKeyDown}
             role="tab"
+            tabIndex={region.definition.id === selected.definition.id ? 0 : -1}
             type="button"
           >
             <i aria-hidden="true">{region.definition.sigil}</i>
@@ -68,6 +75,7 @@ export function GuildRegionMastery({ guild, onOpenSystem }: GuildRegionMasteryPr
         className="guild-region-mastery-dossier"
         id="guild-region-mastery-dossier"
         role="tabpanel"
+        tabIndex={0}
       >
         <header>
           <i aria-hidden="true">{selected.definition.sigil}</i>
@@ -133,6 +141,23 @@ export function GuildRegionMastery({ guild, onOpenSystem }: GuildRegionMasteryPr
       </div>
     </section>
   );
+}
+
+function handleTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+  const tabs = Array.from(
+    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? [],
+  );
+  const currentIndex = tabs.indexOf(event.currentTarget);
+  if (currentIndex < 0 || tabs.length === 0) return;
+  let nextIndex: number | undefined;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
+  if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = tabs.length - 1;
+  if (nextIndex === undefined) return;
+  event.preventDefault();
+  tabs[nextIndex].focus();
+  tabs[nextIndex].click();
 }
 
 function Summary({ label, value }: { label: string; value: string }) {

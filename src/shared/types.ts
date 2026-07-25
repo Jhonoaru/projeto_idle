@@ -1063,6 +1063,7 @@ export interface CharacterAction {
   risk?: HuntRisk;
   expectedXp?: number;
   guildXpBonusPercent?: number;
+  guildGoldBonusPercent?: number;
   expectedGold?: number;
   trainingType?: TrainingType;
   targetSkill?: TrainingTarget;

@@ -17,6 +17,13 @@ export function normalizeCharacterAction(
   action: CharacterAction | undefined,
   skills: SkillSet,
 ): CharacterAction | undefined {
+  if (action?.type === "hunting") {
+    return {
+      ...action,
+      guildXpBonusPercent: normalizeGuildBonus(action.guildXpBonusPercent),
+      guildGoldBonusPercent: normalizeGuildBonus(action.guildGoldBonusPercent),
+    };
+  }
   if (!action || action.type !== "training") return action;
   const targetSkill = action.targetSkill && trainingTargets.includes(action.targetSkill)
     ? action.targetSkill
@@ -29,6 +36,12 @@ export function normalizeCharacterAction(
     trainingType: normalizeTrainingType(action.trainingType),
     expectedGainPercent: normalizeExpectedGain(action.expectedGainPercent),
   };
+}
+
+function normalizeGuildBonus(value: unknown) {
+  if (value === undefined) return undefined;
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.min(25, Math.max(0, Math.floor(parsed))) : undefined;
 }
 
 function inferTrainingTarget(action: CharacterAction, skills: SkillSet) {
