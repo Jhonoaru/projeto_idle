@@ -19,13 +19,9 @@ export function OperationPerformanceAnalytics({ guild, characters }: OperationPe
     [characters, guild],
   );
   const [scope, setScope] = useState<AnalyticsScope>("all");
-  const targets = useMemo(
-    () => scope === "all"
-      ? analytics.targets
-      : analytics.targets.filter((target) => target.kind === scope),
-    [analytics.targets, scope],
-  );
-  const summary = scope === "boss" ? analytics.bosses : scope === "contract" ? analytics.contracts : analytics.overall;
+  const scopedAnalytics = analytics.scopes[scope];
+  const targets = scopedAnalytics.targets;
+  const summary = scopedAnalytics.summary;
   const [selectedId, setSelectedId] = useState<string | null>(analytics.targets[0]?.id ?? null);
   const selected = targets.find((target) => target.id === selectedId) ?? targets[0];
 
@@ -90,14 +86,14 @@ export function OperationPerformanceAnalytics({ guild, characters }: OperationPe
         </div>
       )}
 
-      <div className="operation-performance-insights">
-        <Insight label="Most profitable" target={analytics.highlights.mostProfitable} value={(target) => formatSignedGold(target.netGold)} />
-        <Insight label="Most reliable" target={analytics.highlights.mostReliable} value={(target) => `${target.successRate}% success`} />
-        <Insight label="Most active" target={analytics.highlights.mostActive} value={(target) => `${target.operations} report(s)`} />
+      <div className="operation-performance-insights" aria-live="polite">
+        <Insight label="Most profitable" target={scopedAnalytics.highlights.mostProfitable} value={(target) => formatSignedGold(target.netGold)} />
+        <Insight label="Most reliable" target={scopedAnalytics.highlights.mostReliable} value={(target) => `${target.successRate}% / ${target.operations} report(s)`} />
+        <Insight label="Most active" target={scopedAnalytics.highlights.mostActive} value={(target) => `${target.operations} report(s)`} />
         <div>
           <span>Recent form</span>
-          <strong>{recentDirectionLabel(analytics.recentDirection)}</strong>
-          <small>{analytics.recent.successRate}% success / {formatSignedGold(analytics.recent.averageNetGold)} avg.</small>
+          <strong>{recentDirectionLabel(scopedAnalytics.recentDirection)}</strong>
+          <small>{scopedAnalytics.recent.successRate}% success / {formatSignedGold(scopedAnalytics.recent.averageNetGold)} avg.</small>
         </div>
       </div>
     </section>

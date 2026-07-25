@@ -29,30 +29,60 @@ export interface OperationTargetPerformance extends OperationPerformanceSummary 
   lastCompletedAt: string;
 }
 
+export interface OperationPerformanceScope {
+  summary: OperationPerformanceSummary;
+  recent: OperationPerformanceSummary;
+  previous: OperationPerformanceSummary;
+  recentDirection: "empty" | "positive" | "negative" | "improving" | "declining";
+  targets: OperationTargetPerformance[];
+  highlights: {
+    mostProfitable?: OperationTargetPerformance;
+    mostReliable?: OperationTargetPerformance;
+    mostActive?: OperationTargetPerformance;
+  };
+}
+
 export function buildOperationPerformanceAnalytics(guild: Guild, characters: Character[]) {
   const ledger = buildOperationOutcomeLedger(guild, characters);
-  const targets = buildTargets(ledger.entries);
-  const recentEntries = ledger.entries.slice(0, 5);
-  const recent = summarize(recentEntries);
-  const previous = summarize(ledger.entries.slice(5, 10));
+  const all = buildScope(ledger.entries);
+  const boss = buildScope(ledger.entries.filter((entry) => entry.kind === "boss"));
+  const contract = buildScope(ledger.entries.filter((entry) => entry.kind === "contract"));
   return {
     windowSize: ledger.entries.length,
-    overall: summarize(ledger.entries),
-    bosses: summarize(ledger.entries.filter((entry) => entry.kind === "boss")),
-    contracts: summarize(ledger.entries.filter((entry) => entry.kind === "contract")),
+    overall: all.summary,
+    bosses: boss.summary,
+    contracts: contract.summary,
+    recent: all.recent,
+    previous: all.previous,
+    recentDirection: all.recentDirection,
+    targets: all.targets,
+    highlights: all.highlights,
+    scopes: { all, boss, contract },
+  };
+}
+
+export type OperationPerformanceAnalytics = ReturnType<typeof buildOperationPerformanceAnalytics>;
+
+function buildScope(entries: OperationOutcomeLedgerEntry[]): OperationPerformanceScope {
+  const targets = buildTargets(entries);
+  const recent = summarize(entries.slice(0, 5));
+  const previous = summarize(entries.slice(5, 10));
+  const reliabilityPool = targets.some((target) => target.operations >= 2)
+    ? targets.filter((target) => target.operations >= 2)
+    : targets;
+  return {
+    summary: summarize(entries),
     recent,
     previous,
     recentDirection: getRecentDirection(recent, previous),
     targets,
     highlights: {
       mostProfitable: [...targets].sort(compareMostProfitable)[0],
-      mostReliable: [...targets].sort(compareMostReliable)[0],
+      mostReliable: [...reliabilityPool].sort(compareMostReliable)[0],
       mostActive: [...targets].sort(compareMostActive)[0],
     },
   };
 }
-
-export type OperationPerformanceAnalytics = ReturnType<typeof buildOperationPerformanceAnalytics>;
 
 function buildTargets(entries: OperationOutcomeLedgerEntry[]) {
   const grouped = new Map<string, OperationOutcomeLedgerEntry[]>();

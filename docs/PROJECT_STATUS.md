@@ -182,6 +182,7 @@ Atualizado em: 2026-07-25
 - Etapa 95 concluida: Operation Outcome Ledger registra Bosses e Contracts concluidos, consolida custos, ganhos, participantes e loot e persiste o historico de Bosses no SQLite local.
 - Etapa 95.5 concluida: QA do Operation Outcome Ledger estabilizou identidade de Boss, saneou historico de Contracts, blindou somas e completou acessibilidade dos filtros.
 - Etapa 96 concluida: Operation Performance Analytics transforma os relatorios recentes em taxa de sucesso, economia, ranking por alvo e tendencia operacional sem novo estado.
+- Etapa 96.5 concluida: QA do Operation Performance Analytics isolou destaques e tendencia por escopo, tornou confiabilidade mais representativa e validou 36.030 assercoes, browser responsivo, Tauri release e integridade SQLite.
 
 Comandos principais:
 
@@ -7222,6 +7223,61 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 96.5 - QA aprofundada do Operation Performance Analytics.
+
+## Etapa 96.5 - QA aprofundada do Operation Performance Analytics
+
+Status: concluida.
+
+Correcoes:
+
+- All Operations, Bosses e Contracts agora possuem resumo, ranking, destaques e forma recente derivados do proprio escopo.
+- Selecionar Contracts nao pode mais manter um Boss como mais lucrativo, confiavel ou ativo; o mesmo isolamento vale para Bosses.
+- Cada escopo usa suas cinco operacoes recentes e cinco anteriores para calcular a tendencia.
+- O alvo mais confiavel usa amostras de pelo menos dois relatorios quando existe algum alvo repetido no escopo.
+- Quando todos os alvos possuem apenas um relatorio, eles continuam elegiveis para o destaque.
+- A UI informa a quantidade de relatorios junto da taxa de confiabilidade e anuncia a troca dos insights com `aria-live="polite"`.
+- Os campos globais anteriores foram preservados para manter compatibilidade com consumidores existentes.
+
+QA automatizado:
+
+- Harness temporario passou em 36.030 assercoes e foi removido.
+- Historico misto confirmou tendencia improving para Bosses e declining para Contracts no mesmo save.
+- Escopos vazios retornaram zeros, nenhum alvo, nenhum destaque e forma recente vazia.
+- Uma vitoria isolada de 100% nao superou uma amostra repetida quando havia historico comparavel.
+- Duas mil guildas deterministicas validaram particao entre sucesso/falha, taxas entre 0% e 100%, janelas de cinco relatorios e inteiros seguros.
+- A derivacao permaneceu imutavel sobre a guilda.
+
+QA visual:
+
+- O estado vazio mostrou zeros, orientacao sem relatorios e nenhum destaque preso.
+- Fixture temporaria com oito relatorios exibiu 75% de sucesso, quatro Bosses e quatro Contracts.
+- Contracts mostrou somente Sewer Ledger Audit e Supply Route Survey em ranking, dossie, destaques e tendencia.
+- Bosses mostrou somente Sewer Broodmother e Grunk the Camp Breaker.
+- Estados `aria-pressed` e a regiao `aria-live` acompanharam o escopo ativo.
+- Em 1280x720 nao houve overflow na pagina, painel, ranking ou dossie.
+- Em 390x844 o analytics refluiu para duas colunas de metricas e botoes de largura total, sem texto cortado ou overflow horizontal.
+- A escala compacta extrema do client completo em 390px ja existia e ficou fora do escopo desta QA.
+- O comando automatizado de `Tab` do browser nao avancou o foco; a travessia completa por teclado nao foi confirmada por interacao manual.
+- Fixture, servidor, logs e harness temporarios foram removidos; reload final confirmou o mock vazio.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou antes e depois das correcoes com 419 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- O save real preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- WAL e SHM terminaram com 0 bytes; nenhuma migration ou alteracao de persistencia foi necessaria.
+- No Vite, o erro esperado do Tauri SQL sem `invoke` acionou o mock local; nenhum erro do analytics foi observado.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- Analytics continua limitado aos 24 relatorios mais recentes do Operation Outcome Ledger.
+- Nao existem recortes manuais por periodo, personagem ou formacao.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 97 - Guild Campaign Milestones.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
