@@ -175,6 +175,7 @@ Atualizado em: 2026-07-25
 - Etapa 91.5 concluida: QA do Fulfillment Ledger preservou itens aposentados, priorizou ordens ativas e validou 60.016 checks com duas cargas SQLite.
 - Etapa 92 concluida: Reserved Gear Batch Dispatch revisa e entrega ate cinco reservas exatas em uma unica confirmacao atomica.
 - Etapa 92.5 concluida: QA do Batch Dispatch congelou a revisao, reforcou exclusividade/acessibilidade do dialogo e validou 75.022 checks com lote maximo.
+- Etapa 93 concluida: Squad Gear Readiness conecta squads, deployment orders e loadouts ativos em uma visao derivada de preparacao do arsenal.
 
 Comandos principais:
 
@@ -6788,6 +6789,81 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 93 - definir a proxima camada offline apos o ciclo completo de planejamento e despacho do arsenal.
+
+## Etapa 93 - Squad Gear Readiness
+
+Status: concluida.
+
+Conceito:
+
+- Nova camada offline conecta Guild Squads, Deployment Orders e Active Loadout Assignments.
+- Cada formacao mostra se seus membros possuem planos ativos e se os targets estao realmente equipados.
+- O sistema e totalmente derivado do save atual e nao cria uma segunda fonte de verdade.
+- Nenhuma acao equipa item, transfere equipamento, reserva copia ou inicia operacao.
+
+Engine:
+
+- Novo `buildGuildSquadGearReadiness` normaliza roster, squads, deployment orders, loadouts e depot.
+- Os tres slots de squad sempre sao representados, inclusive locked e empty.
+- Status de membro: `ready`, `incomplete`, `unplanned` e `invalid`.
+- Status de formacao: `locked`, `empty`, `ready`, `partial`, `unplanned` e `invalid`.
+- Progresso agrega membros planejados, membros prontos, targets atribuidos e targets equipados.
+- Deployment Orders ligados ao squad mostram tipo e nome real do Boss/Contract.
+- Personagens duplicados, IDs vazios, membros aposentados e depot invalido sao descartados/normalizados sem quebrar a tela.
+
+UI:
+
+- Guild Armory ganhou a aba `Squad Readiness`.
+- Resumo mostra formations, gear ready, members planned, targets equipped e overall readiness.
+- Tres tabs compactas representam as companhias desbloqueadas/bloqueadas.
+- Dossie da formacao mostra progresso, ordens ligadas, membros, roles, plano ativo e proxima acao.
+- `Inspect` abre o plano do membro pronto.
+- `Plan Loadout` abre Loadout Templates no aventureiro correto.
+- `Open Procurement` abre o Procurement Board no aventureiro correto.
+- `Open Guild Squads` navega para Operations.
+- A navegacao do Armory foi ajustada de cinco para seis colunas no desktop e tres colunas em largura intermediaria.
+
+QA automatizado:
+
+- Harness temporario passou em 120.018 assertions e foi removido.
+- Dez mil derivacoes hostis validaram a matriz Ready/Incomplete/Invalid/Unplanned.
+- Squad principal agregou quatro targets, dois equipados e 50% de conclusao.
+- Formacao sem plano ficou `unplanned`; slot vazio ficou `empty`; guild level baixo bloqueou slots II e III.
+- Formacao completa atingiu `ready` e 100%.
+- Deployment Order resolveu `Sewer Broodmother` pelo catalogo real.
+- Roster duplicado, personagem ausente e depot hostil mantiveram somente membros validos.
+- Inputs permaneceram imutaveis.
+
+QA visual:
+
+- Fixture temporaria criou Vanguard Company, Reserve Company e uma ordem de Sewer Broodmother.
+- Dashboard mostrou 2/3 formations, 3/4 members planned, 2/4 targets equipped e 50%.
+- Desktop 1280x720 manteve as seis abas do Armory em uma unica linha, sem overflow horizontal.
+- Viewport 390x844 usou tres colunas de navegacao, summary em uma coluna e board com 329px, sem overflow horizontal.
+- `Plan Loadout` abriu Lyra em Loadout Templates.
+- `Open Procurement` abriu Ayla no Procurement Board.
+- `Open Guild Squads` abriu Operations com Guild Squads.
+- A fixture visual foi removida integralmente.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 411 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- `squads_json`, `deployment_orders_json` e `loadout_templates_json` foram lidos como JSON valido.
+- SQLite manteve `integrity_check=ok` e zero violacoes de foreign key.
+- O save real permaneceu somente leitura e preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Readiness de gear nao substitui regras de vida, status, cooldown, acesso, gold ou tamanho de party das Operations.
+- O board mostra ordens ligadas, mas a validacao operacional final continua no Guild Squad Command Center.
+- Nao existe auto-assign de loadout por role ou squad.
+- Nao existe equipamento coletivo automatico.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 93.5 - QA aprofundada do Squad Gear Readiness.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

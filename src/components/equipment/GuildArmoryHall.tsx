@@ -16,6 +16,7 @@ import { EquipmentAcquisitionPlanner } from "./EquipmentAcquisitionPlanner";
 import { GuildEquipmentAllocationBoard } from "./GuildEquipmentAllocationBoard";
 import { GuildLoadoutProcurementBoard } from "./GuildLoadoutProcurementBoard";
 import { GuildLoadoutTemplates } from "./GuildLoadoutTemplates";
+import { GuildSquadGearReadiness } from "./GuildSquadGearReadiness";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
@@ -24,7 +25,7 @@ import { getUnreservedGuildLoadoutProcurementDepot } from "../../game-engine/loa
 import type { GuildLoadoutProcurementFulfillmentRequest } from "../../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
-type ArmoryView = "audit" | "acquisition" | "allocation" | "procurement" | "templates";
+type ArmoryView = "audit" | "squads" | "acquisition" | "allocation" | "procurement" | "templates";
 
 interface GuildArmoryHallProps {
   characters: Character[];
@@ -34,7 +35,7 @@ interface GuildArmoryHallProps {
   onOpenBoss: (boss: Boss) => void;
   onOpenHunt: (hunt: HuntArea) => void;
   onSelectCharacter: (characterId: string) => void;
-  onOpenSystem: (tab: "inventory" | "depot" | "forge" | "market") => void;
+  onOpenSystem: (tab: "inventory" | "depot" | "forge" | "market" | "operations") => void;
   onExecuteAllEquipmentOrders: () => GuildEquipmentOrderResult;
   onExecuteEquipmentOrder: (request: GuildEquipmentOrderRequest) => GuildEquipmentOrderResult;
   onAssignLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId | null) => void;
@@ -95,6 +96,8 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
 
   const viewHeading = view === "audit"
     ? ["Armory Audit", "Compare every loadout and identify compatible upgrades already stored in the Guild Depot."]
+    : view === "squads"
+      ? ["Squad Gear Readiness", "Coordinate active loadout completion across saved formations and deployment orders."]
     : view === "acquisition"
       ? ["Acquisition Planner", "Connect equipment targets to holdings, hunts, bosses and Guild Workbench recipes."]
       : view === "allocation"
@@ -119,6 +122,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
 
       <div className="guild-armory-view-tabs" role="tablist" aria-label="Armory view">
         <button aria-selected={view === "audit"} onClick={() => setView("audit")} role="tab" type="button">Armory Audit</button>
+        <button aria-selected={view === "squads"} onClick={() => setView("squads")} role="tab" type="button">Squad Readiness</button>
         <button aria-selected={view === "acquisition"} onClick={() => setView("acquisition")} role="tab" type="button">Acquisition Planner</button>
         <button aria-selected={view === "allocation"} onClick={() => setView("allocation")} role="tab" type="button">Allocation Board</button>
         <button aria-selected={view === "procurement"} onClick={() => setView("procurement")} role="tab" type="button">
@@ -196,7 +200,22 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           <small className="guild-armory-note">Recommendations compare current enhanced stats and vocation relevance. Moving and equipping items remains manual.</small>
         </aside>
         </div> : <section className="guild-armory-filter-empty"><strong>No matching loadouts</strong><p>Choose another filter to continue the armory inspection.</p></section>}
-      </> : view === "acquisition" ? (
+      </> : view === "squads" ? (
+        <GuildSquadGearReadiness
+          characters={characters}
+          depot={depot}
+          guild={guild}
+          onOpenOperations={() => onOpenSystem("operations")}
+          onOpenProcurement={(characterId) => {
+            selectCharacter(characterId);
+            setView("procurement");
+          }}
+          onOpenTemplates={(characterId) => {
+            selectCharacter(characterId);
+            setView("templates");
+          }}
+        />
+      ) : view === "acquisition" ? (
         <EquipmentAcquisitionPlanner
           characters={characters}
           depot={unreservedDepot}

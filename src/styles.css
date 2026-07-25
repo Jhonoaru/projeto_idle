@@ -1153,7 +1153,7 @@ p {
 .guild-armory-empty { padding: 24px; color: #89938d; text-align: center; }
 
 /* Stage 80 - Equipment Acquisition Planner */
-.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
+.guild-armory-view-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); min-width: 0; border: 1px solid #3b3b35; background: #101513; }
 .guild-armory-view-tabs button { min-height: 34px; border: 0; border-right: 1px solid #3b3b35; color: #89938d; background: #141a17; font-family: Georgia, serif; font-size: 0.56rem; font-weight: 700; cursor: pointer; }
 .guild-armory-view-tabs button:last-child { border-right: 0; }
 .guild-armory-view-tabs button[aria-selected="true"] { color: #ead18c; background: #26291f; box-shadow: inset 0 -2px #a58a4a; }
@@ -13920,6 +13920,72 @@ html[data-client-motion="reduced"] *::after {
 .procurement-empty.is-complete { border-color: #52654e; }
 .procurement-note { color: #77817a; font-size: 0.47rem; line-height: 1.4; }
 
+.squad-gear-readiness { display: grid; gap: 8px; min-width: 0; }
+.squad-gear-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.squad-gear-summary > div { min-width: 0; padding: 8px; border: 1px solid #3b443d; background: #141a17; }
+.squad-gear-summary span,
+.squad-gear-summary strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.squad-gear-summary span { color: #7f8b82; font-size: 0.42rem; text-transform: uppercase; }
+.squad-gear-summary strong { margin-top: 3px; color: #dfce96; font-family: Georgia, serif; font-size: 0.68rem; }
+.squad-gear-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.squad-gear-tabs > button { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 48px; padding: 6px; border: 1px solid #3b443d; color: #a69d7c; background: #141a17; text-align: left; cursor: pointer; }
+.squad-gear-tabs > button[aria-selected="true"] { border-color: #a08742; box-shadow: inset 0 -2px #b99a4e; background: #202119; }
+.squad-gear-tabs > button:disabled { color: #626a64; cursor: not-allowed; }
+.squad-gear-tabs > button > i { display: grid; place-items: center; width: 32px; height: 34px; border: 1px solid #686044; color: #ddc981; font-family: Georgia, serif; font-style: normal; font-weight: 700; }
+.squad-gear-tabs span,
+.squad-gear-tabs strong,
+.squad-gear-tabs small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.squad-gear-tabs strong { color: #d8cc9d; font-size: 0.52rem; }
+.squad-gear-tabs small { margin-top: 2px; color: #808b83; font-size: 0.4rem; }
+.squad-gear-tabs b { color: #9eac94; font-size: 0.45rem; }
+.squad-gear-dossier { min-width: 0; padding: 10px; border: 1px solid #45483a; background: #111613; }
+.squad-gear-dossier > header { display: flex; justify-content: space-between; gap: 10px; align-items: end; }
+.squad-gear-dossier > header span,
+.squad-gear-dossier > header strong,
+.squad-gear-dossier > header small { display: block; }
+.squad-gear-dossier > header span { color: #7e8981; font-size: 0.43rem; text-transform: uppercase; }
+.squad-gear-dossier > header strong { margin: 3px 0; color: #e0ce91; font-family: Georgia, serif; font-size: 0.75rem; }
+.squad-gear-dossier > header small { color: #8a948c; font-size: 0.43rem; }
+.squad-gear-dossier > header > b { padding: 5px 8px; border: 1px solid #59634f; color: #b6c29d; background: #1a211b; font-size: 0.43rem; white-space: nowrap; }
+.squad-gear-dossier > header > b.is-ready { border-color: #66805c; color: #b8d2a5; }
+.squad-gear-dossier > header > b.is-invalid { border-color: #855249; color: #e29a86; }
+.squad-gear-progress { position: relative; height: 18px; margin: 9px 0; overflow: hidden; border: 1px solid #3c443d; background: #0c100e; }
+.squad-gear-progress > span { display: block; height: 100%; background: linear-gradient(90deg, #526d50, #b59b50); }
+.squad-gear-progress > b { position: absolute; inset: 0; display: grid; place-items: center; color: #f0dfaa; font-size: 0.42rem; text-shadow: 0 1px 2px #000; }
+.squad-gear-orders { padding: 8px; border: 1px solid #373f39; background: #141916; }
+.squad-gear-orders > header { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.squad-gear-orders > header span { color: #89948c; font-size: 0.43rem; text-transform: uppercase; }
+.squad-gear-orders button,
+.squad-gear-empty button { min-height: 27px; padding: 4px 9px; border: 1px solid #766b45; color: #dbc98e; background: #25271e; font-family: Georgia, serif; font-size: 0.43rem; font-weight: 700; cursor: pointer; }
+.squad-gear-orders > div { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+.squad-gear-orders > div > span { display: grid; grid-template-columns: 25px auto; column-gap: 6px; align-items: center; min-width: 145px; padding: 5px; border: 1px solid #424a41; background: #19201b; }
+.squad-gear-orders > div i { grid-row: 1 / 3; display: grid; place-items: center; width: 23px; height: 27px; border: 1px solid #706344; color: #d5c17e; font-style: normal; font-weight: 800; }
+.squad-gear-orders > div strong { color: #d2c697; font-size: 0.46rem; }
+.squad-gear-orders > div small { color: #7f8a82; font-size: 0.38rem; text-transform: uppercase; }
+.squad-gear-orders > p { margin: 7px 0 0; color: #7d8880; font-size: 0.44rem; }
+.squad-gear-members { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
+.squad-gear-members article { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; padding: 7px; border: 1px solid #3b443d; border-left: 3px solid #716a49; background: #151b18; }
+.squad-gear-members article.is-ready { border-left-color: #698761; }
+.squad-gear-members article.is-invalid { border-left-color: #9a584a; }
+.squad-gear-members article > i { display: grid; place-items: center; width: 32px; height: 36px; border: 1px solid #625b43; color: #dec982; font-family: Georgia, serif; font-style: normal; font-weight: 800; }
+.squad-gear-members article span,
+.squad-gear-members article strong,
+.squad-gear-members article small,
+.squad-gear-members article em { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.squad-gear-members article span > small { color: #818c84; font-size: 0.39rem; text-transform: uppercase; }
+.squad-gear-members article span > strong { margin: 2px 0; color: #d9cc9b; font-size: 0.52rem; }
+.squad-gear-members article em { color: #7f8a82; font-size: 0.39rem; font-style: normal; }
+.squad-gear-members article > div { text-align: right; }
+.squad-gear-members article > div b { display: block; color: #d7c782; font-size: 0.5rem; }
+.squad-gear-members article > div small { color: #839087; font-size: 0.38rem; }
+.squad-gear-members article > button { grid-column: 2 / -1; min-height: 25px; border: 1px solid #5f624b; color: #cabc89; background: #20251f; font-family: Georgia, serif; font-size: 0.42rem; font-weight: 700; cursor: pointer; }
+.squad-gear-warnings { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+.squad-gear-warnings span { padding: 5px 7px; border: 1px solid #665d3e; color: #b9aa78; background: #211f16; font-size: 0.4rem; }
+.squad-gear-empty { display: grid; place-items: center; min-height: 220px; padding: 30px; border: 1px dashed #444b43; background: #111613; text-align: center; }
+.squad-gear-empty strong { color: #dccc97; font-family: Georgia, serif; font-size: 0.78rem; }
+.squad-gear-empty span { margin: 6px 0 12px; color: #849087; font-size: 0.47rem; }
+.squad-gear-note { color: #77827a; font-size: 0.43rem; line-height: 1.4; }
+
 @media (max-width: 1180px) {
   .procurement-workspace { grid-template-columns: minmax(270px, 0.58fr) minmax(440px, 1fr); }
   .procurement-targets { grid-template-columns: 1fr; }
@@ -13934,6 +14000,10 @@ html[data-client-motion="reduced"] *::after {
   .procurement-command > header { grid-template-columns: 1fr auto; }
   .procurement-command > header p { grid-row: 2; grid-column: 1 / -1; }
   .procurement-workspace { grid-template-columns: 1fr; }
+  .guild-armory-view-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .squad-gear-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .squad-gear-tabs,
+  .squad-gear-members { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 520px) {
@@ -13953,6 +14023,8 @@ html[data-client-motion="reduced"] *::after {
   .procurement-fulfillment-history article { grid-template-columns: 38px minmax(0, 1fr); }
   .procurement-fulfillment-history article time { grid-column: 2; }
   .procurement-ledger-actions { align-items: flex-end; flex-direction: column; }
+  .squad-gear-summary { grid-template-columns: 1fr; }
+  .squad-gear-dossier > header { align-items: flex-start; flex-direction: column; }
   .procurement-batch-review { padding: 11px; }
   .procurement-batch-review > footer { display: grid; grid-template-columns: 1fr 1fr; }
   .procurement-priority-queue article { grid-template-columns: 24px 38px minmax(0, 1fr); }
