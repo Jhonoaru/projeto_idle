@@ -179,6 +179,7 @@ Atualizado em: 2026-07-25
 - Etapa 93.5 concluida: QA do Squad Gear Readiness corrigiu selecao obsoleta apos mudanca de save e completou a semantica acessivel das tabs.
 - Etapa 94 concluida: Operation Readiness Briefing consolida ordem, formacao, requisitos do alvo e gear antes da preparacao manual.
 - Etapa 94.5 concluida: QA do Operation Readiness Briefing adicionou blocked summary, taxa base e navegacao completa de teclado.
+- Etapa 95 concluida: Operation Outcome Ledger registra Bosses e Contracts concluidos, consolida custos, ganhos, participantes e loot e persiste o historico de Bosses no SQLite local.
 
 Comandos principais:
 
@@ -7050,6 +7051,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 95 - Operation Outcome Ledger, registrando resultados manuais de Bosses e Contracts no historico de Operations.
+
+## Etapa 95 - Operation Outcome Ledger
+
+Status: concluida.
+
+Implementacao:
+
+- Operations ganhou um arquivo pos-operacao derivado dos resultados reais de Bosses e Contracts.
+- Cada tentativa concluida de Boss registra alvo, horario, participantes, sucesso, taxa de entrada, perda por morte, gold, renown, XP e loot.
+- O historico existente de Contracts passou a guardar o custo exato do dispatch para novos resultados; saves antigos usam o custo atual do catalogo como fallback.
+- O painel combina as duas fontes, ordena os 24 relatorios mais recentes e oferece filtros All, Bosses e Contracts.
+- O dossie selecionado mostra saldo bruto/liquido, custos, penalidades, participantes e itens recuperados.
+- O resumo apresenta relatorios, sucessos, gold bruto, custos, saldo, renown e quantidade de loot.
+- Personagens removidos do roster aparecem como `Retired adventurer`, sem invalidar o relatorio.
+- O registro de Boss e idempotente por alvo, party e horario, evitando duplicacao no mesmo fechamento.
+
+Persistencia e compatibilidade:
+
+- `GuildOperationOutcomesState` mantem ate 20 resultados recentes de Boss e totais vitalicios de tentativas/vitorias.
+- `operation_outcomes_json` foi adicionado a tabela `guilds`.
+- Saves antigos normalizam para historico vazio, sem quebra.
+- IDs, datas, numeros, participantes, loot e referencias de catalogo sao saneados no load.
+- O historico de Contracts continua em `expeditions_json`; apenas o campo opcional `dispatchCost` foi acrescentado.
+
+QA:
+
+- `npm.cmd run build` passou antes e depois da UI com 417 modulos.
+- Harness temporario validou estado hostil, deduplicacao, idempotencia, limite de 20 Bosses, totais vitalicios e ledger combinado; foi removido.
+- O caso combinado produziu 21 relatorios, Contract mais recente e saldo liquido correto de `+70g`.
+- Browser local validou o estado vazio e uma fixture com dois Bosses e um Contract.
+- Filtros e selecao foram clicados; o Contract correto abriu com `+70g`.
+- Desktop 1280x720 exibiu lista, resumo, dossie e loot sem sobreposicao.
+- A fixture visual foi removida e o mock final voltou ao historico vazio.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- A abertura curta do release aplicou `operation_outcomes_json` no WAL do SQLite sem erro.
+- Os arquivos auxiliares da sessao foram zerados e o banco principal preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Resultados anteriores de Boss nao podem ser reconstruidos porque antes existiam apenas em estado transitorio.
+- O ledger mostra ate 24 relatorios combinados; Bosses persistem os 20 mais recentes.
+- Contracts antigos sem snapshot de custo usam o custo atual do catalogo.
+- O navegador integrado permaneceu fixo em desktop; mobile foi revisado pelas media queries e pelo build.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 95.5 - QA aprofundada do Operation Outcome Ledger no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

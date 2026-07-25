@@ -19,6 +19,7 @@ import { normalizeGuildDirectivesState } from "../game-engine/guild-directives/n
 import { normalizeGuildSquadsState } from "../game-engine/guild-squads/normalizeGuildSquadsState";
 import { normalizeGuildDeploymentOrdersState } from "../game-engine/deployment-orders/normalizeGuildDeploymentOrdersState";
 import { normalizeGuildLoadoutTemplatesState } from "../game-engine/loadout-templates/normalizeGuildLoadoutTemplatesState";
+import { normalizeGuildOperationOutcomes } from "../game-engine/operations/normalizeGuildOperationOutcomes";
 import { normalizeItemTier, normalizeItemUpgradeLevel } from "../game-engine/items/getItemVisualIdentity";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
 import { normalizeMonsterFocusState } from "../game-engine/monster-focus/normalizeMonsterFocusState";
@@ -248,6 +249,7 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       career_identity_json,
       headquarters_json,
       expeditions_json,
+      operation_outcomes_json,
       staff_json,
       treasury_json,
       projects_json,
@@ -262,7 +264,7 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       loadout_templates_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)`,
     [
       normalizedGuild.id,
       normalizedGuild.name,
@@ -277,6 +279,7 @@ async function saveGuild(db: Database, guild: Guild, characters: Character[], no
       JSON.stringify(normalizeGuildCareerIdentity(normalizedGuild.careerIdentity)),
       JSON.stringify(normalizeGuildHeadquarters(normalizedGuild.headquarters)),
       JSON.stringify(normalizeGuildExpeditionState(normalizedGuild.expeditions)),
+      JSON.stringify(normalizeGuildOperationOutcomes(normalizedGuild.operationOutcomes)),
       JSON.stringify(normalizeGuildStaffState(normalizedGuild.staff)),
       JSON.stringify(normalizeGuildTreasuryState(normalizedGuild.treasury)),
       JSON.stringify(normalizeGuildProjectsState(normalizedGuild.projects)),

@@ -47,6 +47,11 @@ export const mockGuild: Guild = {
     totalCompleted: 0,
     totalSucceeded: 0,
   },
+  operationOutcomes: {
+    bossHistory: [],
+    totalBossAttempts: 0,
+    totalBossDefeats: 0,
+  },
   staff: {
     hiredSpecialistIds: [],
     activeSpecialistId: null,

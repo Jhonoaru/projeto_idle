@@ -9,6 +9,7 @@ import { normalizeDailyRewardState } from "../game-engine/daily-reward/normalize
 import { normalizeGuildCareerIdentity } from "../game-engine/achievements/getGuildIdentity";
 import { normalizeGuildHeadquarters } from "../game-engine/headquarters/normalizeGuildHeadquarters";
 import { normalizeGuildExpeditionState } from "../game-engine/expeditions/normalizeGuildExpeditionState";
+import { normalizeGuildOperationOutcomes } from "../game-engine/operations/normalizeGuildOperationOutcomes";
 import { normalizeGuildStaffState } from "../game-engine/staff/normalizeGuildStaffState";
 import { normalizeGuildTreasuryState } from "../game-engine/treasury/normalizeGuildTreasuryState";
 import { normalizeGuildProjectsState } from "../game-engine/projects/normalizeGuildProjectsState";
@@ -54,6 +55,7 @@ export interface GuildRow {
   career_identity_json?: string | null;
   headquarters_json?: string | null;
   expeditions_json?: string | null;
+  operation_outcomes_json?: string | null;
   staff_json?: string | null;
   treasury_json?: string | null;
   projects_json?: string | null;
@@ -154,6 +156,9 @@ export function mapGuild(row: GuildRow): Guild {
     ),
     expeditions: normalizeGuildExpeditionState(
       row.expeditions_json ? parseJson(row.expeditions_json, undefined) : undefined,
+    ),
+    operationOutcomes: normalizeGuildOperationOutcomes(
+      row.operation_outcomes_json ? parseJson(row.operation_outcomes_json, undefined) : undefined,
     ),
     staff: normalizeGuildStaffState(
       row.staff_json ? parseJson(row.staff_json, undefined) : undefined,

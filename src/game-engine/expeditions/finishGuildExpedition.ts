@@ -39,6 +39,7 @@ export function finishGuildExpedition(guild: Guild, depot: GuildDepot, now = new
     itemId: itemQuantity > 0 ? rewardItem?.id : undefined,
     itemQuantity: itemQuantity || undefined,
     specialistId: active.specialistId,
+    dispatchCost: active.dispatchCost,
   };
   const updatedExpeditions = {
     activeExpedition: undefined,

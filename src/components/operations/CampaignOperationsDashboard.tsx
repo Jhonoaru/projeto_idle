@@ -6,6 +6,7 @@ import {
   type CampaignOperationTone,
 } from "../../game-engine/operations/buildCampaignOperationsDashboard";
 import { GuildSquadsBoard } from "./GuildSquadsBoard";
+import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 
 interface CampaignOperationsDashboardProps {
   guild: Guild;
@@ -93,6 +94,8 @@ export function CampaignOperationsDashboard({
         onOpenArmory={() => onOpenSystem("armory")}
         now={now}
       />
+
+      <OperationOutcomeLedger characters={characters} guild={guild} />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">

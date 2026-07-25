@@ -133,6 +133,7 @@ import { upgradeItem } from "../game-engine/forge/upgradeItem";
 import { craftEquipment } from "../game-engine/crafting/craftEquipment";
 import { salvageEquipment } from "../game-engine/crafting/salvageEquipment";
 import { reviveCharacter } from "../game-engine/death/reviveCharacter";
+import { recordBossOperationOutcome } from "../game-engine/operations/recordBossOperationOutcome";
 import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
 import {
@@ -2438,11 +2439,17 @@ export function App() {
       setDepot(result.depot);
       setLastBossResult(result.result);
 
-      const bossGuild = {
-        ...guild,
-        renown: guild.renown + result.guildRenownGained,
-        gold: Math.max(0, guild.gold + result.result.goldGained - result.guildGoldLost),
-      };
+      const bossGuild = recordBossOperationOutcome(
+        {
+          ...guild,
+          renown: guild.renown + result.guildRenownGained,
+          gold: Math.max(0, guild.gold + result.result.goldGained - result.guildGoldLost),
+        },
+        activeBossContext.boss,
+        result.result,
+        activeBossContext.party,
+        result.guildGoldLost,
+      );
       if (result.result.defeated) {
         const collectionUnlock = unlockCollectionItem(bossGuild, "avatar-dungeon-victor-sigil");
         setGuild(collectionUnlock.guild);
@@ -2450,7 +2457,7 @@ export function App() {
         for (const message of [...collectionLogs].reverse()) {
           prependLog("Collections", message, "success");
         }
-      } else if (result.guildRenownGained > 0 || result.result.goldGained > 0 || result.guildGoldLost > 0) {
+      } else {
         setGuild(bossGuild);
       }
 

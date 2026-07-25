@@ -253,6 +253,7 @@ export interface Guild {
   careerIdentity?: GuildCareerIdentity;
   headquarters?: GuildHeadquartersState;
   expeditions?: GuildExpeditionState;
+  operationOutcomes?: GuildOperationOutcomesState;
   staff?: GuildStaffState;
   treasury?: GuildTreasuryState;
   projects?: GuildProjectsState;
@@ -616,6 +617,7 @@ export interface GuildExpeditionHistoryEntry {
   itemId?: string;
   itemQuantity?: number;
   specialistId?: GuildSpecialistId;
+  dispatchCost?: number;
 }
 
 export interface GuildExpeditionState {
@@ -623,6 +625,31 @@ export interface GuildExpeditionState {
   history: GuildExpeditionHistoryEntry[];
   totalCompleted: number;
   totalSucceeded: number;
+}
+
+export interface GuildBossOutcomeLoot {
+  itemId: string;
+  quantity: number;
+}
+
+export interface GuildBossOutcome {
+  id: string;
+  bossId: string;
+  completedAt: string;
+  participantCharacterIds: string[];
+  defeated: boolean;
+  entryCost: number;
+  goldGained: number;
+  goldLost: number;
+  renownGained: number;
+  experienceGained: number;
+  loot: GuildBossOutcomeLoot[];
+}
+
+export interface GuildOperationOutcomesState {
+  bossHistory: GuildBossOutcome[];
+  totalBossAttempts: number;
+  totalBossDefeats: number;
 }
 
 export interface GuildCareerIdentity {

@@ -62,6 +62,9 @@ function normalizeHistoryEntry(value: unknown): GuildExpeditionHistoryEntry | un
     itemId: typeof candidate.itemId === "string" ? candidate.itemId : undefined,
     itemQuantity: normalizeInteger(candidate.itemQuantity) || undefined,
     specialistId: getGuildSpecialist(candidate.specialistId)?.id,
+    dispatchCost: candidate.dispatchCost === undefined
+      ? undefined
+      : normalizeInteger(candidate.dispatchCost),
   };
 }
 
