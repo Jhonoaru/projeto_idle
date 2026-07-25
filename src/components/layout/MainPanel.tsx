@@ -177,6 +177,7 @@ interface MainPanelProps {
     targets: GuildLoadoutTemplateTarget[],
   ) => boolean;
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
+  onAcknowledgeLoadoutProcurementAlerts: () => void;
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
@@ -313,6 +314,7 @@ export function MainPanel({
   onSaveLoadoutTemplate,
   onSaveEditedLoadoutTemplate,
   onClearLoadoutTemplate,
+  onAcknowledgeLoadoutProcurementAlerts,
   onUpdateLoadoutProcurementOrder,
   onManualSave,
   onReloadSave,
@@ -483,6 +485,7 @@ export function MainPanel({
             onSaveLoadoutTemplate={onSaveLoadoutTemplate}
             onSaveEditedLoadoutTemplate={onSaveEditedLoadoutTemplate}
             onClearLoadoutTemplate={onClearLoadoutTemplate}
+            onAcknowledgeLoadoutProcurementAlerts={onAcknowledgeLoadoutProcurementAlerts}
             onUpdateLoadoutProcurementOrder={onUpdateLoadoutProcurementOrder}
           />
         ) : null}

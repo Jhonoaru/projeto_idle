@@ -86,6 +86,11 @@ import {
   updateGuildLoadoutProcurementOrder,
   type GuildLoadoutProcurementOrderRequest,
 } from "../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
+import {
+  acknowledgeGuildLoadoutProcurementAlerts,
+  describeProcurementAlerts,
+  syncGuildLoadoutProcurementAlerts,
+} from "../game-engine/loadout-templates/syncGuildLoadoutProcurementAlerts";
 import { updateGuildLogisticsPin, type GuildLogisticsPinAction } from "../game-engine/logistics/updateGuildLogisticsPin";
 import { buildGuildLogisticsPlan } from "../game-engine/logistics/buildGuildLogisticsPlan";
 import { acknowledgeGuildLogisticsAlerts, syncGuildLogisticsAlerts } from "../game-engine/logistics/syncGuildLogisticsAlerts";
@@ -252,6 +257,7 @@ export function App() {
   const loadingGuildSquadRef = useRef(false);
   const updatingDeploymentOrderRef = useRef(false);
   const updatingLoadoutTemplateRef = useRef(false);
+  const acknowledgingLoadoutProcurementAlertsRef = useRef(false);
   const buyingBazaarOfferRef = useRef(false);
   const exchangingCosmeticRef = useRef(false);
   const craftingEquipmentRef = useRef(false);
@@ -344,19 +350,35 @@ export function App() {
   useEffect(() => {
     if (isLoadingSave) return;
     const plan = buildGuildLogisticsPlan(guild, depot, characters);
-    const result = syncGuildLogisticsAlerts(guild, plan.objectives);
-    if (!result.changed) return;
-    setGuild(result.guild);
-    if (result.newlyReadyObjectives.length === 0) return;
-    const names = result.newlyReadyObjectives.map((objective) => `${objective.title} (${objective.targetLabel})`);
-    setLogs((currentLogs) => [
-      createLogEntry(
+    const logisticsResult = syncGuildLogisticsAlerts(guild, plan.objectives);
+    const procurementResult = syncGuildLoadoutProcurementAlerts(
+      logisticsResult.guild,
+      characters,
+      depot,
+    );
+    if (!logisticsResult.changed && !procurementResult.changed) return;
+    setGuild(procurementResult.guild);
+    const newLogs: ActivityLogEntry[] = [];
+    if (logisticsResult.newlyReadyObjectives.length > 0) {
+      const names = logisticsResult.newlyReadyObjectives.map((objective) =>
+        `${objective.title} (${objective.targetLabel})`);
+      newLogs.push(createLogEntry(
         "Logistics priority ready",
         `${names.join(", ")} ${names.length === 1 ? "is" : "are"} ready for review.`,
         "success",
-      ),
-      ...currentLogs,
-    ]);
+      ));
+    }
+    if (procurementResult.newlyReadyEntries.length > 0) {
+      const descriptions = describeProcurementAlerts(procurementResult.newlyReadyEntries);
+      newLogs.push(createLogEntry(
+        "Procurement order ready",
+        `${descriptions.join(", ")}.`,
+        "success",
+      ));
+    }
+    if (newLogs.length > 0) {
+      setLogs((currentLogs) => [...newLogs, ...currentLogs]);
+    }
   }, [characters, depot, guild, isLoadingSave]);
 
   useEffect(() => {
@@ -687,6 +709,21 @@ export function App() {
       result.changed ? "success" : "warning",
     );
     window.setTimeout(() => { updatingLoadoutTemplateRef.current = false; }, 200);
+  }
+
+  function handleAcknowledgeLoadoutProcurementAlerts() {
+    if (acknowledgingLoadoutProcurementAlertsRef.current) return;
+    acknowledgingLoadoutProcurementAlertsRef.current = true;
+    const nextGuild = acknowledgeGuildLoadoutProcurementAlerts(guild);
+    if (nextGuild !== guild) {
+      setGuild(nextGuild);
+      prependLog(
+        "Procurement alerts reviewed",
+        "Ready loadout procurement orders were marked as reviewed.",
+        "neutral",
+      );
+    }
+    window.setTimeout(() => { acknowledgingLoadoutProcurementAlertsRef.current = false; }, 150);
   }
 
   function handleUpdateGuildLogisticsPin(objectiveId: string, action: GuildLogisticsPinAction, activeObjectiveIds: string[]) {
@@ -2476,6 +2513,7 @@ export function App() {
           onSaveLoadoutTemplate={handleSaveLoadoutTemplate}
           onSaveEditedLoadoutTemplate={handleSaveEditedLoadoutTemplate}
           onClearLoadoutTemplate={handleClearLoadoutTemplate}
+          onAcknowledgeLoadoutProcurementAlerts={handleAcknowledgeLoadoutProcurementAlerts}
           onUpdateLoadoutProcurementOrder={handleUpdateLoadoutProcurementOrder}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}

@@ -18,6 +18,7 @@ import { GuildLoadoutProcurementBoard } from "./GuildLoadoutProcurementBoard";
 import { GuildLoadoutTemplates } from "./GuildLoadoutTemplates";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
+import { getGuildLoadoutProcurementUnreadCount } from "../../game-engine/loadout-templates/syncGuildLoadoutProcurementAlerts";
 
 type ArmoryFilter = "all" | GuildArmoryStatus;
 type ArmoryView = "audit" | "acquisition" | "allocation" | "procurement" | "templates";
@@ -42,6 +43,7 @@ interface GuildArmoryHallProps {
     targets: GuildLoadoutTemplateTarget[],
   ) => boolean;
   onClearLoadoutTemplate: (characterId: string, templateSlotId: GuildLoadoutTemplateSlotId) => void;
+  onAcknowledgeLoadoutProcurementAlerts: () => void;
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
 }
 
@@ -50,8 +52,9 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onUpdateLoadoutProcurementOrder }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onAcknowledgeLoadoutProcurementAlerts, onUpdateLoadoutProcurementOrder }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
+  const procurementUnreadCount = getGuildLoadoutProcurementUnreadCount(guild);
   const [view, setView] = useState<ArmoryView>("audit");
   const [filter, setFilter] = useState<ArmoryFilter>("all");
   const [inspectedCharacterId, setInspectedCharacterId] = useState(selectedCharacterId);
@@ -108,7 +111,10 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
         <button aria-selected={view === "audit"} onClick={() => setView("audit")} role="tab" type="button">Armory Audit</button>
         <button aria-selected={view === "acquisition"} onClick={() => setView("acquisition")} role="tab" type="button">Acquisition Planner</button>
         <button aria-selected={view === "allocation"} onClick={() => setView("allocation")} role="tab" type="button">Allocation Board</button>
-        <button aria-selected={view === "procurement"} onClick={() => setView("procurement")} role="tab" type="button">Procurement Board</button>
+        <button aria-selected={view === "procurement"} onClick={() => setView("procurement")} role="tab" type="button">
+          Procurement Board
+          {procurementUnreadCount > 0 ? <em aria-label={`${procurementUnreadCount} unread procurement alerts`}>{procurementUnreadCount}</em> : null}
+        </button>
         <button aria-selected={view === "templates"} onClick={() => setView("templates")} role="tab" type="button">Loadout Templates</button>
       </div>
 
@@ -235,6 +241,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
             if (characterId) selectCharacter(characterId);
             setView("templates");
           }}
+          onAcknowledgeProcurementAlerts={onAcknowledgeLoadoutProcurementAlerts}
           onUpdateProcurementOrder={onUpdateLoadoutProcurementOrder}
         />
       ) : (

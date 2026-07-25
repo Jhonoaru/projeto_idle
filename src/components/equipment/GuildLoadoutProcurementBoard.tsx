@@ -6,6 +6,7 @@ import {
   type GuildLoadoutProcurementRoute,
   type GuildLoadoutProcurementRouteKind,
 } from "../../game-engine/loadout-templates/buildGuildLoadoutProcurementBoard";
+import { buildGuildLoadoutProcurementOrderTracker } from "../../game-engine/loadout-templates/buildGuildLoadoutProcurementOrderTracker";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type {
@@ -31,6 +32,7 @@ interface GuildLoadoutProcurementBoardProps {
   onOpenMarket: () => void;
   onOpenQuartermaster: (characterId: string) => void;
   onOpenTemplates: (characterId: string) => void;
+  onAcknowledgeProcurementAlerts: () => void;
   onUpdateProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
 }
 
@@ -61,6 +63,7 @@ export function GuildLoadoutProcurementBoard({
   onOpenMarket,
   onOpenQuartermaster,
   onOpenTemplates,
+  onAcknowledgeProcurementAlerts,
   onUpdateProcurementOrder,
 }: GuildLoadoutProcurementBoardProps) {
   const board = useMemo(
@@ -68,6 +71,10 @@ export function GuildLoadoutProcurementBoard({
     [characters, depot, guild],
   );
   const [filter, setFilter] = useState<ProcurementFilter>("all");
+  const tracker = useMemo(
+    () => buildGuildLoadoutProcurementOrderTracker(guild, characters, depot),
+    [characters, depot, guild],
+  );
   const filteredRoutes = board.routes.filter((route) => matchesFilter(route, filter));
   const [selectedRouteKey, setSelectedRouteKey] = useState("");
   const selectedRoute = filteredRoutes.find((route) => route.key === selectedRouteKey)
@@ -118,8 +125,14 @@ export function GuildLoadoutProcurementBoard({
       <section className="procurement-priority-queue">
         <header>
           <div><span>Manual priority ledger</span><strong>Procurement Orders</strong></div>
-          <b>{procurementOrders.length}/5 queued</b>
+          <b>{procurementOrders.length}/5 queued / {tracker.summary.unread} unread</b>
         </header>
+        {tracker.summary.unread > 0 ? (
+          <aside className="procurement-readiness-alert" role="status">
+            <span><strong>{tracker.summary.unread} order alert{tracker.summary.unread === 1 ? "" : "s"}</strong><small>Exact targets are ready or already fulfilled.</small></span>
+            <button onClick={onAcknowledgeProcurementAlerts} type="button">Mark Reviewed</button>
+          </aside>
+        ) : null}
         {procurementOrders.length > 0 ? (
           <div>
             {procurementOrders.map((order, index) => {
@@ -130,14 +143,25 @@ export function GuildLoadoutProcurementBoard({
               const review = dashboardEntry?.review.reviews.find((entry) => entry.slot === order.slot);
               const fulfilled = review?.status === "equipped";
               const item = review?.item;
+              const tracking = tracker.entries.find((entry) =>
+                entry.order.characterId === order.characterId
+                && entry.order.templateId === order.templateId
+                && entry.order.slot === order.slot
+                && entry.order.itemId === order.itemId);
+              const unread = tracking
+                ? tracker.state.procurementAlerts.unreadReadyKeys.includes(tracking.key)
+                : false;
               return (
-                <article className={fulfilled ? "is-fulfilled" : ""} key={objectiveId}>
+                <article
+                  className={`is-${tracking?.status ?? "blocked"}${unread ? " is-unread" : ""}`}
+                  key={objectiveId}
+                >
                   <i>{index + 1}</i>
                   <ItemIcon item={item} showQuantity={false} size="small" />
                   <span>
                     <small>{dashboardEntry?.character.name ?? "Adventurer"} / {slotLabels[order.slot]}</small>
                     <strong>{item?.name ?? order.itemId}</strong>
-                    <em>{fulfilled ? "Target fulfilled / remove when reviewed" : objective ? objective.recommended.label : "Route unavailable"}</em>
+                    <em>{tracking?.statusLabel ?? (fulfilled ? "Target fulfilled" : "Route unavailable")} / {fulfilled ? "remove when reviewed" : objective?.recommended.label ?? "review plan"}</em>
                   </span>
                   <div>
                     <button
@@ -325,7 +349,7 @@ function routeAction(
   route: GuildLoadoutProcurementRoute,
   actions: Omit<
     GuildLoadoutProcurementBoardProps,
-    "characters" | "depot" | "guild" | "onUpdateProcurementOrder"
+    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder"
   >,
 ) {
   const characterId = route.objectives[0]?.character.id ?? "";

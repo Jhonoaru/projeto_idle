@@ -1157,6 +1157,7 @@ p {
 .guild-armory-view-tabs button { min-height: 34px; border: 0; border-right: 1px solid #3b3b35; color: #89938d; background: #141a17; font-family: Georgia, serif; font-size: 0.56rem; font-weight: 700; cursor: pointer; }
 .guild-armory-view-tabs button:last-child { border-right: 0; }
 .guild-armory-view-tabs button[aria-selected="true"] { color: #ead18c; background: #26291f; box-shadow: inset 0 -2px #a58a4a; }
+.guild-armory-view-tabs button em { display: inline-grid; place-items: center; min-width: 17px; height: 17px; margin-left: 6px; border: 1px solid #b6954e; border-radius: 50%; color: #17140d; background: #d5b45f; font-family: Arial, sans-serif; font-size: 0.42rem; font-style: normal; }
 .equipment-acquisition-planner { display: grid; gap: 8px; min-width: 0; }
 .acquisition-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #3b3b35; background: #101513; }
 .acquisition-summary > div { min-width: 0; min-height: 55px; padding: 8px 10px; border-right: 1px solid #303832; }
@@ -13766,10 +13767,21 @@ html[data-client-motion="reduced"] *::after {
 .procurement-priority-queue > header span { color: #7f8981; font-size: 0.45rem; text-transform: uppercase; }
 .procurement-priority-queue > header strong { margin-top: 3px; color: #dfce97; font-family: Georgia, serif; font-size: 0.7rem; }
 .procurement-priority-queue > header b { color: #c6a96c; font-size: 0.48rem; }
+.procurement-readiness-alert { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-top: 7px; padding: 7px 8px; border: 1px solid #607253; border-left: 3px solid #91b27e; background: #172019; }
+.procurement-readiness-alert span,
+.procurement-readiness-alert strong,
+.procurement-readiness-alert small { display: block; min-width: 0; }
+.procurement-readiness-alert strong { color: #bed6a8; font-size: 0.52rem; }
+.procurement-readiness-alert small { margin-top: 3px; color: #879780; font-size: 0.42rem; }
+.procurement-readiness-alert button { min-width: 118px; min-height: 27px; border: 1px solid #758760; color: #d8d2a8; background: #242b20; font-family: Georgia, serif; font-size: 0.44rem; font-weight: 700; cursor: pointer; }
 .procurement-priority-queue > p { margin: 8px 0 0; padding: 10px; border: 1px dashed #3c433d; color: #7f8981; font-size: 0.48rem; text-align: center; }
 .procurement-priority-queue > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 7px; }
 .procurement-priority-queue article { display: grid; grid-template-columns: 24px 38px minmax(0, 1fr) auto; gap: 6px; align-items: center; min-width: 0; padding: 6px; border: 1px solid #3b423c; border-left: 3px solid #9a8148; background: #151a17; }
 .procurement-priority-queue article.is-fulfilled { border-left-color: #6f966b; background: #172019; }
+.procurement-priority-queue article.is-available { border-left-color: #88a674; }
+.procurement-priority-queue article.is-sourcing { border-left-color: #668da0; }
+.procurement-priority-queue article.is-blocked { border-left-color: #94584f; }
+.procurement-priority-queue article.is-unread { box-shadow: inset 0 0 0 1px #8aa476; }
 .procurement-priority-queue article > i { display: grid; place-items: center; width: 22px; height: 34px; border: 1px solid #5f5942; color: #dfca8c; background: #20251f; font-style: normal; font-size: 0.55rem; font-weight: 900; }
 .procurement-priority-queue article span,
 .procurement-priority-queue article small,
@@ -13880,6 +13892,8 @@ html[data-client-motion="reduced"] *::after {
   .procurement-command > header p { grid-row: auto; grid-column: auto; }
   .procurement-command > header b { white-space: normal; }
   .procurement-route-command { grid-template-columns: 1fr; }
+  .procurement-readiness-alert { align-items: stretch; flex-direction: column; }
+  .procurement-readiness-alert button { width: 100%; }
   .procurement-dossier > header { align-items: flex-start; flex-direction: column; }
   .procurement-priority-queue article { grid-template-columns: 24px 38px minmax(0, 1fr); }
   .procurement-priority-queue article > div { grid-column: 2 / -1; grid-template-columns: 25px 25px minmax(90px, 1fr) 25px; }

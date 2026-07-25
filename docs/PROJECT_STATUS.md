@@ -165,6 +165,7 @@ Atualizado em: 2026-07-24
 - Etapa 86.5 concluida: QA do Procurement Board corrigiu roster duplicado e preparacao de Hunt com o aventureiro elegivel exato.
 - Etapa 87 concluida: Guild Loadout Procurement Orders adiciona uma fila persistente de cinco prioridades manuais ligadas aos planos ativos.
 - Etapa 87.5 concluida: QA das Procurement Orders corrigiu identidade obsoleta e bloqueou novos pedidos de targets ja equipados, com harness, browser responsivo e Tauri/SQLite real.
+- Etapa 88 concluida: Procurement Readiness Alerts rastreia ordens cumpridas/disponiveis e persiste badge, reconhecimento e notificacao unica sem automacao.
 
 Comandos principais:
 
@@ -6221,6 +6222,74 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 88 - definir a proxima camada de gerenciamento offline apos as Procurement Orders validadas.
+
+## Etapa 88 - Procurement Readiness Alerts
+
+Status: concluida.
+
+Implementacao:
+
+- Cada Procurement Order ganhou status derivado ao vivo: `fulfilled`, `available`, `sourcing` ou `blocked`.
+- `fulfilled` exige o target exato equipado com tier e upgrade minimos.
+- `available` exige copia exata no Guild Depot, holding pessoal ou outro aventureiro.
+- `sourcing` mantem a rota manual de Hunt, Boss, Crafting ou Offline Bazaar.
+- `blocked` identifica plano/target que precisa de revisao.
+- Ordens disponiveis ou cumpridas geram badge numerico na aba Procurement Board.
+- O ledger destaca ordens nao lidas e mostra estado e rota atual na mesma linha.
+- `Mark Reviewed` limpa apenas os nao lidos; a ordem continua na fila ate remocao manual.
+- Cada transicao pronta gera um unico Activity Log consolidado.
+- Alertas de Logistics e Procurement sao sincronizados no mesmo efeito para nao perder estado nem duplicar logs no carregamento.
+- Se a copia deixa de estar disponivel, a memoria pronta e liberada para permitir novo alerta em uma futura transicao real.
+
+Engine e save:
+
+- `GuildLoadoutTemplatesState` ganhou `procurementAlerts` com `notifiedReadyKeys` e `unreadReadyKeys`.
+- As chaves usam aventureiro, template, slot e item exatos; nenhuma rota ou snapshot de inventario e persistido.
+- Saves antigos recebem arrays vazios dentro do `loadout_templates_json` existente, sem nova coluna ou tabela.
+- Normalizacao remove chave vazia, duplicada, de ordem inexistente e unread que nao pertence aos notified.
+- Editar, desativar, limpar template ou remover ordem elimina alertas orfaos.
+- Um bug encontrado no QA foi corrigido: remover uma ordem agora normaliza seus alertas no mesmo clique, sem esperar o proximo sync.
+
+QA automatizado:
+
+- Harness temporario passou em 60.023 assertions e foi removido.
+- Vinte mil ciclos estaveis confirmaram idempotencia, referencia preservada e ausencia de notificacao repetida.
+- Leather Armor equipada gerou `fulfilled`, Brass Shield no Guild Depot gerou `available` e Training Axe ausente permaneceu `sourcing`.
+- Reconhecimento preservou a memoria de notificacao; repetir reconhecimento nao mutou o estado.
+- Remover Brass Shield do Depot liberou sua chave sem falso alerta; devolver a copia gerou exatamente um novo aviso.
+- Remover a ordem limpou badge e memoria atomicamente.
+- JSON hostil com duplicatas, orfaos, numeros e `null` preservou somente a chave valida.
+
+QA visual e interativo:
+
+- A aba abriu com badge `2`, ledger `3/5 queued / 2 unread` e painel de dois alertas.
+- Leather Armor exibiu `Target fulfilled`, Brass Shield `Ready for review` e Training Axe `Acquisition required`.
+- `Mark Reviewed` alterou o contador para zero, removeu badge/painel e criou um unico log.
+- O alerta nao reapareceu durante o estado estavel.
+- Interface, badge, ledger e botao ficaram sem overflow ou texto cortado em 1366x900, 1024x900, 760x900, 520x900 e 430x900.
+- O console mostrou apenas o fallback SQLite esperado fora do Tauri.
+
+QA Tauri/SQLite:
+
+- `npm.cmd run build` passou com 406 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e NSIS.
+- A primeira carga nativa migrou o banco legado e persistiu o default de `procurementAlerts`.
+- Fixture hostil incluiu chaves duplicadas, orfa, numerica e unread repetido.
+- Duas cargas nativas preservaram duas ordens e exatamente duas chaves validas com SHA-256 canonico `4692D743B0CA2BD3668CD917B73EEFBE4DDC33D26C959A0C65D652EF8BFF115C`.
+- Ambas mantiveram `integrity_check=ok`.
+- O banco original foi restaurado byte a byte ao SHA-256 `AA6A4EAF46CE7DC4D75D63BD673E9D1E4CAD0B2BC709B8674914E79C177305C5` e ao schema legado.
+
+Limitacoes atuais:
+
+- Alertas observam somente Procurement Orders existentes e nao criam prioridades automaticamente.
+- Nenhum alerta compra, transfere, equipa, forja, inicia Hunt/Boss ou reserva item.
+- `Mark Reviewed` nao conclui nem remove a ordem.
+- O QA interativo ocorreu no browser; o executavel Tauri foi validado por cargas nativas controladas, sem cliques manuais na janela.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 88.5 - QA aprofundada dos Procurement Readiness Alerts no Tauri/SQLite.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

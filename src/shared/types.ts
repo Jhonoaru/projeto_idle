@@ -371,10 +371,16 @@ export interface GuildLoadoutProcurementOrder {
   queuedAt: string;
 }
 
+export interface GuildLoadoutProcurementAlertsState {
+  notifiedReadyKeys: string[];
+  unreadReadyKeys: string[];
+}
+
 export interface GuildLoadoutTemplatesState {
   templates: GuildLoadoutTemplate[];
   activeAssignments: GuildLoadoutActiveAssignment[];
   procurementOrders: GuildLoadoutProcurementOrder[];
+  procurementAlerts: GuildLoadoutProcurementAlertsState;
 }
 
 export interface GuildLogisticsState {

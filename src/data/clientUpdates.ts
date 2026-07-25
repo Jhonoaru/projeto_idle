@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-88",
+    stage: "Stage 88",
+    title: "Procurement Readiness Alerts",
+    date: "2026-07-24",
+    category: "systems",
+    summary: "Prioritized loadout orders now report when exact equipment becomes available or fulfilled without automating any guild inventory decision.",
+    highlights: [
+      "Each queued target derives a live fulfilled, ready, sourcing or blocked state from the active loadout, roster holdings and Guild Depot.",
+      "Persistent unread alerts appear on the Procurement Board tab and produce one Activity Log when a target first becomes actionable.",
+      "Mark Reviewed clears only the badge while order removal, template changes and readiness regressions prune stale notification memory safely.",
+    ],
+    systems: ["Readiness Alerts", "Procurement Orders", "Guild Armory", "Tauri SQLite"],
+    featured: true,
+  },
+  {
     id: "stage-87-5",
     stage: "Stage 87.5",
     title: "Procurement Orders QA",
@@ -26,7 +41,6 @@ export const clientUpdates: ClientUpdateDefinition[] = [
       "Eighty thousand twenty checks, five responsive widths and repeated native loads preserved a canonical five-priority ledger.",
     ],
     systems: ["Procurement Orders QA", "Active Loadouts", "Guild Armory", "Tauri SQLite"],
-    featured: true,
   },
   {
     id: "stage-87",

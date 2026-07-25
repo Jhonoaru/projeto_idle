@@ -16,7 +16,12 @@ export function normalizeGuildLoadoutTemplatesState(
   validCharacterIds?: readonly string[],
 ): GuildLoadoutTemplatesState {
   if (!value || typeof value !== "object") {
-    return { templates: [], activeAssignments: [], procurementOrders: [] };
+    return {
+      templates: [],
+      activeAssignments: [],
+      procurementOrders: [],
+      procurementAlerts: { notifiedReadyKeys: [], unreadReadyKeys: [] },
+    };
   }
   const candidate = value as Partial<GuildLoadoutTemplatesState>;
   const characterIds = validCharacterIds ? new Set(validCharacterIds) : undefined;
@@ -66,7 +71,21 @@ export function normalizeGuildLoadoutTemplatesState(
       return true;
     })
     .slice(0, 5);
-  return { templates, activeAssignments, procurementOrders };
+  const activeOrderKeys = procurementOrders.map(procurementAlertKey);
+  const notifiedReadyKeys = normalizeAlertKeys(
+    candidate.procurementAlerts?.notifiedReadyKeys,
+    activeOrderKeys,
+  );
+  const unreadReadyKeys = normalizeAlertKeys(
+    candidate.procurementAlerts?.unreadReadyKeys,
+    notifiedReadyKeys,
+  );
+  return {
+    templates,
+    activeAssignments,
+    procurementOrders,
+    procurementAlerts: { notifiedReadyKeys, unreadReadyKeys },
+  };
 }
 
 function normalizeProcurementOrder(
@@ -102,6 +121,25 @@ function normalizeProcurementOrder(
 
 function procurementOrderKey(order: Pick<GuildLoadoutProcurementOrder, "characterId" | "templateId" | "slot">) {
   return `${order.characterId}:${order.templateId}:${order.slot}`;
+}
+
+function procurementAlertKey(order: GuildLoadoutProcurementOrder) {
+  return `${order.characterId}:${order.templateId}:${order.slot}:${order.itemId}`;
+}
+
+function normalizeAlertKeys(value: unknown, allowedKeys: string[]) {
+  if (!Array.isArray(value)) return [];
+  const keys: string[] = [];
+  for (const entry of value) {
+    if (
+      typeof entry !== "string"
+      || !allowedKeys.includes(entry)
+      || keys.includes(entry)
+    ) continue;
+    keys.push(entry);
+    if (keys.length === 5) break;
+  }
+  return keys;
 }
 
 function normalizeActiveAssignment(

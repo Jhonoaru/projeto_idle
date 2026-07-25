@@ -66,10 +66,14 @@ export function updateGuildLoadoutProcurementOrder(
   }
   if (index < 0) return blocked(guild, current, "This loadout target is not queued.");
   if (request.action === "remove") {
-    return changed(guild, {
-      ...current,
-      procurementOrders: current.procurementOrders.filter((_, orderIndex) => orderIndex !== index),
-    }, "Loadout target removed from the procurement queue.");
+    return changed(
+      guild,
+      normalizeGuildLoadoutTemplatesState({
+        ...current,
+        procurementOrders: current.procurementOrders.filter((_, orderIndex) => orderIndex !== index),
+      }, characterIds),
+      "Loadout target removed from the procurement queue.",
+    );
   }
   const nextIndex = request.action === "move-up" ? index - 1 : index + 1;
   if (nextIndex < 0 || nextIndex >= current.procurementOrders.length) {
