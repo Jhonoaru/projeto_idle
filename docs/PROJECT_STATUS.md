@@ -177,6 +177,7 @@ Atualizado em: 2026-07-25
 - Etapa 92.5 concluida: QA do Batch Dispatch congelou a revisao, reforcou exclusividade/acessibilidade do dialogo e validou 75.022 checks com lote maximo.
 - Etapa 93 concluida: Squad Gear Readiness conecta squads, deployment orders e loadouts ativos em uma visao derivada de preparacao do arsenal.
 - Etapa 93.5 concluida: QA do Squad Gear Readiness corrigiu selecao obsoleta apos mudanca de save e completou a semantica acessivel das tabs.
+- Etapa 94 concluida: Operation Readiness Briefing consolida ordem, formacao, requisitos do alvo e gear antes da preparacao manual.
 
 Comandos principais:
 
@@ -6918,6 +6919,79 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 94 - Operation Readiness Briefing, consolidando squad, gear e requisitos do alvo antes do despacho manual.
+
+## Etapa 94 - Operation Readiness Briefing
+
+Status: concluida.
+
+Conceito:
+
+- Nova revisao pre-deployment conecta cada Deployment Order ao alvo, squad e readiness de equipamento atuais.
+- O briefing e totalmente derivado de `squads`, `deploymentOrders`, `loadoutTemplates`, roster e Guild Depot.
+- Nenhuma nova coluna, migration ou fonte de verdade foi criada.
+- Preparar continua abrindo o fluxo real de Boss ou Contract; o briefing nunca inicia atividade automaticamente.
+
+Engine:
+
+- Novo `buildOperationReadinessBriefing` compoe Deployment Orders e Squad Gear Readiness.
+- Os tres slots sempre aparecem com status `empty`, `blocked`, `gear-pending` ou `ready`.
+- Cada ordem possui checkpoints de formation availability, operation requirements, active loadout plans e equipped targets.
+- Resumo agrega ordens configuradas, operacionais, plenamente prontas, pendentes de gear e bloqueadas.
+- Bosses exibem power atual/target; Contracts exibem power e success chance calculados pelos motores existentes.
+- Roster de entrada e deduplicado/normalizado antes de chamar o planner, impedindo quebra por personagem nulo ou ID repetido.
+- Data invalida recebe fallback seguro sem alterar o save.
+
+UI:
+
+- Operations ganhou o painel `Operation Readiness Briefing` entre Deployment Orders e Deployment Planner.
+- As tres tabs compartilham a selecao dos slots persistentes de ordem.
+- Dossie mostra alvo, regiao, detalhe, formacao, membros disponiveis, quatro checks e metricas.
+- `Review Formation` seleciona a companhia correta no editor de Guild Squads.
+- `Open Guild Armory` aparece quando o equipamento exige revisao.
+- `Prepare Operation` usa os callbacks reais e permanece disabled quando o planner bloqueia a operacao.
+- Tabs e painel usam semantica `tablist`, `tab`, `tabpanel`, `aria-selected`, `aria-controls` e `aria-labelledby`.
+
+QA automatizado:
+
+- Harness temporario passou em 110.028 assertions e foi removido.
+- Contrato plenamente pronto atingiu quatro checks aprovados, gear 100% e status `ready`.
+- Ordem operacional sem loadout ficou `gear-pending`.
+- Gold insuficiente preservou `blocked`; ordem ausente preservou `empty`.
+- Plano incompatível foi encaminhado para gear review.
+- Dez mil derivacoes hostis cobriram roster nulo/duplicado, squads e ordens invalidas, loadouts corrompidos, `NaN` e depot hostil.
+- Guild, personagens e depot permaneceram imutaveis.
+
+QA visual:
+
+- Fixture temporaria criou tres ordens: ready, gear review e operation blocked.
+- Dashboard mostrou 3/3 orders, duas operacionais, uma plenamente pronta e uma em gear review.
+- Supply Route Survey mostrou quatro checks aprovados e 100% de gear.
+- Sewer Broodmother com Lyra mostrou operacao valida, gear 0% e atalhos de Armory/Prepare.
+- Sewer Broodmother com Ayla training bloqueou `Prepare Operation` e mostrou o motivo real.
+- `Review Formation` selecionou Arcane Reserve.
+- `Open Guild Armory` abriu o Guild Armory.
+- `Prepare Operation` abriu Bosses com Sewer Broodmother preparada, sem iniciar combate.
+- Desktop 1280x720 permaneceu sem overflow da pagina; o navegador nao ofereceu viewport mobile nesta rodada.
+- Fixture e harness foram removidos integralmente.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou com 413 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+- SQLite em `mode=ro` retornou `integrity_check=ok` e zero violacoes de foreign key.
+- `squads_json`, `deployment_orders_json` e `loadout_templates_json` permaneceram JSON valido.
+- O save preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Gear readiness e uma camada de revisao; as regras finais continuam nos motores reais de Boss/Contract.
+- Nao existe auto-equip, auto-assign, auto-dispatch ou fila executavel.
+- O QA mobile desta etapa ficou restrito a leitura das media queries e build.
+
+Proximo passo sugerido:
+
+- Etapa 94.5 - QA aprofundada do Operation Readiness Briefing.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

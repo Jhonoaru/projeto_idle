@@ -3,15 +3,17 @@ import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSqua
 import { buildGuildSquadCommandCenter } from "../../game-engine/guild-squads/buildGuildSquadCommandCenter";
 import { buildGuildDeploymentPlanner } from "../../game-engine/guild-squads/buildGuildDeploymentPlanner";
 import { buildGuildDeploymentOrders } from "../../game-engine/deployment-orders/buildGuildDeploymentOrders";
-import type { Character, Guild, GuildDeploymentOrderKind, GuildDeploymentOrderSlotId, GuildSquadMember, GuildSquadSlotId, PartyRole } from "../../shared/types";
+import type { Character, Guild, GuildDeploymentOrderKind, GuildDeploymentOrderSlotId, GuildDepot, GuildSquadMember, GuildSquadSlotId, PartyRole } from "../../shared/types";
 import { GuildSquadCommandCenter } from "./GuildSquadCommandCenter";
 import { GuildDeploymentPlanner } from "./GuildDeploymentPlanner";
 import { GuildDeploymentOrdersBoard } from "./GuildDeploymentOrdersBoard";
+import { OperationReadinessBriefing } from "./OperationReadinessBriefing";
 
 const roles: PartyRole[] = ["tank", "healer", "damage", "support"];
 
 interface GuildSquadsBoardProps {
   guild: Guild;
+  depot: GuildDepot;
   characters: Character[];
   onSave: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onUseForBoss: (slotId: GuildSquadSlotId, bossId?: string) => void;
@@ -19,10 +21,11 @@ interface GuildSquadsBoardProps {
   onPrepareContract: (slotId: GuildSquadSlotId, contractId: string) => void;
   onSaveDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
   onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
+  onOpenArmory: () => void;
   now: Date;
 }
 
-export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOpenContracts, onPrepareContract, onSaveDeploymentOrder, onClearDeploymentOrder, now }: GuildSquadsBoardProps) {
+export function GuildSquadsBoard({ guild, depot, characters, onSave, onUseForBoss, onOpenContracts, onPrepareContract, onSaveDeploymentOrder, onClearDeploymentOrder, onOpenArmory, now }: GuildSquadsBoardProps) {
   const status = useMemo(() => getGuildSquadStatus(guild, characters), [characters, guild]);
   const commandCenter = useMemo(() => buildGuildSquadCommandCenter(guild, characters, now), [characters, guild, now]);
   const deploymentPlanner = useMemo(() => buildGuildDeploymentPlanner(guild, characters, now), [characters, guild, now]);
@@ -120,6 +123,18 @@ export function GuildSquadsBoard({ guild, characters, onSave, onUseForBoss, onOp
         onPrepareContract={onPrepareContract}
         onSelectSlot={setSelectedOrderSlotId}
         orders={deploymentOrders}
+        selectedSlotId={selectedOrderSlotId}
+      />
+      <OperationReadinessBriefing
+        characters={characters}
+        depot={depot}
+        guild={guild}
+        now={now}
+        onOpenArmory={onOpenArmory}
+        onPrepareBoss={onUseForBoss}
+        onPrepareContract={onPrepareContract}
+        onSelectOrder={setSelectedOrderSlotId}
+        onSelectSquad={setSelectedSlotId}
         selectedSlotId={selectedOrderSlotId}
       />
       <GuildDeploymentPlanner

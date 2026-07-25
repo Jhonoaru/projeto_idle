@@ -82,6 +82,7 @@ export function CampaignOperationsDashboard({
 
       <GuildSquadsBoard
         characters={characters}
+        depot={depot}
         guild={guild}
         onSave={onSaveGuildSquad}
         onUseForBoss={onUseGuildSquadForBoss}
@@ -89,6 +90,7 @@ export function CampaignOperationsDashboard({
         onPrepareContract={onPrepareGuildSquadForContract}
         onSaveDeploymentOrder={onSaveDeploymentOrder}
         onClearDeploymentOrder={onClearDeploymentOrder}
+        onOpenArmory={() => onOpenSystem("armory")}
         now={now}
       />
 
