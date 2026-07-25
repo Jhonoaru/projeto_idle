@@ -2428,6 +2428,7 @@ export function App() {
     }
 
     try {
+      const operationStartedAt = selectedCharacter.currentAction?.startedAt;
       const result = finishBoss(
         characters,
         depot,
@@ -2449,6 +2450,7 @@ export function App() {
         result.result,
         activeBossContext.party,
         result.guildGoldLost,
+        { operationStartedAt },
       );
       if (result.result.defeated) {
         const collectionUnlock = unlockCollectionItem(bossGuild, "avatar-dungeon-victor-sigil");

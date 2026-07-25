@@ -1,17 +1,22 @@
 import type { Boss, BossParty, BossSimulationResult, Guild } from "../../shared/types";
 import { normalizeGuildOperationOutcomes } from "./normalizeGuildOperationOutcomes";
 
+interface RecordBossOperationOutcomeOptions {
+  completedAt?: Date;
+  operationStartedAt?: string;
+}
+
 export function recordBossOperationOutcome(
   guild: Guild,
   boss: Boss,
   result: BossSimulationResult,
   party: BossParty,
   goldLost: number,
-  now = new Date(),
+  options: RecordBossOperationOutcomeOptions = {},
 ) {
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
-  const completedAt = now instanceof Date && Number.isFinite(now.getTime())
-    ? now.toISOString()
+  const completedAt = options.completedAt instanceof Date && Number.isFinite(options.completedAt.getTime())
+    ? options.completedAt.toISOString()
     : new Date().toISOString();
   const participantCharacterIds = [...new Set(party.members
     .map((member) => member.characterId)
@@ -20,7 +25,11 @@ export function recordBossOperationOutcome(
   if (boss.id !== result.bossId || party.bossId !== boss.id || participantCharacterIds.length === 0) {
     return guild;
   }
-  const id = `boss-${boss.id}-${Date.parse(completedAt)}-${participantCharacterIds.join("-")}`;
+  const operationTimestamp = typeof options.operationStartedAt === "string"
+    && Number.isFinite(Date.parse(options.operationStartedAt))
+    ? Date.parse(options.operationStartedAt)
+    : Date.parse(completedAt);
+  const id = `boss-${boss.id}-${operationTimestamp}-${[...participantCharacterIds].sort().join("-")}`;
   if (outcomes.bossHistory.some((entry) => entry.id === id)) return guild;
   const entry = {
     id,

@@ -12,6 +12,7 @@ interface OperationOutcomeLedgerProps {
 }
 
 type OutcomeFilter = "all" | OperationOutcomeKind;
+const OUTCOME_FILTERS: OutcomeFilter[] = ["all", "boss", "contract"];
 
 export function OperationOutcomeLedger({ guild, characters }: OperationOutcomeLedgerProps) {
   const ledger = useMemo(() => buildOperationOutcomeLedger(guild, characters), [characters, guild]);
@@ -45,49 +46,60 @@ export function OperationOutcomeLedger({ guild, characters }: OperationOutcomeLe
       </header>
 
       <div className="operation-outcome-toolbar" role="tablist" aria-label="Operation outcome filters">
-        <FilterButton active={filter === "all"} count={ledger.entries.length} label="All reports" onClick={() => setFilter("all")} />
-        <FilterButton active={filter === "boss"} count={ledger.summary.bosses} label="Bosses" onClick={() => setFilter("boss")} />
-        <FilterButton active={filter === "contract"} count={ledger.summary.contracts} label="Contracts" onClick={() => setFilter("contract")} />
+        <FilterButton active={filter === "all"} count={ledger.entries.length} filter="all" label="All reports" onSelect={selectFilter} />
+        <FilterButton active={filter === "boss"} count={ledger.summary.bosses} filter="boss" label="Bosses" onSelect={selectFilter} />
+        <FilterButton active={filter === "contract"} count={ledger.summary.contracts} filter="contract" label="Contracts" onSelect={selectFilter} />
       </div>
 
-      {filteredEntries.length > 0 && selected ? (
-        <div className="operation-outcome-body">
-          <div className="operation-outcome-list" aria-label="Recorded operations">
-            {filteredEntries.map((entry) => (
-              <button
-                aria-pressed={entry.id === selected.id}
-                className={`is-${entry.kind} ${entry.success ? "is-success" : "is-failure"}`}
-                key={entry.id}
-                onClick={() => setSelectedId(entry.id)}
-                type="button"
-              >
-                <i aria-hidden="true">{entry.kind === "boss" ? "B" : "C"}</i>
-                <span>
-                  <small>{entry.kind} / {entry.region}</small>
-                  <strong>{entry.targetName}</strong>
-                  <em>{entry.participantNames.join(" / ")}</em>
-                </span>
-                <b>{entry.success ? "Success" : "Failed"}</b>
-                <time>{formatDate(entry.completedAt)}</time>
-              </button>
-            ))}
+      <div
+        aria-labelledby={`operation-outcome-tab-${filter}`}
+        id="operation-outcome-panel"
+        role="tabpanel"
+      >
+        {filteredEntries.length > 0 && selected ? (
+          <div className="operation-outcome-body">
+            <div className="operation-outcome-list" aria-label="Recorded operations">
+              {filteredEntries.map((entry) => (
+                <button
+                  aria-pressed={entry.id === selected.id}
+                  className={`is-${entry.kind} ${entry.success ? "is-success" : "is-failure"}`}
+                  key={entry.id}
+                  onClick={() => setSelectedId(entry.id)}
+                  type="button"
+                >
+                  <i aria-hidden="true">{entry.kind === "boss" ? "B" : "C"}</i>
+                  <span>
+                    <small>{entry.kind} / {entry.region}</small>
+                    <strong>{entry.targetName}</strong>
+                    <em>{entry.participantNames.join(" / ")}</em>
+                  </span>
+                  <b>{entry.success ? "Success" : "Failed"}</b>
+                  <time>{formatDate(entry.completedAt)}</time>
+                </button>
+              ))}
+            </div>
+            <OutcomeDossier entry={selected} />
           </div>
-          <OutcomeDossier entry={selected} />
-        </div>
-      ) : (
-        <div className="operation-outcome-empty">
-          <i aria-hidden="true">R</i>
-          <div>
-            <strong>No operation reports recorded</strong>
-            <span>Completed bosses and guild contracts will be archived here.</span>
+        ) : (
+          <div className="operation-outcome-empty">
+            <i aria-hidden="true">R</i>
+            <div>
+              <strong>No operation reports recorded</strong>
+              <span>Completed bosses and guild contracts will be archived here.</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       <small className="operation-outcome-note">
         The archive keeps the latest 20 boss reports and combines them with recent contract history stored in the local save.
       </small>
     </section>
   );
+
+  function selectFilter(nextFilter: OutcomeFilter, focus = false) {
+    setFilter(nextFilter);
+    if (focus) document.getElementById(`operation-outcome-tab-${nextFilter}`)?.focus();
+  }
 }
 
 function OutcomeDossier({ entry }: { entry: OperationOutcomeLedgerEntry }) {
@@ -136,8 +148,44 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: "
   return <div className={tone ? `is-${tone}` : undefined}><span>{label}</span><strong>{value}</strong></div>;
 }
 
-function FilterButton({ active, count, label, onClick }: { active: boolean; count: number; label: string; onClick: () => void }) {
-  return <button aria-selected={active} onClick={onClick} role="tab" type="button"><span>{label}</span><b>{count}</b></button>;
+function FilterButton({
+  active,
+  count,
+  filter,
+  label,
+  onSelect,
+}: {
+  active: boolean;
+  count: number;
+  filter: OutcomeFilter;
+  label: string;
+  onSelect: (filter: OutcomeFilter, focus?: boolean) => void;
+}) {
+  return (
+    <button
+      aria-controls={active ? "operation-outcome-panel" : undefined}
+      aria-selected={active}
+      id={`operation-outcome-tab-${filter}`}
+      onClick={() => onSelect(filter)}
+      onKeyDown={(event) => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const currentIndex = OUTCOME_FILTERS.indexOf(filter);
+        const nextIndex = event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? OUTCOME_FILTERS.length - 1
+            : (currentIndex + (event.key === "ArrowRight" ? 1 : -1) + OUTCOME_FILTERS.length)
+              % OUTCOME_FILTERS.length;
+        onSelect(OUTCOME_FILTERS[nextIndex], true);
+      }}
+      role="tab"
+      tabIndex={active ? 0 : -1}
+      type="button"
+    >
+      <span>{label}</span><b>{count}</b>
+    </button>
+  );
 }
 
 function formatNumber(value: number) {

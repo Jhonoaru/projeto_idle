@@ -180,6 +180,7 @@ Atualizado em: 2026-07-25
 - Etapa 94 concluida: Operation Readiness Briefing consolida ordem, formacao, requisitos do alvo e gear antes da preparacao manual.
 - Etapa 94.5 concluida: QA do Operation Readiness Briefing adicionou blocked summary, taxa base e navegacao completa de teclado.
 - Etapa 95 concluida: Operation Outcome Ledger registra Bosses e Contracts concluidos, consolida custos, ganhos, participantes e loot e persiste o historico de Bosses no SQLite local.
+- Etapa 95.5 concluida: QA do Operation Outcome Ledger estabilizou identidade de Boss, saneou historico de Contracts, blindou somas e completou acessibilidade dos filtros.
 
 Comandos principais:
 
@@ -7099,6 +7100,62 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 95.5 - QA aprofundada do Operation Outcome Ledger no Tauri/SQLite.
+
+## Etapa 95.5 - QA do Operation Outcome Ledger
+
+Status: concluida.
+
+Correcoes:
+
+- O ID persistente de Boss agora usa o `startedAt` da acao real e a party ordenada, bloqueando um segundo registro mesmo quando o fechamento atrasado recebe outro horario de conclusao.
+- O historico de Contracts agora ordena por data, preserva a versao mais recente de IDs duplicados e limita IDs salvos a 160 caracteres.
+- IDs de participantes de Contract sao aparados e deduplicados.
+- Loot de Contract com `itemId` ausente do catalogo e removido junto da quantidade orfa.
+- Contract legado sem participantes exibe `Unrecorded team` em vez de deixar o dossie vazio.
+- Custos, saldos e totais de loot/renown agora permanecem dentro de `Number.MAX_SAFE_INTEGER`.
+- Filtros All/Bosses/Contracts receberam roving `tabIndex`, `aria-controls`, `tabpanel` e navegacao por ArrowLeft/ArrowRight/Home/End.
+- Nenhum valor de recompensa, custo, chance ou balanceamento foi alterado.
+
+QA automatizado:
+
+- Harness temporario passou em 28.749 assercoes e foi removido.
+- Todos os seis Bosses e seis Contracts foram resolvidos contra o catalogo real.
+- A identidade baseada no inicio da acao rejeitou duplicacao com outro horario de conclusao e party em ordem invertida.
+- Mismatches entre Boss, resultado e party permaneceram sem mutacao.
+- Save antigo e `operation_outcomes_json` quebrado carregaram defaults seguros.
+- Historicos duplicados, datas com offset, IDs longos, participantes vazios, item invalido e custo explicito `0g` foram validados.
+- O ledger combinado manteve os 24 relatorios mais recentes, com 20 Bosses e quatro Contracts no recorte testado.
+- Personagem aposentado, equipe nao registrada, custo legado de catalogo e imutabilidade do save passaram.
+- Valores extremos preservaram inteiros seguros sem overflow.
+- Quatro mil derivacoes hostis cobriram `undefined`, `null`, strings, negativos, `NaN`, infinito, arrays e objetos.
+
+QA visual e acessibilidade:
+
+- Fixture temporaria exibiu Boss vencido, Boss perdido, personagem aposentado, loot multiplo e Contract sem equipe.
+- `ArrowRight`, `End`, `Home` e `ArrowLeft` circular mantiveram foco, selecao, filtro e `aria-labelledby` sincronizados.
+- Contract sem equipe mostrou `Unrecorded team`; custo snapshot `0g` nao foi substituido pelo custo atual do catalogo.
+- Desktop 1280x720 apresentou zero overflow na pagina, no ledger e no dossie.
+- Fixture, servidor e artefatos do harness foram removidos.
+- O navegador integrado permaneceu fixo em desktop; mobile foi revisado pelas media queries e pelo build.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou antes e depois das correcoes com 417 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Duas cargas do release confirmaram migration, recarga e nova persistencia de `operation_outcomes_json`.
+- O WAL registrou `bossHistory`, `totalBossAttempts` e `totalBossDefeats`.
+- O save foi restaurado integralmente: banco principal SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`; WAL e SHM voltaram a zero bytes com SHA-256 vazio `E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855`.
+- Permanece apenas o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Limitacoes:
+
+- O fluxo completo de concluir um Boss e um Contract nao foi clicado dentro da janela Tauri nesta rodada; engine, browser Vite e persistencia SQLite foram validados separadamente.
+- Resultados de Boss anteriores a Etapa 95 continuam irrecuperaveis.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario.
+
+Proximo passo sugerido:
+
+- Etapa 96 - Operation Performance Analytics, derivando desempenho historico da guilda sem nova automacao.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

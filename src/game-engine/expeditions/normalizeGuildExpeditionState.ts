@@ -1,5 +1,6 @@
 import { getGuildContract } from "../../data/guildContracts";
 import { getGuildSpecialist } from "../../data/guildSpecialists";
+import { items } from "../../data/items";
 import type { GuildExpeditionHistoryEntry, GuildExpeditionRun, GuildExpeditionState } from "../../shared/types";
 
 export function createDefaultGuildExpeditionState(): GuildExpeditionState {
@@ -9,9 +10,17 @@ export function createDefaultGuildExpeditionState(): GuildExpeditionState {
 export function normalizeGuildExpeditionState(value: unknown): GuildExpeditionState {
   if (!value || typeof value !== "object") return createDefaultGuildExpeditionState();
   const candidate = value as Partial<GuildExpeditionState>;
-  const history = Array.isArray(candidate.history)
-    ? candidate.history.map(normalizeHistoryEntry).filter((entry): entry is GuildExpeditionHistoryEntry => Boolean(entry)).slice(0, 12)
-    : [];
+  const seenHistoryIds = new Set<string>();
+  const history = (Array.isArray(candidate.history) ? candidate.history : [])
+    .map(normalizeHistoryEntry)
+    .filter((entry): entry is GuildExpeditionHistoryEntry => Boolean(entry))
+    .sort((left, right) => Date.parse(right.completedAt) - Date.parse(left.completedAt))
+    .filter((entry) => {
+      if (seenHistoryIds.has(entry.id)) return false;
+      seenHistoryIds.add(entry.id);
+      return true;
+    })
+    .slice(0, 12);
   const totalCompleted = normalizeInteger(candidate.totalCompleted);
   const totalSucceeded = Math.min(totalCompleted, normalizeInteger(candidate.totalSucceeded));
 
@@ -51,16 +60,19 @@ function normalizeHistoryEntry(value: unknown): GuildExpeditionHistoryEntry | un
   if (!value || typeof value !== "object") return undefined;
   const candidate = value as Partial<GuildExpeditionHistoryEntry>;
   if (!candidate.contractId || !getGuildContract(candidate.contractId) || !isValidDate(candidate.completedAt)) return undefined;
+  const itemId = typeof candidate.itemId === "string" && items[candidate.itemId]
+    ? candidate.itemId
+    : undefined;
   return {
-    id: typeof candidate.id === "string" && candidate.id ? candidate.id : `history-${candidate.contractId}-${Date.parse(candidate.completedAt!)}`,
+    id: normalizeId(candidate.id) ?? `history-${candidate.contractId}-${Date.parse(candidate.completedAt!)}`,
     contractId: candidate.contractId,
-    completedAt: candidate.completedAt!,
+    completedAt: new Date(candidate.completedAt!).toISOString(),
     assignedCharacterIds: normalizeCharacterIds(candidate.assignedCharacterIds),
     success: candidate.success === true,
     goldGained: normalizeInteger(candidate.goldGained),
     renownGained: normalizeInteger(candidate.renownGained),
-    itemId: typeof candidate.itemId === "string" ? candidate.itemId : undefined,
-    itemQuantity: normalizeInteger(candidate.itemQuantity) || undefined,
+    itemId,
+    itemQuantity: itemId ? normalizeInteger(candidate.itemQuantity) || undefined : undefined,
     specialistId: getGuildSpecialist(candidate.specialistId)?.id,
     dispatchCost: candidate.dispatchCost === undefined
       ? undefined
@@ -70,8 +82,18 @@ function normalizeHistoryEntry(value: unknown): GuildExpeditionHistoryEntry | un
 
 function normalizeCharacterIds(value: unknown) {
   return Array.isArray(value)
-    ? [...new Set(value.filter((entry): entry is string => typeof entry === "string" && entry.length > 0))].slice(0, 3)
+    ? [...new Set(value
+      .filter((entry): entry is string => typeof entry === "string")
+      .map((entry) => entry.trim())
+      .filter(Boolean))]
+      .slice(0, 3)
     : [];
+}
+
+function normalizeId(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const id = value.trim().slice(0, 160);
+  return id || undefined;
 }
 
 function normalizeInteger(value: unknown) {

@@ -29,15 +29,15 @@ export function buildOperationOutcomeLedger(guild: Guild, characters: Character[
       success: entry.defeated,
       participantIds: entry.participantCharacterIds,
       participantNames: getNames(entry.participantCharacterIds, characterNames),
-      cost: entry.entryCost + entry.goldLost,
+      cost: addSafe(entry.entryCost, entry.goldLost),
       entryCost: entry.entryCost,
       penaltyCost: entry.goldLost,
       goldGained: entry.goldGained,
-      netGold: entry.goldGained - entry.entryCost - entry.goldLost,
+      netGold: addSafe(entry.goldGained, -entry.entryCost, -entry.goldLost),
       renownGained: entry.renownGained,
       experienceGained: entry.experienceGained,
       loot,
-      itemCount: loot.reduce((total, item) => total + item.quantity, 0),
+      itemCount: loot.reduce((total, item) => addSafe(total, item.quantity), 0),
     };
   });
   const contractEntries = normalizeGuildExpeditionState(guild.expeditions).history.map((entry) => {
@@ -61,11 +61,11 @@ export function buildOperationOutcomeLedger(guild: Guild, characters: Character[
       entryCost: cost,
       penaltyCost: 0,
       goldGained: entry.goldGained,
-      netGold: entry.goldGained - cost,
+      netGold: addSafe(entry.goldGained, -cost),
       renownGained: entry.renownGained,
       experienceGained: 0,
       loot,
-      itemCount: loot.reduce((total, item) => total + item.quantity, 0),
+      itemCount: loot.reduce((total, item) => addSafe(total, item.quantity), 0),
     };
   });
   const entries = [...bossEntries, ...contractEntries]
@@ -79,11 +79,11 @@ export function buildOperationOutcomeLedger(guild: Guild, characters: Character[
       successes: successes.length,
       bosses: entries.filter((entry) => entry.kind === "boss").length,
       contracts: entries.filter((entry) => entry.kind === "contract").length,
-      goldGained: entries.reduce((total, entry) => total + entry.goldGained, 0),
-      costs: entries.reduce((total, entry) => total + entry.cost, 0),
-      netGold: entries.reduce((total, entry) => total + entry.netGold, 0),
-      renownGained: entries.reduce((total, entry) => total + entry.renownGained, 0),
-      lootItems: entries.reduce((total, entry) => total + entry.itemCount, 0),
+      goldGained: entries.reduce((total, entry) => addSafe(total, entry.goldGained), 0),
+      costs: entries.reduce((total, entry) => addSafe(total, entry.cost), 0),
+      netGold: entries.reduce((total, entry) => addSafe(total, entry.netGold), 0),
+      renownGained: entries.reduce((total, entry) => addSafe(total, entry.renownGained), 0),
+      lootItems: entries.reduce((total, entry) => addSafe(total, entry.itemCount), 0),
     },
   };
 }
@@ -92,7 +92,9 @@ export type OperationOutcomeLedger = ReturnType<typeof buildOperationOutcomeLedg
 export type OperationOutcomeLedgerEntry = OperationOutcomeLedger["entries"][number];
 
 function getNames(ids: string[], names: Map<string, string>) {
-  return ids.map((id) => names.get(id) ?? "Retired adventurer");
+  return ids.length > 0
+    ? ids.map((id) => names.get(id) ?? "Retired adventurer")
+    : ["Unrecorded team"];
 }
 
 function normalizeInteger(value: unknown) {
@@ -100,4 +102,9 @@ function normalizeInteger(value: unknown) {
   return Number.isFinite(parsed)
     ? Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(parsed)))
     : 0;
+}
+
+function addSafe(...values: number[]) {
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return Math.min(Number.MAX_SAFE_INTEGER, Math.max(Number.MIN_SAFE_INTEGER, total));
 }
