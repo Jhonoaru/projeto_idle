@@ -183,6 +183,7 @@ interface MainPanelProps {
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onUpdateLoadoutProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
   onFulfillLoadoutProcurementReservation: (request: GuildLoadoutProcurementFulfillmentRequest) => void;
+  onFulfillLoadoutProcurementBatch: (requests: GuildLoadoutProcurementFulfillmentRequest[]) => void;
   onManualSave: () => void;
   onReloadSave: () => void;
   onResetSave: () => void;
@@ -322,6 +323,7 @@ export function MainPanel({
   onUpdateLoadoutProcurementOrder,
   onUpdateLoadoutProcurementReservation,
   onFulfillLoadoutProcurementReservation,
+  onFulfillLoadoutProcurementBatch,
   onManualSave,
   onReloadSave,
   onResetSave,
@@ -495,6 +497,7 @@ export function MainPanel({
             onUpdateLoadoutProcurementOrder={onUpdateLoadoutProcurementOrder}
             onUpdateLoadoutProcurementReservation={onUpdateLoadoutProcurementReservation}
             onFulfillLoadoutProcurementReservation={onFulfillLoadoutProcurementReservation}
+            onFulfillLoadoutProcurementBatch={onFulfillLoadoutProcurementBatch}
           />
         ) : null}
 

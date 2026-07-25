@@ -173,6 +173,7 @@ Atualizado em: 2026-07-24
 - Etapa 90.5 concluida: QA interativo e SQLite do Reserved Gear Fulfillment validou confirmacao, clique duplo, persistencia e rollback defensivo em 90.035 checks.
 - Etapa 91 concluida: Armory Fulfillment Ledger registra as 30 entregas manuais mais recentes com peca, aventureiro, template, slot, substituicao e horario.
 - Etapa 91.5 concluida: QA do Fulfillment Ledger preservou itens aposentados, priorizou ordens ativas e validou 60.016 checks com duas cargas SQLite.
+- Etapa 92 concluida: Reserved Gear Batch Dispatch revisa e entrega ate cinco reservas exatas em uma unica confirmacao atomica.
 
 Comandos principais:
 
@@ -6667,6 +6668,65 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 92 - definir a proxima camada offline apos o ledger de entregas validado.
+
+## Etapa 92 - Reserved Gear Batch Dispatch
+
+Status: concluida.
+
+Implementacao:
+
+- Novo engine `fulfillGuildLoadoutProcurementBatch` recebe de uma a cinco reservas exatas.
+- O lote rejeita ordem duplicada, copia reservada duplicada, request invalida, timestamp invalido, lote vazio e lote acima do limite da fila.
+- Cada entrega reutiliza integralmente o fulfillment individual ja validado.
+- As entregas rodam sobre estado intermediario puro; se qualquer peca falhar, guilda, personagens e depot originais retornam sem entrega parcial.
+- Um lote valido transfere e equipa todas as pecas, remove ordens/reservas e grava um registro individual no Fulfillment Ledger para cada item.
+- O mesmo lock de interface protege despacho individual e em lote contra clique duplo.
+- O Activity Log recebe uma unica mensagem consolidada por lote para evitar spam.
+
+UI:
+
+- `Review Dispatch (N)` aparece somente quando existem pelo menos duas reservas na fila.
+- A revisao lista aventureiro, slot, item e ID da copia exata antes da confirmacao.
+- O aviso deixa explicito que o despacho e all-or-nothing.
+- `Issue All Reserved` e uma acao manual; abrir a revisao nao transfere nem equipa nada.
+- O dialogo usa portal no `document.body` para permanecer centralizado fora dos ancestrais transformados do client.
+- A emissao individual continua disponivel para cada ordem.
+
+QA automatizado:
+
+- Harness temporario passou em 80.021 assertions e foi removido.
+- Dez mil ciclos alternaram sucesso de duas pecas e falha tardia na segunda reserva.
+- Sucesso equipou weapon e armor, esvaziou as duas reservas/ordens, removeu as copias do depot e criou dois registros.
+- Falha tardia devolveu exatamente as referencias originais e nao deixou equipamento, historico ou remocao parcial.
+- Duplicatas, lote vazio, lote com seis entradas e data invalida foram bloqueados.
+- Inputs permaneceram imutaveis no caminho de sucesso.
+
+QA visual:
+
+- Fixture temporaria com Iron Longsword e Leather Armor reservados para Ayla foi removida apos o teste.
+- Desktop 1280x720 centralizou o dialogo em `x=370`, largura 540, sem overflow horizontal.
+- Viewport 390x844 manteve o dialogo em 339x273, inteiro e com os dois comandos acessiveis.
+- A confirmacao fechou o dialogo, removeu a fila e mostrou os dois registros em Recent Gear Issues.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 409 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Duas cargas de `loadout_templates_json` preservaram os dois registros do lote.
+- Uma linha legada sem `loadout_templates_json` recebeu defaults seguros.
+- O banco real permaneceu com `integrity_check=ok` e zero violacoes de foreign key.
+- A leitura foi nao destrutiva; SHA-256 permaneceu `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O jogador ainda escolhe e reserva cada copia individualmente antes de despachar o lote.
+- O lote nao busca alternativas, nao compra, nao forja e nao seleciona equipamento automaticamente.
+- O historico continua limitado aos 30 registros mais recentes e grava uma entrada por peca.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 92.5 - QA aprofundada do Reserved Gear Batch Dispatch.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

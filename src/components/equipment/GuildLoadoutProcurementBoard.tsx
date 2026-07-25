@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { bosses } from "../../data/bosses";
 import { hunts } from "../../data/hunts";
 import { items } from "../../data/items";
@@ -39,6 +40,7 @@ interface GuildLoadoutProcurementBoardProps {
   onUpdateProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onUpdateProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
   onFulfillProcurementReservation: (request: GuildLoadoutProcurementFulfillmentRequest) => void;
+  onFulfillProcurementBatch: (requests: GuildLoadoutProcurementFulfillmentRequest[]) => void;
 }
 
 type ProcurementFilter =
@@ -72,6 +74,7 @@ export function GuildLoadoutProcurementBoard({
   onUpdateProcurementOrder,
   onUpdateProcurementReservation,
   onFulfillProcurementReservation,
+  onFulfillProcurementBatch,
 }: GuildLoadoutProcurementBoardProps) {
   const board = useMemo(
     () => buildGuildLoadoutProcurementBoard(guild, characters, depot),
@@ -85,6 +88,7 @@ export function GuildLoadoutProcurementBoard({
   const filteredRoutes = board.routes.filter((route) => matchesFilter(route, filter));
   const [selectedRouteKey, setSelectedRouteKey] = useState("");
   const [pendingFulfillment, setPendingFulfillment] = useState<GuildLoadoutProcurementFulfillmentRequest>();
+  const [batchReviewOpen, setBatchReviewOpen] = useState(false);
   const selectedRoute = filteredRoutes.find((route) => route.key === selectedRouteKey)
     ?? filteredRoutes[0];
 
@@ -97,6 +101,23 @@ export function GuildLoadoutProcurementBoard({
   const fulfillmentHistory = tracker.state.fulfillmentHistory.slice(-6).reverse();
   const queuedKeys = new Set(procurementOrders.map((order) =>
     `${order.characterId}:${order.templateId}:${order.slot}`));
+  const reservedDispatch = procurementOrders.flatMap((order) => {
+    const reservation = tracker.state.procurementReservations.find((entry) =>
+      entry.characterId === order.characterId
+      && entry.templateId === order.templateId
+      && entry.slot === order.slot
+      && entry.itemId === order.itemId);
+    return reservation ? [{
+      order,
+      request: fulfillmentRequest(order, reservation.inventoryItemId),
+      characterName: characters.find((entry) => entry.id === order.characterId)?.name ?? "Adventurer",
+      item: items[order.itemId],
+    }] : [];
+  });
+
+  useEffect(() => {
+    if (reservedDispatch.length < 2 && batchReviewOpen) setBatchReviewOpen(false);
+  }, [batchReviewOpen, reservedDispatch.length]);
 
   return (
     <section className="loadout-procurement-board">
@@ -134,7 +155,14 @@ export function GuildLoadoutProcurementBoard({
       <section className="procurement-priority-queue">
         <header>
           <div><span>Manual priority ledger</span><strong>Procurement Orders</strong></div>
-          <b>{procurementOrders.length}/5 queued / {tracker.state.procurementReservations.length} reserved / {tracker.summary.unread} unread</b>
+          <span className="procurement-ledger-actions">
+            <b>{procurementOrders.length}/5 queued / {tracker.state.procurementReservations.length} reserved / {tracker.summary.unread} unread</b>
+            {reservedDispatch.length >= 2 ? (
+              <button onClick={() => setBatchReviewOpen(true)} type="button">
+                Review Dispatch ({reservedDispatch.length})
+              </button>
+            ) : null}
+          </span>
         </header>
         {tracker.summary.unread > 0 ? (
           <aside className="procurement-readiness-alert" role="status">
@@ -161,6 +189,42 @@ export function GuildLoadoutProcurementBoard({
             </button>
           </aside>
         ) : null}
+        {batchReviewOpen ? createPortal((
+          <div className="procurement-batch-backdrop">
+            <aside className="procurement-batch-review" role="dialog" aria-label="Review reserved gear dispatch" aria-modal="true">
+              <header>
+                <div><span>Armory issue order</span><strong>Reserved Gear Dispatch</strong></div>
+                <b>{reservedDispatch.length} exact pieces</b>
+              </header>
+              <div className="procurement-batch-list">
+                {reservedDispatch.map(({ order, characterName, item, request }) => (
+                  <article key={request.inventoryItemId}>
+                    <ItemIcon item={item} showQuantity={false} size="small" />
+                    <span>
+                      <small>{characterName} / {slotLabels[order.slot]}</small>
+                      <strong>{item?.name ?? order.itemId}</strong>
+                      <em>Reserved copy {request.inventoryItemId}</em>
+                    </span>
+                  </article>
+                ))}
+              </div>
+              <p>All-or-nothing dispatch. If any reserved copy is invalid, the entire issue order is cancelled.</p>
+              <footer>
+                <button onClick={() => setBatchReviewOpen(false)} type="button">Cancel</button>
+                <button
+                  className="is-confirm"
+                  onClick={() => {
+                    onFulfillProcurementBatch(reservedDispatch.map((entry) => entry.request));
+                    setBatchReviewOpen(false);
+                  }}
+                  type="button"
+                >
+                  Issue All Reserved
+                </button>
+              </footer>
+            </aside>
+          </div>
+        ), document.body) : null}
         {procurementOrders.length > 0 ? (
           <div>
             {procurementOrders.map((order, index) => {
@@ -522,7 +586,7 @@ function routeAction(
   route: GuildLoadoutProcurementRoute,
   actions: Omit<
     GuildLoadoutProcurementBoardProps,
-    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder" | "onUpdateProcurementReservation" | "onFulfillProcurementReservation"
+    "characters" | "depot" | "guild" | "onAcknowledgeProcurementAlerts" | "onUpdateProcurementOrder" | "onUpdateProcurementReservation" | "onFulfillProcurementReservation" | "onFulfillProcurementBatch"
   >,
 ) {
   const characterId = route.objectives[0]?.character.id ?? "";

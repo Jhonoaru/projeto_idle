@@ -97,6 +97,7 @@ import {
   fulfillGuildLoadoutProcurementReservation,
   type GuildLoadoutProcurementFulfillmentRequest,
 } from "../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
+import { fulfillGuildLoadoutProcurementBatch } from "../game-engine/loadout-templates/fulfillGuildLoadoutProcurementBatch";
 import {
   acknowledgeGuildLoadoutProcurementAlerts,
   describeProcurementAlerts,
@@ -756,6 +757,26 @@ export function App() {
     }
     prependLog(
       result.success ? "Reserved gear issued" : "Reserved gear issue blocked",
+      result.message,
+      result.success ? "success" : "warning",
+    );
+    window.setTimeout(() => { fulfillingLoadoutReservationRef.current = false; }, 250);
+  }
+
+  function handleFulfillLoadoutProcurementBatch(
+    requests: GuildLoadoutProcurementFulfillmentRequest[],
+  ) {
+    if (fulfillingLoadoutReservationRef.current) return;
+    fulfillingLoadoutReservationRef.current = true;
+    const result = fulfillGuildLoadoutProcurementBatch(guild, characters, depot, requests);
+    if (result.success) {
+      setGuild(result.guild);
+      setCharacters(result.characters);
+      charactersRef.current = result.characters;
+      setDepot(result.depot);
+    }
+    prependLog(
+      result.success ? "Reserved dispatch completed" : "Reserved dispatch blocked",
       result.message,
       result.success ? "success" : "warning",
     );
@@ -2602,6 +2623,7 @@ export function App() {
           onUpdateLoadoutProcurementOrder={handleUpdateLoadoutProcurementOrder}
           onUpdateLoadoutProcurementReservation={handleUpdateLoadoutProcurementReservation}
           onFulfillLoadoutProcurementReservation={handleFulfillLoadoutProcurementReservation}
+          onFulfillLoadoutProcurementBatch={handleFulfillLoadoutProcurementBatch}
           onClaimDailyReward={handleClaimDailyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}

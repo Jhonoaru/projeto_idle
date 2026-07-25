@@ -13782,6 +13782,28 @@ html[data-client-motion="reduced"] *::after {
 .procurement-fulfillment-confirm small { margin-top: 3px; color: #948b70; font-size: 0.42rem; }
 .procurement-fulfillment-confirm button { min-height: 28px; padding: 4px 10px; border: 1px solid #505a52; color: #c2b890; background: #1a211d; font-family: Georgia, serif; font-size: 0.44rem; font-weight: 700; cursor: pointer; }
 .procurement-fulfillment-confirm button.is-confirm { border-color: #9d8141; color: #f0d88e; background: #39301c; }
+.procurement-ledger-actions { display: flex; gap: 8px; align-items: center; }
+.procurement-ledger-actions > button { min-height: 28px; padding: 4px 10px; border: 1px solid #8e793f; color: #ead488; background: #332b19; font-family: Georgia, serif; font-size: 0.44rem; font-weight: 700; cursor: pointer; }
+.procurement-batch-backdrop { position: fixed; z-index: 80; inset: 0; display: grid; place-items: center; padding: 18px; background: #050806d9; }
+.procurement-batch-review { width: min(540px, 100%); max-height: min(680px, calc(100vh - 36px)); overflow: auto; padding: 14px; border: 1px solid #8f783b; box-shadow: 0 14px 45px #000c; background: #101613; }
+.procurement-batch-review > header { display: flex; justify-content: space-between; gap: 12px; align-items: end; padding-bottom: 10px; border-bottom: 1px solid #465044; }
+.procurement-batch-review > header span,
+.procurement-batch-review > header strong { display: block; }
+.procurement-batch-review > header span { color: #859087; font-size: 0.44rem; text-transform: uppercase; }
+.procurement-batch-review > header strong { margin-top: 3px; color: #ead796; font-family: Georgia, serif; font-size: 0.82rem; }
+.procurement-batch-review > header b { color: #9cad91; font-size: 0.48rem; }
+.procurement-batch-list { display: grid; gap: 5px; margin-top: 10px; }
+.procurement-batch-list article { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 8px; align-items: center; min-width: 0; padding: 7px; border: 1px solid #39443b; border-left: 3px solid #8a985d; background: #151c18; }
+.procurement-batch-list article small,
+.procurement-batch-list article strong,
+.procurement-batch-list article em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.procurement-batch-list article small { color: #879289; font-size: 0.42rem; text-transform: uppercase; }
+.procurement-batch-list article strong { margin: 2px 0; color: #ded09d; font-size: 0.55rem; }
+.procurement-batch-list article em { color: #778279; font-size: 0.39rem; font-style: normal; }
+.procurement-batch-review > p { margin: 10px 0; padding: 8px; border: 1px solid #65572f; color: #c2b37f; background: #201e15; font-size: 0.47rem; line-height: 1.45; }
+.procurement-batch-review > footer { display: flex; justify-content: flex-end; gap: 7px; }
+.procurement-batch-review > footer button { min-height: 30px; padding: 5px 12px; border: 1px solid #515b53; color: #c5bd9d; background: #19201c; font-family: Georgia, serif; font-size: 0.46rem; font-weight: 700; cursor: pointer; }
+.procurement-batch-review > footer button.is-confirm { border-color: #a18842; color: #f1da91; background: #3b311b; }
 .procurement-priority-queue > p { margin: 8px 0 0; padding: 10px; border: 1px dashed #3c433d; color: #7f8981; font-size: 0.48rem; text-align: center; }
 .procurement-priority-queue > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-top: 7px; }
 .procurement-priority-queue article { display: grid; grid-template-columns: 24px 38px minmax(0, 1fr) auto; gap: 6px; align-items: center; min-width: 0; padding: 6px; border: 1px solid #3b423c; border-left: 3px solid #9a8148; background: #151a17; }
@@ -13930,6 +13952,9 @@ html[data-client-motion="reduced"] *::after {
   .procurement-dossier > header { align-items: flex-start; flex-direction: column; }
   .procurement-fulfillment-history article { grid-template-columns: 38px minmax(0, 1fr); }
   .procurement-fulfillment-history article time { grid-column: 2; }
+  .procurement-ledger-actions { align-items: flex-end; flex-direction: column; }
+  .procurement-batch-review { padding: 11px; }
+  .procurement-batch-review > footer { display: grid; grid-template-columns: 1fr 1fr; }
   .procurement-priority-queue article { grid-template-columns: 24px 38px minmax(0, 1fr); }
   .procurement-priority-queue article > div { grid-column: 2 / -1; grid-template-columns: 25px 25px minmax(90px, 1fr) 25px; }
   .procurement-priority-queue article > div button.is-view-route,

@@ -50,6 +50,7 @@ interface GuildArmoryHallProps {
   onUpdateLoadoutProcurementOrder: (request: GuildLoadoutProcurementOrderRequest) => void;
   onUpdateLoadoutProcurementReservation: (request: GuildLoadoutProcurementReservationRequest) => void;
   onFulfillLoadoutProcurementReservation: (request: GuildLoadoutProcurementFulfillmentRequest) => void;
+  onFulfillLoadoutProcurementBatch: (requests: GuildLoadoutProcurementFulfillmentRequest[]) => void;
 }
 
 const slotLabels: Record<EquipmentSlot, string> = {
@@ -57,7 +58,7 @@ const slotLabels: Record<EquipmentSlot, string> = {
   boots: "Boots", amulet: "Amulet", ring: "Ring", backpack: "Backpack",
 };
 
-export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onAcknowledgeLoadoutProcurementAlerts, onUpdateLoadoutProcurementOrder, onUpdateLoadoutProcurementReservation, onFulfillLoadoutProcurementReservation }: GuildArmoryHallProps) {
+export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId, onOpenBoss, onOpenHunt, onSelectCharacter, onOpenSystem, onExecuteAllEquipmentOrders, onExecuteEquipmentOrder, onAssignLoadoutTemplate, onSaveLoadoutTemplate, onSaveEditedLoadoutTemplate, onClearLoadoutTemplate, onAcknowledgeLoadoutProcurementAlerts, onUpdateLoadoutProcurementOrder, onUpdateLoadoutProcurementReservation, onFulfillLoadoutProcurementReservation, onFulfillLoadoutProcurementBatch }: GuildArmoryHallProps) {
   const audit = useMemo(() => buildGuildArmoryAudit(characters, depot), [characters, depot]);
   const procurementUnreadCount = getGuildLoadoutProcurementUnreadCount(guild);
   const unreservedDepot = useMemo(
@@ -254,6 +255,7 @@ export function GuildArmoryHall({ characters, depot, guild, selectedCharacterId,
           onUpdateProcurementOrder={onUpdateLoadoutProcurementOrder}
           onUpdateProcurementReservation={onUpdateLoadoutProcurementReservation}
           onFulfillProcurementReservation={onFulfillLoadoutProcurementReservation}
+          onFulfillProcurementBatch={onFulfillLoadoutProcurementBatch}
         />
       ) : (
         <GuildLoadoutTemplates
