@@ -21,6 +21,7 @@ import type {
   GuildDepot,
   GuildLoadoutProcurementOrder,
   HuntArea,
+  Item,
 } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
 
@@ -52,6 +53,13 @@ type ProcurementFilter =
   | "crafting"
   | "bazaar"
   | "blocked";
+
+interface ReservedDispatchReviewEntry {
+  order: GuildLoadoutProcurementOrder;
+  request: GuildLoadoutProcurementFulfillmentRequest;
+  characterName: string;
+  item?: Item;
+}
 
 const slotLabels: Record<EquipmentSlot, string> = {
   weapon: "Weapon", offhand: "Offhand", helmet: "Helmet", armor: "Armor", legs: "Legs",
@@ -88,7 +96,7 @@ export function GuildLoadoutProcurementBoard({
   const filteredRoutes = board.routes.filter((route) => matchesFilter(route, filter));
   const [selectedRouteKey, setSelectedRouteKey] = useState("");
   const [pendingFulfillment, setPendingFulfillment] = useState<GuildLoadoutProcurementFulfillmentRequest>();
-  const [batchReviewOpen, setBatchReviewOpen] = useState(false);
+  const [batchReview, setBatchReview] = useState<ReservedDispatchReviewEntry[]>();
   const selectedRoute = filteredRoutes.find((route) => route.key === selectedRouteKey)
     ?? filteredRoutes[0];
 
@@ -116,8 +124,18 @@ export function GuildLoadoutProcurementBoard({
   });
 
   useEffect(() => {
-    if (reservedDispatch.length < 2 && batchReviewOpen) setBatchReviewOpen(false);
-  }, [batchReviewOpen, reservedDispatch.length]);
+    if (!batchReview) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setBatchReview(undefined);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [batchReview]);
 
   return (
     <section className="loadout-procurement-board">
@@ -158,7 +176,17 @@ export function GuildLoadoutProcurementBoard({
           <span className="procurement-ledger-actions">
             <b>{procurementOrders.length}/5 queued / {tracker.state.procurementReservations.length} reserved / {tracker.summary.unread} unread</b>
             {reservedDispatch.length >= 2 ? (
-              <button onClick={() => setBatchReviewOpen(true)} type="button">
+              <button
+                onClick={() => {
+                  setPendingFulfillment(undefined);
+                  setBatchReview(reservedDispatch.map((entry) => ({
+                    ...entry,
+                    order: { ...entry.order },
+                    request: { ...entry.request },
+                  })));
+                }}
+                type="button"
+              >
                 Review Dispatch ({reservedDispatch.length})
               </button>
             ) : null}
@@ -189,15 +217,15 @@ export function GuildLoadoutProcurementBoard({
             </button>
           </aside>
         ) : null}
-        {batchReviewOpen ? createPortal((
+        {batchReview ? createPortal((
           <div className="procurement-batch-backdrop">
             <aside className="procurement-batch-review" role="dialog" aria-label="Review reserved gear dispatch" aria-modal="true">
               <header>
                 <div><span>Armory issue order</span><strong>Reserved Gear Dispatch</strong></div>
-                <b>{reservedDispatch.length} exact pieces</b>
+                <b>{batchReview.length} exact pieces</b>
               </header>
               <div className="procurement-batch-list">
-                {reservedDispatch.map(({ order, characterName, item, request }) => (
+                {batchReview.map(({ order, characterName, item, request }) => (
                   <article key={request.inventoryItemId}>
                     <ItemIcon item={item} showQuantity={false} size="small" />
                     <span>
@@ -208,14 +236,17 @@ export function GuildLoadoutProcurementBoard({
                   </article>
                 ))}
               </div>
-              <p>All-or-nothing dispatch. If any reserved copy is invalid, the entire issue order is cancelled.</p>
+              <p>
+                This reviewed list is fixed. If any reserved copy changed or became invalid,
+                the entire issue order will be cancelled.
+              </p>
               <footer>
-                <button onClick={() => setBatchReviewOpen(false)} type="button">Cancel</button>
+                <button autoFocus onClick={() => setBatchReview(undefined)} type="button">Cancel</button>
                 <button
                   className="is-confirm"
                   onClick={() => {
-                    onFulfillProcurementBatch(reservedDispatch.map((entry) => entry.request));
-                    setBatchReviewOpen(false);
+                    onFulfillProcurementBatch(batchReview.map((entry) => entry.request));
+                    setBatchReview(undefined);
                   }}
                   type="button"
                 >
@@ -302,7 +333,10 @@ export function GuildLoadoutProcurementBoard({
                       <>
                         <button
                           className="is-fulfillment"
-                          onClick={() => setPendingFulfillment(fulfillmentRequest(order, reservation.inventoryItemId))}
+                          onClick={() => {
+                            setBatchReview(undefined);
+                            setPendingFulfillment(fulfillmentRequest(order, reservation.inventoryItemId));
+                          }}
                           type="button"
                         >
                           Issue Gear

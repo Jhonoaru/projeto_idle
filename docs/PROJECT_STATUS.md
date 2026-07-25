@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-24
+Atualizado em: 2026-07-25
 
 ## Stack usada
 
@@ -174,6 +174,7 @@ Atualizado em: 2026-07-24
 - Etapa 91 concluida: Armory Fulfillment Ledger registra as 30 entregas manuais mais recentes com peca, aventureiro, template, slot, substituicao e horario.
 - Etapa 91.5 concluida: QA do Fulfillment Ledger preservou itens aposentados, priorizou ordens ativas e validou 60.016 checks com duas cargas SQLite.
 - Etapa 92 concluida: Reserved Gear Batch Dispatch revisa e entrega ate cinco reservas exatas em uma unica confirmacao atomica.
+- Etapa 92.5 concluida: QA do Batch Dispatch congelou a revisao, reforcou exclusividade/acessibilidade do dialogo e validou 75.022 checks com lote maximo.
 
 Comandos principais:
 
@@ -6727,6 +6728,66 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 92.5 - QA aprofundada do Reserved Gear Batch Dispatch.
+
+## Etapa 92.5 - QA do Reserved Gear Batch Dispatch
+
+Status: concluida.
+
+Riscos encontrados e corrigidos:
+
+- O dialogo guardava apenas um booleano e reconstruia a lista com o estado mais recente.
+- Uma mudanca externa entre revisao e confirmacao poderia trocar silenciosamente as pecas mostradas ao jogador.
+- A revisao agora congela copias dos requests, ordens, nomes e itens exatamente no momento em que e aberta.
+- Se uma reserva congelada ficar obsoleta, a engine cancela o lote inteiro em vez de emitir uma lista diferente.
+- Confirmacao individual e coletiva podiam coexistir no estado do componente.
+- Abrir uma delas agora fecha explicitamente a outra.
+- O dialogo coletivo agora recebe foco inicial seguro no botao Cancel.
+- `Escape` fecha a revisao e restaura o overflow anterior do `document.body`.
+- Enquanto aberto, o dialogo bloqueia o scroll de fundo.
+- Falhas da engine agora identificam a posicao exata: `item N of total`.
+
+QA automatizado:
+
+- Harness temporario passou em 75.022 assertions e foi removido.
+- Dez mil ciclos alternaram lote maximo valido de cinco pecas e falha tardia na quarta peca.
+- O lote maximo cobriu Weapon, Offhand, Helmet, Armor e Legs.
+- Um historico com 29 entradas terminou limitado a 30 e preservou os cinco novos registros na ordem.
+- As cinco copias exatas foram equipadas e todas as ordens/reservas foram removidas no sucesso.
+- Falha na quarta peca devolveu exatamente guilda, roster e depot originais.
+- Remover a terceira reserva de uma lista revisada cancelou em `item 3 of 5` sem entrega parcial.
+- Roster duplicado, request `null`, ordem duplicada e inventoryItemId repetido foram bloqueados.
+- Inputs permaneceram imutaveis em sucesso e rollback.
+
+QA visual:
+
+- `Cancel` recebeu foco automatico ao abrir o dialogo.
+- `Escape` removeu o dialogo e restaurou `body.style.overflow`.
+- A troca de Issue Gear individual para Review Dispatch deixou um unico dialogo ativo.
+- Desktop 1280x720 manteve o modal em 540px, centralizado em `x=370`, sem overflow horizontal.
+- Viewport 390x844 manteve o modal inteiro em 354x284 e os dois comandos acessiveis.
+- O backdrop impediu a alteracao de reservas por controles atras do dialogo.
+- A fixture visual temporaria foi removida integralmente.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou com 409 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+- Copia isolada do banco recebeu 25 registros antigos e cinco registros do lote maximo.
+- Duas leituras preservaram 30 registros, fila vazia e as cinco entregas finais na ordem.
+- As duas leituras produziram SHA-256 canonico `632621EF847A3A19F4635775C19943E0D753A7E191E3D215767CA76F4883E88B`.
+- A copia manteve `integrity_check=ok` e zero violacoes de foreign key.
+- O save real permaneceu somente leitura e preservou SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes mantidas:
+
+- O dialogo nao implementa focus trap completo; foco inicial e Escape estao cobertos.
+- Alteracao externa durante o modal foi validada na engine; a UI impede cliques atras do backdrop.
+- O lote continua estritamente manual e nao reserva, compra, forja ou escolhe alternativas.
+- Permanece o aviso conhecido do bundle JavaScript acima de 500 kB.
+
+Proximo passo sugerido:
+
+- Etapa 93 - definir a proxima camada offline apos o ciclo completo de planejamento e despacho do arsenal.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

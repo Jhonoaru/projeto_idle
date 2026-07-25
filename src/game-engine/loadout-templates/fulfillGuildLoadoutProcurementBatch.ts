@@ -60,7 +60,7 @@ export function fulfillGuildLoadoutProcurementBatch(
   let workingDepot = depot;
   const entries: GuildLoadoutProcurementBatchEntry[] = [];
 
-  for (const request of requests) {
+  for (const [index, request] of requests.entries()) {
     const result = fulfillGuildLoadoutProcurementReservation(
       workingGuild,
       workingCharacters,
@@ -69,7 +69,12 @@ export function fulfillGuildLoadoutProcurementBatch(
       now,
     );
     if (!result.success) {
-      return blocked(guild, characters, depot, `Batch dispatch cancelled: ${result.message}`);
+      return blocked(
+        guild,
+        characters,
+        depot,
+        `Batch dispatch cancelled at item ${index + 1} of ${requests.length}: ${result.message}`,
+      );
     }
     workingGuild = result.guild;
     workingCharacters = result.characters;
