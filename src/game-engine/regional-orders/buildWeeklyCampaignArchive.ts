@@ -1,6 +1,6 @@
 import { regionalCampaignOrderClaimLedgerLimit } from "../../data/regionalCampaignOrders";
 import type { Guild } from "../../shared/types";
-import { buildWeeklyCampaignBriefing } from "./buildWeeklyCampaignBriefing";
+import { buildWeeklyCampaignBriefing, getLocalCampaignWeekKeys } from "./buildWeeklyCampaignBriefing";
 
 export type WeeklyCampaignArchiveStatus = "secured" | "recorded" | "empty";
 
@@ -19,6 +19,8 @@ export interface WeeklyCampaignArchiveEntry {
 }
 
 export interface WeeklyCampaignArchive {
+  guildId: string;
+  currentWeekStartKey: string;
   entries: WeeklyCampaignArchiveEntry[];
   securedWeeks: number;
   recordedWeeks: number;
@@ -31,6 +33,7 @@ export const weeklyCampaignArchiveLimit = 8;
 
 export function buildWeeklyCampaignArchive(guild: Guild, now = new Date(), requestedWeeks = weeklyCampaignArchiveLimit): WeeklyCampaignArchive {
   const current = safeLocalDate(now);
+  const currentWeekStartKey = getLocalCampaignWeekKeys(current).startKey;
   const weeks = Math.max(1, Math.min(weeklyCampaignArchiveLimit, safeInteger(requestedWeeks, weeklyCampaignArchiveLimit)));
   const entries = Array.from({ length: weeks }, (_, index) => {
     const archiveDate = new Date(current);
@@ -56,6 +59,8 @@ export function buildWeeklyCampaignArchive(guild: Guild, now = new Date(), reque
   });
 
   return {
+    guildId: guild.id,
+    currentWeekStartKey,
     entries,
     securedWeeks: entries.filter((entry) => entry.status === "secured").length,
     recordedWeeks: entries.filter((entry) => entry.status !== "empty").length,

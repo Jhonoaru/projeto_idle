@@ -1,7 +1,7 @@
 import type { Guild } from "../../shared/types";
 import { normalizeGuildOperationOutcomes } from "../operations/normalizeGuildOperationOutcomes";
 import { buildWeeklyCampaignArchive, type WeeklyCampaignArchive } from "./buildWeeklyCampaignArchive";
-import { buildWeeklyCampaignBriefing, type WeeklyCampaignBriefing } from "./buildWeeklyCampaignBriefing";
+import { buildWeeklyCampaignBriefing, getLocalCampaignWeekKeys, type WeeklyCampaignBriefing } from "./buildWeeklyCampaignBriefing";
 import { getLocalCampaignCycleKey } from "./regionalCampaignOrders";
 
 export type WeeklyCampaignTrendTone = "ahead" | "steady" | "behind" | "opening";
@@ -42,7 +42,9 @@ export function buildWeeklyCampaignTrend(guild: Guild, now = new Date(), supplie
   const previousCheckpointKey = getLocalCampaignCycleKey(previousDate);
   const current = buildCheckpointBriefing(guild, currentDate, currentCheckpointKey);
   const previous = buildCheckpointBriefing(guild, previousDate, previousCheckpointKey);
-  const archive = suppliedArchive ?? buildWeeklyCampaignArchive(guild, currentDate);
+  const archive = isMatchingArchive(suppliedArchive, guild, currentDate, previousDate)
+    ? suppliedArchive
+    : buildWeeklyCampaignArchive(guild, currentDate);
   const previousFinal = archive.entries[0];
   const recorded = archive.entries.filter((entry) => entry.status !== "empty");
   const checkpointDay = ((currentDate.getDay() + 6) % 7) + 1;
@@ -71,6 +73,16 @@ export function buildWeeklyCampaignTrend(guild: Guild, now = new Date(), supplie
     averageGold: average(recorded.map((entry) => entry.earnedGold)),
     securedRate: recorded.length > 0 ? Math.round((recorded.filter((entry) => entry.status === "secured").length / recorded.length) * 100) : 0,
   };
+}
+
+function isMatchingArchive(archive: WeeklyCampaignArchive | undefined, guild: Guild, currentDate: Date, previousDate: Date): archive is WeeklyCampaignArchive {
+  if (!archive || archive.guildId !== guild.id) return false;
+  const currentWeek = getLocalCampaignWeekKeys(currentDate);
+  const previousWeek = getLocalCampaignWeekKeys(previousDate);
+  const firstEntry = archive.entries[0];
+  return archive.currentWeekStartKey === currentWeek.startKey
+    && firstEntry?.weekStartKey === previousWeek.startKey
+    && firstEntry.weekEndKey === previousWeek.endKey;
 }
 
 function buildCheckpointBriefing(guild: Guild, date: Date, checkpointKey: string) {

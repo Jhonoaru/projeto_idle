@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-103-5",
+    stage: "Stage 103.5",
+    title: "Campaign Trend Comparison QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Campaign comparisons now reject reused archive data when it belongs to another guild or local campaign week.",
+    highlights: [
+      "Weekly archives carry guild and reference-week identity so stale UI data cannot replace the canonical historical baseline.",
+      "Matching archives remain reusable, while mismatched guilds, dates and first-week ranges are rebuilt from the current save.",
+      "Thirty-five thousand twenty-five checks and four responsive widths validated checkpoints, projections and read-only behavior.",
+    ],
+    systems: ["Campaign Trends QA", "Campaign Archive", "Local Checkpoints", "Defensive Analytics", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-103",
     stage: "Stage 103",
     title: "Campaign Trend Comparison",

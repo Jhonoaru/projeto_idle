@@ -196,6 +196,7 @@ Atualizado em: 2026-07-28
 - Etapa 102 concluida: Weekly Campaign Archive mostra oito semanas anteriores derivadas e amplia a retencao do ledger existente.
 - Etapa 102.5 concluida: QA do arquivo corrigiu a capacidade para 192 claims e impediu IDs invalidos de consumir vagas antes da validacao.
 - Etapa 103 concluida: Campaign Trend Comparison compara o checkpoint atual com o mesmo dia da semana anterior e adiciona projecao e baseline historico derivados.
+- Etapa 103.5 concluida: QA do Campaign Trend Comparison rejeita archives reutilizados de outra guilda/semana e valida 35.025 assercoes em 5.000 cenarios.
 
 Comandos principais:
 
@@ -8039,6 +8040,50 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 103.5 - QA aprofundada do Campaign Trend Comparison.
+
+## Etapa 103.5 - QA aprofundada do Campaign Trend Comparison
+
+Status: concluida.
+
+Correcao defensiva:
+
+- A auditoria reproduziu um defeito real: fornecer ao trend um `WeeklyCampaignArchive` de outra data podia trocar `Previous final` e as medias do baseline por dados incompativeis.
+- `WeeklyCampaignArchive` agora identifica a guilda de origem e a semana local usada como referencia.
+- `buildWeeklyCampaignTrend` reutiliza o archive fornecido apenas quando guilda, semana atual e intervalo da primeira semana anterior correspondem ao contexto solicitado.
+- Archives antigos, cruzados entre guildas ou construidos para outra semana sao ignorados e reconstruidos a partir do save atual.
+- A protecao e somente derivada: nao adiciona persistencia, reward, claim, bonus ou migration.
+
+QA automatizada:
+
+- A reproducao isolada confirmou o erro antes da correcao: o fechamento anterior mudou de 5 para 0 ordens e o baseline de 1 para 0 semanas.
+- O mesmo caso passou depois da correcao, preservando 5 ordens anteriores e uma semana registrada.
+- Harness temporario passou em 35.025 assercoes sobre 5.000 guildas/datas deterministicas e foi removido.
+- Foram cobertos archives validos, guilda incorreta, semana incorreta, checkpoints Monday-Sunday, relogio invalido, claims futuros, IDs nao canonicos, projecao 0..21 e baseline 0..8.
+- Os builders preservaram imutabilidade da guilda em todos os cenarios e sempre retornaram quatro metricas com medias finitas.
+
+QA visual:
+
+- Operations e Campaign Archive abriram no Vite com o estado `No checkpoint activity yet`, quatro metricas e cinco resumos historicos.
+- Abrir e fechar o archive manteve a Regional Order em `None`; nenhuma ordem foi aceita ou alterada pela analise.
+- O painel foi validado em 1250, 760, 520 e 390 px sem overflow horizontal no documento, archive ou trend.
+- O unico erro no console foi o fallback esperado do Tauri SQL sem `invoke` no navegador Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 433 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum fixture, claim, migration ou execucao do release foi aplicado ao perfil real.
+
+Limitacoes:
+
+- A projecao continua linear e informativa, dependente do relogio local e sem anti-cheat de data.
+- Archives construidos manualmente sem a nova identidade nao sao reutilizados; o engine os recompoe com seguranca.
+- O QA interativo ocorreu no Vite; o pacote Tauri foi validado por build, sem abrir o executavel contra o save real.
+
+Proximo passo sugerido:
+
+- Etapa 104 - Campaign Performance Records.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
