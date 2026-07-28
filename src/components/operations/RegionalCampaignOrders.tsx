@@ -52,10 +52,15 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
       <div className="regional-campaign-orders-grid">
         {orders.map((order) => {
           const difficultyOptions = buildRegionalCampaignDifficultyOptions(guild, order);
-          const selectedDifficulty = selectedDifficulties[order.id] ?? "standard";
-          const selectedOption = difficultyOptions.find((option) => option.id === selectedDifficulty) ?? difficultyOptions[0];
+          const requestedDifficulty = selectedDifficulties[order.id] ?? "standard";
+          const requestedOption = difficultyOptions.find((option) => option.id === requestedDifficulty);
+          const selectedOption = requestedOption?.unlocked
+            ? requestedOption
+            : difficultyOptions.find((option) => option.unlocked) ?? difficultyOptions[0];
+          const selectedDifficulty = selectedOption.id;
+          const displayedDifficulty = order.state === "available" ? selectedDifficulty : order.difficulty;
           return (
-          <article className={`is-${order.state} difficulty-${order.difficulty}`} key={order.id}>
+          <article className={`is-${order.state} difficulty-${displayedDifficulty}`} key={order.id}>
             <header>
               <i aria-hidden="true">{order.regionSigil}</i>
               <div><span>{order.regionName} / {order.difficultyLabel} / {order.intensityLabel} {order.assignmentLabel}</span><strong>{order.title}</strong></div>

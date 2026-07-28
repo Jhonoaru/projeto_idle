@@ -202,6 +202,7 @@ Atualizado em: 2026-07-28
 - Etapa 105 concluida: Regional Order Variety adiciona nove apresentacoes e 27 combinacoes deterministicas sem alterar IDs, balanceamento ou saves.
 - Etapa 105.5 concluida: QA da Regional Order Variety elimina assignments repetidos na mesma familia diaria e valida compatibilidade historica.
 - Etapa 106 concluida: Campaign Difficulty Bands adiciona escolhas Standard, Veteran e Elite com desbloqueio por nivel, escala de objetivo/reward e saves retrocompativeis.
+- Etapa 106.5 concluida: QA das Campaign Difficulty Bands garante targets 1/2/3 em objetivos unitarios, compatibilidade da API legada e validacao ampla com 191.139 assercoes.
 
 Comandos principais:
 
@@ -8317,8 +8318,8 @@ Modelo:
 
 - Cada Regional Campaign Order oferece tres faixas antes do aceite: `Standard`, `Veteran` e `Elite`.
 - `Standard` abre no guild level 1 e usa target/reward base.
-- `Veteran` abre no guild level 3, multiplica target por 1,5 e reward por 1,6.
-- `Elite` abre no guild level 5, multiplica target por 2 e reward por 2,25.
+- `Veteran` abre no guild level 3, multiplica target por 1,5 e reward por 1,6, com minimo de duas unidades.
+- `Elite` abre no guild level 5, multiplica target por 2 e reward por 2,25, com minimo de tres unidades.
 - Targets fracionarios sao arredondados para cima e rewards para o inteiro mais proximo.
 - O intensity label diario continua descrevendo a variante sorteada; difficulty descreve o compromisso escolhido pelo jogador.
 
@@ -8357,6 +8358,47 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 106.5 - QA das Campaign Difficulty Bands.
+
+## Etapa 106.5 - QA das Campaign Difficulty Bands
+
+Status: concluida.
+
+Correcoes:
+
+- Bosses e Contracts com target base 1 agora escalam estritamente para 1, 2 e 3 nas faixas Standard, Veteran e Elite.
+- A assinatura legada `acceptRegionalCampaignOrder(guild, id, now)` voltou a interpretar a data corretamente e continua aceitando Standard.
+- IDs de ordem invalidos retornam uma lista vazia de opcoes em vez de lancar excecao.
+- A selecao visual volta para a primeira faixa desbloqueada depois de reset, reload ou reducao do guild level.
+- Acentos de dificuldade agora se aplicam apenas a cards disponiveis e nao sobrescrevem bordas de estados active ou ready.
+
+Compatibilidade e seguranca:
+
+- O target minimo complementa os multiplicadores existentes sem alterar IDs diarios ou rewards.
+- Saves antigos sem difficulty continuam normalizados como Standard.
+- Difficulty desconhecida e snapshots forjados com target/reward divergentes sao descartados sem mutar a guilda.
+- Claim antecipado, claim duplicado e ordem inexistente falham fechados.
+
+Validacao:
+
+- Harness temporario passou em 191.139 assercoes.
+- Foram gerados 10.000 boards deterministas e 90.000 opcoes de dificuldade.
+- Foram concluidos 1.500 fluxos completos, 500 por faixa, cobrindo aceite, progresso, reload, claim, historico e duplicacao.
+- Tambem foram cobertos unlocks dos guild levels 0 a 8, API legada, IDs invalidos, saves antigos e snapshots hostis.
+- Browser confirmou Standard habilitado e Veteran/Elite bloqueados no guild level 2.
+- O layout passou em 1250, 760, 520 e 390 px sem overflow horizontal, controles cortados ou botoes fora da viewport.
+- Nenhuma ordem foi aceita durante o QA visual, preservando o save real.
+- `npm.cmd run build` passou com 434 modulos; permaneceu apenas o aviso conhecido de chunk acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O SQLite real permaneceu byte a byte inalterado, com 81.920 bytes e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- As faixas ainda escalam apenas objetivo e guild gold; loot e recompensas especiais permanecem fora desta etapa.
+- O ciclo continua totalmente local e nao inclui anti-cheat de relogio ou save.
+
+Proximo passo sugerido:
+
+- Etapa 107 - Campaign Reward Tiers.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

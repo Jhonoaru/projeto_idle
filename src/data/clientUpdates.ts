@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-106-5",
+    stage: "Stage 106.5",
+    title: "Campaign Difficulty Bands QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Difficulty scaling now stays strictly progressive across every Regional Order family while legacy calls and malformed data fail safely.",
+    highlights: [
+      "Boss and Contract objectives now require one, two and three completions across Standard, Veteran and Elite instead of collapsing Veteran and Elite onto the same target.",
+      "Legacy acceptance calls keep their original date semantics, invalid order IDs return no options and reloads always restore an unlocked selection.",
+      "One hundred ninety-one thousand one hundred thirty-nine checks plus responsive browser QA validated generation, complete flows, forged saves and state styling.",
+    ],
+    systems: ["Campaign Difficulty QA", "Regional Orders", "Legacy Compatibility", "Save Hardening", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-106",
     stage: "Stage 106",
     title: "Campaign Difficulty Bands",

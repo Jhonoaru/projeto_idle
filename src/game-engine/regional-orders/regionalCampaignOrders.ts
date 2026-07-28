@@ -95,6 +95,7 @@ export function buildRegionalCampaignDifficultyOptions(
   order: Pick<RegionalCampaignOrderOffer, "objective" | "id">,
 ): RegionalCampaignOrderDifficultyOption[] {
   const variant = orderVariant(order.id);
+  if (variant < 0) return [];
   return regionalCampaignDifficultyBands.map((band) => {
     const values = getRegionalCampaignDifficultyValues(order.objective, variant, band.id);
     return {
@@ -112,9 +113,11 @@ export function buildRegionalCampaignDifficultyOptions(
 export function acceptRegionalCampaignOrder(
   guild: Guild,
   orderId: string,
-  difficulty: GuildRegionalOrderDifficulty = "standard",
-  now = new Date(),
+  difficultyOrNow: GuildRegionalOrderDifficulty | Date = "standard",
+  acceptedAt = new Date(),
 ): RegionalOrderResult {
+  const difficulty = difficultyOrNow instanceof Date ? "standard" : difficultyOrNow;
+  const now = difficultyOrNow instanceof Date ? difficultyOrNow : acceptedAt;
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
   const state = outcomes.regionalOrders ?? { claimedOrderIds: [], claimHistory: [] };
   if (state.activeOrder) return result(false, guild, "Finish or abandon the active regional order first.");

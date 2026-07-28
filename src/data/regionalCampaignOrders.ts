@@ -19,6 +19,7 @@ export interface RegionalCampaignDifficultyBand {
   description: string;
   requiredGuildLevel: number;
   targetMultiplier: number;
+  minimumTarget: number;
   rewardMultiplier: number;
 }
 
@@ -32,6 +33,7 @@ export const regionalCampaignDifficultyBands: RegionalCampaignDifficultyBand[] =
     description: "The regular objective and treasury reward.",
     requiredGuildLevel: 1,
     targetMultiplier: 1,
+    minimumTarget: 1,
     rewardMultiplier: 1,
   },
   {
@@ -41,6 +43,7 @@ export const regionalCampaignDifficultyBands: RegionalCampaignDifficultyBand[] =
     description: "A longer assignment with a stronger treasury return.",
     requiredGuildLevel: 3,
     targetMultiplier: 1.5,
+    minimumTarget: 2,
     rewardMultiplier: 1.6,
   },
   {
@@ -50,6 +53,7 @@ export const regionalCampaignDifficultyBands: RegionalCampaignDifficultyBand[] =
     description: "The hardest regional mandate and its highest local reward.",
     requiredGuildLevel: 5,
     targetMultiplier: 2,
+    minimumTarget: 3,
     rewardMultiplier: 2.25,
   },
 ];
@@ -116,7 +120,7 @@ export function getRegionalCampaignDifficultyValues(
   const base = getRegionalCampaignOrderVariant(objective, variant);
   const band = getRegionalCampaignDifficultyBand(difficulty);
   return {
-    target: Math.max(1, Math.ceil(base.target * band.targetMultiplier)),
+    target: Math.max(band.minimumTarget, Math.ceil(base.target * band.targetMultiplier)),
     rewardGold: Math.max(1, Math.round(base.rewardGold * band.rewardMultiplier)),
     intensityLabel: base.intensityLabel,
     difficultyBand: band,
