@@ -19,6 +19,7 @@ import type {
   GuildRegionalOrderRewardTier,
   GuildRegionalOrdersState,
   GuildRegionMasteryProgress,
+  InventoryItem,
 } from "../../shared/types";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
 import { mergeStackableItems } from "../inventory/mergeStackableItems";
@@ -186,7 +187,7 @@ export function claimRegionalCampaignOrder(
   claimTime = new Date(),
 ): RegionalOrderResult {
   const now = guildDepotOrNow instanceof Date ? guildDepotOrNow : claimTime;
-  const guildDepot = normalizeGuildDepot(guildDepotOrNow instanceof Date ? undefined : guildDepotOrNow);
+  const depotInput = guildDepotOrNow instanceof Date ? undefined : guildDepotOrNow;
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
   const state = outcomes.regionalOrders ?? { claimedOrderIds: [], claimHistory: [] };
   const active = state.activeOrder;
@@ -196,6 +197,11 @@ export function claimRegionalCampaignOrder(
   const status = buildStatus(offer, state, outcomes.regionMastery ?? []);
   if (status.progress < offer.target) return result(false, guild, `${offer.title} is still in progress.`, status);
   if (state.claimedOrderIds.includes(active.id)) return result(false, guild, "This regional order was already claimed.");
+  const guildDepot = normalizeGuildDepot(depotInput);
+  if (!guildDepot) return result(false, guild, "Guild Depot data is invalid. Reload the save before claiming this reward.", status);
+  if (!canApplyRewardItem(guildDepot, active.rewardItem)) {
+    return result(false, guild, "The Guild Depot cannot safely receive this reward cache.", status);
+  }
   const claimedAt = safeDate(now).toISOString();
   const regionalOrders: GuildRegionalOrdersState = {
     claimedOrderIds: [...state.claimedOrderIds.filter((id) => id !== active.id), active.id].slice(-regionalCampaignOrderClaimLedgerLimit),
@@ -337,13 +343,47 @@ function rewardItemLabel(rewardItem: GuildRegionalOrderRewardItem | undefined) {
   }
 }
 
-function normalizeGuildDepot(value: GuildDepot | undefined): GuildDepot {
-  const items = Array.isArray(value?.items) ? value.items : [];
-  return {
-    goldStored: safeInteger(value?.goldStored),
-    items,
-    capacityUsed: calculateCapacityUsed(items),
-  };
+function normalizeGuildDepot(value: GuildDepot | undefined): GuildDepot | undefined {
+  if (value === undefined) return { goldStored: 0, items: [], capacityUsed: 0 };
+  if (!value || !Array.isArray(value.items)) return undefined;
+  const ids = new Set<string>();
+  const stackTotals = new Map<string, number>();
+  const items: InventoryItem[] = [];
+  for (const entry of value.items) {
+    if (!entry || typeof entry !== "object" || typeof entry.id !== "string" || !entry.id || ids.has(entry.id)) return undefined;
+    if (typeof entry.itemId !== "string" || entry.location !== "guildDepot" || entry.ownerCharacterId !== undefined) return undefined;
+    if (entry.parentContainerId != null && (typeof entry.parentContainerId !== "string" || !entry.parentContainerId)) return undefined;
+    if (!Number.isSafeInteger(entry.quantity) || entry.quantity < 1) return undefined;
+    let catalogItem: ReturnType<typeof getItemById>;
+    try {
+      catalogItem = getItemById(entry.itemId);
+    } catch {
+      return undefined;
+    }
+    if (!catalogItem.stackable && entry.quantity !== 1) return undefined;
+    ids.add(entry.id);
+    const normalized = { ...entry, item: catalogItem };
+    if (catalogItem.stackable) {
+      const key = stackKey(normalized);
+      const current = stackTotals.get(key) ?? 0;
+      if (current > Number.MAX_SAFE_INTEGER - entry.quantity) return undefined;
+      stackTotals.set(key, current + entry.quantity);
+    }
+    items.push(normalized);
+  }
+  const capacityUsed = calculateCapacityUsed(items);
+  return Number.isFinite(capacityUsed)
+    ? { goldStored: safeInteger(value.goldStored), items, capacityUsed }
+    : undefined;
+}
+
+function canApplyRewardItem(depot: GuildDepot, rewardItem: GuildRegionalOrderRewardItem | undefined) {
+  if (!rewardItem) return true;
+  if (!rewardItemLabel(rewardItem) || !Number.isSafeInteger(rewardItem.quantity) || rewardItem.quantity < 1) return false;
+  const current = depot.items
+    .filter((entry) => stackKey(entry) === rewardStackKey(rewardItem.itemId))
+    .reduce((total, entry) => total + entry.quantity, 0);
+  return Number.isSafeInteger(current) && current <= Number.MAX_SAFE_INTEGER - rewardItem.quantity;
 }
 
 function applyRewardItem(depot: GuildDepot, rewardItem: GuildRegionalOrderRewardItem | undefined) {
@@ -353,6 +393,20 @@ function applyRewardItem(depot: GuildDepot, rewardItem: GuildRegionalOrderReward
     createInventoryItem(rewardItem.itemId, rewardItem.quantity, "guildDepot"),
   ]);
   return { ...depot, items, capacityUsed: calculateCapacityUsed(items) };
+}
+
+function stackKey(entry: InventoryItem) {
+  return [
+    entry.location,
+    entry.ownerCharacterId ?? "depot",
+    entry.parentContainerId ?? "root",
+    entry.itemId,
+    entry.locked ? "locked" : "unlocked",
+  ].join("-");
+}
+
+function rewardStackKey(itemId: string) {
+  return ["guildDepot", "depot", "root", itemId, "unlocked"].join("-");
 }
 
 function stableHash(value: string) {

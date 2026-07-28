@@ -204,6 +204,7 @@ Atualizado em: 2026-07-28
 - Etapa 106 concluida: Campaign Difficulty Bands adiciona escolhas Standard, Veteran e Elite com desbloqueio por nivel, escala de objetivo/reward e saves retrocompativeis.
 - Etapa 106.5 concluida: QA das Campaign Difficulty Bands garante targets 1/2/3 em objetivos unitarios, compatibilidade da API legada e validacao ampla com 191.139 assercoes.
 - Etapa 107 concluida: Campaign Reward Tiers conecta Standard, Veteran e Elite a caches pequenos de treasury e materiais entregues no Guild Depot.
+- Etapa 107.5 concluida: QA dos Campaign Reward Tiers blinda o Guild Depot, impede overflow de stacks e garante claim atomico sem recompensa parcial.
 
 Comandos principais:
 
@@ -8453,6 +8454,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 107.5 - QA dos Campaign Reward Tiers.
+
+## Etapa 107.5 - QA dos Campaign Reward Tiers
+
+Status: concluida.
+
+Bugs reproduzidos e corrigidos:
+
+- Uma entrada malformada no Guild Depot, como `null`, fazia o claim lancar excecao durante o calculo de capacity.
+- Uma stack em `Number.MAX_SAFE_INTEGER` aceitava o bonus e avancava para um numero inseguro, capaz de perder precisao no save.
+- O claim agora canoniza os itens pelo catalogo e valida IDs, ownership, location, quantity, stackability e referencias de container antes de qualquer mutacao.
+- IDs duplicados, item desconhecido, equipment empilhado e soma agregada insegura bloqueiam a entrega com mensagem clara.
+
+Atomicidade e compatibilidade:
+
+- Gold, historico e remocao da ordem ativa so acontecem depois que o destino completo do cache passa no preflight.
+- Se a entrega falhar, a ordem continua pronta para claim e nenhum gold parcial e concedido.
+- O limite exato `Number.MAX_SAFE_INTEGER` continua aceito; apenas a operacao que ultrapassaria o limite e bloqueada.
+- Deposito vazio continua recebendo o material e `goldStored` invalido normaliza para zero.
+- A assinatura legada de claim com `Date` continua retornando um depot seguro com o cache correspondente.
+- Claims duplicados, tier/item forjado e historicos anteriores continuam protegidos pelas regras da Etapa 107.
+
+Validacao:
+
+- Harness temporario passou em 283.884 assercoes.
+- Foram gerados 12.000 boards, 108.000 opcoes e 1.800 fluxos completos, 600 por difficulty.
+- Doze classes de Guild Depot hostil foram bloqueadas sem excecao ou mutacao parcial.
+- Foram validados deposito vazio, limite exato, overflow, gold maximo, save ativo antigo, historico antigo, briefing e card reconstruido.
+- Browser confirmou os reward tiers e seis difficulties bloqueadas no guild level 2, sem alertas de interface.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow, tiers cortados ou controles fora da viewport.
+- Nenhuma ordem foi aceita durante o QA visual.
+- `npm.cmd run build` passou com 434 modulos; permaneceu apenas o aviso conhecido de chunk acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O SQLite real permaneceu byte a byte inalterado, com 81.920 bytes e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O preflight protege o claim regional; uma auditoria global de todos os fluxos que escrevem no Guild Depot permanece fora desta etapa.
+- Os caches continuam fixos por difficulty e sem tabela regional ou variacao por objetivo.
+
+Proximo passo sugerido:
+
+- Etapa 108 - Regional Reward Tables.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

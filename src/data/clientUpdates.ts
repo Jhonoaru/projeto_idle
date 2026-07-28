@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-107-5",
+    stage: "Stage 107.5",
+    title: "Campaign Reward Tiers QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Regional reward claims now validate the complete Guild Depot destination before applying any gold, cache item or history change.",
+    highlights: [
+      "Malformed depot entries now fail closed instead of crashing while recalculating capacity.",
+      "Stack totals are kept inside JavaScript's safe integer range, with exact-limit delivery accepted and overflow blocked without partial rewards.",
+      "Two hundred eighty-three thousand eight hundred eighty-four checks covered all tiers, hostile depots, legacy saves, duplicate claims and responsive UI.",
+    ],
+    systems: ["Campaign Rewards QA", "Guild Depot", "Numeric Safety", "Legacy Compatibility", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-107",
     stage: "Stage 107",
     title: "Campaign Reward Tiers",
