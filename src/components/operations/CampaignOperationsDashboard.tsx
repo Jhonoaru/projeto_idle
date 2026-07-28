@@ -10,6 +10,7 @@ import { GuildCampaignMilestones } from "./GuildCampaignMilestones";
 import { GuildRegionMastery } from "./GuildRegionMastery";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
+import { RegionalCampaignOrders } from "./RegionalCampaignOrders";
 
 interface CampaignOperationsDashboardProps {
   guild: Guild;
@@ -24,6 +25,9 @@ interface CampaignOperationsDashboardProps {
   onSaveDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
   onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
   onClaimCampaignMilestone: (objectiveId: string) => void;
+  onAcceptRegionalOrder: (orderId: string) => void;
+  onClaimRegionalOrder: () => void;
+  onAbandonRegionalOrder: () => void;
 }
 
 export function CampaignOperationsDashboard({
@@ -39,6 +43,9 @@ export function CampaignOperationsDashboard({
   onSaveDeploymentOrder,
   onClearDeploymentOrder,
   onClaimCampaignMilestone,
+  onAcceptRegionalOrder,
+  onClaimRegionalOrder,
+  onAbandonRegionalOrder,
 }: CampaignOperationsDashboardProps) {
   const [clock, setClock] = useState(() => Date.now());
   const dashboard = useMemo(
@@ -109,6 +116,13 @@ export function CampaignOperationsDashboard({
         onOpenSystem={onOpenSystem}
       />
       <GuildRegionMastery guild={guild} onOpenSystem={onOpenSystem} />
+      <RegionalCampaignOrders
+        guild={guild}
+        onAccept={onAcceptRegionalOrder}
+        onAbandon={onAbandonRegionalOrder}
+        onClaim={onClaimRegionalOrder}
+        onOpenSystem={onOpenSystem}
+      />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">

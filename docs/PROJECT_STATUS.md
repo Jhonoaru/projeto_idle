@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-25
+Atualizado em: 2026-07-27
 
 ## Stack usada
 
@@ -187,6 +187,7 @@ Atualizado em: 2026-07-25
 - Etapa 97.5 concluida: QA dos Guild Campaign Milestones corrigiu classificacao de claims bloqueados, reparo canonico de rewards e roster hostil, com 80.085 assercoes e QA responsivo.
 - Etapa 98 concluida: Campaign Region Mastery conecta Hunts, Bosses e Contracts a tres patentes regionais lifetime, com bonus local de ate +4% XP e gold.
 - Etapa 98.5 concluida: QA da Region Mastery congelou bonus de gold por Hunt, protegeu eventos hostis, completou o auto-repeat e validou 100.067 assercoes.
+- Etapa 99 concluida: Regional Campaign Orders adiciona ofertas diarias locais para Hunts, Bosses e Contracts, aceite e claim manuais, gold pequeno e persistencia no ledger operacional.
 
 Comandos principais:
 
@@ -7568,6 +7569,68 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 99 - Regional Campaign Orders.
+
+## Etapa 99 - Regional Campaign Orders
+
+Status: concluida.
+
+Conceito e rotacao:
+
+- Thaeron Marches, Khazgrim Frontier e Eldoria Reaches recebem uma oferta regional por dia local.
+- As ofertas sao deterministicas a partir da guilda, data local e regiao; nao dependem de servidor ou conexao.
+- Os objetivos alternam entre minutos de Hunt bem-sucedida, vitoria contra Boss e Contract bem-sucedido.
+- Uma ordem aceita permanece ativa depois da virada do dia ate ser concluida ou abandonada.
+- Apenas uma ordem pode permanecer ativa por vez e abrir um sistema nunca inicia operacao automaticamente.
+
+Progresso e recompensas:
+
+- O aceite captura o contador regional atual como baseline; progresso historico anterior nao conta.
+- Hunts pedem 30, 45 ou 60 minutos e pagam 180, 240 ou 300 gold.
+- Bosses pedem uma vitoria e pagam de 320 a 380 gold.
+- Contracts pedem um sucesso e pagam de 240 a 320 gold.
+- O claim e manual, soma o valor uma unica vez a `guild.gold` e registra os ultimos 20 resultados.
+- Abandonar remove apenas a ordem ativa e nunca entrega recompensa.
+
+Engine e persistencia:
+
+- `GuildOperationOutcomesState` recebeu `regionalOrders` opcional com ordem ativa, IDs resgatados e historico.
+- Saves antigos normalizam para estado vazio e continuam compativeis.
+- Estado ativo valida regiao, objetivo, ciclo, timestamp, target, baseline e recompensa com limites defensivos.
+- Claims duplicados, IDs repetidos, historico hostil, inteiros invalidos e ordem ja resgatada sao saneados.
+- O estado reutiliza `operation_outcomes_json`; nenhuma coluna SQLite nova foi criada.
+- Clique duplo e acoes concorrentes sao protegidos na UI e novamente verificados pela engine.
+
+UI:
+
+- Regional Campaign Orders foi adicionado ao Campaign Operations Dashboard abaixo da Region Mastery.
+- O cabecalho resume ciclo local, ofertas disponiveis, regiao ativa e estado atual.
+- Tres cards mostram regiao, objetivo, progresso, recompensa e estado Available, In progress, Reward ready, Completed ou Stand by.
+- A ordem ativa abre Hunts, Bosses ou Contracts; as outras ficam bloqueadas ate claim ou abandono.
+- Activity Log registra aceite, bloqueio, conclusao e abandono sem spam automatico.
+
+QA:
+
+- Harness temporario passou em 20.021 assercoes e foi removido.
+- Foram validados ciclo local, tres regioes, rotacao, determinismo, limites de recompensa e 10.000 campanhas geradas.
+- Baseline impediu que progresso anterior ao aceite contasse.
+- Claim incompleto e duplicado foram bloqueados; claim valido entregou o gold exato uma vez.
+- Ordem ativa sobreviveu a rotacao e abandono removeu o estado sem alterar gold.
+- Estado ativo e historico malformados foram normalizados sem quebrar o app.
+- No browser/Vite, os tres cards apareceram sem overflow, aceite ativou apenas uma ordem, bloqueou as outras e exibiu os comandos esperados.
+- O unico erro de console foi o fallback esperado do Tauri SQL sem `invoke` fora do app desktop.
+
+Build e limitacoes:
+
+- `npm.cmd run build` passou com 425 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O teste interativo usou o mock local porque SQLite via Tauri nao esta disponivel no browser Vite.
+- A validacao nativa completa de Save/Reload fica para a Etapa 99.5.
+- Nao existe anti-cheat de relogio local; a rotacao segue deliberadamente a data do computador.
+- Existem tres regioes e tres familias de objetivo nesta primeira versao.
+
+Proximo passo sugerido:
+
+- Etapa 99.5 - QA aprofundada dos Regional Campaign Orders.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

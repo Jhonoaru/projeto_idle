@@ -14401,14 +14401,55 @@ html[data-client-motion="reduced"] *::after {
 .guild-region-mastery-dossier > footer button { min-height: 28px; padding: 4px 9px; border: 1px solid #626348; color: #cabc88; background: #20251e; font: 700 0.45rem Georgia, serif; cursor: pointer; }
 .guild-region-mastery-dossier > footer p { text-align: right; }
 
+.regional-campaign-orders { min-width: 0; border: 1px solid #4b513d; background: #101513; }
+.regional-campaign-orders > header { display: grid; grid-template-columns: 56px minmax(230px, .62fr) minmax(540px, 1.38fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #384034; background: #151914; }
+.regional-campaign-orders > header span, .regional-campaign-orders-summary span { display: block; color: #7f8a82; font-size: .47rem; text-transform: uppercase; }
+.regional-campaign-orders > header h4 { margin: 3px 0; color: #ded09a; font: 700 .78rem Georgia, serif; }
+.regional-campaign-orders > header p { margin: 0; color: #818c84; font-size: .49rem; line-height: 1.4; }
+.regional-campaign-orders-seal { display: grid; place-items: center; width: 52px; height: 58px; border: 1px solid #807044; background: #22231b; }
+.regional-campaign-orders-seal i { color: #e0ca86; font: 700 normal .76rem Georgia, serif; }
+.regional-campaign-orders-seal span { color: #9ca187; font-size: .45rem; }
+.regional-campaign-orders-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #3a4036; }
+.regional-campaign-orders-summary > div { min-width: 0; min-height: 43px; padding: 7px; border-right: 1px solid #3a4036; background: #111613; }
+.regional-campaign-orders-summary > div:last-child { border-right: 0; }
+.regional-campaign-orders-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38e; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
+.regional-campaign-orders-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #394037; }
+.regional-campaign-orders-grid article { display: grid; grid-template-rows: auto minmax(44px, 1fr) auto auto; gap: 7px; min-width: 0; min-height: 184px; padding: 8px; border-top: 3px solid #596055; background: #151a17; }
+.regional-campaign-orders-grid article.is-active { border-top-color: #b29448; background: #1d1f18; }
+.regional-campaign-orders-grid article.is-ready { border-top-color: #72a16c; background: #172019; }
+.regional-campaign-orders-grid article.is-claimed { border-top-color: #5b715b; opacity: .72; }
+.regional-campaign-orders-grid article.is-unavailable { opacity: .62; }
+.regional-campaign-orders-grid article > header { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-width: 0; }
+.regional-campaign-orders-grid article > header > i { display: grid; place-items: center; width: 36px; height: 44px; border: 1px solid #736843; color: #dcc982; background: #20251f; font: 700 normal .58rem Georgia, serif; }
+.regional-campaign-orders-grid article > header span, .regional-campaign-orders-grid article > header strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-campaign-orders-grid article > header span { color: #7f8a82; font-size: .42rem; text-transform: uppercase; }
+.regional-campaign-orders-grid article > header strong { margin-top: 4px; color: #d7cb99; font: 700 .59rem Georgia, serif; }
+.regional-campaign-orders-grid article > header b { color: #a99c6e; font-size: .44rem; text-transform: uppercase; }
+.regional-campaign-orders-grid article.is-ready > header b { color: #92c18e; }
+.regional-campaign-orders-grid article > p { margin: 0; color: #859088; font-size: .47rem; line-height: 1.45; }
+.regional-campaign-order-progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; align-items: center; }
+.regional-campaign-order-progress > span { height: 7px; overflow: hidden; border: 1px solid #40473e; background: #0c110e; }
+.regional-campaign-order-progress > span > i { display: block; height: 100%; background: #8c7842; }
+.regional-campaign-orders-grid article.is-ready .regional-campaign-order-progress > span > i, .regional-campaign-orders-grid article.is-claimed .regional-campaign-order-progress > span > i { background: #66885f; }
+.regional-campaign-order-progress > strong { color: #c6b980; font-size: .46rem; }
+.regional-campaign-orders-grid article > footer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(94px, auto); gap: 7px; align-items: center; }
+.regional-campaign-orders-grid article > footer > span { color: #7f8a82; font-size: .44rem; text-transform: uppercase; }
+.regional-campaign-orders-grid article > footer > span strong { color: #d7c478; }
+.regional-campaign-orders button { min-height: 29px; padding: 4px 8px; border: 1px solid #746642; color: #dfcc8c; background: #24231a; font: 700 .46rem Georgia, serif; cursor: pointer; }
+.regional-campaign-orders button:disabled { border-color: #414841; color: #727c74; background: #131814; cursor: default; }
+.regional-campaign-orders > footer { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 7px 9px; border-top: 1px solid #384038; color: #7f8a82; font-size: .46rem; }
+
 @media (max-width: 980px) {
   .guild-region-mastery > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .regional-campaign-orders > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .regional-campaign-orders-summary { grid-column: 1 / -1; }
   .guild-region-mastery-summary { grid-column: 1 / -1; }
   .guild-region-mastery-sources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
   .guild-region-mastery-tabs { grid-template-columns: 1fr; }
+  .regional-campaign-orders-grid { grid-template-columns: 1fr; }
   .guild-region-mastery-dossier > header { grid-template-columns: 48px minmax(0, 1fr); }
   .guild-region-mastery-dossier > header > div:last-child { grid-column: 1 / -1; }
   .guild-region-mastery-dossier > footer { grid-template-columns: 1fr; }
@@ -14417,6 +14458,11 @@ html[data-client-motion="reduced"] *::after {
 
 @media (max-width: 520px) {
   .guild-region-mastery > header { grid-template-columns: 1fr; text-align: center; }
+  .regional-campaign-orders > header { grid-template-columns: 1fr; text-align: center; }
+  .regional-campaign-orders-seal { justify-self: center; }
+  .regional-campaign-orders-summary { grid-template-columns: 1fr; text-align: left; }
+  .regional-campaign-orders-summary > div { border-right: 0; border-bottom: 1px solid #3a4036; }
+  .regional-campaign-orders > footer { align-items: stretch; flex-direction: column; }
   .guild-region-mastery-seal { justify-self: center; }
   .guild-region-mastery-summary,
   .guild-region-mastery-sources { grid-template-columns: 1fr; text-align: left; }

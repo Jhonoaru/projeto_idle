@@ -5,11 +5,25 @@ import type {
   GuildBossOutcome,
   GuildBossOutcomeLoot,
   GuildOperationOutcomesState,
+  GuildRegionalOrderActive,
+  GuildRegionalOrderClaim,
+  GuildRegionalOrdersState,
+  GuildRegionalOrderObjective,
   GuildRegionMasteryProgress,
 } from "../../shared/types";
 
 export function createDefaultGuildOperationOutcomes(): GuildOperationOutcomesState {
-  return { bossHistory: [], totalBossAttempts: 0, totalBossDefeats: 0, regionMastery: [] };
+  return {
+    bossHistory: [],
+    totalBossAttempts: 0,
+    totalBossDefeats: 0,
+    regionMastery: [],
+    regionalOrders: createDefaultGuildRegionalOrders(),
+  };
+}
+
+export function createDefaultGuildRegionalOrders(): GuildRegionalOrdersState {
+  return { claimedOrderIds: [], claimHistory: [] };
 }
 
 export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationOutcomesState {
@@ -36,7 +50,88 @@ export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationO
     totalBossAttempts,
     totalBossDefeats,
     regionMastery: normalizeRegionMastery(candidate.regionMastery),
+    regionalOrders: normalizeGuildRegionalOrders(candidate.regionalOrders),
   };
+}
+
+export function normalizeGuildRegionalOrders(value: unknown): GuildRegionalOrdersState {
+  if (!value || typeof value !== "object") return createDefaultGuildRegionalOrders();
+  const candidate = value as Partial<GuildRegionalOrdersState>;
+  const claimedOrderIds = normalizeIds(candidate.claimedOrderIds, 60)
+    .map((id) => id.slice(0, 180));
+  const claimed = new Set(claimedOrderIds);
+  const historySeen = new Set<string>();
+  const claimHistory = (Array.isArray(candidate.claimHistory) ? candidate.claimHistory : [])
+    .map(normalizeRegionalOrderClaim)
+    .filter((entry): entry is GuildRegionalOrderClaim => Boolean(entry))
+    .filter((entry) => {
+      if (historySeen.has(entry.orderId)) return false;
+      historySeen.add(entry.orderId);
+      claimed.add(entry.orderId);
+      return true;
+    })
+    .sort((left, right) => Date.parse(right.claimedAt) - Date.parse(left.claimedAt))
+    .slice(0, 20);
+  const activeOrder = normalizeRegionalOrderActive(candidate.activeOrder);
+  return {
+    activeOrder: activeOrder && !claimed.has(activeOrder.id) ? activeOrder : undefined,
+    claimedOrderIds: [...claimed].slice(-60),
+    claimHistory,
+  };
+}
+
+function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<GuildRegionalOrderActive>;
+  const id = normalizeId(candidate.id, 180);
+  if (
+    !id || !isCycleKey(candidate.cycleKey) || !isRegionId(candidate.regionId)
+    || !isRegionalOrderObjective(candidate.objective) || !isValidDate(candidate.acceptedAt)
+  ) return undefined;
+  const target = normalizeInteger(candidate.target);
+  const rewardGold = normalizeInteger(candidate.rewardGold);
+  if (target <= 0 || target > 1_440 || rewardGold <= 0 || rewardGold > 10_000) return undefined;
+  return {
+    id,
+    cycleKey: candidate.cycleKey,
+    regionId: candidate.regionId,
+    objective: candidate.objective,
+    target,
+    baseline: normalizeInteger(candidate.baseline),
+    rewardGold,
+    acceptedAt: new Date(candidate.acceptedAt).toISOString(),
+  };
+}
+
+function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const candidate = value as Partial<GuildRegionalOrderClaim>;
+  const orderId = normalizeId(candidate.orderId, 180);
+  if (
+    !orderId || !isRegionId(candidate.regionId) || !isRegionalOrderObjective(candidate.objective)
+    || !isValidDate(candidate.claimedAt)
+  ) return undefined;
+  const rewardGold = normalizeInteger(candidate.rewardGold);
+  if (rewardGold <= 0 || rewardGold > 10_000) return undefined;
+  return {
+    orderId,
+    regionId: candidate.regionId,
+    objective: candidate.objective,
+    rewardGold,
+    claimedAt: new Date(candidate.claimedAt).toISOString(),
+  };
+}
+
+function isRegionalOrderObjective(value: unknown): value is GuildRegionalOrderObjective {
+  return value === "hunt_minutes" || value === "boss_defeats" || value === "contract_successes";
+}
+
+function isRegionId(value: unknown): value is string {
+  return typeof value === "string" && guildCampaignRegions.some((region) => region.id === value);
+}
+
+function isCycleKey(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
 function normalizeRegionMastery(value: unknown): GuildRegionMasteryProgress[] {

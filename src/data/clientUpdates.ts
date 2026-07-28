@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-99",
+    stage: "Stage 99",
+    title: "Regional Campaign Orders",
+    date: "2026-07-27",
+    category: "systems",
+    summary: "Daily regional dispatches turn Hunts, Bosses and Contracts into focused offline objectives with small guild gold rewards.",
+    highlights: [
+      "Thaeron, Khazgrim and Eldoria each receive one deterministic local order per day, with no server, premium currency or automatic operation start.",
+      "One accepted order records a regional baseline, so only successful Hunt time, Boss victories or Contract successes earned afterward count.",
+      "Manual claims, abandonment, daily rotation and the last twenty results are protected and persisted in the existing operation ledger.",
+    ],
+    systems: ["Regional Orders", "Campaign Operations", "Hunts", "Bosses", "Guild Contracts", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-98-5",
     stage: "Stage 98.5",
     title: "Campaign Region Mastery QA",

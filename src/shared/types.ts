@@ -651,6 +651,34 @@ export interface GuildOperationOutcomesState {
   totalBossAttempts: number;
   totalBossDefeats: number;
   regionMastery?: GuildRegionMasteryProgress[];
+  regionalOrders?: GuildRegionalOrdersState;
+}
+
+export type GuildRegionalOrderObjective = "hunt_minutes" | "boss_defeats" | "contract_successes";
+
+export interface GuildRegionalOrderActive {
+  id: string;
+  cycleKey: string;
+  regionId: string;
+  objective: GuildRegionalOrderObjective;
+  target: number;
+  baseline: number;
+  rewardGold: number;
+  acceptedAt: string;
+}
+
+export interface GuildRegionalOrderClaim {
+  orderId: string;
+  regionId: string;
+  objective: GuildRegionalOrderObjective;
+  rewardGold: number;
+  claimedAt: string;
+}
+
+export interface GuildRegionalOrdersState {
+  activeOrder?: GuildRegionalOrderActive;
+  claimedOrderIds: string[];
+  claimHistory: GuildRegionalOrderClaim[];
 }
 
 export interface GuildRegionMasteryProgress {

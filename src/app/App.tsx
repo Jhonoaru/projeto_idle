@@ -71,6 +71,11 @@ import { fundGuildProjectPhase } from "../game-engine/projects/fundGuildProjectP
 import { recruitGuildCandidate } from "../game-engine/recruitment/recruitGuildCandidate";
 import { claimGuildLevelReward } from "../game-engine/guild-progression/claimGuildLevelReward";
 import { claimGuildRenownObjective } from "../game-engine/guild-progression/claimGuildRenownObjective";
+import {
+  abandonRegionalCampaignOrder,
+  acceptRegionalCampaignOrder,
+  claimRegionalCampaignOrder,
+} from "../game-engine/regional-orders/regionalCampaignOrders";
 import { activateGuildDirective } from "../game-engine/guild-directives/activateGuildDirective";
 import { getGuildDirectiveBonuses } from "../game-engine/guild-directives/getGuildDirectiveStatus";
 import { saveGuildSquad } from "../game-engine/guild-squads/saveGuildSquad";
@@ -271,6 +276,7 @@ export function App() {
   const recruitingGuildMemberRef = useRef(false);
   const claimingGuildLevelRewardRef = useRef(false);
   const claimingGuildRenownObjectiveRef = useRef(false);
+  const managingRegionalOrderRef = useRef(false);
   const activatingGuildDirectiveRef = useRef(false);
   const savingGuildSquadRef = useRef(false);
   const loadingGuildSquadRef = useRef(false);
@@ -624,6 +630,33 @@ export function App() {
       result.success ? "success" : "warning",
     );
     window.setTimeout(() => { claimingGuildRenownObjectiveRef.current = false; }, 250);
+  }
+
+  function handleAcceptRegionalOrder(orderId: string) {
+    if (managingRegionalOrderRef.current) return;
+    managingRegionalOrderRef.current = true;
+    const result = acceptRegionalCampaignOrder(guild, orderId);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Regional order accepted" : "Regional order blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { managingRegionalOrderRef.current = false; }, 250);
+  }
+
+  function handleClaimRegionalOrder() {
+    if (managingRegionalOrderRef.current) return;
+    managingRegionalOrderRef.current = true;
+    const result = claimRegionalCampaignOrder(guild);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Regional order completed" : "Regional order blocked", result.message, result.success ? "success" : "warning");
+    window.setTimeout(() => { managingRegionalOrderRef.current = false; }, 250);
+  }
+
+  function handleAbandonRegionalOrder() {
+    if (managingRegionalOrderRef.current) return;
+    managingRegionalOrderRef.current = true;
+    const result = abandonRegionalCampaignOrder(guild);
+    if (result.success) setGuild(result.guild);
+    prependLog(result.success ? "Regional order abandoned" : "Regional order blocked", result.message, result.success ? "neutral" : "warning");
+    window.setTimeout(() => { managingRegionalOrderRef.current = false; }, 250);
   }
 
   function handleActivateGuildDirective(directiveId: string) {
@@ -2665,6 +2698,9 @@ export function App() {
           onRecruitGuildCandidate={handleRecruitGuildCandidate}
           onClaimGuildLevelReward={handleClaimGuildLevelReward}
           onClaimGuildRenownObjective={handleClaimGuildRenownObjective}
+          onAcceptRegionalOrder={handleAcceptRegionalOrder}
+          onClaimRegionalOrder={handleClaimRegionalOrder}
+          onAbandonRegionalOrder={handleAbandonRegionalOrder}
           onActivateGuildDirective={handleActivateGuildDirective}
           onSaveGuildSquad={handleSaveGuildSquad}
           onLoadGuildSquad={handleLoadGuildSquad}

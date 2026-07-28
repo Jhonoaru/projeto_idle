@@ -161,6 +161,9 @@ interface MainPanelProps {
   onRecruitGuildCandidate: (candidateId: string) => void;
   onClaimGuildLevelReward: (level: number) => void;
   onClaimGuildRenownObjective: (objectiveId: string) => void;
+  onAcceptRegionalOrder: (orderId: string) => void;
+  onClaimRegionalOrder: () => void;
+  onAbandonRegionalOrder: () => void;
   onActivateGuildDirective: (directiveId: string) => void;
   onSaveGuildSquad: (slotId: GuildSquadSlotId, name: string, members: GuildSquadMember[]) => void;
   onLoadGuildSquad: (slotId: GuildSquadSlotId, bossId?: string) => void;
@@ -306,6 +309,9 @@ export function MainPanel({
   onRecruitGuildCandidate,
   onClaimGuildLevelReward,
   onClaimGuildRenownObjective,
+  onAcceptRegionalOrder,
+  onClaimRegionalOrder,
+  onAbandonRegionalOrder,
   onActivateGuildDirective,
   onSaveGuildSquad,
   onLoadGuildSquad,
@@ -475,6 +481,9 @@ export function MainPanel({
             onSaveDeploymentOrder={onSaveDeploymentOrder}
             onClearDeploymentOrder={onClearDeploymentOrder}
             onClaimCampaignMilestone={onClaimGuildRenownObjective}
+            onAcceptRegionalOrder={onAcceptRegionalOrder}
+            onClaimRegionalOrder={onClaimRegionalOrder}
+            onAbandonRegionalOrder={onAbandonRegionalOrder}
           />
         ) : null}
 
