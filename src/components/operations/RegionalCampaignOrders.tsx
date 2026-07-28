@@ -25,7 +25,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
   const available = orders.filter((order) => order.state === "available").length;
 
   return (
-    <section className="regional-campaign-orders">
+    <section className="regional-campaign-orders" id="regional-campaign-orders">
       <header>
         <div className="regional-campaign-orders-seal" aria-hidden="true"><i>RO</i><span>{available}</span></div>
         <div>

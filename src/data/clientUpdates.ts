@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-101",
+    stage: "Stage 101",
+    title: "Weekly Campaign Briefing",
+    date: "2026-07-27",
+    category: "interface",
+    summary: "A Monday-Sunday command record turns canonical daily Regional Order claims into a balanced weekly campaign overview.",
+    highlights: [
+      "Five completed orders, all three campaign regions and all three objective families form the derived weekly command goals.",
+      "Coverage, daily gold earned and remaining local days are reconstructed from canonical claimed order IDs without a new save field or reward.",
+      "The Operations shortcut scrolls to Daily Orders for manual planning and never accepts, starts or claims an activity automatically.",
+    ],
+    systems: ["Weekly Campaign", "Regional Orders", "Campaign Operations", "Local Calendar", "Derived Progress"],
+    featured: true,
+  },
+  {
     id: "stage-100-5",
     stage: "Stage 100.5",
     title: "Campaign Command Briefing QA",

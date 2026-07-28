@@ -191,6 +191,7 @@ Atualizado em: 2026-07-27
 - Etapa 99.5 concluida: QA das Regional Campaign Orders canonizou IDs/recompensas, corrigiu datas impossiveis, adicionou historico visual e validou 100.097 assercoes.
 - Etapa 100 concluida: Campaign Command Briefing leva o ciclo regional ao Character Hall, com estado derivado, atalhos seguros e badge de Operations apenas para reward pronto.
 - Etapa 100.5 concluida: QA do Campaign Command Briefing corrigiu a virada local presa, sincronizou o board regional e validou 100.036 assercoes, acessibilidade e quatro viewports.
+- Etapa 101 concluida: Weekly Campaign Briefing deriva metas semanais de ordens, regioes e familias, sem reward ou persistencia nova, com 100.031 assercoes.
 
 Comandos principais:
 
@@ -7788,6 +7789,65 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 101 - Weekly Campaign Briefing.
+
+## Etapa 101 - Weekly Campaign Briefing
+
+Status: concluida.
+
+Conceito e calendario:
+
+- Campaign Operations ganhou um briefing semanal local de segunda-feira a domingo.
+- A semana possui tres metas derivadas: concluir cinco Regional Orders, cobrir as tres regioes e cobrir Hunt, Boss e Contract.
+- Os estados sao Opening, In progress e Weekly campaign secured.
+- O painel mostra dias restantes, gold recebido das ordens diarias, cobertura regional e diversidade de familias.
+- Weekly goals nao entregam reward, gold, Renown, item, badge ou claim adicional.
+- A virada reutiliza o relogio local da Etapa 100.5 e atualiza na proxima meia-noite, foco ou visibility.
+
+Engine e seguranca:
+
+- `buildWeeklyCampaignBriefing` deriva todo o modelo sem alterar `Guild` ou SQLite.
+- Claims sao lidos dos ate 60 `claimedOrderIds`, capacidade suficiente para as 21 ofertas maximas de uma semana.
+- Cada ID precisa ter data valida, regiao conhecida, objetivo conhecido e variante 0..2.
+- Um ID sintaticamente valido ainda precisa corresponder a oferta deterministica da mesma guilda e data.
+- IDs forjados, de outra seed, duplicados, impossiveis ou fora da semana nao contam.
+- O progresso visual das metas e limitado ao target, enquanto o total semanal pode mostrar ate 21 ordens.
+- A semana considera o `cycleKey` da ordem; claim atrasado continua pertencendo ao ciclo original.
+
+UI e navegacao:
+
+- O briefing aparece entre Campaign Region Mastery e Regional Campaign Orders.
+- O cabecalho mostra intervalo local, estado e comando para revisar as ordens diarias.
+- Cinco resumos exibem orders, regions, order families, daily gold earned e days remaining.
+- Tres cards mostram progresso das metas com `progress` semantico.
+- Duas matrizes compactas mostram as tres regioes e as tres familias, com quantidade concluida.
+- `Review Daily Orders` apenas rola ate o board com ID estavel; nao aceita ou inicia nada.
+
+QA automatizado e visual:
+
+- Harness temporario passou em 100.031 assercoes e foi removido.
+- Foram validados Monday/Sunday, virada de ano, uma ordem, fixture balanceada, limite de 21 claims e gold canonico.
+- IDs validos mas nao ofertados, seed de outra guilda, duplicatas, datas impossiveis e semanas adjacentes foram ignorados.
+- Vinte e cinco mil datas/guildas mantiveram inicio na segunda, fim no domingo e 1..7 dias restantes.
+- No mock vazio, o painel mostrou 0/5, 0/3, 0/3 e nenhum gold semanal.
+- O atalho moveu Regional Orders de 3344 px para 264 px e preservou as tres ofertas sem aceite automatico.
+- Em 1250, 760, 520 e 390 px nao houve overflow horizontal ou texto de botao cortado.
+- Fixture temporaria mostrou 5/5, 3/3, 3/3, tres metas completas, seis coberturas e 1.380g derivados.
+- O gold real permaneceu 420g; restaurar o mock retornou o estado Opening e o hash original do arquivo.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build e limitacoes:
+
+- `npm.cmd run build` passou no estado final com 431 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- Nenhuma migration ou coluna SQLite foi criada.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- O release foi empacotado, mas nao aberto contra o perfil real; a interacao foi validada no Vite com mock restaurado.
+- O sistema nao possui reward semanal, streak, anti-cheat de relogio ou calendario online.
+- Claims atrasados contam na semana do ciclo da ordem, nao na semana do clique de claim.
+
+Proximo passo sugerido:
+
+- Etapa 101.5 - QA aprofundada do Weekly Campaign Briefing.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -11,6 +11,7 @@ import { GuildRegionMastery } from "./GuildRegionMastery";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
 import { RegionalCampaignOrders } from "./RegionalCampaignOrders";
+import { WeeklyCampaignBriefing } from "./WeeklyCampaignBriefing";
 
 interface CampaignOperationsDashboardProps {
   guild: Guild;
@@ -116,6 +117,10 @@ export function CampaignOperationsDashboard({
         onOpenSystem={onOpenSystem}
       />
       <GuildRegionMastery guild={guild} onOpenSystem={onOpenSystem} />
+      <WeeklyCampaignBriefing
+        guild={guild}
+        onReviewOrders={() => document.getElementById("regional-campaign-orders")?.scrollIntoView({ block: "start" })}
+      />
       <RegionalCampaignOrders
         guild={guild}
         onAccept={onAcceptRegionalOrder}
