@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-103",
+    stage: "Stage 103",
+    title: "Campaign Trend Comparison",
+    date: "2026-07-28",
+    category: "interface",
+    summary: "Current campaign pace is compared with the previous week at the same local checkpoint instead of against an unfair seven-day total.",
+    highlights: [
+      "Orders, regions, objective families and daily gold expose ahead, steady or behind deltas through the matching weekday.",
+      "Projected Sunday orders, previous final results and averages from recorded archive weeks provide context without changing rewards or gameplay.",
+      "Future-cycle and noncanonical claims stay outside checkpoint metrics while the eight-week archive remains the historical source of truth.",
+    ],
+    systems: ["Campaign Trends", "Weekly Campaign", "Campaign Archive", "Local Checkpoints", "Derived Analytics"],
+    featured: true,
+  },
+  {
     id: "stage-102-5",
     stage: "Stage 102.5",
     title: "Weekly Campaign Archive QA",

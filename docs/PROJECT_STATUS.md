@@ -195,6 +195,7 @@ Atualizado em: 2026-07-28
 - Etapa 101.5 concluida: QA do briefing semanal corrigiu semanas raras sem as tres familias, com meta dinamica alcancavel e 100.024 assercoes.
 - Etapa 102 concluida: Weekly Campaign Archive mostra oito semanas anteriores derivadas e amplia a retencao do ledger existente.
 - Etapa 102.5 concluida: QA do arquivo corrigiu a capacidade para 192 claims e impediu IDs invalidos de consumir vagas antes da validacao.
+- Etapa 103 concluida: Campaign Trend Comparison compara o checkpoint atual com o mesmo dia da semana anterior e adiciona projecao e baseline historico derivados.
 
 Comandos principais:
 
@@ -7983,6 +7984,61 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 103 - Campaign Trend Comparison.
+
+## Etapa 103 - Campaign Trend Comparison
+
+Status: concluida.
+
+Conceito e comparacao:
+
+- O Campaign Archive ganhou um painel de tendencia entre a semana atual e a anterior no mesmo checkpoint local.
+- Uma terca-feira atual e comparada apenas com segunda e terca da campanha anterior, nao com os sete dias fechados.
+- Quatro metricas mostram deltas independentes: ordens concluidas, regioes cobertas, familias de objetivo e gold diario recebido.
+- O estado geral e `Ahead`, `Steady`, `Behind` ou `No checkpoint activity yet`, derivado da maioria das quatro metricas.
+- Diversidade compara percentuais, preservando equivalencia entre semanas normais 3/3 e rotacoes raras 2/2.
+
+Projecao e baseline:
+
+- `Projected orders` extrapola o ritmo medio diario atual ate domingo e limita o resultado a 21 ofertas.
+- `Previous final` mostra o fechamento completo da campanha anterior, separado do checkpoint usado no delta.
+- As medias de ordens e gold consideram apenas semanas com registro retido; semanas `No retained record` nao viram zeros artificiais.
+- O painel tambem mostra quantidade de semanas no baseline e taxa de campanhas secured.
+- Toda a analise e informativa: nao entrega reward, bonus, penalidade, claim ou mutacao de save.
+
+Engine e seguranca:
+
+- `buildWeeklyCampaignTrend` filtra os claims pelo `cycleKey` do checkpoint antes de reutilizar o briefing canonico.
+- Claims de dias futuros da semana atual nao antecipam progresso na comparacao.
+- Claims posteriores ao mesmo dia da semana anterior entram no `Previous final`, mas nao no delta de checkpoint.
+- IDs forjados ou nao correspondentes a seed/data/regiao continuam ignorados pela validacao canonica existente.
+- O arquivo de oito semanas e reutilizado como baseline sem nova coluna ou JSON persistido.
+
+QA automatizada e visual:
+
+- Harness temporario passou em 100.020 assercoes e foi removido.
+- Foram validados estados opening, ahead e behind, deltas positivos/negativos, checkpoints Monday/Sunday, virada de ano e projecao 0..21.
+- Claims futuros e nao canonicos foram ignorados; o fechamento anterior preservou claims posteriores ao checkpoint.
+- Vinte mil guildas/datas mantiveram quatro metricas, checkpoints 1..7 e baseline vazio estavel.
+- Fixture visual `Ahead` mostrou 5 contra 1 ordem, projecao 18 e baseline anterior sem ativar uma Regional Order.
+- O painel foi validado em 1250, 760, 520 e 390 px sem overflow horizontal.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 433 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- O release foi empacotado sem ser aberto contra o perfil real; a interacao ocorreu no Vite com o mock restaurado.
+
+Limitacoes:
+
+- A projecao e linear e informativa; nao tenta prever disponibilidade futura, dificuldade ou falhas das ordens.
+- Semanas sem claims retidos nao participam das medias historicas.
+- O sistema permanece local, derivado do relogio e sem anti-cheat para alteracao manual da data.
+
+Proximo passo sugerido:
+
+- Etapa 103.5 - QA aprofundada do Campaign Trend Comparison.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

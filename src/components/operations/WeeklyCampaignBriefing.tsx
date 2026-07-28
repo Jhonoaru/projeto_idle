@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { buildWeeklyCampaignArchive } from "../../game-engine/regional-orders/buildWeeklyCampaignArchive";
 import { buildWeeklyCampaignBriefing } from "../../game-engine/regional-orders/buildWeeklyCampaignBriefing";
+import { buildWeeklyCampaignTrend, type WeeklyCampaignTrend } from "../../game-engine/regional-orders/buildWeeklyCampaignTrend";
 import type { Guild } from "../../shared/types";
 import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 
@@ -16,6 +17,10 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
   const archive = useMemo(
     () => archiveOpen ? buildWeeklyCampaignArchive(guild, campaignNow) : undefined,
     [archiveOpen, campaignNow, guild],
+  );
+  const trend = useMemo(
+    () => archive ? buildWeeklyCampaignTrend(guild, campaignNow, archive) : undefined,
+    [archive, campaignNow, guild],
   );
 
   return (
@@ -78,6 +83,7 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
             <Summary label="Archived orders" value={String(archive.completedOrders)} />
             <Summary label="Daily gold recorded" value={`${archive.earnedGold.toLocaleString("en-US")}g`} />
           </div>
+          {trend ? <CampaignTrendComparison trend={trend} /> : null}
           <div className="weekly-campaign-archive-grid">
             {archive.entries.map((entry, index) => (
               <article className={`is-${entry.status}`} key={entry.weekStartKey}>
@@ -95,6 +101,34 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
           <footer>Archive depth depends on the retained ledger of up to {archive.ledgerLimit} canonical Regional Order claims.</footer>
         </section>
       ) : null}
+    </section>
+  );
+}
+
+function CampaignTrendComparison({ trend }: { trend: WeeklyCampaignTrend }) {
+  return (
+    <section className={`weekly-campaign-trend is-${trend.tone}`} aria-label="Campaign trend comparison">
+      <header>
+        <i aria-hidden="true">{trend.tone === "ahead" ? "+" : trend.tone === "behind" ? "-" : "="}</i>
+        <div><span>Current checkpoint vs previous week</span><h6>{trend.title}</h6><p>{trend.description}</p></div>
+        <strong>{trend.checkpointLabel}</strong>
+      </header>
+      <div className="weekly-campaign-trend-grid">
+        {trend.metrics.map((metric) => (
+          <article className={`is-${metric.tone}`} key={metric.id}>
+            <header><span>{metric.label}</span><b>{metric.deltaLabel}</b></header>
+            <div><span>Current<strong>{metric.currentLabel}</strong></span><span>Previous<strong>{metric.previousLabel}</strong></span></div>
+          </article>
+        ))}
+      </div>
+      <footer>
+        <span>Projected orders<strong>{trend.projectedOrders}</strong></span>
+        <span>Previous final<strong>{trend.previousFinalOrders} / {trend.previousFinalGold.toLocaleString("en-US")}g</strong></span>
+        <span>Recorded baseline<strong>{trend.baselineWeeks}/8 weeks</strong></span>
+        <span>Archive average<strong>{trend.averageOrders} orders / {trend.averageGold.toLocaleString("en-US")}g</strong></span>
+        <span>Secured rate<strong>{trend.securedRate}%</strong></span>
+      </footer>
+      <small>{trend.currentCheckpointKey} compared with {trend.previousCheckpointKey}. Projection is informational only.</small>
     </section>
   );
 }
