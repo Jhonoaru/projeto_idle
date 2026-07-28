@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-27
+Atualizado em: 2026-07-28
 
 ## Stack usada
 
@@ -192,6 +192,7 @@ Atualizado em: 2026-07-27
 - Etapa 100 concluida: Campaign Command Briefing leva o ciclo regional ao Character Hall, com estado derivado, atalhos seguros e badge de Operations apenas para reward pronto.
 - Etapa 100.5 concluida: QA do Campaign Command Briefing corrigiu a virada local presa, sincronizou o board regional e validou 100.036 assercoes, acessibilidade e quatro viewports.
 - Etapa 101 concluida: Weekly Campaign Briefing deriva metas semanais de ordens, regioes e familias, sem reward ou persistencia nova, com 100.031 assercoes.
+- Etapa 101.5 concluida: QA do briefing semanal corrigiu semanas raras sem as tres familias, com meta dinamica alcancavel e 100.024 assercoes.
 
 Comandos principais:
 
@@ -7848,6 +7849,46 @@ Build e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 101.5 - QA aprofundada do Weekly Campaign Briefing.
+
+## Etapa 101.5 - QA aprofundada do Weekly Campaign Briefing
+
+Status: concluida.
+
+Correcao de regra:
+
+- A auditoria de 100.000 combinacoes deterministicas encontrou 65 semanas, ou 0,065%, em que as 21 ofertas canonicas cobriam somente duas familias de objetivo.
+- A meta fixa de diversidade 3/3 era impossivel nessas rotacoes, mesmo concluindo todas as ordens da semana.
+- O briefing agora calcula as familias realmente oferecidas nos sete ciclos locais e usa target 2 ou 3 conforme a rotacao.
+- Familias ausentes continuam visiveis com `Not offered this week`, borda tracejada e peso visual reduzido.
+- Semanas normais preservam 3/3; nenhum reward, campo de save ou schema SQLite foi adicionado.
+
+QA de engine:
+
+- Harness temporario passou em 100.024 assercoes e foi removido.
+- Foram validados semana atual, Tuesday, virada de ano, relogio invalido, limite de 21 claims e percentuais limitados.
+- Um ID sintaticamente valido mas nao canonico foi ignorado.
+- Vinte e cinco mil guildas/datas confirmaram que `objectivesAvailable` corresponde as ofertas canonicas e que a meta sempre e alcancavel.
+- Fixture rara concluiu corretamente 5/5 ordens, 3/3 regioes e 2/2 familias; fixture normal preservou 3/3.
+
+QA visual e navegacao:
+
+- O mock normal exibiu 0/5, 0/3 e 0/3 sem familia indisponivel.
+- `Review Daily Orders` rolou ate o board diario sem aceitar, iniciar ou reivindicar uma ordem.
+- Fixture rara exibiu `Weekly campaign secured`, 2/2 e uma familia indisponivel com estilo discreto.
+- O painel foi validado em 1250, 760, 520 e 390 px sem overflow horizontal ou botao cortado.
+- O mock temporario foi restaurado sem diff; o unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build e limitacoes:
+
+- `npm.cmd run build` passou com 431 modulos.
+- `npm.cmd run tauri:build` passou e gerou os pacotes desktop.
+- O save real permaneceu com 81.920 bytes e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- A semana continua derivada do `cycleKey`, sem reward semanal, servidor, calendario online ou anti-cheat de relogio.
+- A interface foi testada por clique no Vite com mock; o release Tauri foi empacotado sem ser aberto contra o perfil real.
+
+Proximo passo sugerido:
+
+- Etapa 102 - Weekly Campaign Archive.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

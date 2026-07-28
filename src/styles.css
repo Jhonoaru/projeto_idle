@@ -14475,6 +14475,7 @@ html[data-client-motion="reduced"] *::after {
 .weekly-campaign-coverage > section > div { display: grid; gap: 4px; margin-top: 6px; }
 .weekly-campaign-coverage article { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 6px; align-items: center; min-width: 0; min-height: 35px; padding: 4px; border: 1px solid #343c35; opacity: .62; }
 .weekly-campaign-coverage article.is-covered { border-color: #546d51; background: #172019; opacity: 1; }
+.weekly-campaign-coverage article.is-unavailable { border-style: dashed; opacity: .38; }
 .weekly-campaign-coverage article > i { display: grid; place-items: center; width: 26px; height: 27px; color: #d2c483; background: #20251f; font: 700 normal .42rem Georgia, serif; }
 .weekly-campaign-coverage article strong, .weekly-campaign-coverage article small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .weekly-campaign-coverage article strong { color: #cfc391; font-size: .46rem; }

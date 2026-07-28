@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-101-5",
+    stage: "Stage 101.5",
+    title: "Weekly Campaign Briefing QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Canonical weekly coverage and a dynamic diversity goal keep every deterministic campaign rotation achievable.",
+    highlights: [
+      "Rare weeks that offer only two objective families now use a reachable 2/2 diversity goal instead of an impossible fixed 3/3 target.",
+      "Families absent from all twenty-one canonical weekly offers remain visible as unavailable and do not count against campaign completion.",
+      "One hundred thousand twenty-four checks, rare and normal fixtures, four responsive widths and Tauri packaging validated the correction.",
+    ],
+    systems: ["Weekly Campaign QA", "Regional Orders", "Canonical Rotation", "Responsive UI", "Tauri Build"],
+    featured: true,
+  },
+  {
     id: "stage-101",
     stage: "Stage 101",
     title: "Weekly Campaign Briefing",

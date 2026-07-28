@@ -22,6 +22,7 @@ export interface WeeklyCampaignCoverage {
   sigil: string;
   completed: number;
   covered: boolean;
+  available: boolean;
 }
 
 export interface WeeklyCampaignClaim {
@@ -46,6 +47,7 @@ export interface WeeklyCampaignBriefing {
   completedOrders: number;
   regionsCovered: number;
   objectivesCovered: number;
+  objectivesAvailable: number;
   earnedGold: number;
   goals: WeeklyCampaignGoal[];
   regionCoverage: WeeklyCampaignCoverage[];
@@ -67,6 +69,9 @@ export function buildWeeklyCampaignBriefing(guild: Guild, now = new Date()): Wee
   const weekStartKey = getLocalCampaignCycleKey(weekStart);
   const weekEndKey = getLocalCampaignCycleKey(weekEnd);
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
+  const availableObjectives = new Set(
+    getWeeklyOffers(guild.id, weekStart).map((offer) => offer.objective),
+  );
   const claims = (outcomes.regionalOrders?.claimedOrderIds ?? [])
     .map((id) => getCanonicalWeeklyClaim(guild.id, id, weekStartKey, weekEndKey))
     .filter((claim): claim is WeeklyCampaignClaim => Boolean(claim))
@@ -79,7 +84,7 @@ export function buildWeeklyCampaignBriefing(guild: Guild, now = new Date()): Wee
   const goals = [
     buildGoal("orders", "Field cadence", "Complete five Regional Campaign Orders this week.", completedOrders, 5),
     buildGoal("regions", "Regional coverage", "Complete an order in each campaign region.", regionsCovered, guildCampaignRegions.length),
-    buildGoal("objectives", "Command diversity", "Complete Hunt, Boss and Contract order families.", objectivesCovered, objectiveDefinitions.length),
+    buildGoal("objectives", "Command diversity", "Complete every objective family offered this week.", objectivesCovered, availableObjectives.size),
   ];
   const tone: WeeklyCampaignBriefingTone = goals.every((goal) => goal.complete)
     ? "complete"
@@ -100,6 +105,7 @@ export function buildWeeklyCampaignBriefing(guild: Guild, now = new Date()): Wee
     completedOrders,
     regionsCovered,
     objectivesCovered,
+    objectivesAvailable: availableObjectives.size,
     earnedGold: claims.reduce((total, claim) => Math.min(Number.MAX_SAFE_INTEGER, total + claim.rewardGold), 0),
     goals,
     regionCoverage: guildCampaignRegions.map((region) => ({
@@ -108,6 +114,7 @@ export function buildWeeklyCampaignBriefing(guild: Guild, now = new Date()): Wee
       sigil: region.sigil,
       completed: regionCounts.get(region.id) ?? 0,
       covered: regionCounts.has(region.id),
+      available: true,
     })),
     objectiveCoverage: objectiveDefinitions.map((objective) => ({
       id: objective.id,
@@ -115,6 +122,7 @@ export function buildWeeklyCampaignBriefing(guild: Guild, now = new Date()): Wee
       sigil: objective.sigil,
       completed: objectiveCounts.get(objective.id) ?? 0,
       covered: objectiveCounts.has(objective.id),
+      available: availableObjectives.has(objective.id),
     })),
     recentClaims: claims.slice(0, 5),
   };
@@ -146,9 +154,18 @@ function getCanonicalWeeklyClaim(guildId: string, orderId: string, weekStartKey:
   };
 }
 
+function getWeeklyOffers(guildId: string, weekStart: Date) {
+  return Array.from({ length: 7 }, (_, offset) => {
+    const day = new Date(weekStart);
+    day.setDate(day.getDate() + offset);
+    return buildRegionalCampaignOffers(guildId, day);
+  }).flat();
+}
+
 function buildGoal(id: WeeklyCampaignGoalId, label: string, description: string, progress: number, target: number): WeeklyCampaignGoal {
-  const current = Math.min(target, Math.max(0, Math.floor(progress)));
-  return { id, label, description, progress: current, target, progressPercent: Math.round((current / target) * 100), complete: current >= target };
+  const safeTarget = Math.max(1, Math.floor(target));
+  const current = Math.min(safeTarget, Math.max(0, Math.floor(progress)));
+  return { id, label, description, progress: current, target: safeTarget, progressPercent: Math.round((current / safeTarget) * 100), complete: current >= safeTarget };
 }
 
 function countBy(values: string[]) {

@@ -27,7 +27,7 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
       <div className="weekly-campaign-summary">
         <Summary label="Orders" value={`${briefing.completedOrders}/5`} />
         <Summary label="Regions" value={`${briefing.regionsCovered}/3`} />
-        <Summary label="Order families" value={`${briefing.objectivesCovered}/3`} />
+        <Summary label="Order families" value={`${briefing.objectivesCovered}/${briefing.objectivesAvailable}`} />
         <Summary label="Daily gold earned" value={`${briefing.earnedGold.toLocaleString("en-US")}g`} />
         <Summary label="Days remaining" value={String(briefing.daysRemaining)} />
       </div>
@@ -62,15 +62,16 @@ function Summary({ label, value }: { label: string; value: string }) {
   return <div><span>{label}</span><strong>{value}</strong></div>;
 }
 
-function Coverage({ title, entries }: { title: string; entries: Array<{ id: string; label: string; sigil: string; completed: number; covered: boolean }> }) {
+function Coverage({ title, entries }: { title: string; entries: Array<{ id: string; label: string; sigil: string; completed: number; covered: boolean; available: boolean }> }) {
+  const availableEntries = entries.filter((entry) => entry.available);
   return (
     <section>
-      <header><span>{title}</span><strong>{entries.filter((entry) => entry.covered).length}/{entries.length}</strong></header>
+      <header><span>{title}</span><strong>{availableEntries.filter((entry) => entry.covered).length}/{availableEntries.length}</strong></header>
       <div>
         {entries.map((entry) => (
-          <article className={entry.covered ? "is-covered" : ""} key={entry.id}>
+          <article className={`${entry.covered ? "is-covered" : ""} ${entry.available ? "" : "is-unavailable"}`.trim()} key={entry.id}>
             <i aria-hidden="true">{entry.sigil}</i>
-            <span><strong>{entry.label}</strong><small>{entry.completed} completed</small></span>
+            <span><strong>{entry.label}</strong><small>{entry.available ? `${entry.completed} completed` : "Not offered this week"}</small></span>
           </article>
         ))}
       </div>
