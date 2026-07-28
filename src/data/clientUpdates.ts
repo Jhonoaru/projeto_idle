@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-110-5",
+    stage: "Stage 110.5",
+    title: "Regional Material Acquisition Planner QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Regional material planning now distinguishes usable routes from the nearest locked unlock and tolerates malformed depot data.",
+    highlights: [
+      "Best Route is reserved for an unlocked cache; when none is available, the planner identifies the nearest Guild Level as Next Unlock.",
+      "Malformed Guild Depot entries no longer crash Project shortages or the acquisition planner while resolving canonical material names.",
+      "Two hundred sixty-four thousand six hundred ninety checks plus keyboard and responsive QA covered hostile saves, route ranking and planner semantics.",
+    ],
+    systems: ["Material Planning QA", "Route Ranking", "Save Hardening", "Accessibility", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-110",
     stage: "Stage 110",
     title: "Regional Material Acquisition Planner",

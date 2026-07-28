@@ -53,7 +53,7 @@ export function RegionalMaterialAcquisitionPlanner({
       {selected ? (
         <div className="regional-acquisition-planner-workspace">
           <div className="regional-acquisition-planner-materials" role="tablist" aria-label="Missing regional materials" aria-orientation="vertical">
-            <div><span>{plan.scopeLabel}</span><strong>{plan.routedMaterialCount}/{plan.materialCount} have cache routes</strong></div>
+            <div role="presentation"><span>{plan.scopeLabel}</span><strong>{plan.routedMaterialCount}/{plan.materialCount} have cache routes</strong></div>
             {plan.entries.map((entry) => (
               <button
                 aria-controls="regional-acquisition-planner-dossier"
@@ -108,7 +108,13 @@ function MaterialDossier({ entry }: { entry: RegionalMaterialAcquisitionEntry })
         <b>{entry.missing.toLocaleString("en-US")}<small>Missing</small></b>
       </header>
       <div className="regional-acquisition-planner-progress">
-        <span><i style={{ width: `${Math.min(100, Math.round((entry.available / entry.required) * 100))}%` }} /></span>
+        <span
+          aria-label={`${entry.item.name} acquisition progress`}
+          aria-valuemax={entry.required}
+          aria-valuemin={0}
+          aria-valuenow={Math.min(entry.available, entry.required)}
+          role="progressbar"
+        ><i style={{ width: `${Math.min(100, Math.round((entry.available / entry.required) * 100))}%` }} /></span>
         <strong>{Math.min(entry.available, entry.required).toLocaleString("en-US")} / {entry.required.toLocaleString("en-US")}</strong>
       </div>
       <div className="regional-acquisition-planner-demand">
@@ -120,11 +126,11 @@ function MaterialDossier({ entry }: { entry: RegionalMaterialAcquisitionEntry })
         {entry.routes.length > 0 ? (
           <div>
             {entry.routes.map((route) => (
-              <article className={`${route.recommended ? "is-recommended" : ""} ${route.unlocked ? "" : "is-locked"}`} key={route.id}>
+              <article className={`${route.recommended ? "is-recommended" : ""} ${route.nextUnlock ? "is-next-unlock" : ""} ${route.unlocked ? "" : "is-locked"}`} key={route.id}>
                 <i aria-hidden="true">{route.regionSigil}</i>
                 <div><span>{route.regionName} / {route.tableLabel}</span><strong>{route.objectiveLabel}</strong><small>{route.difficultyLabel} cache / x{route.quantity} per claim</small></div>
                 <b>{route.claimsNeeded}<small>{route.claimsNeeded === 1 ? "claim" : "claims"}</small></b>
-                <em>{route.unlocked ? route.recommended ? "Best route" : "Unlocked" : `Guild Lv ${route.requiredGuildLevel}`}</em>
+                <em>{route.recommended ? "Best route" : route.nextUnlock ? `Next unlock / Guild Lv ${route.requiredGuildLevel}` : route.unlocked ? "Unlocked" : `Guild Lv ${route.requiredGuildLevel}`}</em>
               </article>
             ))}
           </div>

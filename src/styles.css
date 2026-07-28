@@ -14649,6 +14649,7 @@ html[data-client-motion="reduced"] *::after {
 .regional-acquisition-planner-routes > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #354038; }
 .regional-acquisition-planner-routes article { display: grid; grid-template-columns: 30px minmax(0, 1fr) 42px; gap: 7px; align-items: center; min-width: 0; min-height: 66px; padding: 7px; border-left: 2px solid #4f5a4e; background: #111713; }
 .regional-acquisition-planner-routes article.is-recommended { border-left-color: #c09c49; background: #1d1d16; }
+.regional-acquisition-planner-routes article.is-next-unlock { border-left-color: #71806a; background: #181d18; }
 .regional-acquisition-planner-routes article.is-locked { opacity: .64; }
 .regional-acquisition-planner-routes article > i { display: grid; place-items: center; width: 28px; height: 32px; border: 1px solid #5c6652; color: #c8b978; background: #1b211b; font: 700 normal .42rem Georgia, serif; }
 .regional-acquisition-planner-routes article span, .regional-acquisition-planner-routes article strong, .regional-acquisition-planner-routes article small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

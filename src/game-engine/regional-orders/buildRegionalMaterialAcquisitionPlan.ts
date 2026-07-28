@@ -38,6 +38,7 @@ export interface RegionalMaterialAcquisitionRoute {
   requiredGuildLevel: number;
   unlocked: boolean;
   recommended: boolean;
+  nextUnlock: boolean;
 }
 
 export interface RegionalMaterialAcquisitionEntry {
@@ -139,18 +140,26 @@ function buildRoutes(itemId: string, missing: number, guildLevel: number) {
           requiredGuildLevel: band.requiredGuildLevel,
           unlocked: guildLevel >= band.requiredGuildLevel,
           recommended: false,
+          nextUnlock: false,
         });
       }
     }
   }
   routes.sort((left, right) =>
     Number(right.unlocked) - Number(left.unlocked)
+      || (!left.unlocked && !right.unlocked ? left.requiredGuildLevel - right.requiredGuildLevel : 0)
       || left.claimsNeeded - right.claimsNeeded
       || right.quantity - left.quantity
       || left.requiredGuildLevel - right.requiredGuildLevel
       || left.regionName.localeCompare(right.regionName)
       || left.objectiveLabel.localeCompare(right.objectiveLabel));
-  return routes.map((route, index) => ({ ...route, recommended: index === 0 }));
+  const recommendedIndex = routes.findIndex((route) => route.unlocked);
+  const nextUnlockIndex = recommendedIndex < 0 && routes.length > 0 ? 0 : -1;
+  return routes.map((route, index) => ({
+    ...route,
+    recommended: index === recommendedIndex,
+    nextUnlock: index === nextUnlockIndex,
+  }));
 }
 
 function safeAdd(left: number, right: number) {

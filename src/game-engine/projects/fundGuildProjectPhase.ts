@@ -1,5 +1,6 @@
 import { getCollectionItemById } from "../../data/collections";
 import { getGuildProject } from "../../data/guildProjects";
+import { items } from "../../data/items";
 import { getGuildCareer } from "../achievements/getGuildCareer";
 import { unlockCollectionItem } from "../collections/unlockCollectionItem";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
@@ -95,7 +96,7 @@ function getMissingMaterials(depot: GuildDepot, requirements: GuildProjectMateri
   return requirements.flatMap((requirement) => {
     const available = getAvailableGuildDepotMaterialQuantity(depot, requirement.itemId);
     const missing = Math.max(0, requirement.quantity - available);
-    const name = depot.items.find((item) => item.itemId === requirement.itemId)?.item.name ?? requirement.itemId;
+    const name = items[requirement.itemId]?.name ?? requirement.itemId;
     return missing > 0 ? [{ itemId: requirement.itemId, name, quantity: missing, available }] : [];
   });
 }

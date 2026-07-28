@@ -210,6 +210,7 @@ Atualizado em: 2026-07-28
 - Etapa 109 concluida: Regional Reward Compendium compara as nove rotas, usos reais dos materiais e estoque atual do Guild Depot em Operations.
 - Etapa 109.5 concluida: QA do Regional Reward Compendium valida todas as tabelas e adiciona tabs ARIA com navegacao completa por teclado.
 - Etapa 110 concluida: Regional Material Acquisition Planner conecta faltas reais de Logistics a rotas Veteran/Elite e estima claims necessarios.
+- Etapa 110.5 concluida: QA do planner regional corrige recomendacoes bloqueadas, prioriza o proximo unlock real e tolera Guild Depot malformado.
 
 Comandos principais:
 
@@ -8728,6 +8729,42 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 110.5 - QA aprofundada do Regional Material Acquisition Planner.
+
+## Etapa 110.5 - QA aprofundada do Regional Material Acquisition Planner
+
+Status: concluida.
+
+Correcoes:
+
+- `Best Route` agora existe somente quando a rota regional esta desbloqueada para o Guild Level atual.
+- Quando todas as rotas estao bloqueadas, uma unica rota recebe `Next Unlock` e o ranking prioriza o menor Guild Level antes de claims e yield.
+- A mensagem de material faltante em Projects usa o catalogo canonico de itens e nao percorre entradas potencialmente nulas do Guild Depot.
+- O planner ganhou progresso com semantica `progressbar`; o cabecalho auxiliar das tabs usa `presentation` e nao interfere na arvore ARIA.
+- O estado visual `is-next-unlock` separa claramente uma rota futura de uma recomendacao utilizavel agora.
+
+Validacao:
+
+- Harness hostil passou em 264.690 assercoes, com 10.000 Guild Depots gerados, 12 niveis validos/malformados e dez classes de stacks adversariais.
+- Foram cobertos pins validos, obsoletos e duplicados, estoque elegivel, stacks locked/aninhados/de personagem, valores nulos, fracionarios e nao finitos, plano completo e imutabilidade das entradas.
+- Todas as rotas preservaram item, quantidade e estimativa de claims das tabelas regionais; recomendacao e proximo unlock permaneceram mutuamente exclusivos.
+- Old Cloth apresentou tres rotas de Guild Level 3, Spider Silk e Dwarf Badge uma rota cada, enquanto Rat Tail e Dragon Ember permaneceram sem cache regional inventado.
+- Home, End e as quatro setas mantiveram foco, selecao, tab stop unico e `aria-labelledby` sincronizados.
+- Browser validou 11 objetivos, cinco materiais, 34 unidades faltantes e o atalho `Review Regional Orders` com o board a 8 px do topo, sem alertas.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento, planner ou descendentes.
+- `npm run build` passou com TypeScript, Vite e 438 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O planner continua somente leitura e nao reserva, aceita, conclui ou repete Regional Orders automaticamente.
+- Materiais sem cache regional continuam dependendo das fontes de Hunt ja exibidas em Logistics.
+- O browser usa o mock local do frontend; a integracao SQLite permanece validada pelo build desktop e pela preservacao do banco, nao por cliques manuais nesta etapa.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 111 - definir a proxima camada offline apos o planner regional validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
