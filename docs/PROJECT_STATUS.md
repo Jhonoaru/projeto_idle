@@ -193,6 +193,7 @@ Atualizado em: 2026-07-28
 - Etapa 100.5 concluida: QA do Campaign Command Briefing corrigiu a virada local presa, sincronizou o board regional e validou 100.036 assercoes, acessibilidade e quatro viewports.
 - Etapa 101 concluida: Weekly Campaign Briefing deriva metas semanais de ordens, regioes e familias, sem reward ou persistencia nova, com 100.031 assercoes.
 - Etapa 101.5 concluida: QA do briefing semanal corrigiu semanas raras sem as tres familias, com meta dinamica alcancavel e 100.024 assercoes.
+- Etapa 102 concluida: Weekly Campaign Archive mostra oito semanas anteriores derivadas, amplia o ledger para 180 claims recentes e preserva o save SQLite existente.
 
 Comandos principais:
 
@@ -7807,7 +7808,7 @@ Conceito e calendario:
 Engine e seguranca:
 
 - `buildWeeklyCampaignBriefing` deriva todo o modelo sem alterar `Guild` ou SQLite.
-- Claims sao lidos dos ate 60 `claimedOrderIds`, capacidade suficiente para as 21 ofertas maximas de uma semana.
+- Claims eram lidos dos ate 60 `claimedOrderIds`; a Etapa 102 ampliou a mesma lista para 180 IDs, sem criar campo novo.
 - Cada ID precisa ter data valida, regiao conhecida, objetivo conhecido e variante 0..2.
 - Um ID sintaticamente valido ainda precisa corresponder a oferta deterministica da mesma guilda e data.
 - IDs forjados, de outra seed, duplicados, impossiveis ou fora da semana nao contam.
@@ -7889,6 +7890,53 @@ Build e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 102 - Weekly Campaign Archive.
+
+## Etapa 102 - Weekly Campaign Archive
+
+Status: concluida.
+
+Conceito e engine:
+
+- O Weekly Campaign Briefing ganhou um arquivo recolhivel com as oito semanas completas anteriores; a semana atual nunca entra no historico.
+- Cada registro e reconstruido com a mesma validacao canonica do briefing e recebe estado `Campaign secured`, `Campaign recorded` ou `No retained record`.
+- O arquivo mostra ordens, regioes, familias disponiveis, gold diario e metas concluidas por semana.
+- Resumos acumulam semanas registradas, semanas completas, ordens arquivadas e gold recebido das ordens diarias.
+- IDs forjados, de outra seed, fora do calendario ou pertencentes a semana atual nao contaminam os totais.
+- Nenhum reward semanal, claim adicional, servidor, tabela ou campo de save foi criado.
+
+Retencao e compatibilidade:
+
+- `claimedOrderIds` passou de 60 para 180 IDs, suficiente para aproximadamente oito semanas no ritmo maximo de tres ordens por dia.
+- Saves antigos continuam validos e crescem naturalmente ate o novo limite.
+- O normalizador foi corrigido para preservar os 180 IDs mais recentes quando recebe um ledger acima do limite; antes ele mantinha os mais antigos.
+- `claimHistory` detalhado continua limitado a 20 entradas e nao e usado como fonte absoluta do arquivo.
+- Semanas sem claims retidos usam o texto honesto `No retained record`, pois saves antigos podem ter perdido IDs pela retencao anterior.
+
+UI e QA:
+
+- `Open Archive` e `Close Archive` controlam o painel com `aria-expanded` e sem alterar gameplay.
+- O estado vazio mostrou oito semanas, 0/8 registradas e nenhum gold.
+- Fixture mista mostrou uma semana 5/5, 3/3 e 3/3 como secured, uma semana parcial com duas ordens e seis semanas sem registro.
+- O arquivo foi validado em 1250, 760, 520 e 390 px sem overflow horizontal ou botao cortado.
+- Harness temporario passou em 100.024 assercoes, cobrindo oito semanas, exclusao da atual, viradas de calendario, limites, canonicalidade e retencao dos IDs mais novos.
+- O mock temporario foi restaurado sem diff; o unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 432 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- O release foi empacotado, mas nao aberto contra o perfil real; a interacao foi validada no Vite com fixtures restauradas.
+
+Limitacoes:
+
+- O arquivo exibe no maximo oito semanas e depende dos IDs ainda presentes no ledger local.
+- Saves anteriores a Etapa 102 nao recuperam claims que ja haviam sido descartados pelo limite antigo de 60.
+- O historico e derivado do `cycleKey`, sem calendario online ou protecao contra mudanca manual do relogio.
+
+Proximo passo sugerido:
+
+- Etapa 102.5 - QA aprofundada do Weekly Campaign Archive.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

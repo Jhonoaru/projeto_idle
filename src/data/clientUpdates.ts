@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-102",
+    stage: "Stage 102",
+    title: "Weekly Campaign Archive",
+    date: "2026-07-28",
+    category: "interface",
+    summary: "Eight completed campaign weeks can now be reviewed from the canonical Regional Order ledger without a second history save.",
+    highlights: [
+      "Secured, partial and unrecorded weeks show orders, regional coverage, objective families and daily gold in one collapsible command archive.",
+      "The Regional Order claim ledger now retains the newest 180 canonical IDs, enough for roughly eight weeks at the maximum daily pace.",
+      "Archive records exclude the active week, reject forged claims and remain entirely offline, derived and free of additional weekly rewards.",
+    ],
+    systems: ["Weekly Campaign Archive", "Regional Orders", "Campaign Operations", "Local Calendar", "SQLite Save"],
+    featured: true,
+  },
+  {
     id: "stage-101-5",
     stage: "Stage 101.5",
     title: "Weekly Campaign Briefing QA",

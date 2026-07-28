@@ -1,6 +1,7 @@
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import {
   getRegionalCampaignOrderVariant,
+  regionalCampaignOrderClaimLedgerLimit,
   regionalCampaignOrderObjectives,
 } from "../../data/regionalCampaignOrders";
 import type {
@@ -102,7 +103,7 @@ export function claimRegionalCampaignOrder(guild: Guild, now = new Date()): Regi
   if (state.claimedOrderIds.includes(active.id)) return result(false, guild, "This regional order was already claimed.");
   const claimedAt = safeDate(now).toISOString();
   const regionalOrders: GuildRegionalOrdersState = {
-    claimedOrderIds: [...state.claimedOrderIds.filter((id) => id !== active.id), active.id].slice(-60),
+    claimedOrderIds: [...state.claimedOrderIds.filter((id) => id !== active.id), active.id].slice(-regionalCampaignOrderClaimLedgerLimit),
     claimHistory: [{
       orderId: active.id,
       regionId: active.regionId,

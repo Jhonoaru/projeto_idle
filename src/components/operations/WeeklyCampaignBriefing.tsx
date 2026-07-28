@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { buildWeeklyCampaignArchive } from "../../game-engine/regional-orders/buildWeeklyCampaignArchive";
 import { buildWeeklyCampaignBriefing } from "../../game-engine/regional-orders/buildWeeklyCampaignBriefing";
 import type { Guild } from "../../shared/types";
 import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
@@ -9,8 +10,13 @@ interface WeeklyCampaignBriefingProps {
 }
 
 export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaignBriefingProps) {
+  const [archiveOpen, setArchiveOpen] = useState(false);
   const campaignNow = useLocalCampaignNow();
   const briefing = useMemo(() => buildWeeklyCampaignBriefing(guild, campaignNow), [campaignNow, guild]);
+  const archive = useMemo(
+    () => archiveOpen ? buildWeeklyCampaignArchive(guild, campaignNow) : undefined,
+    [archiveOpen, campaignNow, guild],
+  );
 
   return (
     <section className={`weekly-campaign-briefing is-${briefing.tone}`} aria-label="Weekly campaign briefing">
@@ -52,8 +58,43 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
 
       <footer>
         <span>Weekly goals are derived only. Daily orders remain the only source of campaign gold.</span>
-        <strong>{briefing.weekStartKey} / {briefing.weekEndKey}</strong>
+        <div>
+          <strong>{briefing.weekStartKey} / {briefing.weekEndKey}</strong>
+          <button aria-controls="weekly-campaign-archive" aria-expanded={archiveOpen} onClick={() => setArchiveOpen((current) => !current)} type="button">
+            {archiveOpen ? "Close Archive" : "Open Archive"}
+          </button>
+        </div>
       </footer>
+
+      {archive ? (
+        <section className="weekly-campaign-archive" id="weekly-campaign-archive" aria-label="Weekly campaign archive">
+          <header>
+            <div><span>Retained command history</span><h5>Campaign Archive</h5><p>The eight completed weeks before the current campaign, reconstructed from canonical daily order claims.</p></div>
+            <strong>{archive.recordedWeeks}/{archive.entries.length} weeks recorded</strong>
+          </header>
+          <div className="weekly-campaign-archive-summary">
+            <Summary label="Secured weeks" value={`${archive.securedWeeks}/${archive.entries.length}`} />
+            <Summary label="Recorded weeks" value={`${archive.recordedWeeks}/${archive.entries.length}`} />
+            <Summary label="Archived orders" value={String(archive.completedOrders)} />
+            <Summary label="Daily gold recorded" value={`${archive.earnedGold.toLocaleString("en-US")}g`} />
+          </div>
+          <div className="weekly-campaign-archive-grid">
+            {archive.entries.map((entry, index) => (
+              <article className={`is-${entry.status}`} key={entry.weekStartKey}>
+                <header><i aria-hidden="true">{index + 1}</i><span><small>{entry.rangeLabel}</small><strong>{entry.statusLabel}</strong></span><b>{entry.goalsCompleted}/3</b></header>
+                <div>
+                  <span>Orders<strong>{entry.completedOrders}/5</strong></span>
+                  <span>Regions<strong>{entry.regionsCovered}/3</strong></span>
+                  <span>Families<strong>{entry.objectivesCovered}/{entry.objectivesAvailable}</strong></span>
+                  <span>Gold<strong>{entry.earnedGold.toLocaleString("en-US")}g</strong></span>
+                </div>
+                <footer>{entry.weekStartKey} / {entry.weekEndKey}</footer>
+              </article>
+            ))}
+          </div>
+          <footer>Archive depth depends on the retained ledger of up to {archive.ledgerLimit} canonical Regional Order claims.</footer>
+        </section>
+      ) : null}
     </section>
   );
 }

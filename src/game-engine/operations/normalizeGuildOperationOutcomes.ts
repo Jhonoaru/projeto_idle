@@ -1,7 +1,7 @@
 import { bosses } from "../../data/bosses";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { items } from "../../data/items";
-import { getRegionalCampaignOrderVariant } from "../../data/regionalCampaignOrders";
+import { getRegionalCampaignOrderVariant, regionalCampaignOrderClaimLedgerLimit } from "../../data/regionalCampaignOrders";
 import type {
   GuildBossOutcome,
   GuildBossOutcomeLoot,
@@ -58,7 +58,7 @@ export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationO
 export function normalizeGuildRegionalOrders(value: unknown): GuildRegionalOrdersState {
   if (!value || typeof value !== "object") return createDefaultGuildRegionalOrders();
   const candidate = value as Partial<GuildRegionalOrdersState>;
-  const claimedOrderIds = normalizeIds(candidate.claimedOrderIds, 60)
+  const claimedOrderIds = normalizeIds(candidate.claimedOrderIds, regionalCampaignOrderClaimLedgerLimit, true)
     .map((id) => id.slice(0, 180))
     .filter((id) => Boolean(parseRegionalOrderId(id)));
   const claimed = new Set(claimedOrderIds);
@@ -77,7 +77,7 @@ export function normalizeGuildRegionalOrders(value: unknown): GuildRegionalOrder
   const activeOrder = normalizeRegionalOrderActive(candidate.activeOrder);
   return {
     activeOrder: activeOrder && !claimed.has(activeOrder.id) ? activeOrder : undefined,
-    claimedOrderIds: [...claimed].slice(-60),
+    claimedOrderIds: [...claimed].slice(-regionalCampaignOrderClaimLedgerLimit),
     claimHistory,
   };
 }
@@ -243,13 +243,21 @@ function normalizeLoot(value: unknown): GuildBossOutcomeLoot[] {
   return [...quantities].slice(0, 12).map(([itemId, quantity]) => ({ itemId, quantity }));
 }
 
-function normalizeIds(value: unknown, limit: number) {
+function normalizeIds(value: unknown, limit: number, keepNewest = false) {
   if (!Array.isArray(value)) return [];
-  return [...new Set(value
+  const ids = value
     .filter((entry): entry is string => typeof entry === "string")
     .map((entry) => entry.trim())
-    .filter(Boolean))]
-    .slice(0, limit);
+    .filter(Boolean);
+  if (!keepNewest) return [...new Set(ids)].slice(0, limit);
+  const seen = new Set<string>();
+  const newest: string[] = [];
+  for (let index = ids.length - 1; index >= 0 && newest.length < limit; index -= 1) {
+    if (seen.has(ids[index])) continue;
+    seen.add(ids[index]);
+    newest.push(ids[index]);
+  }
+  return newest.reverse();
 }
 
 function normalizeId(value: unknown, limit: number) {

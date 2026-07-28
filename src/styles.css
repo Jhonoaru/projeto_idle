@@ -14480,8 +14480,36 @@ html[data-client-motion="reduced"] *::after {
 .weekly-campaign-coverage article strong, .weekly-campaign-coverage article small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .weekly-campaign-coverage article strong { color: #cfc391; font-size: .46rem; }
 .weekly-campaign-coverage article small { margin-top: 2px; color: #748078; font-size: .38rem; }
-.weekly-campaign-briefing > footer { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-top: 1px solid #384034; color: #7f8a82; font-size: .44rem; }
-.weekly-campaign-briefing > footer strong { color: #a99c70; }
+.weekly-campaign-briefing > footer { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 7px 9px; border-top: 1px solid #384034; color: #7f8a82; font-size: .44rem; }
+.weekly-campaign-briefing > footer > div { display: flex; gap: 8px; align-items: center; }
+.weekly-campaign-briefing > footer strong { color: #a99c70; white-space: nowrap; }
+.weekly-campaign-briefing > footer button { min-height: 26px; padding: 3px 8px; }
+.weekly-campaign-archive { border-top: 1px solid #5a5138; background: #0f1411; }
+.weekly-campaign-archive > header { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 9px; border-bottom: 1px solid #384034; background: #171a15; }
+.weekly-campaign-archive > header span { color: #7f8a82; font-size: .43rem; text-transform: uppercase; }
+.weekly-campaign-archive > header h5 { margin: 3px 0; color: #dacb94; font: 700 .69rem Georgia, serif; }
+.weekly-campaign-archive > header p { margin: 0; color: #7f8a82; font-size: .43rem; }
+.weekly-campaign-archive > header > strong { color: #b9ac77; font-size: .47rem; white-space: nowrap; }
+.weekly-campaign-archive-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid #384034; }
+.weekly-campaign-archive-summary > div { min-width: 0; padding: 7px 9px; border-right: 1px solid #384034; background: #111613; }
+.weekly-campaign-archive-summary > div:last-child { border-right: 0; }
+.weekly-campaign-archive-summary span { display: block; color: #7f8a82; font-size: .43rem; text-transform: uppercase; }
+.weekly-campaign-archive-summary strong { display: block; margin-top: 4px; color: #cec38e; font-size: .54rem; }
+.weekly-campaign-archive-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #343b33; }
+.weekly-campaign-archive-grid > article { min-width: 0; border-top: 3px solid #424941; background: #151a17; }
+.weekly-campaign-archive-grid > article.is-recorded { border-top-color: #8f7540; }
+.weekly-campaign-archive-grid > article.is-secured { border-top-color: #6f9b67; background: #172019; }
+.weekly-campaign-archive-grid > article > header { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 6px; align-items: center; padding: 7px; }
+.weekly-campaign-archive-grid > article > header > i { display: grid; place-items: center; width: 24px; height: 28px; border: 1px solid #5e6049; color: #d2c483; background: #20251f; font: 700 normal .43rem Georgia, serif; }
+.weekly-campaign-archive-grid > article > header small, .weekly-campaign-archive-grid > article > header strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-campaign-archive-grid > article > header small { color: #758078; font-size: .36rem; }
+.weekly-campaign-archive-grid > article > header strong { margin-top: 3px; color: #cfc391; font-size: .46rem; }
+.weekly-campaign-archive-grid > article > header > b { color: #a9a06e; font-size: .42rem; }
+.weekly-campaign-archive-grid > article > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid #303730; }
+.weekly-campaign-archive-grid > article > div > span { min-width: 0; padding: 5px 7px; color: #737e76; font-size: .37rem; text-transform: uppercase; }
+.weekly-campaign-archive-grid > article > div strong { display: block; margin-top: 2px; overflow: hidden; color: #bdb27e; font-size: .44rem; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-campaign-archive-grid > article > footer { padding: 5px 7px; border-top: 1px solid #303730; color: #68736c; font-size: .35rem; }
+.weekly-campaign-archive > footer { padding: 6px 9px; border-top: 1px solid #384034; color: #727e76; font-size: .4rem; }
 
 .regional-campaign-orders { min-width: 0; scroll-margin-top: 8px; border: 1px solid #4b513d; background: #101513; }
 .regional-campaign-orders > header { display: grid; grid-template-columns: 56px minmax(230px, .62fr) minmax(540px, 1.38fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #384034; background: #151914; }
@@ -14539,6 +14567,7 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-briefing > header button { grid-column: 1 / -1; width: 100%; }
   .weekly-campaign-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .weekly-campaign-body { grid-template-columns: 1fr; }
+  .weekly-campaign-archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-region-mastery > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders-summary { grid-column: 1 / -1; }
@@ -14548,6 +14577,7 @@ html[data-client-motion="reduced"] *::after {
 
 @media (max-width: 760px) {
   .weekly-campaign-goals { grid-template-columns: 1fr; }
+  .weekly-campaign-archive-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-region-mastery-tabs { grid-template-columns: 1fr; }
   .regional-campaign-orders-grid { grid-template-columns: 1fr; }
   .regional-campaign-orders-history > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -14563,6 +14593,9 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-summary, .weekly-campaign-coverage { grid-template-columns: 1fr; text-align: left; }
   .weekly-campaign-summary > div { border-right: 0; border-bottom: 1px solid #384034; }
   .weekly-campaign-briefing > footer { align-items: flex-start; flex-direction: column; }
+  .weekly-campaign-briefing > footer > div { width: 100%; justify-content: space-between; }
+  .weekly-campaign-archive > header { align-items: flex-start; flex-direction: column; }
+  .weekly-campaign-archive-summary, .weekly-campaign-archive-grid { grid-template-columns: 1fr; }
   .guild-region-mastery > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders-seal { justify-self: center; }
