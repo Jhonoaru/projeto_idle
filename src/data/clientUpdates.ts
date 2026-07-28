@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-100",
+    stage: "Stage 100",
+    title: "Campaign Command Briefing",
+    date: "2026-07-27",
+    category: "interface",
+    summary: "The Character Hall now presents the current Regional Campaign Order cycle as a compact daily command briefing.",
+    highlights: [
+      "Available, active, reward-ready and completed states are derived directly from the canonical Regional Orders ledger.",
+      "The Character Hall and Operations menu show a notice only when a manual regional reward claim is ready.",
+      "Briefing shortcuts open Campaign Operations without accepting, starting or claiming an order automatically.",
+    ],
+    systems: ["Character Hall", "Campaign Briefing", "Regional Orders", "Campaign Operations", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-99-5",
     stage: "Stage 99.5",
     title: "Regional Campaign Orders QA",

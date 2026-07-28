@@ -189,6 +189,7 @@ Atualizado em: 2026-07-27
 - Etapa 98.5 concluida: QA da Region Mastery congelou bonus de gold por Hunt, protegeu eventos hostis, completou o auto-repeat e validou 100.067 assercoes.
 - Etapa 99 concluida: Regional Campaign Orders adiciona ofertas diarias locais para Hunts, Bosses e Contracts, aceite e claim manuais, gold pequeno e persistencia no ledger operacional.
 - Etapa 99.5 concluida: QA das Regional Campaign Orders canonizou IDs/recompensas, corrigiu datas impossiveis, adicionou historico visual e validou 100.097 assercoes.
+- Etapa 100 concluida: Campaign Command Briefing leva o ciclo regional ao Character Hall, com estado derivado, atalhos seguros e badge de Operations apenas para reward pronto.
 
 Comandos principais:
 
@@ -7691,6 +7692,49 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 100 - Campaign Command Briefing.
+
+## Etapa 100 - Campaign Command Briefing
+
+Status: concluida.
+
+Conceito e engine:
+
+- O Character Hall agora resume o ciclo local atual das Regional Campaign Orders sem duplicar estado.
+- O briefing prioriza recompensa pronta, ordem ativa, ofertas disponiveis e ciclo concluido.
+- Ordens ativas de um ciclo anterior continuam visiveis junto das tres ofertas do dia atual.
+- Estado, progresso, recompensa e alerta sao derivados do ledger canonico existente em `operation_outcomes_json`.
+- Nenhuma coluna SQLite, moeda, automacao ou nova regra de recompensa foi criada.
+
+UI e navegacao:
+
+- Um painel compacto mostra ciclo local, comando atual, ofertas disponiveis, claims do dia e ate quatro ordens regionais.
+- Cada ordem exibe regiao, objetivo, progresso, recompensa e estado Available, In progress, Claim ready, Completed ou Stand by.
+- O comando principal abre Campaign Operations sem aceitar, iniciar ou resgatar operacoes automaticamente.
+- O atalho do Character Hall e o menu lateral de Operations recebem `!` somente quando existe reward pronto para claim manual.
+- O layout reflui de tres para duas e uma coluna conforme a largura disponivel.
+
+QA automatizado e visual:
+
+- Harness temporario passou em 100.025 assercoes e foi removido.
+- Foram validados estados available, active, ready e complete, virada de ciclo, tres claims sequenciais e 25.000 dias/IDs deterministas.
+- No browser, o estado inicial exibiu tres ordens disponiveis sem badge e o atalho abriu Operations sem auto-accept.
+- Fixture temporaria pronta exibiu `!`, progresso 30/30 e reward de 180g no Character Hall e no menu lateral.
+- O atalho de claim apenas navegou: `guild.gold` permaneceu em 420g ate o claim manual dentro de Operations.
+- Em 1250, 760, 520 e 390 px nao houve overflow horizontal; a fixture e o mock original foram restaurados.
+
+Build e limitacoes:
+
+- `npm.cmd run build` passou no estado final com 428 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O briefing depende deliberadamente do relogio local e nao possui anti-cheat de data.
+- Apenas Regional Campaign Orders entram neste primeiro briefing; outras operacoes continuam em seus paineis atuais.
+- Claim, aceite e abandono permanecem exclusivamente no Campaign Operations Dashboard.
+- Como nao houve persistencia nova, o banco SQLite real nao recebeu fixture nem alteracao durante o QA visual.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Proximo passo sugerido:
+
+- Etapa 100.5 - QA aprofundada do Campaign Command Briefing.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

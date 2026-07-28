@@ -5,6 +5,7 @@ import { blessings } from "../../data/blessings";
 import type { Character, Guild } from "../../shared/types";
 import type { MainPanelTab } from "./MainPanel";
 import { getGuildLogisticsUnreadCount } from "../../game-engine/logistics/syncGuildLogisticsAlerts";
+import { buildCampaignCommandBriefing } from "../../game-engine/regional-orders/buildCampaignCommandBriefing";
 
 interface CharacterSideMenuProps {
   character: Character;
@@ -58,6 +59,7 @@ export function CharacterSideMenu({
 }
 
 function getBadge(tab: MainPanelTab, character: Character, guild: Guild) {
+  if (tab === "operations") return buildCampaignCommandBriefing(guild).noticeBadge;
   if (tab === "blessings") {
     const activeCount = blessings.filter((blessing) => character.blessings?.includes(blessing.id)).length;
     return `${activeCount}/${blessings.length}`;

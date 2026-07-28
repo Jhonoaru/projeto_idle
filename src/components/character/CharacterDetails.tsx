@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { GuildBriefing } from "./GuildBriefing";
+import { CampaignCommandBriefing } from "./CampaignCommandBriefing";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
@@ -14,6 +15,7 @@ import { normalizeDestinyState } from "../../game-engine/destiny/normalizeDestin
 import { getMainSkill } from "../../game-engine/character/getMainSkill";
 import { getGuildLevelRewardStatus } from "../../game-engine/guild-progression/getGuildLevelRewardStatus";
 import { getGuildRenownObjectiveStatus } from "../../game-engine/guild-progression/getGuildRenownObjectiveStatus";
+import { buildCampaignCommandBriefing } from "../../game-engine/regional-orders/buildCampaignCommandBriefing";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { calculateWeaponProficiencyBonuses } from "../../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
@@ -77,6 +79,7 @@ export function CharacterDetails({
   const guildRewardStatus = getGuildLevelRewardStatus(guild);
   const renownObjectiveStatus = getGuildRenownObjectiveStatus(guild, characters);
   const recruitmentNoticeCount = guildRewardStatus.claimableCount + renownObjectiveStatus.groups.foundation.claimableCount;
+  const campaignBriefing = buildCampaignCommandBriefing(guild);
 
   useEffect(() => {
     if (!character.currentAction?.expectedXp) return undefined;
@@ -158,7 +161,9 @@ export function CharacterDetails({
           <button onClick={() => onOpenTab("inventory")} type="button">Inventory</button>
           <button onClick={() => onOpenTab("skills")} type="button">Skills</button>
           <button onClick={() => onOpenTab("destiny")} type="button">Destiny</button>
-          <button onClick={() => onOpenTab("operations")} type="button">Operations</button>
+          <button className={campaignBriefing.rewardReady ? "is-notice" : ""} onClick={() => onOpenTab("operations")} type="button">
+            Operations{campaignBriefing.noticeBadge ? <em>{campaignBriefing.noticeBadge}</em> : null}
+          </button>
           <button onClick={() => onOpenTab("armory")} type="button">Armory</button>
           <button onClick={() => onOpenTab("headquarters")} type="button">Guild Hall</button>
           <button onClick={() => onOpenTab("contracts")} type="button">Contracts</button>
@@ -171,6 +176,7 @@ export function CharacterDetails({
       </section>
 
       <GuildBriefing character={character} guild={guild} logs={logs} onNavigate={onOpenTab} />
+      <CampaignCommandBriefing guild={guild} onOpenOperations={() => onOpenTab("operations")} />
 
       <div className="character-hall-content">
         <section className="character-hall-section character-hall-overview">
