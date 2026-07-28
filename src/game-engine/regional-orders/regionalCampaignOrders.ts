@@ -46,6 +46,7 @@ export interface RegionalCampaignOrderOffer {
   rewardTierLabel: string;
   rewardTierShortLabel: string;
   rewardTierDescription: string;
+  rewardTableId?: string;
   rewardTableLabel: string;
   rewardTableShortLabel: string;
   rewardTableDescription: string;
@@ -72,6 +73,7 @@ export interface RegionalCampaignOrderDifficultyOption {
   rewardTierLabel: string;
   rewardTierShortLabel: string;
   rewardTierDescription: string;
+  rewardTableId?: string;
   rewardTableLabel: string;
   rewardTableShortLabel: string;
   rewardTableDescription: string;
@@ -147,6 +149,7 @@ export function buildRegionalCampaignDifficultyOptions(
       rewardTierLabel: rewardPackage.rewardTier.label,
       rewardTierShortLabel: rewardPackage.rewardTier.shortLabel,
       rewardTierDescription: rewardPackage.rewardTier.description,
+      rewardTableId: rewardPackage.rewardTable.regionId,
       rewardTableLabel: rewardPackage.rewardTable.label,
       rewardTableShortLabel: rewardPackage.rewardTable.shortLabel,
       rewardTableDescription: rewardPackage.rewardTable.description,
@@ -187,6 +190,7 @@ export function acceptRegionalCampaignOrder(
       baseline,
       rewardGold: offer.rewardGold,
       rewardTier: offer.rewardTier,
+      rewardTableId: offer.rewardTableId,
       rewardItem: offer.rewardItem ? { ...offer.rewardItem } : undefined,
       acceptedAt: safeDate(now).toISOString(),
     },
@@ -229,6 +233,7 @@ export function claimRegionalCampaignOrder(
       difficulty: active.difficulty ?? "standard",
       rewardGold: active.rewardGold,
       rewardTier: active.rewardTier ?? offer.rewardTier,
+      rewardTableId: active.rewardTableId,
       rewardItem: active.rewardItem ? { ...active.rewardItem } : undefined,
       claimedAt,
     }, ...state.claimHistory.filter((entry) => entry.orderId !== active.id)].slice(0, 20),
@@ -294,6 +299,7 @@ function buildOffer(
     rewardTierLabel: rewardPackage.rewardTier.label,
     rewardTierShortLabel: rewardPackage.rewardTier.shortLabel,
     rewardTierDescription: rewardPackage.rewardTier.description,
+    rewardTableId: rewardPackage.rewardTable.regionId,
     rewardTableLabel: rewardPackage.rewardTable.label,
     rewardTableShortLabel: rewardPackage.rewardTable.shortLabel,
     rewardTableDescription: rewardPackage.rewardTable.description,
@@ -318,12 +324,17 @@ function buildStatus(offer: RegionalCampaignOrderOffer, state: GuildRegionalOrde
 
 function applyClaimRewardSnapshot(offer: RegionalCampaignOrderOffer, claim: GuildRegionalOrderClaim) {
   const tier = getRegionalCampaignRewardTierById(claim.rewardTier);
+  const rewardPackage = getRegionalCampaignRewardPackage(claim.rewardTableId, claim.objective, claim.difficulty ?? "standard");
   return {
     ...offer,
     rewardTier: tier.id,
     rewardTierLabel: tier.label,
     rewardTierShortLabel: tier.shortLabel,
     rewardTierDescription: tier.description,
+    rewardTableId: claim.rewardTableId,
+    rewardTableLabel: rewardPackage.rewardTable.label,
+    rewardTableShortLabel: rewardPackage.rewardTable.shortLabel,
+    rewardTableDescription: rewardPackage.rewardTable.description,
     rewardItem: claim.rewardItem ? { ...claim.rewardItem } : undefined,
     rewardItemLabel: rewardItemLabel(claim.rewardItem),
   };
@@ -334,12 +345,17 @@ function applyActiveRewardSnapshot(
   active: NonNullable<GuildRegionalOrdersState["activeOrder"]>,
 ) {
   const tier = getRegionalCampaignRewardTierById(active.rewardTier);
+  const rewardPackage = getRegionalCampaignRewardPackage(active.rewardTableId, active.objective, active.difficulty ?? "standard");
   return {
     ...offer,
     rewardTier: tier.id,
     rewardTierLabel: tier.label,
     rewardTierShortLabel: tier.shortLabel,
     rewardTierDescription: tier.description,
+    rewardTableId: active.rewardTableId,
+    rewardTableLabel: rewardPackage.rewardTable.label,
+    rewardTableShortLabel: rewardPackage.rewardTable.shortLabel,
+    rewardTableDescription: rewardPackage.rewardTable.description,
     rewardItem: active.rewardItem ? { ...active.rewardItem } : undefined,
     rewardItemLabel: rewardItemLabel(active.rewardItem),
   };
@@ -363,6 +379,7 @@ function sameOrderSnapshot(active: NonNullable<GuildRegionalOrdersState["activeO
     && active.target === offer.target
     && active.rewardGold === offer.rewardGold
     && (active.rewardTier ?? "field") === offer.rewardTier
+    && active.rewardTableId === offer.rewardTableId
     && sameRewardItem(active.rewardItem, offer.rewardItem);
 }
 

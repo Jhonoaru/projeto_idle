@@ -206,6 +206,7 @@ Atualizado em: 2026-07-28
 - Etapa 107 concluida: Campaign Reward Tiers conecta Standard, Veteran e Elite a caches pequenos de treasury e materiais entregues no Guild Depot.
 - Etapa 107.5 concluida: QA dos Campaign Reward Tiers blinda o Guild Depot, impede overflow de stacks e garante claim atomico sem recompensa parcial.
 - Etapa 108 concluida: Regional Reward Tables adiciona nove rotas deterministicas de materiais por regiao e objetivo, preservando snapshots antigos.
+- Etapa 108.5 concluida: QA das Regional Reward Tables assina snapshots novos por regiao, bloqueia substituicoes cruzadas e identifica corretamente caches legados.
 
 Comandos principais:
 
@@ -8555,6 +8556,49 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 108.5 - QA das Regional Reward Tables.
+
+## Etapa 108.5 - QA das Regional Reward Tables
+
+Status: concluida.
+
+Bugs reproduzidos e corrigidos:
+
+- O snapshot congelava tier e item, mas nao persistia a identidade da tabela que autorizou o pacote.
+- Para manter a Etapa 107 compativel, o normalizador aceitava o cache global antigo; sem uma versao de tabela, uma ordem regional nova adulterada tambem podia se apresentar como legado.
+- Novas ordens e claims agora persistem `rewardTableId` igual a regiao proprietaria da tabela.
+- Snapshot assinado com tabela de outra regiao, item global substituto, item desconhecido ou quantidade divergente falha fechado no load.
+- A validacao acontece antes de gold, historico ou entrega no Guild Depot.
+
+Migracao e compatibilidade:
+
+- Snapshots sem assinatura da Etapa 108 sao reconhecidos pelo item regional e recebem `rewardTableId` ao normalizar.
+- Ordens anteriores aos reward tiers adotam o pacote regional atual e tambem recebem a assinatura.
+- Caches globais da Etapa 107 continuam sem `rewardTableId`, mantem o item original e sao apresentados como `Guild Stores`.
+- Historicos antigos seguem a mesma regra e nao sao relabelados como recompensa de uma regiao que ainda nao existia.
+- Quando cache regional e global sao materialmente identicos, a migracao pode adotar a tabela regional sem alterar qualquer recompensa.
+- Saves continuam usando o mesmo JSON de `operationOutcomes`; nenhuma migration SQLite estrutural foi necessaria.
+
+Validacao:
+
+- Harness temporario passou em 19.476 assercoes, 200 boards e 1.800 fluxos completos de aceite, progresso, claim, reload e bloqueio de duplicacao.
+- Foram cobertos Standard, Veteran e Elite nas tres regioes geradas, com gold, item, depot e historico conferidos.
+- Adulteracoes de `rewardTableId`, troca por cache legado e item forjado foram rejeitadas em active snapshots e claims assinados.
+- Saves das Etapas 107, 108 e anteriores aos reward tiers foram reconstruidos e mantiveram a recompensa esperada.
+- Browser confirmou `Thaeron Stores`, `Ironbound Stores` e `Relic Stores` no Operations Dashboard.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento, painel ou reward rows e sem botoes cortados.
+- Nenhuma ordem foi aceita no QA visual; o unico erro de console foi o fallback esperado do SQLite ao executar Vite fora do Tauri.
+- `npm run build` passou com TypeScript, Vite e 434 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A assinatura protege snapshots criados a partir desta etapa; um save antigo sem `rewardTableId` ainda precisa ser classificado pelo item para preservar compatibilidade.
+- As tabelas continuam deterministicas, pequenas e sem equipamento raro, temporada ou roll aleatorio.
+
+Proximo passo sugerido:
+
+- Etapa 109 - Regional Reward Compendium.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

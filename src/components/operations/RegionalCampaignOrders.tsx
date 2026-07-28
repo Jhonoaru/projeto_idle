@@ -119,7 +119,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
             {history.map((entry) => (
               <article key={entry.orderId}>
                 <i aria-hidden="true">{regionSigil(entry.regionId)}</i>
-                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {rewardTableHistoryLabel(entry.regionId, entry.objective, entry.difficulty, entry.rewardTier)} / {objectiveHistoryLabel(entry.objective)}</small></span>
+                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {rewardTableHistoryLabel(entry.rewardTableId, entry.objective, entry.difficulty, entry.rewardTier)} / {objectiveHistoryLabel(entry.objective)}</small></span>
                 <b>+{entry.rewardGold.toLocaleString("en-US")} gold<small>{historyRewardItemLabel(entry.rewardItem)}</small></b>
                 <time dateTime={entry.claimedAt}>{formatClaimDate(entry.claimedAt)}</time>
               </article>
@@ -187,12 +187,12 @@ function rewardTierHistoryLabel(tier?: GuildRegionalOrderRewardTier) {
 }
 
 function rewardTableHistoryLabel(
-  regionId: string,
+  rewardTableId: string | undefined,
   objective: GuildRegionalOrderObjective,
   difficulty?: GuildRegionalOrderDifficulty,
   rewardTier?: GuildRegionalOrderRewardTier,
 ) {
-  const table = getRegionalCampaignRewardPackage(regionId, objective, difficulty ?? "standard").rewardTable.shortLabel;
+  const table = getRegionalCampaignRewardPackage(rewardTableId, objective, difficulty ?? "standard").rewardTable.shortLabel;
   return `${table} ${rewardTierHistoryLabel(rewardTier)}`;
 }
 

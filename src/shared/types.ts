@@ -675,6 +675,7 @@ export interface GuildRegionalOrderActive {
   baseline: number;
   rewardGold: number;
   rewardTier?: GuildRegionalOrderRewardTier;
+  rewardTableId?: string;
   rewardItem?: GuildRegionalOrderRewardItem;
   acceptedAt: string;
 }
@@ -686,6 +687,7 @@ export interface GuildRegionalOrderClaim {
   difficulty?: GuildRegionalOrderDifficulty;
   rewardGold: number;
   rewardTier?: GuildRegionalOrderRewardTier;
+  rewardTableId?: string;
   rewardItem?: GuildRegionalOrderRewardItem;
   claimedAt: string;
 }

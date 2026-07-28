@@ -107,12 +107,8 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
   const regionalReward = getRegionalCampaignRewardPackage(identity.regionId, identity.objective, difficulty);
   if (target !== canonical.target || rewardGold !== canonical.rewardGold) return undefined;
   const rewardTier = normalizeActiveRewardTier(candidate.rewardTier, regionalReward.rewardTier.id);
-  const rewardItem = normalizeActiveRewardItem(
-    candidate.rewardItem,
-    regionalReward.bonusItem,
-    canonical.rewardTier.bonusItem,
-  );
-  if (!rewardTier || rewardItem === null) return undefined;
+  const rewardSnapshot = normalizeActiveRewardSnapshot(candidate, identity.regionId, difficulty, regionalReward.bonusItem, canonical.rewardTier.bonusItem);
+  if (!rewardTier || !rewardSnapshot) return undefined;
   return {
     id,
     cycleKey: candidate.cycleKey,
@@ -123,7 +119,8 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
     baseline: normalizeInteger(candidate.baseline),
     rewardGold,
     rewardTier,
-    rewardItem: rewardItem ?? undefined,
+    rewardTableId: rewardSnapshot.rewardTableId,
+    rewardItem: rewardSnapshot.rewardItem,
     acceptedAt: new Date(candidate.acceptedAt).toISOString(),
   };
 }
@@ -147,10 +144,10 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
   const canonicalTier = getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty).rewardTier;
   const regionalReward = getRegionalCampaignRewardPackage(identity.regionId, identity.objective, difficulty);
   const rewardTier = legacyReward ? "field" : normalizeRewardTier(candidate.rewardTier);
-  const rewardItem = legacyReward
-    ? undefined
-    : normalizeKnownRewardItem(candidate.rewardItem, [regionalReward.bonusItem, canonicalTier.bonusItem]);
-  if (!rewardTier || rewardItem === null || (!legacyReward && rewardTier !== regionalReward.rewardTier.id)) return undefined;
+  const rewardSnapshot = legacyReward
+    ? { rewardTableId: undefined, rewardItem: undefined }
+    : normalizePersistedRewardSnapshot(candidate.rewardTableId, candidate.rewardItem, identity.regionId, difficulty, regionalReward.bonusItem, canonicalTier.bonusItem);
+  if (!rewardTier || !rewardSnapshot || (!legacyReward && rewardTier !== regionalReward.rewardTier.id)) return undefined;
   return {
     orderId,
     regionId: candidate.regionId,
@@ -158,7 +155,8 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
     difficulty,
     rewardGold,
     rewardTier,
-    rewardItem: rewardItem ?? undefined,
+    rewardTableId: rewardSnapshot.rewardTableId,
+    rewardItem: rewardSnapshot.rewardItem,
     claimedAt: new Date(candidate.claimedAt).toISOString(),
   };
 }
@@ -173,13 +171,46 @@ function normalizeRewardTier(value: unknown): GuildRegionalOrderRewardTier | und
   return value === "field" || value === "quartermaster" || value === "command" ? value : undefined;
 }
 
-function normalizeActiveRewardItem(
-  value: unknown,
-  canonical: GuildRegionalOrderRewardItem | undefined,
+function normalizeActiveRewardSnapshot(
+  candidate: Partial<GuildRegionalOrderActive>,
+  regionId: string,
+  difficulty: GuildRegionalOrderDifficulty,
+  regional: GuildRegionalOrderRewardItem | undefined,
   legacy: GuildRegionalOrderRewardItem | undefined,
 ) {
-  if (value === undefined) return canonical ? { ...canonical } : undefined;
-  return normalizeKnownRewardItem(value, [canonical, legacy]);
+  const predatesRewardTiers = candidate.rewardTier === undefined && candidate.rewardItem === undefined;
+  if (predatesRewardTiers) {
+    return { rewardTableId: regionId, rewardItem: regional ? { ...regional } : undefined };
+  }
+  return normalizePersistedRewardSnapshot(candidate.rewardTableId, candidate.rewardItem, regionId, difficulty, regional, legacy);
+}
+
+function normalizePersistedRewardSnapshot(
+  tableValue: unknown,
+  itemValue: unknown,
+  regionId: string,
+  difficulty: GuildRegionalOrderDifficulty,
+  regional: GuildRegionalOrderRewardItem | undefined,
+  legacy: GuildRegionalOrderRewardItem | undefined,
+) {
+  const rewardTableId = normalizeRewardTableId(tableValue, regionId);
+  if (rewardTableId === null) return undefined;
+  if (rewardTableId) {
+    const rewardItem = normalizeKnownRewardItem(itemValue, [regional]);
+    return rewardItem === null ? undefined : { rewardTableId, rewardItem };
+  }
+  if (difficulty === "standard") {
+    return itemValue === undefined ? { rewardTableId: undefined, rewardItem: undefined } : undefined;
+  }
+  const regionalItem = normalizeKnownRewardItem(itemValue, [regional]);
+  if (regionalItem !== null) return { rewardTableId: regionId, rewardItem: regionalItem };
+  const legacyItem = normalizeKnownRewardItem(itemValue, [legacy]);
+  return legacyItem === null ? undefined : { rewardTableId: undefined, rewardItem: legacyItem };
+}
+
+function normalizeRewardTableId(value: unknown, regionId: string): string | undefined | null {
+  if (value === undefined) return undefined;
+  return value === regionId ? regionId : null;
 }
 
 function normalizeKnownRewardItem(

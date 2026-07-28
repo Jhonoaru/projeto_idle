@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-108-5",
+    stage: "Stage 108.5",
+    title: "Regional Reward Tables QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Regional reward snapshots now persist their table identity and reject cross-region or legacy substitutions on new orders.",
+    highlights: [
+      "New active orders and claim history store a rewardTableId tied to the assigned region before any depot delivery.",
+      "Unsigned Stage 108 snapshots migrate from their regional item while Stage 107 guild-wide caches retain their original item and Guild Stores label.",
+      "Nineteen thousand four hundred seventy-six checks covered 1,800 complete claims, forged tables, legacy saves and responsive Operations UI.",
+    ],
+    systems: ["Regional Rewards QA", "Snapshot Integrity", "Legacy Compatibility", "Guild Depot", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-108",
     stage: "Stage 108",
     title: "Regional Reward Tables",
