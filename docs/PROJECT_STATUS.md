@@ -208,6 +208,7 @@ Atualizado em: 2026-07-28
 - Etapa 108 concluida: Regional Reward Tables adiciona nove rotas deterministicas de materiais por regiao e objetivo, preservando snapshots antigos.
 - Etapa 108.5 concluida: QA das Regional Reward Tables assina snapshots novos por regiao, bloqueia substituicoes cruzadas e identifica corretamente caches legados.
 - Etapa 109 concluida: Regional Reward Compendium compara as nove rotas, usos reais dos materiais e estoque atual do Guild Depot em Operations.
+- Etapa 109.5 concluida: QA do Regional Reward Compendium valida todas as tabelas e adiciona tabs ARIA com navegacao completa por teclado.
 
 Comandos principais:
 
@@ -8636,6 +8637,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 109.5 - QA aprofundada do Regional Reward Compendium.
+
+## Etapa 109.5 - QA aprofundada do Regional Reward Compendium
+
+Status: concluida.
+
+Bugs reproduzidos e corrigidos:
+
+- As tabs regionais funcionavam por clique, mas todas permaneciam no ciclo de foco padrao e nao respondiam a setas, Home ou End.
+- Os botoes apontavam para IDs de paineis regionais que nao existiam enquanto a respectiva tab estava inativa.
+- O tabpanel nao identificava a tab selecionada por `aria-labelledby` e nao oferecia destino de foco proprio.
+- Agora existe um unico painel estavel, cada tab possui ID, `aria-controls`, foco roving e selecao sincronizada.
+- Arrow Left/Right/Up/Down, Home e End movem foco e conteudo com wrap seguro; tabs e painel receberam indicador visivel de foco.
+
+Validacao de dados:
+
+- Harness temporario passou em 250.166 assercoes sobre 10.000 Guild Depots deterministas.
+- Foram conferidas as tres regioes, nove rotas, 18 slots Veteran/Elite, oito materiais unicos e a correspondencia exata com `regionalCampaignRewardTables`.
+- Entradas nulas, `NaN`, infinito, fracionarias, negativas, quantidade zero, itemId invalido e depot sem array foram ignorados sem quebrar o builder.
+- Stacks duplicados foram agregados; totais regionais e globais foram conferidos independentemente e saturam em `Number.MAX_SAFE_INTEGER`.
+- Itens nao relacionados nao entram no estoque do compendio; as fontes e os depots de entrada permaneceram imutaveis.
+- Todos os itens de recompensa existem, sao stackable e possuem ao menos um uso real ou fallback informativo.
+
+Validacao de interface:
+
+- Browser confirmou tres tabs, um tabpanel estavel, um unico `tabIndex=0`, tres rotas e seis material rows por regiao.
+- Arrow Right, Arrow Down, Arrow Left, Home e End sincronizaram foco, selecao e `aria-labelledby`, incluindo wrap em 390 px.
+- O foco ganhou outline dourado visivel sem deslocar o layout.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento ou nos elementos do compendio.
+- Nao houve alertas de interface e nenhuma ordem ou estado de gameplay foi alterado durante o QA.
+- `npm run build` passou com TypeScript, Vite e 436 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O compendio continua somente leitura, sem busca, filtros, reserva de material ou simulacao de custos.
+- O browser usa mock local porque o plugin SQL depende do runtime Tauri; o pacote desktop foi validado por build, nao por clique manual contra o save real.
+- Nao existe test runner persistente no `package.json`; o harness foi temporario e removido apos a execucao.
+
+Proximo passo sugerido:
+
+- Etapa 110 - definir a proxima camada offline apos o ciclo de Regional Rewards validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

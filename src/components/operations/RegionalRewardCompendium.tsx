@@ -33,12 +33,15 @@ export function RegionalRewardCompendium({ depot }: RegionalRewardCompendiumProp
       <div className="regional-reward-compendium-tabs" role="tablist" aria-label="Regional reward tables">
         {compendium.regions.map((region) => (
           <button
-            aria-controls={`regional-reward-panel-${region.regionId}`}
+            aria-controls="regional-reward-compendium-panel"
             aria-selected={region.regionId === selectedRegion.regionId}
             className={region.regionId === selectedRegion.regionId ? "is-selected" : undefined}
+            id={`regional-reward-tab-${region.regionId}`}
             key={region.regionId}
             onClick={() => setSelectedRegionId(region.regionId)}
+            onKeyDown={handleTabKeyDown}
             role="tab"
+            tabIndex={region.regionId === selectedRegion.regionId ? 0 : -1}
             type="button"
           >
             <i aria-hidden="true">{region.regionSigil}</i>
@@ -47,7 +50,13 @@ export function RegionalRewardCompendium({ depot }: RegionalRewardCompendiumProp
         ))}
       </div>
 
-      <div className="regional-reward-compendium-panel" id={`regional-reward-panel-${selectedRegion.regionId}`} role="tabpanel">
+      <div
+        aria-labelledby={`regional-reward-tab-${selectedRegion.regionId}`}
+        className="regional-reward-compendium-panel"
+        id="regional-reward-compendium-panel"
+        role="tabpanel"
+        tabIndex={0}
+      >
         <header>
           <div><span>{selectedRegion.tableShortLabel}</span><strong>{selectedRegion.tableLabel}</strong></div>
           <p>{selectedRegion.description}</p>
@@ -67,6 +76,23 @@ export function RegionalRewardCompendium({ depot }: RegionalRewardCompendiumProp
       <footer><span>Standard orders remain treasury-only.</span><strong>Rewards are fixed at acceptance and delivered to the Guild Depot.</strong></footer>
     </section>
   );
+}
+
+function handleTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+  const tabs = Array.from(
+    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? [],
+  );
+  const currentIndex = tabs.indexOf(event.currentTarget);
+  if (currentIndex < 0 || tabs.length === 0) return;
+  let nextIndex: number | undefined;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") nextIndex = (currentIndex + 1) % tabs.length;
+  if (event.key === "ArrowLeft" || event.key === "ArrowUp") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = tabs.length - 1;
+  if (nextIndex === undefined) return;
+  event.preventDefault();
+  tabs[nextIndex].focus();
+  tabs[nextIndex].click();
 }
 
 function RewardMaterial({ difficulty, material }: { difficulty: "Veteran" | "Elite"; material: RegionalRewardCompendiumMaterial }) {

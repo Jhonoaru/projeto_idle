@@ -14571,6 +14571,7 @@ html[data-client-motion="reduced"] *::after {
 .regional-reward-compendium-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #343c35; }
 .regional-reward-compendium-tabs button { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 8px; align-items: center; min-width: 0; min-height: 52px; padding: 6px 8px; border: 0; border-top: 2px solid #414941; color: #89938c; background: #121714; cursor: pointer; text-align: left; }
 .regional-reward-compendium-tabs button.is-selected { border-top-color: #a58b48; color: #e0cf94; background: #202019; }
+.regional-reward-compendium-tabs button:focus-visible, .regional-reward-compendium-panel:focus-visible { position: relative; z-index: 1; outline: 2px solid #d6b45c; outline-offset: -2px; }
 .regional-reward-compendium-tabs button > i { display: grid; place-items: center; width: 34px; height: 36px; border: 1px solid #5d624b; color: #cbbb7e; background: #1c221d; font: 700 normal .48rem Georgia, serif; }
 .regional-reward-compendium-tabs button span, .regional-reward-compendium-tabs button strong, .regional-reward-compendium-tabs button small { min-width: 0; }
 .regional-reward-compendium-tabs button strong, .regional-reward-compendium-tabs button small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

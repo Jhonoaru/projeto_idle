@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-109-5",
+    stage: "Stage 109.5",
+    title: "Regional Reward Compendium QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "The regional material index now has complete keyboard navigation and hardened stock validation across every reward route.",
+    highlights: [
+      "Arrow keys, Home and End move the active regional tab with one roving focus target and a correctly labelled reward panel.",
+      "Two hundred fifty thousand one hundred sixty-six checks covered all routes, malformed depot entries, duplicate stacks and numeric saturation.",
+      "Every regional table, material use and responsive layout remains read-only and leaves the local SQLite save untouched.",
+    ],
+    systems: ["Regional Rewards QA", "Keyboard Navigation", "ARIA Tabs", "Guild Depot", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-109",
     stage: "Stage 109",
     title: "Regional Reward Compendium",
