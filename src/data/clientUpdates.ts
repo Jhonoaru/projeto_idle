@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-100-5",
+    stage: "Stage 100.5",
+    title: "Campaign Command Briefing QA",
+    date: "2026-07-27",
+    category: "qa",
+    summary: "Local-cycle refresh, accessible progress and deep state validation hardened the Character Hall campaign briefing.",
+    highlights: [
+      "Character Hall, Operations badges and the Regional Orders board now refresh together at the next local day or when the app regains focus.",
+      "Regional progress rails expose names and bounded values to assistive technology while retaining the compact MMORPG presentation.",
+      "One hundred thousand thirty-six checks, ready-state navigation, four responsive widths and an isolated Tauri launch preserved the real SQLite save.",
+    ],
+    systems: ["Campaign Briefing QA", "Local Cycle", "Regional Orders", "Accessibility", "SQLite Isolation"],
+    featured: true,
+  },
+  {
     id: "stage-100",
     stage: "Stage 100",
     title: "Campaign Command Briefing",

@@ -6,6 +6,7 @@ import type { Character, Guild } from "../../shared/types";
 import type { MainPanelTab } from "./MainPanel";
 import { getGuildLogisticsUnreadCount } from "../../game-engine/logistics/syncGuildLogisticsAlerts";
 import { buildCampaignCommandBriefing } from "../../game-engine/regional-orders/buildCampaignCommandBriefing";
+import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 
 interface CharacterSideMenuProps {
   character: Character;
@@ -42,12 +43,14 @@ export function CharacterSideMenu({
   activeTab,
   onOpenTab,
 }: CharacterSideMenuProps) {
+  const campaignNow = useLocalCampaignNow();
+
   return (
     <nav className="character-side-menu" aria-label="Character systems">
       {menuItems.map((item) => (
         <GameIconButton
           active={activeTab === item.tab}
-          badge={getBadge(item.tab, character, guild)}
+          badge={getBadge(item.tab, character, guild, campaignNow)}
           icon={item.icon}
           key={item.tab}
           label={item.label}
@@ -58,8 +61,8 @@ export function CharacterSideMenu({
   );
 }
 
-function getBadge(tab: MainPanelTab, character: Character, guild: Guild) {
-  if (tab === "operations") return buildCampaignCommandBriefing(guild).noticeBadge;
+function getBadge(tab: MainPanelTab, character: Character, guild: Guild, campaignNow: Date) {
+  if (tab === "operations") return buildCampaignCommandBriefing(guild, campaignNow).noticeBadge;
   if (tab === "blessings") {
     const activeCount = blessings.filter((blessing) => character.blessings?.includes(blessing.id)).length;
     return `${activeCount}/${blessings.length}`;

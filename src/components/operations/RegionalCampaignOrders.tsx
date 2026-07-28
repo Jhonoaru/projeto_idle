@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { normalizeGuildOperationOutcomes } from "../../game-engine/operations/normalizeGuildOperationOutcomes";
 import { buildRegionalCampaignOrderStatuses, getLocalCampaignCycleKey } from "../../game-engine/regional-orders/regionalCampaignOrders";
@@ -14,7 +15,8 @@ interface RegionalCampaignOrdersProps {
 }
 
 export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, onOpenSystem }: RegionalCampaignOrdersProps) {
-  const orders = useMemo(() => buildRegionalCampaignOrderStatuses(guild), [guild]);
+  const campaignNow = useLocalCampaignNow();
+  const orders = useMemo(() => buildRegionalCampaignOrderStatuses(guild, campaignNow), [campaignNow, guild]);
   const history = useMemo(
     () => normalizeGuildOperationOutcomes(guild.operationOutcomes).regionalOrders?.claimHistory.slice(0, 5) ?? [],
     [guild.operationOutcomes],
@@ -32,7 +34,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
           <p>Accept one field order at a time. Only operations completed after acceptance count toward its objective.</p>
         </div>
         <div className="regional-campaign-orders-summary" aria-live="polite">
-          <Summary label="Cycle" value={getLocalCampaignCycleKey()} />
+          <Summary label="Cycle" value={getLocalCampaignCycleKey(campaignNow)} />
           <Summary label="Available" value={String(available)} />
           <Summary label="Active order" value={active?.regionName ?? "None"} />
           <Summary label="Status" value={active?.state === "ready" ? "Reward ready" : active ? "In progress" : "Standing by"} />

@@ -1,15 +1,11 @@
-import { useMemo } from "react";
-import { buildCampaignCommandBriefing } from "../../game-engine/regional-orders/buildCampaignCommandBriefing";
-import type { Guild } from "../../shared/types";
+import type { CampaignCommandBriefing as CampaignCommandBriefingModel } from "../../game-engine/regional-orders/buildCampaignCommandBriefing";
 
 interface CampaignCommandBriefingProps {
-  guild: Guild;
+  briefing: CampaignCommandBriefingModel;
   onOpenOperations: () => void;
 }
 
-export function CampaignCommandBriefing({ guild, onOpenOperations }: CampaignCommandBriefingProps) {
-  const briefing = useMemo(() => buildCampaignCommandBriefing(guild), [guild]);
-
+export function CampaignCommandBriefing({ briefing, onOpenOperations }: CampaignCommandBriefingProps) {
   return (
     <section className={`campaign-command-briefing is-${briefing.tone}`} aria-label="Campaign command briefing">
       <header>
@@ -39,7 +35,13 @@ export function CampaignCommandBriefing({ guild, onOpenOperations }: CampaignCom
             </div>
             <b>{briefingStatusLabel(order.state)}</b>
             <div className="campaign-command-briefing-progress">
-              <span><i style={{ width: `${order.progressPercent}%` }} /></span>
+              <span
+                aria-label={`${order.regionName} order progress`}
+                aria-valuemax={100}
+                aria-valuemin={0}
+                aria-valuenow={order.progressPercent}
+                role="progressbar"
+              ><i style={{ width: `${order.progressPercent}%` }} /></span>
               <strong>{order.progressLabel}</strong>
               <em>{order.rewardGold.toLocaleString("en-US")}g</em>
             </div>

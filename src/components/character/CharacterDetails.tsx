@@ -16,6 +16,7 @@ import { getMainSkill } from "../../game-engine/character/getMainSkill";
 import { getGuildLevelRewardStatus } from "../../game-engine/guild-progression/getGuildLevelRewardStatus";
 import { getGuildRenownObjectiveStatus } from "../../game-engine/guild-progression/getGuildRenownObjectiveStatus";
 import { buildCampaignCommandBriefing } from "../../game-engine/regional-orders/buildCampaignCommandBriefing";
+import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
 import { calculateWeaponProficiencyBonuses } from "../../game-engine/weapon-proficiency/calculateWeaponProficiencyBonuses";
 import { getEquippedWeaponProficiencyType } from "../../game-engine/weapon-proficiency/getEquippedWeaponProficiencyType";
@@ -61,6 +62,7 @@ export function CharacterDetails({
   onSelectCharacter,
 }: CharacterDetailsProps) {
   const [, setTick] = useState(0);
+  const campaignNow = useLocalCampaignNow();
   const xpPreview = getEstimatedExperiencePreview(character);
   const levelProgress = Math.round(xpPreview.levelProgressPercent);
   const equipmentBonuses = calculateEquipmentBonuses(character.equipment);
@@ -79,7 +81,7 @@ export function CharacterDetails({
   const guildRewardStatus = getGuildLevelRewardStatus(guild);
   const renownObjectiveStatus = getGuildRenownObjectiveStatus(guild, characters);
   const recruitmentNoticeCount = guildRewardStatus.claimableCount + renownObjectiveStatus.groups.foundation.claimableCount;
-  const campaignBriefing = buildCampaignCommandBriefing(guild);
+  const campaignBriefing = buildCampaignCommandBriefing(guild, campaignNow);
 
   useEffect(() => {
     if (!character.currentAction?.expectedXp) return undefined;
@@ -176,7 +178,7 @@ export function CharacterDetails({
       </section>
 
       <GuildBriefing character={character} guild={guild} logs={logs} onNavigate={onOpenTab} />
-      <CampaignCommandBriefing guild={guild} onOpenOperations={() => onOpenTab("operations")} />
+      <CampaignCommandBriefing briefing={campaignBriefing} onOpenOperations={() => onOpenTab("operations")} />
 
       <div className="character-hall-content">
         <section className="character-hall-section character-hall-overview">

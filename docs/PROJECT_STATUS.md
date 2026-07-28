@@ -190,6 +190,7 @@ Atualizado em: 2026-07-27
 - Etapa 99 concluida: Regional Campaign Orders adiciona ofertas diarias locais para Hunts, Bosses e Contracts, aceite e claim manuais, gold pequeno e persistencia no ledger operacional.
 - Etapa 99.5 concluida: QA das Regional Campaign Orders canonizou IDs/recompensas, corrigiu datas impossiveis, adicionou historico visual e validou 100.097 assercoes.
 - Etapa 100 concluida: Campaign Command Briefing leva o ciclo regional ao Character Hall, com estado derivado, atalhos seguros e badge de Operations apenas para reward pronto.
+- Etapa 100.5 concluida: QA do Campaign Command Briefing corrigiu a virada local presa, sincronizou o board regional e validou 100.036 assercoes, acessibilidade e quatro viewports.
 
 Comandos principais:
 
@@ -7735,6 +7736,58 @@ Build e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 100.5 - QA aprofundada do Campaign Command Briefing.
+
+## Etapa 100.5 - QA aprofundada do Campaign Command Briefing
+
+Status: concluida.
+
+Problemas encontrados e corrigidos:
+
+- O briefing era recalculado apenas quando `guild` mudava; um app aberto durante a meia-noite podia continuar mostrando o ciclo anterior.
+- O badge lateral e o comando do Character Hall dependiam do mesmo render e tambem podiam permanecer presos sem alteracao no save.
+- Regional Campaign Orders memoizava os cards por `guild`, mas calculava o texto do ciclo com uma nova data; depois da virada, cabecalho e cards podiam divergir.
+- Um relogio local compartilhado agora agenda a proxima meia-noite e tambem atualiza ao recuperar foco ou voltar de uma aba oculta.
+- Character Hall, menu lateral e board regional recebem a mesma data explicita em cada superficie.
+- O card deixou de recalcular seu proprio briefing e agora recebe o modelo ja derivado pelo Character Hall.
+- As barras compactas receberam `role=progressbar`, nome regional e valores ARIA limitados entre 0 e 100.
+
+QA automatizado:
+
+- Harness temporario passou em 100.036 assercoes e foi removido.
+- Foram cobertos estados available, active, ready e complete, claim duplicado, tres claims sequenciais e gold canonico.
+- Ordem pronta de um ciclo anterior permaneceu visivel ao lado das tres ofertas atuais e conservou o unico badge de claim.
+- Payload hostil com ID forjado, data impossivel, `NaN`, `Infinity` e historico invalido voltou com seguranca para tres ofertas normais.
+- O agendamento da meia-noite foi validado em 23:59:59.900, ao meio-dia e com relogio invalido.
+- Vinte e cinco mil combinacoes de guilda/data mantiveram ciclo, tres IDs unicos e progresso entre 0 e 100.
+
+QA visual e navegacao:
+
+- O mock inicial exibiu tres ofertas e nenhum badge de Operations.
+- `Review Daily Orders` abriu o dashboard com tres `Accept Order`, nenhuma ordem ativa e nenhum aceite automatico.
+- Fixture temporaria pronta exibiu um alerta no Character Hall, um no menu lateral, progresso acessivel 100 e reward 180g.
+- `Claim in Operations` apenas navegou; o dashboard mostrou uma unica acao `Claim Reward` e `guild.gold` permaneceu em 420g.
+- Restaurar o mock removeu os dois alertas e recuperou as tres ofertas disponiveis.
+- Character Hall e Regional Orders foram validados em 1250, 760, 520 e 390 px sem overflow horizontal ou texto de botao cortado.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou antes e depois das correcoes; o estado final possui 429 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O release foi iniciado com `APPDATA` e `LOCALAPPDATA` isolados e permaneceu ativo durante o smoke.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum fixture, claim ou migration foi aplicado ao banco real.
+
+Limitacoes:
+
+- A QA validou o calculo e o agendamento da virada, mas nao manteve uma sessao real aberta ate meia-noite.
+- Mudanca manual do relogio com o app continuamente em foco so e percebida no proximo foco/visibility ou timeout agendado; nao existe anti-cheat.
+- O browser usa mock porque o plugin SQL depende do runtime Tauri; o release isolado foi iniciado, mas nao recebeu QA manual por clique.
+- Save/Reload nativo de Regional Orders no banco legado continua dependente da migration de `operation_outcomes_json` registrada na Etapa 99.5.
+
+Proximo passo sugerido:
+
+- Etapa 101 - Weekly Campaign Briefing.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
