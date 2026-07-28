@@ -1,6 +1,7 @@
 import { bosses } from "../../data/bosses";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { items } from "../../data/items";
+import { getRegionalCampaignOrderVariant } from "../../data/regionalCampaignOrders";
 import type {
   GuildBossOutcome,
   GuildBossOutcomeLoot,
@@ -58,7 +59,8 @@ export function normalizeGuildRegionalOrders(value: unknown): GuildRegionalOrder
   if (!value || typeof value !== "object") return createDefaultGuildRegionalOrders();
   const candidate = value as Partial<GuildRegionalOrdersState>;
   const claimedOrderIds = normalizeIds(candidate.claimedOrderIds, 60)
-    .map((id) => id.slice(0, 180));
+    .map((id) => id.slice(0, 180))
+    .filter((id) => Boolean(parseRegionalOrderId(id)));
   const claimed = new Set(claimedOrderIds);
   const historySeen = new Set<string>();
   const claimHistory = (Array.isArray(candidate.claimHistory) ? candidate.claimHistory : [])
@@ -90,7 +92,13 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
   ) return undefined;
   const target = normalizeInteger(candidate.target);
   const rewardGold = normalizeInteger(candidate.rewardGold);
-  if (target <= 0 || target > 1_440 || rewardGold <= 0 || rewardGold > 10_000) return undefined;
+  const identity = parseRegionalOrderId(id);
+  if (
+    !identity || identity.cycleKey !== candidate.cycleKey || identity.regionId !== candidate.regionId
+    || identity.objective !== candidate.objective
+  ) return undefined;
+  const canonical = getRegionalCampaignOrderVariant(identity.objective, identity.variant);
+  if (target !== canonical.target || rewardGold !== canonical.rewardGold) return undefined;
   return {
     id,
     cycleKey: candidate.cycleKey,
@@ -112,7 +120,11 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
     || !isValidDate(candidate.claimedAt)
   ) return undefined;
   const rewardGold = normalizeInteger(candidate.rewardGold);
-  if (rewardGold <= 0 || rewardGold > 10_000) return undefined;
+  const identity = parseRegionalOrderId(orderId);
+  if (
+    !identity || identity.regionId !== candidate.regionId || identity.objective !== candidate.objective
+    || rewardGold !== getRegionalCampaignOrderVariant(identity.objective, identity.variant).rewardGold
+  ) return undefined;
   return {
     orderId,
     regionId: candidate.regionId,
@@ -131,7 +143,21 @@ function isRegionId(value: unknown): value is string {
 }
 
 function isCycleKey(value: unknown): value is string {
-  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+}
+
+function parseRegionalOrderId(value: string) {
+  const match = /^regional-order:(\d{4}-\d{2}-\d{2}):([^:]+):(hunt_minutes|boss_defeats|contract_successes):([0-2])$/.exec(value);
+  if (!match || !isCycleKey(match[1]) || !isRegionId(match[2]) || !isRegionalOrderObjective(match[3])) return undefined;
+  return {
+    cycleKey: match[1],
+    regionId: match[2],
+    objective: match[3],
+    variant: Number(match[4]),
+  };
 }
 
 function normalizeRegionMastery(value: unknown): GuildRegionMasteryProgress[] {

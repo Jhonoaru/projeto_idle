@@ -1,4 +1,8 @@
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
+import {
+  getRegionalCampaignOrderVariant,
+  regionalCampaignOrderObjectives,
+} from "../../data/regionalCampaignOrders";
 import type {
   Guild,
   GuildRegionalOrderObjective,
@@ -34,8 +38,6 @@ interface RegionalOrderResult {
   order?: RegionalCampaignOrderStatus;
 }
 
-const objectives: GuildRegionalOrderObjective[] = ["hunt_minutes", "boss_defeats", "contract_successes"];
-
 export function getLocalCampaignCycleKey(now = new Date()) {
   const valid = Number.isFinite(now.getTime()) ? now : new Date();
   return [valid.getFullYear(), String(valid.getMonth() + 1).padStart(2, "0"), String(valid.getDate()).padStart(2, "0")].join("-");
@@ -45,7 +47,7 @@ export function buildRegionalCampaignOffers(guildId: string, now = new Date()): 
   const cycleKey = getLocalCampaignCycleKey(now);
   return guildCampaignRegions.map((region, index) => {
     const seed = stableHash(`${guildId}:${cycleKey}:${region.id}`);
-    const objective = objectives[(seed + index) % objectives.length];
+    const objective = regionalCampaignOrderObjectives[(seed + index) % regionalCampaignOrderObjectives.length];
     const variant = seed % 3;
     return buildOffer(region.id, cycleKey, objective, variant);
   });
@@ -129,11 +131,12 @@ export function abandonRegionalCampaignOrder(guild: Guild): RegionalOrderResult 
 function buildOffer(regionId: string, cycleKey: string, objective: GuildRegionalOrderObjective, variant: number) {
   const region = guildCampaignRegions.find((entry) => entry.id === regionId) ?? guildCampaignRegions[0];
   const safeVariant = Math.max(0, Math.min(2, Math.floor(variant)));
+  const values = getRegionalCampaignOrderVariant(objective, safeVariant);
   const config = objective === "hunt_minutes"
-    ? { title: "Hold the Hunting Line", description: "Complete successful Hunt time in this region after accepting the order.", target: [30, 45, 60][safeVariant], reward: [180, 240, 300][safeVariant], destination: "hunts" as const }
+    ? { title: "Hold the Hunting Line", description: "Complete successful Hunt time in this region after accepting the order.", destination: "hunts" as const }
     : objective === "boss_defeats"
-      ? { title: "Break the Regional Threat", description: "Defeat a Boss tied to this region after accepting the order.", target: 1, reward: [320, 350, 380][safeVariant], destination: "bosses" as const }
-      : { title: "Secure the Support Route", description: "Complete a successful Contract tied to this region after accepting the order.", target: 1, reward: [240, 280, 320][safeVariant], destination: "contracts" as const };
+      ? { title: "Break the Regional Threat", description: "Defeat a Boss tied to this region after accepting the order.", destination: "bosses" as const }
+      : { title: "Secure the Support Route", description: "Complete a successful Contract tied to this region after accepting the order.", destination: "contracts" as const };
   return {
     id: `regional-order:${cycleKey}:${region.id}:${objective}:${safeVariant}`,
     cycleKey,
@@ -143,8 +146,8 @@ function buildOffer(regionId: string, cycleKey: string, objective: GuildRegional
     objective,
     title: config.title,
     description: config.description,
-    target: config.target,
-    rewardGold: config.reward,
+    target: values.target,
+    rewardGold: values.rewardGold,
     destination: config.destination,
   };
 }

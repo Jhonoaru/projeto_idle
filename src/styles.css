@@ -14437,6 +14437,19 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-grid article > footer > span strong { color: #d7c478; }
 .regional-campaign-orders button { min-height: 29px; padding: 4px 8px; border: 1px solid #746642; color: #dfcc8c; background: #24231a; font: 700 .46rem Georgia, serif; cursor: pointer; }
 .regional-campaign-orders button:disabled { border-color: #414841; color: #727c74; background: #131814; cursor: default; }
+.regional-campaign-orders-history { border-top: 1px solid #384038; background: #111613; }
+.regional-campaign-orders-history > header { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-bottom: 1px solid #343c35; }
+.regional-campaign-orders-history > header span { color: #a99c70; font-size: .46rem; text-transform: uppercase; }
+.regional-campaign-orders-history > header strong { color: #7f8a82; font-size: .44rem; }
+.regional-campaign-orders-history > div { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: #343c35; }
+.regional-campaign-orders-history article { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 5px 7px; align-items: center; min-width: 0; padding: 7px; background: #151a17; }
+.regional-campaign-orders-history article > i { display: grid; grid-row: 1 / 3; place-items: center; width: 28px; height: 34px; border: 1px solid #626348; color: #d0c384; background: #20251e; font: 700 normal .48rem Georgia, serif; }
+.regional-campaign-orders-history article span, .regional-campaign-orders-history article strong, .regional-campaign-orders-history article small { min-width: 0; }
+.regional-campaign-orders-history article strong, .regional-campaign-orders-history article small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-campaign-orders-history article strong { color: #cfc391; font-size: .48rem; }
+.regional-campaign-orders-history article small { margin-top: 3px; color: #7f8a82; font-size: .39rem; }
+.regional-campaign-orders-history article > b { color: #a8bf91; font-size: .43rem; }
+.regional-campaign-orders-history article > time { color: #717d75; font-size: .38rem; text-align: right; }
 .regional-campaign-orders > footer { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 7px 9px; border-top: 1px solid #384038; color: #7f8a82; font-size: .46rem; }
 
 @media (max-width: 980px) {
@@ -14450,6 +14463,7 @@ html[data-client-motion="reduced"] *::after {
 @media (max-width: 760px) {
   .guild-region-mastery-tabs { grid-template-columns: 1fr; }
   .regional-campaign-orders-grid { grid-template-columns: 1fr; }
+  .regional-campaign-orders-history > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-region-mastery-dossier > header { grid-template-columns: 48px minmax(0, 1fr); }
   .guild-region-mastery-dossier > header > div:last-child { grid-column: 1 / -1; }
   .guild-region-mastery-dossier > footer { grid-template-columns: 1fr; }
@@ -14462,6 +14476,7 @@ html[data-client-motion="reduced"] *::after {
   .regional-campaign-orders-seal { justify-self: center; }
   .regional-campaign-orders-summary { grid-template-columns: 1fr; text-align: left; }
   .regional-campaign-orders-summary > div { border-right: 0; border-bottom: 1px solid #3a4036; }
+  .regional-campaign-orders-history > div { grid-template-columns: 1fr; }
   .regional-campaign-orders > footer { align-items: stretch; flex-direction: column; }
   .guild-region-mastery-seal { justify-self: center; }
   .guild-region-mastery-summary,

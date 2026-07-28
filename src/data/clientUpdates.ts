@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-99-5",
+    stage: "Stage 99.5",
+    title: "Regional Campaign Orders QA",
+    date: "2026-07-27",
+    category: "qa",
+    summary: "Canonical save repair, complete claim history and responsive validation hardened the daily regional order loop.",
+    highlights: [
+      "Impossible dates, forged IDs and altered targets or rewards are now discarded during load instead of blocking the active order slot.",
+      "The command board always shows the current local cycle while preserving an older active order and now displays its five most recent completed dispatches.",
+      "One hundred thousand ninety-seven checks, four responsive widths and an isolated Tauri launch validated claims without modifying the player's real SQLite save.",
+    ],
+    systems: ["Regional Orders QA", "Campaign Operations", "Save Normalization", "Responsive UI", "SQLite Isolation"],
+    featured: true,
+  },
+  {
     id: "stage-99",
     stage: "Stage 99",
     title: "Regional Campaign Orders",

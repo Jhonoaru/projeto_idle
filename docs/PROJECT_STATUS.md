@@ -188,6 +188,7 @@ Atualizado em: 2026-07-27
 - Etapa 98 concluida: Campaign Region Mastery conecta Hunts, Bosses e Contracts a tres patentes regionais lifetime, com bonus local de ate +4% XP e gold.
 - Etapa 98.5 concluida: QA da Region Mastery congelou bonus de gold por Hunt, protegeu eventos hostis, completou o auto-repeat e validou 100.067 assercoes.
 - Etapa 99 concluida: Regional Campaign Orders adiciona ofertas diarias locais para Hunts, Bosses e Contracts, aceite e claim manuais, gold pequeno e persistencia no ledger operacional.
+- Etapa 99.5 concluida: QA das Regional Campaign Orders canonizou IDs/recompensas, corrigiu datas impossiveis, adicionou historico visual e validou 100.097 assercoes.
 
 Comandos principais:
 
@@ -7631,6 +7632,65 @@ Build e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 99.5 - QA aprofundada dos Regional Campaign Orders.
+
+## Etapa 99.5 - QA aprofundada dos Regional Campaign Orders
+
+Status: concluida.
+
+Problemas encontrados e corrigidos:
+
+- O normalizador aceitava chaves como `2026-02-30` porque verificava apenas o formato textual.
+- Datas de ciclo agora precisam representar um dia local real no calendario.
+- Uma ordem ativa com ID, regiao, objetivo, target ou reward adulterados podia ocupar o slot ate abandono manual.
+- Identidade, variante, target e reward agora sao comparados com a definicao canonica durante o load.
+- IDs claimed arbitrarios e historicos com reward alterado agora sao removidos.
+- Targets e recompensas foram centralizados em `src/data/regionalCampaignOrders.ts`, evitando divergencia entre geracao e normalizacao.
+- Quando uma ordem antiga sobrevivia a virada, o resumo mostrava seu ciclo em vez do dia atual.
+- O resumo agora usa sempre a data local atual e mantem a ordem antiga separadamente na grade.
+- O historico persistido nao era visivel; o painel agora mostra os cinco claims mais recentes com regiao, objetivo, gold e horario.
+
+QA automatizado:
+
+- Harness temporario passou em 100.097 assercoes e foi removido.
+- As tres familias, Hunt minutes, Boss defeats e Contract successes, foram aceitas, avancadas e resgatadas por suas fontes regionais reais.
+- Progresso anterior ao aceite, claim incompleto, segundo aceite, claim duplicado e abandono duplicado foram bloqueados.
+- Ordem antiga permaneceu ativa junto da rotacao seguinte e nenhum progresso foi perdido.
+- Foram validados ID forjado, ciclo impossivel, timestamp invalido, regiao desconhecida e target/reward alterados.
+- Gold `NaN` foi reparado, soma extrema saturou em `Number.MAX_SAFE_INTEGER` e abandono nao alterou gold.
+- Vinte e cinco claims sequenciais preservaram IDs e limitaram o historico visual aos ultimos 20 registros.
+- `mapGuild` preservou IDs e historico em round-trip de `operation_outcomes_json`.
+- Vinte e cinco mil dias e 97 IDs de guilda mantiveram tres ofertas unicas, ciclos corretos e rewards entre 180 e 380 gold.
+
+QA visual:
+
+- Fixture temporaria exibiu uma ordem Thaeron pronta e dois claims anteriores; o mock original foi restaurado ao final.
+- Claim Reward alterou `guild.gold` de 420 para 600 uma unica vez, removeu a ordem ativa e aumentou o historico de 2 para 3.
+- A ordem concluida mudou para Completed e as duas restantes voltaram para Available.
+- Desktop exibiu um card ready, dois bloqueados, dois claims historicos e nenhum overflow interno.
+- Em 980, 760, 520 e 390 px nao houve overflow horizontal nem texto cortado nos botoes.
+- A grade de ordens refluiu de tres para uma coluna e o historico de cinco para duas e uma coluna nos breakpoints previstos.
+- No Vite permaneceu somente o fallback esperado do Tauri SQL sem `invoke`.
+
+Tauri e SQLite:
+
+- `npm.cmd run build` passou antes e depois das correcoes com 426 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O release foi iniciado com `APPDATA` e `LOCALAPPDATA` isolados e permaneceu ativo, sem tocar no save real.
+- `npm.cmd run tauri:dev` compilou 421 crates e abriu o executavel debug contra a mesma copia isolada.
+- A copia respondeu `integrity=ok`, mas permaneceu com 27 colunas e sem `operation_outcomes_json`; a migration nativa nao foi alegada como validada.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhuma escrita, fixture ou migration foi aplicada ao banco real.
+
+Limitacoes:
+
+- Save/Reload real de Regional Orders continua pendente ate a camada Tauri aplicar `operation_outcomes_json` ao banco legado.
+- O browser Vite valida UI e engine com mock, mas nao substitui o plugin SQL nativo.
+- A rotacao usa deliberadamente o relogio local e nao possui anti-cheat de data.
+- O historico armazena 20 claims e os IDs de deduplicacao ficam limitados a 60.
+
+Proximo passo sugerido:
+
+- Etapa 100 - Campaign Command Briefing.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
