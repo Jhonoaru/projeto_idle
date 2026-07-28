@@ -197,6 +197,7 @@ Atualizado em: 2026-07-28
 - Etapa 102.5 concluida: QA do arquivo corrigiu a capacidade para 192 claims e impediu IDs invalidos de consumir vagas antes da validacao.
 - Etapa 103 concluida: Campaign Trend Comparison compara o checkpoint atual com o mesmo dia da semana anterior e adiciona projecao e baseline historico derivados.
 - Etapa 103.5 concluida: QA do Campaign Trend Comparison rejeita archives reutilizados de outra guilda/semana e valida 35.025 assercoes em 5.000 cenarios.
+- Etapa 104 concluida: Campaign Performance Records deriva quatro melhores marcas e a maior sequencia secured das oito semanas locais retidas.
 
 Comandos principais:
 
@@ -8084,6 +8085,62 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 104 - Campaign Performance Records.
+
+## Etapa 104 - Campaign Performance Records
+
+Status: concluida.
+
+Recordes derivados:
+
+- O Campaign Archive ganhou um quadro de melhores marcas construido apenas com semanas concluidas que ainda existem no ledger local.
+- `Most orders` identifica a maior quantidade de Regional Orders concluidas em uma semana.
+- `Highest gold` identifica o maior total semanal recebido diretamente de Daily Regional Orders.
+- `Widest reach` identifica a maior cobertura entre as tres regioes de campanha.
+- `Best diversity` compara a porcentagem de familias disponiveis cobertas, mantendo `2/2` equivalente a `3/3` em rotacoes raras.
+- Empates mostram quantas semanas dividem a marca e usam a semana mais recente como referencia visual.
+- `Best secured run` reconstrui a maior sequencia consecutiva de campanhas secured dentro das oito semanas retidas.
+
+Engine e seguranca:
+
+- `buildWeeklyCampaignRecords` recebe o archive canonico ja construido e retorna quatro cards, estado vazio, contagem de semanas e streak.
+- Semanas `No retained record` nao disputam recordes, mesmo que um payload hostil carregue numeros nelas.
+- Valores `NaN`, `Infinity`, negativos ou nao numericos sao normalizados antes de formar placares e labels.
+- O builder nao altera archive, guilda, Regional Orders, rewards, gold ou save.
+- Nenhuma coluna SQLite, JSON persistido, moeda, claim, bonus ou automacao foi adicionada.
+
+Interface:
+
+- O painel `Campaign Performance Records` aparece dentro do Campaign Archive, entre o trend semanal e os oito cards historicos.
+- Cada card mostra sigil, categoria, marca, semana vencedora e estado `Record`, `Open` ou quantidade de empates.
+- O estado sem historico mostra quatro vagas abertas e `No secured run yet` sem inventar zeros como recordes reais.
+- A grade usa quatro colunas no desktop, duas no tablet e uma em telas estreitas.
+
+QA automatizada e visual:
+
+- Harness temporario passou em 140.013 assercoes sobre 20.000 histories deterministicas e foi removido.
+- Foram cobertos archive vazio, maximos independentes, empates, prioridade da semana mais recente, `2/2` contra `3/3`, streak interrompida, payload hostil e imutabilidade.
+- Claims canonicos reais alimentaram o archive e produziram os quatro recordes com a week key correta.
+- No Vite, o estado vazio e uma fixture de tres semanas foram inspecionados visualmente dentro de Operations.
+- A fixture exibiu 3 ordens empatadas, 880g, 3/3 regioes e 2/3 familias sem aceitar ou ativar Regional Order.
+- O painel passou em 1250, 760, 520 e 390 px sem overflow horizontal, corte de cards ou texto fora do container.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 434 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- A fixture visual foi removida antes do build final e nenhum release foi aberto contra o perfil real.
+
+Limitacoes:
+
+- Recordes existem apenas dentro das oito semanas ainda retidas; semanas antigas descartadas nao podem ser reconstruidas.
+- O streak secured tambem e limitado a essa janela e nao representa necessariamente a maior sequencia lifetime da guilda.
+- A etapa e informativa e nao entrega recompensa por quebrar um recorde.
+
+Proximo passo sugerido:
+
+- Etapa 104.5 - QA aprofundada do Campaign Performance Records.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

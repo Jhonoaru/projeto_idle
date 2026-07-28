@@ -14519,6 +14519,27 @@ html[data-client-motion="reduced"] *::after {
 .weekly-campaign-trend > footer span:last-child { border-right: 0; }
 .weekly-campaign-trend > footer strong { display: block; margin-top: 3px; overflow: hidden; color: #bdb17e; font-size: .43rem; text-overflow: ellipsis; text-transform: none; white-space: nowrap; }
 .weekly-campaign-trend > small { display: block; padding: 5px 8px; color: #69746d; font-size: .36rem; text-align: right; }
+.weekly-campaign-records { border-bottom: 1px solid #384034; background: #101512; }
+.weekly-campaign-records > header { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 9px; border-bottom: 1px solid #343b33; }
+.weekly-campaign-records > header > i { display: grid; place-items: center; width: 32px; height: 36px; border: 1px solid #746944; color: #d5c47e; background: #22231b; font: 700 normal .55rem Georgia, serif; }
+.weekly-campaign-records > header span { color: #7f8a82; font-size: .41rem; text-transform: uppercase; }
+.weekly-campaign-records > header h6 { margin: 3px 0; color: #d3c793; font: 700 .61rem Georgia, serif; }
+.weekly-campaign-records > header p { margin: 0; color: #7d8981; font-size: .42rem; }
+.weekly-campaign-records > header > strong { color: #b5a978; font-size: .45rem; white-space: nowrap; }
+.weekly-campaign-records-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: #343b33; }
+.weekly-campaign-records-grid article { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; padding: 7px; background: #151a17; }
+.weekly-campaign-records-grid article > i { display: grid; place-items: center; width: 26px; height: 30px; border: 1px solid #5e6049; color: #d2c483; background: #20251f; font: 700 normal .45rem Georgia, serif; }
+.weekly-campaign-records-grid article span { min-width: 0; }
+.weekly-campaign-records-grid article small, .weekly-campaign-records-grid article strong, .weekly-campaign-records-grid article em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.weekly-campaign-records-grid article small { color: #7b867e; font-size: .37rem; text-transform: uppercase; }
+.weekly-campaign-records-grid article strong { margin-top: 3px; color: #d0c38e; font-size: .48rem; }
+.weekly-campaign-records-grid article em { margin-top: 2px; color: #6f7a73; font: normal .34rem sans-serif; }
+.weekly-campaign-records-grid article > b { color: #9f9367; font-size: .37rem; white-space: nowrap; }
+.weekly-campaign-records.is-empty .weekly-campaign-records-grid article { opacity: .68; }
+.weekly-campaign-records > footer { display: flex; justify-content: space-between; gap: 9px; align-items: center; padding: 6px 9px; border-top: 1px solid #343b33; }
+.weekly-campaign-records > footer span { color: #747f78; font-size: .38rem; text-transform: uppercase; }
+.weekly-campaign-records > footer strong { margin-left: 7px; color: #bdb17e; font-size: .44rem; text-transform: none; }
+.weekly-campaign-records > footer small { overflow: hidden; color: #69746d; font-size: .36rem; text-overflow: ellipsis; white-space: nowrap; }
 .weekly-campaign-archive-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #343b33; }
 .weekly-campaign-archive-grid > article { min-width: 0; border-top: 3px solid #424941; background: #151a17; }
 .weekly-campaign-archive-grid > article.is-recorded { border-top-color: #8f7540; }
@@ -14594,6 +14615,7 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .weekly-campaign-trend-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .weekly-campaign-trend > footer { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .weekly-campaign-records-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-region-mastery > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders-summary { grid-column: 1 / -1; }
@@ -14606,6 +14628,8 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-archive-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .weekly-campaign-trend > header { grid-template-columns: 34px minmax(0, 1fr); }
   .weekly-campaign-trend > header > strong { grid-column: 1 / -1; }
+  .weekly-campaign-records > header { grid-template-columns: 34px minmax(0, 1fr); }
+  .weekly-campaign-records > header > strong { grid-column: 1 / -1; }
   .guild-region-mastery-tabs { grid-template-columns: 1fr; }
   .regional-campaign-orders-grid { grid-template-columns: 1fr; }
   .regional-campaign-orders-history > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -14627,6 +14651,9 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-trend-grid, .weekly-campaign-trend > footer { grid-template-columns: 1fr; }
   .weekly-campaign-trend > footer span { border-right: 0; border-bottom: 1px solid #343b33; }
   .weekly-campaign-trend > small { text-align: left; }
+  .weekly-campaign-records-grid { grid-template-columns: 1fr; }
+  .weekly-campaign-records > footer { align-items: flex-start; flex-direction: column; }
+  .weekly-campaign-records > footer small { white-space: normal; }
   .guild-region-mastery > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders-seal { justify-self: center; }

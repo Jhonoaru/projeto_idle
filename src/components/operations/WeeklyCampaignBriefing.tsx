@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { buildWeeklyCampaignArchive } from "../../game-engine/regional-orders/buildWeeklyCampaignArchive";
 import { buildWeeklyCampaignBriefing } from "../../game-engine/regional-orders/buildWeeklyCampaignBriefing";
+import { buildWeeklyCampaignRecords, type WeeklyCampaignRecords } from "../../game-engine/regional-orders/buildWeeklyCampaignRecords";
 import { buildWeeklyCampaignTrend, type WeeklyCampaignTrend } from "../../game-engine/regional-orders/buildWeeklyCampaignTrend";
 import type { Guild } from "../../shared/types";
 import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
@@ -22,6 +23,7 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
     () => archive ? buildWeeklyCampaignTrend(guild, campaignNow, archive) : undefined,
     [archive, campaignNow, guild],
   );
+  const records = useMemo(() => archive ? buildWeeklyCampaignRecords(archive) : undefined, [archive]);
 
   return (
     <section className={`weekly-campaign-briefing is-${briefing.tone}`} aria-label="Weekly campaign briefing">
@@ -84,6 +86,7 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
             <Summary label="Daily gold recorded" value={`${archive.earnedGold.toLocaleString("en-US")}g`} />
           </div>
           {trend ? <CampaignTrendComparison trend={trend} /> : null}
+          {records ? <CampaignPerformanceRecords records={records} /> : null}
           <div className="weekly-campaign-archive-grid">
             {archive.entries.map((entry, index) => (
               <article className={`is-${entry.status}`} key={entry.weekStartKey}>
@@ -101,6 +104,31 @@ export function WeeklyCampaignBriefing({ guild, onReviewOrders }: WeeklyCampaign
           <footer>Archive depth depends on the retained ledger of up to {archive.ledgerLimit} canonical Regional Order claims.</footer>
         </section>
       ) : null}
+    </section>
+  );
+}
+
+function CampaignPerformanceRecords({ records }: { records: WeeklyCampaignRecords }) {
+  return (
+    <section className={`weekly-campaign-records ${records.hasRecordedHistory ? "" : "is-empty"}`.trim()} aria-label="Campaign performance records">
+      <header>
+        <i aria-hidden="true">PR</i>
+        <div><span>Retained personal bests</span><h6>Campaign Performance Records</h6><p>Best completed-week results inside the retained local archive.</p></div>
+        <strong>{records.recordedWeeks} recorded week{records.recordedWeeks === 1 ? "" : "s"}</strong>
+      </header>
+      <div className="weekly-campaign-records-grid">
+        {records.records.map((record) => (
+          <article key={record.id}>
+            <i aria-hidden="true">{record.sigil}</i>
+            <span><small>{record.label}</small><strong>{record.valueLabel}</strong><em>{record.weekLabel}</em></span>
+            <b>{record.tiedWeeks > 1 ? `${record.tiedWeeks} tied` : record.weekStartKey ? "Record" : "Open"}</b>
+          </article>
+        ))}
+      </div>
+      <footer>
+        <span>Best secured run<strong>{records.bestSecuredStreak} week{records.bestSecuredStreak === 1 ? "" : "s"}</strong></span>
+        <small>{records.bestSecuredStreakLabel}</small>
+      </footer>
     </section>
   );
 }

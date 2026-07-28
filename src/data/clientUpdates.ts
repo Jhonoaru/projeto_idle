@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-104",
+    stage: "Stage 104",
+    title: "Campaign Performance Records",
+    date: "2026-07-28",
+    category: "interface",
+    summary: "Completed campaign weeks now produce retained personal bests without adding rewards, claims or new save data.",
+    highlights: [
+      "Most orders, highest gold, widest regional reach and best objective-family coverage identify their most recent winning week.",
+      "Tied records remain visible, and family diversity compares completion percentages so rare two-family rotations stay fair.",
+      "The best consecutive secured run is reconstructed from the same eight-week local archive and never mutates gameplay.",
+    ],
+    systems: ["Campaign Records", "Weekly Campaign", "Campaign Archive", "Performance Analytics", "Local History"],
+    featured: true,
+  },
+  {
     id: "stage-103-5",
     stage: "Stage 103.5",
     title: "Campaign Trend Comparison QA",
