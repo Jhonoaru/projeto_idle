@@ -46,7 +46,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
           <article className={`is-${order.state}`} key={order.id}>
             <header>
               <i aria-hidden="true">{order.regionSigil}</i>
-              <div><span>{order.regionName}</span><strong>{order.title}</strong></div>
+              <div><span>{order.regionName} / {order.intensityLabel} {order.assignmentLabel}</span><strong>{order.title}</strong></div>
               <b>{statusLabel(order.state)}</b>
             </header>
             <p>{order.description}</p>

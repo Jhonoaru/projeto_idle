@@ -199,6 +199,7 @@ Atualizado em: 2026-07-28
 - Etapa 103.5 concluida: QA do Campaign Trend Comparison rejeita archives reutilizados de outra guilda/semana e valida 35.025 assercoes em 5.000 cenarios.
 - Etapa 104 concluida: Campaign Performance Records deriva quatro melhores marcas e a maior sequencia secured das oito semanas locais retidas.
 - Etapa 104.5 concluida: QA dos Campaign Performance Records ordena, deduplica e valida semanas antes de calcular recordes e streaks.
+- Etapa 105 concluida: Regional Order Variety adiciona nove apresentacoes e 27 combinacoes deterministicas sem alterar IDs, balanceamento ou saves.
 
 Comandos principais:
 
@@ -8195,6 +8196,64 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 105 - Regional Order Variety.
+
+## Etapa 105 - Regional Order Variety
+
+Status: concluida.
+
+Variedade das ordens:
+
+- As tres familias existentes continuam sendo `hunt_minutes`, `boss_defeats` e `contract_successes`.
+- Cada familia ganhou tres apresentacoes de campo com label, titulo e descricao proprios.
+- Hunts alternam entre `Route patrol`, `Field suppression` e `Long watch`.
+- Bosses alternam entre `Threat intercept`, `Priority bounty` e `Apex response`.
+- Contracts alternam entre `Supply escort`, `Field recovery` e `Frontier relief`.
+- Cada apresentacao combina deterministicamente com as tres variantes de target/reward e com a regiao diaria, formando 27 combinacoes por familia ao longo da rotacao.
+
+Intensidade e interface:
+
+- Variantes existentes agora mostram intensidade `Routine`, `Priority`, `Extended` ou `Critical`, conforme a familia.
+- O overline de cada card combina regiao, intensidade e assignment antes do titulo principal.
+- Titulos e descricoes explicam o contexto local sem alterar a atividade real exigida.
+- Destination continua abrindo Hunts, Bosses ou Contracts conforme o objective original.
+- Nenhuma imagem externa, premium, online, evento ou moeda nova foi adicionada.
+
+Compatibilidade e balanceamento:
+
+- O formato `regional-order:cycle:region:objective:variant` permaneceu identico.
+- A selecao de objective, variant, target e reward nao mudou; somente a apresentacao derivada foi ampliada.
+- Active orders antigos sao reconstruidos pelo mesmo ID e mantem snapshot de target/reward valido.
+- Claims historicos continuam canonicos e preservam Weekly Campaign, Archive, Trend e Performance Records.
+- Os rewards permanecem entre 180g e 380g e nenhum target foi aumentado.
+- A apresentacao e deterministica por cycle, region e objective, impedindo reroll ao abrir ou recarregar a tela.
+
+QA automatizada e visual:
+
+- Harness temporario passou em 200.031 assercoes sobre 30.000 ofertas geradas e foi removido.
+- A amostra encontrou os nove titulos e todas as 27 combinacoes objective/intensity/presentation.
+- Foram validados determinismo, tres regioes, formato legado do ID, targets, rewards, destinations e dados de apresentacao.
+- IDs reais da Etapa 104 continuaram disponiveis em 2026-07-20 e preservaram 3 claims e 880g no archive.
+- Fluxos de Hunt, Boss e Contract passaram por accept, progresso ready e claim com o reward original.
+- No Vite, uma Route patrol foi aceita, manteve sua apresentacao no estado ativo, abriu Hunts e foi abandonada com retorno das tres ofertas.
+- O board passou em 1250, 760, 520 e 390 px sem overflow horizontal ou card cortado.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 434 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum fixture, claim, migration ou execucao do release foi aplicado ao perfil real.
+
+Limitacoes:
+
+- As novas variacoes mudam contexto e apresentacao, nao criam novas familias de progresso persistente.
+- Uma rotacao diaria ainda pode oferecer a mesma familia em mais de uma regiao, como acontecia antes.
+- O sistema depende do relogio local e continua sem anti-cheat de data.
+
+Proximo passo sugerido:
+
+- Etapa 105.5 - QA aprofundada do Regional Order Variety.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

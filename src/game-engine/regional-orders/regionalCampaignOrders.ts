@@ -1,6 +1,7 @@
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import {
   getRegionalCampaignOrderVariant,
+  getRegionalCampaignOrderPresentation,
   regionalCampaignOrderClaimLedgerLimit,
   regionalCampaignOrderObjectives,
 } from "../../data/regionalCampaignOrders";
@@ -23,6 +24,8 @@ export interface RegionalCampaignOrderOffer {
   description: string;
   target: number;
   rewardGold: number;
+  assignmentLabel: string;
+  intensityLabel: string;
   destination: "hunts" | "bosses" | "contracts";
 }
 
@@ -133,11 +136,9 @@ function buildOffer(regionId: string, cycleKey: string, objective: GuildRegional
   const region = guildCampaignRegions.find((entry) => entry.id === regionId) ?? guildCampaignRegions[0];
   const safeVariant = Math.max(0, Math.min(2, Math.floor(variant)));
   const values = getRegionalCampaignOrderVariant(objective, safeVariant);
-  const config = objective === "hunt_minutes"
-    ? { title: "Hold the Hunting Line", description: "Complete successful Hunt time in this region after accepting the order.", destination: "hunts" as const }
-    : objective === "boss_defeats"
-      ? { title: "Break the Regional Threat", description: "Defeat a Boss tied to this region after accepting the order.", destination: "bosses" as const }
-      : { title: "Secure the Support Route", description: "Complete a successful Contract tied to this region after accepting the order.", destination: "contracts" as const };
+  const presentationIndex = stableHash(`${cycleKey}:${region.id}:${objective}:presentation`) % 3;
+  const presentation = getRegionalCampaignOrderPresentation(objective, presentationIndex);
+  const destination = objective === "hunt_minutes" ? "hunts" as const : objective === "boss_defeats" ? "bosses" as const : "contracts" as const;
   return {
     id: `regional-order:${cycleKey}:${region.id}:${objective}:${safeVariant}`,
     cycleKey,
@@ -145,11 +146,13 @@ function buildOffer(regionId: string, cycleKey: string, objective: GuildRegional
     regionName: region.name,
     regionSigil: region.sigil,
     objective,
-    title: config.title,
-    description: config.description,
+    title: presentation.title,
+    description: presentation.description,
     target: values.target,
     rewardGold: values.rewardGold,
-    destination: config.destination,
+    assignmentLabel: presentation.assignmentLabel,
+    intensityLabel: values.intensityLabel,
+    destination,
   };
 }
 

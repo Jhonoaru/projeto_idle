@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-105",
+    stage: "Stage 105",
+    title: "Regional Order Variety",
+    date: "2026-07-28",
+    category: "systems",
+    summary: "Daily Regional Orders now rotate distinct assignments and command intensities while preserving every existing objective and reward contract.",
+    highlights: [
+      "Hunts, Bosses and Contracts each gained three deterministic assignment presentations with their own titles and field descriptions.",
+      "Routine, Priority, Extended and Critical intensity labels expose the existing target and reward variants more clearly.",
+      "Legacy IDs, active snapshots, canonical claims, archive totals and single-player balance remain unchanged.",
+    ],
+    systems: ["Regional Order Variety", "Daily Campaign", "Hunts", "Bosses", "Contracts", "Legacy Compatibility"],
+    featured: true,
+  },
+  {
     id: "stage-104-5",
     stage: "Stage 104.5",
     title: "Campaign Performance Records QA",
