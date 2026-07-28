@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MainPanelTab } from "../layout/MainPanel";
-import type { ActivityLogEntry, Character, Guild, GuildDeploymentOrderKind, GuildDeploymentOrderSlotId, GuildDepot, GuildSquadMember, GuildSquadSlotId } from "../../shared/types";
+import type { ActivityLogEntry, Character, Guild, GuildDeploymentOrderKind, GuildDeploymentOrderSlotId, GuildDepot, GuildRegionalOrderDifficulty, GuildSquadMember, GuildSquadSlotId } from "../../shared/types";
 import {
   buildCampaignOperationsDashboard,
   type CampaignOperationTone,
@@ -26,7 +26,7 @@ interface CampaignOperationsDashboardProps {
   onSaveDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId, kind: GuildDeploymentOrderKind, targetId: string, squadSlotId: GuildSquadSlotId) => void;
   onClearDeploymentOrder: (orderSlotId: GuildDeploymentOrderSlotId) => void;
   onClaimCampaignMilestone: (objectiveId: string) => void;
-  onAcceptRegionalOrder: (orderId: string) => void;
+  onAcceptRegionalOrder: (orderId: string, difficulty: GuildRegionalOrderDifficulty) => void;
   onClaimRegionalOrder: () => void;
   onAbandonRegionalOrder: () => void;
 }

@@ -1,12 +1,14 @@
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import {
-  getRegionalCampaignOrderVariant,
+  getRegionalCampaignDifficultyValues,
   getRegionalCampaignOrderPresentation,
+  regionalCampaignDifficultyBands,
   regionalCampaignOrderClaimLedgerLimit,
   regionalCampaignOrderObjectives,
 } from "../../data/regionalCampaignOrders";
 import type {
   Guild,
+  GuildRegionalOrderDifficulty,
   GuildRegionalOrderObjective,
   GuildRegionalOrdersState,
   GuildRegionMasteryProgress,
@@ -26,6 +28,9 @@ export interface RegionalCampaignOrderOffer {
   rewardGold: number;
   assignmentLabel: string;
   intensityLabel: string;
+  difficulty: GuildRegionalOrderDifficulty;
+  difficultyLabel: string;
+  difficultyCommandLabel: string;
   destination: "hunts" | "bosses" | "contracts";
 }
 
@@ -33,6 +38,16 @@ export interface RegionalCampaignOrderStatus extends RegionalCampaignOrderOffer 
   state: "available" | "active" | "ready" | "claimed" | "unavailable";
   progress: number;
   progressPercent: number;
+}
+
+export interface RegionalCampaignOrderDifficultyOption {
+  id: GuildRegionalOrderDifficulty;
+  label: string;
+  description: string;
+  requiredGuildLevel: number;
+  unlocked: boolean;
+  target: number;
+  rewardGold: number;
 }
 
 interface RegionalOrderResult {
@@ -63,19 +78,53 @@ export function buildRegionalCampaignOrderStatuses(guild: Guild, now = new Date(
   const offers = buildRegionalCampaignOffers(guild.id, now);
   const active = state.activeOrder;
   const activeOffer = active
-    ? buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id))
+    ? buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id), active.difficulty ?? "standard")
     : undefined;
-  const visible = activeOffer && !offers.some((offer) => offer.id === activeOffer.id) ? [activeOffer, ...offers] : offers;
+  const visible = activeOffer && !offers.some((offer) => offer.id === activeOffer.id)
+    ? [activeOffer, ...offers]
+    : offers.map((offer) => {
+      if (activeOffer?.id === offer.id) return activeOffer;
+      const claim = state.claimHistory.find((entry) => entry.orderId === offer.id);
+      return claim ? buildOffer(offer.regionId, offer.cycleKey, offer.objective, orderVariant(offer.id), claim.difficulty ?? "standard") : offer;
+    });
   return visible.map((offer) => buildStatus(offer, state, outcomes.regionMastery ?? []));
 }
 
-export function acceptRegionalCampaignOrder(guild: Guild, orderId: string, now = new Date()): RegionalOrderResult {
+export function buildRegionalCampaignDifficultyOptions(
+  guild: Pick<Guild, "level">,
+  order: Pick<RegionalCampaignOrderOffer, "objective" | "id">,
+): RegionalCampaignOrderDifficultyOption[] {
+  const variant = orderVariant(order.id);
+  return regionalCampaignDifficultyBands.map((band) => {
+    const values = getRegionalCampaignDifficultyValues(order.objective, variant, band.id);
+    return {
+      id: band.id,
+      label: band.label,
+      description: band.description,
+      requiredGuildLevel: band.requiredGuildLevel,
+      unlocked: safeInteger(guild.level) >= band.requiredGuildLevel,
+      target: values.target,
+      rewardGold: values.rewardGold,
+    };
+  });
+}
+
+export function acceptRegionalCampaignOrder(
+  guild: Guild,
+  orderId: string,
+  difficulty: GuildRegionalOrderDifficulty = "standard",
+  now = new Date(),
+): RegionalOrderResult {
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
   const state = outcomes.regionalOrders ?? { claimedOrderIds: [], claimHistory: [] };
   if (state.activeOrder) return result(false, guild, "Finish or abandon the active regional order first.");
-  const offer = buildRegionalCampaignOffers(guild.id, now).find((entry) => entry.id === orderId);
-  if (!offer) return result(false, guild, "This regional order is no longer available.");
-  if (state.claimedOrderIds.includes(offer.id)) return result(false, guild, "This regional order was already completed.");
+  const baseOffer = buildRegionalCampaignOffers(guild.id, now).find((entry) => entry.id === orderId);
+  if (!baseOffer) return result(false, guild, "This regional order is no longer available.");
+  if (state.claimedOrderIds.includes(baseOffer.id)) return result(false, guild, "This regional order was already completed.");
+  const option = buildRegionalCampaignDifficultyOptions(guild, baseOffer).find((entry) => entry.id === difficulty);
+  if (!option) return result(false, guild, "This regional difficulty is invalid.");
+  if (!option.unlocked) return result(false, guild, `${option.label} orders require guild level ${option.requiredGuildLevel}.`);
+  const offer = buildOffer(baseOffer.regionId, baseOffer.cycleKey, baseOffer.objective, orderVariant(baseOffer.id), option.id);
   const baseline = getObjectiveValue(outcomes.regionMastery ?? [], offer.regionId, offer.objective);
   const regionalOrders: GuildRegionalOrdersState = {
     ...state,
@@ -84,6 +133,7 @@ export function acceptRegionalCampaignOrder(guild: Guild, orderId: string, now =
       cycleKey: offer.cycleKey,
       regionId: offer.regionId,
       objective: offer.objective,
+      difficulty: offer.difficulty,
       target: offer.target,
       baseline,
       rewardGold: offer.rewardGold,
@@ -91,7 +141,7 @@ export function acceptRegionalCampaignOrder(guild: Guild, orderId: string, now =
     },
   };
   const updated = { ...guild, operationOutcomes: { ...outcomes, regionalOrders } };
-  return result(true, updated, `${offer.title} accepted. Progress starts now.`, buildStatus(offer, regionalOrders, outcomes.regionMastery ?? []));
+  return result(true, updated, `${offer.difficultyLabel} ${offer.title} accepted. Progress starts now.`, buildStatus(offer, regionalOrders, outcomes.regionMastery ?? []));
 }
 
 export function claimRegionalCampaignOrder(guild: Guild, now = new Date()): RegionalOrderResult {
@@ -99,7 +149,7 @@ export function claimRegionalCampaignOrder(guild: Guild, now = new Date()): Regi
   const state = outcomes.regionalOrders ?? { claimedOrderIds: [], claimHistory: [] };
   const active = state.activeOrder;
   if (!active) return result(false, guild, "There is no active regional order to claim.");
-  const offer = buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id));
+  const offer = buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id), active.difficulty ?? "standard");
   if (!sameOrderSnapshot(active, offer)) return result(false, guild, "The active regional order data is invalid.");
   const status = buildStatus(offer, state, outcomes.regionMastery ?? []);
   if (status.progress < offer.target) return result(false, guild, `${offer.title} is still in progress.`, status);
@@ -111,6 +161,7 @@ export function claimRegionalCampaignOrder(guild: Guild, now = new Date()): Regi
       orderId: active.id,
       regionId: active.regionId,
       objective: active.objective,
+      difficulty: active.difficulty ?? "standard",
       rewardGold: active.rewardGold,
       claimedAt,
     }, ...state.claimHistory.filter((entry) => entry.orderId !== active.id)].slice(0, 20),
@@ -132,10 +183,16 @@ export function abandonRegionalCampaignOrder(guild: Guild): RegionalOrderResult 
   return result(true, { ...guild, operationOutcomes: { ...outcomes, regionalOrders } }, "Regional order abandoned. No reward was granted.");
 }
 
-function buildOffer(regionId: string, cycleKey: string, objective: GuildRegionalOrderObjective, variant: number) {
+function buildOffer(
+  regionId: string,
+  cycleKey: string,
+  objective: GuildRegionalOrderObjective,
+  variant: number,
+  difficulty: GuildRegionalOrderDifficulty = "standard",
+) {
   const region = guildCampaignRegions.find((entry) => entry.id === regionId) ?? guildCampaignRegions[0];
   const safeVariant = Math.max(0, Math.min(2, Math.floor(variant)));
-  const values = getRegionalCampaignOrderVariant(objective, safeVariant);
+  const values = getRegionalCampaignDifficultyValues(objective, safeVariant, difficulty);
   const regionIndex = Math.max(0, guildCampaignRegions.findIndex((entry) => entry.id === region.id));
   const presentationIndex = (stableHash(`${cycleKey}:${objective}:presentation`) + regionIndex) % 3;
   const presentation = getRegionalCampaignOrderPresentation(objective, presentationIndex);
@@ -153,6 +210,9 @@ function buildOffer(regionId: string, cycleKey: string, objective: GuildRegional
     rewardGold: values.rewardGold,
     assignmentLabel: presentation.assignmentLabel,
     intensityLabel: values.intensityLabel,
+    difficulty: values.difficultyBand.id,
+    difficultyLabel: values.difficultyBand.label,
+    difficultyCommandLabel: values.difficultyBand.commandLabel,
     destination,
   };
 }

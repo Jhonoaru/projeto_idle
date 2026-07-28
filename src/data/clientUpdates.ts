@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-106",
+    stage: "Stage 106",
+    title: "Campaign Difficulty Bands",
+    date: "2026-07-28",
+    category: "systems",
+    summary: "Regional Orders now let the guild choose Standard, Veteran or Elite command difficulty before accepting a daily assignment.",
+    highlights: [
+      "Standard opens at guild level 1, Veteran at level 3 and Elite at level 5 with clear locked states on the command board.",
+      "Higher bands scale both the objective and guild-gold reward while preserving the daily order ID and one-claim rule.",
+      "Active orders, completed history and command briefings retain the selected band across local SQLite saves, with legacy orders defaulting safely to Standard.",
+    ],
+    systems: ["Campaign Difficulty", "Regional Orders", "Guild Progression", "Command Briefing", "SQLite Compatibility"],
+    featured: true,
+  },
+  {
     id: "stage-105-5",
     stage: "Stage 105.5",
     title: "Regional Order Variety QA",

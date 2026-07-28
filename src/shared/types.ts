@@ -656,11 +656,14 @@ export interface GuildOperationOutcomesState {
 
 export type GuildRegionalOrderObjective = "hunt_minutes" | "boss_defeats" | "contract_successes";
 
+export type GuildRegionalOrderDifficulty = "standard" | "veteran" | "elite";
+
 export interface GuildRegionalOrderActive {
   id: string;
   cycleKey: string;
   regionId: string;
   objective: GuildRegionalOrderObjective;
+  difficulty?: GuildRegionalOrderDifficulty;
   target: number;
   baseline: number;
   rewardGold: number;
@@ -671,6 +674,7 @@ export interface GuildRegionalOrderClaim {
   orderId: string;
   regionId: string;
   objective: GuildRegionalOrderObjective;
+  difficulty?: GuildRegionalOrderDifficulty;
   rewardGold: number;
   claimedAt: string;
 }

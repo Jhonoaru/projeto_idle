@@ -1,11 +1,12 @@
 import { bosses } from "../../data/bosses";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { items } from "../../data/items";
-import { getRegionalCampaignOrderVariant, regionalCampaignOrderClaimLedgerLimit } from "../../data/regionalCampaignOrders";
+import { getRegionalCampaignDifficultyValues, regionalCampaignOrderClaimLedgerLimit } from "../../data/regionalCampaignOrders";
 import type {
   GuildBossOutcome,
   GuildBossOutcomeLoot,
   GuildOperationOutcomesState,
+  GuildRegionalOrderDifficulty,
   GuildRegionalOrderActive,
   GuildRegionalOrderClaim,
   GuildRegionalOrdersState,
@@ -95,13 +96,15 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
     !identity || identity.cycleKey !== candidate.cycleKey || identity.regionId !== candidate.regionId
     || identity.objective !== candidate.objective
   ) return undefined;
-  const canonical = getRegionalCampaignOrderVariant(identity.objective, identity.variant);
+  const difficulty = normalizeRegionalOrderDifficulty(candidate.difficulty);
+  const canonical = getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty);
   if (target !== canonical.target || rewardGold !== canonical.rewardGold) return undefined;
   return {
     id,
     cycleKey: candidate.cycleKey,
     regionId: candidate.regionId,
     objective: candidate.objective,
+    difficulty,
     target,
     baseline: normalizeInteger(candidate.baseline),
     rewardGold,
@@ -118,15 +121,17 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
     || !isValidDate(candidate.claimedAt)
   ) return undefined;
   const rewardGold = normalizeInteger(candidate.rewardGold);
+  const difficulty = normalizeRegionalOrderDifficulty(candidate.difficulty);
   const identity = parseRegionalOrderId(orderId);
   if (
     !identity || identity.regionId !== candidate.regionId || identity.objective !== candidate.objective
-    || rewardGold !== getRegionalCampaignOrderVariant(identity.objective, identity.variant).rewardGold
+    || rewardGold !== getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty).rewardGold
   ) return undefined;
   return {
     orderId,
     regionId: candidate.regionId,
     objective: candidate.objective,
+    difficulty,
     rewardGold,
     claimedAt: new Date(candidate.claimedAt).toISOString(),
   };
@@ -134,6 +139,10 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
 
 function isRegionalOrderObjective(value: unknown): value is GuildRegionalOrderObjective {
   return value === "hunt_minutes" || value === "boss_defeats" || value === "contract_successes";
+}
+
+function normalizeRegionalOrderDifficulty(value: unknown): GuildRegionalOrderDifficulty {
+  return value === "veteran" || value === "elite" ? value : "standard";
 }
 
 function isRegionId(value: unknown): value is string {

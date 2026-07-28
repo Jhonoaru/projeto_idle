@@ -176,6 +176,7 @@ import type {
   EquipmentSlot,
   GuildFacilityId,
   Guild,
+  GuildRegionalOrderDifficulty,
   GuildDeploymentOrderKind,
   GuildDeploymentOrderSlotId,
   GuildLoadoutTemplateSlotId,
@@ -632,10 +633,10 @@ export function App() {
     window.setTimeout(() => { claimingGuildRenownObjectiveRef.current = false; }, 250);
   }
 
-  function handleAcceptRegionalOrder(orderId: string) {
+  function handleAcceptRegionalOrder(orderId: string, difficulty: GuildRegionalOrderDifficulty) {
     if (managingRegionalOrderRef.current) return;
     managingRegionalOrderRef.current = true;
-    const result = acceptRegionalCampaignOrder(guild, orderId);
+    const result = acceptRegionalCampaignOrder(guild, orderId, difficulty);
     if (result.success) setGuild(result.guild);
     prependLog(result.success ? "Regional order accepted" : "Regional order blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { managingRegionalOrderRef.current = false; }, 250);

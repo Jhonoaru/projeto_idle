@@ -1,4 +1,4 @@
-import type { GuildRegionalOrderObjective } from "../shared/types";
+import type { GuildRegionalOrderDifficulty, GuildRegionalOrderObjective } from "../shared/types";
 
 export interface RegionalCampaignOrderVariant {
   target: number;
@@ -12,7 +12,47 @@ export interface RegionalCampaignOrderPresentation {
   description: string;
 }
 
+export interface RegionalCampaignDifficultyBand {
+  id: GuildRegionalOrderDifficulty;
+  label: string;
+  commandLabel: string;
+  description: string;
+  requiredGuildLevel: number;
+  targetMultiplier: number;
+  rewardMultiplier: number;
+}
+
 export const regionalCampaignOrderClaimLedgerLimit = 192;
+
+export const regionalCampaignDifficultyBands: RegionalCampaignDifficultyBand[] = [
+  {
+    id: "standard",
+    label: "Standard",
+    commandLabel: "Field order",
+    description: "The regular objective and treasury reward.",
+    requiredGuildLevel: 1,
+    targetMultiplier: 1,
+    rewardMultiplier: 1,
+  },
+  {
+    id: "veteran",
+    label: "Veteran",
+    commandLabel: "Veteran command",
+    description: "A longer assignment with a stronger treasury return.",
+    requiredGuildLevel: 3,
+    targetMultiplier: 1.5,
+    rewardMultiplier: 1.6,
+  },
+  {
+    id: "elite",
+    label: "Elite",
+    commandLabel: "Elite mandate",
+    description: "The hardest regional mandate and its highest local reward.",
+    requiredGuildLevel: 5,
+    targetMultiplier: 2,
+    rewardMultiplier: 2.25,
+  },
+];
 
 export const regionalCampaignOrderObjectives: GuildRegionalOrderObjective[] = [
   "hunt_minutes",
@@ -62,4 +102,23 @@ export function getRegionalCampaignOrderVariant(objective: GuildRegionalOrderObj
 
 export function getRegionalCampaignOrderPresentation(objective: GuildRegionalOrderObjective, presentation: number) {
   return regionalCampaignOrderPresentations[objective][presentation];
+}
+
+export function getRegionalCampaignDifficultyBand(difficulty: GuildRegionalOrderDifficulty) {
+  return regionalCampaignDifficultyBands.find((band) => band.id === difficulty) ?? regionalCampaignDifficultyBands[0];
+}
+
+export function getRegionalCampaignDifficultyValues(
+  objective: GuildRegionalOrderObjective,
+  variant: number,
+  difficulty: GuildRegionalOrderDifficulty,
+) {
+  const base = getRegionalCampaignOrderVariant(objective, variant);
+  const band = getRegionalCampaignDifficultyBand(difficulty);
+  return {
+    target: Math.max(1, Math.ceil(base.target * band.targetMultiplier)),
+    rewardGold: Math.max(1, Math.round(base.rewardGold * band.rewardMultiplier)),
+    intensityLabel: base.intensityLabel,
+    difficultyBand: band,
+  };
 }

@@ -53,6 +53,7 @@ import type {
   Character,
   EquipmentSlot,
   Guild,
+  GuildRegionalOrderDifficulty,
   GuildDeploymentOrderKind,
   GuildDeploymentOrderSlotId,
   GuildLoadoutTemplateSlotId,
@@ -161,7 +162,7 @@ interface MainPanelProps {
   onRecruitGuildCandidate: (candidateId: string) => void;
   onClaimGuildLevelReward: (level: number) => void;
   onClaimGuildRenownObjective: (objectiveId: string) => void;
-  onAcceptRegionalOrder: (orderId: string) => void;
+  onAcceptRegionalOrder: (orderId: string, difficulty: GuildRegionalOrderDifficulty) => void;
   onClaimRegionalOrder: () => void;
   onAbandonRegionalOrder: () => void;
   onActivateGuildDirective: (directiveId: string) => void;

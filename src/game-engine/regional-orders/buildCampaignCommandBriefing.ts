@@ -59,7 +59,7 @@ export function buildCampaignCommandBriefing(guild: Guild, now = new Date()): Ca
       regionSigil: order.regionSigil,
       title: order.title,
       state: order.state,
-      objectiveLabel: objectiveLabel(order.objective),
+      objectiveLabel: `${order.difficultyLabel} ${objectiveLabel(order.objective)}`,
       progressLabel: `${order.progress}/${order.target} ${objectiveUnit(order.objective)}`,
       progressPercent: order.progressPercent,
       rewardGold: order.rewardGold,
@@ -78,7 +78,7 @@ function getCommand(
     return {
       tone: "ready",
       title: "Regional reward ready",
-      description: `${activeOrder.regionName} has fulfilled ${activeOrder.title}. Claim ${activeOrder.rewardGold.toLocaleString("en-US")} guild gold from Campaign Operations.`,
+      description: `${activeOrder.regionName} has fulfilled its ${activeOrder.difficultyLabel} ${activeOrder.title} order. Claim ${activeOrder.rewardGold.toLocaleString("en-US")} guild gold from Campaign Operations.`,
       actionLabel: "Claim in Operations",
     };
   }
@@ -86,7 +86,7 @@ function getCommand(
     return {
       tone: "active",
       title: `${activeOrder.regionName} order in progress`,
-      description: `${activeOrder.progress}/${activeOrder.target} ${objectiveUnit(activeOrder.objective)} complete. Continue the assigned regional activity when the guild is ready.`,
+      description: `${activeOrder.progress}/${activeOrder.target} ${objectiveUnit(activeOrder.objective)} complete on ${activeOrder.difficultyLabel} difficulty. Continue the assigned regional activity when the guild is ready.`,
       actionLabel: "Review Active Order",
     };
   }

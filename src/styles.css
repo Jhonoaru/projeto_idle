@@ -14569,7 +14569,7 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-summary > div:last-child { border-right: 0; }
 .regional-campaign-orders-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38e; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
 .regional-campaign-orders-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #394037; }
-.regional-campaign-orders-grid article { display: grid; grid-template-rows: auto minmax(44px, 1fr) auto auto; gap: 7px; min-width: 0; min-height: 184px; padding: 8px; border-top: 3px solid #596055; background: #151a17; }
+.regional-campaign-orders-grid article { display: grid; grid-template-rows: auto minmax(44px, 1fr) auto auto auto; gap: 7px; min-width: 0; min-height: 238px; padding: 8px; border-top: 3px solid #596055; background: #151a17; }
 .regional-campaign-orders-grid article.is-active { border-top-color: #b29448; background: #1d1f18; }
 .regional-campaign-orders-grid article.is-ready { border-top-color: #72a16c; background: #172019; }
 .regional-campaign-orders-grid article.is-claimed { border-top-color: #5b715b; opacity: .72; }
@@ -14582,6 +14582,19 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-grid article > header b { color: #a99c6e; font-size: .44rem; text-transform: uppercase; }
 .regional-campaign-orders-grid article.is-ready > header b { color: #92c18e; }
 .regional-campaign-orders-grid article > p { margin: 0; color: #859088; font-size: .47rem; line-height: 1.45; }
+.regional-campaign-difficulty { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+.regional-campaign-difficulty button { display: grid; min-width: 0; min-height: 38px; padding: 4px 3px; border-color: #3f4941; color: #8e988f; background: #111613; }
+.regional-campaign-difficulty button span, .regional-campaign-difficulty button small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-campaign-difficulty button span { font-size: .42rem; text-transform: uppercase; }
+.regional-campaign-difficulty button small { margin-top: 3px; color: #69746d; font: 400 .36rem sans-serif; }
+.regional-campaign-difficulty button.is-selected { border-color: #9a8144; color: #ead594; background: #242319; box-shadow: inset 0 0 0 1px #4f4529; }
+.regional-campaign-difficulty button.is-selected small { color: #b8aa76; }
+.regional-campaign-difficulty button:disabled { opacity: .62; }
+.regional-campaign-difficulty-active { display: flex; justify-content: space-between; gap: 8px; align-items: center; min-height: 30px; padding: 5px 7px; border: 1px solid #444b3d; background: #121712; }
+.regional-campaign-difficulty-active span { color: #78847b; font-size: .4rem; text-transform: uppercase; }
+.regional-campaign-difficulty-active strong { color: #c8ba82; font-size: .45rem; }
+.regional-campaign-orders-grid article.difficulty-veteran { border-top-color: #8f7944; }
+.regional-campaign-orders-grid article.difficulty-elite { border-top-color: #9c6847; }
 .regional-campaign-order-progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; align-items: center; }
 .regional-campaign-order-progress > span { height: 7px; overflow: hidden; border: 1px solid #40473e; background: #0c110e; }
 .regional-campaign-order-progress > span > i { display: block; height: 100%; background: #8c7842; }

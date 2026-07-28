@@ -201,6 +201,7 @@ Atualizado em: 2026-07-28
 - Etapa 104.5 concluida: QA dos Campaign Performance Records ordena, deduplica e valida semanas antes de calcular recordes e streaks.
 - Etapa 105 concluida: Regional Order Variety adiciona nove apresentacoes e 27 combinacoes deterministicas sem alterar IDs, balanceamento ou saves.
 - Etapa 105.5 concluida: QA da Regional Order Variety elimina assignments repetidos na mesma familia diaria e valida compatibilidade historica.
+- Etapa 106 concluida: Campaign Difficulty Bands adiciona escolhas Standard, Veteran e Elite com desbloqueio por nivel, escala de objetivo/reward e saves retrocompativeis.
 
 Comandos principais:
 
@@ -8307,6 +8308,55 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 106 - Campaign Difficulty Bands.
+
+## Etapa 106 - Campaign Difficulty Bands
+
+Status: concluida.
+
+Modelo:
+
+- Cada Regional Campaign Order oferece tres faixas antes do aceite: `Standard`, `Veteran` e `Elite`.
+- `Standard` abre no guild level 1 e usa target/reward base.
+- `Veteran` abre no guild level 3, multiplica target por 1,5 e reward por 1,6.
+- `Elite` abre no guild level 5, multiplica target por 2 e reward por 2,25.
+- Targets fracionarios sao arredondados para cima e rewards para o inteiro mais proximo.
+- O intensity label diario continua descrevendo a variante sorteada; difficulty descreve o compromisso escolhido pelo jogador.
+
+Engine e persistencia:
+
+- O ID diario da ordem nao muda com a dificuldade, preservando o ledger e impedindo multiplos claims da mesma oferta.
+- O snapshot ativo salva difficulty, target e reward canonicos da faixa aceita.
+- Claim history preserva a difficulty para reconstruir cards concluidos e o briefing local.
+- Ordens antigas sem difficulty normalizam para `standard` e mantem target/reward anteriores.
+- Snapshots com target ou reward incompatível com a faixa declarada sao descartados no load.
+- Abandonar nao entrega reward; aceitar faixa bloqueada ou claimar duas vezes nao muta a guilda.
+
+Interface:
+
+- Cada card disponivel ganhou um segmented control compacto com faixa, target e reward antes do aceite.
+- Faixas bloqueadas mostram o guild level exigido e permanecem desabilitadas.
+- O card ativo, o resumo do board, o historico e o Campaign Command Briefing exibem a faixa persistida.
+- Standard, Veteran e Elite usam acentos discretos sem alterar a identidade visual MMORPG do painel.
+
+Validacao:
+
+- Harness temporario passou em 75 assercoes cobrindo tres faixas, tres familias, variantes, desbloqueios, escala monotônica, reload, claim, duplicacao, legado e snapshot forjado.
+- `npm.cmd run build` passou com 434 modulos.
+- O board real no Vite mostrou Standard habilitado no guild level 2 e Veteran/Elite bloqueados para levels 3/5.
+- O layout passou em 1250, 760, 520 e 390 px sem overflow horizontal, card cortado ou texto truncado nos controles.
+- Nenhuma ordem foi aceita no save durante o QA visual; o unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke`.
+- `npm.cmd run tauri:build` passou com executavel release, MSI e instalador NSIS.
+- O SQLite real permaneceu byte a byte inalterado durante a validacao.
+
+Limitacoes:
+
+- A etapa escala apenas target e guild gold; nao adiciona loot exclusivo, Renown ou bonus premium.
+- O desbloqueio usa o guild level local atual e nao cria compra, pagamento ou atalho de monetizacao.
+- O jogo continua offline e nao tenta impedir alteracoes manuais no relogio ou no save local.
+
+Proximo passo sugerido:
+
+- Etapa 106.5 - QA das Campaign Difficulty Bands.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

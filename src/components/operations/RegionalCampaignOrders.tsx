@@ -1,20 +1,25 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { normalizeGuildOperationOutcomes } from "../../game-engine/operations/normalizeGuildOperationOutcomes";
-import { buildRegionalCampaignOrderStatuses, getLocalCampaignCycleKey } from "../../game-engine/regional-orders/regionalCampaignOrders";
-import type { Guild } from "../../shared/types";
+import {
+  buildRegionalCampaignDifficultyOptions,
+  buildRegionalCampaignOrderStatuses,
+  getLocalCampaignCycleKey,
+} from "../../game-engine/regional-orders/regionalCampaignOrders";
+import type { Guild, GuildRegionalOrderDifficulty } from "../../shared/types";
 import type { MainPanelTab } from "../layout/MainPanel";
 
 interface RegionalCampaignOrdersProps {
   guild: Guild;
-  onAccept: (orderId: string) => void;
+  onAccept: (orderId: string, difficulty: GuildRegionalOrderDifficulty) => void;
   onAbandon: () => void;
   onClaim: () => void;
   onOpenSystem: (tab: MainPanelTab) => void;
 }
 
 export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, onOpenSystem }: RegionalCampaignOrdersProps) {
+  const [selectedDifficulties, setSelectedDifficulties] = useState<Record<string, GuildRegionalOrderDifficulty>>({});
   const campaignNow = useLocalCampaignNow();
   const orders = useMemo(() => buildRegionalCampaignOrderStatuses(guild, campaignNow), [campaignNow, guild]);
   const history = useMemo(
@@ -37,33 +42,61 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
           <Summary label="Cycle" value={getLocalCampaignCycleKey(campaignNow)} />
           <Summary label="Available" value={String(available)} />
           <Summary label="Active order" value={active?.regionName ?? "None"} />
-          <Summary label="Status" value={active?.state === "ready" ? "Reward ready" : active ? "In progress" : "Standing by"} />
+          <Summary
+            label="Command"
+            value={active ? `${active.difficultyLabel} / ${active.state === "ready" ? "Reward ready" : "In progress"}` : "Standing by"}
+          />
         </div>
       </header>
 
       <div className="regional-campaign-orders-grid">
-        {orders.map((order) => (
-          <article className={`is-${order.state}`} key={order.id}>
+        {orders.map((order) => {
+          const difficultyOptions = buildRegionalCampaignDifficultyOptions(guild, order);
+          const selectedDifficulty = selectedDifficulties[order.id] ?? "standard";
+          const selectedOption = difficultyOptions.find((option) => option.id === selectedDifficulty) ?? difficultyOptions[0];
+          return (
+          <article className={`is-${order.state} difficulty-${order.difficulty}`} key={order.id}>
             <header>
               <i aria-hidden="true">{order.regionSigil}</i>
-              <div><span>{order.regionName} / {order.intensityLabel} {order.assignmentLabel}</span><strong>{order.title}</strong></div>
+              <div><span>{order.regionName} / {order.difficultyLabel} / {order.intensityLabel} {order.assignmentLabel}</span><strong>{order.title}</strong></div>
               <b>{statusLabel(order.state)}</b>
             </header>
             <p>{order.description}</p>
+            {order.state === "available" ? (
+              <div className="regional-campaign-difficulty" aria-label={`Difficulty for ${order.title}`}>
+                {difficultyOptions.map((option) => (
+                  <button
+                    aria-pressed={selectedDifficulty === option.id}
+                    className={selectedDifficulty === option.id ? "is-selected" : undefined}
+                    disabled={!option.unlocked}
+                    key={option.id}
+                    onClick={() => setSelectedDifficulties((current) => ({ ...current, [order.id]: option.id }))}
+                    title={option.unlocked
+                      ? `${option.description} ${option.target} ${objectiveUnit(order.objective)} / ${option.rewardGold.toLocaleString("en-US")} gold.`
+                      : `Requires guild level ${option.requiredGuildLevel}.`}
+                    type="button"
+                  >
+                    <span>{option.label}</span>
+                    <small>{option.unlocked ? `${option.target} / ${option.rewardGold.toLocaleString("en-US")}g` : `Lv ${option.requiredGuildLevel}`}</small>
+                  </button>
+                ))}
+              </div>
+            ) : <div className="regional-campaign-difficulty-active"><span>{order.difficultyCommandLabel}</span><strong>{order.difficultyLabel} difficulty</strong></div>}
             <div className="regional-campaign-order-progress">
               <span><i style={{ width: `${order.progressPercent}%` }} /></span>
               <strong>{order.progress}/{order.target} {objectiveUnit(order.objective)}</strong>
             </div>
             <footer>
-              <span>Reward <strong>{order.rewardGold.toLocaleString("en-US")} gold</strong></span>
-              {order.state === "available" ? <button onClick={() => onAccept(order.id)} type="button">Accept Order</button> : null}
+              <span>Reward <strong>{(order.state === "available" ? selectedOption.rewardGold : order.rewardGold).toLocaleString("en-US")} gold</strong></span>
+              {order.state === "available" ? <button onClick={() => onAccept(order.id, selectedOption.id)} type="button">Accept Order</button> : null}
               {order.state === "active" ? <button onClick={() => onOpenSystem(order.destination)} type="button">Open {destinationLabel(order.destination)}</button> : null}
               {order.state === "ready" ? <button onClick={onClaim} type="button">Claim Reward</button> : null}
               {order.state === "claimed" ? <button disabled type="button">Completed</button> : null}
               {order.state === "unavailable" ? <button disabled type="button">Order Active</button> : null}
             </footer>
           </article>
-        ))}
+          );
+        })}
       </div>
 
       {history.length > 0 ? (
@@ -73,7 +106,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
             {history.map((entry) => (
               <article key={entry.orderId}>
                 <i aria-hidden="true">{regionSigil(entry.regionId)}</i>
-                <span><strong>{regionName(entry.regionId)}</strong><small>{objectiveHistoryLabel(entry.objective)}</small></span>
+                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {objectiveHistoryLabel(entry.objective)}</small></span>
                 <b>+{entry.rewardGold.toLocaleString("en-US")} gold</b>
                 <time dateTime={entry.claimedAt}>{formatClaimDate(entry.claimedAt)}</time>
               </article>
@@ -126,6 +159,12 @@ function objectiveHistoryLabel(objective: string) {
   if (objective === "hunt_minutes") return "Hunt line secured";
   if (objective === "boss_defeats") return "Regional threat defeated";
   return "Support route secured";
+}
+
+function difficultyHistoryLabel(difficulty?: GuildRegionalOrderDifficulty) {
+  if (difficulty === "elite") return "Elite";
+  if (difficulty === "veteran") return "Veteran";
+  return "Standard";
 }
 
 function formatClaimDate(value: string) {
