@@ -37,6 +37,19 @@ export interface RegionalCampaignRewardTierDefinition {
   bonusItem?: GuildRegionalOrderRewardItem;
 }
 
+export interface RegionalCampaignRewardRouteDefinition {
+  veteran: GuildRegionalOrderRewardItem;
+  elite: GuildRegionalOrderRewardItem;
+}
+
+export interface RegionalCampaignRewardTableDefinition {
+  regionId: string;
+  label: string;
+  shortLabel: string;
+  description: string;
+  routes: Record<GuildRegionalOrderObjective, RegionalCampaignRewardRouteDefinition>;
+}
+
 export const regionalCampaignOrderClaimLedgerLimit = 192;
 
 export const regionalCampaignDifficultyBands: RegionalCampaignDifficultyBand[] = [
@@ -95,6 +108,42 @@ export const regionalCampaignRewardTiers: RegionalCampaignRewardTierDefinition[]
     shortLabel: "Command",
     description: "The highest daily treasury payment with one rare forge reagent for the Guild Depot.",
     bonusItem: { itemId: "enchanted-dust", quantity: 1 },
+  },
+];
+
+export const regionalCampaignRewardTables: RegionalCampaignRewardTableDefinition[] = [
+  {
+    regionId: "thaeron-marches",
+    label: "Thaeron Provision Table",
+    shortLabel: "Thaeron Stores",
+    description: "Practical road, sewer and field supplies recovered around the guild's first marches.",
+    routes: {
+      hunt_minutes: { veteran: { itemId: "old-cloth", quantity: 2 }, elite: { itemId: "iron-ore", quantity: 2 } },
+      boss_defeats: { veteran: { itemId: "spider-silk", quantity: 2 }, elite: { itemId: "broken-fang", quantity: 2 } },
+      contract_successes: { veteran: { itemId: "old-cloth", quantity: 3 }, elite: { itemId: "iron-ore", quantity: 2 } },
+    },
+  },
+  {
+    regionId: "khazgrim-frontier",
+    label: "Khazgrim Ironbound Table",
+    shortLabel: "Ironbound Stores",
+    description: "Ore, guild marks and forge stock secured along Khazgrim's iron roads.",
+    routes: {
+      hunt_minutes: { veteran: { itemId: "iron-ore", quantity: 2 }, elite: { itemId: "iron-ore", quantity: 4 } },
+      boss_defeats: { veteran: { itemId: "dwarf-badge", quantity: 1 }, elite: { itemId: "iron-ore", quantity: 3 } },
+      contract_successes: { veteran: { itemId: "iron-ore", quantity: 2 }, elite: { itemId: "enchanted-dust", quantity: 1 } },
+    },
+  },
+  {
+    regionId: "eldoria-reaches",
+    label: "Eldoria Relic Table",
+    shortLabel: "Relic Stores",
+    description: "Ancient remains and restrained arcane reagents recovered from Eldoria's distant routes.",
+    routes: {
+      hunt_minutes: { veteran: { itemId: "ancient-bone", quantity: 2 }, elite: { itemId: "enchanted-dust", quantity: 1 } },
+      boss_defeats: { veteran: { itemId: "ancient-bone", quantity: 3 }, elite: { itemId: "wyvern-scale", quantity: 1 } },
+      contract_successes: { veteran: { itemId: "old-cloth", quantity: 4 }, elite: { itemId: "enchanted-dust", quantity: 1 } },
+    },
   },
 ];
 
@@ -158,6 +207,30 @@ export function getRegionalCampaignRewardTier(difficulty: GuildRegionalOrderDiff
 
 export function getRegionalCampaignRewardTierById(rewardTier: GuildRegionalOrderRewardTier | undefined) {
   return regionalCampaignRewardTiers.find((tier) => tier.id === rewardTier) ?? regionalCampaignRewardTiers[0];
+}
+
+export function getRegionalCampaignRewardPackage(
+  regionId: string | undefined,
+  objective: GuildRegionalOrderObjective,
+  difficulty: GuildRegionalOrderDifficulty,
+) {
+  const rewardTier = getRegionalCampaignRewardTier(difficulty);
+  const rewardTable = regionalCampaignRewardTables.find((table) => table.regionId === regionId);
+  const route = rewardTable?.routes[objective];
+  const bonusItem = difficulty === "standard"
+    ? undefined
+    : route?.[difficulty] ?? rewardTier.bonusItem;
+  return {
+    rewardTier,
+    rewardTable: rewardTable ?? {
+      regionId: regionId ?? "legacy",
+      label: "Guild Campaign Table",
+      shortLabel: "Guild Stores",
+      description: "The legacy guild-wide campaign reward table.",
+      routes: {} as RegionalCampaignRewardTableDefinition["routes"],
+    },
+    bonusItem: bonusItem ? { ...bonusItem } : undefined,
+  };
 }
 
 export function getRegionalCampaignDifficultyValues(

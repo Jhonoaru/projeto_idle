@@ -2,13 +2,14 @@ import { useMemo, useState } from "react";
 import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { getItemById } from "../../data/items";
+import { getRegionalCampaignRewardPackage } from "../../data/regionalCampaignOrders";
 import { normalizeGuildOperationOutcomes } from "../../game-engine/operations/normalizeGuildOperationOutcomes";
 import {
   buildRegionalCampaignDifficultyOptions,
   buildRegionalCampaignOrderStatuses,
   getLocalCampaignCycleKey,
 } from "../../game-engine/regional-orders/regionalCampaignOrders";
-import type { Guild, GuildRegionalOrderDifficulty, GuildRegionalOrderRewardItem, GuildRegionalOrderRewardTier } from "../../shared/types";
+import type { Guild, GuildRegionalOrderDifficulty, GuildRegionalOrderObjective, GuildRegionalOrderRewardItem, GuildRegionalOrderRewardTier } from "../../shared/types";
 import type { MainPanelTab } from "../layout/MainPanel";
 
 interface RegionalCampaignOrdersProps {
@@ -79,7 +80,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
                     key={option.id}
                     onClick={() => setSelectedDifficulties((current) => ({ ...current, [order.id]: option.id }))}
                     title={option.unlocked
-                      ? `${option.description} ${option.target} ${objectiveUnit(order.objective)} / ${option.rewardGold.toLocaleString("en-US")} gold / ${rewardBonusLabel(option.rewardItem, option.rewardItemLabel)}.`
+                      ? `${option.description} ${option.target} ${objectiveUnit(order.objective)} / ${option.rewardGold.toLocaleString("en-US")} gold / ${option.rewardTableLabel}: ${rewardBonusLabel(option.rewardItem, option.rewardItemLabel)}.`
                       : `Requires guild level ${option.requiredGuildLevel}.`}
                     type="button"
                   >
@@ -95,7 +96,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
             </div>
             <div className={`regional-campaign-reward-tier tier-${rewardPreview.rewardTier}`}>
               <i aria-hidden="true">RC</i>
-              <span><small>Reward tier</small><strong>{rewardPreview.rewardTierLabel}</strong></span>
+              <span><small>{rewardPreview.rewardTableShortLabel}</small><strong>{rewardPreview.rewardTierLabel}</strong></span>
               <b>{rewardPreview.rewardGold.toLocaleString("en-US")}g<small>{rewardBonusLabel(rewardPreview.rewardItem, rewardPreview.rewardItemLabel)}</small></b>
             </div>
             <footer>
@@ -118,7 +119,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
             {history.map((entry) => (
               <article key={entry.orderId}>
                 <i aria-hidden="true">{regionSigil(entry.regionId)}</i>
-                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {rewardTierHistoryLabel(entry.rewardTier)} / {objectiveHistoryLabel(entry.objective)}</small></span>
+                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {rewardTableHistoryLabel(entry.regionId, entry.objective, entry.difficulty, entry.rewardTier)} / {objectiveHistoryLabel(entry.objective)}</small></span>
                 <b>+{entry.rewardGold.toLocaleString("en-US")} gold<small>{historyRewardItemLabel(entry.rewardItem)}</small></b>
                 <time dateTime={entry.claimedAt}>{formatClaimDate(entry.claimedAt)}</time>
               </article>
@@ -183,6 +184,16 @@ function rewardTierHistoryLabel(tier?: GuildRegionalOrderRewardTier) {
   if (tier === "command") return "Command Cache";
   if (tier === "quartermaster") return "Quartermaster Cache";
   return "Field Purse";
+}
+
+function rewardTableHistoryLabel(
+  regionId: string,
+  objective: GuildRegionalOrderObjective,
+  difficulty?: GuildRegionalOrderDifficulty,
+  rewardTier?: GuildRegionalOrderRewardTier,
+) {
+  const table = getRegionalCampaignRewardPackage(regionId, objective, difficulty ?? "standard").rewardTable.shortLabel;
+  return `${table} ${rewardTierHistoryLabel(rewardTier)}`;
 }
 
 function rewardBonusLabel(rewardItem?: GuildRegionalOrderRewardItem, label?: string) {

@@ -4,6 +4,7 @@ import { getItemById } from "../../data/items";
 import {
   getRegionalCampaignDifficultyValues,
   getRegionalCampaignOrderPresentation,
+  getRegionalCampaignRewardPackage,
   getRegionalCampaignRewardTierById,
   regionalCampaignDifficultyBands,
   regionalCampaignOrderClaimLedgerLimit,
@@ -45,6 +46,9 @@ export interface RegionalCampaignOrderOffer {
   rewardTierLabel: string;
   rewardTierShortLabel: string;
   rewardTierDescription: string;
+  rewardTableLabel: string;
+  rewardTableShortLabel: string;
+  rewardTableDescription: string;
   rewardItem?: GuildRegionalOrderRewardItem;
   rewardItemLabel?: string;
   destination: "hunts" | "bosses" | "contracts";
@@ -68,6 +72,9 @@ export interface RegionalCampaignOrderDifficultyOption {
   rewardTierLabel: string;
   rewardTierShortLabel: string;
   rewardTierDescription: string;
+  rewardTableLabel: string;
+  rewardTableShortLabel: string;
+  rewardTableDescription: string;
   rewardItem?: GuildRegionalOrderRewardItem;
   rewardItemLabel?: string;
 }
@@ -102,7 +109,10 @@ export function buildRegionalCampaignOrderStatuses(guild: Guild, now = new Date(
   const offers = buildRegionalCampaignOffers(guild.id, now);
   const active = state.activeOrder;
   const activeOffer = active
-    ? buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id), active.difficulty ?? "standard")
+    ? applyActiveRewardSnapshot(
+      buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id), active.difficulty ?? "standard"),
+      active,
+    )
     : undefined;
   const visible = activeOffer && !offers.some((offer) => offer.id === activeOffer.id)
     ? [activeOffer, ...offers]
@@ -118,12 +128,13 @@ export function buildRegionalCampaignOrderStatuses(guild: Guild, now = new Date(
 
 export function buildRegionalCampaignDifficultyOptions(
   guild: Pick<Guild, "level">,
-  order: Pick<RegionalCampaignOrderOffer, "objective" | "id">,
+  order: Pick<RegionalCampaignOrderOffer, "objective" | "id"> & Partial<Pick<RegionalCampaignOrderOffer, "regionId">>,
 ): RegionalCampaignOrderDifficultyOption[] {
   const variant = orderVariant(order.id);
   if (variant < 0) return [];
   return regionalCampaignDifficultyBands.map((band) => {
     const values = getRegionalCampaignDifficultyValues(order.objective, variant, band.id);
+    const rewardPackage = getRegionalCampaignRewardPackage(order.regionId, order.objective, band.id);
     return {
       id: band.id,
       label: band.label,
@@ -132,12 +143,15 @@ export function buildRegionalCampaignDifficultyOptions(
       unlocked: safeInteger(guild.level) >= band.requiredGuildLevel,
       target: values.target,
       rewardGold: values.rewardGold,
-      rewardTier: values.rewardTier.id,
-      rewardTierLabel: values.rewardTier.label,
-      rewardTierShortLabel: values.rewardTier.shortLabel,
-      rewardTierDescription: values.rewardTier.description,
-      rewardItem: values.rewardTier.bonusItem ? { ...values.rewardTier.bonusItem } : undefined,
-      rewardItemLabel: rewardItemLabel(values.rewardTier.bonusItem),
+      rewardTier: rewardPackage.rewardTier.id,
+      rewardTierLabel: rewardPackage.rewardTier.label,
+      rewardTierShortLabel: rewardPackage.rewardTier.shortLabel,
+      rewardTierDescription: rewardPackage.rewardTier.description,
+      rewardTableLabel: rewardPackage.rewardTable.label,
+      rewardTableShortLabel: rewardPackage.rewardTable.shortLabel,
+      rewardTableDescription: rewardPackage.rewardTable.description,
+      rewardItem: rewardPackage.bonusItem,
+      rewardItemLabel: rewardItemLabel(rewardPackage.bonusItem),
     };
   });
 }
@@ -192,7 +206,10 @@ export function claimRegionalCampaignOrder(
   const state = outcomes.regionalOrders ?? { claimedOrderIds: [], claimHistory: [] };
   const active = state.activeOrder;
   if (!active) return result(false, guild, "There is no active regional order to claim.");
-  const offer = buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id), active.difficulty ?? "standard");
+  const offer = applyActiveRewardSnapshot(
+    buildOffer(active.regionId, active.cycleKey, active.objective, orderVariant(active.id), active.difficulty ?? "standard"),
+    active,
+  );
   if (!sameOrderSnapshot(active, offer)) return result(false, guild, "The active regional order data is invalid.");
   const status = buildStatus(offer, state, outcomes.regionMastery ?? []);
   if (status.progress < offer.target) return result(false, guild, `${offer.title} is still in progress.`, status);
@@ -252,6 +269,7 @@ function buildOffer(
   const region = guildCampaignRegions.find((entry) => entry.id === regionId) ?? guildCampaignRegions[0];
   const safeVariant = Math.max(0, Math.min(2, Math.floor(variant)));
   const values = getRegionalCampaignDifficultyValues(objective, safeVariant, difficulty);
+  const rewardPackage = getRegionalCampaignRewardPackage(region.id, objective, difficulty);
   const regionIndex = Math.max(0, guildCampaignRegions.findIndex((entry) => entry.id === region.id));
   const presentationIndex = (stableHash(`${cycleKey}:${objective}:presentation`) + regionIndex) % 3;
   const presentation = getRegionalCampaignOrderPresentation(objective, presentationIndex);
@@ -272,12 +290,15 @@ function buildOffer(
     difficulty: values.difficultyBand.id,
     difficultyLabel: values.difficultyBand.label,
     difficultyCommandLabel: values.difficultyBand.commandLabel,
-    rewardTier: values.rewardTier.id,
-    rewardTierLabel: values.rewardTier.label,
-    rewardTierShortLabel: values.rewardTier.shortLabel,
-    rewardTierDescription: values.rewardTier.description,
-    rewardItem: values.rewardTier.bonusItem ? { ...values.rewardTier.bonusItem } : undefined,
-    rewardItemLabel: rewardItemLabel(values.rewardTier.bonusItem),
+    rewardTier: rewardPackage.rewardTier.id,
+    rewardTierLabel: rewardPackage.rewardTier.label,
+    rewardTierShortLabel: rewardPackage.rewardTier.shortLabel,
+    rewardTierDescription: rewardPackage.rewardTier.description,
+    rewardTableLabel: rewardPackage.rewardTable.label,
+    rewardTableShortLabel: rewardPackage.rewardTable.shortLabel,
+    rewardTableDescription: rewardPackage.rewardTable.description,
+    rewardItem: rewardPackage.bonusItem,
+    rewardItemLabel: rewardItemLabel(rewardPackage.bonusItem),
     destination,
   };
 }
@@ -305,6 +326,22 @@ function applyClaimRewardSnapshot(offer: RegionalCampaignOrderOffer, claim: Guil
     rewardTierDescription: tier.description,
     rewardItem: claim.rewardItem ? { ...claim.rewardItem } : undefined,
     rewardItemLabel: rewardItemLabel(claim.rewardItem),
+  };
+}
+
+function applyActiveRewardSnapshot(
+  offer: RegionalCampaignOrderOffer,
+  active: NonNullable<GuildRegionalOrdersState["activeOrder"]>,
+) {
+  const tier = getRegionalCampaignRewardTierById(active.rewardTier);
+  return {
+    ...offer,
+    rewardTier: tier.id,
+    rewardTierLabel: tier.label,
+    rewardTierShortLabel: tier.shortLabel,
+    rewardTierDescription: tier.description,
+    rewardItem: active.rewardItem ? { ...active.rewardItem } : undefined,
+    rewardItemLabel: rewardItemLabel(active.rewardItem),
   };
 }
 

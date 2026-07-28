@@ -205,6 +205,7 @@ Atualizado em: 2026-07-28
 - Etapa 106.5 concluida: QA das Campaign Difficulty Bands garante targets 1/2/3 em objetivos unitarios, compatibilidade da API legada e validacao ampla com 191.139 assercoes.
 - Etapa 107 concluida: Campaign Reward Tiers conecta Standard, Veteran e Elite a caches pequenos de treasury e materiais entregues no Guild Depot.
 - Etapa 107.5 concluida: QA dos Campaign Reward Tiers blinda o Guild Depot, impede overflow de stacks e garante claim atomico sem recompensa parcial.
+- Etapa 108 concluida: Regional Reward Tables adiciona nove rotas deterministicas de materiais por regiao e objetivo, preservando snapshots antigos.
 
 Comandos principais:
 
@@ -8496,6 +8497,64 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 108 - Regional Reward Tables.
+
+## Etapa 108 - Regional Reward Tables
+
+Status: concluida.
+
+Modelo:
+
+- Cada uma das tres regioes possui uma tabela local com rotas separadas para Hunt, Boss e Contract.
+- `Standard` continua entregando apenas o Field Purse em gold.
+- `Veteran` e `Elite` usam material e quantidade deterministas da regiao/objetivo; nao existe roll no claim.
+- O gold, target, difficulty unlock e limite de um claim por ordem nao foram alterados.
+
+Tabelas:
+
+- Thaeron Hunts: `Old Cloth x2` / `Iron Ore x2`; Bosses: `Spider Silk x2` / `Broken Fang x2`; Contracts: `Old Cloth x3` / `Iron Ore x2`.
+- Khazgrim Hunts: `Iron Ore x2` / `Iron Ore x4`; Bosses: `Dwarf Badge x1` / `Iron Ore x3`; Contracts: `Iron Ore x2` / `Enchanted Dust x1`.
+- Eldoria Hunts: `Ancient Bone x2` / `Enchanted Dust x1`; Bosses: `Ancient Bone x3` / `Wyvern Scale x1`; Contracts: `Old Cloth x4` / `Enchanted Dust x1`.
+- Em cada linha, o primeiro material e Veteran e o segundo e Elite.
+- Todos os item IDs existem no catalogo, sao stackable e aparecem em crafting, forge, facilities, projects ou exchanges existentes.
+
+Engine e compatibilidade:
+
+- A tabela regional e resolvida pelo `regionId`, objective e difficulty antes do aceite.
+- O item resultante e congelado no active snapshot e reaproveitado no card, briefing, claim e historico.
+- Ordens ativas da Etapa 107 com `Iron Ore x2` ou `Enchanted Dust x1` continuam validas e entregam exatamente o cache antigo.
+- Ordens anteriores aos reward tiers, sem snapshot de tier/item, adotam a nova tabela regional de forma segura.
+- Historicos antigos permanecem verdadeiros e nao sao reescritos para fingir uma recompensa regional diferente.
+- Chamadas legadas sem `regionId` usam a antiga tabela global como fallback.
+- Item ou quantidade fora da tabela regional e do fallback legado sao descartados no load.
+
+Interface:
+
+- O reward row mostra `Thaeron Stores`, `Ironbound Stores` ou `Relic Stores` acima do tier.
+- Tooltips das difficulties antecipam nome completo da tabela, gold e material antes do aceite.
+- Campaign Command Briefing exibe gold e short label regional, com pacote completo no tooltip.
+- O historico combina difficulty, tabela, tier e item realmente congelado.
+
+Validacao:
+
+- Harness temporario passou em 358.575 assercoes.
+- Foram gerados 12.000 boards, 108.000 opcoes e 1.800 claims regionais completos, 600 por difficulty.
+- Novecentos snapshots da Etapa 107 mantiveram item, card, claim e historico originais.
+- As nove rotas, fallback legado, save anterior aos tiers, item forjado, reload, briefing e duplicacao foram validados.
+- Browser confirmou as tres labels regionais no board e no Character Details, sem alertas de interface.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow, texto cortado ou botoes fora da viewport.
+- Nenhuma ordem foi aceita durante o QA visual.
+- `npm run build` passou com TypeScript, Vite e 434 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- As tabelas sao fixas e pequenas; nao incluem rolagem rara, equipamento, temporada ou rotacao semanal.
+- O sistema ainda nao mostra uma tela dedicada com todas as nove rotas fora dos cards diarios.
+
+Proximo passo sugerido:
+
+- Etapa 108.5 - QA das Regional Reward Tables.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

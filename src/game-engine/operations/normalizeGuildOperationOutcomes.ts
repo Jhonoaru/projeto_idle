@@ -3,6 +3,7 @@ import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { items } from "../../data/items";
 import {
   getRegionalCampaignDifficultyValues,
+  getRegionalCampaignRewardPackage,
   regionalCampaignOrderClaimLedgerLimit,
 } from "../../data/regionalCampaignOrders";
 import type {
@@ -103,9 +104,14 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
   ) return undefined;
   const difficulty = normalizeRegionalOrderDifficulty(candidate.difficulty);
   const canonical = getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty);
+  const regionalReward = getRegionalCampaignRewardPackage(identity.regionId, identity.objective, difficulty);
   if (target !== canonical.target || rewardGold !== canonical.rewardGold) return undefined;
-  const rewardTier = normalizeActiveRewardTier(candidate.rewardTier, canonical.rewardTier.id);
-  const rewardItem = normalizeActiveRewardItem(candidate.rewardItem, canonical.rewardTier.bonusItem);
+  const rewardTier = normalizeActiveRewardTier(candidate.rewardTier, regionalReward.rewardTier.id);
+  const rewardItem = normalizeActiveRewardItem(
+    candidate.rewardItem,
+    regionalReward.bonusItem,
+    canonical.rewardTier.bonusItem,
+  );
   if (!rewardTier || rewardItem === null) return undefined;
   return {
     id,
@@ -139,9 +145,12 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
   ) return undefined;
   const legacyReward = candidate.rewardTier === undefined && candidate.rewardItem === undefined;
   const canonicalTier = getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty).rewardTier;
+  const regionalReward = getRegionalCampaignRewardPackage(identity.regionId, identity.objective, difficulty);
   const rewardTier = legacyReward ? "field" : normalizeRewardTier(candidate.rewardTier);
-  const rewardItem = legacyReward ? undefined : normalizeExactRewardItem(candidate.rewardItem, canonicalTier.bonusItem);
-  if (!rewardTier || rewardItem === null || (!legacyReward && rewardTier !== canonicalTier.id)) return undefined;
+  const rewardItem = legacyReward
+    ? undefined
+    : normalizeKnownRewardItem(candidate.rewardItem, [regionalReward.bonusItem, canonicalTier.bonusItem]);
+  if (!rewardTier || rewardItem === null || (!legacyReward && rewardTier !== regionalReward.rewardTier.id)) return undefined;
   return {
     orderId,
     regionId: candidate.regionId,
@@ -164,18 +173,25 @@ function normalizeRewardTier(value: unknown): GuildRegionalOrderRewardTier | und
   return value === "field" || value === "quartermaster" || value === "command" ? value : undefined;
 }
 
-function normalizeActiveRewardItem(value: unknown, canonical: GuildRegionalOrderRewardItem | undefined) {
+function normalizeActiveRewardItem(
+  value: unknown,
+  canonical: GuildRegionalOrderRewardItem | undefined,
+  legacy: GuildRegionalOrderRewardItem | undefined,
+) {
   if (value === undefined) return canonical ? { ...canonical } : undefined;
-  return normalizeExactRewardItem(value, canonical);
+  return normalizeKnownRewardItem(value, [canonical, legacy]);
 }
 
-function normalizeExactRewardItem(value: unknown, canonical: GuildRegionalOrderRewardItem | undefined): GuildRegionalOrderRewardItem | undefined | null {
-  if (!canonical) return value === undefined ? undefined : null;
+function normalizeKnownRewardItem(
+  value: unknown,
+  knownItems: Array<GuildRegionalOrderRewardItem | undefined>,
+): GuildRegionalOrderRewardItem | undefined | null {
+  const candidates = knownItems.filter((item): item is GuildRegionalOrderRewardItem => Boolean(item));
+  if (candidates.length === 0) return value === undefined ? undefined : null;
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<GuildRegionalOrderRewardItem>;
-  return candidate.itemId === canonical.itemId && normalizeInteger(candidate.quantity) === canonical.quantity
-    ? { ...canonical }
-    : null;
+  const matched = candidates.find((item) => candidate.itemId === item.itemId && normalizeInteger(candidate.quantity) === item.quantity);
+  return matched ? { ...matched } : null;
 }
 
 function isRegionalOrderObjective(value: unknown): value is GuildRegionalOrderObjective {

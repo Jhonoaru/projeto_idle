@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-108",
+    stage: "Stage 108",
+    title: "Regional Reward Tables",
+    date: "2026-07-28",
+    category: "systems",
+    summary: "Veteran and Elite Regional Orders now draw their small material cache from the assigned region and objective.",
+    highlights: [
+      "Thaeron, Khazgrim and Eldoria each gained a deterministic reward table with separate Hunt, Boss and Contract routes.",
+      "New orders freeze the regional item on acceptance while Stage 107 active orders and history retain their original guild-wide cache.",
+      "Campaign Operations and the Character Hall briefing expose the regional store before acceptance without adding random rolls or online state.",
+    ],
+    systems: ["Regional Rewards", "Campaign Orders", "Guild Depot", "Legacy Snapshots", "Command Briefing"],
+    featured: true,
+  },
+  {
     id: "stage-107-5",
     stage: "Stage 107.5",
     title: "Campaign Reward Tiers QA",
