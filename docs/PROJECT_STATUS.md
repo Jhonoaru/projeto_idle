@@ -200,6 +200,7 @@ Atualizado em: 2026-07-28
 - Etapa 104 concluida: Campaign Performance Records deriva quatro melhores marcas e a maior sequencia secured das oito semanas locais retidas.
 - Etapa 104.5 concluida: QA dos Campaign Performance Records ordena, deduplica e valida semanas antes de calcular recordes e streaks.
 - Etapa 105 concluida: Regional Order Variety adiciona nove apresentacoes e 27 combinacoes deterministicas sem alterar IDs, balanceamento ou saves.
+- Etapa 105.5 concluida: QA da Regional Order Variety elimina assignments repetidos na mesma familia diaria e valida compatibilidade historica.
 
 Comandos principais:
 
@@ -8254,6 +8255,58 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 105.5 - QA aprofundada do Regional Order Variety.
+
+## Etapa 105.5 - QA aprofundada do Regional Order Variety
+
+Status: concluida.
+
+Falha reproduzida:
+
+- A selecao independente por hash ainda permitia que duas regioes com a mesma familia recebessem o mesmo assignment no mesmo board.
+- Em 2026-07-28, Thaeron e Eldoria exibiam `Map the Outer Routes` simultaneamente.
+- A auditoria encontrou 1.520 boards com repeticao em uma amostra de 5.000 guildas/datas.
+- A repeticao reduzia a variedade percebida mesmo com nove apresentacoes cadastradas.
+
+Correcao de distribuicao:
+
+- O presentation seed agora parte de cycle + objective e recebe o indice canonico da regiao como deslocamento.
+- Duas ou tres regioes com a mesma familia sempre recebem indices de apresentacao diferentes dentro daquele ciclo.
+- O board conhecido passou a mostrar `Suppress the Hunting Grounds`, `Hold the Regional Watch` e `Map the Outer Routes`.
+- A regra continua deterministica e nao depende de abrir, fechar ou recarregar o painel.
+- ID, objective, variant, target, reward, destination e snapshot ativo nao foram alterados.
+
+QA automatizada:
+
+- A reproducao de 5.000 boards caiu de 1.520 repeticoes para zero.
+- Harness temporario passou em 525.011 assercoes sobre 25.000 boards e 75.000 ofertas e foi removido.
+- Foram cobertos determinismo, tres regioes, unicidade dentro da familia, nove titulos e 27 combinacoes objective/intensity/presentation.
+- Uma rotacao anual cobriu todas as 27 combinacoes de regiao, objective e assignment.
+- IDs reais da Etapa 104 preservaram Weekly Briefing, Archive e Performance Records com 3 claims e 880g.
+- Active order de 2026-07-20 continuou visivel no ciclo seguinte com apresentacao completa, target/reward originais e sem mutar o save.
+
+QA visual:
+
+- O board real de 2026-07-28 mostrou tres titles e assignments distintos para as tres Hunts.
+- `Active order` permaneceu `None`; a inspecao nao aceitou, abandonou ou claimou ordem.
+- O board passou em 1250, 760, 520 e 390 px sem overflow horizontal ou card cortado.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 434 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum fixture, claim, migration ou execucao do release foi aplicado ao perfil real.
+
+Limitacoes:
+
+- A unicidade vale dentro da mesma familia no board diario; familias diferentes ja usam conjuntos de titulo distintos.
+- A etapa nao adiciona novas familias de progresso, targets ou rewards.
+- O ciclo continua local e sem anti-cheat para alteracao manual da data.
+
+Proximo passo sugerido:
+
+- Etapa 106 - Campaign Difficulty Bands.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

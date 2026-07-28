@@ -136,7 +136,8 @@ function buildOffer(regionId: string, cycleKey: string, objective: GuildRegional
   const region = guildCampaignRegions.find((entry) => entry.id === regionId) ?? guildCampaignRegions[0];
   const safeVariant = Math.max(0, Math.min(2, Math.floor(variant)));
   const values = getRegionalCampaignOrderVariant(objective, safeVariant);
-  const presentationIndex = stableHash(`${cycleKey}:${region.id}:${objective}:presentation`) % 3;
+  const regionIndex = Math.max(0, guildCampaignRegions.findIndex((entry) => entry.id === region.id));
+  const presentationIndex = (stableHash(`${cycleKey}:${objective}:presentation`) + regionIndex) % 3;
   const presentation = getRegionalCampaignOrderPresentation(objective, presentationIndex);
   const destination = objective === "hunt_minutes" ? "hunts" as const : objective === "boss_defeats" ? "bosses" as const : "contracts" as const;
   return {

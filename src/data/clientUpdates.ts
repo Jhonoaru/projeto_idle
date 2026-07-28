@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-105-5",
+    stage: "Stage 105.5",
+    title: "Regional Order Variety QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Daily boards now distribute distinct assignments whenever multiple regions share the same objective family.",
+    highlights: [
+      "A measured 1,520 repeated boards in 5,000 samples fell to zero without changing order IDs, targets or rewards.",
+      "Canonical region offsets guarantee unique same-family presentations while preserving deterministic reloads and previous-cycle active orders.",
+      "Five hundred twenty-five thousand eleven checks validated distribution, legacy history and the responsive local board.",
+    ],
+    systems: ["Regional Order Variety QA", "Daily Distribution", "Legacy Compatibility", "Campaign Archive", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-105",
     stage: "Stage 105",
     title: "Regional Order Variety",
