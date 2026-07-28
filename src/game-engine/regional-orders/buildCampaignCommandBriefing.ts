@@ -17,6 +17,8 @@ export interface CampaignCommandBriefingOrder {
   progressLabel: string;
   progressPercent: number;
   rewardGold: number;
+  rewardTierLabel: string;
+  rewardBonusLabel: string;
   previousCycle: boolean;
 }
 
@@ -63,6 +65,8 @@ export function buildCampaignCommandBriefing(guild: Guild, now = new Date()): Ca
       progressLabel: `${order.progress}/${order.target} ${objectiveUnit(order.objective)}`,
       progressPercent: order.progressPercent,
       rewardGold: order.rewardGold,
+      rewardTierLabel: order.rewardTierLabel,
+      rewardBonusLabel: order.rewardItem ? `${order.rewardItemLabel ?? order.rewardItem.itemId} x${order.rewardItem.quantity}` : "Treasury only",
       previousCycle: order.cycleKey !== cycleKey,
     })),
   };
@@ -78,7 +82,7 @@ function getCommand(
     return {
       tone: "ready",
       title: "Regional reward ready",
-      description: `${activeOrder.regionName} has fulfilled its ${activeOrder.difficultyLabel} ${activeOrder.title} order. Claim ${activeOrder.rewardGold.toLocaleString("en-US")} guild gold from Campaign Operations.`,
+      description: `${activeOrder.regionName} has fulfilled its ${activeOrder.difficultyLabel} ${activeOrder.title} order. Claim the ${activeOrder.rewardTierLabel}: ${activeOrder.rewardGold.toLocaleString("en-US")} guild gold${activeOrder.rewardItem ? ` and ${activeOrder.rewardItemLabel ?? activeOrder.rewardItem.itemId} x${activeOrder.rewardItem.quantity}` : ""}.`,
       actionLabel: "Claim in Operations",
     };
   }

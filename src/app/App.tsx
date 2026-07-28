@@ -645,8 +645,11 @@ export function App() {
   function handleClaimRegionalOrder() {
     if (managingRegionalOrderRef.current) return;
     managingRegionalOrderRef.current = true;
-    const result = claimRegionalCampaignOrder(guild);
-    if (result.success) setGuild(result.guild);
+    const result = claimRegionalCampaignOrder(guild, depot);
+    if (result.success) {
+      setGuild(result.guild);
+      if (result.guildDepot) setDepot(result.guildDepot);
+    }
     prependLog(result.success ? "Regional order completed" : "Regional order blocked", result.message, result.success ? "success" : "warning");
     window.setTimeout(() => { managingRegionalOrderRef.current = false; }, 250);
   }

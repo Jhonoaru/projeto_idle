@@ -1,7 +1,10 @@
 import { bosses } from "../../data/bosses";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
 import { items } from "../../data/items";
-import { getRegionalCampaignDifficultyValues, regionalCampaignOrderClaimLedgerLimit } from "../../data/regionalCampaignOrders";
+import {
+  getRegionalCampaignDifficultyValues,
+  regionalCampaignOrderClaimLedgerLimit,
+} from "../../data/regionalCampaignOrders";
 import type {
   GuildBossOutcome,
   GuildBossOutcomeLoot,
@@ -9,6 +12,8 @@ import type {
   GuildRegionalOrderDifficulty,
   GuildRegionalOrderActive,
   GuildRegionalOrderClaim,
+  GuildRegionalOrderRewardItem,
+  GuildRegionalOrderRewardTier,
   GuildRegionalOrdersState,
   GuildRegionalOrderObjective,
   GuildRegionMasteryProgress,
@@ -99,6 +104,9 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
   const difficulty = normalizeRegionalOrderDifficulty(candidate.difficulty);
   const canonical = getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty);
   if (target !== canonical.target || rewardGold !== canonical.rewardGold) return undefined;
+  const rewardTier = normalizeActiveRewardTier(candidate.rewardTier, canonical.rewardTier.id);
+  const rewardItem = normalizeActiveRewardItem(candidate.rewardItem, canonical.rewardTier.bonusItem);
+  if (!rewardTier || rewardItem === null) return undefined;
   return {
     id,
     cycleKey: candidate.cycleKey,
@@ -108,6 +116,8 @@ function normalizeRegionalOrderActive(value: unknown): GuildRegionalOrderActive 
     target,
     baseline: normalizeInteger(candidate.baseline),
     rewardGold,
+    rewardTier,
+    rewardItem: rewardItem ?? undefined,
     acceptedAt: new Date(candidate.acceptedAt).toISOString(),
   };
 }
@@ -127,14 +137,45 @@ function normalizeRegionalOrderClaim(value: unknown): GuildRegionalOrderClaim | 
     !identity || identity.regionId !== candidate.regionId || identity.objective !== candidate.objective
     || rewardGold !== getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty).rewardGold
   ) return undefined;
+  const legacyReward = candidate.rewardTier === undefined && candidate.rewardItem === undefined;
+  const canonicalTier = getRegionalCampaignDifficultyValues(identity.objective, identity.variant, difficulty).rewardTier;
+  const rewardTier = legacyReward ? "field" : normalizeRewardTier(candidate.rewardTier);
+  const rewardItem = legacyReward ? undefined : normalizeExactRewardItem(candidate.rewardItem, canonicalTier.bonusItem);
+  if (!rewardTier || rewardItem === null || (!legacyReward && rewardTier !== canonicalTier.id)) return undefined;
   return {
     orderId,
     regionId: candidate.regionId,
     objective: candidate.objective,
     difficulty,
     rewardGold,
+    rewardTier,
+    rewardItem: rewardItem ?? undefined,
     claimedAt: new Date(candidate.claimedAt).toISOString(),
   };
+}
+
+function normalizeActiveRewardTier(value: unknown, canonical: GuildRegionalOrderRewardTier) {
+  if (value === undefined) return canonical;
+  const tier = normalizeRewardTier(value);
+  return tier === canonical ? tier : undefined;
+}
+
+function normalizeRewardTier(value: unknown): GuildRegionalOrderRewardTier | undefined {
+  return value === "field" || value === "quartermaster" || value === "command" ? value : undefined;
+}
+
+function normalizeActiveRewardItem(value: unknown, canonical: GuildRegionalOrderRewardItem | undefined) {
+  if (value === undefined) return canonical ? { ...canonical } : undefined;
+  return normalizeExactRewardItem(value, canonical);
+}
+
+function normalizeExactRewardItem(value: unknown, canonical: GuildRegionalOrderRewardItem | undefined): GuildRegionalOrderRewardItem | undefined | null {
+  if (!canonical) return value === undefined ? undefined : null;
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Partial<GuildRegionalOrderRewardItem>;
+  return candidate.itemId === canonical.itemId && normalizeInteger(candidate.quantity) === canonical.quantity
+    ? { ...canonical }
+    : null;
 }
 
 function isRegionalOrderObjective(value: unknown): value is GuildRegionalOrderObjective {

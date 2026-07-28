@@ -43,7 +43,7 @@ export function CampaignCommandBriefing({ briefing, onOpenOperations }: Campaign
                 role="progressbar"
               ><i style={{ width: `${order.progressPercent}%` }} /></span>
               <strong>{order.progressLabel}</strong>
-              <em>{order.rewardGold.toLocaleString("en-US")}g</em>
+              <em title={`${order.rewardTierLabel}: ${order.rewardBonusLabel}`}>{order.rewardGold.toLocaleString("en-US")}g / {order.rewardTierLabel}</em>
             </div>
           </article>
         ))}

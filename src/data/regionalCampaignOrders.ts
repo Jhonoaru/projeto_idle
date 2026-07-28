@@ -1,4 +1,9 @@
-import type { GuildRegionalOrderDifficulty, GuildRegionalOrderObjective } from "../shared/types";
+import type {
+  GuildRegionalOrderDifficulty,
+  GuildRegionalOrderObjective,
+  GuildRegionalOrderRewardItem,
+  GuildRegionalOrderRewardTier,
+} from "../shared/types";
 
 export interface RegionalCampaignOrderVariant {
   target: number;
@@ -21,6 +26,15 @@ export interface RegionalCampaignDifficultyBand {
   targetMultiplier: number;
   minimumTarget: number;
   rewardMultiplier: number;
+}
+
+export interface RegionalCampaignRewardTierDefinition {
+  id: GuildRegionalOrderRewardTier;
+  difficulty: GuildRegionalOrderDifficulty;
+  label: string;
+  shortLabel: string;
+  description: string;
+  bonusItem?: GuildRegionalOrderRewardItem;
 }
 
 export const regionalCampaignOrderClaimLedgerLimit = 192;
@@ -55,6 +69,32 @@ export const regionalCampaignDifficultyBands: RegionalCampaignDifficultyBand[] =
     targetMultiplier: 2,
     minimumTarget: 3,
     rewardMultiplier: 2.25,
+  },
+];
+
+export const regionalCampaignRewardTiers: RegionalCampaignRewardTierDefinition[] = [
+  {
+    id: "field",
+    difficulty: "standard",
+    label: "Field Purse",
+    shortLabel: "Field",
+    description: "A direct guild treasury payment with no bonus material.",
+  },
+  {
+    id: "quartermaster",
+    difficulty: "veteran",
+    label: "Quartermaster Cache",
+    shortLabel: "Quartermaster",
+    description: "A stronger treasury payment with basic forge stock for the Guild Depot.",
+    bonusItem: { itemId: "iron-ore", quantity: 2 },
+  },
+  {
+    id: "command",
+    difficulty: "elite",
+    label: "Command Cache",
+    shortLabel: "Command",
+    description: "The highest daily treasury payment with one rare forge reagent for the Guild Depot.",
+    bonusItem: { itemId: "enchanted-dust", quantity: 1 },
   },
 ];
 
@@ -112,6 +152,14 @@ export function getRegionalCampaignDifficultyBand(difficulty: GuildRegionalOrder
   return regionalCampaignDifficultyBands.find((band) => band.id === difficulty) ?? regionalCampaignDifficultyBands[0];
 }
 
+export function getRegionalCampaignRewardTier(difficulty: GuildRegionalOrderDifficulty) {
+  return regionalCampaignRewardTiers.find((tier) => tier.difficulty === difficulty) ?? regionalCampaignRewardTiers[0];
+}
+
+export function getRegionalCampaignRewardTierById(rewardTier: GuildRegionalOrderRewardTier | undefined) {
+  return regionalCampaignRewardTiers.find((tier) => tier.id === rewardTier) ?? regionalCampaignRewardTiers[0];
+}
+
 export function getRegionalCampaignDifficultyValues(
   objective: GuildRegionalOrderObjective,
   variant: number,
@@ -119,10 +167,12 @@ export function getRegionalCampaignDifficultyValues(
 ) {
   const base = getRegionalCampaignOrderVariant(objective, variant);
   const band = getRegionalCampaignDifficultyBand(difficulty);
+  const rewardTier = getRegionalCampaignRewardTier(band.id);
   return {
     target: Math.max(band.minimumTarget, Math.ceil(base.target * band.targetMultiplier)),
     rewardGold: Math.max(1, Math.round(base.rewardGold * band.rewardMultiplier)),
     intensityLabel: base.intensityLabel,
     difficultyBand: band,
+    rewardTier,
   };
 }

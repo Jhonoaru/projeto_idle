@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-107",
+    stage: "Stage 107",
+    title: "Campaign Reward Tiers",
+    date: "2026-07-28",
+    category: "systems",
+    summary: "Regional Orders now pair each difficulty with a clear treasury tier and small offline Guild Depot cache.",
+    highlights: [
+      "Standard keeps its Field Purse as guild gold only, Veteran adds Iron Ore x2 and Elite adds Enchanted Dust x1.",
+      "The selected reward package is frozen on acceptance, delivered once on claim and recorded in the local order history.",
+      "Campaign Operations and the Character Hall briefing preview each cache without adding premium currency, online services or random rolls.",
+    ],
+    systems: ["Campaign Rewards", "Regional Orders", "Guild Depot", "Command Briefing", "SQLite Compatibility"],
+    featured: true,
+  },
+  {
     id: "stage-106-5",
     stage: "Stage 106.5",
     title: "Campaign Difficulty Bands QA",

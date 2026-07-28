@@ -1,13 +1,14 @@
 import { useMemo, useState } from "react";
 import { useLocalCampaignNow } from "../hooks/useLocalCampaignNow";
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
+import { getItemById } from "../../data/items";
 import { normalizeGuildOperationOutcomes } from "../../game-engine/operations/normalizeGuildOperationOutcomes";
 import {
   buildRegionalCampaignDifficultyOptions,
   buildRegionalCampaignOrderStatuses,
   getLocalCampaignCycleKey,
 } from "../../game-engine/regional-orders/regionalCampaignOrders";
-import type { Guild, GuildRegionalOrderDifficulty } from "../../shared/types";
+import type { Guild, GuildRegionalOrderDifficulty, GuildRegionalOrderRewardItem, GuildRegionalOrderRewardTier } from "../../shared/types";
 import type { MainPanelTab } from "../layout/MainPanel";
 
 interface RegionalCampaignOrdersProps {
@@ -36,7 +37,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
         <div>
           <span>Daily local dispatches</span>
           <h4>Regional Campaign Orders</h4>
-          <p>Accept one field order at a time. Only operations completed after acceptance count toward its objective.</p>
+          <p>Accept one field order at a time. Higher command bands add a small Guild Depot cache to the treasury reward.</p>
         </div>
         <div className="regional-campaign-orders-summary" aria-live="polite">
           <Summary label="Cycle" value={getLocalCampaignCycleKey(campaignNow)} />
@@ -59,6 +60,7 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
             : difficultyOptions.find((option) => option.unlocked) ?? difficultyOptions[0];
           const selectedDifficulty = selectedOption.id;
           const displayedDifficulty = order.state === "available" ? selectedDifficulty : order.difficulty;
+          const rewardPreview = order.state === "available" ? selectedOption : order;
           return (
           <article className={`is-${order.state} difficulty-${displayedDifficulty}`} key={order.id}>
             <header>
@@ -77,12 +79,12 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
                     key={option.id}
                     onClick={() => setSelectedDifficulties((current) => ({ ...current, [order.id]: option.id }))}
                     title={option.unlocked
-                      ? `${option.description} ${option.target} ${objectiveUnit(order.objective)} / ${option.rewardGold.toLocaleString("en-US")} gold.`
+                      ? `${option.description} ${option.target} ${objectiveUnit(order.objective)} / ${option.rewardGold.toLocaleString("en-US")} gold / ${rewardBonusLabel(option.rewardItem, option.rewardItemLabel)}.`
                       : `Requires guild level ${option.requiredGuildLevel}.`}
                     type="button"
                   >
                     <span>{option.label}</span>
-                    <small>{option.unlocked ? `${option.target} / ${option.rewardGold.toLocaleString("en-US")}g` : `Lv ${option.requiredGuildLevel}`}</small>
+                    <small>{option.unlocked ? `${option.target} / ${option.rewardTierShortLabel}` : `Lv ${option.requiredGuildLevel}`}</small>
                   </button>
                 ))}
               </div>
@@ -91,8 +93,13 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
               <span><i style={{ width: `${order.progressPercent}%` }} /></span>
               <strong>{order.progress}/{order.target} {objectiveUnit(order.objective)}</strong>
             </div>
+            <div className={`regional-campaign-reward-tier tier-${rewardPreview.rewardTier}`}>
+              <i aria-hidden="true">RC</i>
+              <span><small>Reward tier</small><strong>{rewardPreview.rewardTierLabel}</strong></span>
+              <b>{rewardPreview.rewardGold.toLocaleString("en-US")}g<small>{rewardBonusLabel(rewardPreview.rewardItem, rewardPreview.rewardItemLabel)}</small></b>
+            </div>
             <footer>
-              <span>Reward <strong>{(order.state === "available" ? selectedOption.rewardGold : order.rewardGold).toLocaleString("en-US")} gold</strong></span>
+              <span>Reward <strong>{rewardPreview.rewardGold.toLocaleString("en-US")} gold</strong></span>
               {order.state === "available" ? <button onClick={() => onAccept(order.id, selectedOption.id)} type="button">Accept Order</button> : null}
               {order.state === "active" ? <button onClick={() => onOpenSystem(order.destination)} type="button">Open {destinationLabel(order.destination)}</button> : null}
               {order.state === "ready" ? <button onClick={onClaim} type="button">Claim Reward</button> : null}
@@ -111,8 +118,8 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
             {history.map((entry) => (
               <article key={entry.orderId}>
                 <i aria-hidden="true">{regionSigil(entry.regionId)}</i>
-                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {objectiveHistoryLabel(entry.objective)}</small></span>
-                <b>+{entry.rewardGold.toLocaleString("en-US")} gold</b>
+                <span><strong>{regionName(entry.regionId)}</strong><small>{difficultyHistoryLabel(entry.difficulty)} / {rewardTierHistoryLabel(entry.rewardTier)} / {objectiveHistoryLabel(entry.objective)}</small></span>
+                <b>+{entry.rewardGold.toLocaleString("en-US")} gold<small>{historyRewardItemLabel(entry.rewardItem)}</small></b>
                 <time dateTime={entry.claimedAt}>{formatClaimDate(entry.claimedAt)}</time>
               </article>
             ))}
@@ -170,6 +177,25 @@ function difficultyHistoryLabel(difficulty?: GuildRegionalOrderDifficulty) {
   if (difficulty === "elite") return "Elite";
   if (difficulty === "veteran") return "Veteran";
   return "Standard";
+}
+
+function rewardTierHistoryLabel(tier?: GuildRegionalOrderRewardTier) {
+  if (tier === "command") return "Command Cache";
+  if (tier === "quartermaster") return "Quartermaster Cache";
+  return "Field Purse";
+}
+
+function rewardBonusLabel(rewardItem?: GuildRegionalOrderRewardItem, label?: string) {
+  return rewardItem ? `${label ?? rewardItem.itemId} x${rewardItem.quantity}` : "Treasury gold only";
+}
+
+function historyRewardItemLabel(rewardItem?: GuildRegionalOrderRewardItem) {
+  if (!rewardItem) return "Treasury only";
+  try {
+    return `${getItemById(rewardItem.itemId).name} x${rewardItem.quantity}`;
+  } catch {
+    return "Legacy cache";
+  }
 }
 
 function formatClaimDate(value: string) {

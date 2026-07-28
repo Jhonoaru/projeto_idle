@@ -14569,7 +14569,7 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-summary > div:last-child { border-right: 0; }
 .regional-campaign-orders-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38e; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
 .regional-campaign-orders-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #394037; }
-.regional-campaign-orders-grid article { display: grid; grid-template-rows: auto minmax(44px, 1fr) auto auto auto; gap: 7px; min-width: 0; min-height: 238px; padding: 8px; border-top: 3px solid #596055; background: #151a17; }
+.regional-campaign-orders-grid article { display: grid; grid-template-rows: auto minmax(44px, 1fr) auto auto auto auto; gap: 7px; min-width: 0; min-height: 270px; padding: 8px; border-top: 3px solid #596055; background: #151a17; }
 .regional-campaign-orders-grid article.is-active { border-top-color: #b29448; background: #1d1f18; }
 .regional-campaign-orders-grid article.is-ready { border-top-color: #72a16c; background: #172019; }
 .regional-campaign-orders-grid article.is-claimed { border-top-color: #5b715b; opacity: .72; }
@@ -14600,6 +14600,17 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-order-progress > span > i { display: block; height: 100%; background: #8c7842; }
 .regional-campaign-orders-grid article.is-ready .regional-campaign-order-progress > span > i, .regional-campaign-orders-grid article.is-claimed .regional-campaign-order-progress > span > i { background: #66885f; }
 .regional-campaign-order-progress > strong { color: #c6b980; font-size: .46rem; }
+.regional-campaign-reward-tier { display: grid; grid-template-columns: 27px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 38px; padding: 5px 7px; border: 1px solid #41483d; background: #111613; }
+.regional-campaign-reward-tier > i { display: grid; place-items: center; width: 25px; height: 27px; border: 1px solid #5b5e47; color: #cabb7c; background: #1b211c; font: 700 normal .38rem Georgia, serif; }
+.regional-campaign-reward-tier > span, .regional-campaign-reward-tier > b { min-width: 0; }
+.regional-campaign-reward-tier span small, .regional-campaign-reward-tier span strong, .regional-campaign-reward-tier > b small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-campaign-reward-tier span small { color: #707b74; font-size: .34rem; text-transform: uppercase; }
+.regional-campaign-reward-tier span strong { margin-top: 2px; color: #bdb17d; font-size: .43rem; }
+.regional-campaign-reward-tier > b { color: #d2c17c; font-size: .43rem; text-align: right; }
+.regional-campaign-reward-tier > b small { margin-top: 2px; color: #78857c; font: 400 .34rem sans-serif; }
+.regional-campaign-reward-tier.tier-quartermaster { border-color: #665d3e; background: #191914; }
+.regional-campaign-reward-tier.tier-command { border-color: #75513d; background: #1d1714; }
+.regional-campaign-reward-tier.tier-command > i { border-color: #7d5a43; color: #e2b47e; }
 .regional-campaign-orders-grid article > footer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(94px, auto); gap: 7px; align-items: center; }
 .regional-campaign-orders-grid article > footer > span { color: #7f8a82; font-size: .44rem; text-transform: uppercase; }
 .regional-campaign-orders-grid article > footer > span strong { color: #d7c478; }
@@ -14616,7 +14627,8 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-history article strong, .regional-campaign-orders-history article small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .regional-campaign-orders-history article strong { color: #cfc391; font-size: .48rem; }
 .regional-campaign-orders-history article small { margin-top: 3px; color: #7f8a82; font-size: .39rem; }
-.regional-campaign-orders-history article > b { color: #a8bf91; font-size: .43rem; }
+.regional-campaign-orders-history article > b { min-width: 0; color: #a8bf91; font-size: .43rem; }
+.regional-campaign-orders-history article > b small { display: block; margin-top: 2px; overflow: hidden; color: #768278; font: 400 .34rem sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .regional-campaign-orders-history article > time { color: #717d75; font-size: .38rem; text-align: right; }
 .regional-campaign-orders > footer { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 7px 9px; border-top: 1px solid #384038; color: #7f8a82; font-size: .46rem; }
 

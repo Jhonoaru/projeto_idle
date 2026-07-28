@@ -203,6 +203,7 @@ Atualizado em: 2026-07-28
 - Etapa 105.5 concluida: QA da Regional Order Variety elimina assignments repetidos na mesma familia diaria e valida compatibilidade historica.
 - Etapa 106 concluida: Campaign Difficulty Bands adiciona escolhas Standard, Veteran e Elite com desbloqueio por nivel, escala de objetivo/reward e saves retrocompativeis.
 - Etapa 106.5 concluida: QA das Campaign Difficulty Bands garante targets 1/2/3 em objetivos unitarios, compatibilidade da API legada e validacao ampla com 191.139 assercoes.
+- Etapa 107 concluida: Campaign Reward Tiers conecta Standard, Veteran e Elite a caches pequenos de treasury e materiais entregues no Guild Depot.
 
 Comandos principais:
 
@@ -8399,6 +8400,59 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 107 - Campaign Reward Tiers.
+
+## Etapa 107 - Campaign Reward Tiers
+
+Status: concluida.
+
+Modelo:
+
+- Cada difficulty agora possui um reward tier deterministico, sem sorteio adicional no claim.
+- `Standard` oferece `Field Purse`: apenas o guild gold ja previsto pela ordem.
+- `Veteran` oferece `Quartermaster Cache`: guild gold e `Iron Ore x2`.
+- `Elite` oferece `Command Cache`: guild gold e `Enchanted Dust x1`.
+- Os materiais sao pequenos, usam item IDs reais e seguem para o Guild Depot, sem depender do personagem selecionado.
+
+Engine e persistencia:
+
+- Reward tier e bonus item sao congelados no snapshot ativo no momento do aceite.
+- O claim aplica gold uma unica vez, empilha o material no Guild Depot e recalcula a capacity usada.
+- O historico registra o tier e o item realmente associado ao novo claim.
+- Saves antigos com ordem ativa recebem o cache canonico da difficulty ao normalizar.
+- Claims historicos sem os novos campos permanecem como `Field Purse`, sem inventar entrega retroativa de material.
+- Tier divergente, item trocado, quantidade adulterada e claim duplicado falham fechados.
+- A assinatura legada de aceite e a assinatura anterior de claim com `Date` continuam suportadas.
+
+Interface:
+
+- Cada card ganhou uma linha compacta de reward tier com gold e bonus material.
+- O seletor de difficulty antecipa o tipo de cache antes do aceite.
+- Campaign Command Briefing mostra gold e nome do tier; reward pronta descreve todo o pacote.
+- O historico recente mostra cache e material, preservando o visual escuro de client MMORPG.
+
+Validacao:
+
+- Harness temporario passou em 211.012 assercoes.
+- Foram gerados 10.000 boards, 90.000 opcoes e 1.500 fluxos completos, 500 por difficulty.
+- Claims confirmaram entrega exata de zero material no Standard, `Iron Ore x2` no Veteran e `Enchanted Dust x1` no Elite.
+- Compatibilidade cobriu saves ativos antigos, historicos antigos, API legada, tiers forjados, itens adulterados e duplicacao.
+- Browser confirmou previews, bloqueios de guild level e Command Briefing no save mock level 2.
+- O layout passou em 1250, 760, 520 e 390 px sem overflow, cache cortado ou botoes fora da viewport.
+- Nenhuma ordem foi aceita durante o QA visual.
+- `npm.cmd run build` passou com 434 modulos; permaneceu apenas o aviso conhecido de chunk acima de 500 kB.
+- A primeira tentativa de `npm.cmd run tauri:build` foi interrompida pelo timeout de 120 segundos do terminal; a repeticao com janela maior passou integralmente.
+- O Tauri gerou executavel release, MSI e instalador NSIS.
+- O SQLite real permaneceu byte a byte inalterado, com 81.920 bytes e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Os caches sao fixos por difficulty e ainda nao variam por regiao, objetivo ou temporada.
+- Nao ha equipamento raro, roll aleatorio, Renown, moeda premium ou recompensa online nesses tiers.
+- O ciclo continua local e sujeito ao relogio/save da maquina.
+
+Proximo passo sugerido:
+
+- Etapa 107.5 - QA dos Campaign Reward Tiers.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

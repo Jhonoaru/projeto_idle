@@ -1,18 +1,27 @@
 import { guildCampaignRegions } from "../../data/guildCampaignRegions";
+import { createInventoryItem } from "../../data/inventoryFactory";
+import { getItemById } from "../../data/items";
 import {
   getRegionalCampaignDifficultyValues,
   getRegionalCampaignOrderPresentation,
+  getRegionalCampaignRewardTierById,
   regionalCampaignDifficultyBands,
   regionalCampaignOrderClaimLedgerLimit,
   regionalCampaignOrderObjectives,
 } from "../../data/regionalCampaignOrders";
 import type {
   Guild,
+  GuildDepot,
   GuildRegionalOrderDifficulty,
   GuildRegionalOrderObjective,
+  GuildRegionalOrderClaim,
+  GuildRegionalOrderRewardItem,
+  GuildRegionalOrderRewardTier,
   GuildRegionalOrdersState,
   GuildRegionMasteryProgress,
 } from "../../shared/types";
+import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
+import { mergeStackableItems } from "../inventory/mergeStackableItems";
 import { normalizeGuildOperationOutcomes } from "../operations/normalizeGuildOperationOutcomes";
 
 export interface RegionalCampaignOrderOffer {
@@ -31,6 +40,12 @@ export interface RegionalCampaignOrderOffer {
   difficulty: GuildRegionalOrderDifficulty;
   difficultyLabel: string;
   difficultyCommandLabel: string;
+  rewardTier: GuildRegionalOrderRewardTier;
+  rewardTierLabel: string;
+  rewardTierShortLabel: string;
+  rewardTierDescription: string;
+  rewardItem?: GuildRegionalOrderRewardItem;
+  rewardItemLabel?: string;
   destination: "hunts" | "bosses" | "contracts";
 }
 
@@ -48,6 +63,12 @@ export interface RegionalCampaignOrderDifficultyOption {
   unlocked: boolean;
   target: number;
   rewardGold: number;
+  rewardTier: GuildRegionalOrderRewardTier;
+  rewardTierLabel: string;
+  rewardTierShortLabel: string;
+  rewardTierDescription: string;
+  rewardItem?: GuildRegionalOrderRewardItem;
+  rewardItemLabel?: string;
 }
 
 interface RegionalOrderResult {
@@ -55,6 +76,8 @@ interface RegionalOrderResult {
   guild: Guild;
   message: string;
   order?: RegionalCampaignOrderStatus;
+  guildDepot?: GuildDepot;
+  rewardItem?: GuildRegionalOrderRewardItem & { label: string };
 }
 
 export function getLocalCampaignCycleKey(now = new Date()) {
@@ -85,7 +108,9 @@ export function buildRegionalCampaignOrderStatuses(guild: Guild, now = new Date(
     : offers.map((offer) => {
       if (activeOffer?.id === offer.id) return activeOffer;
       const claim = state.claimHistory.find((entry) => entry.orderId === offer.id);
-      return claim ? buildOffer(offer.regionId, offer.cycleKey, offer.objective, orderVariant(offer.id), claim.difficulty ?? "standard") : offer;
+      return claim
+        ? applyClaimRewardSnapshot(buildOffer(offer.regionId, offer.cycleKey, offer.objective, orderVariant(offer.id), claim.difficulty ?? "standard"), claim)
+        : offer;
     });
   return visible.map((offer) => buildStatus(offer, state, outcomes.regionMastery ?? []));
 }
@@ -106,6 +131,12 @@ export function buildRegionalCampaignDifficultyOptions(
       unlocked: safeInteger(guild.level) >= band.requiredGuildLevel,
       target: values.target,
       rewardGold: values.rewardGold,
+      rewardTier: values.rewardTier.id,
+      rewardTierLabel: values.rewardTier.label,
+      rewardTierShortLabel: values.rewardTier.shortLabel,
+      rewardTierDescription: values.rewardTier.description,
+      rewardItem: values.rewardTier.bonusItem ? { ...values.rewardTier.bonusItem } : undefined,
+      rewardItemLabel: rewardItemLabel(values.rewardTier.bonusItem),
     };
   });
 }
@@ -140,6 +171,8 @@ export function acceptRegionalCampaignOrder(
       target: offer.target,
       baseline,
       rewardGold: offer.rewardGold,
+      rewardTier: offer.rewardTier,
+      rewardItem: offer.rewardItem ? { ...offer.rewardItem } : undefined,
       acceptedAt: safeDate(now).toISOString(),
     },
   };
@@ -147,7 +180,13 @@ export function acceptRegionalCampaignOrder(
   return result(true, updated, `${offer.difficultyLabel} ${offer.title} accepted. Progress starts now.`, buildStatus(offer, regionalOrders, outcomes.regionMastery ?? []));
 }
 
-export function claimRegionalCampaignOrder(guild: Guild, now = new Date()): RegionalOrderResult {
+export function claimRegionalCampaignOrder(
+  guild: Guild,
+  guildDepotOrNow?: GuildDepot | Date,
+  claimTime = new Date(),
+): RegionalOrderResult {
+  const now = guildDepotOrNow instanceof Date ? guildDepotOrNow : claimTime;
+  const guildDepot = normalizeGuildDepot(guildDepotOrNow instanceof Date ? undefined : guildDepotOrNow);
   const outcomes = normalizeGuildOperationOutcomes(guild.operationOutcomes);
   const state = outcomes.regionalOrders ?? { claimedOrderIds: [], claimHistory: [] };
   const active = state.activeOrder;
@@ -166,16 +205,27 @@ export function claimRegionalCampaignOrder(guild: Guild, now = new Date()): Regi
       objective: active.objective,
       difficulty: active.difficulty ?? "standard",
       rewardGold: active.rewardGold,
+      rewardTier: active.rewardTier ?? offer.rewardTier,
+      rewardItem: active.rewardItem ? { ...active.rewardItem } : undefined,
       claimedAt,
     }, ...state.claimHistory.filter((entry) => entry.orderId !== active.id)].slice(0, 20),
   };
   const gold = safeInteger(guild.gold);
+  const rewardedDepot = applyRewardItem(guildDepot, active.rewardItem);
+  const receivedItem = active.rewardItem && rewardedDepot !== guildDepot
+    ? { ...active.rewardItem, label: rewardItemLabel(active.rewardItem) ?? active.rewardItem.itemId }
+    : undefined;
   const updated = {
     ...guild,
     gold: Math.min(Number.MAX_SAFE_INTEGER, gold + active.rewardGold),
     operationOutcomes: { ...outcomes, regionalOrders },
   };
-  return result(true, updated, `${offer.title} completed. ${active.rewardGold.toLocaleString("en-US")} gold added to the guild treasury.`, { ...status, state: "claimed" });
+  const itemMessage = receivedItem ? ` ${receivedItem.label} x${receivedItem.quantity} sent to the Guild Depot.` : "";
+  return {
+    ...result(true, updated, `${offer.title} completed. ${active.rewardGold.toLocaleString("en-US")} gold added to the guild treasury.${itemMessage}`, { ...status, state: "claimed" }),
+    guildDepot: rewardedDepot,
+    rewardItem: receivedItem,
+  };
 }
 
 export function abandonRegionalCampaignOrder(guild: Guild): RegionalOrderResult {
@@ -216,6 +266,12 @@ function buildOffer(
     difficulty: values.difficultyBand.id,
     difficultyLabel: values.difficultyBand.label,
     difficultyCommandLabel: values.difficultyBand.commandLabel,
+    rewardTier: values.rewardTier.id,
+    rewardTierLabel: values.rewardTier.label,
+    rewardTierShortLabel: values.rewardTier.shortLabel,
+    rewardTierDescription: values.rewardTier.description,
+    rewardItem: values.rewardTier.bonusItem ? { ...values.rewardTier.bonusItem } : undefined,
+    rewardItemLabel: rewardItemLabel(values.rewardTier.bonusItem),
     destination,
   };
 }
@@ -233,6 +289,19 @@ function buildStatus(offer: RegionalCampaignOrderOffer, state: GuildRegionalOrde
   };
 }
 
+function applyClaimRewardSnapshot(offer: RegionalCampaignOrderOffer, claim: GuildRegionalOrderClaim) {
+  const tier = getRegionalCampaignRewardTierById(claim.rewardTier);
+  return {
+    ...offer,
+    rewardTier: tier.id,
+    rewardTierLabel: tier.label,
+    rewardTierShortLabel: tier.shortLabel,
+    rewardTierDescription: tier.description,
+    rewardItem: claim.rewardItem ? { ...claim.rewardItem } : undefined,
+    rewardItemLabel: rewardItemLabel(claim.rewardItem),
+  };
+}
+
 function getObjectiveValue(progress: GuildRegionMasteryProgress[], regionId: string, objective: GuildRegionalOrderObjective) {
   const region = progress.find((entry) => entry.regionId === regionId);
   if (!region) return 0;
@@ -247,7 +316,43 @@ function orderVariant(orderId: string) {
 }
 
 function sameOrderSnapshot(active: NonNullable<GuildRegionalOrdersState["activeOrder"]>, offer: RegionalCampaignOrderOffer) {
-  return active.id === offer.id && active.target === offer.target && active.rewardGold === offer.rewardGold;
+  return active.id === offer.id
+    && active.target === offer.target
+    && active.rewardGold === offer.rewardGold
+    && (active.rewardTier ?? "field") === offer.rewardTier
+    && sameRewardItem(active.rewardItem, offer.rewardItem);
+}
+
+function sameRewardItem(left: GuildRegionalOrderRewardItem | undefined, right: GuildRegionalOrderRewardItem | undefined) {
+  return left === undefined && right === undefined
+    || Boolean(left && right && left.itemId === right.itemId && left.quantity === right.quantity);
+}
+
+function rewardItemLabel(rewardItem: GuildRegionalOrderRewardItem | undefined) {
+  if (!rewardItem) return undefined;
+  try {
+    return getItemById(rewardItem.itemId).name;
+  } catch {
+    return undefined;
+  }
+}
+
+function normalizeGuildDepot(value: GuildDepot | undefined): GuildDepot {
+  const items = Array.isArray(value?.items) ? value.items : [];
+  return {
+    goldStored: safeInteger(value?.goldStored),
+    items,
+    capacityUsed: calculateCapacityUsed(items),
+  };
+}
+
+function applyRewardItem(depot: GuildDepot, rewardItem: GuildRegionalOrderRewardItem | undefined) {
+  if (!rewardItem || !rewardItemLabel(rewardItem)) return depot;
+  const items = mergeStackableItems([
+    ...depot.items,
+    createInventoryItem(rewardItem.itemId, rewardItem.quantity, "guildDepot"),
+  ]);
+  return { ...depot, items, capacityUsed: calculateCapacityUsed(items) };
 }
 
 function stableHash(value: string) {

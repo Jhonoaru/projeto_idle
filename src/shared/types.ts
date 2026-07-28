@@ -658,6 +658,13 @@ export type GuildRegionalOrderObjective = "hunt_minutes" | "boss_defeats" | "con
 
 export type GuildRegionalOrderDifficulty = "standard" | "veteran" | "elite";
 
+export type GuildRegionalOrderRewardTier = "field" | "quartermaster" | "command";
+
+export interface GuildRegionalOrderRewardItem {
+  itemId: string;
+  quantity: number;
+}
+
 export interface GuildRegionalOrderActive {
   id: string;
   cycleKey: string;
@@ -667,6 +674,8 @@ export interface GuildRegionalOrderActive {
   target: number;
   baseline: number;
   rewardGold: number;
+  rewardTier?: GuildRegionalOrderRewardTier;
+  rewardItem?: GuildRegionalOrderRewardItem;
   acceptedAt: string;
 }
 
@@ -676,6 +685,8 @@ export interface GuildRegionalOrderClaim {
   objective: GuildRegionalOrderObjective;
   difficulty?: GuildRegionalOrderDifficulty;
   rewardGold: number;
+  rewardTier?: GuildRegionalOrderRewardTier;
+  rewardItem?: GuildRegionalOrderRewardItem;
   claimedAt: string;
 }
 
