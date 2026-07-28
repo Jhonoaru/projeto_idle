@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-104-5",
+    stage: "Stage 104.5",
+    title: "Campaign Performance Records QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Campaign records now reconstruct chronology before choosing winners or counting secured runs.",
+    highlights: [
+      "Unsorted and duplicated weeks no longer inflate history, ties or secured streaks.",
+      "Only valid Monday-Sunday ranges enter the newest eight-week record window, and missing weeks break streaks correctly.",
+      "Missing archives and hostile calendar data normalize to a safe empty board without changing Regional Orders or save data.",
+    ],
+    systems: ["Campaign Records QA", "Calendar Validation", "Campaign Archive", "Defensive Analytics", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-104",
     stage: "Stage 104",
     title: "Campaign Performance Records",

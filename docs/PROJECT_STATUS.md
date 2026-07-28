@@ -198,6 +198,7 @@ Atualizado em: 2026-07-28
 - Etapa 103 concluida: Campaign Trend Comparison compara o checkpoint atual com o mesmo dia da semana anterior e adiciona projecao e baseline historico derivados.
 - Etapa 103.5 concluida: QA do Campaign Trend Comparison rejeita archives reutilizados de outra guilda/semana e valida 35.025 assercoes em 5.000 cenarios.
 - Etapa 104 concluida: Campaign Performance Records deriva quatro melhores marcas e a maior sequencia secured das oito semanas locais retidas.
+- Etapa 104.5 concluida: QA dos Campaign Performance Records ordena, deduplica e valida semanas antes de calcular recordes e streaks.
 
 Comandos principais:
 
@@ -8141,6 +8142,59 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 104.5 - QA aprofundada do Campaign Performance Records.
+
+## Etapa 104.5 - QA aprofundada do Campaign Performance Records
+
+Status: concluida.
+
+Falhas reproduzidas e corrigidas:
+
+- Um archive fora de ordem escolhia a semana mais antiga como vencedora de um empate, contrariando a regra visual de priorizar a mais recente.
+- Semanas duplicadas aumentavam `recordedWeeks`, `tiedWeeks` e o streak secured.
+- Duas campanhas secured vizinhas no array eram tratadas como consecutivas mesmo com uma semana calendario ausente entre elas.
+- `buildWeeklyCampaignRecords(null)` lancava excecao em vez de produzir o estado vazio seguro.
+- A reproducao original exibiu 3 semanas registradas para apenas 2 week keys unicas, streak incorreto de 3 e range invertido `2026-07-20 - 2026-07-12`.
+
+Normalizacao cronologica:
+
+- Entradas agora exigem week keys reais, inicio na segunda-feira, fim no domingo e intervalo exato de seis dias.
+- O builder ordena as semanas da mais recente para a mais antiga sem alterar o array recebido.
+- Week keys duplicadas contam apenas uma vez, e somente as oito semanas validas mais recentes permanecem elegiveis.
+- Empates usam a primeira vencedora depois da ordenacao cronologica, preservando a referencia mais recente.
+- Streaks secured exigem diferenca exata de sete dias; gaps, semanas recorded e semanas empty interrompem a sequencia.
+- Range labels vazios recebem fallback com as duas week keys canonicas.
+
+QA automatizada:
+
+- O caso que falhava passou com 2 semanas unicas, 2 empates, referencia em `2026-07-20`, streak 1 e archive nulo seguro.
+- Harness temporario passou em 140.027 assercoes sobre 20.000 histories deterministicas e foi removido.
+- Foram cobertos `null`, `undefined`, entries ausentes, datas impossiveis, weekdays errados, ranges quebrados, status desconhecido, duplicatas, gaps, shuffle e limite de oito semanas.
+- Uma sequencia real de tres campanhas secured sobreviveu ao shuffle; uma sequencia de duas separada por gap foi corretamente dividida.
+- Claims canonicos continuaram produzindo a week key esperada e nenhum input foi mutado.
+
+QA visual:
+
+- Campaign Performance Records abriu no Campaign Archive com quatro cards e estado vazio coerente.
+- O painel foi validado em 1250, 760, 520 e 390 px, passando de quatro para duas e uma coluna sem overflow horizontal.
+- `Active order` permaneceu `None`; abrir o archive nao alterou gameplay nem criou claim.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou no estado final com 434 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum fixture, claim, migration ou execucao do release foi aplicado ao perfil real.
+
+Limitacoes:
+
+- Recordes e streaks continuam limitados as oito semanas retidas, nao ao historico lifetime completo.
+- A validacao usa calendario local derivado das week keys, sem servidor ou anti-cheat de relogio.
+- O QA interativo ocorreu no Vite; o release Tauri foi apenas empacotado.
+
+Proximo passo sugerido:
+
+- Etapa 105 - Regional Order Variety.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

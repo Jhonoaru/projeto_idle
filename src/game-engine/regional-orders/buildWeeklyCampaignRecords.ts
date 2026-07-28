@@ -28,6 +28,13 @@ interface RecordDefinition {
   valueLabel: (entry: WeeklyCampaignArchiveEntry) => string;
 }
 
+interface NormalizedArchiveEntry extends WeeklyCampaignArchiveEntry {
+  weekStartTime: number;
+}
+
+const dayMilliseconds = 24 * 60 * 60 * 1000;
+const weekMilliseconds = 7 * dayMilliseconds;
+
 const recordDefinitions: RecordDefinition[] = [
   { id: "orders", label: "Most orders", sigil: "O", score: (entry) => safeBoundedCount(entry.completedOrders, 21), valueLabel: (entry) => `${safeBoundedCount(entry.completedOrders, 21)} completed` },
   { id: "gold", label: "Highest gold", sigil: "G", score: (entry) => safeCount(entry.earnedGold), valueLabel: (entry) => `${safeCount(entry.earnedGold).toLocaleString("en-US")}g` },
@@ -35,9 +42,10 @@ const recordDefinitions: RecordDefinition[] = [
   { id: "objectives", label: "Best diversity", sigil: "F", score: objectivePercent, valueLabel: objectiveLabel },
 ];
 
-export function buildWeeklyCampaignRecords(archive: WeeklyCampaignArchive): WeeklyCampaignRecords {
-  const recorded = Array.isArray(archive.entries) ? archive.entries.filter(isRecordedEntry) : [];
-  const streak = getBestSecuredStreak(Array.isArray(archive.entries) ? archive.entries : []);
+export function buildWeeklyCampaignRecords(archive: WeeklyCampaignArchive | null | undefined): WeeklyCampaignRecords {
+  const entries = normalizeArchiveEntries(archive);
+  const recorded = entries.filter(isRecordedEntry);
+  const streak = getBestSecuredStreak(entries);
   return {
     hasRecordedHistory: recorded.length > 0,
     recordedWeeks: recorded.length,
@@ -65,15 +73,21 @@ function buildRecord(definition: RecordDefinition, entries: WeeklyCampaignArchiv
   };
 }
 
-function getBestSecuredStreak(entries: WeeklyCampaignArchiveEntry[]) {
+function getBestSecuredStreak(entries: NormalizedArchiveEntry[]) {
   let bestStart = -1;
   let bestLength = 0;
   let currentStart = -1;
   let currentLength = 0;
+  let previousStartTime: number | null = null;
   entries.forEach((entry, index) => {
     if (entry?.status === "secured") {
-      if (currentLength === 0) currentStart = index;
-      currentLength += 1;
+      const followsPreviousWeek = previousStartTime !== null && previousStartTime - entry.weekStartTime === weekMilliseconds;
+      if (currentLength === 0 || !followsPreviousWeek) {
+        currentStart = index;
+        currentLength = 1;
+      } else {
+        currentLength += 1;
+      }
       if (currentLength > bestLength) {
         bestStart = currentStart;
         bestLength = currentLength;
@@ -82,6 +96,7 @@ function getBestSecuredStreak(entries: WeeklyCampaignArchiveEntry[]) {
       currentStart = -1;
       currentLength = 0;
     }
+    previousStartTime = entry.weekStartTime;
   });
   if (bestStart < 0 || bestLength === 0) return { length: 0, label: "No secured run yet" };
   const newest = entries[bestStart];
@@ -90,6 +105,47 @@ function getBestSecuredStreak(entries: WeeklyCampaignArchiveEntry[]) {
     length: bestLength,
     label: bestLength === 1 ? newest.rangeLabel : `${oldest.weekStartKey} - ${newest.weekEndKey}`,
   };
+}
+
+function normalizeArchiveEntries(archive: WeeklyCampaignArchive | null | undefined): NormalizedArchiveEntry[] {
+  const source = archive && Array.isArray(archive.entries) ? archive.entries : [];
+  const normalized = source.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const weekStartTime = parseLocalDateKey(entry.weekStartKey);
+    const weekEndTime = parseLocalDateKey(entry.weekEndKey);
+    if (weekStartTime === null || weekEndTime === null || weekEndTime - weekStartTime !== 6 * dayMilliseconds) return [];
+    if (new Date(weekStartTime).getUTCDay() !== 1 || new Date(weekEndTime).getUTCDay() !== 0) return [];
+    if (entry.status !== "empty" && entry.status !== "recorded" && entry.status !== "secured") return [];
+    return [{
+      ...entry,
+      weekStartKey: formatUtcDateKey(weekStartTime),
+      weekEndKey: formatUtcDateKey(weekEndTime),
+      rangeLabel: typeof entry.rangeLabel === "string" && entry.rangeLabel.trim() ? entry.rangeLabel.trim() : `${formatUtcDateKey(weekStartTime)} / ${formatUtcDateKey(weekEndTime)}`,
+      weekStartTime,
+    }];
+  }).sort((left, right) => right.weekStartTime - left.weekStartTime);
+  const unique = new Map<string, NormalizedArchiveEntry>();
+  normalized.forEach((entry) => {
+    if (!unique.has(entry.weekStartKey)) unique.set(entry.weekStartKey, entry);
+  });
+  return [...unique.values()].slice(0, 8);
+}
+
+function parseLocalDateKey(value: unknown) {
+  if (typeof value !== "string") return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const time = Date.UTC(year, month - 1, day);
+  const parsed = new Date(time);
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() === month - 1 && parsed.getUTCDate() === day ? time : null;
+}
+
+function formatUtcDateKey(time: number) {
+  const date = new Date(time);
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 
 function isRecordedEntry(entry: WeeklyCampaignArchiveEntry) {
