@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-109",
+    stage: "Stage 109",
+    title: "Regional Reward Compendium",
+    date: "2026-07-28",
+    category: "interface",
+    summary: "Campaign Operations now includes a complete offline index of every Veteran and Elite regional material cache.",
+    highlights: [
+      "Three regional tabs compare all nine Hunt, Boss and Contract reward routes without accepting or changing an order.",
+      "Every material shows its deterministic quantity, current Guild Depot stock and real crafting, forge, facility, project or cosmetic use.",
+      "The compact command-board layout remains readable from wide desktop down to 390 px with no new save or online dependency.",
+    ],
+    systems: ["Regional Rewards", "Campaign Operations", "Guild Depot", "Material Uses", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-108-5",
     stage: "Stage 108.5",
     title: "Regional Reward Tables QA",

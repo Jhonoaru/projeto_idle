@@ -207,6 +207,7 @@ Atualizado em: 2026-07-28
 - Etapa 107.5 concluida: QA dos Campaign Reward Tiers blinda o Guild Depot, impede overflow de stacks e garante claim atomico sem recompensa parcial.
 - Etapa 108 concluida: Regional Reward Tables adiciona nove rotas deterministicas de materiais por regiao e objetivo, preservando snapshots antigos.
 - Etapa 108.5 concluida: QA das Regional Reward Tables assina snapshots novos por regiao, bloqueia substituicoes cruzadas e identifica corretamente caches legados.
+- Etapa 109 concluida: Regional Reward Compendium compara as nove rotas, usos reais dos materiais e estoque atual do Guild Depot em Operations.
 
 Comandos principais:
 
@@ -8599,6 +8600,42 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 109 - Regional Reward Compendium.
+
+## Etapa 109 - Regional Reward Compendium
+
+Status: concluida.
+
+Implementacao:
+
+- Campaign Operations ganhou um compendio dedicado antes do board diario, sem aceitar, alterar ou claimar ordens.
+- Tres abas regionais apresentam Thaeron Marches, Khazgrim Frontier e Eldoria Reaches com suas tabelas e estoque consolidado.
+- Cada regiao lista Hunt, Boss e Contract Route; cada rota compara os caches Veteran e Elite, totalizando nove rotas e 18 slots de recompensa.
+- O builder deriva as recompensas diretamente de `regionalCampaignRewardTables`, preservando uma unica fonte de verdade para item e quantidade.
+- Cada material mostra a quantidade atual no Guild Depot, agregando stacks duplicados com saturacao em `Number.MAX_SAFE_INTEGER`.
+- Os usos sao derivados dos dados reais de crafting, Forge, guild facilities, guild projects e cosmetic exchanges; materiais sem destino conhecido recebem o fallback informativo `Trade material`.
+- Standard permanece treasury-only e a interface deixa explicito que caches aceitos sao fixados no snapshot e entregues no Guild Depot.
+- O painel e somente leitura, totalmente offline e nao altera schema, migration, formato de save, economia ou regras de claim.
+
+Validacao:
+
+- Harness temporario passou em 100.116 assercoes sobre 5.000 depots gerados, incluindo as tres regioes, nove rotas, 18 slots e oito materiais unicos.
+- O harness cobriu stacks duplicados, depot vazio, entradas nulas, quantidades `NaN`, saturacao numerica, imutabilidade da fonte e correspondencia exata das tabelas.
+- Browser confirmou tres tabs, tres rotas e seis material rows por regiao, com labels, quantidades, usos e estoque real do mock.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow; um texto longo de uso foi ajustado para quebrar corretamente em 980 px.
+- Nenhuma ordem foi aceita nem qualquer estado de gameplay foi alterado durante o QA visual.
+- `npm run build` passou com TypeScript, Vite e 436 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O compendio e informativo e nao possui busca, filtros de material ou historico proprio.
+- As tabelas continuam deterministicas e pequenas, sem roll raro, equipamento, temporada, premium ou servico online.
+- A interface mostra o estoque atual, mas nao reserva materiais nem projeta automaticamente quanto falta para cada uso.
+
+Proximo passo sugerido:
+
+- Etapa 109.5 - QA aprofundada do Regional Reward Compendium.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

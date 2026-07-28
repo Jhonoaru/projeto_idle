@@ -14556,6 +14556,50 @@ html[data-client-motion="reduced"] *::after {
 .weekly-campaign-archive-grid > article > footer { padding: 5px 7px; border-top: 1px solid #303730; color: #68736c; font-size: .35rem; }
 .weekly-campaign-archive > footer { padding: 6px 9px; border-top: 1px solid #384034; color: #727e76; font-size: .4rem; }
 
+.regional-reward-compendium { min-width: 0; border: 1px solid #4b513d; background: #101513; }
+.regional-reward-compendium > header { display: grid; grid-template-columns: 56px minmax(230px, .62fr) minmax(540px, 1.38fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #384034; background: #151914; }
+.regional-reward-compendium > header span, .regional-reward-compendium-summary span { display: block; color: #7f8a82; font-size: .47rem; text-transform: uppercase; }
+.regional-reward-compendium > header h4 { margin: 3px 0; color: #ded09a; font: 700 .78rem Georgia, serif; }
+.regional-reward-compendium > header p { margin: 0; color: #818c84; font-size: .49rem; line-height: 1.4; }
+.regional-reward-compendium-seal { display: grid; place-items: center; width: 52px; height: 58px; border: 1px solid #807044; background: #22231b; }
+.regional-reward-compendium-seal i { color: #e0ca86; font: 700 normal .76rem Georgia, serif; }
+.regional-reward-compendium-seal span { color: #9ca187; font-size: .45rem; }
+.regional-reward-compendium-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid #3a4036; }
+.regional-reward-compendium-summary > div { min-width: 0; min-height: 43px; padding: 7px; border-right: 1px solid #3a4036; background: #111613; }
+.regional-reward-compendium-summary > div:last-child { border-right: 0; }
+.regional-reward-compendium-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38e; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
+.regional-reward-compendium-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #343c35; }
+.regional-reward-compendium-tabs button { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 8px; align-items: center; min-width: 0; min-height: 52px; padding: 6px 8px; border: 0; border-top: 2px solid #414941; color: #89938c; background: #121714; cursor: pointer; text-align: left; }
+.regional-reward-compendium-tabs button.is-selected { border-top-color: #a58b48; color: #e0cf94; background: #202019; }
+.regional-reward-compendium-tabs button > i { display: grid; place-items: center; width: 34px; height: 36px; border: 1px solid #5d624b; color: #cbbb7e; background: #1c221d; font: 700 normal .48rem Georgia, serif; }
+.regional-reward-compendium-tabs button span, .regional-reward-compendium-tabs button strong, .regional-reward-compendium-tabs button small { min-width: 0; }
+.regional-reward-compendium-tabs button strong, .regional-reward-compendium-tabs button small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-reward-compendium-tabs button strong { font: 700 .52rem Georgia, serif; }
+.regional-reward-compendium-tabs button small { margin-top: 3px; color: #727d75; font: 400 .38rem sans-serif; }
+.regional-reward-compendium-panel > header { display: grid; grid-template-columns: minmax(180px, .45fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 10px; border-bottom: 1px solid #343b34; background: #131814; }
+.regional-reward-compendium-panel > header span { display: block; color: #7d887f; font-size: .4rem; text-transform: uppercase; }
+.regional-reward-compendium-panel > header strong { display: block; margin-top: 3px; color: #d5c78f; font: 700 .56rem Georgia, serif; }
+.regional-reward-compendium-panel > header p { margin: 0; color: #7f8a82; font-size: .44rem; line-height: 1.45; }
+.regional-reward-compendium-routes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #343c35; }
+.regional-reward-compendium-routes > article { display: grid; grid-template-rows: auto minmax(34px, 1fr) auto auto; gap: 6px; min-width: 0; padding: 8px; border-top: 2px solid #5a604d; background: #151a17; }
+.regional-reward-compendium-routes > article > header { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 7px; align-items: center; }
+.regional-reward-compendium-routes > article > header > i { display: grid; place-items: center; width: 28px; height: 32px; border: 1px solid #65624a; color: #d0bf7f; background: #20231c; font: 700 normal .45rem Georgia, serif; }
+.regional-reward-compendium-routes > article > header small, .regional-reward-compendium-routes > article > header strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-reward-compendium-routes > article > header small { color: #768178; font-size: .36rem; text-transform: uppercase; }
+.regional-reward-compendium-routes > article > header strong { margin-top: 2px; color: #cec18b; font: 700 .5rem Georgia, serif; }
+.regional-reward-compendium-routes > article > p { margin: 0; color: #7b867f; font-size: .42rem; line-height: 1.4; }
+.regional-reward-compendium-material { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; min-height: 45px; padding: 5px; border: 1px solid #40483e; background: #101512; }
+.regional-reward-compendium-material.is-elite { border-color: #6d503c; background: #191613; }
+.regional-reward-compendium-material > span, .regional-reward-compendium-material > b { min-width: 0; }
+.regional-reward-compendium-material span small, .regional-reward-compendium-material span strong, .regional-reward-compendium-material span em, .regional-reward-compendium-material > b small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-reward-compendium-material span small { color: #7b857d; font-size: .34rem; text-transform: uppercase; }
+.regional-reward-compendium-material span strong { margin-top: 2px; color: #cbbd85; font-size: .43rem; }
+.regional-reward-compendium-material span em { margin-top: 2px; overflow-wrap: anywhere; color: #68736c; font: 400 .32rem sans-serif; text-overflow: clip; white-space: normal; }
+.regional-reward-compendium-material > b { color: #d3c17e; font-size: .48rem; text-align: right; }
+.regional-reward-compendium-material > b small { margin-top: 2px; color: #6e7971; font: 400 .3rem sans-serif; text-transform: uppercase; }
+.regional-reward-compendium > footer { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-top: 1px solid #384034; color: #747f78; font-size: .4rem; }
+.regional-reward-compendium > footer strong { color: #a99e71; font-weight: 500; }
+
 .regional-campaign-orders { min-width: 0; scroll-margin-top: 8px; border: 1px solid #4b513d; background: #101513; }
 .regional-campaign-orders > header { display: grid; grid-template-columns: 56px minmax(230px, .62fr) minmax(540px, 1.38fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #384034; background: #151914; }
 .regional-campaign-orders > header span, .regional-campaign-orders-summary span { display: block; color: #7f8a82; font-size: .47rem; text-transform: uppercase; }
@@ -14642,6 +14686,8 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-trend > footer { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .weekly-campaign-records-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-region-mastery > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .regional-reward-compendium > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .regional-reward-compendium-summary { grid-column: 1 / -1; }
   .regional-campaign-orders > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders-summary { grid-column: 1 / -1; }
   .guild-region-mastery-summary { grid-column: 1 / -1; }
@@ -14656,6 +14702,7 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-records > header { grid-template-columns: 34px minmax(0, 1fr); }
   .weekly-campaign-records > header > strong { grid-column: 1 / -1; }
   .guild-region-mastery-tabs { grid-template-columns: 1fr; }
+  .regional-reward-compendium-routes { grid-template-columns: 1fr; }
   .regional-campaign-orders-grid { grid-template-columns: 1fr; }
   .regional-campaign-orders-history > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .guild-region-mastery-dossier > header { grid-template-columns: 48px minmax(0, 1fr); }
@@ -14680,6 +14727,14 @@ html[data-client-motion="reduced"] *::after {
   .weekly-campaign-records > footer { align-items: flex-start; flex-direction: column; }
   .weekly-campaign-records > footer small { white-space: normal; }
   .guild-region-mastery > header { grid-template-columns: 1fr; text-align: center; }
+  .regional-reward-compendium > header { grid-template-columns: 1fr; text-align: center; }
+  .regional-reward-compendium-seal { justify-self: center; }
+  .regional-reward-compendium-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); text-align: left; }
+  .regional-reward-compendium-summary > div:nth-child(2) { border-right: 0; }
+  .regional-reward-compendium-summary > div { border-bottom: 1px solid #3a4036; }
+  .regional-reward-compendium-tabs { grid-template-columns: 1fr; }
+  .regional-reward-compendium-panel > header { grid-template-columns: 1fr; }
+  .regional-reward-compendium > footer { align-items: flex-start; flex-direction: column; }
   .regional-campaign-orders > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders-seal { justify-self: center; }
   .regional-campaign-orders-summary { grid-template-columns: 1fr; text-align: left; }
