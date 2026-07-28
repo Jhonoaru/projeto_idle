@@ -193,7 +193,8 @@ Atualizado em: 2026-07-28
 - Etapa 100.5 concluida: QA do Campaign Command Briefing corrigiu a virada local presa, sincronizou o board regional e validou 100.036 assercoes, acessibilidade e quatro viewports.
 - Etapa 101 concluida: Weekly Campaign Briefing deriva metas semanais de ordens, regioes e familias, sem reward ou persistencia nova, com 100.031 assercoes.
 - Etapa 101.5 concluida: QA do briefing semanal corrigiu semanas raras sem as tres familias, com meta dinamica alcancavel e 100.024 assercoes.
-- Etapa 102 concluida: Weekly Campaign Archive mostra oito semanas anteriores derivadas, amplia o ledger para 180 claims recentes e preserva o save SQLite existente.
+- Etapa 102 concluida: Weekly Campaign Archive mostra oito semanas anteriores derivadas e amplia a retencao do ledger existente.
+- Etapa 102.5 concluida: QA do arquivo corrigiu a capacidade para 192 claims e impediu IDs invalidos de consumir vagas antes da validacao.
 
 Comandos principais:
 
@@ -7808,7 +7809,7 @@ Conceito e calendario:
 Engine e seguranca:
 
 - `buildWeeklyCampaignBriefing` deriva todo o modelo sem alterar `Guild` ou SQLite.
-- Claims eram lidos dos ate 60 `claimedOrderIds`; a Etapa 102 ampliou a mesma lista para 180 IDs, sem criar campo novo.
+- Claims eram lidos dos ate 60 `claimedOrderIds`; as Etapas 102/102.5 ampliaram a mesma lista para 192 IDs, sem criar campo novo.
 - Cada ID precisa ter data valida, regiao conhecida, objetivo conhecido e variante 0..2.
 - Um ID sintaticamente valido ainda precisa corresponder a oferta deterministica da mesma guilda e data.
 - IDs forjados, de outra seed, duplicados, impossiveis ou fora da semana nao contam.
@@ -7906,9 +7907,9 @@ Conceito e engine:
 
 Retencao e compatibilidade:
 
-- `claimedOrderIds` passou de 60 para 180 IDs, suficiente para aproximadamente oito semanas no ritmo maximo de tres ordens por dia.
+- `claimedOrderIds` passou de 60 para 192 IDs, suficiente para oito semanas arquivadas mais a semana atual no ritmo maximo de tres ordens por dia.
 - Saves antigos continuam validos e crescem naturalmente ate o novo limite.
-- O normalizador foi corrigido para preservar os 180 IDs mais recentes quando recebe um ledger acima do limite; antes ele mantinha os mais antigos.
+- O normalizador preserva os 192 IDs validos mais recentes quando recebe um ledger acima do limite.
 - `claimHistory` detalhado continua limitado a 20 entradas e nao e usado como fonte absoluta do arquivo.
 - Semanas sem claims retidos usam o texto honesto `No retained record`, pois saves antigos podem ter perdido IDs pela retencao anterior.
 
@@ -7937,6 +7938,51 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 102.5 - QA aprofundada do Weekly Campaign Archive.
+
+## Etapa 102.5 - QA aprofundada do Weekly Campaign Archive
+
+Status: concluida.
+
+Bugs encontrados e corrigidos:
+
+- O limite 180 cobria apenas 60 dias no ritmo maximo; oito semanas arquivadas mais ate sete dias da semana atual exigem 189 claims.
+- Na fixture de nove semanas cheias, o ledger antigo reteve 180/189 IDs e reduziu a semana mais antiga de 21 para 12 ordens.
+- O limite foi elevado para 192, preservando uma pequena margem acima dos 189 IDs necessarios.
+- A normalizacao aplicava o limite antes de validar o formato; 30 strings invalidas no fim do JSON reduziram 189 claims validos para 150.
+- IDs agora sao aparados, validados e deduplicados do mais recente para o mais antigo antes de ocuparem uma das 192 vagas.
+- Os demais arrays que usam `normalizeIds` preservaram seu comportamento original.
+
+QA automatizada:
+
+- O harness temporario passou em 100.030 assercoes e foi removido.
+- Nove semanas completas mantiveram 189/189 IDs; as oito semanas arquivadas conservaram 21 ordens cada e a semana atual ficou fora do total 168.
+- Foram validados lixo no fim do save, tipos incorretos, duplicatas, overflow de 250 IDs, newest-first, ID sintaticamente valido nao canonico e gold agregado.
+- Uma rotacao rara confirmou `Campaign secured` com diversidade 2/2.
+- Virada de ano, limites 1..8 e 20.000 combinacoes deterministicas mantiveram semanas unicas, ordenadas e denominadores 2..3.
+
+QA visual:
+
+- `Open Archive` exibiu oito cards e `Close Archive` removeu o painel com `aria-expanded` sincronizado.
+- O rodape informou o limite real de 192 claims e nenhuma ordem diaria foi aceita ou ativada ao interagir com o arquivo.
+- Em 1250, 760, 520 e 390 px nao houve overflow horizontal no documento ou no painel.
+- O unico erro do browser foi o fallback esperado do Tauri SQL sem `invoke` no Vite.
+
+Build, Tauri e SQLite:
+
+- `npm.cmd run build` passou com 432 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel release, MSI e instalador NSIS.
+- O save real permaneceu com 81.920 bytes, timestamp original e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum fixture, claim ou migration foi aplicado ao banco real.
+
+Limitacoes:
+
+- Saves antigos nao recuperam claims ja descartados pelos limites anteriores de 60 ou 180.
+- O arquivo continua limitado a oito semanas e derivado do `cycleKey` local, sem servidor ou anti-cheat de relogio.
+- A interacao foi validada no Vite; o release Tauri foi empacotado sem ser aberto contra o perfil real.
+
+Proximo passo sugerido:
+
+- Etapa 103 - Campaign Trend Comparison.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

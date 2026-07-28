@@ -58,9 +58,7 @@ export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationO
 export function normalizeGuildRegionalOrders(value: unknown): GuildRegionalOrdersState {
   if (!value || typeof value !== "object") return createDefaultGuildRegionalOrders();
   const candidate = value as Partial<GuildRegionalOrdersState>;
-  const claimedOrderIds = normalizeIds(candidate.claimedOrderIds, regionalCampaignOrderClaimLedgerLimit, true)
-    .map((id) => id.slice(0, 180))
-    .filter((id) => Boolean(parseRegionalOrderId(id)));
+  const claimedOrderIds = normalizeRecentRegionalOrderIds(candidate.claimedOrderIds);
   const claimed = new Set(claimedOrderIds);
   const historySeen = new Set<string>();
   const claimHistory = (Array.isArray(candidate.claimHistory) ? candidate.claimHistory : [])
@@ -243,21 +241,27 @@ function normalizeLoot(value: unknown): GuildBossOutcomeLoot[] {
   return [...quantities].slice(0, 12).map(([itemId, quantity]) => ({ itemId, quantity }));
 }
 
-function normalizeIds(value: unknown, limit: number, keepNewest = false) {
+function normalizeRecentRegionalOrderIds(value: unknown) {
   if (!Array.isArray(value)) return [];
-  const ids = value
-    .filter((entry): entry is string => typeof entry === "string")
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  if (!keepNewest) return [...new Set(ids)].slice(0, limit);
   const seen = new Set<string>();
   const newest: string[] = [];
-  for (let index = ids.length - 1; index >= 0 && newest.length < limit; index -= 1) {
-    if (seen.has(ids[index])) continue;
-    seen.add(ids[index]);
-    newest.push(ids[index]);
+  for (let index = value.length - 1; index >= 0 && newest.length < regionalCampaignOrderClaimLedgerLimit; index -= 1) {
+    if (typeof value[index] !== "string") continue;
+    const id = value[index].trim().slice(0, 180);
+    if (!id || seen.has(id) || !parseRegionalOrderId(id)) continue;
+    seen.add(id);
+    newest.push(id);
   }
   return newest.reverse();
+}
+
+function normalizeIds(value: unknown, limit: number) {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value
+    .filter((entry): entry is string => typeof entry === "string")
+    .map((entry) => entry.trim())
+    .filter(Boolean))]
+    .slice(0, limit);
 }
 
 function normalizeId(value: unknown, limit: number) {

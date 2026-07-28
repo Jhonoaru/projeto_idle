@@ -5,7 +5,7 @@ export interface RegionalCampaignOrderVariant {
   rewardGold: number;
 }
 
-export const regionalCampaignOrderClaimLedgerLimit = 180;
+export const regionalCampaignOrderClaimLedgerLimit = 192;
 
 export const regionalCampaignOrderObjectives: GuildRegionalOrderObjective[] = [
   "hunt_minutes",
