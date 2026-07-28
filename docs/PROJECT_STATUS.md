@@ -209,6 +209,7 @@ Atualizado em: 2026-07-28
 - Etapa 108.5 concluida: QA das Regional Reward Tables assina snapshots novos por regiao, bloqueia substituicoes cruzadas e identifica corretamente caches legados.
 - Etapa 109 concluida: Regional Reward Compendium compara as nove rotas, usos reais dos materiais e estoque atual do Guild Depot em Operations.
 - Etapa 109.5 concluida: QA do Regional Reward Compendium valida todas as tabelas e adiciona tabs ARIA com navegacao completa por teclado.
+- Etapa 110 concluida: Regional Material Acquisition Planner conecta faltas reais de Logistics a rotas Veteran/Elite e estima claims necessarios.
 
 Comandos principais:
 
@@ -8679,6 +8680,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 110 - definir a proxima camada offline apos o ciclo de Regional Rewards validado.
+
+## Etapa 110 - Regional Material Acquisition Planner
+
+Status: concluida.
+
+Implementacao:
+
+- Campaign Operations ganhou um planner entre o Regional Reward Compendium e o board de ordens diarias.
+- Quando existem prioridades fixadas em Logistics, somente esses objetivos entram no plano; sem pins, entram todos os objetivos ativos.
+- A demanda e derivada do `buildGuildLogisticsPlan`, cobrindo proximos upgrades de Facilities, fases de Projects e exchanges de Wardrobe sem duplicar suas regras.
+- Requisitos repetidos sao agregados por material e o estoque elegivel do Guild Depot e descontado uma unica vez.
+- Stacks locked, aninhados, de personagem ou fora do Guild Depot continuam indisponiveis, seguindo a regra real de consumo dos sistemas existentes.
+- Cada falta procura todas as rotas Veteran/Elite nas tabelas regionais, mostra yield por claim, guild level exigido e `ceil(missing / quantity)` claims estimados.
+- Rotas desbloqueadas recebem prioridade; depois o ranking prefere menos claims, maior yield e menor requisito de guild level.
+- Materiais sem cache regional continuam no plano com orientacao para consultar as fontes de Hunt em Logistics.
+- O sistema e somente leitura: nao aceita ordens, nao fixa objetivos, nao reserva materiais e nao altera save/schema.
+
+Interface:
+
+- Header compacto mostra escopo, objetivos considerados, materiais faltantes e unidades totais em aberto.
+- A lista de materiais exibe owned/required e shortage; o dossier detalha consumidores, progresso e rotas disponiveis.
+- Tabs de material possuem foco roving, Arrow keys, Home/End, IDs estaveis e tabpanel rotulado.
+- `Open Logistics` leva ao planejamento original e `Review Regional Orders` rola para o board sem aceitar uma ordem.
+- Estados locked, recommended, uncovered e scope complete possuem apresentacao propria.
+
+Validacao:
+
+- Harness temporario passou em 71.999 assercoes sobre 5.000 Guild Depots e niveis de guilda gerados.
+- Foram cobertos escopo global e pinned, 11 objetivos iniciais, demandas agregadas, materiais cobertos, stacks duplicados/protegidos, unlocks e imutabilidade.
+- Todas as rotas foram conferidas contra `regionalCampaignRewardTables`, incluindo item, quantidade, claims, recomendacao unica e requisito de guild level.
+- Browser confirmou no mock 11 objetivos, cinco materiais faltantes, 34 unidades em aberto, tres materiais roteados e dois exclusivos de Hunts.
+- Old Cloth, Spider Silk, Dwarf Badge, Rat Tail e Dragon Ember tiveram consumers, rotas e empty states validados.
+- Teclado sincronizou foco, selecao e `aria-labelledby`; o comando de review levou o board regional ao topo sem mutar gameplay.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento ou no planner.
+- `npm run build` passou com TypeScript, Vite e 438 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A estimativa nao garante que a familia/regiao desejada aparecera na rotacao diaria e nao antecipa progresso futuro de ordens.
+- O planner nao inclui demandas avulsas de Forge ou crafting; ele segue deliberadamente os objetivos gerenciados por Logistics.
+- Nao existe reserva, auto-pin, auto-accept, auto-claim ou transferencia automatica de materiais.
+- O browser usa mock local; o pacote Tauri foi validado por build, sem cliques manuais contra o SQLite real.
+
+Proximo passo sugerido:
+
+- Etapa 110.5 - QA aprofundada do Regional Material Acquisition Planner.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

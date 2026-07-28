@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-110",
+    stage: "Stage 110",
+    title: "Regional Material Acquisition Planner",
+    date: "2026-07-28",
+    category: "systems",
+    summary: "Campaign Operations now converts live guild material shortages into ranked Veteran and Elite regional cache routes.",
+    highlights: [
+      "Pinned Logistics objectives take priority; otherwise the planner aggregates every active Facility, Project and Wardrobe material demand.",
+      "Each compatible regional route shows cache yield, guild-level access and the estimated number of claims needed to cover the shortage.",
+      "Materials without a Regional Order cache remain visible and direct the player back to their existing Hunt sources in Logistics.",
+    ],
+    systems: ["Material Planning", "Regional Rewards", "Guild Logistics", "Guild Depot", "Campaign Operations"],
+    featured: true,
+  },
+  {
     id: "stage-109-5",
     stage: "Stage 109.5",
     title: "Regional Reward Compendium QA",
