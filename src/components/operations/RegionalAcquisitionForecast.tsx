@@ -30,7 +30,7 @@ export function RegionalAcquisitionForecast({ characters, depot, guild }: Region
           <h4 id="regional-acquisition-forecast-title">Regional Acquisition Forecast</h4>
           <p>Preview the next seven order rotations against shortages that exist in Logistics right now.</p>
         </div>
-        <div className="regional-acquisition-forecast-summary">
+        <div className="regional-acquisition-forecast-summary" aria-label="Forecast summary">
           <Summary label="Horizon" value={`${forecast.startDateKey} / ${forecast.endDateKey}`} />
           <Summary label="Short materials" value={String(forecast.shortageCount)} />
           <Summary label="Matched materials" value={String(forecast.forecastMaterialCount)} />
@@ -38,7 +38,7 @@ export function RegionalAcquisitionForecast({ characters, depot, guild }: Region
         </div>
       </header>
 
-      <div className="regional-acquisition-forecast-grid">
+      <div className="regional-acquisition-forecast-grid" role="list" aria-label="Seven-day regional acquisition forecast">
         {forecast.days.map((day) => <ForecastDay day={day} key={day.dateKey} />)}
       </div>
 
@@ -51,14 +51,23 @@ export function RegionalAcquisitionForecast({ characters, depot, guild }: Region
 }
 
 function ForecastDay({ day }: { day: RegionalAcquisitionForecastDay }) {
+  const relativeLabelId = `regional-acquisition-forecast-relative-${day.dateKey}`;
+  const dateLabelId = `regional-acquisition-forecast-date-${day.dateKey}`;
   return (
-    <article className={day.matches.length > 0 ? day.actionableCount > 0 ? "has-actionable" : "has-locked" : "is-empty"}>
+    <article
+      aria-labelledby={`${relativeLabelId} ${dateLabelId}`}
+      className={day.matches.length > 0 ? day.actionableCount > 0 ? "has-actionable" : "has-locked" : "is-empty"}
+      role="listitem"
+    >
       <header>
-        <div><span>{day.daysFromNow === 1 ? "Tomorrow" : `In ${day.daysFromNow} days`}</span><strong>{formatDateKey(day.dateKey)}</strong></div>
+        <div>
+          <span id={relativeLabelId}>{day.daysFromNow === 1 ? "Tomorrow" : `In ${day.daysFromNow} days`}</span>
+          <time dateTime={day.dateKey} id={dateLabelId}>{formatDateKey(day.dateKey)}</time>
+        </div>
         <b>{day.matches.length > 0 ? `${day.matches.length} offer${day.matches.length === 1 ? "" : "s"}` : "No match"}</b>
       </header>
       {day.matches.length > 0 ? (
-        <div className="regional-acquisition-forecast-matches">
+        <div className="regional-acquisition-forecast-matches" role="list" aria-label={`Material cache matches for ${day.dateKey}`}>
           {day.matches.map((entry) => <ForecastMatch entry={entry} key={entry.id} />)}
         </div>
       ) : (
@@ -70,8 +79,13 @@ function ForecastDay({ day }: { day: RegionalAcquisitionForecastDay }) {
 }
 
 function ForecastMatch({ entry }: { entry: RegionalAcquisitionForecastMatch }) {
+  const accessLabel = entry.unlocked ? "reachable" : `locked until Guild Level ${entry.requiredGuildLevel}`;
   return (
-    <div className={entry.unlocked ? "is-unlocked" : "is-locked"}>
+    <div
+      aria-label={`${entry.item.name} cache from ${entry.regionName}, ${entry.difficultyLabel}, ${accessLabel}`}
+      className={entry.unlocked ? "is-unlocked" : "is-locked"}
+      role="listitem"
+    >
       <ItemIcon item={entry.item} showBadges={false} size="small" />
       <span><small>{entry.regionSigil} / {entry.difficultyLabel} / {entry.rewardTableLabel}</small><strong>{entry.item.name} x{entry.quantity}</strong><em>{entry.contribution}/{entry.missing} shortage coverage</em></span>
       <b>{entry.unlocked ? "Reachable" : `Lv ${entry.requiredGuildLevel}`}</b>

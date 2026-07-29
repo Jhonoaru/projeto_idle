@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-112-5",
+    stage: "Stage 112.5",
+    title: "Regional Forecast QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "The seven-day regional forecast completed a deeper calendar, reward integrity and accessibility audit.",
+    highlights: [
+      "More than three million checks covered five years of local dates, fourteen Guild Level states and malformed runtime dates.",
+      "Every future cache remains tied to its canonical regional offer, difficulty, reward table, yield and current Logistics shortage.",
+      "Forecast days and cache matches now expose structured lists, semantic dates and unique accessible names without changing their compact layout.",
+    ],
+    systems: ["Regional Forecast", "Accessibility", "Calendar QA", "Reward Integrity", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-112",
     stage: "Stage 112",
     title: "Regional Acquisition Forecast",

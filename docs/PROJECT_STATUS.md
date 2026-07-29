@@ -214,6 +214,7 @@ Atualizado em: 2026-07-29
 - Etapa 111 concluida: Regional Acquisition Opportunity Board cruza faltas reais com a rotacao diaria e leva ao pedido regional exato sem aceitar automaticamente.
 - Etapa 111.5 concluida: QA do board regional reforca data hostil, nomes acessiveis unicos e foco persistente por mouse, Enter e Space.
 - Etapa 112 concluida: Regional Acquisition Forecast projeta sete rotacoes locais contra faltas atuais e separa caches alcancaveis dos proximos unlocks.
+- Etapa 112.5 concluida: QA do forecast regional valida cinco anos de calendario, integridade das recompensas e estrutura acessivel por dia e cache.
 
 Comandos principais:
 
@@ -8909,6 +8910,51 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 112.5 - QA aprofundada do Regional Acquisition Forecast.
+
+## Etapa 112.5 - QA aprofundada do Regional Acquisition Forecast
+
+Status: concluida.
+
+Correcoes:
+
+- O resumo do forecast recebeu nome acessivel proprio, sem alterar a composicao visual compacta.
+- Os sete cards agora formam uma lista nomeada e cada dia possui nome acessivel unico composto pelo prazo relativo e pela data local.
+- Datas visiveis passaram a usar `<time dateTime>` com a chave local canonica, preservando a formatacao do idioma do sistema.
+- Cada conjunto diario de caches virou uma lista nomeada pela data correspondente.
+- Cada cache agora e um `listitem` com material, regiao, dificuldade e estado de acesso no nome acessivel, eliminando linhas repetidas indistinguiveis.
+
+Validacao de engine:
+
+- Harness temporario passou em 3.411.941 assercoes sobre 1.826 datas locais, equivalentes a cinco anos completos de inicio de forecast.
+- Quatorze estados de Guild Level cobriram limites de desbloqueio, niveis negativos, fracionarios, NaN e infinito.
+- Cada dia, oferta e cache foi conferido contra as engines canonicas de Regional Orders, difficulty options e Logistics.
+- Foram validados horizonte de sete dias, datas consecutivas, determinismo, imutabilidade, um match por oferta, ranking e todos os resumos agregados.
+- Item, quantidade, gold, tabela, requisito, acesso, falta e cobertura foram comparados com as definicoes reais.
+- Valores runtime nulos, strings, objetos, arrays, NaN e `Invalid Date` receberam fallback sem quebrar o horizonte.
+- Active order, claim e snapshot forjados do ciclo atual nao contaminaram as rotacoes futuras.
+
+Validacao de interface:
+
+- Browser confirmou sete dias, dez caches, sete elementos `<time>`, IDs unicos e referencias `aria-labelledby` validas.
+- O snapshot assistivo confirmou nomes especificos para todos os dias e caches, inclusive ofertas repetidas do mesmo material.
+- O layout passou em 1250, 980, 760, 520 e 390 px, alternando entre quatro, duas e uma coluna sem overflow.
+- Dez linhas de cache passaram sem sobreposicao entre icone, descricao e estado de acesso.
+- A captura em 390 px confirmou resumo 2x2, cards em coluna unica, texto de bloqueio e todos os estados visiveis.
+- O console apresentou somente a falha esperada do Tauri SQL Plugin fora do runtime desktop, usando o mock local.
+- `npm run build` passou com TypeScript, Vite e 442 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou com codigo 0 e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O forecast continua somente leitura e usa a falta atual como fotografia para todos os sete dias.
+- O sistema nao reserva caches, recalcula aquisicoes hipoteticas, aceita pedidos, faz claim ou persiste estado novo.
+- O browser usa mock local porque o SQLite depende do runtime Tauri; o pacote desktop e o hash do banco sao validados separadamente.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 113 - definir a proxima camada offline depois do forecast regional validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
