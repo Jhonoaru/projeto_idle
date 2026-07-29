@@ -4,6 +4,11 @@ export interface ItemSpriteDefinition {
 }
 
 const ITEM_SPRITES: Readonly<Record<string, ItemSpriteDefinition>> = {
+  "minor-health-potion": sprite("minor-health-potion"),
+  "health-potion": sprite("health-potion"),
+  "mana-potion": sprite("mana-potion"),
+  "iron-ore": sprite("iron-ore"),
+  "enchanted-dust": sprite("enchanted-dust"),
   "old-cloth": sprite("old-cloth"),
   "spider-silk": sprite("spider-silk"),
   "rat-tail": sprite("rat-tail"),

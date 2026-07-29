@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 115 concluida: sprites originais para tres supplies centrais e dois materiais recorrentes, integrados ao `ItemIcon` compartilhado sem alterar gameplay ou persistencia.
 - Etapa 114.5 concluida: QA visual da fundacao de sprites de itens, com fallback resiliente para falha de imagem, validacao de alpha/catalogo, quantidade, acessibilidade e layouts responsivos.
 - Etapa 114 concluida: fundacao visual de sprites originais para itens, com cinco materiais/trofeus integrados ao `ItemIcon` compartilhado e fallback seguro para o restante do catalogo.
 - Etapa 13 implementada: hunts usam supplies reais do inventario do personagem.
@@ -9137,6 +9138,53 @@ Limitacoes da QA:
 Proximo passo sugerido:
 
 - Etapa 115 - expandir sprites originais para supplies e materiais centrais mais frequentes.
+
+## Etapa 115 - Sprites de supplies e materiais centrais
+
+Status: concluida.
+
+Implementacao:
+
+- O registro compartilhado `src/data/itemSprites.ts` passou de cinco para dez sprites originais, mantendo lookup por `itemId` e fallback semantico para todo o restante do catalogo.
+- `Minor Health Potion`, `Health Potion` e `Mana Potion` receberam silhuetas distintas para leitura imediata em Inventory, Market NPC, Bazar, hunt preparation e Daily Reward.
+- `Iron Ore` e `Enchanted Dust` receberam sprites proprios para Guild Depot, Workbench, Forge, Headquarters, projects e demais paineis compartilhados.
+- Nenhum item, preco, peso, raridade, drop, receita ou regra de consumo foi alterado.
+
+Assets adicionados:
+
+- `public/assets/items/generated/minor-health-potion.png`.
+- `public/assets/items/generated/health-potion.png`.
+- `public/assets/items/generated/mana-potion.png`.
+- `public/assets/items/generated/iron-ore.png`.
+- `public/assets/items/generated/enchanted-dust.png`.
+
+Pipeline visual:
+
+- As cinco artes foram geradas pelo ImageGen integrado em modo built-in como pixel art original de inventario fantasy MMORPG.
+- Cada fonte usou um unico objeto centralizado sobre chroma key uniforme `#00ff00`, sem texto, moldura, interface, sombra externa ou referencia protegida.
+- O helper oficial removeu o chroma key com soft matte e despill; as imagens finais foram reduzidas para PNG RGBA `256x256`.
+- A validacao confirmou cantos com alpha zero, bordas sem franja verde, objeto dentro da tela e pixels semitransparentes para acabamento do recorte.
+
+Validacao:
+
+- O registro final possui 10 `itemId` e o diretorio de producao possui exatamente 10 PNGs, sem item, asset ou arquivo extra divergente.
+- Logistics carregou os cinco sprites anteriores e os novos `Iron Ore`/`Enchanted Dust`, todos com dimensoes naturais `256x256` e contidos nos slots.
+- Market NPC exibiu `Minor Health Potion x10`, `Health Potion x10` e `Mana Potion x10` com sprites distintos; Strong Potions e runes mantiveram o fallback tipografico esperado.
+- Guild Depot exibiu `Iron Ore x12` e `Enchanted Dust x2` com quantidade, raridade e nomes acessiveis preservados.
+- O Guild Depot passou em `520` e `390 px` sem overflow horizontal ou falha de carregamento.
+- `npm.cmd run build` passou com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A navegacao interativa ocorreu no browser com mock local porque o Tauri SQL Plugin nao existe fora do runtime desktop.
+- O app Tauri nao foi clicado manualmente nesta etapa; o desktop foi validado pelo build completo de release.
+- Strong Potions, runes, ammunition, containers, equipamentos e outros materiais continuam usando fallback ate os proximos lotes visuais.
+
+Proximo passo sugerido:
+
+- Etapa 115.5 - QA visual e responsiva dos novos sprites em supplies, Market NPC, Guild Depot e crafting.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

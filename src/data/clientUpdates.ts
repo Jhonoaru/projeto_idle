@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-115",
+    stage: "Stage 115",
+    title: "Core Supply and Material Sprites",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "Five frequently used supplies and crafting materials now have original pixel-art inventory sprites.",
+    highlights: [
+      "Minor Health Potion, Health Potion and Mana Potion now have distinct silhouettes across inventory, shops and hunt preparation.",
+      "Iron Ore and Enchanted Dust now carry their visual identity through crafting, Forge, Headquarters and Guild Depot surfaces.",
+      "All new artwork uses transparent original assets and the shared resilient ItemIcon fallback without changing gameplay data.",
+    ],
+    systems: ["Item Sprites", "Supplies", "Crafting Materials", "Inventory", "Forge"],
+    featured: true,
+  },
+  {
     id: "stage-114-5",
     stage: "Stage 114.5",
     title: "Item Sprite Foundation QA",
