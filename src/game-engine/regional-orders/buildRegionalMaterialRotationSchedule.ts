@@ -27,6 +27,10 @@ export interface RegionalMaterialRotationEntry {
   usefulYield: number;
   remainingAfterHorizon: number;
   coveragePercent: number;
+  reachableYield: number;
+  usefulReachableYield: number;
+  reachableRemainingAfterHorizon: number;
+  reachableCoveragePercent: number;
   firstDateKey: string | null;
   firstDaysFromNow: number | null;
   firstReachableDateKey: string | null;
@@ -83,6 +87,8 @@ export function buildRegionalMaterialRotationSchedule(
     const locked = occurrences.filter((entry) => !entry.unlocked);
     const totalYield = occurrences.reduce((total, entry) => safeAdd(total, entry.quantity), 0);
     const usefulYield = Math.min(demand.missing, totalYield);
+    const reachableYield = reachable.reduce((total, entry) => safeAdd(total, entry.quantity), 0);
+    const usefulReachableYield = Math.min(demand.missing, reachableYield);
     const state: RegionalMaterialRotationState = reachable.length > 0
       ? "reachable"
       : occurrences.length > 0
@@ -99,6 +105,12 @@ export function buildRegionalMaterialRotationSchedule(
       usefulYield,
       remainingAfterHorizon: Math.max(0, demand.missing - totalYield),
       coveragePercent: demand.missing > 0 ? Math.min(100, Math.floor((usefulYield / demand.missing) * 100)) : 0,
+      reachableYield,
+      usefulReachableYield,
+      reachableRemainingAfterHorizon: Math.max(0, demand.missing - reachableYield),
+      reachableCoveragePercent: demand.missing > 0
+        ? Math.min(100, Math.floor((usefulReachableYield / demand.missing) * 100))
+        : 0,
       firstDateKey: occurrences[0]?.dateKey ?? null,
       firstDaysFromNow: occurrences[0]?.daysFromNow ?? null,
       firstReachableDateKey: reachable[0]?.dateKey ?? null,
@@ -129,6 +141,7 @@ function compareEntries(left: RegionalMaterialRotationEntry, right: RegionalMate
     || (left.firstReachableDaysFromNow ?? Number.MAX_SAFE_INTEGER) - (right.firstReachableDaysFromNow ?? Number.MAX_SAFE_INTEGER)
     || (left.firstDaysFromNow ?? Number.MAX_SAFE_INTEGER) - (right.firstDaysFromNow ?? Number.MAX_SAFE_INTEGER)
     || (left.nextUnlockLevel ?? Number.MAX_SAFE_INTEGER) - (right.nextUnlockLevel ?? Number.MAX_SAFE_INTEGER)
+    || right.reachableCoveragePercent - left.reachableCoveragePercent
     || right.coveragePercent - left.coveragePercent
     || right.missing - left.missing
     || left.item.name.localeCompare(right.item.name);

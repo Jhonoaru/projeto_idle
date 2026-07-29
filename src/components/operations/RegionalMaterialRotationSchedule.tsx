@@ -50,7 +50,7 @@ export function RegionalMaterialRotationSchedule({ characters, depot, guild }: R
       )}
 
       <footer>
-        <span>Potential yield assumes every displayed cache is claimed; live order availability is recalculated each local day.</span>
+        <span>Timeline yield includes locked windows; accessible coverage counts only caches available at the current Guild Level.</span>
         <strong>{schedule.totalOccurrences} cache window{schedule.totalOccurrences === 1 ? "" : "s"} across {schedule.horizonDays} days</strong>
       </footer>
     </section>
@@ -69,12 +69,12 @@ function ScheduleEntry({ entry }: { entry: RegionalMaterialRotationEntry }) {
       <div className="regional-material-rotation-schedule-metrics">
         <Metric label="Next cache" value={entry.firstDateKey ? relativeDay(entry.firstDaysFromNow) : "Beyond 7d"} />
         <Metric label="Appearances" value={String(entry.occurrenceCount)} />
-        <Metric label="Potential" value={`${entry.usefulYield}/${entry.missing}`} />
+        <Metric label="Accessible" value={`${entry.usefulReachableYield}/${entry.missing}`} />
         <Metric label="Regions" value={String(entry.regionCount)} />
       </div>
       <div className="regional-material-rotation-schedule-progress">
-        <span><b>Potential coverage</b><strong>{entry.coveragePercent}%</strong></span>
-        <progress aria-label={`${entry.item.name} potential coverage`} max={100} value={entry.coveragePercent} />
+        <span><b>Accessible coverage</b><strong>{entry.reachableCoveragePercent}%</strong></span>
+        <progress aria-label={`${entry.item.name} accessible coverage`} max={100} value={entry.reachableCoveragePercent} />
       </div>
       {entry.occurrences.length > 0 ? (
         <div className="regional-material-rotation-schedule-occurrences" role="list" aria-label={`${entry.item.name} cache windows`}>
@@ -83,7 +83,7 @@ function ScheduleEntry({ entry }: { entry: RegionalMaterialRotationEntry }) {
       ) : (
         <p>No matching Veteran or Elite cache appears in the current seven-day horizon.</p>
       )}
-      <footer>{entry.remainingAfterHorizon > 0 ? `${entry.remainingAfterHorizon} still missing after potential yield` : "Potential horizon yield covers this shortage"}</footer>
+      <footer>{entryFooter(entry)}</footer>
     </article>
   );
 }
@@ -106,6 +106,14 @@ function stateEyebrow(entry: RegionalMaterialRotationEntry) {
   if (entry.state === "reachable") return `${entry.reachableOccurrenceCount} reachable window${entry.reachableOccurrenceCount === 1 ? "" : "s"}`;
   if (entry.state === "locked") return `Next unlock Guild Lv ${entry.nextUnlockLevel}`;
   return "No regional cache scheduled";
+}
+
+function entryFooter(entry: RegionalMaterialRotationEntry) {
+  if (entry.state === "locked") return `Projected after Guild Lv ${entry.nextUnlockLevel}: ${entry.usefulYield}/${entry.missing} coverage`;
+  if (entry.state === "unscheduled") return `${entry.missing} still missing; no cache in this horizon`;
+  return entry.reachableRemainingAfterHorizon > 0
+    ? `${entry.reachableRemainingAfterHorizon} still missing after reachable yield`
+    : "Reachable horizon yield covers this shortage";
 }
 
 function stateLabel(entry: RegionalMaterialRotationEntry) {

@@ -216,6 +216,7 @@ Atualizado em: 2026-07-29
 - Etapa 112 concluida: Regional Acquisition Forecast projeta sete rotacoes locais contra faltas atuais e separa caches alcancaveis dos proximos unlocks.
 - Etapa 112.5 concluida: QA do forecast regional valida cinco anos de calendario, integridade das recompensas e estrutura acessivel por dia e cache.
 - Etapa 113 concluida: Regional Material Rotation Schedule consolida o forecast em uma agenda por falta, com yield, cobertura, acesso e janelas locais.
+- Etapa 113.5 concluida: QA da agenda regional separa cobertura acessivel de potencial bloqueado e valida cinco anos de agregacoes.
 
 Comandos principais:
 
@@ -8998,7 +8999,7 @@ Validacao:
 
 Limitacoes:
 
-- Yield e cobertura sao potenciais e assumem claim de todas as janelas exibidas, inclusive caches que exigem Guild Level ainda bloqueado.
+- A timeline inclui yield potencial de caches bloqueados, mas a cobertura acessivel e o progresso contam somente janelas liberadas no Guild Level atual.
 - A agenda usa a falta atual como fotografia e nao recalcula o saldo progressivamente entre os sete dias.
 - Um pedido ativo futuro pode bloquear temporariamente outras ofertas quando o dia chegar.
 - O sistema nao notifica, reserva, aceita, conclui ou faz claim automatico de pedidos.
@@ -9008,6 +9009,53 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 113.5 - QA aprofundada do Regional Material Rotation Schedule.
+
+## Etapa 113.5 - QA aprofundada do Regional Material Rotation Schedule
+
+Status: concluida.
+
+Correcoes:
+
+- A engine passou a calcular `reachableYield`, `usefulReachableYield`, saldo acessivel e cobertura acessivel separadamente do potencial total do horizonte.
+- Yield acessivel soma apenas ocorrencias desbloqueadas no Guild Level atual; caches bloqueados continuam disponiveis somente como projecao futura.
+- A ordenacao entre materiais do mesmo estado agora considera cobertura acessivel antes da cobertura potencial.
+- A metrica `Potential` virou `Accessible` e a progressbar passou a refletir somente yield realmente obtenivel no nivel atual.
+- Cards bloqueados mostram explicitamente a cobertura projetada depois do Guild Level exigido, sem preencher a barra acessivel.
+- Cards sem cache e cards alcancaveis receberam rodapes especificos para saldo real, ausencia de janela e cobertura disponivel.
+- O footer da secao esclarece que a timeline inclui janelas bloqueadas, enquanto a cobertura conta apenas caches acessiveis.
+
+Validacao de engine:
+
+- Harness temporario passou em 1.917.313 assercoes sobre 1.826 datas locais, equivalentes a cinco anos completos de agendas.
+- Quinze estados de Guild Level cobriram Level 2 bloqueado, primeiro unlock no Level 3, limites superiores, valores negativos, fracionarios, NaN e infinito.
+- Yield total, yield util, saldo e cobertura potenciais foram conferidos separadamente de yield, saldo e cobertura alcancaveis.
+- Nenhum material bloqueado ou sem agenda produziu yield acessivel; cobertura acessivel nunca ultrapassou cobertura projetada.
+- O Level 2 preservou potencial bloqueado com cobertura acessivel zero, e o Level 3 converteu as rotas Veteran correspondentes em yield acessivel.
+- Foram revalidados determinismo, imutabilidade, resumos, estados, datas hostis e empty state com Guild Depot abastecido.
+
+Validacao de interface:
+
+- Browser confirmou no mock Level 2 dois materiais bloqueados com `Accessible 0/11` e `0/5`, ambas as barras em 0%.
+- Os mesmos cards mantiveram projecoes condicionadas ao Guild Level 3 de `11/11` e `5/5`, sem apresenta-las como obtencao atual.
+- Tres materiais sem cache exibiram saldo integral, zero acessivel e mensagem especifica de ausencia no horizonte.
+- A arvore assistiva confirmou nomes `accessible coverage` nas cinco progressbars e preservou as dez janelas regionais nomeadas.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow, sobreposicao ou quebra dos rotulos de progresso.
+- A captura em 390 px confirmou metricas, barras vazias, timelines e projecoes pos-unlock legiveis em coluna unica.
+- O console apresentou somente a falha esperada do Tauri SQL Plugin fora do runtime desktop, usando o mock local.
+- `npm run build` passou com TypeScript, Vite e 444 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou com codigo 0 e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A projecao pos-unlock continua hipotetica e nao presume que a guilda realmente subira de nivel dentro dos sete dias.
+- A agenda nao reserva, aceita, conclui, notifica ou faz claim automatico de pedidos.
+- O browser usa mock local porque o SQLite depende do runtime Tauri; o pacote desktop e o hash do banco sao validados separadamente.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 114 - definir a proxima camada offline depois da agenda regional validada.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

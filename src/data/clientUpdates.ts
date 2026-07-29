@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-113-5",
+    stage: "Stage 113.5",
+    title: "Regional Schedule QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "The material rotation schedule now separates reachable yield from caches that remain locked behind Guild Level.",
+    highlights: [
+      "Accessible coverage and progress count only cache windows the guild can actually claim at its current level.",
+      "Locked cards retain projected post-unlock yield without presenting that amount as immediately obtainable.",
+      "Calendar, aggregation, empty states, accessibility and responsive layouts completed a deeper validation pass.",
+    ],
+    systems: ["Material Schedule QA", "Access Semantics", "Yield Integrity", "Accessibility", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-113",
     stage: "Stage 113",
     title: "Regional Material Rotation Schedule",
