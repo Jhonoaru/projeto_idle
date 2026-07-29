@@ -14,6 +14,7 @@ import { RegionalAcquisitionForecast } from "./RegionalAcquisitionForecast";
 import { RegionalCampaignOrders } from "./RegionalCampaignOrders";
 import { RegionalAcquisitionOpportunityBoard } from "./RegionalAcquisitionOpportunityBoard";
 import { RegionalMaterialAcquisitionPlanner } from "./RegionalMaterialAcquisitionPlanner";
+import { RegionalMaterialRotationSchedule } from "./RegionalMaterialRotationSchedule";
 import { RegionalRewardCompendium } from "./RegionalRewardCompendium";
 import { WeeklyCampaignBriefing } from "./WeeklyCampaignBriefing";
 
@@ -153,6 +154,7 @@ export function CampaignOperationsDashboard({
         onOpenSystem={onOpenSystem}
       />
       <RegionalAcquisitionForecast characters={characters} depot={depot} guild={guild} />
+      <RegionalMaterialRotationSchedule characters={characters} depot={depot} guild={guild} />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">

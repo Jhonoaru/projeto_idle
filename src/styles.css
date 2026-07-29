@@ -14820,6 +14820,52 @@ html[data-client-motion="reduced"] *::after {
 .regional-acquisition-forecast-grid article > footer { padding: 6px 8px; color: #77837a; font-size: .32rem; text-transform: uppercase; }
 .regional-acquisition-forecast > footer { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-top: 1px solid #394138; color: #758078; font-size: .38rem; }
 .regional-acquisition-forecast > footer strong { color: #a59d75; }
+.regional-material-rotation-schedule { min-width: 0; border: 1px solid #4b584c; background: #0f1411; }
+.regional-material-rotation-schedule > header { display: grid; grid-template-columns: 56px minmax(240px, .65fr) minmax(540px, 1.35fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #394239; background: #151a16; }
+.regional-material-rotation-schedule > header > div > span, .regional-material-rotation-schedule-summary span { display: block; color: #7e8a80; font-size: .47rem; text-transform: uppercase; }
+.regional-material-rotation-schedule > header h4 { margin: 3px 0; color: #dfd09a; font: 700 .78rem Georgia, serif; }
+.regional-material-rotation-schedule > header p { margin: 0; color: #828e84; font-size: .49rem; line-height: 1.4; }
+.regional-material-rotation-schedule-seal { display: grid; place-items: center; width: 52px; height: 58px; border: 1px solid #66806a; background: #18231d; }
+.regional-material-rotation-schedule-seal i { color: #d4ca91; font: 700 normal .7rem Georgia, serif; }
+.regional-material-rotation-schedule-seal span { color: #86a083; font-size: .35rem; }
+.regional-material-rotation-schedule-summary { display: grid; grid-template-columns: 1.45fr repeat(3, minmax(0, 1fr)); border: 1px solid #3c453a; }
+.regional-material-rotation-schedule-summary > div { min-width: 0; min-height: 43px; padding: 7px; border-right: 1px solid #3c453a; background: #111713; }
+.regional-material-rotation-schedule-summary > div:last-child { border-right: 0; }
+.regional-material-rotation-schedule-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38d; font-size: .53rem; text-overflow: ellipsis; white-space: nowrap; }
+.regional-material-rotation-schedule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: #384139; }
+.regional-material-rotation-schedule-grid > article { display: grid; grid-template-rows: auto auto auto 1fr auto; min-width: 0; min-height: 248px; background: #121713; }
+.regional-material-rotation-schedule-grid > article.is-reachable { box-shadow: inset 3px 0 #718e65; }
+.regional-material-rotation-schedule-grid > article.is-locked { box-shadow: inset 3px 0 #746e4c; }
+.regional-material-rotation-schedule-grid > article.is-unscheduled { box-shadow: inset 3px 0 #5b625d; }
+.regional-material-rotation-schedule-grid article > header { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-height: 66px; padding: 8px; border-bottom: 1px solid #343c34; }
+.regional-material-rotation-schedule-grid article > header div > * { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-material-rotation-schedule-grid article > header span { color: #7c887e; font-size: .31rem; text-transform: uppercase; }
+.regional-material-rotation-schedule-grid article > header strong { margin: 3px 0; color: #d0c48e; font: 700 .53rem Georgia, serif; }
+.regional-material-rotation-schedule-grid article > header small { color: #717d74; font-size: .31rem; }
+.regional-material-rotation-schedule-grid article > header > b { color: #a9b992; font-size: .35rem; text-transform: uppercase; }
+.regional-material-rotation-schedule-grid article.is-locked > header > b { color: #b5a06a; }
+.regional-material-rotation-schedule-grid article.is-unscheduled > header > b { color: #7d8780; }
+.regional-material-rotation-schedule-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-bottom: 1px solid #343c34; }
+.regional-material-rotation-schedule-metrics > div { min-width: 0; padding: 6px 8px; border-right: 1px solid #303831; }
+.regional-material-rotation-schedule-metrics > div:last-child { border-right: 0; }
+.regional-material-rotation-schedule-metrics span { display: block; color: #6f7b73; font-size: .29rem; text-transform: uppercase; }
+.regional-material-rotation-schedule-metrics strong { display: block; margin-top: 4px; overflow: hidden; color: #bcb486; font-size: .39rem; text-overflow: ellipsis; white-space: nowrap; }
+.regional-material-rotation-schedule-progress { padding: 7px 8px; border-bottom: 1px solid #303831; }
+.regional-material-rotation-schedule-progress span { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 5px; color: #77837a; font-size: .31rem; text-transform: uppercase; }
+.regional-material-rotation-schedule-progress span strong { color: #aab990; }
+.regional-material-rotation-schedule-progress progress { width: 100%; height: 5px; accent-color: #758f68; }
+.regional-material-rotation-schedule-occurrences { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: 1px; padding: 7px; background: #0c110e; }
+.regional-material-rotation-schedule-occurrences > div { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px; align-items: center; min-width: 0; min-height: 30px; padding: 5px 6px; border: 1px solid #333c34; background: #121814; }
+.regional-material-rotation-schedule-occurrences > div.is-locked { opacity: .65; }
+.regional-material-rotation-schedule-occurrences time { color: #a69e75; font: 700 .32rem Georgia, serif; }
+.regional-material-rotation-schedule-occurrences span { overflow: hidden; color: #748078; font-size: .29rem; text-overflow: ellipsis; white-space: nowrap; }
+.regional-material-rotation-schedule-occurrences b { color: #91a982; font-size: .31rem; }
+.regional-material-rotation-schedule-grid article > p { align-self: center; margin: 0; padding: 16px; color: #727d75; font-size: .4rem; line-height: 1.45; text-align: center; }
+.regional-material-rotation-schedule-grid article > footer { padding: 6px 8px; border-top: 1px solid #303831; color: #77837a; font-size: .32rem; text-transform: uppercase; }
+.regional-material-rotation-schedule-empty { display: grid; justify-items: center; gap: 5px; padding: 24px; color: #758078; font-size: .4rem; text-align: center; }
+.regional-material-rotation-schedule-empty strong { color: #c6ba87; font: 700 .56rem Georgia, serif; }
+.regional-material-rotation-schedule > footer { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-top: 1px solid #394138; color: #758078; font-size: .38rem; }
+.regional-material-rotation-schedule > footer strong { color: #a59d75; }
 
 @media (max-width: 980px) {
   .weekly-campaign-briefing > header { grid-template-columns: 56px minmax(0, 1fr); }
@@ -14840,6 +14886,8 @@ html[data-client-motion="reduced"] *::after {
   .regional-acquisition-forecast > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-acquisition-forecast-summary { grid-column: 1 / -1; }
   .regional-acquisition-forecast-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .regional-material-rotation-schedule > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .regional-material-rotation-schedule-summary { grid-column: 1 / -1; }
   .regional-campaign-orders > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders-summary { grid-column: 1 / -1; }
   .guild-region-mastery-summary { grid-column: 1 / -1; }
@@ -14919,6 +14967,13 @@ html[data-client-motion="reduced"] *::after {
   .regional-acquisition-forecast-summary > div { border-bottom: 1px solid #3c453a; }
   .regional-acquisition-forecast-grid { grid-template-columns: 1fr; }
   .regional-acquisition-forecast > footer { align-items: flex-start; flex-direction: column; }
+  .regional-material-rotation-schedule > header { grid-template-columns: 1fr; text-align: center; }
+  .regional-material-rotation-schedule-seal { justify-self: center; }
+  .regional-material-rotation-schedule-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); text-align: left; }
+  .regional-material-rotation-schedule-summary > div:nth-child(2) { border-right: 0; }
+  .regional-material-rotation-schedule-summary > div { border-bottom: 1px solid #3c453a; }
+  .regional-material-rotation-schedule-grid { grid-template-columns: 1fr; }
+  .regional-material-rotation-schedule > footer { align-items: flex-start; flex-direction: column; }
   .regional-campaign-orders > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders-seal { justify-self: center; }
   .regional-campaign-orders-summary { grid-template-columns: 1fr; text-align: left; }

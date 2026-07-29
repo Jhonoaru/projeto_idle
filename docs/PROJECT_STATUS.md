@@ -215,6 +215,7 @@ Atualizado em: 2026-07-29
 - Etapa 111.5 concluida: QA do board regional reforca data hostil, nomes acessiveis unicos e foco persistente por mouse, Enter e Space.
 - Etapa 112 concluida: Regional Acquisition Forecast projeta sete rotacoes locais contra faltas atuais e separa caches alcancaveis dos proximos unlocks.
 - Etapa 112.5 concluida: QA do forecast regional valida cinco anos de calendario, integridade das recompensas e estrutura acessivel por dia e cache.
+- Etapa 113 concluida: Regional Material Rotation Schedule consolida o forecast em uma agenda por falta, com yield, cobertura, acesso e janelas locais.
 
 Comandos principais:
 
@@ -8955,6 +8956,58 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 113 - definir a proxima camada offline depois do forecast regional validado.
+
+## Etapa 113 - Regional Material Rotation Schedule
+
+Status: concluida.
+
+Implementacao:
+
+- Campaign Operations ganhou uma agenda material-centric logo depois do Regional Acquisition Forecast e antes do roster operacional.
+- A engine reutiliza o forecast canonico de sete dias e o Regional Material Acquisition Planner, sem duplicar tabelas de recompensa ou regras de rotacao.
+- Todas as faltas atuais entram na agenda, inclusive materiais sem cache no horizonte, evitando confundir ausencia de previsao com deposito abastecido.
+- Cada material agrega ocorrencias, janelas alcancaveis, yield total, yield util limitado a falta, saldo potencial, cobertura, regioes e proximo unlock.
+- A ordenacao prioriza materiais alcancaveis, depois bloqueados pelo menor Guild Level e por fim os sem ocorrencia regional.
+- A agenda e totalmente derivada e offline, sem schema, save, reserva, aceite, claim, transferencia ou automacao.
+
+Interface:
+
+- O header resume horizonte, materiais programados, alcancaveis e sem cache nos sete dias.
+- Cada card mostra item, falta real, estado de acesso, proxima janela, aparicoes, cobertura potencial e quantidade de regioes.
+- A timeline lista data local, sigla da regiao, dificuldade e yield de cada cache, com nome acessivel completo por ocorrencia.
+- Estados `reachable`, `locked` e `unscheduled` possuem texto e tratamento visual distintos.
+- O empty state cobre o caso em que Logistics nao possui nenhuma falta ativa.
+- O layout usa dois cards por linha no desktop e uma coluna ate 520 px.
+
+Validacao:
+
+- Harness temporario passou em 1.380.976 assercoes sobre 1.096 datas locais, equivalentes a tres anos completos de inicio de agenda.
+- Quatorze estados de Guild Level cobriram limites de unlock, niveis negativos, fracionarios, NaN e infinito.
+- Cada ocorrencia foi comparada com dia, pedido, regiao, dificuldade, quantidade, acesso e requisito do Regional Acquisition Forecast real.
+- Foram validados determinismo, imutabilidade, horizonte, materiais unicos, estados, ordenacao, resumos, yield, cobertura, saldo e proximo unlock.
+- Datas runtime nulas, strings, objetos, arrays, NaN e invalidas mantiveram uma agenda segura de sete dias.
+- Guild Depot totalmente abastecido produziu empty state com contadores zerados.
+- Browser confirmou cinco faltas, dois materiais programados, tres sem cache, zero alcancaveis e dez janelas no mock Level 2.
+- A arvore assistiva confirmou section, resumo, lista de materiais, cinco cards, dez ocorrencias nomeadas, dez elementos `<time>` e cinco progressbars.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow ou sobreposicao entre icone, texto, estado e timeline.
+- A captura em 390 px confirmou resumo 2x2, cards em coluna unica, timelines em duas colunas e estados bloqueado/sem cache legiveis.
+- O console apresentou somente a falha esperada do Tauri SQL Plugin fora do runtime desktop, usando o mock local.
+- `npm run build` passou com TypeScript, Vite e 444 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou com codigo 0 e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Yield e cobertura sao potenciais e assumem claim de todas as janelas exibidas, inclusive caches que exigem Guild Level ainda bloqueado.
+- A agenda usa a falta atual como fotografia e nao recalcula o saldo progressivamente entre os sete dias.
+- Um pedido ativo futuro pode bloquear temporariamente outras ofertas quando o dia chegar.
+- O sistema nao notifica, reserva, aceita, conclui ou faz claim automatico de pedidos.
+- O browser usa mock local porque o SQLite depende do runtime Tauri; o pacote desktop e o hash do banco sao validados separadamente.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 113.5 - QA aprofundada do Regional Material Rotation Schedule.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

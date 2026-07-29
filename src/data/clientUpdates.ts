@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-113",
+    stage: "Stage 113",
+    title: "Regional Material Rotation Schedule",
+    date: "2026-07-29",
+    category: "systems",
+    summary: "Campaign Operations now consolidates the seven-day regional forecast into one schedule per Logistics shortage.",
+    highlights: [
+      "Each material reports its next cache, total appearances, potential useful yield, regional reach and current Guild Level access.",
+      "Reachable, locked and unscheduled shortages remain visible together, so a missing forecast is never mistaken for a supplied depot.",
+      "The schedule is derived from canonical regional rotations and current Logistics demand without reservations, automation or new persistence.",
+    ],
+    systems: ["Material Schedule", "Regional Forecast", "Guild Logistics", "Offline Planning", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-112-5",
     stage: "Stage 112.5",
     title: "Regional Forecast QA",
