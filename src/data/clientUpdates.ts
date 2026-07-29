@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-114",
+    stage: "Stage 114",
+    title: "Item Sprite Foundation",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "The first original item sprites now replace letter placeholders across every shared inventory surface.",
+    highlights: [
+      "Old Cloth, Spider Silk, Rat Tail, Dwarf Badge and Dragon Ember received original transparent fantasy sprites.",
+      "One shared item-id registry carries the artwork into inventory, loot, depot, crafting and Operations without duplicating UI rules.",
+      "Items without dedicated artwork retain their existing semantic symbol, rarity, tier, quantity and accessibility behavior.",
+    ],
+    systems: ["Item Sprites", "Inventory", "Loot", "Guild Depot", "Operations", "Visual Foundation"],
+    featured: true,
+  },
+  {
     id: "stage-113-5",
     stage: "Stage 113.5",
     title: "Regional Schedule QA",

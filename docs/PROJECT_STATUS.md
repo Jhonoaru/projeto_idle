@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 114 concluida: fundacao visual de sprites originais para itens, com cinco materiais/trofeus integrados ao `ItemIcon` compartilhado e fallback seguro para o restante do catalogo.
 - Etapa 13 implementada: hunts usam supplies reais do inventario do personagem.
 - Etapa 13.5 concluida: QA de supplies reais, save/load, containers, `guild.gold`, Market NPC e Action Analyzer.
 - Etapa 14 concluida: morte com deathState, templo, bless, penalidade leve e recovery manual.
@@ -9056,6 +9057,56 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 114 - definir a proxima camada offline depois da agenda regional validada.
+
+## Etapa 114 - Item Sprite Foundation
+
+Status: concluida.
+
+Implementacao:
+
+- Foi criada uma fundacao visual baseada em `itemId`, separada dos metadados de gameplay e sem alterar schema, save, raridade, tier ou balanceamento.
+- O registro compartilhado `src/data/itemSprites.ts` associa arte somente quando existe um sprite dedicado.
+- `ItemIcon` passou a renderizar o sprite como imagem decorativa e manteve o nome acessivel no container, alem dos overlays de quantidade, tier, lock e badges.
+- Itens ainda sem arte continuam usando os simbolos semanticos existentes, sem slots vazios ou imagens quebradas.
+- Como `ItemIcon` e compartilhado, os sprites aparecem automaticamente em Inventory, Equipment, Loot, Market, Guild Depot, crafting e paineis de Operations que usam esses itens.
+
+Sprites iniciais:
+
+- `Old Cloth` (`old-cloth`).
+- `Spider Silk` (`spider-silk`).
+- `Rat Tail` (`rat-tail`).
+- `Dwarf Badge` (`dwarf-badge`).
+- `Dragon Ember` (`dragon-ember`).
+
+Pipeline visual:
+
+- As cinco artes foram geradas pelo ImageGen integrado em modo built-in, como pixel art original de inventario fantasy MMORPG.
+- Prompt-base: um unico objeto centralizado, silhueta clara em tamanho pequeno, fundo chroma key `#00ff00`, sem texto, frame, UI, sombra externa ou semelhanca exata com assets de jogos existentes.
+- O chroma key foi removido localmente e os arquivos finais foram reduzidos para PNG RGBA `256x256`.
+- A validacao confirmou alpha zero nos quatro cantos de todos os arquivos e no maximo tres amostras residuais da cor-chave por sprite em uma grade de 4 px.
+- Os assets finais ficam em `public/assets/items/generated/` e nao usam material externo ou protegido.
+
+Validacao:
+
+- Os cinco `itemId` foram conferidos contra `src/data/items.ts` e todos os PNGs finais existem no caminho registrado.
+- O browser carregou seis instancias visiveis dos cinco sprites em Logistics, todas com dimensoes naturais `256x256`, sem imagens quebradas ou overflow nos icons.
+- O fallback permaneceu ativo para materiais ainda sem arte, incluindo Enchanted Dust e Iron Ore.
+- A interface passou em `1280`, `980`, `760`, `520` e `390 px` sem overflow horizontal, sobreposicao ou perda dos nomes acessiveis.
+- O console apresentou somente a falha esperada do Tauri SQL Plugin fora do runtime desktop, usando o mock local.
+- `npm.cmd run build` passou com TypeScript, Vite e 445 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- Esta primeira passagem cobre cinco itens muito reutilizados; o restante do catalogo ainda usa simbolos tipograficos.
+- As artes sao uma fundacao incremental e ainda nao formam um atlas otimizado.
+- Criaturas, herois, equipamentos vestidos, animacoes e cenarios continuam fora desta etapa.
+- Nao houve mudanca de gameplay, persistencia ou economia.
+
+Proximo passo sugerido:
+
+- Etapa 114.5 - QA visual e responsiva da fundacao de sprites de itens.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
