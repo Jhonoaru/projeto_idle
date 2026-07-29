@@ -1791,6 +1791,10 @@ p {
   background: #151a17;
 }
 
+.workbench-requirements > .workbench-material-requirement {
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+}
+
 .workbench-requirements span { color: #929c94; font-size: 0.58rem; overflow-wrap: anywhere; text-transform: uppercase; }
 .workbench-requirements strong { color: #bfc7bf; font-size: 0.62rem; white-space: nowrap; }
 .workbench-requirements > div.is-ready { border-left: 3px solid #72996e; }
@@ -2084,6 +2088,10 @@ p {
   font-size: 0.82rem;
 }
 
+.forge-action-box .forge-material-list {
+  margin: 8px 0;
+}
+
 .forge-action-box button {
   border-color: #c9aa62;
   color: #191711;
@@ -2209,12 +2217,19 @@ p {
 
 .forge-material {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
   gap: 8px;
+  align-items: center;
+  min-width: 0;
   padding: 5px 7px;
   border: 1px solid #30352f;
   border-radius: 5px;
   background: #151a17;
+}
+
+.forge-material span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .forge-material strong {

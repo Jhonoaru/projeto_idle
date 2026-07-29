@@ -99,9 +99,12 @@ export function GuildWorkbenchPanel({ guild, depot, onCraft }: GuildWorkbenchPan
             </div>
             {selectedRecipe.materials.map((material) => {
               const available = materialCounts.get(material.itemId) ?? 0;
+              const materialItem = items[material.itemId];
               return (
-                <div className={available >= material.quantity ? "is-ready" : "is-missing"} key={material.itemId}>
-                  <span>{items[material.itemId]?.name ?? material.itemId}</span><strong>{available}/{material.quantity}</strong>
+                <div className={`workbench-material-requirement ${available >= material.quantity ? "is-ready" : "is-missing"}`} key={material.itemId}>
+                  <ItemIcon item={materialItem} showBadges={false} showQuantity={false} size="small" />
+                  <span>{materialItem?.name ?? material.itemId}</span>
+                  <strong>{available}/{material.quantity}</strong>
                 </div>
               );
             })}

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-115-5",
+    stage: "Stage 115.5",
+    title: "Core Item Sprite QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "Supply and material sprites completed shared-surface, crafting, Forge and responsive validation.",
+    highlights: [
+      "Forge upgrade, tier and Imbuement material rows now render the shared ItemIcon beside their availability counters.",
+      "Guild Workbench requirements now show material sprites without changing recipe costs or crafting behavior.",
+      "Inventory, Market NPC and Guild Depot retained quantity overlays, accessible names and stable mobile layouts.",
+    ],
+    systems: ["Item Sprite QA", "Forge", "Guild Workbench", "Inventory", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-115",
     stage: "Stage 115",
     title: "Core Supply and Material Sprites",

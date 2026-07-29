@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 115.5 concluida: QA dos sprites de supplies/materiais, com integracao visual corrigida nos custos da Forge e requisitos do Guild Workbench.
 - Etapa 115 concluida: sprites originais para tres supplies centrais e dois materiais recorrentes, integrados ao `ItemIcon` compartilhado sem alterar gameplay ou persistencia.
 - Etapa 114.5 concluida: QA visual da fundacao de sprites de itens, com fallback resiliente para falha de imagem, validacao de alpha/catalogo, quantidade, acessibilidade e layouts responsivos.
 - Etapa 114 concluida: fundacao visual de sprites originais para itens, com cinco materiais/trofeus integrados ao `ItemIcon` compartilhado e fallback seguro para o restante do catalogo.
@@ -9185,6 +9186,38 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 115.5 - QA visual e responsiva dos novos sprites em supplies, Market NPC, Guild Depot e crafting.
+
+## Etapa 115.5 - QA dos sprites de supplies e materiais
+
+Status: concluida.
+
+Correcoes:
+
+- `ForgeMaterialRequirement` passou a usar `ItemIcon`, exibindo o sprite ou fallback semantico ao lado do nome e do contador `disponivel/necessario`.
+- Custos de upgrade e aumento de tier deixaram a lista textual de `itemId` e agora reutilizam a mesma linha visual dos materiais de Imbuement.
+- Requisitos das receitas no Guild Workbench agora exibem os materiais por sprite sem alterar disponibilidade, custos, ranks ou entrega.
+- Os novos layouts usam colunas estaveis para icon, nome e contador, com quebra segura de nomes longos.
+
+Validacao interativa:
+
+- Enhancement Forge exibiu 52 linhas de materiais entre upgrade, tier e Imbuements; todos os sprites registrados carregaram em `256x256` e permaneceram dentro das linhas.
+- Custos iniciais mostraram `Iron Ore 12/2`; tier e Imbuements exibiram `Enchanted Dust`, `Dragon Ember` e `Old Cloth`, enquanto materiais ainda sem arte mantiveram fallback.
+- Guild Workbench exibiu `Iron Ore 12/2` na receita inicial e `Old Cloth 18/3` com `Enchanted Dust 2/1` em `Apprentice Focus`.
+- Workbench passou em `980`, `760`, `520` e `390 px` sem overflow horizontal, falha de imagem ou icon fora da linha.
+- Em `390 px`, Market NPC carregou as tres novas potions, Guild Depot carregou os materiais e Inventory exibiu `Minor Health Potion x3`.
+- Nomes acessiveis, raridade e overlays de quantidade permaneceram preservados nas superficies compartilhadas.
+- `npm.cmd run build` passou antes e depois das correcoes com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A navegacao interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser.
+- Nenhuma receita, material, quantidade, preco, drop, raridade ou schema SQLite foi alterado.
+
+Proximo passo sugerido:
+
+- Etapa 116 - expandir sprites originais para Strong Potions, runes e ammunition de uso recorrente.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

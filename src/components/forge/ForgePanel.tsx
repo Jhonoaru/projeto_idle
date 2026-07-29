@@ -378,13 +378,14 @@ function ForgeActionBox({
       {cost ? (
         <>
           <p>{cost.goldCost.toLocaleString("en-US")}g</p>
-          <ul>
+          <div className="forge-material-list">
             {cost.requiredMaterials.map((material) => (
-              <li key={material.itemId}>
-                {material.itemId}: {materialsAvailable.get(material.itemId) ?? 0}/{material.quantity}
-              </li>
+              <ForgeMaterialRequirement
+                key={material.itemId}
+                material={{ ...material, available: materialsAvailable.get(material.itemId) ?? 0 }}
+              />
             ))}
-          </ul>
+          </div>
           <button onClick={onAction} type="button">{actionLabel}</button>
         </>
       ) : (
