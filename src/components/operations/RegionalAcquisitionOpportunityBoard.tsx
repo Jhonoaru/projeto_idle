@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type KeyboardEvent } from "react";
 import {
   buildRegionalAcquisitionOpportunityBoard,
   type RegionalAcquisitionOpportunity,
@@ -61,6 +61,12 @@ export function RegionalAcquisitionOpportunityBoard({ characters, depot, guild, 
 }
 
 function OpportunityCard({ entry, onReview }: { entry: RegionalAcquisitionOpportunity; onReview: () => void }) {
+  const reviewFromKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onReview();
+  };
+
   return (
     <article className={`is-${entry.state}`}>
       <header>
@@ -75,7 +81,12 @@ function OpportunityCard({ entry, onReview }: { entry: RegionalAcquisitionOpport
       </div>
       <footer>
         <span>{entry.difficultyLabel} / Guild Lv {entry.requiredGuildLevel} / {entry.rewardGold.toLocaleString("en-US")}g</span>
-        <button onClick={onReview} type="button">Review Order</button>
+        <button
+          aria-label={`Review ${entry.regionName} order: ${entry.orderTitle}`}
+          onClick={onReview}
+          onKeyDown={reviewFromKeyboard}
+          type="button"
+        >Review Order</button>
       </footer>
     </article>
   );

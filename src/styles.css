@@ -14723,6 +14723,7 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38e; font-size: .56rem; text-overflow: ellipsis; white-space: nowrap; }
 .regional-campaign-orders-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; padding: 1px; background: #394037; }
 .regional-campaign-orders-grid article { display: grid; grid-template-rows: auto minmax(44px, 1fr) auto auto auto auto; gap: 7px; min-width: 0; min-height: 270px; padding: 8px; border-top: 3px solid #596055; background: #151a17; }
+.regional-campaign-orders-grid article:focus-visible { outline: 2px solid #d6b45c; outline-offset: -3px; }
 .regional-campaign-orders-grid article.is-active { border-top-color: #b29448; background: #1d1f18; }
 .regional-campaign-orders-grid article.is-ready { border-top-color: #72a16c; background: #172019; }
 .regional-campaign-orders-grid article.is-claimed { border-top-color: #5b715b; opacity: .72; }

@@ -61,7 +61,7 @@ export function buildRegionalAcquisitionOpportunityBoard(
   characters: Character[],
   now = new Date(),
 ): RegionalAcquisitionOpportunityBoard {
-  const validNow = Number.isFinite(now.getTime()) ? now : new Date();
+  const validNow = now instanceof Date && Number.isFinite(now.getTime()) ? now : new Date();
   const cycleKey = getLocalCampaignCycleKey(validNow);
   const plan = buildRegionalMaterialAcquisitionPlan(guild, depot, characters);
   const demands = new Map(plan.entries.map((entry) => [entry.item.id, entry]));

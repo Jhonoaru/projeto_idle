@@ -212,6 +212,7 @@ Atualizado em: 2026-07-28
 - Etapa 110 concluida: Regional Material Acquisition Planner conecta faltas reais de Logistics a rotas Veteran/Elite e estima claims necessarios.
 - Etapa 110.5 concluida: QA do planner regional corrige recomendacoes bloqueadas, prioriza o proximo unlock real e tolera Guild Depot malformado.
 - Etapa 111 concluida: Regional Acquisition Opportunity Board cruza faltas reais com a rotacao diaria e leva ao pedido regional exato sem aceitar automaticamente.
+- Etapa 111.5 concluida: QA do board regional reforca data hostil, nomes acessiveis unicos e foco persistente por mouse, Enter e Space.
 
 Comandos principais:
 
@@ -8814,6 +8815,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 111.5 - QA aprofundada do Regional Acquisition Opportunity Board.
+
+## Etapa 111.5 - QA aprofundada do Regional Acquisition Opportunity Board
+
+Status: concluida.
+
+Correcoes:
+
+- A engine agora confirma `instanceof Date` antes de acessar `getTime`, aceitando valores runtime nulos, strings, objetos e datas invalidas com fallback seguro.
+- Cada `Review Order` ganhou nome acessivel unico com regiao e titulo da missao, eliminando comandos indistinguiveis quando dois ou tres matches aparecem juntos.
+- Cards de Regional Campaign Orders focados programaticamente agora exibem contorno visual dedicado de 2 px.
+- A revisao passou a ser agendada depois do evento nativo e ganhou tratamento explicito para `Enter` e `Space`, impedindo que o navegador devolva o foco ao botao.
+
+Validacao de engine:
+
+- Harness temporario passou em 70.677 assercoes sobre 1.826 dias locais, equivalentes a cinco anos completos de rotacoes.
+- Dez mil Guild Depots hostis cobriram entradas nulas, vazias, locked, aninhadas, de personagem, negativas, NaN e infinitas.
+- Cada oportunidade foi conferida contra o Regional Material Acquisition Planner, o status atual e a difficulty option ou snapshot real correspondente.
+- Item, quantidade, gold, tabela regional, cobertura, saldo restante, ciclo, proxima virada, contadores e imutabilidade foram validados.
+- Transicoes available, active, ready, completed, blocked e locked passaram usando accept, progress, claim, carry-over e abandon das engines reais.
+- Um active order do ciclo anterior nao vazou para a lista atual; os novos matches permaneceram blocked ate o abandono manual.
+- Guild Depot totalmente abastecido produziu empty state sem oportunidades, e datas runtime malformadas nao quebraram a engine.
+
+Validacao de interface:
+
+- Browser confirmou nome acessivel especifico no botao e no card de destino, alem de `tabIndex=-1` nos tres pedidos regionais.
+- Clique, `Enter` e `Space` centralizaram e mantiveram foco no pedido exato, com outline calculado de 2 px.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento, board ou descendentes.
+- A captura final em 390 px confirmou resumo 2x2, card em coluna unica, status em linha propria e comando visivel.
+- O console do Vite apresentou somente a falha esperada do Tauri SQL Plugin fora do runtime desktop.
+- `npm run build` passou com TypeScript, Vite e 440 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O board continua somente leitura e nao aceita, abandona, conclui, reserva ou repete pedidos automaticamente.
+- O browser usa mock local porque o SQLite depende do runtime Tauri; o pacote desktop e o hash do banco sao validados separadamente.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 112 - definir a proxima camada offline depois do ciclo regional validado.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

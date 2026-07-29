@@ -138,8 +138,10 @@ export function CampaignOperationsDashboard({
         guild={guild}
         onReviewOrder={(orderId) => {
           const order = document.getElementById(`regional-campaign-order-${orderId}`);
-          order?.scrollIntoView({ block: "center" });
-          order?.focus({ preventScroll: true });
+          window.setTimeout(() => {
+            order?.scrollIntoView({ block: "center" });
+            order?.focus({ preventScroll: true });
+          }, 0);
         }}
       />
       <RegionalCampaignOrders

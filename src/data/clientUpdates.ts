@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-111-5",
+    stage: "Stage 111.5",
+    title: "Regional Acquisition Opportunity Board QA",
+    date: "2026-07-28",
+    category: "qa",
+    summary: "Regional opportunity review now has unique accessible commands, persistent keyboard focus and safer runtime date normalization.",
+    highlights: [
+      "Review commands identify their exact region and assignment while Enter, Space and mouse activation all focus the same live order card.",
+      "Focused Regional Orders now receive a visible command outline and remain centered after keyboard activation.",
+      "Seventy thousand six hundred seventy-seven checks covered five years of rotations, hostile depots, frozen rewards and cycle carry-over.",
+    ],
+    systems: ["Material Opportunities QA", "Keyboard Navigation", "Regional Orders", "Save Hardening", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-111",
     stage: "Stage 111",
     title: "Regional Acquisition Opportunity Board",
