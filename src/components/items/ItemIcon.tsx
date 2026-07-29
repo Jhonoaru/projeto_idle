@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { getInventoryItemBadges, getItemIconMeta } from "./itemIconMeta";
 import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { getEquipmentProgression } from "../../game-engine/items/getEquipmentProgression";
@@ -32,6 +33,8 @@ export function ItemIcon({
   const iconQuantity = quantity ?? inventoryItem?.quantity;
   const meta = getItemIconMeta(iconItem);
   const sprite = getItemSprite(iconItem?.id);
+  const [failedSpriteSource, setFailedSpriteSource] = useState<string | null>(null);
+  const activeSprite = sprite?.src === failedSpriteSource ? undefined : sprite;
   const identity = getItemVisualIdentity(iconItem, inventoryItem);
   const progression = iconItem?.type === "equipment" ? getEquipmentProgression(iconItem) : undefined;
   const equipmentSet = iconItem?.type === "equipment" ? getEquipmentSetForItem(iconItem) : undefined;
@@ -51,13 +54,14 @@ export function ItemIcon({
       ].filter(Boolean).join(" ")}
       title={iconItem ? `${iconItem.name} / ${identity.combinedLabel}${progression ? ` / ${progression.family.label} / ${progression.band.label}` : ""}${equipmentSet ? ` / ${equipmentSet.name}` : ""} / ${meta.label}` : "Empty"}
     >
-      {sprite ? (
+      {activeSprite ? (
         <img
           alt=""
           aria-hidden="true"
           className="item-icon-sprite"
           draggable={false}
-          src={sprite.src}
+          onError={() => setFailedSpriteSource(activeSprite.src)}
+          src={activeSprite.src}
         />
       ) : (
         <strong>{meta.symbol}</strong>

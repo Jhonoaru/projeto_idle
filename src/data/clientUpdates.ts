@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-114-5",
+    stage: "Stage 114.5",
+    title: "Item Sprite Foundation QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "The first item sprite set completed asset, fallback, overlay, accessibility and responsive validation.",
+    highlights: [
+      "Registered sprites now fall back to their semantic letter symbol if the image request itself fails.",
+      "Transparent bounds, catalog identities and production asset copies were checked for all five original sprites.",
+      "Shared item surfaces preserve quantities, rarity, tier, lock badges and accessible item names across desktop and mobile layouts.",
+    ],
+    systems: ["Item Sprite QA", "Resilient Fallback", "Inventory", "Accessibility", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-114",
     stage: "Stage 114",
     title: "Item Sprite Foundation",

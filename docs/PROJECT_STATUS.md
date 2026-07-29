@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 114.5 concluida: QA visual da fundacao de sprites de itens, com fallback resiliente para falha de imagem, validacao de alpha/catalogo, quantidade, acessibilidade e layouts responsivos.
 - Etapa 114 concluida: fundacao visual de sprites originais para itens, com cinco materiais/trofeus integrados ao `ItemIcon` compartilhado e fallback seguro para o restante do catalogo.
 - Etapa 13 implementada: hunts usam supplies reais do inventario do personagem.
 - Etapa 13.5 concluida: QA de supplies reais, save/load, containers, `guild.gold`, Market NPC e Action Analyzer.
@@ -9107,6 +9108,35 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 114.5 - QA visual e responsiva da fundacao de sprites de itens.
+
+## Etapa 114.5 - QA visual da fundacao de sprites de itens
+
+Status: concluida.
+
+Validado/corrigido:
+
+- `ItemIcon` agora troca para o simbolo semantico existente quando a requisicao de um sprite registrado falha, evitando imagem quebrada sem remover nome, quantidade ou badges.
+- Os cinco `itemId` do registro foram novamente conferidos contra `src/data/items.ts`; nao ha registro sem item, PNG ausente ou arquivo extra no diretorio de producao.
+- Todos os sprites permanecem PNG RGBA `256x256`, com alpha zero nos quatro cantos, objeto visivel dentro da tela e pixels semitransparentes nas bordas.
+- Logistics exibiu os cinco sprites originais, mais uma segunda instancia de `Old Cloth`, com dimensoes naturais corretas e sem overflow dos icons.
+- Guild Depot confirmou `Old Cloth` com sprite e quantidade `x18` no mesmo slot; Iron Ore e Enchanted Dust continuaram usando seus fallbacks tipograficos.
+- Inventory confirmou o fallback de supply com `Minor Health Potion x3` e a grade de slots vazios sem regressao.
+- Nomes acessiveis continuaram completos nos containers, incluindo nome, raridade, tier, familia/faixa quando aplicavel e tipo visual.
+- O Guild Depot passou em `980`, `760`, `520` e `390 px`, com sprites carregados, contidos nos slots e sem overflow horizontal.
+- `npm.cmd run build` passou antes e depois da correcao, com 445 modulos e apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes da QA:
+
+- O browser controlado usa o mock local porque o Tauri SQL Plugin nao esta disponivel fora do runtime desktop.
+- A superficie de automacao nao permitiu alterar o `src` da imagem para provocar uma falha de rede artificial; o fallback de `onError` foi validado por leitura da implementacao e build, nao por clique interativo.
+- O save atual nao possui um equipamento com sprite dedicado, pois esta primeira fundacao cobre materiais e trofeus; overlays de raridade, tier e lock permaneceram cobertos pelo `ItemIcon` compartilhado e pelos itens sem sprite.
+- Nao houve mudanca de gameplay, persistencia, economia ou schema SQLite.
+
+Proximo passo sugerido:
+
+- Etapa 115 - expandir sprites originais para supplies e materiais centrais mais frequentes.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
