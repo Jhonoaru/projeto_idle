@@ -1,5 +1,6 @@
 import { Panel } from "../ui/Panel";
 import { ItemIcon } from "../items/ItemIcon";
+import { items } from "../../data/items";
 import type { Character, HuntArea, HuntSimulationResult } from "../../shared/types";
 
 interface HuntResultPanelProps {
@@ -112,7 +113,10 @@ export function HuntResultPanel({
             <div className="loot-result-grid">
               {result.suppliesUsed.map((supply) => (
                 <div className="loot-result-card is-supply" key={supply.itemId}>
-                  <ItemIcon item={{ id: supply.itemId, name: supply.itemName, type: "consumable", rarity: "common", weight: 0, value: 0, stackable: true, description: supply.itemName }} quantity={supply.quantityUsed} />
+                  <ItemIcon
+                    item={items[supply.itemId] ?? { id: supply.itemId, name: supply.itemName, type: "consumable", rarity: "common", weight: 0, value: 0, stackable: true, description: supply.itemName }}
+                    quantity={supply.quantityUsed}
+                  />
                   <strong>{supply.itemName}</strong>
                   <span>x{supply.quantityUsed}</span>
                   <em>-{supply.valueUsed.toLocaleString("en-US")}g</em>

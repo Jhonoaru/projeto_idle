@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-116",
+    stage: "Stage 116",
+    title: "Advanced Supply Sprite Set",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "Strong potions, combat runes and recurring Ranger ammunition now have original pixel-art sprites.",
+    highlights: [
+      "Strong Health and Strong Mana potions now communicate their higher power through reinforced silhouettes.",
+      "Four combat runes have distinct stone shapes and abstract elemental glyphs for quick identification.",
+      "Simple and Piercing arrows now differ by arrowhead, fletching and binding while preserving stack quantities.",
+    ],
+    systems: ["Item Sprites", "Advanced Supplies", "Runes", "Ammunition", "Market NPC"],
+    featured: true,
+  },
+  {
     id: "stage-115-5",
     stage: "Stage 115.5",
     title: "Core Item Sprite QA",

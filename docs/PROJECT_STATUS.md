@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 116 concluida: sprites originais para Strong Potions, quatro combat runes e duas ammunition stacks, com raridade de supplies corrigida no resultado de hunt.
 - Etapa 115.5 concluida: QA dos sprites de supplies/materiais, com integracao visual corrigida nos custos da Forge e requisitos do Guild Workbench.
 - Etapa 115 concluida: sprites originais para tres supplies centrais e dois materiais recorrentes, integrados ao `ItemIcon` compartilhado sem alterar gameplay ou persistencia.
 - Etapa 114.5 concluida: QA visual da fundacao de sprites de itens, com fallback resiliente para falha de imagem, validacao de alpha/catalogo, quantidade, acessibilidade e layouts responsivos.
@@ -9218,6 +9219,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 116 - expandir sprites originais para Strong Potions, runes e ammunition de uso recorrente.
+
+## Etapa 116 - Sprites avancados de supplies, runes e ammunition
+
+Status: concluida.
+
+Implementacao:
+
+- O registro compartilhado passou de 10 para 18 sprites originais sem alterar a API de `ItemIcon` ou os fallbacks do restante do catalogo.
+- `Strong Health Potion` e `Strong Mana Potion` receberam silhuetas reforcadas e distintas das versoes basicas.
+- `Light Magic Rune`, `Fire Burst Rune`, `Healing Rune` e `Energy Strike Rune` receberam formatos de pedra e glyphs abstratos proprios.
+- `Simple Arrow` e `Piercing Arrow` receberam bundles distintos por arrowhead, fletching e binding, preservando a leitura como ammunition stack.
+- `HuntResultPanel` agora usa a definicao real de `src/data/items.ts` para supplies conhecidos, preservando raridade e identidade visual; IDs legados ainda recebem fallback seguro.
+
+Assets adicionados:
+
+- `public/assets/items/generated/strong-health-potion.png`.
+- `public/assets/items/generated/strong-mana-potion.png`.
+- `public/assets/items/generated/light-magic-rune.png`.
+- `public/assets/items/generated/fire-burst-rune.png`.
+- `public/assets/items/generated/healing-rune.png`.
+- `public/assets/items/generated/energy-strike-rune.png`.
+- `public/assets/items/generated/simple-arrow.png`.
+- `public/assets/items/generated/piercing-arrow.png`.
+
+Pipeline e validacao:
+
+- As oito artes foram geradas pelo ImageGen integrado em modo built-in como pixel art original, sem texto, moldura, UI ou referencia protegida.
+- Sete fontes usaram chroma key `#00ff00`; Healing Rune usou `#ff00ff` para preservar o verde do item.
+- O helper oficial aplicou soft matte e despill, seguido por reducao para PNG RGBA `256x256`.
+- Todos os arquivos possuem alpha zero nos quatro cantos, objeto completo dentro da tela e pixels semitransparentes nas bordas.
+- O catalogo final possui 18 registros e exatamente 18 PNGs, sem item, asset ou arquivo extra divergente.
+- Market NPC carregou os oito novos sprites: potions/runes em `x10` e arrows em `x100`, com raridade e nomes acessiveis preservados.
+- Os filtros Supplies, Runes e Ammo/Quivers exibiram respectivamente os cinco potions, quatro runes e duas arrows; Light Quiver manteve o fallback tipografico esperado.
+- A selecao de `Piercing Arrow` atualizou listagem e dossier com o sprite correto.
+- Market passou em `980`, `760`, `520` e `390 px` sem overflow horizontal, imagem quebrada ou sprite fora do slot.
+- `npm.cmd run build` passou antes e depois da correcao do Hunt Result com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou os pacotes MSI e NSIS para Windows.
+- O SQLite local permaneceu intacto antes e depois do build Tauri: 81.920 bytes, data `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A navegacao interativa usou o browser com mock local porque o Tauri SQL Plugin nao existe fora do runtime desktop.
+- O painel de resultado com supply avancado foi validado por leitura e build, nao por completar uma hunt high-level no save atual.
+- Nenhum preco, quantidade, consumo, drop, receita, balanceamento ou schema SQLite foi alterado.
+
+Proximo passo sugerido:
+
+- Etapa 116.5 - QA dos sprites avancados em Market, hunt result, supplies e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
