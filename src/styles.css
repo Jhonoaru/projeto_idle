@@ -14785,6 +14785,41 @@ html[data-client-motion="reduced"] *::after {
 .regional-campaign-orders-history article > b small { display: block; margin-top: 2px; overflow: hidden; color: #768278; font: 400 .34rem sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .regional-campaign-orders-history article > time { color: #717d75; font-size: .38rem; text-align: right; }
 .regional-campaign-orders > footer { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 7px 9px; border-top: 1px solid #384038; color: #7f8a82; font-size: .46rem; }
+.regional-acquisition-forecast { min-width: 0; border: 1px solid #4c5647; background: #0f1411; }
+.regional-acquisition-forecast > header { display: grid; grid-template-columns: 56px minmax(240px, .65fr) minmax(540px, 1.35fr); gap: 10px; align-items: center; min-height: 76px; padding: 9px; border-bottom: 1px solid #394238; background: #151a16; }
+.regional-acquisition-forecast > header > div > span, .regional-acquisition-forecast-summary span { display: block; color: #7e8a80; font-size: .47rem; text-transform: uppercase; }
+.regional-acquisition-forecast > header h4 { margin: 3px 0; color: #dfd09a; font: 700 .78rem Georgia, serif; }
+.regional-acquisition-forecast > header p { margin: 0; color: #828e84; font-size: .49rem; line-height: 1.4; }
+.regional-acquisition-forecast-seal { display: grid; place-items: center; width: 52px; height: 58px; border: 1px solid #657d67; background: #18231d; }
+.regional-acquisition-forecast-seal i { color: #d4ca91; font: 700 normal .7rem Georgia, serif; }
+.regional-acquisition-forecast-seal span { color: #86a083; font-size: .42rem; }
+.regional-acquisition-forecast-summary { display: grid; grid-template-columns: 1.45fr repeat(3, minmax(0, 1fr)); border: 1px solid #3c453a; }
+.regional-acquisition-forecast-summary > div { min-width: 0; min-height: 43px; padding: 7px; border-right: 1px solid #3c453a; background: #111713; }
+.regional-acquisition-forecast-summary > div:last-child { border-right: 0; }
+.regional-acquisition-forecast-summary strong { display: block; margin-top: 5px; overflow: hidden; color: #cec38d; font-size: .53rem; text-overflow: ellipsis; white-space: nowrap; }
+.regional-acquisition-forecast-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: #384139; }
+.regional-acquisition-forecast-grid > article { display: grid; grid-template-rows: auto 1fr auto; min-width: 0; min-height: 178px; background: #121713; }
+.regional-acquisition-forecast-grid > article.has-actionable { box-shadow: inset 0 3px #728f65; }
+.regional-acquisition-forecast-grid > article.has-locked { box-shadow: inset 0 3px #746e4c; }
+.regional-acquisition-forecast-grid > article.is-empty { opacity: .68; }
+.regional-acquisition-forecast-grid article > header { display: flex; justify-content: space-between; gap: 8px; align-items: center; min-height: 48px; padding: 8px; border-bottom: 1px solid #343c34; }
+.regional-acquisition-forecast-grid article > header span, .regional-acquisition-forecast-grid article > header strong { display: block; }
+.regional-acquisition-forecast-grid article > header span { color: #748078; font-size: .34rem; text-transform: uppercase; }
+.regional-acquisition-forecast-grid article > header strong { margin-top: 3px; color: #cfc38d; font: 700 .55rem Georgia, serif; }
+.regional-acquisition-forecast-grid article > header > b { color: #93a27f; font-size: .37rem; text-align: right; text-transform: uppercase; }
+.regional-acquisition-forecast-grid article > p { align-self: center; margin: 0; padding: 12px; color: #727d75; font-size: .4rem; line-height: 1.45; text-align: center; }
+.regional-acquisition-forecast-matches { min-width: 0; }
+.regional-acquisition-forecast-matches > div { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 8px; align-items: center; min-width: 0; min-height: 58px; padding: 6px 7px; border-bottom: 1px solid #303831; }
+.regional-acquisition-forecast-matches > div.is-locked { opacity: .65; }
+.regional-acquisition-forecast-matches span > * { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.regional-acquisition-forecast-matches small { color: #707c73; font-size: .28rem; }
+.regional-acquisition-forecast-matches strong { margin-top: 3px; color: #cfc38d; font: 700 .42rem Georgia, serif; }
+.regional-acquisition-forecast-matches em { margin-top: 2px; color: #7d8978; font: 400 .29rem sans-serif; }
+.regional-acquisition-forecast-matches > div > b { color: #92a981; font-size: .32rem; text-transform: uppercase; }
+.regional-acquisition-forecast-matches > div.is-locked > b { color: #b5a06a; }
+.regional-acquisition-forecast-grid article > footer { padding: 6px 8px; color: #77837a; font-size: .32rem; text-transform: uppercase; }
+.regional-acquisition-forecast > footer { display: flex; justify-content: space-between; gap: 10px; padding: 7px 9px; border-top: 1px solid #394138; color: #758078; font-size: .38rem; }
+.regional-acquisition-forecast > footer strong { color: #a59d75; }
 
 @media (max-width: 980px) {
   .weekly-campaign-briefing > header { grid-template-columns: 56px minmax(0, 1fr); }
@@ -14802,6 +14837,9 @@ html[data-client-motion="reduced"] *::after {
   .regional-acquisition-planner-summary { grid-column: 1 / -1; }
   .regional-opportunity-board > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-opportunity-board-summary { grid-column: 1 / -1; }
+  .regional-acquisition-forecast > header { grid-template-columns: 56px minmax(0, 1fr); }
+  .regional-acquisition-forecast-summary { grid-column: 1 / -1; }
+  .regional-acquisition-forecast-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .regional-campaign-orders > header { grid-template-columns: 56px minmax(0, 1fr); }
   .regional-campaign-orders-summary { grid-column: 1 / -1; }
   .guild-region-mastery-summary { grid-column: 1 / -1; }
@@ -14874,6 +14912,13 @@ html[data-client-motion="reduced"] *::after {
   .regional-opportunity-board-grid article > header { grid-template-columns: 30px minmax(0, 1fr); }
   .regional-opportunity-board-grid article > header > b { grid-column: 1 / -1; text-align: left; }
   .regional-opportunity-board > footer { align-items: flex-start; flex-direction: column; }
+  .regional-acquisition-forecast > header { grid-template-columns: 1fr; text-align: center; }
+  .regional-acquisition-forecast-seal { justify-self: center; }
+  .regional-acquisition-forecast-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); text-align: left; }
+  .regional-acquisition-forecast-summary > div:nth-child(2) { border-right: 0; }
+  .regional-acquisition-forecast-summary > div { border-bottom: 1px solid #3c453a; }
+  .regional-acquisition-forecast-grid { grid-template-columns: 1fr; }
+  .regional-acquisition-forecast > footer { align-items: flex-start; flex-direction: column; }
   .regional-campaign-orders > header { grid-template-columns: 1fr; text-align: center; }
   .regional-campaign-orders-seal { justify-self: center; }
   .regional-campaign-orders-summary { grid-template-columns: 1fr; text-align: left; }

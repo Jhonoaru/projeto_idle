@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-112",
+    stage: "Stage 112",
+    title: "Regional Acquisition Forecast",
+    date: "2026-07-29",
+    category: "systems",
+    summary: "Campaign Operations now previews the next seven deterministic regional rotations against current Logistics shortages.",
+    highlights: [
+      "Seven local day cards reveal one best material match per future regional offer, with cache yield, useful coverage and Guild Level access.",
+      "The forecast distinguishes unique matched materials from visible offers and identifies the first reachable cache in the horizon.",
+      "Four hundred forty-nine thousand three hundred forty-one checks covered ten years of dates, canonical rewards, DST boundaries and hostile depots.",
+    ],
+    systems: ["Regional Forecast", "Material Planning", "Regional Orders", "Guild Logistics", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-111-5",
     stage: "Stage 111.5",
     title: "Regional Acquisition Opportunity Board QA",

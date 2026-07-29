@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-28
+Atualizado em: 2026-07-29
 
 ## Stack usada
 
@@ -213,6 +213,7 @@ Atualizado em: 2026-07-28
 - Etapa 110.5 concluida: QA do planner regional corrige recomendacoes bloqueadas, prioriza o proximo unlock real e tolera Guild Depot malformado.
 - Etapa 111 concluida: Regional Acquisition Opportunity Board cruza faltas reais com a rotacao diaria e leva ao pedido regional exato sem aceitar automaticamente.
 - Etapa 111.5 concluida: QA do board regional reforca data hostil, nomes acessiveis unicos e foco persistente por mouse, Enter e Space.
+- Etapa 112 concluida: Regional Acquisition Forecast projeta sete rotacoes locais contra faltas atuais e separa caches alcancaveis dos proximos unlocks.
 
 Comandos principais:
 
@@ -8857,6 +8858,57 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 112 - definir a proxima camada offline depois do ciclo regional validado.
+
+## Etapa 112 - Regional Acquisition Forecast
+
+Status: concluida.
+
+Implementacao:
+
+- Campaign Operations ganhou um forecast depois das ordens atuais, preservando o fluxo imediato de review/accept antes do planejamento futuro.
+- A engine calcula as proximas sete datas locais a partir de amanha, sempre ao meio-dia local para atravessar mudancas de calendario e DST com seguranca.
+- Cada dia gera as tres ofertas deterministicas reais e cruza Veteran/Elite com as faltas atuais do Regional Material Acquisition Planner.
+- Cada oferta mostra no maximo um melhor match; o ranking prefere dificuldade desbloqueada, depois o menor proximo unlock, maior cobertura util, yield e menor requisito.
+- O forecast agrega materiais distintos encontrados, materiais alcancaveis no Guild Level atual, total de ofertas e primeira data com cache acessivel.
+- Active orders, claims e snapshots atuais nao contaminam a previsao: somente `guild.id`, Guild Level, tabelas canonicas e fotografia atual de Logistics entram no calculo.
+- O sistema e totalmente derivado, sem save/schema, reserva, aceite, claim, transferencia ou automacao.
+
+Interface:
+
+- Header compacto mostra horizonte, materiais faltantes, materiais encontrados e quantos sao alcancaveis.
+- Sete cards exibem `Tomorrow`/dias restantes, data local, quantidade de ofertas, regiao, dificuldade, tabela, item, yield, cobertura e Guild Level.
+- Dias com caches acessiveis, apenas bloqueados ou sem match possuem estados visuais distintos.
+- O footer identifica a primeira data alcancavel ou informa que nao existe cache acessivel no horizonte.
+- O layout usa quatro colunas no desktop, duas ate 980 px e uma ate 520 px.
+
+Validacao:
+
+- Harness temporario passou em 449.341 assercoes sobre 3.653 datas, equivalentes a dez anos completos de inicio de forecast.
+- Cada um dos sete ciclos foi conferido contra `buildRegionalCampaignOffers`, difficulty options, reward item, quantidade, gold, tabela e Logistics demand reais.
+- Foram validados determinismo, datas consecutivas, virada de ano, ano bissexto, fronteiras historicas de DST, resumos, ranking e imutabilidade.
+- Dez mil Guild Depots hostis cobriram entradas nulas, vazias, locked, aninhadas, de personagem, negativas, NaN e infinitas.
+- Guild Depot abastecido produziu sete dias vazios; datas runtime invalidas receberam fallback e snapshots forged nao alteraram a previsao.
+- Browser confirmou o horizonte `2026-07-30 / 2026-08-05`, cinco faltas, dois materiais encontrados, dez ofertas e zero caches alcancaveis no mock Level 2.
+- Contadores ambiguos foram corrigidos: cards contam ofertas visiveis e o resumo conta materiais distintos.
+- A coluna do `ItemIcon` foi alinhada aos 42 px reais; dez linhas passaram sem sobreposicao ou overflow.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento, forecast ou descendentes.
+- `npm run build` passou com TypeScript, Vite e 442 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou com codigo 0 e gerou o executavel release, o instalador MSI e o instalador NSIS.
+- O SQLite local permaneceu intacto: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38` antes e depois do build desktop.
+
+Limitacoes:
+
+- A previsao usa a falta atual como fotografia em todos os sete dias e nao desconta cumulativamente caches hipoteticos.
+- O forecast nao promete disponibilidade: uma ordem ativa futura pode bloquear as demais quando o dia chegar.
+- Somente o melhor match por oferta e exibido; alternativas de dificuldade continuam no Regional Reward Compendium e no planner.
+- Mudanca manual do relogio local altera as rotacoes, sem anti-cheat de data.
+- Nao existe notificacao, pin, reserva, auto-accept, auto-claim, online ou persistencia nova.
+- O browser usa mock local porque o SQLite depende do runtime Tauri; o pacote desktop e o hash do banco sao validados separadamente.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 112.5 - QA aprofundada do Regional Acquisition Forecast.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

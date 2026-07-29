@@ -10,6 +10,7 @@ import { GuildCampaignMilestones } from "./GuildCampaignMilestones";
 import { GuildRegionMastery } from "./GuildRegionMastery";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
+import { RegionalAcquisitionForecast } from "./RegionalAcquisitionForecast";
 import { RegionalCampaignOrders } from "./RegionalCampaignOrders";
 import { RegionalAcquisitionOpportunityBoard } from "./RegionalAcquisitionOpportunityBoard";
 import { RegionalMaterialAcquisitionPlanner } from "./RegionalMaterialAcquisitionPlanner";
@@ -151,6 +152,7 @@ export function CampaignOperationsDashboard({
         onClaim={onClaimRegionalOrder}
         onOpenSystem={onOpenSystem}
       />
+      <RegionalAcquisitionForecast characters={characters} depot={depot} guild={guild} />
 
       <div className="operations-primary-grid">
         <section className="operations-roster">
