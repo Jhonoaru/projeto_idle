@@ -63,7 +63,13 @@ export function RegionalCampaignOrders({ guild, onAccept, onAbandon, onClaim, on
           const displayedDifficulty = order.state === "available" ? selectedDifficulty : order.difficulty;
           const rewardPreview = order.state === "available" ? selectedOption : order;
           return (
-          <article className={`is-${order.state} difficulty-${displayedDifficulty}`} key={order.id}>
+          <article
+            aria-label={`${order.regionName} regional order: ${order.title}`}
+            className={`is-${order.state} difficulty-${displayedDifficulty}`}
+            id={`regional-campaign-order-${order.id}`}
+            key={order.id}
+            tabIndex={-1}
+          >
             <header>
               <i aria-hidden="true">{order.regionSigil}</i>
               <div><span>{order.regionName} / {order.difficultyLabel} / {order.intensityLabel} {order.assignmentLabel}</span><strong>{order.title}</strong></div>

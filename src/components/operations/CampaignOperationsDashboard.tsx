@@ -11,6 +11,7 @@ import { GuildRegionMastery } from "./GuildRegionMastery";
 import { OperationOutcomeLedger } from "./OperationOutcomeLedger";
 import { OperationPerformanceAnalytics } from "./OperationPerformanceAnalytics";
 import { RegionalCampaignOrders } from "./RegionalCampaignOrders";
+import { RegionalAcquisitionOpportunityBoard } from "./RegionalAcquisitionOpportunityBoard";
 import { RegionalMaterialAcquisitionPlanner } from "./RegionalMaterialAcquisitionPlanner";
 import { RegionalRewardCompendium } from "./RegionalRewardCompendium";
 import { WeeklyCampaignBriefing } from "./WeeklyCampaignBriefing";
@@ -130,6 +131,16 @@ export function CampaignOperationsDashboard({
         guild={guild}
         onOpenLogistics={() => onOpenSystem("logistics")}
         onReviewOrders={() => document.getElementById("regional-campaign-orders")?.scrollIntoView({ block: "start" })}
+      />
+      <RegionalAcquisitionOpportunityBoard
+        characters={characters}
+        depot={depot}
+        guild={guild}
+        onReviewOrder={(orderId) => {
+          const order = document.getElementById(`regional-campaign-order-${orderId}`);
+          order?.scrollIntoView({ block: "center" });
+          order?.focus({ preventScroll: true });
+        }}
       />
       <RegionalCampaignOrders
         guild={guild}

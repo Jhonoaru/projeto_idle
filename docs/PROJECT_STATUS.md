@@ -211,6 +211,7 @@ Atualizado em: 2026-07-28
 - Etapa 109.5 concluida: QA do Regional Reward Compendium valida todas as tabelas e adiciona tabs ARIA com navegacao completa por teclado.
 - Etapa 110 concluida: Regional Material Acquisition Planner conecta faltas reais de Logistics a rotas Veteran/Elite e estima claims necessarios.
 - Etapa 110.5 concluida: QA do planner regional corrige recomendacoes bloqueadas, prioriza o proximo unlock real e tolera Guild Depot malformado.
+- Etapa 111 concluida: Regional Acquisition Opportunity Board cruza faltas reais com a rotacao diaria e leva ao pedido regional exato sem aceitar automaticamente.
 
 Comandos principais:
 
@@ -8765,6 +8766,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 111 - definir a proxima camada offline apos o planner regional validado.
+
+## Etapa 111 - Regional Acquisition Opportunity Board
+
+Status: concluida.
+
+Implementacao:
+
+- Campaign Operations ganhou um board compacto entre o Regional Material Acquisition Planner e as tres Regional Campaign Orders do ciclo atual.
+- A engine cruza as faltas vivas de Logistics com os bonus materials da rotacao local deterministica, sem duplicar regras de demanda, estoque ou recompensa.
+- Cada pedido pode gerar no maximo uma oportunidade; o ranking considera estado atual, acesso pelo Guild Level, cobertura util da falta, yield e nivel exigido.
+- Quando todas as dificuldades compativeis estao bloqueadas, o board prioriza o menor Guild Level real em vez da recompensa mais distante.
+- Ordens ativas, prontas ou concluidas usam o snapshot congelado de dificuldade, tabela, item, quantidade e gold.
+- O resumo exibe ciclo, quantidade de materiais em falta, materiais distintos encontrados e oportunidades acionaveis.
+- `Review Order` centraliza e move o foco para o card regional exato, que agora possui ID estavel, `tabIndex` programatico e nome acessivel.
+- O sistema e derivado e somente leitura: nao aceita, abandona, conclui, reserva ou repete pedidos e nao cria save/schema novo.
+
+Interface:
+
+- Cards mostram regiao, objetivo, pedido, estado, item, quantidade, cobertura da falta, saldo restante, dificuldade, Guild Level e gold.
+- Estados `available`, `active`, `ready`, `blocked`, `locked` e `completed` possuem rotulos e tratamento visual proprio.
+- O layout usa tres colunas em desktop e uma coluna ate 760 px; no mobile o status ocupa linha propria e o resumo usa grade 2x2.
+- O empty state informa quando nenhuma recompensa da rotacao atende uma falta atual e mostra a proxima virada local.
+
+Validacao:
+
+- Harness temporario passou em 23.550 assercoes sobre 366 rotacoes locais e cinco faixas de Guild Level.
+- Foram cobertos determinismo, um match por pedido, resumos exatos, ranking do proximo unlock, cobertura clampada, imutabilidade e entradas hostis.
+- Estados active, ready, completed e blocked foram validados usando as engines reais de accept/claim e snapshots reais de recompensa.
+- Guild Depot totalmente abastecido produziu empty state estavel; data invalida, niveis NaN/infinito/fracionario e depot malformado nao quebraram o board.
+- Browser confirmou cinco faltas, um match bloqueado no mock Level 2 e navegacao com foco para o pedido de Thaeron correspondente.
+- O layout passou em 1250, 980, 760, 520 e 390 px sem overflow no documento, board ou descendentes.
+- O console do Vite apresentou somente a falha esperada do Tauri SQL Plugin fora do runtime desktop, usando o mock local.
+- `npm run build` passou com TypeScript, Vite e 440 modulos; permanece apenas o aviso conhecido do chunk principal acima de 500 kB.
+- `npm run tauri:build` passou e gerou executavel release, pacote MSI e instalador NSIS.
+- O SQLite real permaneceu inalterado antes e depois dos builds: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- O board mostra apenas a rotacao de hoje e um melhor match por pedido; nao projeta rotacoes futuras nem soma varias dificuldades do mesmo pedido.
+- A oportunidade nao garante conclusao: requisitos, progresso e aceite continuam sob controle manual no board regional original.
+- Materiais fora das tabelas regionais continuam dependendo das fontes de Hunt exibidas em Logistics.
+- Nao existe auto-accept, auto-claim, reserva de material, transferencia, pagamento, online ou moeda nova.
+- O browser usa o mock local; o pacote Tauri foi validado por build e pela preservacao exata do SQLite, nao por cliques manuais contra o save real.
+- Nao existe test runner persistente no `package.json`; o harness temporario foi removido depois da execucao.
+
+Proximo passo sugerido:
+
+- Etapa 111.5 - QA aprofundada do Regional Acquisition Opportunity Board.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
