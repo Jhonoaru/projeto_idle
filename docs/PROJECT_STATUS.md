@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 121 concluida: sprites originais para as quatro armas Common/Uncommon recorrentes que ainda usavam fallback visual no early game.
 - Etapa 120.5 concluida: QA dos sprites early-game em Bazaar, Inventory, Equipment, Guild Depot, Forge, crafting e responsividade.
 - Etapa 120 concluida: sprites originais para cinco armaduras, shields e accessories recorrentes do early game.
 - Etapa 119.5 concluida: QA dos sprites de recrutamento em todos os dossiers, fluxo real de Tessa, Equipment, responsividade e escala de texto.
@@ -9593,6 +9594,42 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 121 - sprites originais para armas Common/Uncommon recorrentes do early game.
+
+## Etapa 121 - Sprites de armas Common/Uncommon do early game
+
+Status: concluida.
+
+Escopo orientado pelos dados:
+
+- O catalogo de equipamentos foi cruzado com os sprites existentes e confirmou quatro armas Common/Uncommon recorrentes ainda sem arte dedicada: `Rusty Blade`, `Training Axe`, `Wooden Club` e `Iron Longsword`.
+- Rusty Blade, Training Axe e Wooden Club completam as silhuetas iniciais de Sword, Axe e Club.
+- As quatro armas aparecem no Bazar Rotativo; Training Axe tambem aparece em boss, Wooden Club e Iron Longsword em monsters, e Iron Longsword em boss, crafting e no set Iron Expedition.
+- Worn Sword, Simple Bow, Novice Wand, Ironwood Bow, Runed Wand e Iron Handwraps ja tinham sprites e ficaram fora do lote.
+
+Implementado:
+
+- Quatro artes pixel-art originais foram geradas em fundo chroma uniforme e processadas para alpha local.
+- Os sprites finais foram centralizados em canvas RGBA `256x256`, com margem segura e proporcao preservada.
+- `itemSprites.ts` passou de 48 para 52 registros e entrega as novas artes por meio do `ItemIcon` compartilhado.
+- Nenhum ID, atributo, preco, drop rate, receita, proficiency, requisito, set bonus ou regra de gameplay foi alterado.
+
+Validacao tecnica:
+
+- Rusty Blade recebeu lamina gasta, ferrugem contida e acabamento Common sem efeitos magicos.
+- Training Axe recebeu cabeca de ferro funcional e cabo curto, mantendo leitura clara em slots pequenos.
+- Wooden Club preserva uma silhueta simples de madeira reforcada, distinta de sword e axe.
+- Iron Longsword usa acabamento limpo e detalhe de guilda contido, comunicando raridade Uncommon e o set Iron Expedition sem parecer Legendary.
+- Os quatro PNGs foram inspecionados visualmente em tamanho real depois da remocao do chroma.
+- Build web e pacote Tauri foram validados depois da integracao final.
+
+Limitacoes:
+
+- Esta etapa adiciona somente a fundacao visual; QA interativa completa em Bazaar, boss loot, monster loot, Guild Workbench, Inventory e Equipment fica para a Etapa 121.5.
+- Nenhum drop raro foi forcado ou persistido no SQLite real nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 121.5 - QA dos sprites de armas em Bazaar, drops, crafting, Inventory, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

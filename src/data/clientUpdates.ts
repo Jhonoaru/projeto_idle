@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-121",
+    stage: "Stage 121",
+    title: "Early Weapon Sprite Set",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "The remaining recurring Common and Uncommon early-game weapons now have original pixel-art sprites.",
+    highlights: [
+      "Rusty Blade, Training Axe and Wooden Club give the Sword, Axe and Club progression paths distinct common silhouettes.",
+      "Iron Longsword now visually anchors the Vanguard branch of the Iron Expedition equipment set.",
+      "The four sprites flow through the shared ItemIcon used by Bazaar, drops, crafting, inventory and equipment.",
+    ],
+    systems: ["Item Sprites", "Early Weapons", "Weapon Proficiency", "Bazaar", "Boss Loot", "Crafting"],
+    featured: true,
+  },
+  {
     id: "stage-120-5",
     stage: "Stage 120.5",
     title: "Early Equipment Sprite QA",
