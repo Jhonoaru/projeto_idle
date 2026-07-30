@@ -15,6 +15,7 @@ export function getItemIconMeta(item?: Item): ItemIconMeta {
   if (item.type === "creature_product") return getCreatureProductMeta(item);
   if (item.type === "consumable") return getConsumableMeta(item);
   if (item.type === "equipment") return getEquipmentMeta(item);
+  if (item.type === "misc") return getMiscMeta(item);
 
   return { symbol: "?", tone: "misc", label: "Misc" };
 }
@@ -56,8 +57,17 @@ function getConsumableMeta(item: Item): ItemIconMeta {
   if (name.includes("mana")) return { symbol: "MP", tone: "potion", label: "Mana potion" };
   if (name.includes("rune")) return { symbol: "RU", tone: "rune", label: "Rune" };
   if (name.includes("arrow")) return { symbol: "AR", tone: "ammo", label: "Ammo" };
+  if (name.includes("scroll")) return { symbol: "SC", tone: "utility", label: "Scroll" };
 
   return { symbol: "SU", tone: "supply", label: "Supply" };
+}
+
+function getMiscMeta(item: Item): ItemIconMeta {
+  if (item.id === "rope") return { symbol: "RO", tone: "utility", label: "Rope" };
+  if (item.id === "shovel") return { symbol: "SV", tone: "utility", label: "Shovel" };
+  if (item.id === "torch") return { symbol: "TO", tone: "utility", label: "Torch" };
+
+  return { symbol: "?", tone: "misc", label: "Misc" };
 }
 
 function getMaterialMeta(item: Item): ItemIconMeta {

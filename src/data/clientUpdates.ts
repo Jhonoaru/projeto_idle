@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-117",
+    stage: "Stage 117",
+    title: "Container and Utility Sprites",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "Quivers, containers and recurring field utilities now have original pixel-art inventory sprites.",
+    highlights: [
+      "Light Quiver and five containers now communicate their storage role through distinct silhouettes and equipment-ready artwork.",
+      "Rope, Shovel, Torch and Travel Scroll replace generic utility placeholders across shared item surfaces.",
+      "Semantic letter fallbacks remain available if an asset request fails, without changing item behavior or save data.",
+    ],
+    systems: ["Item Sprites", "Containers", "Quivers", "Utilities", "Market NPC"],
+    featured: true,
+  },
+  {
     id: "stage-116-5",
     stage: "Stage 116.5",
     title: "Advanced Supply Sprite QA",

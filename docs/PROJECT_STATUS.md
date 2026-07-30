@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 117 concluida: sprites originais para Light Quiver, cinco containers e quatro utilities recorrentes, com fallbacks semanticos preservados.
 - Etapa 116.5 concluida: QA dos sprites avancados em Market NPC, filtros, dossiers, hunt result e quatro larguras responsivas, sem regressao funcional encontrada.
 - Etapa 116 concluida: sprites originais para Strong Potions, quatro combat runes e duas ammunition stacks, com raridade de supplies corrigida no resultado de hunt.
 - Etapa 115.5 concluida: QA dos sprites de supplies/materiais, com integracao visual corrigida nos custos da Forge e requisitos do Guild Workbench.
@@ -9301,6 +9302,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 117 - expandir sprites originais para containers, quivers e utilities recorrentes.
+
+## Etapa 117 - Sprites de containers, quiver e utilities
+
+Status: concluida.
+
+Implementacao:
+
+- O registro compartilhado passou de 18 para 28 sprites originais sem alterar a API do `ItemIcon`.
+- `Light Quiver`, `Adventurer Backpack`, `Small Backpack`, `Loot Bag`, `Supply Bag` e `Rune Pouch` receberam silhuetas proprias para diferenciar equipamento e finalidade de armazenamento.
+- `Rope`, `Shovel`, `Torch` e `Travel Scroll` receberam sprites de campo coerentes com o estilo MMORPG classico do inventario.
+- Os fallbacks tipograficos das utilities agora usam `RO`, `SV`, `TO` e `SC` caso uma imagem nao possa ser carregada.
+- Todos os IDs ja existiam em `src/data/items.ts` e no Market NPC; nenhum item, regra ou destino de inventario novo foi criado.
+
+Assets adicionados:
+
+- `public/assets/items/generated/light-quiver.png`.
+- `public/assets/items/generated/adventurer-backpack.png`.
+- `public/assets/items/generated/small-backpack.png`.
+- `public/assets/items/generated/loot-bag.png`.
+- `public/assets/items/generated/supply-bag.png`.
+- `public/assets/items/generated/rune-pouch.png`.
+- `public/assets/items/generated/rope.png`.
+- `public/assets/items/generated/shovel.png`.
+- `public/assets/items/generated/torch.png`.
+- `public/assets/items/generated/travel-scroll.png`.
+
+Pipeline e validacao:
+
+- As dez artes foram geradas pelo ImageGen integrado como pixel art original sobre chroma key uniforme, sem texto, moldura, UI ou referencia protegida.
+- O helper oficial aplicou soft matte e despill; os resultados foram enquadrados em PNG RGBA `256x256` com margem estavel para slots pequenos.
+- Nenhum dos dez arquivos possui spill verde visivel e todos preservam o objeto completo dentro da area transparente.
+- O catalogo final possui 28 registros e exatamente 28 PNGs correspondentes na pasta de producao.
+- Market NPC carregou os dez sprites com dimensao natural `256x256`; todos ficaram contidos nos slots e Torch preservou o overlay `x5`.
+- O layout compacto passou com largura util de `375 px`, sem overflow horizontal, imagem quebrada ou sprite fora do slot.
+- `npm.cmd run build` passou com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Precos, quantidades, capacidade, allowed item types, raridade, equipamento, balanceamento e schema SQLite permaneceram inalterados.
+
+Proximo passo sugerido:
+
+- Etapa 117.5 - QA dos sprites de containers e utilities em Market, Inventory, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
