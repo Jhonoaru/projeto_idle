@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 119 concluida: sprites originais para os cinco equipamentos exclusivos dos candidatos de recrutamento avancados.
 - Etapa 118.5 concluida: QA dos sprites de equipamentos no roster, Character Hall, Equipment e responsividade, com overflow do badge Daily corrigido.
 - Etapa 118 concluida: sprites originais para dez equipamentos iniciais, cobrindo todos os loadouts equipados do roster atual e o Cloth Sash recorrente de Monk.
 - Etapa 117.5 concluida: QA dos sprites de containers/utilities, com integracao visual corrigida no Equipment Panel e painel direito do personagem.
@@ -9443,6 +9444,41 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 119 - sprites originais para equipamentos exclusivos dos candidatos de recrutamento.
+
+## Etapa 119 - Sprites dos equipamentos exclusivos de recrutamento
+
+Status: concluida.
+
+Implementado:
+
+- Cinco artes pixel-art originais foram criadas para `Leather Helmet`, `Iron Handwraps`, `Runed Wand`, `Ironwood Bow` e `Ranger Gloves`.
+- Leather Helmet completa o loadout de Elis Dawn com protecao comum leve e visual coerente com uma Wayside Healer.
+- Iron Handwraps completa o loadout de Bram Reed como progressao direta das Monk Wraps iniciais.
+- Runed Wand completa o loadout de Veyra Rune com um foco incomum mais refinado, sem linguagem visual de item endgame.
+- Ironwood Bow e Ranger Gloves formam o conjunto de fronteira de Sable Rook, com madeira escura, reforcos metalicos e couro de arqueiro.
+- O Starter Loadout do Applicant Dossier deixou de ser apenas textual e agora usa o `ItemIcon` compartilhado para equipamento e consumiveis, mantendo slot, nome e quantidade visiveis.
+- Os assets foram gerados com ImageGen em fundo chroma uniforme, processados pelo helper oficial de remocao de chroma e centralizados em canvas transparente `256x256`.
+- O catalogo compartilhado `itemSprites.ts` passou de 38 para 43 registros, mantendo fallback semantico para o restante dos equipamentos sem arte dedicada.
+
+Validacao tecnica:
+
+- Os cinco PNGs possuem RGBA `256x256`, cantos transparentes, bordas suavizadas, conteudo visivel e bounding boxes internas seguras.
+- A verificacao de alpha superior a 24 nao encontrou nenhum pixel de chroma verde visivel.
+- Recruitment Hall foi validada com Elis Dawn, Bram Reed, Veyra Rune e Sable Rook; cada dossier exibiu os quatro itens esperados com sprite natural `256x256` e `object-fit: contain`.
+- Os layouts passaram em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal, sprite fora da viewport, botao excedendo o container ou imagem quebrada.
+- A inspecao visual em `390 px` confirmou o loadout de Sable Rook com Ironwood Bow, Ranger Gloves, Leather Boots e Mana Potion legiveis e alinhados.
+- `npm.cmd run build` passou antes e depois da integracao com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- IDs, slots, raridades, valores, atributos, restricoes de vocacao e requisitos de level permaneceram inalterados.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; candidatos bloqueados foram inspecionados no dossier, sem executar recrutamento real.
+
+Proximo passo sugerido:
+
+- Etapa 119.5 - QA dos sprites de recrutamento em Recruitment Hall, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

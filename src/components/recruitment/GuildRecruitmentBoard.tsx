@@ -15,6 +15,7 @@ import { getGuildRenownObjectiveStatus } from "../../game-engine/guild-progressi
 import type { GuildRenownObjectiveDefinition } from "../../data/guildRenownObjectives";
 import { SKILL_LABELS } from "../../shared/constants";
 import type { Character, Guild, SkillName } from "../../shared/types";
+import { ItemIcon } from "../items/ItemIcon";
 
 interface GuildRecruitmentBoardProps {
   characters: Character[];
@@ -169,10 +170,16 @@ export function GuildRecruitmentBoard({ characters, guild, onRecruit, onClaimLev
             <div className="recruitment-loadout">
               <span>Starter loadout</span>
               {Object.entries(selected.equipment).map(([slot, itemId]) => (
-                <div key={slot}><small>{slot}</small><strong>{items[itemId]?.name ?? itemId}</strong></div>
+                <div key={slot}>
+                  <ItemIcon item={items[itemId]} showBadges={false} showQuantity={false} size="small" />
+                  <span><small>{slot}</small><strong>{items[itemId]?.name ?? itemId}</strong></span>
+                </div>
               ))}
               {selected.inventory.map((entry) => (
-                <div key={entry.itemId}><small>pack</small><strong>{items[entry.itemId]?.name ?? entry.itemId} x{entry.quantity}</strong></div>
+                <div key={entry.itemId}>
+                  <ItemIcon item={items[entry.itemId]} quantity={entry.quantity} showBadges={false} size="small" />
+                  <span><small>pack</small><strong>{items[entry.itemId]?.name ?? entry.itemId} x{entry.quantity}</strong></span>
+                </div>
               ))}
             </div>
             <div className="recruitment-skills">

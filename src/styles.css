@@ -13249,10 +13249,11 @@ html[data-client-motion="reduced"] *::after {
 .recruitment-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
 .recruitment-loadout,
 .recruitment-skills { min-width: 0; padding: 10px; border: 1px solid #343c36; background: #131815; }
-.recruitment-loadout > div { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; padding: 7px 0; border-bottom: 1px solid #29312c; }
+.recruitment-loadout > div { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 8px; align-items: center; padding: 7px 0; border-bottom: 1px solid #29312c; }
 .recruitment-loadout > div:last-child { border-bottom: 0; }
-.recruitment-loadout small { color: #879188; font-size: 0.54rem; text-transform: uppercase; }
-.recruitment-loadout strong { overflow: hidden; color: #cbbb8a; font-size: 0.61rem; text-overflow: ellipsis; white-space: nowrap; }
+.recruitment-loadout > div > span { min-width: 0; }
+.recruitment-loadout small { display: block; color: #879188; font-size: 0.54rem; text-transform: uppercase; }
+.recruitment-loadout strong { display: block; margin-top: 3px; overflow: hidden; color: #cbbb8a; font-size: 0.61rem; text-overflow: ellipsis; white-space: nowrap; }
 .recruitment-skills > div { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 8px 0 10px; border-bottom: 1px solid #29312c; overflow: hidden; }
 .recruitment-skills > div:last-child { border-bottom: 0; }
 .recruitment-skills small { color: #9da79f; font-size: 0.57rem; }

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-119",
+    stage: "Stage 119",
+    title: "Recruit Equipment Sprite Set",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "Equipment unique to advanced recruitment candidates now has original pixel-art inventory sprites.",
+    highlights: [
+      "Leather Helmet gives Elis Dawn a practical early support silhouette without overstating its common rarity.",
+      "Iron Handwraps and Runed Wand visually advance Monk and caster recruits beyond their starter equipment.",
+      "Ironwood Bow and Ranger Gloves form a cohesive frontier loadout for Sable Rook.",
+    ],
+    systems: ["Item Sprites", "Recruitment", "Candidate Loadouts", "Equipment", "Character Progression"],
+    featured: true,
+  },
+  {
     id: "stage-118-5",
     stage: "Stage 118.5",
     title: "Starter Equipment Sprite QA",
