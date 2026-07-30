@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-120-5",
+    stage: "Stage 120.5",
+    title: "Early Equipment Sprite QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "Early-game equipment sprites completed Bazaar, Inventory, Equipment, Depot, crafting and responsive validation.",
+    highlights: [
+      "A deterministic local Bazaar rotation exposed Leather Legs and Copper Ring for real mock purchases into Arkon's bag.",
+      "Both items retained their sprites through equip and remove cycles without broken images or duplicated stacks.",
+      "Small Amulet, Brass Shield and Iron Cuirass were revalidated across Inventory, Forge, Guild Depot and Guild Workbench.",
+    ],
+    systems: ["Item Sprite QA", "Bazaar", "Inventory", "Equipment", "Guild Depot", "Crafting", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-120",
     stage: "Stage 120",
     title: "Early Equipment Sprite Set",

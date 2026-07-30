@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 120.5 concluida: QA dos sprites early-game em Bazaar, Inventory, Equipment, Guild Depot, Forge, crafting e responsividade.
 - Etapa 120 concluida: sprites originais para cinco armaduras, shields e accessories recorrentes do early game.
 - Etapa 119.5 concluida: QA dos sprites de recrutamento em todos os dossiers, fluxo real de Tessa, Equipment, responsividade e escala de texto.
 - Etapa 119 concluida: sprites originais para os cinco equipamentos exclusivos dos candidatos de recrutamento avancados.
@@ -9557,6 +9558,41 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 120.5 - QA dos sprites early-game em Inventory, Guild Depot, Bazaar, crafting, Equipment e responsividade.
+
+## Etapa 120.5 - QA dos sprites de equipamentos early-game
+
+Status: concluida.
+
+Validacao interativa:
+
+- A rotacao deterministica `2975957`, iniciada em `2026-08-01T08:50:00.000Z`, foi usada temporariamente para expor Leather Legs e Copper Ring no Bazar Rotativo.
+- Leather Legs e Copper Ring foram comprados uma vez para a bolsa de Arkon; o contador avancou para `2/6 acquired` e o saldo mock passou de 420g para 151g.
+- Ambos apareceram como stacks unicos no Inventory com sprites naturais `256x256` e `object-fit: contain`.
+- Leather Legs equipou no slot legs e Copper Ring no slot ring; os dois foram removidos de volta para a bolsa sem duplicacao ou perda.
+- Small Amulet foi revalidado no Inventory e Forge de Lyra, Brass Shield no Guild Depot e Iron Cuirass no Guild Workbench.
+- As cinco artes carregaram sem imagem quebrada e mantiveram os IDs, raridades, slots, tooltips e regras existentes.
+
+Responsividade:
+
+- Inventory & Equipment passou em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal na raiz ou body.
+- Nenhum sprite saiu da viewport e nenhum botao excedeu seu container nas cinco larguras.
+- A inspecao visual em `390 px` confirmou sprites, quantidades e cards legiveis no inventario compacto.
+
+Resultado:
+
+- Nenhuma regressao foi encontrada e nenhuma correcao permanente de codigo foi necessaria.
+- A fixture de data foi removida integralmente antes do build final; App e Market voltaram a usar o relogio local real.
+- `npm.cmd run build` passou antes da QA; o build final e o pacote Tauri foram validados depois da documentacao.
+- O SQLite real permaneceu somente leitura durante esta QA e foi comparado por tamanho, timestamp e SHA-256.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; compras e ciclos de equipamento nao foram persistidos no SQLite real.
+- A data futura foi apenas uma fixture temporaria para tornar a oferta deterministica e nao permaneceu no codigo.
+
+Proximo passo sugerido:
+
+- Etapa 121 - sprites originais para armas Common/Uncommon recorrentes do early game.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
