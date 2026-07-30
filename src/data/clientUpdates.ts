@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-119-5",
+    stage: "Stage 119.5",
+    title: "Recruit Equipment Sprite QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "Recruit equipment sprites completed dossier, recruitment, Equipment and responsive validation.",
+    highlights: [
+      "All six candidate dossiers render complete starter loadouts with correct rarity, labels and accessible item metadata.",
+      "Tessa Vale completed the real mock recruitment flow and retained every equipped sprite in Inventory & Equipment.",
+      "Advanced candidate loadouts remain stable through compact layouts and 110% text scaling without overflow.",
+    ],
+    systems: ["Item Sprite QA", "Recruitment", "Candidate Loadouts", "Equipment", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-119",
     stage: "Stage 119",
     title: "Recruit Equipment Sprite Set",

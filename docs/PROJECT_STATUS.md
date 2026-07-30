@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 119.5 concluida: QA dos sprites de recrutamento em todos os dossiers, fluxo real de Tessa, Equipment, responsividade e escala de texto.
 - Etapa 119 concluida: sprites originais para os cinco equipamentos exclusivos dos candidatos de recrutamento avancados.
 - Etapa 118.5 concluida: QA dos sprites de equipamentos no roster, Character Hall, Equipment e responsividade, com overflow do badge Daily corrigido.
 - Etapa 118 concluida: sprites originais para dez equipamentos iniciais, cobrindo todos os loadouts equipados do roster atual e o Cloth Sash recorrente de Monk.
@@ -9479,6 +9480,43 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 119.5 - QA dos sprites de recrutamento em Recruitment Hall, Equipment e responsividade.
+
+## Etapa 119.5 - QA dos sprites de equipamentos de recrutamento
+
+Status: concluida.
+
+Validacao tecnica e de dados:
+
+- Leather Helmet, Iron Handwraps, Runed Wand, Ironwood Bow e Ranger Gloves foram revalidados como PNG RGBA `256x256`, com alpha util, bordas suavizadas, cantos transparentes e zero chroma verde visivel.
+- O catalogo permaneceu pareado em 43 registros para 43 assets; TypeScript confirmou todos os IDs usados por `guildRecruitCandidates.ts` e pelo engine de recrutamento.
+- A leitura de `recruitGuildCandidate.ts` confirmou que cada item e criado pelo ID real e atribuido ao slot do candidato sem mapper visual intermediario.
+
+Validacao interativa:
+
+- Os seis dossiers foram percorridos: Tessa Vale, Corin Fletch, Elis Dawn, Bram Reed, Veyra Rune e Sable Rook exibiram quatro itens cada no Starter Loadout.
+- Todos os itens carregaram com dimensao natural `256x256`, `object-fit: contain`, nome acessivel, tooltip semantico e classe de raridade coerente com `items.ts`.
+- Leather Helmet apareceu como Common; Iron Handwraps, Runed Wand, Ironwood Bow e Ranger Gloves apareceram como Uncommon.
+- Os layouts passaram em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal, sprite fora da viewport, botao cortado ou imagem quebrada.
+- Em `390 px`, a escala de texto real foi alterada para `110%` pelo Settings e o dossier de Sable Rook permaneceu sem overflow; a preferencia foi restaurada para `100%` ao final.
+- Tessa Vale foi recrutada pelo fluxo real do mock: roster passou de `5/7` para `6/7`, gold de `420g` para `120g` e o contrato ficou marcado como Already Recruited.
+- Inventory & Equipment da nova personagem mostrou Worn Sword, Wooden Shield, Leather Armor e Minor Health Potion com sprites `256x256`, sem duplicacao ou imagem quebrada.
+
+Resultado:
+
+- Nenhuma regressao foi encontrada e nenhuma correcao de codigo foi necessaria nesta QA.
+- A Recruitment Hall, o engine de recrutamento e o Equipment compartilhado permaneceram funcionalmente inalterados.
+- `npm.cmd run build` passou antes e depois da QA com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; o recrutamento de Tessa nao foi persistido no SQLite real.
+- Elis, Bram, Veyra e Sable permaneceram corretamente bloqueados por Guild Level/Career Points e foram validados pelos dossiers, dados e leitura do engine, nao por contratos efetivados.
+
+Proximo passo sugerido:
+
+- Etapa 120 - expandir sprites originais para armaduras, shields e accessories recorrentes do early game.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
