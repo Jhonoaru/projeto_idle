@@ -15,6 +15,7 @@ Atualizado em: 2026-07-30
 
 ## Status recente
 
+- Etapa 122 concluida: sprites originais para o set Rare/Veteran Cryptwarden completo do mid game.
 - Etapa 121.5 concluida: QA dos sprites de armas em Bazaar, boss loot, crafting, Inventory, Equipment, fontes de monster loot e responsividade.
 - Etapa 121 concluida: sprites originais para as quatro armas Common/Uncommon recorrentes que ainda usavam fallback visual no early game.
 - Etapa 120.5 concluida: QA dos sprites early-game em Bazaar, Inventory, Equipment, Guild Depot, Forge, crafting e responsividade.
@@ -9673,6 +9674,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 122 - sprites originais para equipamentos Veteran recorrentes do mid game.
+
+## Etapa 122 - Sprites do set Veteran Cryptwarden
+
+Status: concluida.
+
+Escopo orientado pelos dados:
+
+- O catalogo Rare/Veteran level 30 foi cruzado com boss loot, monster loot, crafting, Bazar e equipment sets.
+- O lote corresponde ao set `Cryptwarden` completo: `Cryptsteel Blade`, `Gravewood Bow`, `Crypt Scepter`, `Boneweave Wraps` e `Cryptguard Armor`.
+- Os cinco itens aparecem juntos no loot de `Crypt Warden`, nas receitas rank 3 do Guild Workbench e no Bazar Rotativo.
+- Cryptsteel Blade, Gravewood Bow, Crypt Scepter, Boneweave Wraps e Cryptguard Armor tambem possuem fontes individuais em monsters; Cryptguard Armor reaparece em boss de progressao posterior.
+
+Implementado:
+
+- Cinco artes pixel-art originais foram geradas com identidade compartilhada de aco frio, osso antigo, couro escuro e magia violeta controlada.
+- Os sources foram produzidos em fundo chroma uniforme, processados localmente para alpha e centralizados em canvas RGBA `256x256`.
+- `itemSprites.ts` passou de 52 para 57 registros, preservando o fallback semantico para itens ainda sem arte dedicada.
+- O `ItemIcon` compartilhado propaga as artes para Bazar, boss loot, drops, crafting, Inventory, Equipment, Forge e demais superficies existentes.
+- Nenhum ID, rarity, atributo, drop rate, receita, custo, vocation restriction, requirement, set bonus ou regra de gameplay foi alterado.
+
+Direcao visual:
+
+- Cryptsteel Blade usa lamina de aco negro angular, fio frio e runa violeta contida para a rota Vanguard.
+- Gravewood Bow combina madeira escura preservada, reforcos de osso e corda violeta para a rota Pathfinder.
+- Crypt Scepter funciona como foco ritual de uma mao, com reliquia de osso, metal negro e ressonancia violeta-azulada para Arcanum.
+- Boneweave Wraps apresenta um par unico de faixas flexiveis com placas de osso nos nos dos dedos para Discipline.
+- Cryptguard Armor ancora o set com placas escuras em camadas, ombreiras de osso, couro e selo violeta central.
+
+Validacao tecnica:
+
+- Os cinco PNGs foram inspecionados visualmente em tamanho real depois da remocao do chroma.
+- Dimensoes, alpha, cantos transparentes, bounding boxes, residuos de chroma e pareamento catalogo/assets foram validados antes do build final.
+- Build web e pacote Tauri foram validados depois da integracao.
+
+Limitacoes:
+
+- Esta etapa entrega a fundacao visual; QA interativa completa em Bazar, boss loot, monster loot, Guild Workbench, Inventory, Equipment e responsividade fica para a Etapa 122.5.
+- Nenhum drop Rare foi forcado ou persistido no SQLite real nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 122.5 - QA dos sprites Veteran em Bazar, drops, crafting, Inventory, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

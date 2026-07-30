@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-122",
+    stage: "Stage 122",
+    title: "Cryptwarden Veteran Sprite Set",
+    date: "2026-07-30",
+    category: "interface",
+    summary: "The complete Rare Veteran Cryptwarden equipment set now has original pixel-art sprites.",
+    highlights: [
+      "Cryptsteel Blade, Gravewood Bow, Crypt Scepter and Boneweave Wraps give every Veteran weapon path a distinct crypt-forged silhouette.",
+      "Cryptguard Armor visually anchors the full level 30 Cryptwarden set with layered dark plate, bone edging and a restrained violet seal.",
+      "All five sprites flow through the shared ItemIcon used by Bazaar, boss loot, monster drops, crafting, inventory and equipment.",
+    ],
+    systems: ["Item Sprites", "Veteran Equipment", "Cryptwarden Set", "Boss Loot", "Crafting", "Bazaar"],
+    featured: true,
+  },
+  {
     id: "stage-121-5",
     stage: "Stage 121.5",
     title: "Early Weapon Sprite QA",
