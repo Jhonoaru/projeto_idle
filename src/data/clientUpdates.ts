@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-118",
+    stage: "Stage 118",
+    title: "Starter Equipment Sprite Set",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "The five current roster loadouts now use original pixel-art equipment sprites across shared item surfaces.",
+    highlights: [
+      "Guardian, Ranger, caster and Monk starter equipment now has distinct silhouettes suited to each vocation.",
+      "All equipment worn by Arkon, Ayla, Mira, Lyra and Shen is covered, including the existing Light Quiver sprite.",
+      "The shared sprite registry keeps semantic fallbacks available without changing stats, drops, saves or gameplay.",
+    ],
+    systems: ["Item Sprites", "Starter Equipment", "Character Roster", "Equipment", "Loadouts"],
+    featured: true,
+  },
+  {
     id: "stage-117-5",
     stage: "Stage 117.5",
     title: "Container and Utility Sprite QA",

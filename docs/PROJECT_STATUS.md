@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 118 concluida: sprites originais para dez equipamentos iniciais, cobrindo todos os loadouts equipados do roster atual e o Cloth Sash recorrente de Monk.
 - Etapa 117.5 concluida: QA dos sprites de containers/utilities, com integracao visual corrigida no Equipment Panel e painel direito do personagem.
 - Etapa 117 concluida: sprites originais para Light Quiver, cinco containers e quatro utilities recorrentes, com fallbacks semanticos preservados.
 - Etapa 116.5 concluida: QA dos sprites avancados em Market NPC, filtros, dossiers, hunt result e quatro larguras responsivas, sem regressao funcional encontrada.
@@ -9378,6 +9379,39 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 118 - expandir sprites originais para equipamentos iniciais e loadouts recorrentes do roster.
+
+## Etapa 118 - Sprites de equipamentos iniciais e loadouts do roster
+
+Status: concluida.
+
+Implementado:
+
+- Dez artes pixel-art originais foram geradas para `Worn Sword`, `Wooden Shield`, `Leather Armor`, `Simple Bow`, `Leather Boots`, `Novice Wand`, `Apprentice Robe`, `Mystic Cap`, `Monk Wraps` e `Cloth Sash`.
+- Os novos sprites, junto do `Light Quiver` criado na Etapa 117, cobrem todos os equipamentos atualmente vestidos pelos cinco personagens mock: Arkon, Ayla, Mira, Lyra e Shen.
+- O `Cloth Sash` tambem cobre o acessorio recorrente do loadout de Monk e o item inicial presente no inventario de Shen.
+- As fontes foram criadas com ImageGen em fundo chroma uniforme, processadas com o helper oficial de remocao de chroma e ajustadas para canvas transparente de `256x256`.
+- O catalogo compartilhado `itemSprites.ts` passou de 28 para 38 registros, preservando o fallback semantico do `ItemIcon` para assets ausentes ou falhas de carregamento.
+- Equipamentos exclusivos de candidatos futuros, como Leather Helmet, Iron Handwraps, Runed Wand, Ironwood Bow e Ranger Gloves, ficaram fora deste lote para uma expansao posterior orientada pelo roster recrutado.
+
+Validacao:
+
+- Os dez PNGs possuem canvas RGBA `256x256`, cantos transparentes, conteudo visivel, bordas suavizadas e bounding boxes internas seguras.
+- A verificacao de chroma nao encontrou verde visivel; os poucos pixels detectados pelo limiar conservador tinham alpha entre 1 e 12 e pertencem apenas a bordas praticamente transparentes.
+- A QA no browser percorreu Arkon, Ayla, Mira, Lyra e Shen e confirmou os onze equipamentos vestidos, contando o Light Quiver existente, carregando com dimensao natural `256x256`.
+- O Cloth Sash foi validado no inventario de Shen; nenhum sprite ficou quebrado em `980`, `760`, `520` ou `390 px`, e nenhuma dessas larguras apresentou overflow horizontal.
+- `npm.cmd run build` passou com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+- Nenhum atributo, raridade, tier, preco, drop, equipamento, balanceamento, save ou schema SQLite foi alterado.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; a integridade do save real foi confirmada por hash antes e depois do empacotamento.
+- Equipamentos exclusivos de candidatos de recrutamento ainda usam fallback semantico e ficam para um lote visual futuro.
+
+Proximo passo sugerido:
+
+- Etapa 118.5 - QA dos sprites de equipamentos no roster, Character Hall, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
