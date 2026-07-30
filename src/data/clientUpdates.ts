@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-122-5",
+    stage: "Stage 122.5",
+    title: "Cryptwarden Veteran Sprite QA",
+    date: "2026-07-30",
+    category: "qa",
+    summary: "The full Cryptwarden set completed Bazaar, Depot, boss loot, crafting, vocation equipment and responsive validation.",
+    highlights: [
+      "A deterministic Bazaar rotation delivered Cryptsteel Blade, Gravewood Bow and Crypt Scepter once to the Guild Depot.",
+      "All five Rare items rendered together in the Crypt Warden loot table and in their rank 3 Guild Workbench recipes.",
+      "Guardian, Ranger, Arcanist and Monk equipment cycles preserved vocation rules, sprites and single inventory copies.",
+    ],
+    systems: ["Item Sprite QA", "Cryptwarden Set", "Bazaar", "Guild Depot", "Boss Loot", "Crafting", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-122",
     stage: "Stage 122",
     title: "Cryptwarden Veteran Sprite Set",

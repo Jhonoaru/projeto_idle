@@ -15,6 +15,7 @@ Atualizado em: 2026-07-30
 
 ## Status recente
 
+- Etapa 122.5 concluida: QA do set Veteran Cryptwarden em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao e responsividade.
 - Etapa 122 concluida: sprites originais para o set Rare/Veteran Cryptwarden completo do mid game.
 - Etapa 121.5 concluida: QA dos sprites de armas em Bazaar, boss loot, crafting, Inventory, Equipment, fontes de monster loot e responsividade.
 - Etapa 121 concluida: sprites originais para as quatro armas Common/Uncommon recorrentes que ainda usavam fallback visual no early game.
@@ -9716,6 +9717,56 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 122.5 - QA dos sprites Veteran em Bazar, drops, crafting, Inventory, Equipment e responsividade.
+
+## Etapa 122.5 - QA dos sprites Veteran Cryptwarden
+
+Status: concluida.
+
+Validacao interativa:
+
+- A rotacao deterministica `2977307`, iniciada em `2026-08-10T17:50:00.000Z`, expos `Cryptsteel Blade`, `Gravewood Bow` e `Crypt Scepter` simultaneamente no Bazar Rotativo.
+- As tres ofertas exibiram raridade Rare, band Veteran, level 30, familia correta e sprites naturais `256x256` com `object-fit: contain`.
+- As tres ofertas foram compradas uma vez para o Guild Depot: o Bazar avancou para `3/6 acquired` e o saldo mock passou de 20.000g para 9.052g.
+- O Guild Depot recebeu uma copia de cada item com sprite, tooltip, valor, peso, vocation restriction e metadados do set preservados.
+- As cinco receitas rank 3 do Guild Workbench renderizaram Cryptsteel Blade, Gravewood Bow, Crypt Scepter, Boneweave Wraps e Cryptguard Armor sem imagem quebrada.
+- Ao selecionar `Crypt Warden`, a tabela `Possible Guild Depot Loot` exibiu visualmente o set completo com os cinco sprites.
+
+Equipment por vocacao:
+
+- Arkon/Guardian equipou e removeu Cryptsteel Blade no slot weapon e Cryptguard Armor no slot armor.
+- Ayla/Ranger equipou e removeu Gravewood Bow no slot weapon.
+- Mira/Arcanist equipou e removeu Crypt Scepter no slot weapon.
+- Shen/Monk equipou e removeu Boneweave Wraps no slot weapon.
+- Cada item voltou como uma unica copia ao Inventory; nenhum ciclo gerou duplicacao, perda ou quebra de sprite.
+- Levels e inventarios usados no teste foram fixtures temporarias e foram restaurados ao estado inicial real.
+
+Fontes de drop:
+
+- A integridade dos dados confirmou Gravewood Bow e Cryptguard Armor em `Dwarf Guard`, Cryptsteel Blade e Boneweave Wraps em `Ancient Skeleton`, Cryptguard Armor em `Cyclops Brute` e Crypt Scepter em `Cult Acolyte`.
+- Cryptguard Armor tambem permanece no loot de `Khazgrim Gatekeeper` alem do set completo em `Crypt Warden`.
+- Monster loot foi validado nas tabelas consumidas pela engine porque o Bestiary atual nao exibe loot tables; boss loot foi validado visualmente.
+
+Responsividade:
+
+- Inventory & Equipment passou em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal na raiz ou body.
+- Nenhum sprite saiu da viewport, nenhuma imagem quebrou e nenhum botao excedeu seu container.
+- A inspecao visual em `390 px` confirmou header, capacidade, cards e controles compactos legiveis.
+
+Resultado:
+
+- Nenhuma regressao foi encontrada e nenhuma correcao permanente de codigo foi necessaria.
+- Fixtures de data, gold, level e inventario foram removidas integralmente antes dos builds finais.
+- Build web e pacote Tauri foram validados depois da documentacao.
+- O SQLite real permaneceu inalterado e foi comparado por tamanho, timestamp e SHA-256.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; compras, entrega e ciclos de equipamento nao foram persistidos no SQLite real.
+- Drops Rare de monsters nao foram forcados em hunts; suas rotas foram verificadas diretamente nos dados usados pela engine.
+
+Proximo passo sugerido:
+
+- Etapa 123 - sprites originais para o set Epic/Elite Ember do late game.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
