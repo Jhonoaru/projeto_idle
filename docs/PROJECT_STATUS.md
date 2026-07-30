@@ -15,6 +15,7 @@ Atualizado em: 2026-07-30
 
 ## Status recente
 
+- Etapa 123.5 concluida: QA do set Emberforged em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao, bonus 3/3 e responsividade.
 - Etapa 123 concluida: sprites originais para o set Emberforged completo, com cinco pecas Epic/Elite e o Emberheart Amulet Legendary/Mythic.
 - Etapa 122.5 concluida: QA do set Veteran Cryptwarden em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao e responsividade.
 - Etapa 122 concluida: sprites originais para o set Rare/Veteran Cryptwarden completo do mid game.
@@ -9813,6 +9814,55 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 123.5 - QA dos sprites Emberforged em Bazar, drops, crafting, Inventory, Equipment e responsividade.
+
+## Etapa 123.5 - QA dos sprites Elite Emberforged
+
+Status: concluida.
+
+Validacao interativa:
+
+- Uma fixture temporaria isolada montou seis ofertas deterministicas no Bazar Rotativo: `Ember Blade`, `Wyvern Bow`, `Ember Staff`, `Dragon Wraps`, `Dragonscale Armor` e `Emberheart Amulet`.
+- Todas as ofertas exibiram o sprite correto com source natural `256x256`, rarity Epic ou Legendary, family, band Elite/Mythic, level e metadados Emberforged.
+- Ember Blade +1 foi comprada uma vez para o Guild Depot; o contador avancou para `1/6 acquired` e o saldo mock passou de 200.000g para 178.520g.
+- O Guild Depot recebeu uma unica copia com sprite, enhancement, valor, peso e metadados do set preservados.
+
+Boss loot e crafting:
+
+- A tabela `Possible Guild Depot Loot` da Ember Matriarch exibiu nove entradas e os seis sprites Emberforged, incluindo o Emberheart Amulet com chance de 1,2%.
+- O Guild Workbench alcancou Rank 4 / Grandmaster com a fixture e exibiu as cinco receitas Epic com sprites naturais `256x256`.
+- Dragonscale Armor foi craftada pelo fluxo real do mock por 9.000g e 48 materiais, entregue ao Guild Depot e registrada no Workshop ledger.
+- O workshop avancou de 15 para 16 ordens e o saldo mock terminou em 169.520g, sem duplicacao de recompensa.
+
+Equipment por vocacao:
+
+- Arkon/Guardian equipou Ember Blade, Dragonscale Armor e Emberheart Amulet; o ledger marcou Emberforged `3/3` e ativou Dragon Temper e Heart of the Matriarch.
+- Ayla/Ranger equipou e removeu Wyvern Bow no slot weapon.
+- Mira/Arcanist equipou e removeu Ember Staff no slot weapon.
+- Shen/Monk equipou e removeu Dragon Wraps no slot weapon.
+- Cada arma retornou como uma unica copia ao Inventory com sprite, rarity, family, band e set preservados.
+
+Responsividade e integridade:
+
+- Inventory & Equipment passou em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal na raiz ou body.
+- Nenhum controle saiu da viewport e nenhuma das imagens visiveis ficou quebrada nas cinco larguras.
+- A inspecao visual em `390 px` confirmou topbar, inventario, cards de item, botoes e slots de equipamento legiveis e sem sobreposicao.
+- O console apresentou somente a falha esperada do Tauri SQL Plugin no Vite, que aciona o mock local fora do runtime desktop.
+
+Resultado:
+
+- Nenhuma regressao permanente foi encontrada e nenhuma correcao de gameplay ou CSS foi necessaria.
+- Fixtures de gold, level, status, inventario, materiais, workshop e rotacao do Bazar foram removidas integralmente antes dos builds finais.
+- Build web e pacote Tauri foram validados depois da documentacao.
+- O SQLite real permaneceu inalterado e foi comparado por tamanho, timestamp e SHA-256.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; compra, craft e ciclos de equipamento nao foram persistidos no SQLite real.
+- Drops Epic e Legendary nao foram forcados em hunts ou raids; suas fontes foram verificadas na tabela visual da Ember Matriarch e nos dados consumidos pela engine.
+
+Proximo passo sugerido:
+
+- Etapa 124 - sprites originais para os dez itens restantes de moeda, creature products e materiais de hunt.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

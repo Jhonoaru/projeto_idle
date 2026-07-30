@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-123-5",
+    stage: "Stage 123.5",
+    title: "Emberforged Elite Sprite QA",
+    date: "2026-07-30",
+    category: "qa",
+    summary: "The complete Emberforged set passed Bazaar, Depot, boss loot, crafting, vocation equipment and responsive validation.",
+    highlights: [
+      "A deterministic six-offer Bazaar rotation rendered every Epic piece and the Legendary Emberheart Amulet at their natural 256px source size.",
+      "Ember Matriarch exposed the complete set in its nine-entry loot table, while all five Grandmaster recipes rendered and Dragonscale Armor completed a real mock craft.",
+      "Guardian, Ranger, Arcanist and Monk equipment cycles preserved vocation paths, single inventory copies and the active 3/3 Emberforged bonus.",
+    ],
+    systems: ["Item Sprite QA", "Emberforged Set", "Bazaar", "Guild Depot", "Boss Loot", "Crafting", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-123",
     stage: "Stage 123",
     title: "Emberforged Elite Sprite Set",
