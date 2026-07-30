@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-120",
+    stage: "Stage 120",
+    title: "Early Equipment Sprite Set",
+    date: "2026-07-29",
+    category: "interface",
+    summary: "Recurring early-game armor, shield and accessory items now have original pixel-art sprites.",
+    highlights: [
+      "Leather Legs, Copper Ring and Small Amulet give common progression slots clear inventory silhouettes.",
+      "Brass Shield now communicates its monster, boss, depot and Bazaar presence as a visible Guardian upgrade.",
+      "Iron Cuirass visually anchors the crafted Iron Expedition armor path without changing set behavior.",
+    ],
+    systems: ["Item Sprites", "Early Equipment", "Guild Depot", "Bazaar", "Crafting"],
+    featured: true,
+  },
+  {
     id: "stage-119-5",
     stage: "Stage 119.5",
     title: "Recruit Equipment Sprite QA",

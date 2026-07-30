@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 120 concluida: sprites originais para cinco armaduras, shields e accessories recorrentes do early game.
 - Etapa 119.5 concluida: QA dos sprites de recrutamento em todos os dossiers, fluxo real de Tessa, Equipment, responsividade e escala de texto.
 - Etapa 119 concluida: sprites originais para os cinco equipamentos exclusivos dos candidatos de recrutamento avancados.
 - Etapa 118.5 concluida: QA dos sprites de equipamentos no roster, Character Hall, Equipment e responsividade, com overflow do badge Daily corrigido.
@@ -9517,6 +9518,45 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 120 - expandir sprites originais para armaduras, shields e accessories recorrentes do early game.
+
+## Etapa 120 - Sprites de armaduras, shields e accessories do early game
+
+Status: concluida.
+
+Escopo orientado pelos dados:
+
+- O catalogo de equipamentos Common/Uncommon ainda sem sprite foi cruzado com referencias reais em Bazaar, bosses, monsters, depot, crafting, equipment sets e inventarios mock.
+- O lote foi limitado a `Leather Legs`, `Copper Ring`, `Small Amulet`, `Brass Shield` e `Iron Cuirass`, cobrindo legs, ring, amulet, shield e armor sem misturar armas nesta etapa.
+- Leather Legs e Copper Ring fazem parte da oferta local do Bazaar; Small Amulet tambem aparece em boss e no inventario de Lyra.
+- Brass Shield aparece em monsters, bosses, Guild Depot e Bazaar; Iron Cuirass aparece em monsters, boss, crafting, Bazaar e no set Iron Expedition.
+
+Implementado:
+
+- Cinco artes pixel-art originais foram geradas com silhuetas e materiais proporcionais as raridades Common/Uncommon.
+- Os sources foram criados com ImageGen em fundo chroma uniforme, processados pelo helper oficial de remocao de chroma e centralizados em canvas transparente `256x256`.
+- O catalogo `itemSprites.ts` passou de 43 para 48 registros, preservando o fallback semantico para itens ainda sem arte dedicada.
+- Nenhum ID, drop, receita, equipamento, bonus de set, preco, atributo, requisito ou regra de gameplay foi alterado.
+
+Validacao tecnica:
+
+- Os cinco PNGs possuem RGBA `256x256`, cantos transparentes, alpha util, bordas suavizadas e bounding boxes internas seguras.
+- A verificacao de pixels visiveis nao encontrou nenhum residuo de chroma verde com alpha superior a 24.
+- O catalogo ficou pareado em 48 registros para 48 assets e o build TypeScript confirmou os cinco IDs existentes.
+- Small Amulet foi validado no Inventory e Forge de Lyra; Brass Shield foi validado no Guild Depot; Iron Cuirass foi validado na receita do Guild Workbench.
+- Os tres itens carregaram com dimensao natural `256x256`, `object-fit: contain`, raridade e tooltip semantico corretos.
+- O Guild Workbench passou em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal, imagem quebrada ou sprite fora da viewport.
+- `npm.cmd run build` passou antes e depois da integracao com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A rotacao de seis ofertas do Bazaar ativa durante o smoke nao continha Copper Ring, Leather Legs, Small Amulet, Brass Shield ou Iron Cuirass; Copper Ring e Leather Legs foram validados por dados, alpha, registro e build, nao por uma oferta visual forcada.
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; nenhuma compra, craft ou equip foi persistido no SQLite real.
+
+Proximo passo sugerido:
+
+- Etapa 120.5 - QA dos sprites early-game em Inventory, Guild Depot, Bazaar, crafting, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
