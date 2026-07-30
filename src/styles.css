@@ -3757,6 +3757,20 @@ p {
   text-transform: uppercase;
 }
 
+.equipment-slot-summary {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  min-width: 0;
+}
+
+.equipment-slot-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
 .market-hero strong,
 .market-heading strong,
 .market-destination strong,
@@ -8606,6 +8620,23 @@ p {
   font-size: 0.76rem;
   line-height: 1.25;
   text-overflow: ellipsis;
+}
+
+.client-item-cell-content {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  margin-top: 5px;
+}
+
+.client-item-cell-content > div {
+  min-width: 0;
+}
+
+.client-item-cell-content strong {
+  margin-top: 0;
 }
 
 .client-equipment-cell small {

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-117-5",
+    stage: "Stage 117.5",
+    title: "Container and Utility Sprite QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "Container and utility sprites completed purchase, inventory, equipment and responsive validation.",
+    highlights: [
+      "Equipment cards and the right character panel now render shared item sprites instead of text-only equipped entries.",
+      "A purchased backpack retained its sprite while storing an item, being opened and moving into the equipped backpack slot.",
+      "Container, utility and quiver filters remained stable across desktop and compact layouts with stack quantities intact.",
+    ],
+    systems: ["Item Sprite QA", "Equipment", "Inventory", "Containers", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-117",
     stage: "Stage 117",
     title: "Container and Utility Sprites",

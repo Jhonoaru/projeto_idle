@@ -2,6 +2,7 @@ import type { EquipmentSlot, InventoryItem } from "../../shared/types";
 import { getImbuementById } from "../../data/imbuements";
 import { formatEnhancedItemName, getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
+import { ItemIcon } from "../items/ItemIcon";
 import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
 
 interface EquipmentSlotBoxProps {
@@ -18,18 +19,23 @@ export function EquipmentSlotBox({ slot, label, item, onUnequip }: EquipmentSlot
       <span className="equipment-slot-name">{label}</span>
       {item ? (
         <>
-          <strong>{formatEnhancedItemName(item)}</strong>
-          <ItemQualityBadge compact inventoryItem={item} />
-          <ItemProgressionBadge compact item={item.item} />
-          <small>{formatItemStats(item)}</small>
-          {item.imbuements?.length ? (
-            <small>
-              {item.imbuements.map((active) => {
-                const definition = getImbuementById(active.imbuementId);
-                return `${definition?.name ?? active.imbuementId}: ${active.remainingHunts ?? 0} hunts`;
-              }).join(" / ")}
-            </small>
-          ) : null}
+          <div className="equipment-slot-summary">
+            <ItemIcon equipped inventoryItem={item} size="small" />
+            <div className="equipment-slot-copy">
+              <strong>{formatEnhancedItemName(item)}</strong>
+              <ItemQualityBadge compact inventoryItem={item} />
+              <ItemProgressionBadge compact item={item.item} />
+              <small>{formatItemStats(item)}</small>
+              {item.imbuements?.length ? (
+                <small>
+                  {item.imbuements.map((active) => {
+                    const definition = getImbuementById(active.imbuementId);
+                    return `${definition?.name ?? active.imbuementId}: ${active.remainingHunts ?? 0} hunts`;
+                  }).join(" / ")}
+                </small>
+              ) : null}
+            </div>
+          </div>
           <button onClick={() => onUnequip(slot)} type="button">
             Remover
           </button>

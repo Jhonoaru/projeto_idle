@@ -1,4 +1,5 @@
 import { ActivityLog } from "../log/ActivityLog";
+import { ItemIcon } from "../items/ItemIcon";
 import { Panel } from "../ui/Panel";
 import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
 import { getEstimatedExperiencePreview } from "../../game-engine/progression/experienceTable";
@@ -139,8 +140,15 @@ function EquipmentCell({
   return (
     <div className={`client-equipment-cell ${item ? `is-filled ${identity?.surfaceClassName}` : ""}`}>
       <span>{slot}</span>
-      <strong>{item?.item.name ?? "Empty"}</strong>
-      {item ? <small>{formatEnhancement(item)}</small> : null}
+      {item ? (
+        <div className="client-item-cell-content">
+          <ItemIcon equipped inventoryItem={item} showBadges={false} size="small" />
+          <div>
+            <strong>{item.item.name}</strong>
+            <small>{formatEnhancement(item)}</small>
+          </div>
+        </div>
+      ) : <strong>Empty</strong>}
     </div>
   );
 }
@@ -149,11 +157,16 @@ function InventoryCell({ entry }: { entry: InventoryItem }) {
   const identity = getItemVisualIdentity(entry.item, entry);
   return (
     <div className={`client-inventory-cell ${identity.surfaceClassName}`}>
-      <strong>{entry.item.name}</strong>
-      <span>
-        {entry.quantity > 1 ? `x${entry.quantity}` : entry.item.rarity}
-        {entry.locked ? " / locked" : ""}
-      </span>
+      <div className="client-item-cell-content">
+        <ItemIcon inventoryItem={entry} showBadges={false} size="small" />
+        <div>
+          <strong>{entry.item.name}</strong>
+          <span>
+            {entry.quantity > 1 ? `x${entry.quantity}` : entry.item.rarity}
+            {entry.locked ? " / locked" : ""}
+          </span>
+        </div>
+      </div>
       {entry.item.isContainer ? <em>bag</em> : null}
     </div>
   );

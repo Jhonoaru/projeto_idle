@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 117.5 concluida: QA dos sprites de containers/utilities, com integracao visual corrigida no Equipment Panel e painel direito do personagem.
 - Etapa 117 concluida: sprites originais para Light Quiver, cinco containers e quatro utilities recorrentes, com fallbacks semanticos preservados.
 - Etapa 116.5 concluida: QA dos sprites avancados em Market NPC, filtros, dossiers, hunt result e quatro larguras responsivas, sem regressao funcional encontrada.
 - Etapa 116 concluida: sprites originais para Strong Potions, quatro combat runes e duas ammunition stacks, com raridade de supplies corrigida no resultado de hunt.
@@ -9344,6 +9345,39 @@ Pipeline e validacao:
 Proximo passo sugerido:
 
 - Etapa 117.5 - QA dos sprites de containers e utilities em Market, Inventory, Equipment e responsividade.
+
+## Etapa 117.5 - QA dos sprites de containers e utilities
+
+Status: concluida.
+
+Correcao aplicada:
+
+- A QA encontrou duas superficies de equipamento ainda textuais: `EquipmentSlotBox` e os cards compactos de Equipment/Inventory no painel direito.
+- Ambas agora usam o `ItemIcon` compartilhado, preservando raridade, tier, quantidade, badges e fallback resiliente sem duplicar regras de sprite.
+- O Equipment Panel ganhou uma composicao estavel de icone e detalhes, mantendo stats, Imbuements e o comando Remover.
+- O painel direito ganhou sprites pequenos em equipamento e inventario sem remover nomes, enhancements ou marcacao de container.
+
+Validacao interativa:
+
+- Small Backpack foi comprado no Market NPC por 125g e entregue ao inventario de Arkon, reduzindo o saldo mock de 420g para 295g.
+- Minor Health Potion x3 foi movida para o backpack; o container mostrou `1/10`, abriu normalmente e preservou o sprite do item armazenado.
+- Small Backpack foi equipado com o conteudo dentro, continuou disponivel no navegador de containers e apareceu com sprite `256x256` no Equipment Panel e painel direito.
+- Torch x5 foi comprado por 90g e manteve sprite e overlay `x5` no Inventory Grid, lista detalhada e painel direito.
+- Os filtros Containers, Utilities e Ammo/Quivers exibiram os dez sprites esperados com os paths corretos e dimensao natural `256x256`.
+- Os layouts passaram em `980`, `760`, `520` e `390 px` sem overflow horizontal, imagem quebrada, sprite cortado ou perda de quantidade.
+- `npm.cmd run build` passou antes e depois da correcao com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A navegacao interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; as compras e o equip desta QA nao tocaram no save real.
+- O fallback por falha HTTP foi validado por leitura do `ItemIcon` e pelos simbolos semanticos, nao por remover um asset da build.
+- Nenhum preco, capacidade, allowed item types, regra de equipamento, balanceamento, persistencia ou schema SQLite foi alterado.
+
+Proximo passo sugerido:
+
+- Etapa 118 - expandir sprites originais para equipamentos iniciais e loadouts recorrentes do roster.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
