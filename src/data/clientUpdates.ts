@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-123",
+    stage: "Stage 123",
+    title: "Emberforged Elite Sprite Set",
+    date: "2026-07-30",
+    category: "interface",
+    summary: "The complete Epic Elite Emberforged equipment set and its Legendary artifact now have original pixel-art sprites.",
+    highlights: [
+      "Ember Blade, Wyvern Bow, Ember Staff and Dragon Wraps give every Elite weapon path a distinct fire-forged silhouette.",
+      "Dragonscale Armor anchors the level 55 set with charcoal plate, copper-red scales and restrained ember seams.",
+      "The Legendary Emberheart Amulet stands apart through a brighter ruby core and blackened-gold dragon-claw setting.",
+    ],
+    systems: ["Item Sprites", "Elite Equipment", "Emberforged Set", "Boss Loot", "Crafting", "Bazaar"],
+    featured: true,
+  },
+  {
     id: "stage-122-5",
     stage: "Stage 122.5",
     title: "Cryptwarden Veteran Sprite QA",

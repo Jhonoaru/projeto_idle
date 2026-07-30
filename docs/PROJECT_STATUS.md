@@ -15,6 +15,7 @@ Atualizado em: 2026-07-30
 
 ## Status recente
 
+- Etapa 123 concluida: sprites originais para o set Emberforged completo, com cinco pecas Epic/Elite e o Emberheart Amulet Legendary/Mythic.
 - Etapa 122.5 concluida: QA do set Veteran Cryptwarden em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao e responsividade.
 - Etapa 122 concluida: sprites originais para o set Rare/Veteran Cryptwarden completo do mid game.
 - Etapa 121.5 concluida: QA dos sprites de armas em Bazaar, boss loot, crafting, Inventory, Equipment, fontes de monster loot e responsividade.
@@ -9767,6 +9768,51 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 123 - sprites originais para o set Epic/Elite Ember do late game.
+
+## Etapa 123 - Sprites do set Elite Emberforged
+
+Status: concluida.
+
+Escopo orientado pelos dados:
+
+- O catalogo Epic/Elite do level 55 foi cruzado com boss loot, monster loot, crafting, Bazar e equipment sets.
+- O lote cobre `Ember Blade`, `Wyvern Bow`, `Ember Staff`, `Dragon Wraps` e `Dragonscale Armor`, as cinco pecas do set `Emberforged`.
+- As quatro armas atendem Vanguard, Pathfinder, Arcanum e Discipline; Dragonscale Armor completa o Field Kit compartilhado.
+- `Emberheart Amulet`, Legendary/Mythic level 60, foi incluido como artefato culminante do mesmo set.
+- As cinco pecas Epic aparecem no loot de `Ember Matriarch`, no Bazar Rotativo e nas receitas rank 4 do Guild Workbench; armas e armadura tambem possuem fontes em Dragon Whelp ou Wyvern Hatchling.
+- Emberheart Amulet permanece como recompensa rara da Ember Matriarch e oferta excepcional do Bazar, sem receita de crafting.
+
+Implementado:
+
+- Seis artes pixel-art originais foram geradas com identidade compartilhada de metal carvao, escamas cobre-vermelhas, bronze escurecido e brasa laranja controlada.
+- Os sources foram produzidos em fundo chroma uniforme, processados localmente para alpha e centralizados em canvas RGBA `256x256`.
+- `itemSprites.ts` passou de 57 para 63 registros, preservando o fallback semantico para itens ainda sem arte dedicada.
+- O `ItemIcon` compartilhado propaga as artes para Bazar, boss loot, drops, crafting, Inventory, Equipment, Forge e demais superficies existentes.
+- Nenhum ID, rarity, atributo, drop rate, receita, custo, vocation restriction, requirement, set bonus ou regra de gameplay foi alterado.
+
+Direcao visual:
+
+- Ember Blade usa lamina negra larga com canal interno de fogo e escamas cobre para a rota Vanguard.
+- Wyvern Bow combina madeira-ferro recurvada, placas de escama e encaixes de brasa para a rota Pathfinder.
+- Ember Staff funciona como foco compacto de uma mao, com cristal de fogo preso por garras negras para Arcanum.
+- Dragon Wraps apresenta um par cruzado de faixas negras, guardas de escamas e costuras incandescentes para Discipline.
+- Dragonscale Armor ancora o set com placas carvao, peitoral de escamas vermelhas e filetes de brasa.
+- Emberheart Amulet recebe nucleo rubi mais luminoso, engaste de garras em ouro escurecido e corrente curta para comunicar a categoria Legendary/Mythic.
+
+Validacao tecnica:
+
+- Os seis PNGs foram inspecionados visualmente em tamanho real depois da remocao do chroma.
+- Dimensoes, alpha, cantos transparentes, bounding boxes, residuos de chroma e pareamento catalogo/assets foram validados antes do build final.
+- Build web e pacote Tauri foram validados depois da integracao.
+
+Limitacoes:
+
+- Esta etapa entrega a fundacao visual; QA interativa completa em Bazar, boss loot, monster loot, Guild Workbench, Inventory, Equipment e responsividade fica para a Etapa 123.5.
+- Nenhum drop Epic ou Legendary foi forcado ou persistido no SQLite real nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 123.5 - QA dos sprites Emberforged em Bazar, drops, crafting, Inventory, Equipment e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
