@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-118-5",
+    stage: "Stage 118.5",
+    title: "Starter Equipment Sprite QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "Starter equipment sprites completed roster, inventory, equip cycle and responsive validation.",
+    highlights: [
+      "All five current characters render their complete equipped loadouts at the expected source resolution.",
+      "Cloth Sash keeps its sprite and single stack while moving between Shen's inventory and amulet slot.",
+      "The Daily badge now stays inside its topbar button, removing compact-layout overflow without losing emphasis.",
+    ],
+    systems: ["Item Sprite QA", "Character Roster", "Equipment", "Inventory", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-118",
     stage: "Stage 118",
     title: "Starter Equipment Sprite Set",

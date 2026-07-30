@@ -5367,8 +5367,8 @@ p {
 
 .game-icon-button em {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: 2px;
+  right: 2px;
   border: 1px solid #6b5732;
   border-radius: 999px;
   padding: 2px 5px;

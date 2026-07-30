@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 118.5 concluida: QA dos sprites de equipamentos no roster, Character Hall, Equipment e responsividade, com overflow do badge Daily corrigido.
 - Etapa 118 concluida: sprites originais para dez equipamentos iniciais, cobrindo todos os loadouts equipados do roster atual e o Cloth Sash recorrente de Monk.
 - Etapa 117.5 concluida: QA dos sprites de containers/utilities, com integracao visual corrigida no Equipment Panel e painel direito do personagem.
 - Etapa 117 concluida: sprites originais para Light Quiver, cinco containers e quatro utilities recorrentes, com fallbacks semanticos preservados.
@@ -9412,6 +9413,36 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 118.5 - QA dos sprites de equipamentos no roster, Character Hall, Equipment e responsividade.
+
+## Etapa 118.5 - QA dos sprites de equipamentos iniciais
+
+Status: concluida.
+
+Validacao interativa:
+
+- Arkon, Ayla, Mira, Lyra e Shen foram alternados pelo Guild Roster; os onze equipamentos vestidos, contando o Light Quiver existente, carregaram com dimensao natural `256x256` e `object-fit: contain`.
+- Character Hall exibiu somente os sprites esperados para cada loadout, sem imagem quebrada, fallback indevido ou troca de equipamento entre personagens.
+- Inventory & Equipment exibiu Monk Wraps, Leather Armor e Cloth Sash tanto na area principal quanto no painel direito compartilhado.
+- Cloth Sash foi equipado no slot de colar e removido novamente; o sprite acompanhou o item e retornou ao inventario como uma unica stack, sem duplicacao.
+- Os layouts foram testados em `1180`, `980`, `760`, `520` e `390 px`, sem overflow horizontal, sprite fora da viewport ou imagem quebrada.
+- A inspecao visual em `390 px` confirmou cards, quantidades, bordas de raridade e silhuetas legiveis no inventario compacto.
+- `npm.cmd run build` passou antes e depois da correcao com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Correcao aplicada:
+
+- O badge `!` do Daily usava offsets negativos e aumentava silenciosamente o `scrollWidth` do botao em viewports estreitas.
+- O badge passou a ficar contido no canto superior direito do proprio botao, preservando o destaque e eliminando o overflow interno.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; nenhuma alteracao do teste foi gravada no SQLite real.
+- Equipamentos exclusivos de candidatos de recrutamento continuam usando fallback semantico e permanecem fora deste lote.
+
+Proximo passo sugerido:
+
+- Etapa 119 - sprites originais para equipamentos exclusivos dos candidatos de recrutamento.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
