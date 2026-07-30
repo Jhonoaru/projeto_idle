@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-121-5",
+    stage: "Stage 121.5",
+    title: "Early Weapon Sprite QA",
+    date: "2026-07-30",
+    category: "qa",
+    summary: "Early weapon sprites completed Bazaar, boss loot, crafting, Inventory, Equipment and responsive validation.",
+    highlights: [
+      "A deterministic Bazaar rotation exposed Wooden Club, Rusty Blade and Training Axe for real one-time mock purchases.",
+      "All four weapons retained their sprites through individual equip and remove cycles without duplication or broken images.",
+      "Iron Longsword rendered in the Guild Workbench while Training Axe and Iron Longsword rendered in Grunk's boss loot table.",
+    ],
+    systems: ["Item Sprite QA", "Bazaar", "Boss Loot", "Crafting", "Inventory", "Equipment", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-121",
     stage: "Stage 121",
     title: "Early Weapon Sprite Set",

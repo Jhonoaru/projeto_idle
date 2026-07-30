@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-29
+Atualizado em: 2026-07-30
 
 ## Stack usada
 
@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 121.5 concluida: QA dos sprites de armas em Bazaar, boss loot, crafting, Inventory, Equipment, fontes de monster loot e responsividade.
 - Etapa 121 concluida: sprites originais para as quatro armas Common/Uncommon recorrentes que ainda usavam fallback visual no early game.
 - Etapa 120.5 concluida: QA dos sprites early-game em Bazaar, Inventory, Equipment, Guild Depot, Forge, crafting e responsividade.
 - Etapa 120 concluida: sprites originais para cinco armaduras, shields e accessories recorrentes do early game.
@@ -9630,6 +9631,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 121.5 - QA dos sprites de armas em Bazaar, drops, crafting, Inventory, Equipment e responsividade.
+
+## Etapa 121.5 - QA dos sprites de armas early-game
+
+Status: concluida.
+
+Validacao interativa:
+
+- A rotacao deterministica `2977319`, iniciada em `2026-08-10T19:50:00.000Z`, expos `Wooden Club`, `Rusty Blade` e `Training Axe` simultaneamente no Bazar Rotativo.
+- As tres ofertas carregaram sprites naturais `256x256`, `object-fit: contain`, raridade Common e metadados corretos.
+- As tres armas foram compradas uma vez para a bolsa de Arkon: o Bazar avancou para `3/6 acquired` e o saldo mock passou de 420g para 78g.
+- `Iron Longsword` foi inserida somente na fixture temporaria da bolsa para completar o ciclo de equipamento.
+- Wooden Club, Rusty Blade, Training Axe e Iron Longsword equiparam individualmente no slot weapon e retornaram como stacks unicos ao Inventory depois de `Remover`.
+- Iron Longsword renderizou na receita real do Guild Workbench.
+- Training Axe e Iron Longsword renderizaram na tabela visual de loot de `Grunk the Camp Breaker`.
+
+Fontes de drop:
+
+- A integridade dos dados confirmou Training Axe em `Orc Raider` e Grunk, Wooden Club em `Cyclops Brute` e Iron Longsword em `Forest Troll` e Grunk.
+- Todos os IDs resolvem para itens reais e para registros do catalogo compartilhado de sprites.
+- O Bestiary atual nao exibe loot tables no Creature Dossier; por isso monster loot foi validado por dados/engine, enquanto boss loot foi validado visualmente.
+
+Responsividade:
+
+- Inventory & Equipment passou em `1180`, `980`, `760`, `520` e `390 px` sem overflow horizontal na raiz ou body.
+- Nenhum sprite saiu da viewport, nenhuma imagem quebrou e nenhum botao excedeu seu container.
+- A inspecao visual em `390 px` confirmou o layout compacto, capacidade, cards e sprites legiveis.
+
+Resultado:
+
+- Nenhuma regressao foi encontrada e nenhuma correcao permanente de codigo foi necessaria.
+- Fixtures de data, nivel e inventario foram removidas integralmente; o jogo voltou a usar o relogio real e Arkon voltou ao estado inicial level 1.
+- Build web e pacote Tauri foram validados depois da documentacao.
+- O SQLite real permaneceu inalterado e foi comparado por tamanho, timestamp e SHA-256.
+
+Limitacoes:
+
+- A QA interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser; compras e ciclos de equipamento nao foram persistidos no SQLite real.
+- Drops raros de monsters nao foram forcados em uma hunt; suas rotas foram verificadas diretamente nas tabelas consumidas pela engine.
+
+Proximo passo sugerido:
+
+- Etapa 122 - sprites originais para equipamentos Veteran recorrentes do mid game.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
