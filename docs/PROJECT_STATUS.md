@@ -15,6 +15,7 @@ Atualizado em: 2026-07-29
 
 ## Status recente
 
+- Etapa 116.5 concluida: QA dos sprites avancados em Market NPC, filtros, dossiers, hunt result e quatro larguras responsivas, sem regressao funcional encontrada.
 - Etapa 116 concluida: sprites originais para Strong Potions, quatro combat runes e duas ammunition stacks, com raridade de supplies corrigida no resultado de hunt.
 - Etapa 115.5 concluida: QA dos sprites de supplies/materiais, com integracao visual corrigida nos custos da Forge e requisitos do Guild Workbench.
 - Etapa 115 concluida: sprites originais para tres supplies centrais e dois materiais recorrentes, integrados ao `ItemIcon` compartilhado sem alterar gameplay ou persistencia.
@@ -9267,6 +9268,39 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 116.5 - QA dos sprites avancados em Market, hunt result, supplies e responsividade.
+
+## Etapa 116.5 - QA dos sprites avancados
+
+Status: concluida.
+
+Validacao estrutural:
+
+- O catalogo compartilhado possui 18 registros e a pasta de producao possui exatamente 18 PNGs correspondentes.
+- Todos os assets sao RGBA `256x256`, possuem alpha zero nos quatro cantos, conteudo visivel e pixels semitransparentes nas bordas.
+- Os oito sprites da Etapa 116 carregaram com dimensao natural `256x256`: Strong Health Potion, Strong Mana Potion, Light Magic Rune, Fire Burst Rune, Healing Rune, Energy Strike Rune, Simple Arrow e Piercing Arrow.
+- A leitura de `HuntResultPanel` confirmou o uso da definicao real de item para supplies conhecidas, preservando sprite e raridade; IDs antigos ou desconhecidos continuam protegidos pelo fallback comum.
+
+Validacao interativa:
+
+- Market NPC exibiu Strong Potions e runes em `x10`, arrows em `x100` e as bordas de raridade corretas.
+- O filtro Supplies retornou as cinco potions, Runes retornou as quatro combat runes e Ammo/Quivers retornou as duas arrows junto ao Light Quiver.
+- Light Quiver, ainda sem arte dedicada, manteve corretamente o fallback tipografico `QV`.
+- A selecao de Strong Health Potion e Piercing Arrow atualizou tanto o icone medio da listagem quanto o icone grande do dossier, sem imagem quebrada ou quantidade cortada.
+- Market passou em `980`, `760`, `520` e `390 px` sem overflow horizontal; os sprites permaneceram contidos nos slots e o overlay `x100` permaneceu legivel.
+- A primeira carga visual foi interrompida quando o processo temporario do Vite encerrou; apos reiniciar o servidor de QA, todos os assets carregaram normalmente, confirmando que nao era uma falha do produto.
+- `npm.cmd run build` passou com TypeScript, Vite e 445 modulos; permanece somente o aviso conhecido do chunk principal acima de 500 kB.
+- `npm.cmd run tauri:build` passou e gerou o executavel release, o pacote MSI e o instalador NSIS.
+- O SQLite real permaneceu inalterado: 81.920 bytes, timestamp `2026-07-24 23:08:25` e SHA-256 `4E4B97C2DA483E5668180111FA7A4424B1C4A2CD1221582B94FB230AB8F57E38`.
+
+Limitacoes:
+
+- A navegacao interativa usou o mock local porque o Tauri SQL Plugin nao esta disponivel no browser.
+- O resultado de hunt com uma supply avancada foi validado por leitura e build, nao por concluir uma hunt high-level no save atual.
+- Nenhuma regra de consumo, preco, quantidade, drop, raridade, balanceamento, persistencia ou schema SQLite foi alterada nesta QA.
+
+Proximo passo sugerido:
+
+- Etapa 117 - expandir sprites originais para containers, quivers e utilities recorrentes.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

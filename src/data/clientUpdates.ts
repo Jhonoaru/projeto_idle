@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-116-5",
+    stage: "Stage 116.5",
+    title: "Advanced Supply Sprite QA",
+    date: "2026-07-29",
+    category: "qa",
+    summary: "Advanced potion, rune and ammunition sprites completed catalog, Market and responsive validation.",
+    highlights: [
+      "All eight advanced supply sprites load at their original 256x256 resolution with transparent bounds and resilient fallbacks.",
+      "Market filters, item dossiers, rarity borders and stack quantities remain correct from desktop down to compact mobile layouts.",
+      "Hunt results preserve real item definitions for known supplies while legacy IDs continue to use a safe fallback.",
+    ],
+    systems: ["Item Sprite QA", "Advanced Supplies", "Market NPC", "Hunt Results", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-116",
     stage: "Stage 116",
     title: "Advanced Supply Sprite Set",
