@@ -67,6 +67,16 @@ const ITEM_SPRITES: Readonly<Record<string, ItemSpriteDefinition>> = {
   "rat-tail": sprite("rat-tail"),
   "dwarf-badge": sprite("dwarf-badge"),
   "dragon-ember": sprite("dragon-ember"),
+  "gold-coin": sprite("gold-coin"),
+  "troll-tooth": sprite("troll-tooth"),
+  "rotten-claw": sprite("rotten-claw"),
+  "minotaur-horn": sprite("minotaur-horn"),
+  "orc-leather": sprite("orc-leather"),
+  "ancient-bone": sprite("ancient-bone"),
+  "cyclops-eye": sprite("cyclops-eye"),
+  "wyvern-scale": sprite("wyvern-scale"),
+  "cultist-charm": sprite("cultist-charm"),
+  "broken-fang": sprite("broken-fang"),
 };
 
 export function getItemSprite(itemId?: string): ItemSpriteDefinition | undefined {

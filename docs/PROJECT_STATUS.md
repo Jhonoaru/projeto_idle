@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-07-30
+Atualizado em: 2026-08-06
 
 ## Stack usada
 
@@ -15,6 +15,7 @@ Atualizado em: 2026-07-30
 
 ## Status recente
 
+- Etapa 124 concluida: sprites originais para os dez itens restantes de moeda, creature products e materiais de hunt, fechando o catalogo visual de itens.
 - Etapa 123.5 concluida: QA do set Emberforged em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao, bonus 3/3 e responsividade.
 - Etapa 123 concluida: sprites originais para o set Emberforged completo, com cinco pecas Epic/Elite e o Emberheart Amulet Legendary/Mythic.
 - Etapa 122.5 concluida: QA do set Veteran Cryptwarden em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao e responsividade.
@@ -9863,6 +9864,46 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 124 - sprites originais para os dez itens restantes de moeda, creature products e materiais de hunt.
+
+## Etapa 124 - Catalogo completo de sprites de loot e materiais
+
+Status: concluida.
+
+Auditoria do catalogo:
+
+- Os 70 itens reais de `items.ts` foram comparados com o registro compartilhado de sprites.
+- Os dez IDs restantes eram `gold-coin`, `troll-tooth`, `rotten-claw`, `minotaur-horn`, `orc-leather`, `ancient-bone`, `cyclops-eye`, `wyvern-scale`, `cultist-charm` e `broken-fang`.
+- A selecao cobre moeda, creature products de early/mid/late game, materiais de crafting e loot raro de boss.
+
+Implementacao visual:
+
+- Foram criados dez sprites originais em pixel art, todos RGBA `256x256`, com fundo transparente e margem estavel para uso em slots compactos.
+- Gold Coin usa uma pilha dourada com selo abstrato; Troll Tooth e Broken Fang receberam silhuetas distintas para evitar confusao em inventario.
+- Rotten Claw, Minotaur Horn e Orc Leather preservam uma leitura terrestre e desgastada para o early game.
+- Ancient Bone recebeu uma runa azul discreta, Wyvern Scale usa cobre e brasa, Cultist Charm usa obsidiana e violeta e Cyclops Eye se destaca como trofeu Rare.
+- Os dez IDs foram registrados em `itemSprites.ts`; Inventory, Equipment, Hunt Loot, Boss Loot, Bazar, Market NPC, Guild Depot, crafting e demais superficies de `ItemIcon` recebem os sprites automaticamente.
+- O diretorio gerado agora contem 73 assets e o registro possui 73 entradas. Todos os 70 IDs do catalogo real possuem sprite dedicado; as tres entradas adicionais permanecem validas para conteudo auxiliar existente.
+
+Integridade e escopo:
+
+- Nenhum valor, peso, rarity, drop rate, receita, custo ou regra de gameplay foi alterado.
+- Nenhum campo de save, migration ou schema SQLite foi criado.
+- Assets foram produzidos pelo ImageGen integrado, recortados localmente por chroma key e validados com transparencia real.
+
+Validacao:
+
+- Os dez arquivos passaram em dimensao `256x256`, modo RGBA, alpha visivel, cantos transparentes e ausencia de residuo verde/magenta significativo.
+- A comparacao automatica entre `items.ts` e `itemSprites.ts` terminou sem item faltante.
+- Build web e pacote Tauri foram executados depois da integracao e documentacao.
+
+Limitacoes:
+
+- A Etapa 124 fecha a producao e integracao do catalogo; a QA interativa completa em Hunts, Bosses, Inventory, Quick Sell, crafting e larguras responsivas fica para a Etapa 124.5.
+- Drops raros nao foram forcados e o SQLite real nao foi modificado para produzir cenarios de teste.
+
+Proximo passo sugerido:
+
+- Etapa 124.5 - QA do catalogo completo de loot em Hunts, Bosses, Inventory, Quick Sell, crafting e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-124",
+    stage: "Stage 124",
+    title: "Complete Hunt Loot Sprite Catalog",
+    date: "2026-08-06",
+    category: "interface",
+    summary: "Every remaining currency, creature product and hunt material now has an original pixel-art sprite.",
+    highlights: [
+      "Gold Coin and five early creature trophies give common hunt rewards distinct, readable silhouettes.",
+      "Ancient Bone, Wyvern Scale, Cultist Charm and the rare Cyclops Eye complete the visual path into advanced crafting and boss loot.",
+      "All catalog items now flow through the shared ItemIcon with dedicated generated-original artwork.",
+    ],
+    systems: ["Item Sprites", "Hunt Loot", "Creature Products", "Crafting Materials", "Boss Loot", "Inventory"],
+    featured: true,
+  },
+  {
     id: "stage-123-5",
     stage: "Stage 123.5",
     title: "Emberforged Elite Sprite QA",
