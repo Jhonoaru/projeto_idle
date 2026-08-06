@@ -14,6 +14,21 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-124-5",
+    stage: "Stage 124.5",
+    title: "Complete Loot Sprite Catalog QA",
+    date: "2026-08-06",
+    category: "qa",
+    summary: "The complete item sprite catalog passed hunt, boss loot, Inventory, Quick Sell, crafting and responsive validation.",
+    highlights: [
+      "All ten final currency, creature product and material sprites loaded at their natural 256px source size in Inventory and shared ItemIcon surfaces.",
+      "Boss tables and Grandmaster recipes preserved the correct trophies, quantities, rarity safeguards and crafting requirements.",
+      "A real one-minute hunt completed and collected once, while four responsive widths remained free of overflow, broken images and displaced controls.",
+    ],
+    systems: ["Item Sprite QA", "Hunts", "Boss Loot", "Inventory", "Quick Sell", "Guild Workbench", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-124",
     stage: "Stage 124",
     title: "Complete Hunt Loot Sprite Catalog",

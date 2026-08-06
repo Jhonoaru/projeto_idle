@@ -15,6 +15,7 @@ Atualizado em: 2026-08-06
 
 ## Status recente
 
+- Etapa 124.5 concluida: QA do catalogo completo de sprites em Hunts, Bosses, Inventory, Quick Sell, Guild Workbench e quatro larguras responsivas.
 - Etapa 124 concluida: sprites originais para os dez itens restantes de moeda, creature products e materiais de hunt, fechando o catalogo visual de itens.
 - Etapa 123.5 concluida: QA do set Emberforged em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao, bonus 3/3 e responsividade.
 - Etapa 123 concluida: sprites originais para o set Emberforged completo, com cinco pecas Epic/Elite e o Emberheart Amulet Legendary/Mythic.
@@ -9904,6 +9905,59 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 124.5 - QA do catalogo completo de loot em Hunts, Bosses, Inventory, Quick Sell, crafting e responsividade.
+
+## Etapa 124.5 - QA do catalogo completo de loot
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e o build web baseline passaram antes da fixture.
+- Uma fixture temporaria isolada colocou os dez itens finais no Inventory de Arkon e no Guild Depot, elevou o Workshop ao Rank 4 e forneceu gold somente no mock local.
+- A fixture foi removida integralmente depois da navegacao; `mockGuild.ts`, `mockCharacters.ts` e `mockDepot.ts` terminaram sem diff.
+- O catalogo permaneceu com 70 itens reais cobertos por 73 assets e 73 registros, incluindo as tres utilities auxiliares `rope`, `shovel` e `torch`.
+
+Inventory e Quick Sell:
+
+- Gold Coin, Troll Tooth, Rotten Claw, Minotaur Horn, Orc Leather, Ancient Bone, Cyclops Eye, Wyvern Scale, Cultist Charm e Broken Fang renderizaram no Inventory com nome, quantidade, rarity e valor corretos.
+- Os dez sprites carregaram por seus caminhos dedicados com source natural `256x256`; nenhuma imagem caiu no fallback ou ficou quebrada.
+- O filtro Loot exibiu os oito creature products; o filtro seguro manteve selecionados por padrao somente Troll Tooth, Orc Leather, Ancient Bone e Broken Fang.
+- Rotten Claw, Minotaur Horn, Cyclops Eye, Wyvern Scale e Cultist Charm preservaram os avisos de raridade e nao foram vendidos automaticamente.
+- A selecao de Troll Tooth foi alternada e restaurada, atualizando contagem e total sem executar venda ou duplicar estado.
+
+Boss loot e crafting:
+
+- Sewer Broodmother exibiu Broken Fang; Grunk exibiu Troll Tooth e Orc Leather; Crypt Warden exibiu Ancient Bone; Khazgrim Gatekeeper exibiu Cyclops Eye; Ember Matriarch exibiu Wyvern Scale.
+- Todas as entradas das cinco tabelas carregaram sprite natural `256x256`, chance, rarity e faixa de quantidade sem imagem quebrada.
+- O Guild Workbench abriu em Rank 4 / Grandmaster com 12 materiais indexados na fixture.
+- Field Bow, Cryptsteel Blade, Gravewood Bow, Crypt Scepter e Ember Staff validaram Broken Fang, Ancient Bone, Wyvern Scale e Cultist Charm em requisitos reais.
+- Contagens disponivel/necessario e sprites permaneceram corretos; nenhum craft foi executado e nenhum material foi consumido.
+
+Hunts e fontes reais:
+
+- A leitura cruzada de `hunts.ts` e `monsters.ts` confirmou fonte real de hunt para todos os dez itens, sem ID orfao.
+- Gold Coin aparece na progressao de criaturas; Broken Fang, Troll Tooth, Rotten Claw, Minotaur Horn e Orc Leather cobrem as hunts iniciais e intermediarias.
+- Ancient Bone e Cultist Charm pertencem a Ancient Crypt; Cyclops Eye a Cyclops Hills; Wyvern Scale e Broken Fang ao Ember Dragon Nest.
+- Uma Sewers Below Thaeron real de um minuto passou por assignment, Hunt Scene, estado Ready e coleta manual unica.
+- O resultado concedeu 42 XP, 4g liquido e Rat Tail x2 ao Inventory; o resumo final, Activity Log e retorno do personagem a idle ficaram coerentes.
+
+Responsividade e resultado:
+
+- Inventory, Quick Sell, Boss Loot e Guild Workbench foram validados em `1180`, `760`, `520` e `390 px`.
+- Nenhuma largura apresentou overflow horizontal, controle fora da viewport ou imagem quebrada.
+- Inspecao visual mobile confirmou topbar, filtros, cards, loot tables, recipe track e quantidades legiveis, sem sobreposicao.
+- O console do navegador terminou sem erros ou warnings.
+- Nenhuma regressao funcional foi encontrada e nenhuma correcao permanente de gameplay ou CSS foi necessaria.
+
+Limitacoes:
+
+- Drops raros nao foram forcados por repeticao de hunts; suas fontes foram validadas nos dados e nas tabelas reais de boss/crafting.
+- A interacao ocorreu no Vite com mock local porque o Tauri SQL Plugin nao opera no browser.
+- Nenhuma fixture foi gravada no SQLite real e nenhum fluxo de Save/Reload desktop foi necessario, pois a etapa nao alterou persistencia.
+
+Proximo passo sugerido:
+
+- Etapa 125 - definir e iniciar a proxima frente visual depois do catalogo completo de itens.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
