@@ -15,6 +15,7 @@ Atualizado em: 2026-08-06
 
 ## Status recente
 
+- Etapa 126 concluida: sprites originais para as seis criaturas avancadas restantes, fechando os 12 monstros do catalogo atual.
 - Etapa 125.5 concluida: QA dos sprites iniciais de criaturas em Explore, Hunt Scene, Bestiary, fallback e cinco larguras responsivas.
 - Etapa 125 concluida: fundacao de sprites originais para seis criaturas iniciais de Thaeron, integradas em Explore, Hunt Scene e Bestiary com fallback seguro.
 - Etapa 124.5 concluida: QA do catalogo completo de sprites em Hunts, Bosses, Inventory, Quick Sell, Guild Workbench e quatro larguras responsivas.
@@ -10043,6 +10044,49 @@ Resultado e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 126 - sprites originais para as seis criaturas avancadas restantes do catalogo atual.
+
+## Etapa 126 - Catalogo completo de sprites de criaturas
+
+Status: concluida.
+
+Escopo visual:
+
+- Foram criados sprites originais para `Ancient Skeleton`, `Cult Acolyte`, `Cyclops Brute`, `Dwarf Guard`, `Dragon Whelp` e `Wyvern Hatchling`.
+- Ancient Crypt ganhou um guerreiro morto-vivo de bronze oxidado e um conjurador encapuzado com magia violeta.
+- Khazgrim ganhou um Cyclops macico com clava e um Dwarf Guard compacto com hammer, shield e armadura de mina.
+- Ember Dragon Nest ganhou anatomias separadas: Dragon Whelp quadrupede, pesado e Emberforged; Wyvern Hatchling bipede, agil e com wing-arms.
+- Todos os assets finais usam canvas RGBA `384x384`, fundo transparente, proporcao preservada e margem estavel.
+
+Integracao e catalogo:
+
+- Os seis IDs foram adicionados ao registro compartilhado `creatureSprites.ts` como fontes `generated-original`.
+- Explore recebe automaticamente o sprite da criatura principal das Hunts avancadas.
+- Hunt Scene reutiliza os sprites nos estados de spawn, alvo, combate e derrota sem alterar a simulacao.
+- Bestiary reutiliza a mesma arte em cards compactos e dossiers grandes.
+- O registro agora cobre os 12 IDs reais de `monsters.ts`; nenhuma criatura do catalogo atual depende do fallback por iniciais.
+
+Integridade e escopo:
+
+- Nenhum health, damage, armor, defense, XP, gold, drop rate, loot table ou requisito de Hunt foi alterado.
+- Nenhuma migration, campo de save ou mudanca no schema SQLite foi criada.
+- O fallback semantico de `CreatureSprite` permanece ativo para conteudo futuro ou falha de carregamento.
+- Assets foram produzidos pelo ImageGen integrado, recortados localmente por chroma key e salvos no diretorio compartilhado de criaturas.
+
+Validacao:
+
+- Os seis PNGs passaram em modo RGBA, dimensao `384x384`, alpha visivel, bounding box valida e quatro cantos transparentes.
+- A inspecao visual confirmou contornos limpos, equipamento legivel, enquadramento consistente e distincao entre Dragon e Wyvern.
+- A comparacao automatica entre `monsters.ts` e `creatureSprites.ts` terminou sem registro faltante ou orfao.
+- Build web e pacote Tauri foram executados depois da integracao e documentacao.
+
+Limitacoes:
+
+- A QA interativa completa das tres Hunts avancadas, Bestiary e larguras responsivas fica reservada para a Etapa 126.5.
+- A etapa fecha o catalogo atual, mas novas criaturas futuras ainda exigirao arte e registro adicionais.
+
+Proximo passo sugerido:
+
+- Etapa 126.5 - QA do catalogo completo de criaturas em Hunts avancadas, Hunt Scene, Bestiary e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

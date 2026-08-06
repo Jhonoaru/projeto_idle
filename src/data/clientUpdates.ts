@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-126",
+    stage: "Stage 126",
+    title: "Complete Creature Sprite Catalog",
+    date: "2026-08-06",
+    category: "interface",
+    summary: "All twelve creatures in the current hunt catalog now have original full-body pixel-art sprites.",
+    highlights: [
+      "Ancient Skeleton and Cult Acolyte complete the contrasting martial and magical silhouettes of Ancient Crypt.",
+      "Cyclops Brute and Dwarf Guard give Khazgrim a massive attacker and a compact armored defender.",
+      "Dragon Whelp and Wyvern Hatchling close the Ember Nest with distinct four-legged dragon and two-legged wyvern anatomy.",
+      "The shared creature registry now covers every monster ID consumed by Explore, Hunt Scene and Bestiary.",
+    ],
+    systems: ["Creature Sprites", "Explore", "Hunt Scene", "Bestiary", "Advanced Hunts"],
+    featured: true,
+  },
+  {
     id: "stage-125-5",
     stage: "Stage 125.5",
     title: "Thaeron Creature Sprite QA",

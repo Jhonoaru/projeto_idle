@@ -17,6 +17,12 @@ export const creatureSprites: Readonly<Record<string, CreatureSpriteDefinition>>
   "monster-mud-rotter": generatedSprite("monster-mud-rotter"),
   "monster-young-minotaur": generatedSprite("monster-young-minotaur"),
   "monster-orc-raider": generatedSprite("monster-orc-raider"),
+  "monster-dwarf-guard": generatedSprite("monster-dwarf-guard"),
+  "monster-ancient-skeleton": generatedSprite("monster-ancient-skeleton"),
+  "monster-cyclops-brute": generatedSprite("monster-cyclops-brute"),
+  "monster-wyvern-hatchling": generatedSprite("monster-wyvern-hatchling"),
+  "monster-dragon-whelp": generatedSprite("monster-dragon-whelp"),
+  "monster-cult-acolyte": generatedSprite("monster-cult-acolyte"),
 };
 
 export function getCreatureSprite(monsterId?: string): CreatureSpriteDefinition | undefined {
