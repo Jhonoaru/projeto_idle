@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-125-5",
+    stage: "Stage 125.5",
+    title: "Thaeron Creature Sprite QA",
+    date: "2026-08-06",
+    category: "qa",
+    summary: "The initial Thaeron creature set passed Explore, Hunt Scene, Bestiary, fallback and responsive validation.",
+    highlights: [
+      "All six dedicated creature images loaded at their natural 384px source size without broken assets.",
+      "A real Sewer Rat hunt rendered three simultaneous creature cards while preserving spawn, target and health states.",
+      "The Bestiary fixture confirmed all six sprites plus the semantic Ancient Skeleton fallback before being removed.",
+      "Explore, combat and research surfaces remained free of horizontal overflow from desktop down to 390px.",
+    ],
+    systems: ["Creature Sprite QA", "Explore", "Hunt Scene", "Bestiary", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-125",
     stage: "Stage 125",
     title: "Thaeron Creature Sprite Foundation",

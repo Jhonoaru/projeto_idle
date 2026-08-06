@@ -15,6 +15,7 @@ Atualizado em: 2026-08-06
 
 ## Status recente
 
+- Etapa 125.5 concluida: QA dos sprites iniciais de criaturas em Explore, Hunt Scene, Bestiary, fallback e cinco larguras responsivas.
 - Etapa 125 concluida: fundacao de sprites originais para seis criaturas iniciais de Thaeron, integradas em Explore, Hunt Scene e Bestiary com fallback seguro.
 - Etapa 124.5 concluida: QA do catalogo completo de sprites em Hunts, Bosses, Inventory, Quick Sell, Guild Workbench e quatro larguras responsivas.
 - Etapa 124 concluida: sprites originais para os dez itens restantes de moeda, creature products e materiais de hunt, fechando o catalogo visual de itens.
@@ -10000,6 +10001,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 125.5 - QA dos sprites de criaturas iniciais em Explore, Hunt Scene, Bestiary e responsividade.
+
+## Etapa 125.5 - QA dos sprites de criaturas iniciais
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e o build web baseline passaram antes da QA.
+- O catalogo permaneceu com seis registros validos para 12 monstros reais e nenhum ID orfao.
+- Uma fixture temporaria isolada adicionou ao Bestiary as seis criaturas com arte e `Ancient Skeleton` sem arte dedicada.
+- A fixture foi removida integralmente depois da navegacao; `mockGuild.ts` terminou sem diff.
+
+Explore e Hunt Scene:
+
+- Os cards de `Sewer Rat`, `Cave Spider`, `Forest Troll`, `Mud Rotter` e `Young Minotaur` carregaram seus PNGs naturais `384x384` no board de Hunts.
+- As Hunts ainda sem arte exibiram o fallback semantico sem imagem quebrada ou alteracao no bloqueio por level/acesso.
+- Uma Hunt real de `Sewers Below Thaeron` foi iniciada pelo assignment de um minuto.
+- Tres Sewer Rats simultaneos renderizaram o mesmo sprite nos estados de alvo, spawn e combate, preservando barras de HP, spawn e posicionamento da cena.
+- Finalizar a Hunt retornou Arkon ao fluxo de viagem sem aplicar recompensa duplicada.
+
+Bestiary e fallback:
+
+- Os seis sprites dedicados apareceram juntos no Registry com nome, stage, kills e progresso corretos.
+- O dossier selecionado reutilizou a arte em tamanho maior e manteve as estatisticas existentes.
+- `Ancient Skeleton` exibiu corretamente as iniciais `AS`, validando o caminho de fallback para as seis criaturas ainda sem sprite.
+- Nenhuma imagem visivel apresentou `naturalWidth` zero ou falha de carregamento.
+
+Responsividade:
+
+- Explore e Bestiary passaram em `1440`, `980`, `760`, `520` e `390 px` sem overflow horizontal na raiz ou no body.
+- Cards de Hunt, cards do Bestiary e cards compactos da Hunt Scene permaneceram dentro de seus containers.
+- A inspecao visual desktop e mobile confirmou sprites legiveis, enquadramento consistente, textos sem sobreposicao e controles preservados.
+
+Resultado e limitacoes:
+
+- Nenhuma regressao permanente foi encontrada e nenhuma correcao de gameplay, componente ou CSS foi necessaria.
+- A QA interativa foi executada no Vite com mock local; o unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin fora do runtime desktop.
+- Nenhuma fixture foi gravada no SQLite real e nenhum save de producao foi modificado.
+
+Proximo passo sugerido:
+
+- Etapa 126 - sprites originais para as seis criaturas avancadas restantes do catalogo atual.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
