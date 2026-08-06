@@ -1,6 +1,7 @@
 import { getBestiaryThreshold } from "../../data/bestiaryThresholds";
 import { monsters } from "../../data/monsters";
 import type { MonsterBestiaryProgress } from "../../shared/types";
+import { CreatureSprite } from "../creatures/CreatureSprite";
 
 interface BestiaryDetailsProps {
   progress?: MonsterBestiaryProgress;
@@ -22,7 +23,12 @@ export function BestiaryDetails({ progress }: BestiaryDetailsProps) {
   return (
     <div className="bestiary-details">
       <div className="bestiary-dossier-identity">
-        <span className="bestiary-dossier-sigil">{sigil}</span>
+        <CreatureSprite
+          className="bestiary-dossier-sigil"
+          fallbackSymbol={sigil}
+          monster={monster}
+          size="large"
+        />
         <div>
           <span>{progress.stage} record</span>
           <strong>{displayName}</strong>

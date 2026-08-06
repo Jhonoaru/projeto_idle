@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-125",
+    stage: "Stage 125",
+    title: "Thaeron Creature Sprite Foundation",
+    date: "2026-08-06",
+    category: "interface",
+    summary: "The first six Thaeron creatures now have original full-body pixel-art sprites across exploration, combat and Bestiary surfaces.",
+    highlights: [
+      "Sewer Rat and Cave Spider establish distinct silhouettes for the two opening hunts.",
+      "Forest Troll and Mud Rotter give the early progression heavier woodland and swamp identities.",
+      "Young Minotaur and Orc Raider complete the first visual set with weapon-bearing humanoid enemies.",
+      "A shared creature component preserves semantic initials whenever a monster has no dedicated sprite or an image fails to load.",
+    ],
+    systems: ["Creature Sprites", "Explore", "Hunt Scene", "Bestiary", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-124-5",
     stage: "Stage 124.5",
     title: "Complete Loot Sprite Catalog QA",

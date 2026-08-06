@@ -1,6 +1,7 @@
 import { getBestiaryThreshold } from "../../data/bestiaryThresholds";
 import { monsters } from "../../data/monsters";
 import type { ActiveCharmAssignment, MonsterBestiaryProgress } from "../../shared/types";
+import { CreatureSprite } from "../creatures/CreatureSprite";
 
 interface BestiaryMonsterCardProps {
   progress: MonsterBestiaryProgress;
@@ -39,7 +40,12 @@ export function BestiaryMonsterCard({
       }}
     >
       <div className="bestiary-card-heading">
-        <span className="bestiary-card-sigil">{sigil}</span>
+        <CreatureSprite
+          className="bestiary-card-sigil"
+          fallbackSymbol={sigil}
+          monster={monster}
+          size="small"
+        />
         <div>
           <span>{progress.stage}</span>
           <strong>{displayName}</strong>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CreatureSprite } from "../creatures/CreatureSprite";
 import { BossPanel } from "../boss/BossPanel";
 import { HuntActionPanel } from "../hunt/HuntActionPanel";
 import { QuestPanel } from "../quest/QuestPanel";
@@ -358,7 +359,7 @@ function ExploreHuntCard({
   const hasLevel = character.level >= hunt.minLevel;
   const hasAccess = !hunt.requiredAccess || character.accessIds.includes(hunt.requiredAccess);
   const locked = !hasLevel || !hasAccess;
-  const monsterToken = hunt.monsters[0]?.name.slice(0, 2).toUpperCase() ?? "H";
+  const featuredMonster = hunt.monsters[0];
 
   return (
     <button
@@ -368,7 +369,12 @@ function ExploreHuntCard({
     >
       {hunt.requiredAccess ? <em className="access-ribbon">Access</em> : null}
       <span className="explore-card-title">{hunt.name}</span>
-      <i className={`explore-card-token risk-token-${hunt.risk}`} aria-hidden="true">{monsterToken}</i>
+      <CreatureSprite
+        className={`explore-card-token risk-token-${hunt.risk}`}
+        fallbackSymbol="H"
+        monster={featuredMonster}
+        size="large"
+      />
       <strong>Level {hunt.recommendedLevel} · Min. {hunt.minLevel}</strong>
       <small>{hunt.city} / {hunt.risk}</small>
       <p>{locked ? getHuntLockText(character, hunt, hasLevel, hasAccess) : hunt.monsters.map((monster) => monster.name).join(", ")}</p>

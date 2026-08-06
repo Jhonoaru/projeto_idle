@@ -1,4 +1,5 @@
 import { getCreatureVisualMeta } from "../../game-engine/hunt-scene/getCreatureVisualMeta";
+import { CreatureSprite } from "../creatures/CreatureSprite";
 import type { HuntSceneCreature } from "./useHuntSceneSimulation";
 
 interface HuntCreatureCardProps {
@@ -19,7 +20,12 @@ export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
         active ? "is-active" : "",
       ].filter(Boolean).join(" ")}
     >
-      <div className="hunt-creature-token">{meta.symbol}</div>
+      <CreatureSprite
+        className="hunt-creature-token"
+        fallbackSymbol={meta.symbol}
+        monster={creature.monster}
+        size="small"
+      />
       <div>
         <strong>{creature.monster.name}</strong>
         <span>

@@ -15,6 +15,7 @@ Atualizado em: 2026-08-06
 
 ## Status recente
 
+- Etapa 125 concluida: fundacao de sprites originais para seis criaturas iniciais de Thaeron, integradas em Explore, Hunt Scene e Bestiary com fallback seguro.
 - Etapa 124.5 concluida: QA do catalogo completo de sprites em Hunts, Bosses, Inventory, Quick Sell, Guild Workbench e quatro larguras responsivas.
 - Etapa 124 concluida: sprites originais para os dez itens restantes de moeda, creature products e materiais de hunt, fechando o catalogo visual de itens.
 - Etapa 123.5 concluida: QA do set Emberforged em Bazar, Guild Depot, boss loot, crafting, Equipment por vocacao, bonus 3/3 e responsividade.
@@ -9958,6 +9959,47 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 125 - definir e iniciar a proxima frente visual depois do catalogo completo de itens.
+
+## Etapa 125 - Fundacao de sprites de criaturas de Thaeron
+
+Status: concluida.
+
+Escopo visual:
+
+- Foram criados sprites originais para `Sewer Rat`, `Cave Spider`, `Forest Troll`, `Mud Rotter`, `Young Minotaur` e `Orc Raider`.
+- A selecao cobre as cinco primeiras Hunts e estabelece silhuetas distintas para feras, aracnideos, criaturas de floresta/pantano e inimigos humanoides armados.
+- Todos os seis assets finais usam canvas RGBA `384x384`, fundo transparente, proporcao preservada e margem estavel.
+
+Integracao:
+
+- `creatureSprites.ts` registra os seis IDs reais de `monsters.ts` e suas fontes `generated-original`.
+- `CreatureSprite` centraliza tamanho, acessibilidade, carregamento e fallback por iniciais para criaturas ainda sem arte ou imagens indisponiveis.
+- Os cards de Hunt em Explore agora destacam a primeira criatura da area.
+- A Hunt Scene usa os sprites nos cards posicionados ao redor do personagem, mantendo estado de spawn, HP e destaque do alvo.
+- Os cards e o dossier do Bestiary usam a mesma arte compartilhada sem alterar progresso, thresholds ou rewards.
+
+Integridade e escopo:
+
+- Os seis registros foram comparados com os 12 IDs reais do catalogo e nenhum registro orfao foi encontrado.
+- Permanecem sem sprite dedicado `Ancient Skeleton`, `Cult Acolyte`, `Cyclops Brute`, `Dragon Whelp`, `Dwarf Guard` e `Wyvern Hatchling`; todos continuam funcionais pelo fallback semantico.
+- Nenhum atributo, dano, health, XP, gold, loot table, requisito de Hunt ou regra de combate foi alterado.
+- Nenhum campo de save, migration ou schema SQLite foi criado.
+- Assets foram produzidos pelo ImageGen integrado e recortados localmente por chroma key.
+
+Validacao:
+
+- Os seis PNGs passaram em modo RGBA, dimensao `384x384`, alpha visivel, bounding box valida e quatro cantos transparentes.
+- A inspecao visual confirmou contornos limpos, enquadramento central e silhuetas legiveis.
+- O build TypeScript/Vite passou depois da integracao.
+
+Limitacoes:
+
+- A validacao interativa completa em desktop/mobile e no runtime Tauri fica reservada para a Etapa 125.5.
+- Esta fundacao cobre metade das 12 criaturas atuais; o segundo conjunto sera planejado depois da QA desta entrega.
+
+Proximo passo sugerido:
+
+- Etapa 125.5 - QA dos sprites de criaturas iniciais em Explore, Hunt Scene, Bestiary e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
