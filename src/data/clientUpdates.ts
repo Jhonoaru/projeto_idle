@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-126-5",
+    stage: "Stage 126.5",
+    title: "Complete Creature Catalog QA",
+    date: "2026-08-07",
+    category: "qa",
+    summary: "All twelve creature sprites passed advanced hunt, combat, Bestiary and responsive validation.",
+    highlights: [
+      "Ancient Crypt, Cyclops Hills and Ember Dragon Nest each rendered both of their expected creature types in live hunt scenes.",
+      "All twelve Bestiary records loaded dedicated 384px sprites without a fallback or broken image.",
+      "Four simultaneous creature cards preserved spawn, target, health and defeat presentation in every advanced hunt.",
+      "Bestiary and advanced combat remained free of horizontal overflow from desktop down to 390px.",
+    ],
+    systems: ["Creature Sprite QA", "Advanced Hunts", "Hunt Scene", "Bestiary", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-126",
     stage: "Stage 126",
     title: "Complete Creature Sprite Catalog",

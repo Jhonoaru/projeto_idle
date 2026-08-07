@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-06
+Atualizado em: 2026-08-07
 
 ## Stack usada
 
@@ -15,6 +15,7 @@ Atualizado em: 2026-08-06
 
 ## Status recente
 
+- Etapa 126.5 concluida: QA do catalogo completo de 12 criaturas em Hunts avancadas, Hunt Scene, Bestiary e cinco larguras responsivas.
 - Etapa 126 concluida: sprites originais para as seis criaturas avancadas restantes, fechando os 12 monstros do catalogo atual.
 - Etapa 125.5 concluida: QA dos sprites iniciais de criaturas em Explore, Hunt Scene, Bestiary, fallback e cinco larguras responsivas.
 - Etapa 125 concluida: fundacao de sprites originais para seis criaturas iniciais de Thaeron, integradas em Explore, Hunt Scene e Bestiary com fallback seguro.
@@ -10087,6 +10088,54 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 126.5 - QA do catalogo completo de criaturas em Hunts avancadas, Hunt Scene, Bestiary e responsividade.
+
+## Etapa 126.5 - QA do catalogo completo de criaturas
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e o build web baseline passaram antes da QA.
+- Uma fixture temporaria isolada elevou Arkon ao level 65, adicionou supplies e os tres acessos avancados apenas no mock local.
+- O Bestiary temporario recebeu os 12 registros reais para validar o catalogo completo em uma unica sessao.
+- Arkon, inventario, acessos e Bestiary foram restaurados integralmente depois dos testes; `mockCharacters.ts` e `mockGuild.ts` terminaram sem diff.
+
+Explore e Hunts avancadas:
+
+- `Ancient Crypt`, `Cyclops Hills` e `Ember Dragon Nest` ficaram disponiveis com level/acesso de teste e exibiram seus sprites principais naturais `384x384`.
+- Ancient Crypt renderizou alternadamente `Ancient Skeleton` e `Cult Acolyte` em quatro cards simultaneos.
+- Cyclops Hills renderizou alternadamente `Cyclops Brute` e `Dwarf Guard` em quatro cards simultaneos.
+- Ember Dragon Nest renderizou alternadamente `Dragon Whelp` e `Wyvern Hatchling` em quatro cards simultaneos.
+- Os tres fluxos passaram por Explore, Hunt Assignment e `Iniciar Hunt` usando a engine real do mock, sem duplicacao visual ou imagem quebrada.
+
+Hunt Scene:
+
+- Todos os seis sprites avancados carregaram com `naturalWidth` de 384 px.
+- Estados de spawn, alvo ativo, HP e combate preservaram bordas, barras e opacidade existentes.
+- A inspecao visual confirmou leitura distinta entre skeleton/acolyte, cyclops/dwarf e dragon/wyvern mesmo nos cards compactos.
+- Nenhuma das tres cenas apresentou overflow horizontal ou card ultrapassando seu container.
+
+Bestiary completo:
+
+- O Registry exibiu `12/12` registros com 12 imagens dedicadas e nenhum fallback por iniciais.
+- Todos os sprites carregaram em sua fonte natural `384x384`; nenhuma imagem apresentou `naturalWidth` zero.
+- Cards, busca, filtros, progresso e dossier selecionado permaneceram funcionais e legiveis.
+
+Responsividade e console:
+
+- Bestiary e Ember Dragon Nest passaram em `1440`, `980`, `760`, `520` e `390 px`.
+- Nenhuma largura apresentou overflow horizontal na raiz/body, imagem quebrada ou card com overflow interno.
+- O unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin no Vite, que ativa o mock local fora do runtime desktop.
+
+Resultado e limitacoes:
+
+- Nenhuma regressao permanente foi encontrada e nenhuma correcao de gameplay, componente ou CSS foi necessaria.
+- A QA interativa ocorreu no Vite com fixture descartavel; nenhum save de producao foi gravado.
+- O SQLite real permaneceu inalterado e foi verificado por tamanho, timestamp e SHA-256.
+
+Proximo passo sugerido:
+
+- Etapa 127 - definir a proxima frente visual depois do catalogo completo de itens e criaturas.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
