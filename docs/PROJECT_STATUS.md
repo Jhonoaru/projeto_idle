@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 131 concluida: seis sprites originais de Bosses, catalogo por boss ID, integracao em Explore, briefing, cards e Boss Scene, com fallback seguro.
 - Etapa 130.5 concluida: QA das seis arenas de Bosses, parties reais, mobile, fallback HTTP, coleta unica, loot e cooldowns.
 - Etapa 130 concluida: seis arenas originais de Bosses, briefing visual, Boss Scene dedicada, party overlay, raid analyzer e fallback local por boss ID.
 - Etapa 129.5 concluida: QA das oito Hunts, sete cenarios, fallback real, camadas de combate, mobile e restauracao integral da fixture.
@@ -10507,6 +10508,44 @@ Restauracao e resultado:
 Proximo passo sugerido:
 
 - Etapa 131 - fundacao visual dos sprites dedicados dos seis Bosses atuais.
+
+## Etapa 131 - Fundacao visual dos sprites dedicados dos Bosses
+
+Status: concluida.
+
+Assets e catalogo:
+
+- Seis sprites originais com fundo transparente foram criados para Sewer Broodmother, Grunk the Camp Breaker, Crypt Warden, Khazgrim Gatekeeper, Ember Matriarch e Novice Arena Champion.
+- `src/data/bossSprites.ts` associa cada sprite ao `boss.id` canonico sem alterar regras, recompensas, cooldowns ou persistencia.
+- `BossSprite` fornece tamanhos estaveis para card, briefing e cena, texto acessivel e fallback por sigla quando o asset estiver ausente ou falhar ao carregar.
+
+Integracao visual:
+
+- Explore > Bosses substituiu o marcador generico `B` pelo sprite dedicado de cada contrato.
+- Raid Briefing mostra o boss selecionado no cabecalho e sobre a arena correspondente.
+- Cards reutilizaveis de Boss passaram a combinar arena e sprite sem alterar a selecao.
+- Boss Scene substituiu o sigilo circular pelo boss em escala de encontro, preservando party, analyzer, timer e barra de progresso.
+
+Validacao:
+
+- Os seis PNGs possuem alpha, cantos transparentes e silhuetas completas; todos carregaram com dimensao natural `1254x1254`.
+- Os seis contratos foram conferidos juntos em desktop, sem overflow horizontal ou falha de asset.
+- Sewer Broodmother foi conferida no briefing sobre sua arena; Ember Matriarch foi conferida na Boss Scene em `1440x1000` e `390x844`.
+- No mobile, boss, party, nomes e barra permaneceram integralmente dentro do palco de `355x470`.
+- O caminho da Ember Matriarch foi quebrado temporariamente: o erro HTTP removeu o `img`, exibiu o fallback `B` na mesma caixa e nao causou overflow.
+- A fixture visual e o caminho original foram restaurados antes dos builds finais.
+- `npm run build` e `npm run tauri:build` passaram; MSI e NSIS foram gerados normalmente.
+- O SQLite real permaneceu intacto com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+
+Limites atuais:
+
+- O QA de cena detalhado desta etapa cobriu Ember Matriarch; a repeticao das seis Boss Scenes e estados ready/defeated fica para a Etapa 131.5.
+- Os sprites sao estaticos; animacoes por frames, direcao e efeitos de ataque ficam fora desta fundacao.
+- Nenhuma regra de gameplay, save SQLite, loot ou balanceamento foi alterada.
+
+Proximo passo sugerido:
+
+- Etapa 131.5 - QA completa dos sprites de Bosses nas seis arenas e estados de combate.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

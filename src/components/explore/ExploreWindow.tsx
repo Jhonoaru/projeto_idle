@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CreatureSprite } from "../creatures/CreatureSprite";
 import { BossPanel } from "../boss/BossPanel";
+import { BossSprite } from "../boss/BossSprite";
 import { HuntActionPanel } from "../hunt/HuntActionPanel";
 import { QuestPanel } from "../quest/QuestPanel";
 import { TrainingPanel } from "../training/TrainingPanel";
@@ -403,7 +404,11 @@ function ExploreBossCard({
     >
       <em className="access-ribbon">Boss</em>
       <span className="explore-card-title">{boss.name}</span>
-      <i className={`explore-card-token risk-token-${boss.risk}`} aria-hidden="true">B</i>
+      <BossSprite
+        boss={boss}
+        className={`explore-card-token risk-token-${boss.risk}`}
+        size="large"
+      />
       <strong>Level recom. {boss.requirements.requiredLevel}</strong>
       <small>{boss.type} / {boss.risk}</small>
       <p>{status === "locked" ? getBossLockText(character, boss) : `${boss.durationMinutes} min / ${boss.entryCost.toLocaleString("en-US")}g entry`}</p>

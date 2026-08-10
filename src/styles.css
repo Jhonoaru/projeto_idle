@@ -4542,7 +4542,8 @@ p {
   border-radius: 4px;
   background: linear-gradient(90deg, #111714, #171a16 55%, #101516);
 }
-.raid-board-hero > i {
+.raid-board-hero > i,
+.raid-board-hero > .raid-board-hero-sprite {
   display: grid;
   place-items: center;
   width: 54px;
@@ -4556,6 +4557,8 @@ p {
   font-style: normal;
   font-weight: 900;
 }
+.raid-board-hero > .raid-board-hero-sprite { padding: 2px; }
+.raid-board-hero > .raid-board-hero-sprite > img { filter: drop-shadow(0 5px 4px #000b); }
 .raid-board-hero > div > span,
 .boss-command-section > header span,
 .raid-loot-table > header span {
@@ -4597,6 +4600,17 @@ p {
 .raid-arena-preview > div:last-child span,
 .raid-arena-preview > div:last-child small { color: #9ba59d; font-size: 0.66rem; text-transform: uppercase; }
 .raid-arena-preview > div:last-child strong { color: #f0d38b; font-family: Georgia, serif; }
+
+.raid-arena-boss-sprite {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: min(220px, 34%);
+  height: 88%;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 12px 8px rgba(0, 0, 0, 0.72));
+}
 
 .boss-arena-background {
   position: absolute;
@@ -4652,6 +4666,15 @@ p {
 }
 
 .boss-card-arena .boss-arena-background > span { display: none; }
+
+.boss-card-arena-sprite {
+  position: absolute;
+  z-index: 1;
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
+  filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.68));
+}
 
 .raid-board .boss-command-grid { grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr); gap: 12px; }
 .raid-board .boss-command-section { align-content: start; padding: 12px; border: 1px solid #303a34; background: #101512; }
@@ -6180,6 +6203,40 @@ p {
 .creature-sprite > span {
   color: inherit;
   font: inherit;
+}
+
+.boss-sprite {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+}
+
+.boss-sprite-small { width: 48px; height: 48px; }
+.boss-sprite-medium { width: 68px; height: 68px; }
+.boss-sprite-large { width: 112px; height: 112px; }
+.boss-sprite-scene { width: 210px; height: 230px; }
+
+.boss-sprite > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.boss-sprite > span {
+  display: grid;
+  place-items: center;
+  width: 72%;
+  aspect-ratio: 1;
+  border: 2px solid #9a6645;
+  border-radius: 50%;
+  color: #f1c983;
+  background: radial-gradient(circle, #57372c, #17120f 70%);
+  font-family: Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 900;
 }
 
 .hunt-creature-token {
@@ -8623,6 +8680,17 @@ p {
 
 .explore-card-token.creature-sprite > img {
   filter: drop-shadow(0 5px 5px rgba(0, 0, 0, 0.48));
+}
+
+.explore-card-token.boss-sprite {
+  width: 96px;
+  height: 96px;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.explore-card-token.boss-sprite > img {
+  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.62));
 }
 
 .explore-board-card strong {
@@ -15317,20 +15385,7 @@ html[data-client-motion="reduced"] *::after {
   filter: drop-shadow(0 3px 4px #000);
 }
 
-.boss-scene-boss-actor > span {
-  display: grid;
-  place-items: center;
-  width: 88px;
-  height: 88px;
-  border: 3px solid #9a6645;
-  border-radius: 50%;
-  color: #f1c983;
-  background: radial-gradient(circle, #57372c, #17120f 70%);
-  box-shadow: 0 0 0 5px rgba(16, 11, 9, 0.76), 0 0 28px rgba(197, 91, 49, 0.45);
-  font-family: Georgia, serif;
-  font-size: 1.45rem;
-  font-weight: 900;
-}
+.boss-scene-boss-actor > .boss-sprite { filter: drop-shadow(0 14px 9px rgba(0, 0, 0, 0.75)); }
 .boss-scene-boss-actor strong { max-width: 180px; font-size: 0.72rem; text-align: center; }
 .boss-scene-boss-actor small { color: #d28d72; font-size: 0.62rem; text-transform: uppercase; }
 

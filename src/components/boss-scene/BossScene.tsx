@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character } from "../../shared/types";
+import { BossSprite } from "../boss/BossSprite";
 import { CharacterSprite } from "../characters/CharacterSprite";
 import { BossArenaBackground } from "./BossArenaBackground";
 
@@ -100,7 +101,7 @@ export function BossScene({
         <div className="boss-scene-stage">
           <BossArenaBackground boss={boss} />
           <div className="boss-scene-boss-actor">
-            <span>{getBossSigil(boss?.name ?? action.targetName)}</span>
+            <BossSprite boss={boss} fallbackSymbol="B" size="scene" />
             <strong>{boss?.name ?? action.targetName}</strong>
             <small>{ready ? "Defeated" : ["Casting", "Striking", "Guarding"][pulse]}</small>
           </div>
@@ -133,9 +134,4 @@ function getActiveParty(
   if (snapshotMembers?.length) return { bossId: bossId ?? party.bossId, members: snapshotMembers };
   if (snapshotIds?.length) return { bossId: bossId ?? party.bossId, members: snapshotIds.map((characterId) => ({ characterId, role: "damage" })) };
   return party;
-}
-
-function getBossSigil(name?: string) {
-  const initials = (name ?? "Boss").split(" ").map((part) => part[0]).join("").slice(0, 2).toUpperCase();
-  return initials || "B";
 }

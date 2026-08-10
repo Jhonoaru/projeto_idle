@@ -1,6 +1,7 @@
 import { getAccessName } from "../../data/accesses";
 import type { Boss, BossStatus } from "../../shared/types";
 import { BossArenaBackground } from "../boss-scene/BossArenaBackground";
+import { BossSprite } from "./BossSprite";
 
 interface BossCardProps {
   boss: Boss;
@@ -21,7 +22,10 @@ export function BossCard({ boss, status, reason, isSelected, onSelect }: BossCar
 
   return (
     <article className={`boss-card boss-${status} ${isSelected ? "is-selected" : ""}`.trim()}>
-      <div className="boss-card-arena"><BossArenaBackground boss={boss} /></div>
+      <div className="boss-card-arena">
+        <BossArenaBackground boss={boss} />
+        <BossSprite boss={boss} className="boss-card-arena-sprite" size="large" />
+      </div>
       <div>
         <div className="boss-title-row">
           <h3>{boss.name}</h3>

@@ -7,6 +7,7 @@ import { BossResultPanel } from "./BossResultPanel";
 import { PartyBuilder } from "./PartyBuilder";
 import { ItemIcon } from "../items/ItemIcon";
 import { BossArenaBackground } from "../boss-scene/BossArenaBackground";
+import { BossSprite } from "./BossSprite";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import type {
   Boss,
@@ -60,7 +61,7 @@ export function BossPanel({
   return (
     <div className="boss-panel raid-board">
       <section className="raid-board-hero">
-        <i aria-hidden="true">R</i>
+        <BossSprite boss={selectedBoss} className="raid-board-hero-sprite" fallbackSymbol="R" size="medium" />
         <div>
           <span>Offline guild operation</span>
           <h3>{selectedBoss?.name ?? "Select a Raid Contract"}</h3>
@@ -77,6 +78,7 @@ export function BossPanel({
       {selectedBoss ? (
         <section className="raid-arena-preview">
           <BossArenaBackground boss={selectedBoss} />
+          <BossSprite boss={selectedBoss} className="raid-arena-boss-sprite" size="large" />
           <div>
             <span>Operation arena</span>
             <strong>{selectedBoss.name}</strong>
