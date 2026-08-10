@@ -412,6 +412,8 @@ export function MainPanel({
     <section className="main-panel">
       {activeTab === "home" ? (
         <MainPlayArea
+          bosses={bosses}
+          bossParty={bossParty}
           character={selectedCharacter}
           characters={characters}
           guild={guild}
@@ -419,6 +421,8 @@ export function MainPanel({
           lastHuntResult={lastResult}
           offlineReport={offlineReport}
           onCollectHunt={onFinishHunt}
+          onCollectBoss={onFinishBoss}
+          onAbortBoss={onCancelBoss}
           onOpenAction={() => onChangeTab("action")}
           onOpenBlessings={() => onChangeTab("blessings")}
           onOpenExplore={() => onChangeTab("hunts")}

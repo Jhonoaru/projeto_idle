@@ -2395,10 +2395,10 @@ export function App() {
       if (!bossParty.members.some((member) => member.characterId === selectedCharacter.id)) {
         setSelectedCharacterId(bossParty.members[0].characterId);
       }
-      setActiveTab("action");
+      setActiveTab("home");
 
       for (const message of [...result.logs].reverse()) {
-        prependLog("Boss started", `${message} Acompanhe na aba Acao.`, "neutral");
+        prependLog("Boss started", `${message} Acompanhe na arena.`, "neutral");
       }
     } catch (error) {
       prependLog(

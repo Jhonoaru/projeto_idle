@@ -4571,6 +4571,88 @@ p {
 .raid-board-hero dt { color: #869088; font-size: 0.62rem; text-transform: uppercase; }
 .raid-board-hero dd { margin: 4px 0 0; color: #f1d58c; font-weight: 900; }
 
+.raid-arena-preview {
+  position: relative;
+  min-height: 210px;
+  overflow: hidden;
+  border: 1px solid #6f5c31;
+  border-radius: 4px;
+  background: #0b100e;
+}
+
+.raid-arena-preview > div:last-child {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  z-index: 2;
+  display: grid;
+  gap: 2px;
+  min-width: 220px;
+  padding: 9px 11px;
+  border: 1px solid #75643b;
+  background: rgba(10, 14, 12, 0.9);
+  text-align: right;
+}
+
+.raid-arena-preview > div:last-child span,
+.raid-arena-preview > div:last-child small { color: #9ba59d; font-size: 0.66rem; text-transform: uppercase; }
+.raid-arena-preview > div:last-child strong { color: #f0d38b; font-family: Georgia, serif; }
+
+.boss-arena-background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #334138, #111713 72%);
+}
+
+.boss-arena-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: auto;
+}
+
+.boss-arena-background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 72px 18px rgba(3, 6, 5, 0.68);
+  pointer-events: none;
+}
+
+.boss-arena-background > span {
+  position: absolute;
+  right: 9px;
+  top: 8px;
+  z-index: 1;
+  color: rgba(235, 217, 167, 0.66);
+  font-size: 0.58rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.boss-arena-sewer { background: radial-gradient(circle, #33423a, #121817 70%); }
+.boss-arena-camp { background: radial-gradient(circle, #44382b, #171b15 72%); }
+.boss-arena-crypt { background: radial-gradient(circle, #292e4b, #101219 72%); }
+.boss-arena-mountain { background: radial-gradient(circle, #48433a, #161718 72%); }
+.boss-arena-ember { background: radial-gradient(circle, #58251a, #170d0b 72%); }
+.boss-arena-guild { background: radial-gradient(circle, #554a39, #191712 72%); }
+
+.boss-card {
+  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr) minmax(120px, auto);
+}
+
+.boss-card-arena {
+  position: relative;
+  align-self: stretch;
+  min-height: 128px;
+  overflow: hidden;
+  border: 1px solid #3b463e;
+  background: #0c110e;
+}
+
+.boss-card-arena .boss-arena-background > span { display: none; }
+
 .raid-board .boss-command-grid { grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr); gap: 12px; }
 .raid-board .boss-command-section { align-content: start; padding: 12px; border: 1px solid #303a34; background: #101512; }
 .boss-command-section > header { display: flex; align-items: end; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid #303a34; }
@@ -4608,6 +4690,10 @@ p {
   .raid-board-hero dl div:nth-child(-n+2) { border-bottom: 1px solid #303a34; }
   .raid-board .assignment-summary, .raid-board .hunt-action-buttons { grid-template-columns: 1fr; }
   .raid-loot-table > div { grid-template-columns: 1fr; }
+  .raid-arena-preview { min-height: 180px; }
+  .raid-arena-preview > div:last-child { right: 8px; bottom: 8px; left: 8px; min-width: 0; text-align: left; }
+  .boss-card { grid-template-columns: 1fr; }
+  .boss-card-arena { min-height: 150px; }
 }
 
 .quest-available {
@@ -5497,6 +5583,23 @@ p {
 
 .game-layout.is-hunt-scene-mode .main-tabs {
   display: none;
+}
+
+.game-layout:has(.boss-scene) {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: none;
+  width: min(100%, 1920px);
+}
+
+.game-layout:has(.boss-scene) .left-panel,
+.game-layout:has(.boss-scene) .character-side-menu,
+.game-layout:has(.boss-scene) .right-character-panel,
+.game-layout:has(.boss-scene) .main-tabs {
+  display: none;
+}
+
+.game-layout:has(.boss-scene) .main-panel {
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .game-layout.is-character-hall-mode {
@@ -15135,4 +15238,149 @@ html[data-client-motion="reduced"] *::after {
   .guild-region-mastery-dossier > header > i { justify-self: center; }
   .guild-region-mastery-dossier > header > div:last-child { grid-column: auto; }
   .guild-region-mastery-dossier > footer > div { display: grid; grid-template-columns: 1fr; }
+}
+
+/* Stage 130: dedicated offline boss arenas. */
+.boss-scene {
+  display: grid;
+  grid-template-columns: minmax(245px, 300px) minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+  min-height: min(760px, calc(100vh - 150px));
+  color: #d7d8cf;
+}
+
+.boss-scene-side {
+  display: grid;
+  grid-auto-rows: max-content;
+  gap: 8px;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid #574d31;
+  background: #0d1210;
+}
+
+.boss-scene-side > header { padding-bottom: 9px; border-bottom: 1px solid #303630; }
+.boss-scene-side h2 { margin: 3px 0; color: #efd184; font-family: Georgia, serif; font-size: 1.18rem; letter-spacing: 0; }
+.boss-scene-side p { margin: 0; color: #aab2ab; font-size: 0.72rem; line-height: 1.45; }
+
+.boss-scene-timer,
+.boss-scene-analyzer,
+.boss-scene-roster {
+  border: 1px solid #303a33;
+  background: #141a17;
+}
+
+.boss-scene-timer { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; padding: 9px; }
+.boss-scene-timer span { color: #87928a; font-size: 0.66rem; text-transform: uppercase; }
+.boss-scene-timer strong { color: #efcf77; }
+.boss-scene-timer > div { grid-column: 1 / -1; height: 7px; overflow: hidden; border: 1px solid #3c443b; background: #080c0a; }
+.boss-scene-timer i,
+.boss-scene-stage-status i { display: block; height: 100%; background: linear-gradient(90deg, #668e5f, #d3bb68); transition: width 0.5s linear; }
+
+.boss-scene-actions { display: grid; grid-template-columns: 1fr; gap: 5px; }
+.boss-scene-actions button { min-height: 36px; border: 1px solid #485149; border-radius: 3px; color: #d8d8cd; background: #1b221e; font-size: 0.69rem; font-weight: 900; cursor: pointer; }
+.boss-scene-actions button.is-primary { border-color: #b08d3d; color: #18130b; background: #d3ae55; }
+.boss-scene-actions button.is-danger { border-color: #815044; color: #edb4a5; background: #2b1815; }
+
+.boss-scene-analyzer,
+.boss-scene-roster { padding: 8px; }
+.boss-scene-analyzer > header,
+.boss-scene-roster > header { display: flex; justify-content: space-between; gap: 8px; padding-bottom: 7px; border-bottom: 1px solid #303730; color: #929d95; font-size: 0.66rem; text-transform: uppercase; }
+.boss-scene-analyzer > header strong,
+.boss-scene-roster > header strong { color: #e1c66f; }
+.boss-scene-analyzer dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 7px 0 0; }
+.boss-scene-analyzer dl div { min-width: 0; padding: 7px; border: 1px solid #2d352f; }
+.boss-scene-analyzer dt { color: #829087; font-size: 0.61rem; text-transform: uppercase; }
+.boss-scene-analyzer dd { margin: 3px 0 0; color: #e7d49b; font-size: 0.72rem; font-weight: 900; overflow-wrap: anywhere; }
+.boss-scene-roster { display: grid; gap: 5px; max-height: 270px; overflow-y: auto; }
+.boss-scene-roster article { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 7px; align-items: center; min-height: 46px; padding: 4px; border: 1px solid #2d352f; background: #101512; }
+.boss-scene-roster article strong,
+.boss-scene-roster article span { display: block; overflow-wrap: anywhere; }
+.boss-scene-roster article strong { color: #dfd5b4; font-size: 0.7rem; }
+.boss-scene-roster article span { margin-top: 2px; color: #859088; font-size: 0.6rem; text-transform: capitalize; }
+
+.boss-scene-main { min-width: 0; min-height: 0; }
+.boss-scene-stage { position: relative; min-height: min(760px, calc(100vh - 150px)); height: 100%; overflow: hidden; border: 1px solid #665733; background: #0c100e; isolation: isolate; }
+.boss-scene-stage .boss-arena-background { z-index: -2; }
+.boss-scene-stage .boss-arena-background::after { box-shadow: inset 0 0 110px 28px rgba(2, 4, 3, 0.62); }
+
+.boss-scene-boss-actor {
+  position: absolute;
+  top: 30%;
+  right: 22%;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 124px;
+  color: #f1c983;
+  filter: drop-shadow(0 3px 4px #000);
+}
+
+.boss-scene-boss-actor > span {
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border: 3px solid #9a6645;
+  border-radius: 50%;
+  color: #f1c983;
+  background: radial-gradient(circle, #57372c, #17120f 70%);
+  box-shadow: 0 0 0 5px rgba(16, 11, 9, 0.76), 0 0 28px rgba(197, 91, 49, 0.45);
+  font-family: Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+.boss-scene-boss-actor strong { max-width: 180px; font-size: 0.72rem; text-align: center; }
+.boss-scene-boss-actor small { color: #d28d72; font-size: 0.62rem; text-transform: uppercase; }
+
+.boss-scene-party { position: absolute; top: 40%; left: 20%; width: 220px; height: 230px; }
+.boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
+.boss-scene-party-member strong { margin-top: -3px; color: #f0dd9d; font-size: 0.64rem; }
+.boss-scene-party-member > span:last-child { color: #a9c4b2; font-size: 0.55rem; text-transform: uppercase; }
+.boss-scene-party-member.member-1 { left: 65px; top: 65px; }
+.boss-scene-party-member.member-2 { left: 0; top: 0; }
+.boss-scene-party-member.member-3 { left: 5px; top: 135px; }
+.boss-scene-party-member.member-4 { left: 132px; top: 0; }
+.boss-scene-party-member.member-5 { left: 137px; top: 135px; }
+
+.boss-scene-stage-status {
+  position: absolute;
+  right: 18%;
+  bottom: 28px;
+  left: 18%;
+  display: grid;
+  grid-template-columns: auto minmax(80px, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 11px;
+  border: 1px solid #55482e;
+  border-radius: 4px;
+  color: #d6d0ba;
+  background: rgba(8, 12, 10, 0.9);
+  font-size: 0.67rem;
+  text-transform: uppercase;
+}
+.boss-scene-stage-status > div { height: 8px; overflow: hidden; border: 1px solid #3c443b; background: #080c0a; }
+.boss-scene-stage-status > strong { color: #f0d178; }
+
+@media (max-width: 900px) {
+  .boss-scene { grid-template-columns: 1fr; min-height: 0; }
+  .boss-scene-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .boss-scene-side > header, .boss-scene-roster { grid-column: 1 / -1; }
+  .boss-scene-roster { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
+  .boss-scene-roster > header { grid-column: 1 / -1; }
+  .boss-scene-stage { min-height: 560px; }
+}
+
+@media (max-width: 580px) {
+  .boss-scene-side { grid-template-columns: 1fr; }
+  .boss-scene-side > header, .boss-scene-roster { grid-column: auto; }
+  .boss-scene-roster { grid-template-columns: 1fr; }
+  .boss-scene-roster > header { grid-column: auto; }
+  .boss-scene-stage { min-height: 470px; }
+  .boss-scene-party { top: 40%; left: 4%; transform: scale(0.72); transform-origin: left center; }
+  .boss-scene-boss-actor { top: 28%; right: 7%; transform: scale(0.82); transform-origin: right center; }
+  .boss-scene-stage-status { right: 8px; bottom: 8px; left: 8px; grid-template-columns: 1fr auto; }
+  .boss-scene-stage-status > div { grid-column: 1 / -1; grid-row: 2; }
 }

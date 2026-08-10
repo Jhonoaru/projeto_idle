@@ -1,10 +1,13 @@
 import { ActionSummaryCard } from "../action/ActionSummaryCard";
 import { CurrentActionBox } from "../character/CurrentActionBox";
 import { HuntScene } from "../hunt-scene/HuntScene";
+import { BossScene } from "../boss-scene/BossScene";
 import { Panel } from "../ui/Panel";
 import { getGuildBriefing } from "../../game-engine/onboarding/getGuildBriefing";
 import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
 import type {
+  Boss,
+  BossParty,
   Character,
   Guild,
   HuntArea,
@@ -17,6 +20,8 @@ interface MainPlayAreaProps {
   guild: Guild;
   characters: Character[];
   hunts: HuntArea[];
+  bosses: Boss[];
+  bossParty: BossParty;
   selectedHunt?: HuntArea;
   lastHuntResult?: {
     characterName: string;
@@ -33,6 +38,8 @@ interface MainPlayAreaProps {
   onOpenQuests: () => void;
   onCollectHunt: () => void;
   onReturnToCity: () => void;
+  onAbortBoss: () => void;
+  onCollectBoss: () => void;
 }
 
 export function MainPlayArea({
@@ -40,6 +47,8 @@ export function MainPlayArea({
   guild,
   characters,
   hunts,
+  bosses,
+  bossParty,
   selectedHunt,
   lastHuntResult,
   offlineReport,
@@ -51,6 +60,8 @@ export function MainPlayArea({
   onOpenQuests,
   onCollectHunt,
   onReturnToCity,
+  onAbortBoss,
+  onCollectBoss,
 }: MainPlayAreaProps) {
   const activeCount = characters.filter((entry) => entry.status !== "idle").length;
   const guildProgression = getGuildProgression(guild);
@@ -59,6 +70,9 @@ export function MainPlayArea({
   ).length ?? 0;
   const actionHunt = character.currentAction?.type === "hunting"
     ? hunts.find((hunt) => hunt.id === character.currentAction?.targetId)
+    : undefined;
+  const actionBoss = character.currentAction?.type === "bossing"
+    ? bosses.find((boss) => boss.id === character.currentAction?.targetId)
     : undefined;
   const nextObjective = getGuildBriefing(character, guild, selectedHunt);
   const openNextObjective = {
@@ -78,6 +92,22 @@ export function MainPlayArea({
           onCollectHunt={onCollectHunt}
           onOpenAction={onOpenAction}
           onReturnToCity={onReturnToCity}
+        />
+      </div>
+    );
+  }
+
+  if (character.status === "bossing" && character.currentAction?.type === "bossing") {
+    return (
+      <div className="main-play-area">
+        <BossScene
+          boss={actionBoss}
+          character={character}
+          characters={characters}
+          onAbortBoss={onAbortBoss}
+          onCollectBoss={onCollectBoss}
+          onOpenAction={onOpenAction}
+          party={bossParty}
         />
       </div>
     );

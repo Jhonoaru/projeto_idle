@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 130 concluida: seis arenas originais de Bosses, briefing visual, Boss Scene dedicada, party overlay, raid analyzer e fallback local por boss ID.
 - Etapa 129.5 concluida: QA das oito Hunts, sete cenarios, fallback real, camadas de combate, mobile e restauracao integral da fixture.
 - Etapa 129 concluida: sete cenarios top-down originais cobrem as oito Hunts atuais com selecao por ID, palco responsivo e fallback CSS seguro.
 - Etapa 128.5 concluida: QA dos sprites expandidos em oito superficies, formacao temporaria, quatro larguras responsivas e restauracao integral do mock.
@@ -10402,6 +10403,57 @@ Restauracao e resultado:
 Proximo passo sugerido:
 
 - Etapa 130 - fundacao visual de arenas dedicadas para Bosses offline.
+
+## Etapa 130 - Fundacao visual das arenas de Bosses offline
+
+Status: concluida.
+
+Assets originais:
+
+- `sewer-broodmother-arena.jpg`: camara circular de esgoto e ninho da Broodmother.
+- `grunk-war-camp.jpg`: acampamento de guerra aberto para Grunk.
+- `crypt-warden-sanctum.jpg`: santuario funerario do Crypt Warden.
+- `khazgrim-gate-arena.jpg`: plataforma diante do portao fortificado de Khazgrim.
+- `ember-matriarch-nest.jpg`: ninho vulcanico da Ember Matriarch.
+- `novice-guild-arena.jpg`: arena controlada de treinamento da guilda em Thaeron.
+
+Integracao:
+
+- O catalogo `bossArenaBackgrounds` resolve cada arena pelo ID exato dos seis Bosses atuais.
+- O Raid Board mostra a arena do contrato selecionado antes da montagem da equipe.
+- Os cards completos de Bosses reutilizam uma miniatura da arena quando exibidos fora do Explore compacto.
+- Iniciar uma raid agora leva diretamente para a Boss Scene, mantendo Action Details como comando secundario.
+- A Boss Scene esconde roster e painel direito, reserva a maior area para o combate e mostra timer, progresso, chance de sucesso, risco, custo e recompensas esperadas.
+- A equipe ativa usa os sprites reais dos herois e os papeis persistidos no snapshot da acao.
+- Assets ausentes ou IDs futuros usam fallback CSS por tema sem impedir a renderizacao da raid.
+
+Regras preservadas:
+
+- Nenhum calculo de poder, sucesso, morte, loot, XP, gold, renown, taxa de entrada ou cooldown foi alterado.
+- Collect Raid Report continua chamando o fluxo real de resolucao apenas quando o timer termina.
+- Abort and Return continua cancelando a raid e iniciando o retorno dos participantes.
+- Nenhuma migration, tabela, coluna ou formato de save foi criado nesta etapa.
+
+QA:
+
+- Fluxo real validado em Vite: Explore > Bosses > Sewer Broodmother > equipe com Lyra > Launch Raid.
+- A arena abriu diretamente com background carregado, timer ativo, hero sprite, boss marker e Raid Analyzer.
+- Em `1280x720`, o palco mediu `952x570`, os tres paineis externos ficaram ocultos e nao houve overflow horizontal.
+- Em `560x820`, sidebar e palco empilharam sem overflow ou sobreposicao; o palco conservou `525x470`.
+- Abort and Return removeu a Boss Scene e iniciou o retorno normalmente.
+- O unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin no Vite.
+- O SQLite real permaneceu com 81.920 bytes, timestamp `2026-07-30 02:28:19` e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- `npm run build` e `npm run tauri:build` passaram apos a integracao.
+
+Limitacoes:
+
+- O boss ainda usa um marcador/sigilo original; sprites dedicados dos seis Bosses ficam para uma etapa visual futura.
+- Cenários e efeitos sao estaticos; animacoes de lava, agua, luz e habilidades ainda nao foram implementadas.
+- A validacao completa de todas as seis arenas, fallback HTTP forcado e estado pronto para coleta fica reservada para a Etapa 130.5.
+
+Proximo passo sugerido:
+
+- Etapa 130.5 - QA completa das arenas de Bosses, fallback e resolucao visual.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

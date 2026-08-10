@@ -6,6 +6,7 @@ import { BossCooldownList } from "./BossCooldownList";
 import { BossResultPanel } from "./BossResultPanel";
 import { PartyBuilder } from "./PartyBuilder";
 import { ItemIcon } from "../items/ItemIcon";
+import { BossArenaBackground } from "../boss-scene/BossArenaBackground";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import type {
   Boss,
@@ -72,6 +73,17 @@ export function BossPanel({
           <div><dt>Party</dt><dd>{selectedBoss ? `${selectedBoss.requirements.minPartySize}-${selectedBoss.requirements.maxPartySize}` : "-"}</dd></div>
         </dl>
       </section>
+
+      {selectedBoss ? (
+        <section className="raid-arena-preview">
+          <BossArenaBackground boss={selectedBoss} />
+          <div>
+            <span>Operation arena</span>
+            <strong>{selectedBoss.name}</strong>
+            <small>{selectedBoss.city} / {selectedBoss.durationMinutes} min deployment</small>
+          </div>
+        </section>
+      ) : null}
 
       <div className="boss-command-grid">
         <section className="boss-command-section">
