@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-128",
+    stage: "Stage 128",
+    title: "Guild Hero Identity Expansion",
+    date: "2026-08-10",
+    category: "interface",
+    summary: "The founding hero sprites now identify adventurers across ranking dossiers, operation teams and equipment planning boards.",
+    highlights: [
+      "The persistent side roster now shows all five adventurers without sacrificing its compact assignment overview.",
+      "Hall of Renown integrates hero art into podium, standings rows and the selected record dossier.",
+      "Contracts, Boss parties, Guild Squads and Campaign Operations now share the same visual team identity.",
+      "Active Loadout Command and Squad Gear Readiness connect each equipment plan to its actual guild member.",
+    ],
+    systems: ["Character Sprites", "Ranking", "Contracts", "Boss Parties", "Guild Squads", "Operations", "Loadouts"],
+    featured: true,
+  },
+  {
     id: "stage-127-5",
     stage: "Stage 127.5",
     title: "Guild Hero Sprite QA",

@@ -12,6 +12,7 @@ import { getGuildDirectiveBonuses, getGuildDirectiveStatus } from "../../game-en
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import { createContractTeamFromGuildSquad } from "../../game-engine/guild-squads/createContractTeamFromGuildSquad";
 import type { Character, Guild, GuildContractDefinition, GuildSquadSlotId } from "../../shared/types";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface GuildContractsBoardProps {
   guild: Guild;
@@ -201,7 +202,7 @@ export function GuildContractsBoard({
                 return (
                   <label className={disabled ? "is-disabled" : ""} key={character.id}>
                     <input checked={selected} disabled={disabled} onChange={() => toggleCharacter(character.id)} type="checkbox" />
-                    <i>{character.name.charAt(0)}</i>
+                    <CharacterSprite character={character} className="contracts-team-avatar" size="small" />
                     <span><strong>{character.name}</strong><small>Lv {character.level} {character.vocation}</small></span>
                     <b>{Math.max(1, character.level) * 4 + character.attributes.attackPower + character.attributes.defensePower}</b>
                   </label>

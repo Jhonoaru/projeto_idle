@@ -17,6 +17,7 @@ import { RegionalMaterialAcquisitionPlanner } from "./RegionalMaterialAcquisitio
 import { RegionalMaterialRotationSchedule } from "./RegionalMaterialRotationSchedule";
 import { RegionalRewardCompendium } from "./RegionalRewardCompendium";
 import { WeeklyCampaignBriefing } from "./WeeklyCampaignBriefing";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface CampaignOperationsDashboardProps {
   guild: Guild;
@@ -162,7 +163,11 @@ export function CampaignOperationsDashboard({
           <div className="operations-roster-list">
             {dashboard.roster.map((entry) => (
               <article className={`is-${entry.tone}`} key={entry.characterId}>
-                <i aria-hidden="true">{entry.name.charAt(0)}</i>
+                <CharacterSprite
+                  character={characters.find((character) => character.id === entry.characterId) ?? { id: entry.characterId, name: entry.name }}
+                  className="operations-roster-avatar"
+                  size="small"
+                />
                 <div className="operations-roster-copy">
                   <span>Lv {entry.level} {entry.vocation} / {entry.city}</span>
                   <strong>{entry.name}</strong>

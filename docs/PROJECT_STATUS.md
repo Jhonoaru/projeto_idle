@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 128 concluida: sprites dos cinco herois expandidos para roster lateral, Ranking, Contracts, Boss parties, Guild Squads, Operations e planejamento de equipamento.
 - Etapa 127.5 concluida: QA dos cinco sprites de herois no Character Hall, painel direito, Hunt Scene, fallback e cinco larguras responsivas.
 - Etapa 127 concluida: sprites originais para os cinco herois atuais, integrados ao Character Hall, painel direito e Hunt Scene com fallback seguro.
 - Etapa 126.5 concluida: QA do catalogo completo de 12 criaturas em Hunts avancadas, Hunt Scene, Bestiary e cinco larguras responsivas.
@@ -10219,6 +10220,49 @@ Resultado e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 128 - expandir a identidade visual dos herois para dossiers, equipes e demais superficies densas do roster.
+
+## Etapa 128 - Expansao visual dos herois
+
+Status: concluida.
+
+Superficies integradas:
+
+- O roster lateral persistente agora exibe o sprite compacto de cada aventureiro ao lado de status, skill e stamina.
+- Hall of Renown usa os herois no podio, nas cinco linhas da classificacao e no dossier do registro selecionado.
+- Guild Contracts Board substitui as iniciais pelos sprites na selecao da support team.
+- Boss Party Builder identifica cada candidato antes dos controles de role e inclusao.
+- Guild Squads usa os sprites nos cinco slots de formacao reutilizavel.
+- Campaign Operations mostra arte real no Adventurer Roster de field assignments.
+- Active Loadout Command conecta cada plano de equipamento ao heroi correspondente.
+- Squad Gear Readiness usa o personagem real nos dossiers de prontidao da formacao.
+
+Implementacao visual:
+
+- Todas as superficies reutilizam `CharacterSprite`; nenhum componente paralelo de avatar foi criado.
+- Molduras compactas variam entre `27x31` e `80x84` conforme densidade e importancia do dossier.
+- Imagens mantem `object-fit: contain`, pixel rendering, dimensoes estaveis e fallback semantico existente.
+- O Party Builder recebeu layout responsivo especifico para manter avatar e identidade juntos, com role e comando abaixo em telas estreitas.
+- Nenhum PNG novo foi necessario: os cinco assets originais da Etapa 127 continuam sendo a unica fonte visual.
+
+Validacao executada:
+
+- `npm run build` passou depois das oito integracoes.
+- Smoke visual no Vite confirmou roster lateral, Hall of Renown, Contracts, Guild Squads e Campaign Operations.
+- Ranking carregou tres sprites no podio, cinco na tabela e um no dossier, todos com `naturalWidth` de 384 px.
+- Contracts, Guild Squads e Operations carregaram os cinco herois sem fallback ou imagem quebrada.
+- As superficies abertas permaneceram sem overflow horizontal no viewport desktop do smoke.
+- Busca de codigo confirmou que as iniciais antigas foram removidas dos componentes migrados.
+
+Integridade e limitacoes:
+
+- Nenhuma regra de ranking, elegibilidade, party, squad, contract, loadout ou equipamento foi alterada.
+- Nenhum campo de save, migration ou schema SQLite foi criado.
+- Party Builder, Active Loadout Command e Squad Gear Readiness passaram por leitura e build, mas nao foram abertos por clique neste smoke.
+- A validacao responsiva completa das oito superficies fica reservada para a Etapa 128.5.
+
+Proximo passo sugerido:
+
+- Etapa 128.5 - QA dos sprites expandidos em Ranking, equipes, Operations, loadouts e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -1,6 +1,7 @@
 import type { Character } from "../../shared/types";
 import { getMainSkill } from "../../game-engine/character/getMainSkill";
 import { CHARACTER_STATUS_LABELS, SKILL_LABELS } from "../../shared/constants";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface CharacterCardProps {
   character: Character;
@@ -24,6 +25,7 @@ export function CharacterCard({
       onClick={onSelect}
       type="button"
     >
+      <CharacterSprite character={character} className="character-card-avatar" size="small" />
       <span className="card-topline">
         <span className="card-name">{character.name}</span>
         <span className="status-dot" aria-label={isBusy ? "Busy" : "Idle"} />

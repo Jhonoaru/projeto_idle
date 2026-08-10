@@ -4,6 +4,7 @@ import { getGuildCareer } from "../../game-engine/achievements/getGuildCareer";
 import { GuildCareerLedger } from "./GuildCareerLedger";
 import { GuildIdentityHall } from "./GuildIdentityHall";
 import type { Character, Guild, Skill } from "../../shared/types";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface LocalRankingHallProps {
   characters: Character[];
@@ -210,7 +211,7 @@ export function LocalRankingHall({
                 >
                   <span className="ranking-table-position">#{index + 1}</span>
                   <span className="ranking-table-character">
-                    <i>{getInitials(character.name)}</i>
+                    <CharacterSprite character={character} className="ranking-table-avatar" size="small" />
                     <span><strong>{character.name}</strong><small>{character.city} / {formatStatus(character.status)}</small></span>
                   </span>
                   <span>{character.vocation}</span>
@@ -233,7 +234,7 @@ export function LocalRankingHall({
           </header>
 
           <div className="ranking-record-portrait">
-            <i>{getInitials(selectedCharacter.name)}</i>
+            <CharacterSprite character={selectedCharacter} className="ranking-record-avatar" size="large" />
             <div>
               <span>{selectedCharacter.vocation}</span>
               <h4>{selectedCharacter.name}</h4>
@@ -292,7 +293,7 @@ function PodiumEntry({
       type="button"
     >
       <span className="ranking-podium-rank">{rank}</span>
-      <i className="ranking-podium-avatar">{getInitials(character.name)}</i>
+      <CharacterSprite character={character} className="ranking-podium-avatar" size="large" />
       <small>{character.vocation}</small>
       <h4>{character.name}</h4>
       <strong>{definition.format(definition.getValue(character))}</strong>
@@ -339,9 +340,6 @@ function formatStatus(status: Character["status"]) {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
-function getInitials(name: string) {
-  return name.trim().split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase() || "?";
-}
 
 function compactNumber(value: number) {
   return Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(value);

@@ -351,6 +351,7 @@ p {
 
 .character-card {
   display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
   width: 100%;
   min-height: 112px;
   gap: 8px;
@@ -1351,7 +1352,7 @@ p {
 .active-loadout-grid article.is-sourcing,
 .active-loadout-grid article.is-invalid { border-top-color: #966254; }
 .active-loadout-grid article > header { display: grid; grid-template-columns: 29px minmax(0, 1fr) auto; gap: 6px; align-items: center; }
-.active-loadout-grid article > header i { display: grid; place-items: center; width: 27px; height: 31px; border: 1px solid #6c6041; color: #dcc681; background: #20251f; font-style: normal; font-weight: 900; }
+.active-loadout-avatar { width: 27px; height: 31px; border: 1px solid #6c6041; background: #20251f; padding: 1px; }
 .active-loadout-grid article > header strong,
 .active-loadout-grid article > header small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .active-loadout-grid article > header strong { color: #d8ca96; font-size: 0.54rem; }
@@ -1707,6 +1708,17 @@ p {
   font-weight: 850;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.character-card > :not(.character-card-avatar) { grid-column: 2; }
+.character-card-avatar {
+  grid-row: 1 / 5;
+  align-self: start;
+  width: 36px;
+  height: 44px;
+  border: 1px solid #5d665e;
+  background: #111613;
+  padding: 1px;
 }
 
 .workbench-filters button.is-selected { border-color: #d8b96a; color: #f1d58c; background: #242218; }
@@ -4509,6 +4521,15 @@ p {
   grid-template-columns: minmax(0, 1fr) minmax(160px, auto);
 }
 
+.party-row { grid-template-columns: 42px minmax(0, 1fr) minmax(92px, auto) minmax(96px, auto); }
+.party-row-avatar {
+  width: 40px;
+  height: 50px;
+  border: 1px solid #59645b;
+  background: #101512;
+  padding: 1px;
+}
+
 .raid-board { gap: 12px; }
 .raid-board-hero {
   display: grid;
@@ -5271,6 +5292,10 @@ p {
     .current-training-card {
     grid-template-columns: 1fr;
   }
+
+  .party-row { grid-template-columns: 42px minmax(0, 1fr); }
+  .party-row select,
+  .party-row > button { grid-column: 1 / -1; }
 
   .inventory-numbers,
   .inventory-actions,
@@ -9574,7 +9599,7 @@ p {
 .ranking-table-row > strong { color: #ddca90; }
 .ranking-table-position { color: #d2ba70; font-family: Georgia, serif; font-size: 0.8rem; font-weight: 900; }
 .ranking-table-character { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 7px; align-items: center; }
-.ranking-table-character > i { display: grid; place-items: center; width: 34px; height: 36px; border: 1px solid #626d63; color: #daca8a; background: #20251f; font-family: Georgia, serif; font-style: normal; font-weight: 900; }
+.ranking-table-avatar { width: 34px; height: 36px; border: 1px solid #626d63; background: #20251f; padding: 1px; }
 .ranking-table-character strong,
 .ranking-table-character small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ranking-table-character strong { color: #e2d2a2; }
@@ -9582,7 +9607,7 @@ p {
 
 .ranking-record-dossier { display: flex; flex-direction: column; }
 .ranking-record-portrait { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 11px; align-items: center; min-height: 105px; padding: 10px; border: 1px solid #303832; background: #151a17; }
-.ranking-record-portrait > i { display: grid; place-items: center; width: 80px; height: 84px; border: 1px solid #77704f; color: #e0ce8a; background: #20251f; font-family: Georgia, serif; font-size: 1.25rem; font-style: normal; font-weight: 900; clip-path: polygon(50% 0, 94% 17%, 86% 80%, 50% 100%, 14% 80%, 6% 17%); }
+.ranking-record-avatar { width: 80px; height: 84px; border: 1px solid #77704f; background: #20251f; padding: 2px; clip-path: polygon(50% 0, 94% 17%, 86% 80%, 50% 100%, 14% 80%, 6% 17%); }
 .ranking-record-portrait h4 { font-size: 1rem; }
 .ranking-record-portrait p { margin: 0; color: #9ba69e; font-size: 0.68rem; text-transform: capitalize; }
 
@@ -9924,7 +9949,7 @@ p {
   .ranking-table-row > :nth-child(5),
   .ranking-table-row > :nth-child(6) { grid-column: 2; }
   .ranking-record-portrait { grid-template-columns: 1fr; text-align: center; }
-  .ranking-record-portrait > i { justify-self: center; }
+  .ranking-record-avatar { justify-self: center; }
   .renown-view-tabs,
   .career-command-strip,
   .career-category-tabs { grid-template-columns: 1fr; }
@@ -12457,7 +12482,7 @@ html[data-client-density="compact"] .top-bar { gap: 6px; margin-bottom: 6px; pad
 .contracts-team label { display: grid; grid-template-columns: 15px 30px minmax(0, 1fr) auto; gap: 6px; align-items: center; min-width: 0; min-height: 48px; padding: 6px; background: #161b18; cursor: pointer; }
 .contracts-team label.is-disabled { opacity: 0.45; cursor: default; }
 .contracts-team input { margin: 0; accent-color: #b49752; }
-.contracts-team label > i { display: grid; place-items: center; width: 28px; height: 30px; border: 1px solid #5f6a61; color: #dbc887; background: #202620; font-style: normal; font-weight: 900; }
+.contracts-team-avatar { width: 28px; height: 30px; border: 1px solid #5f6a61; background: #202620; padding: 1px; }
 .contracts-team label span { min-width: 0; }
 .contracts-team label strong,
 .contracts-team label small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -13584,7 +13609,7 @@ html[data-client-motion="reduced"] *::after {
 .guild-squad-roster article > button { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 6px; align-items: center; min-width: 0; padding: 6px; border: 0; border-left: 3px solid transparent; color: #a8b1a9; background: transparent; text-align: left; cursor: pointer; }
 .guild-squad-roster article.is-selected > button { border-left-color: #9e874e; color: #e0cf99; }
 .guild-squad-roster article > button:disabled { opacity: 0.48; cursor: not-allowed; }
-.guild-squad-roster article > button i { display: grid; place-items: center; width: 27px; height: 31px; border: 1px solid #5f6961; color: #d8c582; background: #202620; font-style: normal; font-weight: 900; }
+.guild-squad-avatar { width: 27px; height: 31px; border: 1px solid #5f6961; background: #202620; padding: 1px; }
 .guild-squad-roster article > button span,
 .guild-squad-roster article > button strong,
 .guild-squad-roster article > button small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -13804,7 +13829,7 @@ html[data-client-motion="reduced"] *::after {
 .operations-roster-list article.is-active { border-left-color: #63839a; }
 .operations-roster-list article.is-ready { border-left-color: #78a76d; background: #182019; }
 .operations-roster-list article.is-blocked { border-left-color: #955f53; background: #1d1715; }
-.operations-roster-list article > i { display: grid; place-items: center; width: 38px; height: 46px; border: 1px solid #6d756e; color: #dcc780; background: #20251f; font-family: Georgia, serif; font-size: 0.76rem; font-style: normal; font-weight: 900; clip-path: polygon(50% 0, 94% 18%, 86% 80%, 50% 100%, 14% 80%, 6% 18%); }
+.operations-roster-avatar { width: 38px; height: 46px; border: 1px solid #6d756e; background: #20251f; padding: 1px; clip-path: polygon(50% 0, 94% 18%, 86% 80%, 50% 100%, 14% 80%, 6% 18%); }
 .operations-roster-copy { min-width: 0; }
 .operations-roster-copy span,
 .operations-roster-copy strong,
@@ -14419,7 +14444,7 @@ html[data-client-motion="reduced"] *::after {
 .squad-gear-members article { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 7px; align-items: center; min-width: 0; padding: 7px; border: 1px solid #3b443d; border-left: 3px solid #716a49; background: #151b18; }
 .squad-gear-members article.is-ready { border-left-color: #698761; }
 .squad-gear-members article.is-invalid { border-left-color: #9a584a; }
-.squad-gear-members article > i { display: grid; place-items: center; width: 32px; height: 36px; border: 1px solid #625b43; color: #dec982; font-family: Georgia, serif; font-style: normal; font-weight: 800; }
+.squad-gear-avatar { width: 32px; height: 36px; border: 1px solid #625b43; background: #111613; padding: 1px; }
 .squad-gear-members article span,
 .squad-gear-members article strong,
 .squad-gear-members article small,

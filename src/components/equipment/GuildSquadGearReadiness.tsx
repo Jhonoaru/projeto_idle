@@ -4,6 +4,7 @@ import {
   type GuildSquadGearReadinessSlot,
 } from "../../game-engine/loadout-templates/buildGuildSquadGearReadiness";
 import type { Character, Guild, GuildDepot, GuildSquadSlotId } from "../../shared/types";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface GuildSquadGearReadinessProps {
   characters: Character[];
@@ -154,7 +155,7 @@ function SquadDossier({
       <div className="squad-gear-members">
         {slot.members.map((member) => (
           <article className={`is-${member.status}`} key={member.character.id}>
-            <i>{member.character.name.charAt(0)}</i>
+            <CharacterSprite character={member.character} className="squad-gear-avatar" size="small" />
             <span>
               <small>{member.roleLabel} / Level {member.character.level} {member.character.vocation}</small>
               <strong>{member.character.name}</strong>

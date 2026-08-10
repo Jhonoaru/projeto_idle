@@ -1,5 +1,6 @@
 import { getAccessName } from "../../data/accesses";
 import type { Boss, BossParty, Character, PartyRole } from "../../shared/types";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 const roles: PartyRole[] = ["tank", "healer", "damage", "support"];
 
@@ -49,6 +50,7 @@ export function PartyBuilder({
 
         return (
           <article className={`party-row ${member ? "is-selected" : ""}`} key={character.id}>
+            <CharacterSprite character={character} className="party-row-avatar" size="small" />
             <div>
               <strong>{character.name}</strong>
               <span>

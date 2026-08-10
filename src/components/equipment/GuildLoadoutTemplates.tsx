@@ -24,6 +24,7 @@ import type {
   InventoryItem,
 } from "../../shared/types";
 import { ItemIcon } from "../items/ItemIcon";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface GuildLoadoutTemplatesProps {
   characters: Character[];
@@ -194,7 +195,7 @@ export function GuildLoadoutTemplates({
           {activeDashboard.entries.map((entry) => (
             <article className={`is-${entry.status}`} key={entry.character.id}>
               <header>
-                <i>{entry.character.name.charAt(0)}</i>
+                <CharacterSprite character={entry.character} className="active-loadout-avatar" size="small" />
                 <div><strong>{entry.character.name}</strong><small>Lv {entry.character.level} {entry.character.vocation}</small></div>
                 <b>{activeStatusLabel(entry.status)}</b>
               </header>

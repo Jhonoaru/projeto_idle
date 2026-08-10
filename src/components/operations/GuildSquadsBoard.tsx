@@ -8,6 +8,7 @@ import { GuildSquadCommandCenter } from "./GuildSquadCommandCenter";
 import { GuildDeploymentPlanner } from "./GuildDeploymentPlanner";
 import { GuildDeploymentOrdersBoard } from "./GuildDeploymentOrdersBoard";
 import { OperationReadinessBriefing } from "./OperationReadinessBriefing";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 const roles: PartyRole[] = ["tank", "healer", "damage", "support"];
 
@@ -95,7 +96,7 @@ export function GuildSquadsBoard({ guild, depot, characters, onSave, onUseForBos
             return (
               <article className={member ? "is-selected" : ""} key={character.id}>
                 <button disabled={full} onClick={() => toggleMember(character)} type="button" aria-label={`${member ? "Remove" : "Add"} ${character.name}`}>
-                  <i>{character.name.charAt(0)}</i>
+                  <CharacterSprite character={character} className="guild-squad-avatar" size="small" />
                   <span><strong>{character.name}</strong><small>Lv {character.level} {character.vocation} / {character.status}</small></span>
                   <b>{member ? "ON" : "+"}</b>
                 </button>
