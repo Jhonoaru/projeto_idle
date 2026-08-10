@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 131.5 concluida: QA dos seis sprites de Bosses em running, ready, fallback HTTP individual e cinco larguras responsivas, sem regressao encontrada.
 - Etapa 131 concluida: seis sprites originais de Bosses, catalogo por boss ID, integracao em Explore, briefing, cards e Boss Scene, com fallback seguro.
 - Etapa 130.5 concluida: QA das seis arenas de Bosses, parties reais, mobile, fallback HTTP, coleta unica, loot e cooldowns.
 - Etapa 130 concluida: seis arenas originais de Bosses, briefing visual, Boss Scene dedicada, party overlay, raid analyzer e fallback local por boss ID.
@@ -10546,6 +10547,47 @@ Limites atuais:
 Proximo passo sugerido:
 
 - Etapa 131.5 - QA completa dos sprites de Bosses nas seis arenas e estados de combate.
+
+## Etapa 131.5 - QA completa dos sprites de Bosses
+
+Status: concluida.
+
+Preparacao:
+
+- `git pull`, `git status` e `npm run build` confirmaram o baseline limpo da Etapa 131.
+- Uma fixture Vite temporaria por query string montou diretamente cada Boss Scene sem abrir ou alterar o save SQLite real.
+- A fixture usou parties coerentes com os contratos: tres solos com um heroi, Khazgrim com dois, Ember com tres e Novice Champion com dois.
+
+Cobertura das seis cenas:
+
+- Sewer Broodmother carregou seu PNG `1254x1254` sobre `sewer-broodmother-arena.jpg`.
+- Grunk the Camp Breaker carregou seu PNG `1254x1254` sobre `grunk-war-camp.jpg`.
+- Crypt Warden carregou seu PNG `1254x1254` sobre `crypt-warden-sanctum.jpg`.
+- Khazgrim Gatekeeper carregou seu PNG `1254x1254` com dois membros sobre `khazgrim-gate-arena.jpg`.
+- Ember Matriarch carregou seu PNG `1254x1254` com tres membros sobre `ember-matriarch-nest.jpg`.
+- Novice Arena Champion carregou seu PNG `1254x1254` com dois membros sobre `novice-guild-arena.jpg`.
+- Em todas as cenas, boss e party permaneceram integralmente dentro do palco, sem overflow horizontal.
+
+Estados e fallback:
+
+- Os seis estados running preservaram sprite, arena, analyzer, nomes e barra de encontro.
+- Os seis estados ready exibiram `0s`, `100%`, `Defeated` e `Collect Raid Report` habilitado, sem remover o sprite.
+- Cada um dos seis caminhos de sprite foi quebrado separadamente para provocar erro HTTP real.
+- Todos removeram o `img`, exibiram o fallback `B` na mesma caixa e mantiveram boss e party dentro do palco.
+
+Responsividade e restauracao:
+
+- As seis cenas passaram em `390x844`, com palco de `355x470`, sem corte de sprite ou party.
+- Ember Matriarch com tres membros passou tambem em `980`, `760` e `520 px`; os palcos mediram respectivamente `637x750`, `725x560` e `485x470`.
+- O console Vite mostrou somente a indisponibilidade esperada do Tauri SQL Plugin fora do runtime Tauri.
+- Nenhuma correcao permanente de React, CSS, catalogo ou asset foi necessaria.
+- A fixture, o fallback forcado e os logs temporarios foram removidos integralmente antes do build final.
+- O SQLite real permaneceu com 81.920 bytes, timestamp `2026-07-30 02:28:19` e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- `npm run build` e `npm run tauri:build` passaram; os bundles MSI e NSIS foram gerados normalmente.
+
+Proximo passo sugerido:
+
+- Etapa 132 - fundacao visual dos efeitos de combate e skills nas Hunt e Boss Scenes.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
