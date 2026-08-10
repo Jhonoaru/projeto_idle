@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 129 concluida: sete cenarios top-down originais cobrem as oito Hunts atuais com selecao por ID, palco responsivo e fallback CSS seguro.
 - Etapa 128.5 concluida: QA dos sprites expandidos em oito superficies, formacao temporaria, quatro larguras responsivas e restauracao integral do mock.
 - Etapa 128 concluida: sprites dos cinco herois expandidos para roster lateral, Ranking, Contracts, Boss parties, Guild Squads, Operations e planejamento de equipamento.
 - Etapa 127.5 concluida: QA dos cinco sprites de herois no Character Hall, painel direito, Hunt Scene, fallback e cinco larguras responsivas.
@@ -10301,6 +10302,56 @@ Resultado e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 129 - definir a proxima frente visual depois da identidade completa de itens, criaturas e herois.
+
+## Etapa 129 - Fundacao visual dos cenarios de Hunt
+
+Status: concluida.
+
+Direcao visual:
+
+- A proxima frente visual foi definida como identidade dos ambientes de Hunt, substituindo o unico terreno geometrico generico do combate.
+- Sete cenarios top-down originais foram produzidos sem personagens, criaturas, texto, UI ou assets externos.
+- Cada composicao mantem o centro aberto para o heroi e distribui agua, muralhas, vegetacao, ruinas, rochas ou lava nas bordas.
+- Os JPEGs finais foram otimizados para uso local e variam entre aproximadamente 368 KB e 677 KB.
+
+Catalogo e cobertura:
+
+- Sewers Below Thaeron e Cave Spider Cellar compartilham o ambiente subterraneo coerente da undercity de Thaeron.
+- Trollwood Camp usa clareira florestal cercada por paliçadas e mata densa.
+- Mudrot Cave usa uma gruta pantanosa com agua escura, fungos e minerais venenosos.
+- Minotaur Outpost usa patio fortificado com terra batida, muralhas, armas e estandartes sem simbolos protegidos.
+- Ancient Crypt usa salao funerario em pedra, sarcofagos, mosaico ritual e luzes arcanas.
+- Cyclops Hills usa highlands rochosas com trilhos, minas e fronteira fria de Khazgrim.
+- Ember Dragon Nest usa arena vulcanica com basalto, lava, ossos e cristais de brasa.
+
+Implementacao:
+
+- `huntSceneBackgrounds.ts` registra as oito Hunts atuais por ID e aponta para sete assets originais.
+- `getHuntSceneBackgroundMeta` prioriza o registro deterministico e preserva a classificacao textual para Hunts futuras ou legadas.
+- `HuntSceneBackground` carrega a imagem com estado de erro e retorna automaticamente ao terreno CSS quando o asset falha.
+- O background foi movido do container geral para dentro de `.hunt-scene-stage`, mantendo analyzer, loot, log e comandos fora da arte.
+- Vinheta, `object-fit: cover`, pixel rendering e camadas explicitas preservam contraste de heroi, criaturas, HP e spawn timer.
+- Nenhuma regra de Hunt, drop, XP, gold, supplies, risco, acesso, currentAction ou persistencia foi alterada.
+
+Validacao:
+
+- O catalogo fechou em `8/8` mapeamentos e os sete arquivos responderam HTTP 200 no Vite.
+- Todos os JPEGs foram inspecionados individualmente e mantiveram resolucao entre `1371x1147` e `1536x1024`.
+- Uma Hunt real em Sewers Below Thaeron carregou `sewer-cellar.jpg` em `1536x1024` com Arkon e Sewer Rats acima do cenário.
+- Desktop e larguras de `980`, `760`, `520` e `390 px` passaram sem overflow horizontal e com o heroi dentro do palco.
+- O console nao registrou falha de asset ou UI; apenas a indisponibilidade esperada do Tauri SQL Plugin no Vite ativou o mock local.
+- O SQLite real permaneceu inalterado em tamanho, timestamp e SHA-256.
+- `npm run build` passou antes e depois da integracao; permaneceu apenas o aviso conhecido de chunk acima de 500 KB.
+
+Limitacoes:
+
+- Os cenarios sao estaticos; agua, lava, luzes e clima ainda nao possuem camadas animadas.
+- Bosses continuam usando a apresentacao atual e ainda nao receberam arenas dedicadas.
+- A QA desta etapa abriu uma Hunt inicial real; a navegacao visual de todas as Hunts bloqueadas fica para uma fixture descartavel na Etapa 129.5.
+
+Proximo passo sugerido:
+
+- Etapa 129.5 - QA completa dos cenarios de Hunt, fallback e enquadramento por ambiente.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

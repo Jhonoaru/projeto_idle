@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-129",
+    stage: "Stage 129",
+    title: "Hunt Environment Foundation",
+    date: "2026-08-10",
+    category: "interface",
+    summary: "Every current Hunt now enters an original top-down battlefield selected from its real location identity.",
+    highlights: [
+      "Seven original environments establish Thaeron sewers, Trollwood, Mudrot, the Minotaur Outpost, Ancient Crypt, Cyclops Hills and Ember Dragon Nest.",
+      "All eight Hunts resolve their battlefield by stable hunt ID, with the two Thaeron underground routes sharing one coherent environment.",
+      "The artwork now lives exclusively inside the combat stage, keeping the analyzer and action controls quiet and readable.",
+      "Existing CSS terrain remains a safe fallback when a future Hunt has no registered art or an environment image cannot load.",
+    ],
+    systems: ["Hunt Environments", "Hunt Scene", "Explore", "Visual Catalog", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-128-5",
     stage: "Stage 128.5",
     title: "Expanded Guild Hero Sprite QA",

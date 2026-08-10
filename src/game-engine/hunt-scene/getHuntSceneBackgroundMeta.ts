@@ -1,11 +1,18 @@
+import { getHuntSceneBackground } from "../../data/huntSceneBackgrounds";
 import type { HuntArea } from "../../shared/types";
 
 export interface HuntSceneBackgroundMeta {
   className: string;
   label: string;
+  src?: string;
 }
 
 export function getHuntSceneBackgroundMeta(hunt?: HuntArea): HuntSceneBackgroundMeta {
+  const registeredBackground = getHuntSceneBackground(hunt?.id);
+  if (registeredBackground) {
+    return registeredBackground;
+  }
+
   const text = `${hunt?.name ?? ""} ${hunt?.description ?? ""} ${(hunt?.tags ?? []).join(" ")}`.toLowerCase();
 
   if (text.includes("forest") || text.includes("wood") || text.includes("troll")) {
@@ -26,6 +33,10 @@ export function getHuntSceneBackgroundMeta(hunt?: HuntArea): HuntSceneBackground
 
   if (text.includes("crypt") || text.includes("dungeon") || text.includes("cult")) {
     return { className: "scene-dungeon", label: "Dungeon route" };
+  }
+
+  if (text.includes("dragon") || text.includes("ember") || text.includes("volcan")) {
+    return { className: "scene-volcanic", label: "Volcanic route" };
   }
 
   return { className: "scene-default", label: "Hunt route" };

@@ -43,8 +43,6 @@ export function HuntScene({
 
   return (
     <section className={`hunt-scene ${isReady ? "is-ready" : "is-running"}`}>
-      <HuntSceneBackground hunt={hunt} />
-
       <aside className="hunt-scene-side">
         <header className="hunt-scene-header">
           <div>
@@ -111,6 +109,7 @@ export function HuntScene({
             }
           }}
         >
+          <HuntSceneBackground hunt={hunt} />
           <div className="hunt-stage-terrain" aria-hidden="true">
             <span className="terrain-patch terrain-patch-1" />
             <span className="terrain-patch terrain-patch-2" />
