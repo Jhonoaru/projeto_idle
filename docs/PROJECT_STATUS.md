@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 127.5 concluida: QA dos cinco sprites de herois no Character Hall, painel direito, Hunt Scene, fallback e cinco larguras responsivas.
 - Etapa 127 concluida: sprites originais para os cinco herois atuais, integrados ao Character Hall, painel direito e Hunt Scene com fallback seguro.
 - Etapa 126.5 concluida: QA do catalogo completo de 12 criaturas em Hunts avancadas, Hunt Scene, Bestiary e cinco larguras responsivas.
 - Etapa 126 concluida: sprites originais para as seis criaturas avancadas restantes, fechando os 12 monstros do catalogo atual.
@@ -10175,6 +10176,49 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 127.5 - QA dos sprites dos herois no Character Hall, painel direito, Hunt Scene e responsividade.
+
+## Etapa 127.5 - QA dos sprites dos herois
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e o build web baseline passaram antes da QA.
+- O catalogo foi reconferido em `5/5`: cinco IDs do roster, cinco registros e cinco PNGs dedicados.
+- Todos os arquivos finais mantiveram RGBA `384x384`, alpha util e cantos transparentes.
+
+Character Hall e painel direito:
+
+- Arkon, Ayla, Mira, Lyra e Shen foram selecionados individualmente no roster real.
+- Cada selecao atualizou nome, vocacao e sprite correspondente sem arte antiga, imagem quebrada ou fallback indevido.
+- Os cinco cards compactos carregaram sua imagem natural de 384 px e o perfil selecionado preservou o enquadramento de `78x78` px.
+- O painel direito carregou o sprite do personagem ativo em `48x48` px sem deslocar XP, mastery, equipamento ou inventario.
+
+Hunt Scene:
+
+- Uma Hunt real de `Sewers Below Thaeron` foi iniciada com Arkon pelo fluxo Explore > Hunt Assignment > Iniciar Hunt.
+- Arkon apareceu no centro do palco com fonte natural de 384 px e caixa visual estavel de aproximadamente `104x116` px.
+- Roster e painel direito permaneceram ocultos durante o combate, como definido pelo layout de Hunt.
+- Criaturas, barras, analyzer, loot e combat log preservaram suas posicoes ao redor do novo sprite.
+
+Fallback e responsividade:
+
+- Uma fixture temporaria removeu o asset de Arkon e aplicou cache-busting para forcar falha real de carregamento.
+- `CharacterSprite` substituiu imagens indisponiveis por iniciais sem quebrar cards, perfil ou estrutura da pagina.
+- Registro e asset foram restaurados integralmente; a checagem final voltou a carregar sete usos visiveis em `384x384`, sem fallback residual.
+- Character Hall, painel direito e Hunt Scene passaram em `1280`, `980`, `760`, `520` e `390 px` sem overflow horizontal.
+- No combate mobile, o heroi permaneceu centralizado e integralmente dentro do palco.
+
+Resultado e limitacoes:
+
+- Nenhuma regressao permanente foi encontrada e nenhuma correcao de gameplay, componente ou CSS foi necessaria.
+- O unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin no Vite, que ativa o mock local.
+- A Hunt de QA alterou apenas o estado descartavel do mock em memoria e nao gravou save de producao.
+- Rankings, Contracts, Squads e outras listas densas continuam candidatas a receber sprites em uma etapa visual futura.
+
+Proximo passo sugerido:
+
+- Etapa 128 - expandir a identidade visual dos herois para dossiers, equipes e demais superficies densas do roster.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

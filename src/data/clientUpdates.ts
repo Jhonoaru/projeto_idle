@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-127-5",
+    stage: "Stage 127.5",
+    title: "Guild Hero Sprite QA",
+    date: "2026-08-10",
+    category: "qa",
+    summary: "All five founding hero sprites passed Character Hall, compact panel, Hunt Scene, fallback and responsive validation.",
+    highlights: [
+      "Every roster selection loaded the matching 384px hero portrait and updated the Character Hall profile without stale artwork.",
+      "The compact right panel preserved character identity, equipment layout and readable portrait framing.",
+      "A real Sewers Below Thaeron hunt rendered Arkon at the center of combat while correctly hiding roster and side panels.",
+      "Semantic initials remained usable during a controlled missing-asset test, and all layouts stayed free of horizontal overflow down to 390px.",
+    ],
+    systems: ["Hero Sprite QA", "Character Hall", "Right Panel", "Hunt Scene", "Fallback", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-127",
     stage: "Stage 127",
     title: "Guild Hero Sprite Foundation",
