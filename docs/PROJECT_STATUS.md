@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 128.5 concluida: QA dos sprites expandidos em oito superficies, formacao temporaria, quatro larguras responsivas e restauracao integral do mock.
 - Etapa 128 concluida: sprites dos cinco herois expandidos para roster lateral, Ranking, Contracts, Boss parties, Guild Squads, Operations e planejamento de equipamento.
 - Etapa 127.5 concluida: QA dos cinco sprites de herois no Character Hall, painel direito, Hunt Scene, fallback e cinco larguras responsivas.
 - Etapa 127 concluida: sprites originais para os cinco herois atuais, integrados ao Character Hall, painel direito e Hunt Scene com fallback seguro.
@@ -10263,6 +10264,43 @@ Integridade e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 128.5 - QA dos sprites expandidos em Ranking, equipes, Operations, loadouts e responsividade.
+
+## Etapa 128.5 - QA da expansao visual dos herois
+
+Status: concluida.
+
+Preparacao e integridade:
+
+- `git pull`, `git status` e o build web baseline passaram antes da QA.
+- O catalogo foi reconferido em `5/5`: cinco IDs do roster, cinco registros e cinco PNGs dedicados.
+- Todos os arquivos mantiveram RGBA `384x384`, alpha util e quatro cantos transparentes.
+
+Superficies validadas:
+
+- O roster lateral carregou cinco sprites; Hall of Renown carregou tres no podio, cinco na tabela e um no dossier.
+- Contracts carregou os cinco candidatos e preservou level, vocacao e power de cada aventureiro.
+- Boss Party Builder carregou os cinco herois sem alterar selecao, role ou mensagens de elegibilidade.
+- Guild Squads e Campaign Operations carregaram cinco sprites em cada roster, preservando formacoes e assignments.
+- Active Loadout Command carregou cinco portraits e manteve os planos associados ao personagem correto.
+- Squad Gear Readiness foi populado por uma formacao temporaria com Arkon e Lyra e exibiu ambos os dossiers corretamente.
+
+Responsividade e restauracao:
+
+- Ranking, Contracts, Boss Party Builder, Operations, Active Loadout e Squad Gear passaram em `980`, `760`, `520` e `390 px`.
+- O roster lateral tambem foi validado em `390 px`, com cinco portraits estaveis em `32x40` px.
+- Nenhuma superficie apresentou imagem quebrada, fallback indevido ou overflow horizontal.
+- A formacao criada para o teste existiu apenas no mock Vite em memoria; o reload restaurou integralmente a fixture inicial.
+- Nenhum save de producao ou registro SQLite foi modificado durante o QA interativo.
+
+Resultado e limitacoes:
+
+- Nenhuma regressao permanente foi encontrada e nenhuma correcao de gameplay, componente ou CSS foi necessaria.
+- O fallback compartilhado de `CharacterSprite` recebeu cobertura de regressao pelas superficies testadas; a falha destrutiva de asset nao foi repetida porque ja foi forçada e validada na Etapa 127.5.
+- No Vite, a indisponibilidade do Tauri SQL Plugin continua esperada e direciona a sessao para o mock local.
+
+Proximo passo sugerido:
+
+- Etapa 129 - definir a proxima frente visual depois da identidade completa de itens, criaturas e herois.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

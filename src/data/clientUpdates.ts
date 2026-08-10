@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-128-5",
+    stage: "Stage 128.5",
+    title: "Expanded Guild Hero Sprite QA",
+    date: "2026-08-10",
+    category: "qa",
+    summary: "Expanded hero identity passed interactive validation across all eight roster, team and equipment planning surfaces.",
+    highlights: [
+      "The persistent roster and Hall of Renown loaded every expected hero portrait across podium, standings and dossier views.",
+      "Contracts, Boss parties, Guild Squads and Campaign Operations preserved eligibility, roles and assignments with all five sprites.",
+      "Active Loadout Command and a temporarily populated Squad Gear Readiness board rendered the correct equipment owner portraits.",
+      "All tested surfaces remained free of broken images, fallback regressions and horizontal overflow at 980px, 760px, 520px and 390px.",
+    ],
+    systems: ["Hero Sprite QA", "Ranking", "Contracts", "Boss Parties", "Guild Squads", "Operations", "Loadouts", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-128",
     stage: "Stage 128",
     title: "Guild Hero Identity Expansion",
