@@ -5912,33 +5912,36 @@ p {
   font-style: normal;
 }
 
+.character-sprite {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+}
+
+.character-sprite > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.character-sprite-small { width: 36px; height: 44px; }
+.character-sprite-medium { width: 54px; height: 54px; }
+.character-sprite-large { width: 76px; height: 72px; }
+.character-sprite-scene { width: 104px; height: 116px; }
+
+.character-sprite-fallback {
+  color: #f0d383;
+  font-family: Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
 .hunt-scene-character-core {
   position: relative;
-  display: grid;
-  place-items: center;
-  width: 82px;
-  height: 96px;
-  border: 2px solid #d8b96a;
-  border-radius: 46% 46% 38% 38%;
-  color: #191711;
-  background: linear-gradient(180deg, #f1d58c, #9f7932);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
-}
-
-.hunt-scene-character-core i {
-  position: absolute;
-  left: 12px;
-  top: 52px;
-  width: 58px;
-  height: 18px;
-  border-radius: 999px;
-  background: rgba(20, 23, 19, 0.32);
-  transform: rotate(18deg);
-}
-
-.hunt-scene-character-core strong {
-  position: relative;
-  font-size: 1.25rem;
+  filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.48));
 }
 
 .hunt-scene-hpbar,
@@ -6992,8 +6995,6 @@ p {
 .character-hall-status.status-traveling { background: #69a8c8; }
 
 .character-hall-roster-avatar {
-  display: grid;
-  place-items: center;
   width: 36px;
   height: 44px;
   border: 1px solid #6b5732;
@@ -7001,6 +7002,7 @@ p {
   color: #f0d383;
   background: #111614;
   font-weight: 950;
+  padding: 1px;
 }
 
 .character-hall-roster-copy {
@@ -7037,6 +7039,7 @@ p {
 
 .character-hall-portrait {
   display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   place-items: center;
   width: 84px;
   height: 92px;
@@ -7044,16 +7047,19 @@ p {
   border-radius: 5px;
   background: #171c19;
   box-shadow: inset 0 0 0 3px #0d110f;
+  overflow: hidden;
 }
 
-.character-hall-portrait span {
-  color: #f0d383;
-  font-family: Georgia, serif;
-  font-size: 2.4rem;
-  font-weight: 900;
+.character-hall-portrait .character-sprite {
+  width: 78px;
+  height: 70px;
 }
 
-.character-hall-portrait small { color: #9da79e; }
+.character-hall-portrait small {
+  color: #9da79e;
+  font-size: 0.62rem;
+  line-height: 16px;
+}
 
 .character-hall-title h2 {
   margin: 2px 0 4px;
@@ -8578,8 +8584,6 @@ p {
 }
 
 .client-avatar {
-  display: grid;
-  place-items: center;
   width: 54px;
   height: 54px;
   border: 1px solid #d8b96a;
@@ -8587,6 +8591,7 @@ p {
   color: #f1d58c;
   background: #151a17;
   font-weight: 950;
+  padding: 2px;
 }
 
 .client-xp-block {

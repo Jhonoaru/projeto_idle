@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { GuildBriefing } from "./GuildBriefing";
 import { CampaignCommandBriefing } from "./CampaignCommandBriefing";
+import { CharacterSprite } from "../characters/CharacterSprite";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemQualityBadge } from "../items/ItemQualityBadge";
 import { ItemProgressionBadge } from "../items/ItemProgressionBadge";
@@ -112,7 +113,7 @@ export function CharacterDetails({
                 type="button"
               >
                 <span className={`character-hall-status status-${candidate.status}`} />
-                <span className="character-hall-roster-avatar">{candidate.name.slice(0, 1).toUpperCase()}</span>
+                <CharacterSprite character={candidate} className="character-hall-roster-avatar" size="small" />
                 <span className="character-hall-roster-copy">
                   <strong>{candidate.name}</strong>
                   <small>{candidate.vocation} / Lv {candidate.level}</small>
@@ -128,7 +129,11 @@ export function CharacterDetails({
       <section className="character-hall-profile">
         <div className="character-hall-identity">
           <div className="character-hall-portrait">
-            <span>{activeCosmetics.avatar?.previewValue ?? character.name.slice(0, 1).toUpperCase()}</span>
+            <CharacterSprite
+              character={character}
+              fallbackSymbol={activeCosmetics.avatar?.previewValue}
+              size="large"
+            />
             <small>Level {character.level}</small>
           </div>
           <div className="character-hall-title">

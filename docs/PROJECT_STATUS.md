@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-07
+Atualizado em: 2026-08-10
 
 ## Stack usada
 
@@ -15,6 +15,7 @@ Atualizado em: 2026-08-07
 
 ## Status recente
 
+- Etapa 127 concluida: sprites originais para os cinco herois atuais, integrados ao Character Hall, painel direito e Hunt Scene com fallback seguro.
 - Etapa 126.5 concluida: QA do catalogo completo de 12 criaturas em Hunts avancadas, Hunt Scene, Bestiary e cinco larguras responsivas.
 - Etapa 126 concluida: sprites originais para as seis criaturas avancadas restantes, fechando os 12 monstros do catalogo atual.
 - Etapa 125.5 concluida: QA dos sprites iniciais de criaturas em Explore, Hunt Scene, Bestiary, fallback e cinco larguras responsivas.
@@ -10136,6 +10137,44 @@ Resultado e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 127 - definir a proxima frente visual depois do catalogo completo de itens e criaturas.
+
+## Etapa 127 - Fundacao visual dos herois da guilda
+
+Status: concluida.
+
+Escopo visual:
+
+- Arkon recebeu sprite original de Guardian com espada, escudo redondo, malha e couro em tons terrosos.
+- Ayla recebeu sprite original de Ranger com arco longo, aljava, capa verde e silhueta leve.
+- Mira recebeu sprite original de Arcanist com robes azul-violeta, varinha e energia arcana.
+- Lyra recebeu sprite original de Warden com vestes verde-azuladas, cajado natural e sigilo protetor.
+- Shen recebeu sprite original de Monk com postura marcial, bandagens e roupas de viagem sem arma.
+- Os cinco arquivos finais usam canvas RGBA transparente de `384x384`, enquadramento uniforme e leitura pixel-art.
+
+Integracao:
+
+- `characterSprites.ts` registra os cinco IDs reais do roster e mantem a origem visual explicita.
+- `CharacterSprite` centraliza carregamento, tamanhos estaveis, acessibilidade e fallback por iniciais quando a arte estiver ausente ou falhar.
+- Character Hall usa os sprites nos cards compactos do roster e no perfil do personagem selecionado.
+- O painel direito usa o sprite do personagem ativo sem alterar equipamento, Collections ou dados de progressao.
+- Hunt Scene substitui a capsula de iniciais pelo heroi de corpo inteiro no centro do combate.
+
+Integridade e validacao:
+
+- O catalogo foi conferido em `5/5`: Arkon, Ayla, Mira, Lyra e Shen possuem registro e arquivo dedicado.
+- Todos os PNGs finais foram validados como RGBA `384x384`, com alpha util e quatro cantos transparentes.
+- `npm run build` passou depois da integracao.
+- Nenhuma regra de gameplay, atributo, equipamento, Collections, save ou schema SQLite foi alterada.
+
+Limitacoes:
+
+- Rankings, Contracts, Squads e outras listas densas ainda podem usar iniciais; a migracao pode ocorrer gradualmente conforme cada tela receber QA visual.
+- A QA interativa completa no Character Hall, painel direito, Hunt Scene e larguras responsivas fica reservada para a Etapa 127.5.
+- Os sprites representam a identidade base dos herois; outfits e montarias continuam como selecoes funcionais de Collections, sem composicao visual sobre o corpo nesta etapa.
+
+Proximo passo sugerido:
+
+- Etapa 127.5 - QA dos sprites dos herois no Character Hall, painel direito, Hunt Scene e responsividade.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

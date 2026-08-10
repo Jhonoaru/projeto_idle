@@ -1,4 +1,5 @@
 import type { Character } from "../../shared/types";
+import { CharacterSprite } from "../characters/CharacterSprite";
 
 interface HuntSceneActorProps {
   character: Character;
@@ -6,21 +7,12 @@ interface HuntSceneActorProps {
 }
 
 export function HuntSceneActor({ character, actionText }: HuntSceneActorProps) {
-  const initials = character.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
   const weapon = character.equipment.weapon?.item.name ?? character.equipment.offhand?.item.name ?? "Unarmed";
 
   return (
     <div className={`hunt-scene-character vocation-${character.vocation.toLowerCase()}`}>
       <span>{character.name}</span>
-      <div className="hunt-scene-character-core">
-        <i />
-        <strong>{initials || "?"}</strong>
-      </div>
+      <CharacterSprite character={character} className="hunt-scene-character-core" size="scene" />
       <div className="hunt-scene-hpbar">
         <i style={{ width: "86%" }} />
       </div>

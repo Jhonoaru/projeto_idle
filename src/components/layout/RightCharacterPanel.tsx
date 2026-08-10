@@ -1,4 +1,5 @@
 import { ActivityLog } from "../log/ActivityLog";
+import { CharacterSprite } from "../characters/CharacterSprite";
 import { ItemIcon } from "../items/ItemIcon";
 import { Panel } from "../ui/Panel";
 import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
@@ -56,7 +57,12 @@ export function RightCharacterPanel({
     <aside className="right-character-panel">
       <Panel title="Character">
         <div className="client-character-card">
-          <div className="client-avatar">{activeCosmetics.avatar?.previewValue ?? character.name?.slice(0, 2).toUpperCase() ?? "??"}</div>
+          <CharacterSprite
+            character={character}
+            className="client-avatar"
+            fallbackSymbol={activeCosmetics.avatar?.previewValue}
+            size="medium"
+          />
           <div>
             <span>{character.vocation}</span>
             <strong>{character.name}</strong>

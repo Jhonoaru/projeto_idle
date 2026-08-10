@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-127",
+    stage: "Stage 127",
+    title: "Guild Hero Sprite Foundation",
+    date: "2026-08-10",
+    category: "interface",
+    summary: "The five founding guild heroes now have original full-body pixel-art identities across management and combat surfaces.",
+    highlights: [
+      "Arkon and Ayla establish distinct Guardian and Ranger silhouettes with shield-and-sword and longbow loadouts.",
+      "Mira and Lyra separate arcane offense from nature protection through contrasting robes, colors and spell effects.",
+      "Shen completes the current roster with a weaponless martial stance and compact Monk profile.",
+      "A shared character component keeps stable dimensions and falls back to semantic initials for future or missing artwork.",
+    ],
+    systems: ["Character Sprites", "Character Hall", "Hunt Scene", "Right Panel", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-126-5",
     stage: "Stage 126.5",
     title: "Complete Creature Catalog QA",
