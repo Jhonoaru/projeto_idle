@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 130.5 concluida: QA das seis arenas de Bosses, parties reais, mobile, fallback HTTP, coleta unica, loot e cooldowns.
 - Etapa 130 concluida: seis arenas originais de Bosses, briefing visual, Boss Scene dedicada, party overlay, raid analyzer e fallback local por boss ID.
 - Etapa 129.5 concluida: QA das oito Hunts, sete cenarios, fallback real, camadas de combate, mobile e restauracao integral da fixture.
 - Etapa 129 concluida: sete cenarios top-down originais cobrem as oito Hunts atuais com selecao por ID, palco responsivo e fallback CSS seguro.
@@ -10454,6 +10455,58 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 130.5 - QA completa das arenas de Bosses, fallback e resolucao visual.
+
+## Etapa 130.5 - QA completa das arenas de Bosses
+
+Status: concluida.
+
+Preparacao e fixture:
+
+- `git pull`, `git status` e `npm run build` confirmaram o baseline limpo antes da QA.
+- O catalogo foi reconferido em `6/6` Bosses apontando para seis JPEGs presentes no projeto.
+- Uma fixture Vite temporaria elevou os cinco herois ao level 99, liberou os seis acessos, deixou o roster idle, forneceu `99.999g` e reduziu os timers para 12 segundos.
+- A fixture preservou requisitos reais de party e papeis: solos com 1 heroi, Khazgrim com tank/damage, Ember com tank/healer/damage e Novice Champion com 2 participantes.
+
+Cobertura desktop:
+
+- Sewer Broodmother carregou `sewer-broodmother-arena.jpg` com 1 ator de party.
+- Grunk the Camp Breaker carregou `grunk-war-camp.jpg` com 1 ator de party.
+- Crypt Warden carregou `crypt-warden-sanctum.jpg` com 1 ator de party.
+- Khazgrim Gatekeeper carregou `khazgrim-gate-arena.jpg` com 2 atores de party.
+- Ember Matriarch carregou `ember-matriarch-nest.jpg` com 3 atores de party.
+- Novice Arena Champion carregou `novice-guild-arena.jpg` com 2 atores de party.
+- As seis cenas abriram pelo fluxo real Explore > Bosses > party > Launch Raid, esconderam os tres paineis externos e nao criaram overflow horizontal.
+
+Responsividade:
+
+- As seis arenas foram repetidas em `390x844`; todas mantiveram imagem, boss, barra de progresso e party integralmente dentro do palco de `355x470`.
+- Ember Matriarch com tres participantes tambem passou em `980`, `760` e `520 px`.
+- Em `980 px`, a cena manteve sidebar de 300 px e palco de 637 px.
+- Em `760` e `520 px`, sidebar e palco empilharam corretamente, sem sobreposicao ou overflow.
+
+Fallback e resolucao:
+
+- O caminho de `ember-matriarch-nest.jpg` foi quebrado temporariamente para gerar uma falha HTTP real.
+- `BossArenaBackground` removeu a imagem, ativou `uses-arena-fallback` e preservou gradiente vulcanico, boss marker e os tres herois.
+- O caminho original foi restaurado imediatamente e a imagem voltou a carregar na mesma raid.
+- A raid chegou a `is-ready`, exibiu `0s`, `100%` e disponibilizou `Collect Raid Report`.
+- A coleta ocorreu uma unica vez; a Boss Scene foi removida e o botao de coleta deixou de existir.
+- O resultado derrotou Ember Matriarch, concedeu XP, gold e 10 renown, enviou Dragon Ember e Wyvern Scale ao Guild Depot e aplicou cooldown de 20h aos tres participantes.
+- O Raid Report exibiu os ganhos, o loot e os tres cooldowns; a lista pessoal mostrou Ember Matriarch bloqueada por cooldown.
+
+Restauracao e resultado:
+
+- Timers originais de `8`, `10`, `12`, `18`, `25` e `15` minutos foram restaurados.
+- Gold voltou para `420g`; Arkon voltou ao level 1; status, actions e accessIds originais dos cinco herois foram restaurados.
+- O reload final confirmou Arkon level 1, `420g` e nenhuma Boss Scene ativa.
+- Nenhuma correcao permanente de componente, catalogo ou CSS foi necessaria.
+- O unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin no Vite.
+- O SQLite real permaneceu com 81.920 bytes, timestamp `2026-07-30 02:28:19` e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- `npm run build` e `npm run tauri:build` passaram depois da restauracao integral da fixture.
+
+Proximo passo sugerido:
+
+- Etapa 131 - fundacao visual dos sprites dedicados dos seis Bosses atuais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
