@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 129.5 concluida: QA das oito Hunts, sete cenarios, fallback real, camadas de combate, mobile e restauracao integral da fixture.
 - Etapa 129 concluida: sete cenarios top-down originais cobrem as oito Hunts atuais com selecao por ID, palco responsivo e fallback CSS seguro.
 - Etapa 128.5 concluida: QA dos sprites expandidos em oito superficies, formacao temporaria, quatro larguras responsivas e restauracao integral do mock.
 - Etapa 128 concluida: sprites dos cinco herois expandidos para roster lateral, Ranking, Contracts, Boss parties, Guild Squads, Operations e planejamento de equipamento.
@@ -10352,6 +10353,55 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 129.5 - QA completa dos cenarios de Hunt, fallback e enquadramento por ambiente.
+
+## Etapa 129.5 - QA completa dos cenarios de Hunt
+
+Status: concluida.
+
+Preparacao e fixture:
+
+- `git pull` e `git status` confirmaram o baseline limpo antes da QA.
+- O catalogo foi reconferido em `8/8` Hunts apontando para sete JPEGs presentes no projeto.
+- Uma fixture Vite temporaria elevou Arkon ao level 99, adicionou as quatro permissoes avancadas e supplies suficientes.
+- A fixture permitiu usar o fluxo real Explore > Hunt Assignment > Iniciar Hunt sem alterar regras de level, access ou supplies.
+
+Cobertura desktop:
+
+- Sewers Below Thaeron e Cave Spider Cellar carregaram `sewer-cellar.jpg` em `1536x1024`.
+- Trollwood Camp carregou `trollwood-camp.jpg` em `1536x1024`.
+- Mudrot Cave carregou `mudrot-grotto.jpg` em `1402x1122`.
+- Minotaur Outpost carregou `minotaur-outpost.jpg` em `1536x1024`.
+- Ancient Crypt carregou `ancient-crypt.jpg` em `1536x1024`.
+- Cyclops Hills carregou `cyclops-hills.jpg` em `1371x1147`.
+- Ember Dragon Nest carregou `ember-dragon-nest.jpg` em `1402x1122`.
+- Todos os cenarios usaram a classe de bioma correta, imagem completa e o arquivo esperado pelo ID da Hunt.
+
+Combate e enquadramento:
+
+- Hunts iniciais mostraram tres criaturas e Hunts com dois tipos de monstro mostraram quatro cards.
+- Arkon permaneceu integralmente dentro do palco e todas as criaturas conservaram camada acima do background.
+- HP, spawn timer, action bar, hotbar, analyzer, loot preview e combat log continuaram funcionais e legiveis.
+- Nenhum dos oito cenarios causou overflow horizontal no layout desktop.
+
+Responsividade e fallback:
+
+- As oito Hunts foram repetidas em `390 px`; todas mantiveram `object-fit: cover`, imagem carregada, heroi dentro do palco e zero overflow.
+- Ember Dragon Nest tambem passou em `980`, `760` e `520 px`, cobrindo os breakpoints intermediarios com um dos assets mais altos.
+- O caminho do Ember Nest foi quebrado temporariamente para forcar uma falha HTTP real.
+- `HuntSceneBackground` removeu a imagem quebrada, ativou `uses-scene-fallback` e exibiu o gradiente vulcanico com quatro criaturas e Arkon preservados.
+
+Restauracao e resultado:
+
+- O caminho correto do Ember Nest foi restaurado imediatamente apos o teste de fallback.
+- Arkon voltou ao level 1, inventario original e `accessIds: []`; o reload confirmou o mock inicial sem Hunt ativa.
+- Nenhuma correcao permanente de componente, catalogo ou CSS foi necessaria.
+- O unico erro de console foi a indisponibilidade esperada do Tauri SQL Plugin no Vite.
+- O SQLite real permaneceu inalterado em tamanho, timestamp e SHA-256.
+- `npm run build` e `npm run tauri:build` passaram depois da restauracao integral da fixture.
+
+Proximo passo sugerido:
+
+- Etapa 130 - fundacao visual de arenas dedicadas para Bosses offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

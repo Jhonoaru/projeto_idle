@@ -14,6 +14,22 @@ export interface ClientUpdateDefinition {
 
 export const clientUpdates: ClientUpdateDefinition[] = [
   {
+    id: "stage-129-5",
+    stage: "Stage 129.5",
+    title: "Complete Hunt Environment QA",
+    date: "2026-08-10",
+    category: "qa",
+    summary: "Every current Hunt environment passed live scene, mobile framing, layer order and missing-asset fallback validation.",
+    highlights: [
+      "All eight Hunts opened through the real assignment flow and loaded the exact environment registered for their stable hunt ID.",
+      "Three- and four-creature scenes preserved hero framing, health bars, spawn timing and readable combat layers above every battlefield.",
+      "All eight environments remained stable at 390px, while intermediate 980px, 760px and 520px layouts stayed free of horizontal overflow.",
+      "A forced Ember Nest asset failure switched to the volcanic CSS fallback without losing the hero, creatures or combat controls.",
+    ],
+    systems: ["Hunt Environment QA", "Hunt Scene", "Explore", "Fallback", "Responsive UI"],
+    featured: true,
+  },
+  {
     id: "stage-129",
     stage: "Stage 129",
     title: "Hunt Environment Foundation",
