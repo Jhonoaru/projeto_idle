@@ -15439,3 +15439,192 @@ html[data-client-motion="reduced"] *::after {
   .boss-scene-stage-status { right: 8px; bottom: 8px; left: 8px; grid-template-columns: 1fr auto; }
   .boss-scene-stage-status > div { grid-column: 1 / -1; grid-row: 2; }
 }
+
+/* Stage 132: vocation combat language shared by hunt and boss scenes. */
+.combat-effect-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.combat-effect-sequence {
+  position: absolute;
+  inset: 0;
+  animation-delay: var(--effect-delay);
+}
+
+.combat-effect-caster,
+.combat-effect-projectile,
+.combat-effect-impact,
+.combat-effect-resolve {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+}
+
+.combat-effect-caster {
+  left: var(--effect-origin-x);
+  top: var(--effect-origin-y);
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--effect-accent);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.45);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--effect-accent) 70%, transparent), inset 0 0 8px var(--effect-secondary);
+  animation: combat-caster-pulse 1.8s ease-out infinite;
+  animation-delay: var(--effect-delay);
+}
+
+.combat-effect-projectile {
+  left: var(--effect-origin-x);
+  top: var(--effect-origin-y);
+  width: 24px;
+  height: 8px;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(var(--effect-angle));
+  filter: drop-shadow(0 0 5px var(--effect-accent));
+  animation: combat-projectile-flight 1.8s cubic-bezier(0.35, 0.08, 0.65, 0.95) infinite;
+  animation-delay: var(--effect-delay);
+}
+
+.combat-effect-projectile::before,
+.combat-effect-projectile::after,
+.combat-effect-projectile > b {
+  position: absolute;
+  display: block;
+  content: "";
+}
+
+.combat-effect-projectile::before {
+  inset: 2px 1px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, var(--effect-accent) 45%, var(--effect-secondary));
+}
+
+.combat-effect-projectile::after {
+  top: 3px;
+  right: -3px;
+  width: 7px;
+  height: 2px;
+  background: #fff7d2;
+  box-shadow: 0 0 5px var(--effect-secondary);
+}
+
+.combat-effect-impact {
+  left: var(--effect-target-x);
+  top: var(--effect-target-y);
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--effect-accent);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.2);
+  box-shadow: 0 0 14px var(--effect-accent), inset 0 0 10px var(--effect-secondary);
+  animation: combat-impact-burst 1.8s ease-out infinite;
+  animation-delay: var(--effect-delay);
+}
+
+.combat-effect-impact > b {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 24px;
+  border-radius: 2px;
+  background: linear-gradient(var(--effect-secondary), transparent);
+  transform-origin: 50% 0;
+}
+.combat-effect-impact > b:nth-child(1) { transform: rotate(15deg) translateY(-7px); }
+.combat-effect-impact > b:nth-child(2) { transform: rotate(135deg) translateY(-7px); }
+.combat-effect-impact > b:nth-child(3) { transform: rotate(255deg) translateY(-7px); }
+
+.effect-melee .combat-effect-projectile { width: 34px; height: 4px; }
+.effect-melee .combat-effect-projectile::before { inset: 0; clip-path: polygon(0 45%, 78% 0, 100% 50%, 78% 100%); }
+.effect-ranged .combat-effect-projectile { width: 34px; height: 5px; }
+.effect-ranged .combat-effect-projectile::before { inset: 2px 4px 2px 0; border-radius: 0; }
+.effect-ranged .combat-effect-projectile::after { right: 1px; top: 0; width: 7px; height: 5px; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.effect-arcane .combat-effect-projectile { width: 18px; height: 18px; }
+.effect-arcane .combat-effect-projectile::before { inset: 2px; border-radius: 50%; background: radial-gradient(circle, #fff 0 12%, var(--effect-secondary) 30%, var(--effect-accent) 62%, transparent 68%); }
+.effect-arcane .combat-effect-projectile::after { inset: -5px; width: auto; height: auto; border: 1px solid var(--effect-secondary); border-radius: 50%; }
+.effect-nature .combat-effect-projectile { width: 26px; height: 14px; }
+.effect-nature .combat-effect-projectile::before { inset: 1px 2px; border-radius: 100% 0 100% 0; background: var(--effect-accent); transform: rotate(28deg); }
+.effect-spirit .combat-effect-projectile { width: 20px; height: 20px; }
+.effect-spirit .combat-effect-projectile::before { inset: 1px; border: 2px solid var(--effect-accent); border-radius: 50%; background: transparent; box-shadow: inset 0 0 6px var(--effect-secondary); }
+.effect-spirit .combat-effect-projectile::after { inset: 6px; width: auto; height: auto; border-radius: 50%; background: var(--effect-secondary); }
+
+.combat-effect-resolve {
+  left: var(--effect-target-x);
+  top: var(--effect-target-y);
+  width: 70px;
+  height: 70px;
+  border: 1px solid rgba(239, 209, 120, 0.72);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.65);
+  box-shadow: 0 0 22px rgba(239, 209, 120, 0.32), inset 0 0 18px rgba(239, 209, 120, 0.18);
+}
+
+.combat-effect-resolve > i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f3d681;
+  box-shadow: 0 0 7px #f3d681;
+}
+.combat-effect-resolve > i:nth-child(1) { transform: translate(-30px, -10px); }
+.combat-effect-resolve > i:nth-child(2) { transform: translate(22px, -21px); }
+.combat-effect-resolve > i:nth-child(3) { transform: translate(12px, 25px); }
+.combat-effect-layer.is-resolved .combat-effect-sequence { display: none; }
+.combat-effect-layer.is-resolved .combat-effect-resolve { opacity: 0.78; animation: combat-resolve-glow 2.8s ease-in-out infinite; }
+
+@keyframes combat-caster-pulse {
+  0%, 58% { opacity: 0; transform: translate(-50%, -50%) scale(0.45); }
+  66% { opacity: 0.8; }
+  78%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.15); }
+}
+
+@keyframes combat-projectile-flight {
+  0%, 12% { left: var(--effect-origin-x); top: var(--effect-origin-y); opacity: 0; }
+  19% { opacity: 1; }
+  62% { left: var(--effect-target-x); top: var(--effect-target-y); opacity: 1; }
+  67%, 100% { left: var(--effect-target-x); top: var(--effect-target-y); opacity: 0; }
+}
+
+@keyframes combat-impact-burst {
+  0%, 58% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+  64% { opacity: 0.95; }
+  82%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes combat-resolve-glow {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.92); opacity: 0.48; }
+  50% { transform: translate(-50%, -50%) scale(1.04); opacity: 0.82; }
+}
+
+@media (max-width: 580px) {
+  .combat-effect-caster { width: 30px; height: 30px; }
+  .combat-effect-impact { width: 38px; height: 38px; }
+  .combat-effect-resolve { width: 54px; height: 54px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .combat-effect-layer *,
+  .combat-effect-layer *::before,
+  .combat-effect-layer *::after { animation: none !important; }
+  .combat-effect-projectile { display: none; }
+  .combat-effect-layer.is-active .combat-effect-caster { opacity: 0.3; transform: translate(-50%, -50%) scale(0.82); }
+  .combat-effect-layer.is-active .combat-effect-impact { opacity: 0.24; transform: translate(-50%, -50%) scale(0.72); }
+  .combat-effect-layer.is-resolved .combat-effect-resolve { opacity: 0.52; transform: translate(-50%, -50%) scale(0.92); }
+}
+
+html[data-client-motion="reduced"] .combat-effect-projectile { display: none; }
+html[data-client-motion="reduced"] .combat-effect-layer.is-active .combat-effect-caster { opacity: 0.3; transform: translate(-50%, -50%) scale(0.82); }
+html[data-client-motion="reduced"] .combat-effect-layer.is-active .combat-effect-impact { opacity: 0.24; transform: translate(-50%, -50%) scale(0.72); }
+html[data-client-motion="reduced"] .combat-effect-layer.is-resolved .combat-effect-resolve { opacity: 0.52; transform: translate(-50%, -50%) scale(0.92); }

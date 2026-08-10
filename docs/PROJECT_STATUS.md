@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 132 concluida: efeitos cosmeticos de combate por vocacao nas Hunt e Boss Scenes, com alvos reais da cena, estado resolvido e movimento reduzido.
 - Etapa 131.5 concluida: QA dos seis sprites de Bosses em running, ready, fallback HTTP individual e cinco larguras responsivas, sem regressao encontrada.
 - Etapa 131 concluida: seis sprites originais de Bosses, catalogo por boss ID, integracao em Explore, briefing, cards e Boss Scene, com fallback seguro.
 - Etapa 130.5 concluida: QA das seis arenas de Bosses, parties reais, mobile, fallback HTTP, coleta unica, loot e cooldowns.
@@ -10588,6 +10589,41 @@ Responsividade e restauracao:
 Proximo passo sugerido:
 
 - Etapa 132 - fundacao visual dos efeitos de combate e skills nas Hunt e Boss Scenes.
+
+## Etapa 132 - Fundacao visual dos efeitos de combate e skills
+
+Status: concluida.
+
+Implementacao:
+
+- Criado um catalogo visual compartilhado para Guardian, Ranger, Arcanist, Warden e Monk.
+- Guardian usa corte pesado dourado; Ranger, projetil verde; Arcanist, pulso arcano azul/violeta; Warden, energia natural verde/dourada; Monk, impacto espiritual laranja/turquesa.
+- A camada `CombatEffectLayer` e puramente cosmetica: nao altera dano, timers, loot, cooldown, save ou balanceamento.
+- Na Hunt Scene, o efeito parte do heroi central e acompanha a posicao da criatura ativa.
+- Na Boss Scene, cada integrante da party projeta o efeito da propria vocacao contra o boss.
+- O estado concluido interrompe os ataques repetidos e mostra um selo visual estavel no alvo.
+- A camada ignora interacao do mouse, permanece dentro da arena e nao cobre os controles laterais.
+- `prefers-reduced-motion` remove trajetorias repetidas e conserva apenas marcadores estaticos discretos.
+
+Validacao:
+
+- `npm run build` e `npm run tauri:build` passaram apos a integracao TypeScript/CSS; MSI e NSIS foram gerados.
+- Hunt Guardian iniciada pelo fluxo real de Explore em Vite: uma sequencia melee ativa, alvo correto e camada integralmente contida no palco.
+- Ember Matriarch validada com party temporaria de cinco personagens: melee, ranged, arcane, nature e spirit renderizados simultaneamente.
+- Hunt e Boss Scene passaram no viewport desktop e em `390x844`, sem overflow horizontal.
+- As arenas, sprites, nomes, analyzer e controles permaneceram legiveis durante os efeitos.
+- A fixture temporaria de boss foi removida integralmente antes da validacao final.
+- O SQLite e o formato de save nao foram alterados nesta etapa; o banco manteve 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+
+Limitacoes atuais:
+
+- Os efeitos comunicam identidade de vocacao, mas ainda nao representam cada skill individual do catalogo.
+- Dano, cura, numeros flutuantes e sincronizacao por cooldown continuam fora desta fundacao visual.
+- O comportamento de movimento reduzido foi validado por regra CSS; nao houve clique manual com a preferencia do sistema operacional ativada.
+
+Proximo passo sugerido:
+
+- Etapa 132.5 - QA dos efeitos de combate e skills.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

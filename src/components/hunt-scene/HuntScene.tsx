@@ -2,6 +2,8 @@ import { useState } from "react";
 import { getHuntSceneMonsters } from "../../game-engine/hunt-scene/getHuntSceneMonsters";
 import { formatDuration } from "../../shared/time";
 import type { Character, HuntArea } from "../../shared/types";
+import { getHuntEffectTarget } from "../../data/combatEffectProfiles";
+import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
 import { HuntActionBar } from "./HuntActionBar";
 import { HuntCreatureCard } from "./HuntCreatureCard";
 import { HuntSceneHotbar, type HuntSceneSlotType } from "./HuntSceneHotbar";
@@ -36,6 +38,7 @@ export function HuntScene({
   const isReady = snapshot.readyToResolve || snapshot.remainingMs <= 0;
   const displayRemainingMs = isReady ? 0 : snapshot.remainingMs;
   const completedOffline = Boolean(action?.offlineCompletedAt);
+  const activeCreature = snapshot.visibleCreatures.find((creature) => creature.id === snapshot.activeTargetId);
 
   if (!action || action.type !== "hunting") {
     return null;
@@ -130,6 +133,12 @@ export function HuntScene({
             />
           ))}
           <HuntSceneActor character={character} actionText={snapshot.actionText} />
+          <CombatEffectLayer
+            actors={[{ character }]}
+            mode="hunt"
+            resolved={isReady}
+            target={getHuntEffectTarget(activeCreature?.position)}
+          />
           <div className={`hunt-scene-center-tools ${showSceneTools ? "is-visible" : ""}`.trim()}>
             <button disabled type="button">Loot Filter</button>
             <button type="button" onClick={(event) => event.stopPropagation()}>Combat Log</button>
