@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 136.5 concluida: QA real do relatorio detalhado no Tauri/SQLite validou persistencia, snapshots, Hunt/Boss, catch-up offline idempotente e restauracao integral do save.
 - Etapa 136 concluida: relatorio detalhado contabiliza dano, cura e mitigacao por skill em Hunts e Bosses, sem duplicar bonus de gameplay.
 - Etapa 135.5 concluida: QA real dos efeitos de skills no Tauri/SQLite validou snapshots, catch-up idempotente, Hunt/Boss e restauracao integral do save.
 - Etapa 135 concluida: casts de skills agora alteram clear speed, risco, supplies e chances de Boss com efeitos deterministas e limitados.
@@ -11015,6 +11016,50 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 136.5 - QA do relatorio detalhado no Tauri/SQLite e offline catch-up.
+
+## Etapa 136.5 - QA do relatorio detalhado no Tauri/SQLite
+
+Status: concluida.
+
+Cobertura real:
+
+- O harness temporario foi executado no aplicativo Tauri real usando o Tauri SQL Plugin e o SQLite local.
+- A action snapshot da Warden persistiu separada do loadout atual e continuou sendo a fonte do relatorio apos Save/Reload.
+- A mesma entrada gerou relatorio deterministico, com dano nas skills ofensivas, cura em Renew e somatorios exatos por entrada.
+- Totais, valores por minuto e entradas permaneceram finitos e nao negativos inclusive com atributos, duracao e IDs hostis.
+- Suporte desativado manteve dano ofensivo, sem adicionar cura ou mitigacao.
+
+Offline catch-up e resolucao:
+
+- O catch-up marcou a Hunt expirada como pronta sem conceder recompensas ou alterar Guild Depot.
+- Uma segunda aplicacao do mesmo catch-up foi idempotente.
+- `readyToResolve` e o snapshot completo persistiram depois de Save/Reload.
+- Resolver a Hunt pelo caminho ativo e pelo caminho offline produziu o mesmo relatorio, XP, gold e loot.
+- A resolucao adicionou exatamente uma linha `Skill effects` e removeu a action, sem reaplicar telemetria ou recompensas.
+
+Hunt e Boss medidos:
+
+- A Warden em Hunt de 60 minutos registrou 726.673 de dano, 34.174 de cura, 12.111 dano/min e 570 cura/min.
+- A party Guardian/Warden/Arcanist agregou tres relatorios independentes em 1.244.602 de dano, 25.351 de cura e 20.732 de dano prevenido.
+- Os totais da party coincidiram exatamente com a soma dos integrantes.
+- O Boss Result manteve valores finitos e exatamente uma linha `Party skill effects`.
+
+Restauracao e validacao:
+
+- O QA passou em 16/16 checks no Tauri/SQLite.
+- O processo do app, Tauri CLI e Vite foram encerrados antes da restauracao.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup temporario, harness e desvio de bootstrap foram removidos integralmente.
+- `npm run build` passou antes do QA e com o harness temporario.
+
+Limitacoes mantidas:
+
+- O relatorio continua agregado; nao existem eventos individuais de dano, cura, critico ou alvo por cast.
+- Cura nao calcula overheal e mitigacao nao rastreia escudo restante.
+
+Proximo passo sugerido:
+
+- Etapa 137 - timeline deterministica de casts e eventos de combate.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
