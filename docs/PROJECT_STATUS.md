@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 139.5 concluida: QA elemental real no Tauri/SQLite validou snapshot, reload, Hunt ativa/offline, idempotencia, Boss party, limites hostis e restauracao integral do save.
 - Etapa 139 concluida: skills ofensivas, 12 monstros e 6 Bosses agora usam tipos de dano, resistencias e fraquezas elementais deterministicas com leitura por cast na timeline.
 - Etapa 138.5 concluida: QA real de alvos e criticos no Tauri/SQLite validou atributos recalculados, Hunt/Boss, extremos criticos, catch-up offline e restauracao integral do save.
 - Etapa 138 concluida: timeline agora atribui alvos reais e acertos criticos deterministas sem alterar o dano agregado, rewards ou persistencia.
@@ -11338,6 +11339,66 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 139.5 - QA elemental no Tauri/SQLite e offline catch-up.
+
+## Etapa 139.5 - QA elemental no Tauri/SQLite e offline catch-up
+
+Status: concluida.
+
+Persistencia e snapshot:
+
+- O harness temporario executou no aplicativo Tauri real usando o Tauri SQL Plugin e o SQLite local.
+- O snapshot da action preservou Thorn Bolt enquanto o loadout atual separado preservou Rootfall apos Save/Reload.
+- Resistencias nao foram duplicadas no JSON da action; continuam vindo do catalogo local de monstros e Bosses.
+- Metadata offline foi alterada e relida pelo registro real `primary` do SQLite.
+- O relatorio elemental permaneceu deterministico antes e depois do reload.
+- Dano, delta, percentuais, timeline, entradas e criticos permaneceram finitos e consistentes apos o mapeamento do save.
+
+Hunt e balanceamento:
+
+- A Hunt persistida em Mudrot Cave produziu 481 casts contra Cave Spider e Mud Rotter.
+- O dano base foi 127.566 e o dano ajustado 105.264, resultando em -17,48% elemental.
+- A resistencia earth reduziu a contribuicao de clear speed de 4,2% no alvo neutro para 3,47%.
+- A soma do dano das entradas permaneceu igual ao total agregado.
+- A soma de criticos das entradas permaneceu igual ao total da timeline.
+- Renew continuou apontando para Self e sem tipo de dano elemental.
+- O fallback sem perfil preservou exatamente o dano base e 0% elemental.
+
+Offline catch-up:
+
+- O catch-up marcou a action persistida como pronta sem aplicar XP, gold, loot ou mudancas no Guild Depot.
+- A segunda aplicacao nao gerou mudanca nem novo relatorio de personagem.
+- `readyToResolve` persistiu apos Save/Reload.
+- Resolucao ativa e offline produziram relatorios elementais, XP, gold, loot e supplies equivalentes.
+- O log elemental apareceu uma unica vez e a action foi removida depois da resolucao.
+- Rewards e action resolvida persistiram uma vez; novo catch-up nao conseguiu resolver novamente.
+
+Boss e entradas hostis:
+
+- Ember Matriarch aplicou aproximadamente -25% ao Meteor Sigil fire e +25% ao Frost Lance ice.
+- Dano base e ajustado da party permaneceram iguais a soma dos integrantes.
+- Todos os ataques da party mantiveram Ember Matriarch como target real do tipo Boss.
+- O Boss Result registrou exatamente um resumo elemental.
+- Resistencia infinita caiu em neutro sem NaN.
+- Fraqueza -999 foi limitada corretamente a +25% de dano.
+
+Execucao e restauracao:
+
+- A primeira execucao ficou em 30/31 porque o harness usou o ID historico incorreto `primary-save`; o schema real usa `primary`.
+- O banco original foi restaurado antes da repeticao e o harness passou em 31/31 checks.
+- App, Tauri CLI, Cargo e Vite foram encerrados antes da restauracao final.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup, logs, harness e desvio de bootstrap foram removidos integralmente.
+- Nenhuma mudanca de schema ou de gameplay foi necessaria nesta QA.
+
+Limitacoes mantidas:
+
+- Dano continua sendo telemetria agregada e nao reduz HP individual persistente dos targets.
+- Perfis elementais continuam estaticos no catalogo local.
+- Nao existem miss, dodge, accuracy, penetration ou status ailments.
+
+Proximo passo sugerido:
+
+- Etapa 140 - accuracy, miss e dodge deterministas no combate.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
