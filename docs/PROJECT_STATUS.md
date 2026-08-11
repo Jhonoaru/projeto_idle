@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 140.5 concluida: QA real no Tauri/SQLite validou accuracy, miss, dodge, Boss party, reloads, catch-up offline idempotente e restauracao integral do save.
 - Etapa 140 concluida: accuracy, miss e dodge deterministas agora resolvem cada ataque, alimentam timeline/relatorios e afetam bonus ofensivo e risco com limites seguros.
 - Etapa 139.5 concluida: QA elemental real no Tauri/SQLite validou snapshot, reload, Hunt ativa/offline, idempotencia, Boss party, limites hostis e restauracao integral do save.
 - Etapa 139 concluida: skills ofensivas, 12 monstros e 6 Bosses agora usam tipos de dano, resistencias e fraquezas elementais deterministicas com leitura por cast na timeline.
@@ -11451,6 +11452,57 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 140.5 - QA de accuracy, miss e dodge no Tauri/SQLite e offline catch-up.
+
+## Etapa 140.5 - QA de accuracy, miss e dodge no Tauri/SQLite
+
+Status: concluida.
+
+QA real no Tauri/SQLite:
+
+- Um harness temporario protegido por `VITE_QA_ACCURACY_SQLITE=1` executou no WebView Tauri e usou o Tauri SQL Plugin real.
+- O save original foi copiado antes do teste e nenhum processo do jogo estava usando o banco naquele momento.
+- A fixture foi gravada pelo repository oficial, relida pelo mapper e validada com o metadata ID canonico `primary`.
+- Accuracy e dodge foram recalculados apos reload; a personagem de QA carregou 98% accuracy e 5,01% dodge.
+- A Hunt, target e snapshot da rotacao de skills persistiram sem salvar a timeline derivada.
+- O relatorio permaneceu identico em duas simulacoes apos o reload SQLite.
+
+Accuracy, miss e dodge:
+
+- Os mesmos rolls produziram 80,52% de hit com 80 accuracy e 97,92% com 98 accuracy.
+- O cenario de 100 accuracy contra 0 evasion acertou 1.070/1.070 ataques.
+- Com crit chance de 100%, todos os hits foram criticos e nenhum outcome evitado foi marcado como critico.
+- O cenario de 25 evasion produziu 1.067 dodges e reduziu o bonus ofensivo de 8% para 6,34%.
+- Eventos amostrados de miss e dodge causaram zero dano.
+- Dano potencial, dano que acertou e dano elemental final permaneceram separados e com somas exatas.
+- Dodge em 18% aplicou o cap proprio de 6% na reducao de risco; o cap agregado de 10% permaneceu respeitado.
+- Accuracy `NaN`, dodge infinito negativo e evasion infinito produziram fallbacks finitos, sem quebrar a simulacao.
+
+Boss party:
+
+- A party de tres personagens produziu 2.753 ataques, com somas exatas entre integrantes e resumo agregado.
+- Todos os eventos ofensivos mantiveram Sewer Broodmother como target real do tipo Boss.
+- Hits, misses e dodges continuaram deterministicos entre os integrantes.
+
+Offline catch-up e idempotencia:
+
+- Uma Hunt expirada foi marcada como `readyToResolve` sem aplicar XP, gold, loot ou alteracao de inventario.
+- `offlineCompletedAt`, `readyToResolve` e `last_offline_catchup_at` persistiram no SQLite apos Save/Reload.
+- Uma segunda aplicacao do catch-up gerou zero novos relatorios.
+- Resolucao ativa e offline produziram exatamente o mesmo relatorio de combate, 4.687 XP, 761 gold e o mesmo loot.
+- A action resolvida foi removida e permaneceu ausente apos reload, impedindo uma segunda coleta.
+
+Execucao e restauracao:
+
+- O harness passou em 29/29 checks no Tauri/SQLite real.
+- A tentativa inicial de leitura externa encontrou o Python do sistema indisponivel; a consulta foi repetida com o runtime isolado do workspace e passou sem alterar o teste.
+- App, Tauri CLI, Cargo e Vite foram encerrados antes da restauracao.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup, logs, harness e desvio de bootstrap foram removidos integralmente.
+- Nenhuma correcao de gameplay, schema ou persistencia foi necessaria.
+
+Proximo passo sugerido:
+
+- Etapa 141 - armor penetration e reducao de defesa deterministas.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
