@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 141.5 concluida: QA real no Tauri/SQLite validou defense, penetration, skills perfurantes, Boss party, reload, catch-up idempotente e restauracao integral do save.
 - Etapa 141 concluida: armor, defense e penetration agora reduzem dano e clear speed deterministicamente em Hunts/Bosses, com relatorio por cast e limites seguros.
 - Etapa 140.5 concluida: QA real no Tauri/SQLite validou accuracy, miss, dodge, Boss party, reloads, catch-up offline idempotente e restauracao integral do save.
 - Etapa 140 concluida: accuracy, miss e dodge deterministas agora resolvem cada ataque, alimentam timeline/relatorios e afetam bonus ofensivo e risco com limites seguros.
@@ -11566,6 +11567,57 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 141.5 - QA de armor penetration e defesa no Tauri/SQLite e offline catch-up.
+
+## Etapa 141.5 - QA de armor penetration e defesa no Tauri/SQLite
+
+Status: concluida.
+
+Persistencia e snapshot:
+
+- Um harness temporario protegido por `VITE_QA_DEFENSE_SQLITE=1` executou no WebView Tauri com o SQL Plugin real.
+- A fixture foi persistida pelo repository oficial e relida pelo mapper usando o metadata ID canonico `primary`.
+- Penetration derivada foi recalculada em 11,8% apos reload, sem precisar de nova coluna ou campo persistido.
+- Hunt, target e snapshot da rotacao com Quickshot, Piercing Arrow, Feather Fan e Trailstep persistiram corretamente.
+- O relatorio completo de defense/penetration permaneceu deterministico apos reload.
+
+Defense e penetration:
+
+- Sewer Rat real aplicou 0,29% de mitigacao, confirmando o encaminhamento de armor/defense do catalogo da Hunt.
+- Alvo neutro preservou exatamente 475.068 de dano acertado.
+- Alvo com 100 armor e 150 defense reduziu o dano de 475.068 para 314.928, ou 33,71% de mitigacao.
+- Elevar a penetration base reduziu a mitigacao de 33,71% para 28,4% e recuperou o dano para 340.125.
+- Quickshot manteve a penetration base de 11,8%; Piercing Arrow aplicou 23,8%, exatamente 12 pontos adicionais.
+- Protection e penetration extremas permaneceram dentro dos caps e todos os resultados ficaram finitos.
+- Armor/defense infinitos ou NaN cairam em protecao neutra sem quebrar a simulacao.
+- Resistencia physical de 25% permaneceu separada da mitigacao defensiva e resultou em aproximadamente -25% elemental.
+- Os 279 ataques evitados no cenario hostil passaram por defense com zero dano, sem critico indevido.
+
+Boss party:
+
+- Tres snapshots de Boss persistiram e foram relidos com target e rotacao corretos.
+- Ember Matriarch permaneceu como target real do tipo Boss em todos os eventos ofensivos.
+- O relatorio da party somou exatamente 358.164 de dano final entre seus integrantes.
+- A party registrou 32,3% de mitigacao defensiva e 13,87% de penetration media ponderada.
+
+Offline catch-up e idempotencia:
+
+- Uma Hunt expirada foi marcada como `readyToResolve` sem aplicar XP, gold, loot ou mudanca de inventario.
+- `readyToResolve`, `offlineCompletedAt` e `last_offline_catchup_at` persistiram apos Save/Reload.
+- A segunda aplicacao do catch-up gerou zero novos relatorios.
+- Resolucao ativa e offline produziram o mesmo relatorio defensivo, 4.687 XP, 761 gold e loot identico.
+- A action resolvida permaneceu removida apos reload, bloqueando uma segunda coleta.
+
+Execucao e restauracao:
+
+- O harness passou em 35/35 checks no Tauri/SQLite real.
+- App, Tauri CLI, Cargo e Vite foram encerrados antes da restauracao.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup, logs, harness e desvio de bootstrap foram removidos integralmente.
+- Nenhuma correcao de gameplay, schema ou persistencia foi necessaria.
+
+Proximo passo sugerido:
+
+- Etapa 142 - block chance e mitigacao defensiva do heroi.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
