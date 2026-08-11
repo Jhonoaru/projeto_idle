@@ -1115,6 +1115,36 @@ export interface CombatSkillRotationSummary {
   cooldownRemainingMs: Record<string, number>;
 }
 
+export interface CombatSkillEffectEntry {
+  skillId: string;
+  skillName: string;
+  casts: number;
+  attackImpact: number;
+  survivalImpact: number;
+  supplyImpact: number;
+}
+
+export interface CombatSkillEffectSummary {
+  totalCasts: number;
+  manaSpent: number;
+  attackBonusPercent: number;
+  deathRiskReductionPercent: number;
+  supplyReductionPercent: number;
+  entries: CombatSkillEffectEntry[];
+}
+
+export interface CombatSkillPartyEffectSummary {
+  attackBonusPercent: number;
+  deathRiskReductionPercent: number;
+  totalCasts: number;
+  manaSpent: number;
+  members: Array<{
+    characterId: string;
+    characterName: string;
+    effects: CombatSkillEffectSummary;
+  }>;
+}
+
 export interface CharacterAction {
   type: CharacterStatus;
   label: string;
@@ -1496,6 +1526,7 @@ export interface BossSimulationResult {
   loot: BossLootResult[];
   renownGained: number;
   cooldownsApplied: BossCooldown[];
+  combatSkillEffects?: CombatSkillPartyEffectSummary;
   logs: string[];
 }
 
@@ -1580,6 +1611,7 @@ export interface HuntSimulationInput {
   hunt: HuntArea;
   durationMinutes: number;
   deathRiskMultiplier?: number;
+  combatSkillAttackBonusPercent?: number;
 }
 
 export interface HuntLootResult {
@@ -1614,6 +1646,7 @@ export interface HuntSimulationResult {
   deathPenalty?: DeathPenalty;
   charmBonusesApplied?: string[];
   monsterFocusBonusesApplied?: string[];
+  combatSkillEffects?: CombatSkillEffectSummary;
   bestiaryLogs?: string[];
   deathReason?: string;
   logs: string[];

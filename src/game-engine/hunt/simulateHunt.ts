@@ -16,6 +16,7 @@ export function simulateHunt({
   hunt,
   durationMinutes,
   deathRiskMultiplier = 1,
+  combatSkillAttackBonusPercent = 0,
 }: HuntSimulationInput): HuntSimulationResult {
   const seed = `${character.id}-${hunt.id}-${durationMinutes}-${character.experience}`;
   const random = createSeededRandom(seed);
@@ -26,6 +27,7 @@ export function simulateHunt({
     : durationMinutes;
   const durationFactor = effectiveDuration / 60;
   const power = calculateHuntPower(character);
+  const combatClearSpeedMultiplier = 1 + Math.min(8, Math.max(0, combatSkillAttackBonusPercent)) / 100;
   const levelRatio = character.level / Math.max(1, hunt.recommendedLevel);
   const overLevelXpPenalty = levelRatio > 1.25 ? Math.max(0.62, 1 - (levelRatio - 1.25) * 0.18) : 1;
   const underLevelEfficiency = levelRatio < 1 ? Math.max(0.45, levelRatio) : 1;
@@ -34,7 +36,7 @@ export function simulateHunt({
     Math.round(
       durationFactor *
         58 *
-        power.clearSpeed *
+        power.clearSpeed * combatClearSpeedMultiplier *
         underLevelEfficiency *
         (died ? 0.75 : 1),
     ),

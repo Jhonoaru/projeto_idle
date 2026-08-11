@@ -13,6 +13,10 @@ export function calculateBossRisk(
   characters: Character[],
   party: BossParty,
   boss: Boss,
+  combatSkillBonuses?: {
+    attackBonusPercent: number;
+    deathRiskReductionPercent: number;
+  },
 ) {
   const power = calculateBossPower(characters, party, boss);
   const baseline = baseRisk[boss.risk];
@@ -49,6 +53,11 @@ export function calculateBossRisk(
     deathChance += 0.04;
     warnings.push("Healer reduces risk in the Novice Arena Champion fight.");
   }
+
+  const attackBonusPercent = clamp(combatSkillBonuses?.attackBonusPercent ?? 0, 0, 8);
+  const deathRiskReductionPercent = clamp(combatSkillBonuses?.deathRiskReductionPercent ?? 0, 0, 10);
+  successChance *= 1 + attackBonusPercent / 100;
+  deathChance *= 1 - deathRiskReductionPercent / 100;
 
   return {
     deathChance: clamp(deathChance, 0.01, 0.85),

@@ -52,6 +52,16 @@ export function BossResultPanel({ result, characters }: BossResultPanelProps) {
         <p>{deadNames.length > 0 ? deadNames.join(", ") : "No deaths."}</p>
       </div>
 
+      {result.combatSkillEffects ? (
+        <div className="result-section">
+          <h3>Party Skill Effects</h3>
+          <p>
+            +{result.combatSkillEffects.attackBonusPercent}% success power / -{result.combatSkillEffects.deathRiskReductionPercent}% death risk
+          </p>
+          <p>{result.combatSkillEffects.totalCasts} casts / {result.combatSkillEffects.manaSpent} mana</p>
+        </div>
+      ) : null}
+
       <div className="result-section">
         <h3>Loot sent to Guild Depot</h3>
         {result.loot.length > 0 ? (

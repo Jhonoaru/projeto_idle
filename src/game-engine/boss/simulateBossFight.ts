@@ -2,6 +2,7 @@ import { getItemById } from "../../data/items";
 import { createSeededRandom } from "../hunt/random";
 import { applyBossCooldown } from "./applyBossCooldown";
 import { calculateBossRisk } from "./calculateBossRisk";
+import { calculatePartyCombatSkillEffects } from "../combat-skills/calculateCombatSkillEffects";
 import type {
   Boss,
   BossLootResult,
@@ -20,7 +21,11 @@ export function simulateBossFight(
     .filter((character): character is Character => Boolean(character));
   const seed = `${boss.id}-${participants.map((character) => character.id).join("-")}-${Date.now()}`;
   const random = createSeededRandom(seed);
-  const risk = calculateBossRisk(characters, party, boss);
+  const combatSkillEffects = calculatePartyCombatSkillEffects(
+    participants,
+    boss.durationMinutes * 60_000,
+  );
+  const risk = calculateBossRisk(characters, party, boss, combatSkillEffects);
   const defeated = random() <= risk.successChance;
   const diedCharacterIds = participants
     .filter(() => random() <= risk.deathChance)
@@ -47,6 +52,7 @@ export function simulateBossFight(
       return `${character?.name ?? "A party member"} morreu durante ${boss.name}.`;
     }),
     ...risk.warnings,
+    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk.`,
     `Boss loot enviado para o Guild Depot.`,
     ...participants.map(
       (character) => `${character.name} recebeu cooldown de ${boss.cooldownHours}h em ${boss.name}.`,
@@ -65,6 +71,7 @@ export function simulateBossFight(
     loot,
     renownGained,
     cooldownsApplied,
+    combatSkillEffects,
     logs,
   };
 }

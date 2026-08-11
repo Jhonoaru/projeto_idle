@@ -1,6 +1,7 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { formatCombatSkillRotationLog } from "../game-engine/combat-skills/simulateCombatSkillRotation";
+import { calculateCombatSkillEffects, formatCombatSkillEffectLog } from "../game-engine/combat-skills/calculateCombatSkillEffects";
 import { calculateCharmBonusesForHunt } from "../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { calculateDestinyBonuses } from "../game-engine/destiny/calculateDestinyBonuses";
 import { calculateActiveImbuementBonuses } from "../game-engine/forge/calculateActiveImbuementBonuses";
@@ -115,11 +116,19 @@ export function finishHunt(
   const proficiencyBonuses = calculateWeaponProficiencyBonuses(character);
   const destinyBonuses = calculateDestinyBonuses(character);
   const focusRiskBonuses = calculateMonsterFocusBonuses(character, hunt);
+  const combatSkillEffects = calculateCombatSkillEffects(
+    character,
+    character.currentAction,
+    durationMinutes * 60_000,
+  );
   const baseResult = simulateHunt({
     character,
     hunt,
     durationMinutes,
-    deathRiskMultiplier: charmBonuses.deathRiskMultiplier * focusRiskBonuses.deathRiskMultiplier,
+    deathRiskMultiplier: charmBonuses.deathRiskMultiplier
+      * focusRiskBonuses.deathRiskMultiplier
+      * (1 - combatSkillEffects.deathRiskReductionPercent / 100),
+    combatSkillAttackBonusPercent: combatSkillEffects.attackBonusPercent,
   });
   const result = applyCharmBonusesToResult(baseResult, charmBonuses);
   const focusBonuses = calculateMonsterFocusBonuses(character, hunt, result);
@@ -140,8 +149,8 @@ export function finishHunt(
   result.totalLootValue = Math.round(result.totalLootValue * (1 + (destinyBonuses.lootBonusPercent ?? 0) / 100) * focusBonuses.lootMultiplier);
   const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
     ...usage,
-    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0))),
-    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0))),
+    quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0, combatSkillEffects.supplyReductionPercent))),
+    valueUsed: Math.max(0, Math.ceil(usage.valueUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0, combatSkillEffects.supplyReductionPercent))),
   }));
   const supplyConsumption = consumeSupplies(character, expectedUsage);
   const supplyValueUsed = supplyConsumption.suppliesUsed.reduce(
@@ -228,6 +237,7 @@ export function finishHunt(
     deathPenalty: characterAfterDeath.deathState?.penalty,
     charmBonusesApplied: charmBonuses.logs,
     monsterFocusBonusesApplied: focusBonuses.logs,
+    combatSkillEffects,
     logs: [
       ...result.logs,
       ...charmBonuses.logs,
@@ -244,6 +254,7 @@ export function finishHunt(
         : []),
       ...focusBonuses.logs,
       formatCombatSkillRotationLog(character, character.currentAction, result.durationMinutes * 60_000),
+      formatCombatSkillEffectLog(combatSkillEffects),
       ...supplyConsumption.logs,
       ...deathLogs,
       `Hunt finalizada. Ouro liquido apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold. Loot fica no inventario para venda.`,
@@ -271,11 +282,12 @@ function getSupplyMultiplier(
   supplyType: string,
   imbuementReductionPercent: number,
   destinyReductionPercent: number,
+  combatSkillReductionPercent: number,
 ) {
   const proficiencyReductionPercent = getSupplyReductionForUsage(character, supplyType);
   const totalReductionPercent = Math.min(
     75,
-    Math.max(0, imbuementReductionPercent + proficiencyReductionPercent + destinyReductionPercent),
+    Math.max(0, imbuementReductionPercent + proficiencyReductionPercent + destinyReductionPercent + combatSkillReductionPercent),
   );
 
   return Math.max(0, 1 - totalReductionPercent / 100);

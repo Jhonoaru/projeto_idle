@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 135 concluida: casts de skills agora alteram clear speed, risco, supplies e chances de Boss com efeitos deterministas e limitados.
 - Etapa 134.5 concluida: QA real da rotacao de skills no Tauri/SQLite, com migration, Save/Reload, snapshots, normalizacao hostil e equivalencia offline validados.
 - Etapa 134 concluida: rotacao offline real por personagem, com ordem configuravel, suporte opcional, mana, cooldowns, snapshot de acao e persistencia SQLite.
 - Etapa 133.5 concluida: QA do catalogo visual de skills e hotbar nas cinco vocacoes, limites de level, modais, Boss party, estados concluidos e quatro larguras responsivas.
@@ -10859,6 +10860,59 @@ Validacao final:
 Proximo passo sugerido:
 
 - Etapa 135 - efeitos reais das skills na simulacao offline de combate.
+
+## Etapa 135 - Efeitos reais das skills no combate offline
+
+Status: concluida.
+
+Modelo:
+
+- As 30 skills receberam impactos explicitos de ataque, sobrevivencia e/ou economia de supplies conforme sua funcao e vocacao.
+- O novo calculador transforma os casts reais da Etapa 134 em bonus percentuais deterministas.
+- Ataque possui teto de 8%, reducao de risco possui teto de 10% e reducao de supplies possui teto de 8%.
+- Mana, cooldown global, cooldown individual, ordem e suporte continuam determinando quantas vezes cada efeito entra na simulacao.
+- IDs invalidos e duracoes malformadas passam pela normalizacao existente e sempre produzem valores finitos.
+
+Hunts:
+
+- Impacto ofensivo aumenta o `clearSpeed`, produzindo mais abates e, por consequencia, XP, gold e rolls de loot de forma organica.
+- Skills defensivas reduzem o multiplicador de risco antes do roll de morte.
+- Cura, recuperacao e eficiencia reduzem o consumo calculado de supplies.
+- O Hunt Result mostra clear speed, risco, supplies, casts e mana processada.
+- O relatorio guarda o resumo aplicado e adiciona uma unica linha de efeitos ao Activity Log.
+
+Bosses:
+
+- Cada integrante usa o snapshot de loadout salvo ao iniciar a raid.
+- O bonus ofensivo medio da party aumenta a chance de sucesso de forma relativa.
+- O bonus medio de sobrevivencia reduz o risco de morte da party.
+- O Boss Result mostra o resumo agregado, casts, mana e detalhes por integrante no objeto de resultado.
+
+Offline e persistencia:
+
+- Os efeitos sao calculados apenas na resolucao da Hunt ou Boss; o catch-up continua somente marcando a acao como pronta.
+- A configuracao da acao vem do snapshot persistido, impedindo alteracao retroativa e aplicacao duplicada.
+- Nenhuma migration foi necessaria: pesos de efeito pertencem ao catalogo e resumos de resultado sao transitorios.
+
+Validacao:
+
+- `npm run build` passou com 465 modulos.
+- Smoke real no Vite abriu Explore, iniciou uma Hunt e confirmou hotbar com casts/mana crescentes.
+- Fixture temporaria validou repetibilidade byte a byte do resumo, dados hostis finitos e todos os tetos.
+- Guardian basico em 60 segundos produziu 11 casts e +3,85% de clear speed.
+- Warden com Renew produziu bonus ofensivo limitado a 8%, -5,4% de risco e -7% de supplies.
+- Integracoes de Hunt e Boss retornaram resumo e logs de efeito; a party de duas vocacoes preservou os dois membros.
+- A fixture temporaria foi removida e nenhum save SQLite foi alterado pelo QA no browser.
+
+Limitacoes atuais:
+
+- Skills ainda nao possuem dano por alvo, cura de HP numerica ou efeitos de status individuais na cena.
+- Efeitos de suporte em Boss sao agregados para a party; nao existe aura por alcance ou alvo selecionado.
+- O QA real de persistencia/catch-up no Tauri fica reservado para a etapa de estabilizacao.
+
+Proximo passo sugerido:
+
+- Etapa 135.5 - QA dos efeitos reais das skills no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

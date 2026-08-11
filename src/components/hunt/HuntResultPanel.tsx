@@ -173,6 +173,18 @@ export function HuntResultPanel({
           </div>
         ) : null}
 
+        {result.combatSkillEffects ? (
+          <div className="result-section">
+            <h3>Combat Skill Effects</h3>
+            <ul>
+              <li>Clear speed: +{result.combatSkillEffects.attackBonusPercent}%</li>
+              <li>Death risk: -{result.combatSkillEffects.deathRiskReductionPercent}%</li>
+              <li>Supplies: -{result.combatSkillEffects.supplyReductionPercent}%</li>
+              <li>{result.combatSkillEffects.totalCasts} casts / {result.combatSkillEffects.manaSpent} mana</li>
+            </ul>
+          </div>
+        ) : null}
+
         <div className="result-section">
           <h3>Skill Progress</h3>
           <ul>
