@@ -25,7 +25,7 @@ export function simulateBossFight(
     participants,
     boss.durationMinutes * 60_000,
     {
-      attackTargets: [{ id: boss.id, name: boss.name, kind: "boss", resistances: boss.resistances, evasionPercent: boss.evasionPercent, armor: boss.armor, defense: boss.defense }],
+      attackTargets: [{ id: boss.id, name: boss.name, kind: "boss", resistances: boss.resistances, evasionPercent: boss.evasionPercent, armor: boss.armor, defense: boss.defense, level: boss.requirements.requiredLevel, minDamage: boss.minDamage, maxDamage: boss.maxDamage }],
       supportTargets: participants.map((character) => ({
         id: character.id,
         name: character.name,
@@ -60,7 +60,7 @@ export function simulateBossFight(
       return `${character?.name ?? "A party member"} morreu durante ${boss.name}.`;
     }),
     ...risk.warnings,
-    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage (-${combatSkillEffects.defenseMitigationPercent}% defense, ${combatSkillEffects.armorPenetrationPercent}% penetration, ${combatSkillEffects.elementalModifierPercent > 0 ? "+" : ""}${combatSkillEffects.elementalModifierPercent}% elemental), ${combatSkillEffects.totalHits.toLocaleString("en-US")}/${combatSkillEffects.totalAttacks.toLocaleString("en-US")} hits, ${combatSkillEffects.totalMisses.toLocaleString("en-US")} misses, ${combatSkillEffects.totalDodges.toLocaleString("en-US")} dodged, ${combatSkillEffects.totalCriticalHits.toLocaleString("en-US")} critical hits.`,
+    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage (-${combatSkillEffects.defenseMitigationPercent}% defense, ${combatSkillEffects.armorPenetrationPercent}% penetration, ${combatSkillEffects.elementalModifierPercent > 0 ? "+" : ""}${combatSkillEffects.elementalModifierPercent}% elemental), ${combatSkillEffects.totalHits.toLocaleString("en-US")}/${combatSkillEffects.totalAttacks.toLocaleString("en-US")} hits, ${combatSkillEffects.totalMisses.toLocaleString("en-US")} misses, ${combatSkillEffects.totalDodges.toLocaleString("en-US")} dodged, ${combatSkillEffects.totalCriticalHits.toLocaleString("en-US")} critical hits. Defense report: ${combatSkillEffects.blockedAttacks.toLocaleString("en-US")}/${combatSkillEffects.incomingAttacks.toLocaleString("en-US")} blocks, ${combatSkillEffects.blockedDamage.toLocaleString("en-US")} damage blocked (${combatSkillEffects.blockDamageReductionPercent}% reduction).`,
     `Boss loot enviado para o Guild Depot.`,
     ...participants.map(
       (character) => `${character.name} recebeu cooldown de ${boss.cooldownHours}h em ${boss.name}.`,

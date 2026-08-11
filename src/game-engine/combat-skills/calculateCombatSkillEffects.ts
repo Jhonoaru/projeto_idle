@@ -22,6 +22,7 @@ export function calculateCombatSkillEffects(
 ): CombatSkillEffectSummary {
   const durationMinutes = normalizeDurationMinutes(elapsedMs);
   const rotation = simulateCombatSkillRotation(character, action, elapsedMs);
+  const defenseProfile = calculateDefenseProfile(character, durationMinutes, options);
   const combatBase = getCombatContributionBase(character);
   const entries = rotation.casts.flatMap((cast) => {
     const definition = combatSkills.find((skill) => skill.id === cast.skillId);
@@ -134,9 +135,10 @@ export function calculateCombatSkillEffects(
     totalCasts: rotation.totalCasts,
     manaSpent: rotation.manaSpent,
     attackBonusPercent: boundedPercent(total.attack * avoidanceEffectiveness(contribution.baseDamage, contribution.landedBaseDamage) * defenseEffectiveness(contribution.landedBaseDamage, contribution.damageAfterDefense) * elementalEffectiveness(contribution.damageAfterDefense, contribution.damage) * 0.35 / durationMinutes, MAX_ATTACK_BONUS_PERCENT),
-    deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes + dodgeRiskReductionPercent, MAX_DEATH_RISK_REDUCTION_PERCENT),
+    deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes + dodgeRiskReductionPercent + defenseProfile.blockRiskReductionPercent, MAX_DEATH_RISK_REDUCTION_PERCENT),
     supplyReductionPercent: boundedPercent(total.supply * 0.7 / durationMinutes, MAX_SUPPLY_REDUCTION_PERCENT),
     dodgeRiskReductionPercent,
+    ...defenseProfile,
     totalAttacks,
     totalHits: contribution.hits,
     totalMisses: contribution.misses,
@@ -196,11 +198,25 @@ export function calculatePartyCombatSkillEffects(
   const landedBaseDamage = members.reduce((sum, member) => sum + member.effects.landedBaseDamage, 0);
   const damageAfterDefense = members.reduce((sum, member) => sum + member.effects.damageAfterDefense, 0);
   const totalDamage = members.reduce((sum, member) => sum + member.effects.totalDamage, 0);
+  const incomingAttacks = members.reduce((sum, member) => sum + member.effects.incomingAttacks, 0);
+  const blockedAttacks = members.reduce((sum, member) => sum + member.effects.blockedAttacks, 0);
+  const incomingDamage = members.reduce((sum, member) => sum + member.effects.incomingDamage, 0);
+  const blockedDamage = members.reduce((sum, member) => sum + member.effects.blockedDamage, 0);
 
   return {
     attackBonusPercent: rounded(members.reduce((sum, member) => sum + member.effects.attackBonusPercent, 0) / divisor),
     deathRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.deathRiskReductionPercent, 0) / divisor),
     dodgeRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.dodgeRiskReductionPercent, 0) / divisor),
+    blockRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.blockRiskReductionPercent, 0) / divisor),
+    blockChancePercent: weightedMemberMetric(members, "blockChancePercent", "incomingAttacks"),
+    blockMitigationPercent: weightedMemberMetric(members, "blockMitigationPercent", "blockedAttacks"),
+    incomingAttacks,
+    blockedAttacks,
+    blockRatePercent: ratePercent(blockedAttacks, incomingAttacks),
+    incomingDamage,
+    blockedDamage,
+    damageTakenAfterBlock: incomingDamage - blockedDamage,
+    blockDamageReductionPercent: reductionPercent(incomingDamage, incomingDamage - blockedDamage),
     totalCasts: members.reduce((sum, member) => sum + member.effects.totalCasts, 0),
     manaSpent: members.reduce((sum, member) => sum + member.effects.manaSpent, 0),
     totalAttacks,
@@ -226,7 +242,7 @@ export function calculatePartyCombatSkillEffects(
 }
 
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
-  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (-${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.`;
+  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (-${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits. Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).`;
 }
 
 function calculateAttackResolution(
@@ -382,6 +398,67 @@ function deterministicPercent(value: string) {
   return stableHash(value) % 10_000 / 100;
 }
 
+function calculateDefenseProfile(
+  character: Character,
+  durationMinutes: number,
+  options: CombatSkillEffectOptions,
+) {
+  const targets = normalizeTargets(options.attackTargets);
+  const blockChancePercent = boundedValue(character.attributes?.blockChancePercent, 0, 35, 0);
+  const blockMitigationPercent = boundedValue(character.attributes?.blockMitigationPercent, 20, 55, 20);
+  if (targets.length === 0) {
+    return {
+      blockRiskReductionPercent: 0,
+      blockChancePercent,
+      blockMitigationPercent,
+      incomingAttacks: 0,
+      blockedAttacks: 0,
+      blockRatePercent: 0,
+      incomingDamage: 0,
+      blockedDamage: 0,
+      damageTakenAfterBlock: 0,
+      blockDamageReductionPercent: 0,
+    };
+  }
+
+  const averageLevel = targets.reduce(
+    (sum, target) => sum + boundedValue(target.level, 1, 500, 1),
+    0,
+  ) / targets.length;
+  const attacksPerMinute = Math.min(15, Math.max(6, 8 + averageLevel * 0.03));
+  const incomingAttacks = Math.min(20_000, Math.max(1, Math.round(durationMinutes * attacksPerMinute)));
+  let blockedAttacks = 0;
+  let incomingDamage = 0;
+  let blockedDamage = 0;
+
+  for (let attackIndex = 1; attackIndex <= incomingAttacks; attackIndex += 1) {
+    const target = targets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % targets.length];
+    const targetLevel = boundedValue(target.level, 1, 500, 1);
+    const minDamage = boundedValue(target.minDamage, 0, 1_000_000, targetLevel * 2);
+    const maxDamage = Math.max(minDamage, boundedValue(target.maxDamage, 0, 1_000_000, targetLevel * 4));
+    const rawDamage = Math.round(minDamage + (maxDamage - minDamage) * deterministicPercent(`${character.id}:${target.id}:${attackIndex}:incoming-damage`) / 100);
+    incomingDamage += rawDamage;
+    if (deterministicPercent(`${character.id}:${target.id}:${attackIndex}:block`) >= blockChancePercent) continue;
+    blockedAttacks += 1;
+    blockedDamage += Math.round(rawDamage * blockMitigationPercent / 100);
+  }
+
+  const damageTakenAfterBlock = incomingDamage - blockedDamage;
+  const blockDamageReductionPercent = reductionPercent(incomingDamage, damageTakenAfterBlock);
+  return {
+    blockRiskReductionPercent: boundedPercent(blockDamageReductionPercent * 0.5, 5),
+    blockChancePercent: rounded(blockChancePercent),
+    blockMitigationPercent: rounded(blockMitigationPercent),
+    incomingAttacks,
+    blockedAttacks,
+    blockRatePercent: ratePercent(blockedAttacks, incomingAttacks),
+    incomingDamage,
+    blockedDamage,
+    damageTakenAfterBlock,
+    blockDamageReductionPercent,
+  };
+}
+
 function getArmorPenetrationPercent(character: Character, skillBonus: number) {
   const base = boundedValue(character.attributes?.armorPenetrationPercent, 0, 25, 0);
   const bonus = boundedValue(skillBonus, 0, 20, 0);
@@ -458,6 +535,21 @@ function weightedPartyPenetration(members: CombatSkillPartyEffectSummary["member
   if (totalWeight <= 0) return 0;
   return rounded(members.reduce(
     (sum, member) => sum + member.effects.armorPenetrationPercent * member.effects.landedBaseDamage,
+    0,
+  ) / totalWeight);
+}
+
+function weightedMemberMetric(
+  members: CombatSkillPartyEffectSummary["members"],
+  valueKey: "blockChancePercent" | "blockMitigationPercent",
+  weightKey: "incomingAttacks" | "blockedAttacks",
+) {
+  const totalWeight = members.reduce((sum, member) => sum + member.effects[weightKey], 0);
+  if (totalWeight <= 0) {
+    return rounded(members.reduce((sum, member) => sum + member.effects[valueKey], 0) / Math.max(1, members.length));
+  }
+  return rounded(members.reduce(
+    (sum, member) => sum + member.effects[valueKey] * member.effects[weightKey],
     0,
   ) / totalWeight);
 }

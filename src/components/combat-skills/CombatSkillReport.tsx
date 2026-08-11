@@ -11,7 +11,7 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
       <div className="combat-skill-report-summary">
         <ReportMetric label="Damage" value={effects.totalDamage} detail={`${effects.damagePerMinute.toLocaleString("en-US")}/min / ${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
         <ReportMetric label="Healing" value={effects.totalHealing} detail={`${effects.healingPerMinute.toLocaleString("en-US")}/min`} />
-        <ReportMetric label="Prevented" value={effects.totalDamagePrevented} />
+        <ReportMetric label="Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
       </div>
 
@@ -79,7 +79,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
       <div className="combat-skill-report-summary">
         <ReportMetric label="Party Damage" value={effects.totalDamage} detail={`${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${effects.armorPenetrationPercent}% penetration / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
         <ReportMetric label="Party Healing" value={effects.totalHealing} />
-        <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented} />
+        <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.blockRatePercent}% block rate`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
       </div>
       {effects.members.map((member) => (

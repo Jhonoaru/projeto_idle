@@ -1094,6 +1094,8 @@ export interface CharacterAttributes {
   accuracyPercent?: number;
   dodgePercent?: number;
   armorPenetrationPercent?: number;
+  blockChancePercent?: number;
+  blockMitigationPercent?: number;
 }
 
 export interface CombatSkillLoadout {
@@ -1164,6 +1166,16 @@ export interface CombatSkillEffectSummary {
   deathRiskReductionPercent: number;
   supplyReductionPercent: number;
   dodgeRiskReductionPercent: number;
+  blockRiskReductionPercent: number;
+  blockChancePercent: number;
+  blockMitigationPercent: number;
+  incomingAttacks: number;
+  blockedAttacks: number;
+  blockRatePercent: number;
+  incomingDamage: number;
+  blockedDamage: number;
+  damageTakenAfterBlock: number;
+  blockDamageReductionPercent: number;
   totalAttacks: number;
   totalHits: number;
   totalMisses: number;
@@ -1239,6 +1251,9 @@ export interface CombatSkillTarget {
   evasionPercent?: number;
   armor?: number;
   defense?: number;
+  level?: number;
+  minDamage?: number;
+  maxDamage?: number;
 }
 
 export interface CombatSkillEffectOptions {
@@ -1250,6 +1265,16 @@ export interface CombatSkillPartyEffectSummary {
   attackBonusPercent: number;
   deathRiskReductionPercent: number;
   dodgeRiskReductionPercent: number;
+  blockRiskReductionPercent: number;
+  blockChancePercent: number;
+  blockMitigationPercent: number;
+  incomingAttacks: number;
+  blockedAttacks: number;
+  blockRatePercent: number;
+  incomingDamage: number;
+  blockedDamage: number;
+  damageTakenAfterBlock: number;
+  blockDamageReductionPercent: number;
   totalCasts: number;
   manaSpent: number;
   totalAttacks: number;
@@ -1617,6 +1642,8 @@ export interface Boss {
   evasionPercent?: number;
   armor?: number;
   defense?: number;
+  minDamage?: number;
+  maxDamage?: number;
   requirements: BossRequirement;
   reward: BossReward;
   tags: string[];

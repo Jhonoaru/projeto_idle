@@ -198,6 +198,8 @@ export function CharacterDetails({
             <Stat label="Accuracy" value={`${character.attributes.accuracyPercent ?? 0}%`} />
             <Stat label="Dodge" value={`${character.attributes.dodgePercent ?? 0}%`} />
             <Stat label="Penetration" value={`${character.attributes.armorPenetrationPercent ?? 0}%`} />
+            <Stat label="Block Chance" value={`${character.attributes.blockChancePercent ?? 0}%`} />
+            <Stat label="Block Power" value={`${character.attributes.blockMitigationPercent ?? 0}%`} />
           </div>
           <div className="character-hall-capacity">
             <span>Capacity used</span>

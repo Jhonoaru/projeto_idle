@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 142 concluida: block chance e block power derivados agora simulam ataques recebidos, dano bloqueado e reducao limitada de risco em Hunts/Bosses.
 - Etapa 141.5 concluida: QA real no Tauri/SQLite validou defense, penetration, skills perfurantes, Boss party, reload, catch-up idempotente e restauracao integral do save.
 - Etapa 141 concluida: armor, defense e penetration agora reduzem dano e clear speed deterministicamente em Hunts/Bosses, com relatorio por cast e limites seguros.
 - Etapa 140.5 concluida: QA real no Tauri/SQLite validou accuracy, miss, dodge, Boss party, reloads, catch-up offline idempotente e restauracao integral do save.
@@ -11618,6 +11619,68 @@ Execucao e restauracao:
 Proximo passo sugerido:
 
 - Etapa 142 - block chance e mitigacao defensiva do heroi.
+
+## Etapa 142 - Block chance e mitigacao defensiva do heroi
+
+Status: concluida.
+
+Atributos defensivos:
+
+- Personagens agora possuem `blockChancePercent` e `blockMitigationPercent` derivados.
+- Block chance usa shielding, level, vocacao e bonus claro para shield equipado.
+- Block power usa shielding, armor, vocacao e shield equipado.
+- Chance fica limitada entre 0% e 35%; block power fica limitado entre 20% e 55%.
+- Personagens sem shield mantem uma chance pequena de aparar, enquanto Guardians/shields ocupam o perfil defensivo principal.
+- Os atributos sao recalculados pelo mapper e nao exigem migration ou novos campos persistidos.
+
+Ataques recebidos:
+
+- O relatorio gera uma sequencia deterministica e limitada de ataques inimigos durante a duracao da atividade.
+- Cada ataque usa target real, level e faixa `minDamage`/`maxDamage` do catalogo local.
+- Os 12 monstros ja forneciam essas faixas; os seis Bosses receberam perfis ofensivos proprios.
+- O roll de block usa personagem, target e indice do ataque, permanecendo estavel entre simulacoes equivalentes.
+- Block reduz somente a parcela definida por block power; dano bloqueado nunca ultrapassa dano recebido.
+- Targets ausentes geram telemetria defensiva neutra; valores invalidos recebem fallback finito.
+
+Gameplay e agregados:
+
+- O resumo registra ataques recebidos, blocks, block rate, dano recebido, dano bloqueado e dano restante.
+- A reducao efetiva de dano por block gera ate 5% de contribuicao propria na reducao de risco.
+- Dodge, suporte e block continuam compartilhando o cap defensivo agregado anterior de 10%.
+- Block nao altera casts, hits, dano causado, loot, XP ou gold diretamente.
+- Party report soma ataques e dano exatos e calcula chance/power ponderados entre integrantes.
+- Hunts e Bosses usam os mesmos perfis defensivos deterministas.
+
+Interface e logs:
+
+- Character Details mostra Block Chance e Block Power no Combat Overview.
+- A metrica `Prevented` combina mitigacao de skills e dano bloqueado, mantendo o detalhamento separado.
+- O relatorio mostra blocks realizados/recebidos e o total de dano bloqueado.
+- Logs de Hunt e Boss incluem um unico `Defense report`, evitando spam por ataque recebido.
+
+Validacao:
+
+- Fixture temporaria passou em 28/28 checks de atributos, shield, caps, determinismo, dano, risco, entradas hostis, Hunts, Boss party e logs.
+- Shield aumentou chance e power em relacao ao mesmo personagem sem offhand.
+- Chance 0 produziu zero blocks; chance 35 produziu mais blocks sobre a mesma sequencia.
+- Alterar somente block power preservou exatamente os rolls de block e mudou apenas o dano evitado.
+- Block reduziu risco sem alterar o fingerprint ofensivo do relatorio.
+- A fixture real exibiu 74 blocks em 570 ataques e 4.714 de dano bloqueado para o Guardian com shield.
+- Ember Matriarch party somou 37.288 de dano bloqueado e 11,34% de block rate.
+- QA visual passou em 1280x900 e viewport mobile efetivo de 375x844 sem overflow de pagina, cards ou timeline.
+- Console do navegador permaneceu sem erros.
+- Fixture, servidor e logs temporarios foram removidos apos o QA.
+
+Limitacoes mantidas:
+
+- Ataques recebidos sao telemetria agregada da simulacao idle e nao eventos persistidos com HP por criatura/personagem.
+- Nao existem perfect block, parry counter, block cooldown ou quebra de shield.
+- Block power ainda nao recebe bonus exclusivo de tiers, imbuements ou perks novos de Weapon Proficiency.
+- O QA desta etapa usou engine e interface web; reload SQLite e catch-up ficam para a etapa dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 142.5 - QA de block e mitigacao defensiva no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

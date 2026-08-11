@@ -3,6 +3,7 @@ import { calculateDestinyBonuses } from "../destiny/calculateDestinyBonuses";
 import { calculateEquipmentBonuses } from "../equipment/calculateEquipmentBonuses";
 import { calculateEquipmentSetBonuses } from "../equipment/calculateEquipmentSetBonuses";
 import { calculateWeaponProficiencyBonuses } from "../weapon-proficiency/calculateWeaponProficiencyBonuses";
+import { getEquippedWeaponProficiencyType } from "../weapon-proficiency/getEquippedWeaponProficiencyType";
 import { getMainSkill } from "./getMainSkill";
 import type { Character, CharacterAttributes, EquippedItems } from "../../shared/types";
 
@@ -107,6 +108,21 @@ export function calculateCharacterAttributes(
     Warden: 6,
     Monk: 4,
   }[character.vocation];
+  const blockChanceVocationBonus = {
+    Guardian: 4,
+    Ranger: 1,
+    Arcanist: 0,
+    Warden: 2,
+    Monk: 3,
+  }[character.vocation];
+  const blockMitigationVocationBonus = {
+    Guardian: 5,
+    Ranger: 1,
+    Arcanist: 0,
+    Warden: 2,
+    Monk: 4,
+  }[character.vocation];
+  const hasShield = getEquippedWeaponProficiencyType(character.equipment?.offhand) === "shield";
   const accuracyPercent = rounded(clamp(
     88 + character.level * 0.04 + mainSkill.level * 0.08 + Math.max(0, speed - 210) * 0.015 + accuracyVocationBonus,
     80,
@@ -122,6 +138,16 @@ export function calculateCharacterAttributes(
     0,
     25,
   ));
+  const blockChancePercent = rounded(clamp(
+    2 + shielding * 0.12 + character.level * 0.02 + blockChanceVocationBonus + (hasShield ? 8 : 0),
+    0,
+    35,
+  ));
+  const blockMitigationPercent = rounded(clamp(
+    20 + shielding * 0.25 + armor * 0.6 + blockMitigationVocationBonus + (hasShield ? 8 : 0),
+    20,
+    55,
+  ));
 
   return {
     maxHealth,
@@ -136,6 +162,8 @@ export function calculateCharacterAttributes(
     accuracyPercent,
     dodgePercent,
     armorPenetrationPercent,
+    blockChancePercent,
+    blockMitigationPercent,
   };
 }
 

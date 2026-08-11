@@ -15,6 +15,8 @@ export const bosses: Boss[] = [
     evasionPercent: 8,
     armor: 8,
     defense: 16,
+    minDamage: 45,
+    maxDamage: 90,
     requirements: {
       requiredLevel: 15,
       requiredAccessIds: ["thaeron-sewers-access"],
@@ -48,6 +50,8 @@ export const bosses: Boss[] = [
     evasionPercent: 6,
     armor: 14,
     defense: 24,
+    minDamage: 90,
+    maxDamage: 170,
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["mudrot-cave-access"],
@@ -87,6 +91,8 @@ export const bosses: Boss[] = [
     evasionPercent: 10,
     armor: 28,
     defense: 44,
+    minDamage: 160,
+    maxDamage: 280,
     requirements: {
       requiredLevel: 35,
       requiredAccessIds: ["ancient-crypt-access"],
@@ -125,6 +131,8 @@ export const bosses: Boss[] = [
     evasionPercent: 7,
     armor: 38,
     defense: 58,
+    minDamage: 230,
+    maxDamage: 390,
     requirements: {
       requiredLevel: 45,
       requiredAccessIds: ["cyclops-hills-access"],
@@ -163,6 +171,8 @@ export const bosses: Boss[] = [
     evasionPercent: 12,
     armor: 52,
     defense: 76,
+    minDamage: 400,
+    maxDamage: 700,
     requirements: {
       requiredLevel: 60,
       requiredAccessIds: ["ember-dragon-nest-access"],
@@ -207,6 +217,8 @@ export const bosses: Boss[] = [
     evasionPercent: 15,
     armor: 20,
     defense: 34,
+    minDamage: 130,
+    maxDamage: 230,
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["novice-boss-access"],
