@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 141 concluida: armor, defense e penetration agora reduzem dano e clear speed deterministicamente em Hunts/Bosses, com relatorio por cast e limites seguros.
 - Etapa 140.5 concluida: QA real no Tauri/SQLite validou accuracy, miss, dodge, Boss party, reloads, catch-up offline idempotente e restauracao integral do save.
 - Etapa 140 concluida: accuracy, miss e dodge deterministas agora resolvem cada ataque, alimentam timeline/relatorios e afetam bonus ofensivo e risco com limites seguros.
 - Etapa 139.5 concluida: QA elemental real no Tauri/SQLite validou snapshot, reload, Hunt ativa/offline, idempotencia, Boss party, limites hostis e restauracao integral do save.
@@ -11503,6 +11504,68 @@ Execucao e restauracao:
 Proximo passo sugerido:
 
 - Etapa 141 - armor penetration e reducao de defesa deterministas.
+
+## Etapa 141 - Armor penetration e reducao de defesa deterministas
+
+Status: concluida.
+
+Modelo defensivo:
+
+- Personagens agora possuem `armorPenetrationPercent` derivado de level, skill principal e vocacao.
+- Penetration base fica limitada entre 0% e 25%; bonuses especificos de skills podem elevar o valor aplicado ate 40%.
+- Armor e defense existentes nos monstros formam um protection score deterministico.
+- A mitigacao cresce de forma desacelerada e nunca ultrapassa 40% antes da penetration.
+- Armor e defense ausentes, negativos, infinitos ou invalidos recebem fallback seguro.
+- A ordem por cast agora e: hit/miss/dodge, mitigacao defensiva e modificador elemental.
+
+Skills e Bosses:
+
+- Shield Break recebe +14% penetration.
+- Piercing Arrow recebe +12% penetration.
+- Falcon Mark recebe +10% penetration.
+- Bastion Crash recebe +8% penetration.
+- Palm Strike recebe +5% penetration.
+- Os seis Bosses atuais receberam perfis proprios de armor e defense, do Sewer Broodmother ao Ember Matriarch.
+- Hunts encaminham armor/defense dos monstros reais e Boss fights encaminham a protecao do Boss real.
+
+Gameplay e agregados:
+
+- O relatorio separa dano potencial, dano que acertou, dano apos defesa e dano final apos elemento.
+- `defenseDamageDelta`, `defenseMitigationPercent` e penetration media ponderada sao calculados por personagem e party.
+- A reducao defensiva diminui proporcionalmente o bonus de clear speed/success power, mantendo o cap ofensivo anterior de 8%.
+- Miss e dodge continuam causando zero dano antes da camada defensiva.
+- Criticos continuam sendo aplicados somente em hits e passam normalmente por defesa e elemento.
+- Timeline continua limitada e derivada, sem ampliar save ou persistir eventos.
+
+Interface e logs:
+
+- Character Details mostra Penetration no Combat Overview.
+- Relatorio de dano mostra hit rate, mitigacao defensiva e modificador elemental separadamente.
+- Eventos da timeline mostram `Defense -X% (Y% pen)` e possuem leitura visual propria para alvos protegidos.
+- Party report e logs de Boss mostram mitigacao e penetration ponderadas sem spam por cast.
+
+Validacao:
+
+- Fixture temporaria passou em 26/26 checks de limites, neutralidade, armor/defense, penetration, skills perfurantes, avoidance, elementos, agregados, Boss party, logs e entradas hostis.
+- Alvo sem protecao preservou exatamente o dano que acertou e 0% de mitigacao.
+- Alvo protegido reduziu dano; aumentar penetration reduziu a mitigacao e recuperou parte do dano final.
+- Piercing Arrow aplicou exatamente 12 pontos percentuais adicionais sobre a penetration base; Quickshot manteve somente a base.
+- Protection extremo permaneceu limitado a 40%; valores infinitos/NaN cairam em neutro sem contaminar o relatorio.
+- Resistencia elemental permaneceu independente da mitigacao defensiva.
+- QA visual passou em 1280x900 e viewport mobile efetivo de 375x844 sem overflow de pagina, relatorio ou timeline.
+- Console do navegador permaneceu sem erros.
+- Fixture, servidor e logs temporarios foram removidos apos o QA.
+
+Limitacoes mantidas:
+
+- Penetration ainda nao recebe bonus direto de equipamentos, tiers, imbuements ou perks de Weapon Proficiency.
+- Nao ha debuff persistente de armor quebrada entre casts; o bonus pertence ao golpe que o aplica.
+- Armor/defense afetam apenas a telemetria agregada das skills e sua contribuicao limitada de gameplay; targets continuam sem HP individual persistente.
+- O QA desta etapa usou engine e interface web; persistencia SQLite, reload e catch-up ficam para a etapa dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 141.5 - QA de armor penetration e defesa no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

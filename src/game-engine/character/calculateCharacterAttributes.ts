@@ -100,6 +100,13 @@ export function calculateCharacterAttributes(
     Warden: 1,
     Monk: 3,
   }[character.vocation];
+  const armorPenetrationVocationBonus = {
+    Guardian: 3,
+    Ranger: 5,
+    Arcanist: 7,
+    Warden: 6,
+    Monk: 4,
+  }[character.vocation];
   const accuracyPercent = rounded(clamp(
     88 + character.level * 0.04 + mainSkill.level * 0.08 + Math.max(0, speed - 210) * 0.015 + accuracyVocationBonus,
     80,
@@ -109,6 +116,11 @@ export function calculateCharacterAttributes(
     1 + character.level * 0.03 + Math.max(0, speed - 210) * 0.025 + dodgeVocationBonus,
     0,
     18,
+  ));
+  const armorPenetrationPercent = rounded(clamp(
+    2 + character.level * 0.025 + mainSkill.level * 0.05 + armorPenetrationVocationBonus,
+    0,
+    25,
   ));
 
   return {
@@ -123,6 +135,7 @@ export function calculateCharacterAttributes(
     critDamagePercent: proficiencyBonuses.critDamagePercent + (destinyBonuses.critDamagePercent ?? 0),
     accuracyPercent,
     dodgePercent,
+    armorPenetrationPercent,
   };
 }
 

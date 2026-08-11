@@ -13,6 +13,8 @@ export const bosses: Boss[] = [
     risk: "low",
     resistances: { earth: 15, fire: -20 },
     evasionPercent: 8,
+    armor: 8,
+    defense: 16,
     requirements: {
       requiredLevel: 15,
       requiredAccessIds: ["thaeron-sewers-access"],
@@ -44,6 +46,8 @@ export const bosses: Boss[] = [
     risk: "medium",
     resistances: { physical: 10, energy: -10 },
     evasionPercent: 6,
+    armor: 14,
+    defense: 24,
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["mudrot-cave-access"],
@@ -81,6 +85,8 @@ export const bosses: Boss[] = [
     risk: "high",
     resistances: { physical: 15, death: 25, holy: -25 },
     evasionPercent: 10,
+    armor: 28,
+    defense: 44,
     requirements: {
       requiredLevel: 35,
       requiredAccessIds: ["ancient-crypt-access"],
@@ -117,6 +123,8 @@ export const bosses: Boss[] = [
     risk: "high",
     resistances: { physical: 20, energy: -15 },
     evasionPercent: 7,
+    armor: 38,
+    defense: 58,
     requirements: {
       requiredLevel: 45,
       requiredAccessIds: ["cyclops-hills-access"],
@@ -153,6 +161,8 @@ export const bosses: Boss[] = [
     risk: "deadly",
     resistances: { fire: 25, ice: -25 },
     evasionPercent: 12,
+    armor: 52,
+    defense: 76,
     requirements: {
       requiredLevel: 60,
       requiredAccessIds: ["ember-dragon-nest-access"],
@@ -195,6 +205,8 @@ export const bosses: Boss[] = [
     risk: "medium",
     resistances: { physical: 10, energy: -10 },
     evasionPercent: 15,
+    armor: 20,
+    defense: 34,
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["novice-boss-access"],

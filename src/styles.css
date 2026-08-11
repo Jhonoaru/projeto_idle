@@ -3104,6 +3104,11 @@ p {
   box-shadow: 0 0 0 2px rgb(214 169 61 / 28%);
 }
 
+.combat-skill-timeline-track i.is-armored {
+  border-color: #b9a36d;
+  background: #8d805f;
+}
+
 .combat-skill-timeline-track i.is-weakness {
   background: #5fcf79;
 }
@@ -3149,6 +3154,11 @@ p {
 .combat-skill-timeline-event.is-critical {
   border-left-color: #e2bd56;
   background: #17170f;
+}
+
+.combat-skill-timeline-event.is-armored {
+  border-left-color: #9f8d63;
+  background: #151713;
 }
 
 .combat-skill-timeline-event.is-weakness {

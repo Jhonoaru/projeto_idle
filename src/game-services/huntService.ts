@@ -127,6 +127,8 @@ export function finishHunt(
         kind: "monster",
         resistances: monster.resistances,
         evasionPercent: monster.evasionPercent,
+        armor: monster.armor,
+        defense: monster.defense,
       })),
       supportTargets: [{ id: character.id, name: character.name, kind: "self" }],
     },

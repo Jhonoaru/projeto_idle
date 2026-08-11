@@ -197,6 +197,7 @@ export function CharacterDetails({
             <Stat label="Crit Damage" value={`${character.attributes.critDamagePercent ?? 0}%`} />
             <Stat label="Accuracy" value={`${character.attributes.accuracyPercent ?? 0}%`} />
             <Stat label="Dodge" value={`${character.attributes.dodgePercent ?? 0}%`} />
+            <Stat label="Penetration" value={`${character.attributes.armorPenetrationPercent ?? 0}%`} />
           </div>
           <div className="character-hall-capacity">
             <span>Capacity used</span>

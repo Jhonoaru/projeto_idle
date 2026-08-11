@@ -1093,6 +1093,7 @@ export interface CharacterAttributes {
   critDamagePercent?: number;
   accuracyPercent?: number;
   dodgePercent?: number;
+  armorPenetrationPercent?: number;
 }
 
 export interface CombatSkillLoadout {
@@ -1143,6 +1144,9 @@ export interface CombatSkillEffectEntry {
   damageType?: DamageType;
   baseDamageDealt: number;
   landedBaseDamageDealt: number;
+  damageAfterDefense: number;
+  defenseMitigationPercent: number;
+  armorPenetrationPercent: number;
   damageDealt: number;
   elementalModifierPercent: number;
   healingDone: number;
@@ -1168,6 +1172,10 @@ export interface CombatSkillEffectSummary {
   baseTotalDamage: number;
   landedBaseDamage: number;
   avoidanceDamageDelta: number;
+  damageAfterDefense: number;
+  defenseDamageDelta: number;
+  defenseMitigationPercent: number;
+  armorPenetrationPercent: number;
   totalDamage: number;
   elementalDamageDelta: number;
   elementalModifierPercent: number;
@@ -1195,6 +1203,9 @@ export interface CombatSkillTimelineEvent {
   manaCost: number;
   damageType?: DamageType;
   baseDamageDealt: number;
+  damageAfterDefense: number;
+  defenseMitigationPercent: number;
+  armorPenetrationPercent: number;
   damageDealt: number;
   elementalModifierPercent: number;
   healingDone: number;
@@ -1226,6 +1237,8 @@ export interface CombatSkillTarget {
   kind: CombatSkillTargetKind;
   resistances?: ElementalResistances;
   evasionPercent?: number;
+  armor?: number;
+  defense?: number;
 }
 
 export interface CombatSkillEffectOptions {
@@ -1247,6 +1260,10 @@ export interface CombatSkillPartyEffectSummary {
   baseTotalDamage: number;
   landedBaseDamage: number;
   avoidanceDamageDelta: number;
+  damageAfterDefense: number;
+  defenseDamageDelta: number;
+  defenseMitigationPercent: number;
+  armorPenetrationPercent: number;
   totalDamage: number;
   elementalDamageDelta: number;
   elementalModifierPercent: number;
@@ -1598,6 +1615,8 @@ export interface Boss {
   risk: BossRisk;
   resistances?: ElementalResistances;
   evasionPercent?: number;
+  armor?: number;
+  defense?: number;
   requirements: BossRequirement;
   reward: BossReward;
   tags: string[];

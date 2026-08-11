@@ -22,6 +22,7 @@ export interface CombatSkillDefinition {
     damage: number;
     healing: number;
     mitigation: number;
+    armorPenetration: number;
   };
 }
 
@@ -57,21 +58,22 @@ const skill = (
     damage: effect.damage ?? (category === "attack" ? effect.attack ?? 0 : 0),
     healing: effect.healing ?? 0,
     mitigation: effect.mitigation ?? 0,
+    armorPenetration: effect.armorPenetration ?? 0,
   },
 });
 
 export const combatSkills: readonly CombatSkillDefinition[] = [
   skill("Guardian", "attack", "guardian-vanguard-slash", "Vanguard Slash", "VS", "A measured frontline weapon cut.", 1, 6, 6, "slash", { attack: 1 }, "physical"),
-  skill("Guardian", "attack", "guardian-shield-break", "Shield Break", "SB", "A crushing blow that opens armored targets.", 12, 18, 8, "burst", { attack: 1.4 }, "physical"),
+  skill("Guardian", "attack", "guardian-shield-break", "Shield Break", "SB", "A crushing blow that opens armored targets.", 12, 18, 8, "burst", { attack: 1.4, armorPenetration: 14 }, "physical"),
   skill("Guardian", "attack", "guardian-iron-cyclone", "Iron Cyclone", "IC", "A broad sweep through nearby enemies.", 28, 32, 10, "slash", { attack: 1.9 }, "physical"),
-  skill("Guardian", "attack", "guardian-bastion-crash", "Bastion Crash", "BC", "A heavy finishing strike backed by the shield.", 50, 48, 14, "burst", { attack: 2.6 }, "physical"),
+  skill("Guardian", "attack", "guardian-bastion-crash", "Bastion Crash", "BC", "A heavy finishing strike backed by the shield.", 50, 48, 14, "burst", { attack: 2.6, armorPenetration: 8 }, "physical"),
   skill("Guardian", "support", "guardian-guard-stance", "Guard Stance", "GS", "A defensive posture for the next exchange.", 18, 20, 18, "ward", { survival: 2.2, mitigation: 2.2 }),
   skill("Guardian", "support", "guardian-rallying-standard", "Rallying Standard", "RS", "A party-wide resolve signal.", 45, 55, 35, "ward", { attack: 0.8, survival: 3, mitigation: 3 }),
 
   skill("Ranger", "attack", "ranger-quickshot", "Quickshot", "QS", "A fast and reliable opening arrow.", 1, 4, 4, "projectile", { attack: 0.8 }, "physical"),
-  skill("Ranger", "attack", "ranger-piercing-arrow", "Piercing Arrow", "PA", "A focused shot against a lined target.", 14, 16, 7, "projectile", { attack: 1.35 }, "physical"),
+  skill("Ranger", "attack", "ranger-piercing-arrow", "Piercing Arrow", "PA", "A focused shot against a lined target.", 14, 16, 7, "projectile", { attack: 1.35, armorPenetration: 12 }, "physical"),
   skill("Ranger", "attack", "ranger-feather-fan", "Feather Fan", "FF", "A short volley across the hunting ground.", 26, 28, 10, "projectile", { attack: 1.85 }, "physical"),
-  skill("Ranger", "attack", "ranger-falcon-mark", "Falcon Mark", "FM", "A patient high-damage execution shot.", 48, 42, 14, "projectile", { attack: 2.55 }, "physical"),
+  skill("Ranger", "attack", "ranger-falcon-mark", "Falcon Mark", "FM", "A patient high-damage execution shot.", 48, 42, 14, "projectile", { attack: 2.55, armorPenetration: 10 }, "physical"),
   skill("Ranger", "support", "ranger-trailstep", "Trailstep", "TS", "A quick reposition before the next volley.", 16, 14, 16, "ward", { attack: 0.5, survival: 1, mitigation: 1 }),
   skill("Ranger", "support", "ranger-wind-veil", "Wind Veil", "WV", "A protective current around the party.", 40, 44, 32, "ward", { survival: 2.6, mitigation: 2.6 }),
 
@@ -89,7 +91,7 @@ export const combatSkills: readonly CombatSkillDefinition[] = [
   skill("Warden", "support", "warden-renew", "Renew", "RN", "A steady restorative pulse for an ally.", 10, 18, 14, "nature", { survival: 1.2, supply: 2, healing: 2 }),
   skill("Warden", "support", "warden-barkskin-circle", "Barkskin Circle", "BC", "A protective living ring around the party.", 34, 46, 30, "ward", { survival: 2.5, supply: 1, healing: 0.5, mitigation: 2.5 }),
 
-  skill("Monk", "attack", "monk-palm-strike", "Palm Strike", "PS", "A direct spirit-backed close-range hit.", 1, 4, 4, "spirit", { attack: 0.8 }, "physical"),
+  skill("Monk", "attack", "monk-palm-strike", "Palm Strike", "PS", "A direct spirit-backed close-range hit.", 1, 4, 4, "spirit", { attack: 0.8, armorPenetration: 5 }, "physical"),
   skill("Monk", "attack", "monk-crescent-kick", "Crescent Kick", "CK", "A turning kick that catches nearby enemies.", 12, 14, 6, "slash", { attack: 1.3 }, "physical"),
   skill("Monk", "attack", "monk-spirit-flurry", "Spirit Flurry", "SF", "A rapid sequence of focused impacts.", 24, 26, 9, "spirit", { attack: 1.85 }, "holy"),
   skill("Monk", "attack", "monk-inner-tempest", "Inner Tempest", "IT", "Stored momentum released in every direction.", 44, 44, 14, "spirit", { attack: 2.55 }, "holy"),
