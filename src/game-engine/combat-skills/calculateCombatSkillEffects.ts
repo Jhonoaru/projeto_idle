@@ -46,6 +46,7 @@ export function calculateCombatSkillEffects(
       cast.casts,
       criticalProfile,
       definition.effect.armorPenetration,
+      definition.effect.conditionResistancePenetration,
       definition.condition,
       elapsedMs,
       options,
@@ -81,6 +82,8 @@ export function calculateCombatSkillEffects(
       conditionResisted: attackResolution.conditionResisted,
       conditionImmuneHits: attackResolution.conditionImmuneHits,
       conditionResistanceTotal: attackResolution.conditionResistanceTotal,
+      conditionResistancePenetrationTotal: attackResolution.conditionResistancePenetrationTotal,
+      conditionEffectiveResistanceTotal: attackResolution.conditionEffectiveResistanceTotal,
       conditionEffectiveChanceTotal: attackResolution.conditionEffectiveChanceTotal,
     }];
   });
@@ -138,6 +141,7 @@ export function calculateCombatSkillEffects(
       definition.id,
       event.skillCastIndex,
       definition.condition,
+      getConditionResistancePenetrationPercent(character, definition.effect.conditionResistancePenetration),
       damageDealt,
       Math.max(0, rotation.timeline.durationMs - event.occurredAtMs),
     );
@@ -172,6 +176,8 @@ export function calculateCombatSkillEffects(
       conditionPotencyPercent: condition.potencyPercent,
       conditionOutcome: condition.outcome,
       conditionResistancePercent: condition.resistancePercent,
+      conditionResistancePenetrationPercent: condition.resistancePenetrationPercent,
+      conditionEffectiveResistancePercent: condition.effectiveResistancePercent,
       conditionBaseChancePercent: condition.baseChancePercent,
       conditionEffectiveChancePercent: condition.effectiveChancePercent,
     }];
@@ -315,8 +321,12 @@ export function calculatePartyCombatSkillEffects(
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
   const resisted = effects.conditions.reduce((sum, condition) => sum + condition.resisted, 0);
   const immune = effects.conditions.reduce((sum, condition) => sum + condition.immuneHits, 0);
+  const conditionEligibleHits = effects.conditions.reduce((sum, condition) => sum + condition.eligibleHits, 0);
+  const averageConditionPenetration = conditionEligibleHits > 0
+    ? rounded(effects.conditions.reduce((sum, condition) => sum + condition.averageResistancePenetrationPercent * condition.eligibleHits, 0) / conditionEligibleHits)
+    : 0;
   const conditionReport = effects.conditions.length > 0
-    ? ` Conditions: ${effects.totalConditionApplications.toLocaleString("en-US")} applied, ${resisted.toLocaleString("en-US")} resisted, ${immune.toLocaleString("en-US")} immune, ${effects.totalConditionTicks.toLocaleString("en-US")} ticks, ${effects.totalConditionDamage.toLocaleString("en-US")} damage${effects.slowUptimePercent > 0 ? `, ${effects.slowUptimePercent}% slow uptime` : ""}.`
+    ? ` Conditions: ${effects.totalConditionApplications.toLocaleString("en-US")} applied, ${resisted.toLocaleString("en-US")} resisted, ${immune.toLocaleString("en-US")} immune, ${effects.totalConditionTicks.toLocaleString("en-US")} ticks, ${effects.totalConditionDamage.toLocaleString("en-US")} damage, ${averageConditionPenetration}% resistance penetration${effects.slowUptimePercent > 0 ? `, ${effects.slowUptimePercent}% slow uptime` : ""}.`
     : " Conditions: no eligible hits.";
   return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (${effects.totalConditionDamage.toLocaleString("en-US")} conditions, -${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.${conditionReport} Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).`;
 }
@@ -331,6 +341,7 @@ function calculateAttackResolution(
   casts: number,
   criticalProfile: CriticalProfile,
   skillArmorPenetrationPercent: number,
+  skillConditionResistancePenetrationPercent: number,
   condition: CombatConditionDefinition | undefined,
   elapsedMs: number,
   options: CombatSkillEffectOptions,
@@ -350,9 +361,12 @@ function calculateAttackResolution(
   let conditionResisted = 0;
   let conditionImmuneHits = 0;
   let conditionResistanceTotal = 0;
+  let conditionResistancePenetrationTotal = 0;
+  let conditionEffectiveResistanceTotal = 0;
   let conditionEffectiveChanceTotal = 0;
-  if (category !== "attack") return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds, conditionEligibleHits, conditionResisted, conditionImmuneHits, conditionResistanceTotal, conditionEffectiveChanceTotal };
+  if (category !== "attack") return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds, conditionEligibleHits, conditionResisted, conditionImmuneHits, conditionResistanceTotal, conditionResistancePenetrationTotal, conditionEffectiveResistanceTotal, conditionEffectiveChanceTotal };
   const armorPenetrationPercent = getArmorPenetrationPercent(character, skillArmorPenetrationPercent);
+  const conditionResistancePenetrationPercent = getConditionResistancePenetrationPercent(character, skillConditionResistancePenetrationPercent);
   for (let skillCastIndex = 1; skillCastIndex <= casts; skillCastIndex += 1) {
     const target = getEventTarget(character, action, category, { skillId, skillCastIndex }, options);
     const baseDamage = damageContributionAtCast(baseTotal, casts, skillCastIndex, criticalProfile);
@@ -378,6 +392,7 @@ function calculateAttackResolution(
       skillId,
       skillCastIndex,
       condition,
+      conditionResistancePenetrationPercent,
       dealtDamage,
       Math.max(0, elapsedMs - occurredAtMs),
     );
@@ -389,11 +404,13 @@ function calculateAttackResolution(
     conditionResisted += conditionResult.outcome === "resisted" ? 1 : 0;
     conditionImmuneHits += conditionResult.outcome === "immune" ? 1 : 0;
     conditionResistanceTotal += conditionResult.eligible ? conditionResult.resistancePercent : 0;
+    conditionResistancePenetrationTotal += conditionResult.eligible ? conditionResult.resistancePenetrationPercent : 0;
+    conditionEffectiveResistanceTotal += conditionResult.eligible ? conditionResult.effectiveResistancePercent : 0;
     conditionEffectiveChanceTotal += conditionResult.eligible ? conditionResult.effectiveChancePercent : 0;
     if (isCriticalCast(criticalProfile, skillCastIndex)) criticalHits += 1;
   }
   conditionDamage = Math.min(conditionDamage, Math.round(damage * MAX_CONDITION_DAMAGE_PERCENT / 100));
-  return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds, conditionEligibleHits, conditionResisted, conditionImmuneHits, conditionResistanceTotal, conditionEffectiveChanceTotal };
+  return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds, conditionEligibleHits, conditionResisted, conditionImmuneHits, conditionResistanceTotal, conditionResistancePenetrationTotal, conditionEffectiveResistanceTotal, conditionEffectiveChanceTotal };
 }
 
 interface ConditionCastResult {
@@ -405,6 +422,8 @@ interface ConditionCastResult {
   durationSeconds: number;
   potencyPercent: number;
   resistancePercent: number;
+  resistancePenetrationPercent: number;
+  effectiveResistancePercent: number;
   baseChancePercent: number;
   effectiveChancePercent: number;
 }
@@ -415,6 +434,7 @@ function calculateConditionAtCast(
   skillId: string,
   skillCastIndex: number,
   condition: CombatConditionDefinition | undefined,
+  resistancePenetrationPercent: number,
   directDamage: number,
   remainingMs: number,
 ): ConditionCastResult {
@@ -427,15 +447,21 @@ function calculateConditionAtCast(
     durationSeconds: 0,
     potencyPercent: 0,
     resistancePercent: 0,
+    resistancePenetrationPercent: 0,
+    effectiveResistancePercent: 0,
     baseChancePercent: 0,
     effectiveChancePercent: 0,
   };
   if (!condition || directDamage <= 0) return empty;
   const baseChancePercent = rounded(boundedValue(condition.applicationChancePercent, 0, 100, 0));
   const resistancePercent = rounded(boundedValue(target.conditionResistances?.[condition.type], -50, 80, 0));
+  const normalizedPenetrationPercent = rounded(boundedValue(resistancePenetrationPercent, 0, 40, 0));
+  const effectiveResistancePercent = resistancePercent > 0
+    ? rounded(Math.max(0, resistancePercent - normalizedPenetrationPercent))
+    : resistancePercent;
   const immune = Array.isArray(target.conditionImmunities) && target.conditionImmunities.includes(condition.type);
-  const effectiveChancePercent = immune ? 0 : rounded(Math.min(100, Math.max(0, baseChancePercent * (1 - resistancePercent / 100))));
-  const profile = { ...empty, eligible: true, resistancePercent, baseChancePercent, effectiveChancePercent };
+  const effectiveChancePercent = immune ? 0 : rounded(Math.min(100, Math.max(0, baseChancePercent * (1 - effectiveResistancePercent / 100))));
+  const profile = { ...empty, eligible: true, resistancePercent, resistancePenetrationPercent: normalizedPenetrationPercent, effectiveResistancePercent, baseChancePercent, effectiveChancePercent };
   if (immune) return { ...profile, outcome: "immune" };
   const roll = deterministicPercent(`${characterId}:${target.id}:${skillId}:${skillCastIndex}:${condition.type}:condition`);
   const applied = roll < effectiveChancePercent;
@@ -480,6 +506,8 @@ function aggregateConditions(
       resisted: matching.reduce((sum, entry) => sum + entry.conditionResisted, 0),
       immuneHits: matching.reduce((sum, entry) => sum + entry.conditionImmuneHits, 0),
       averageResistancePercent: rounded(matching.reduce((sum, entry) => sum + entry.conditionResistanceTotal, 0) / eligibleHits),
+      averageResistancePenetrationPercent: rounded(matching.reduce((sum, entry) => sum + entry.conditionResistancePenetrationTotal, 0) / eligibleHits),
+      averageEffectiveResistancePercent: rounded(matching.reduce((sum, entry) => sum + entry.conditionEffectiveResistanceTotal, 0) / eligibleHits),
       averageEffectiveChancePercent: rounded(matching.reduce((sum, entry) => sum + entry.conditionEffectiveChanceTotal, 0) / eligibleHits),
     }];
   });
@@ -507,6 +535,8 @@ function aggregatePartyConditions(
       resisted: matching.reduce((sum, condition) => sum + condition.resisted, 0),
       immuneHits: matching.reduce((sum, condition) => sum + condition.immuneHits, 0),
       averageResistancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageResistancePercent * condition.eligibleHits, 0) / eligibleHits),
+      averageResistancePenetrationPercent: rounded(matching.reduce((sum, condition) => sum + condition.averageResistancePenetrationPercent * condition.eligibleHits, 0) / eligibleHits),
+      averageEffectiveResistancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageEffectiveResistancePercent * condition.eligibleHits, 0) / eligibleHits),
       averageEffectiveChancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageEffectiveChancePercent * condition.eligibleHits, 0) / eligibleHits),
     }];
   });
@@ -685,6 +715,12 @@ function calculateDefenseProfile(
 
 function getArmorPenetrationPercent(character: Character, skillBonus: number) {
   const base = boundedValue(character.attributes?.armorPenetrationPercent, 0, 25, 0);
+  const bonus = boundedValue(skillBonus, 0, 20, 0);
+  return rounded(Math.min(40, base + bonus));
+}
+
+function getConditionResistancePenetrationPercent(character: Character, skillBonus: number) {
+  const base = boundedValue(character.attributes?.conditionResistancePenetrationPercent, 0, 30, 0);
   const bonus = boundedValue(skillBonus, 0, 20, 0);
   return rounded(Math.min(40, base + bonus));
 }

@@ -138,6 +138,11 @@ export function calculateCharacterAttributes(
     0,
     25,
   ));
+  const conditionResistancePenetrationPercent = rounded(clamp(
+    equipmentBonuses.conditionResistancePenetrationPercent,
+    0,
+    30,
+  ));
   const blockChancePercent = rounded(clamp(
     2 + shielding * 0.12 + character.level * 0.02 + blockChanceVocationBonus + (hasShield ? 8 : 0),
     0,
@@ -162,6 +167,7 @@ export function calculateCharacterAttributes(
     accuracyPercent,
     dodgePercent,
     armorPenetrationPercent,
+    conditionResistancePenetrationPercent,
     blockChancePercent,
     blockMitigationPercent,
   };

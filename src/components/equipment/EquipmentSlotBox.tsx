@@ -57,6 +57,7 @@ function formatItemStats(inventoryItem: InventoryItem) {
     item.distancePower ? `Dist ${item.distancePower}` : undefined,
     item.fistPower ? `Fist ${item.fistPower}` : undefined,
     item.capacityBonus ? `Cap +${item.capacityBonus}` : undefined,
+    item.conditionResistancePenetrationPercent ? `Cond Pen +${item.conditionResistancePenetrationPercent}%` : undefined,
   ].filter(Boolean);
 
   return stats.length > 0 ? stats.join(" / ") : item.rarity;

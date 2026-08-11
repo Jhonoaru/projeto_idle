@@ -418,6 +418,7 @@ function formatBonusSummary(bonuses: ReturnType<typeof calculateEnhancedItemBonu
     bonuses.capacityBonus ? `Cap +${bonuses.capacityBonus}` : undefined,
     bonuses.xpBonusPercent ? `XP +${bonuses.xpBonusPercent}%` : undefined,
     bonuses.supplyReductionPercent ? `Supplies -${bonuses.supplyReductionPercent}%` : undefined,
+    bonuses.conditionResistancePenetrationPercent ? `Cond Pen +${bonuses.conditionResistancePenetrationPercent}%` : undefined,
   ].filter(Boolean);
 
   return entries.length > 0 ? entries.join(" / ") : "Sem bonus direto.";

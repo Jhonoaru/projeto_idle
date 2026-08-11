@@ -198,6 +198,7 @@ export function CharacterDetails({
             <Stat label="Accuracy" value={`${character.attributes.accuracyPercent ?? 0}%`} />
             <Stat label="Dodge" value={`${character.attributes.dodgePercent ?? 0}%`} />
             <Stat label="Penetration" value={`${character.attributes.armorPenetrationPercent ?? 0}%`} />
+            <Stat label="Condition Pen" value={`${character.attributes.conditionResistancePenetrationPercent ?? 0}%`} />
             <Stat label="Block Chance" value={`${character.attributes.blockChancePercent ?? 0}%`} />
             <Stat label="Block Power" value={`${character.attributes.blockMitigationPercent ?? 0}%`} />
           </div>
@@ -309,6 +310,7 @@ function formatEquipmentBonus(bonuses: ReturnType<typeof calculateEquipmentBonus
     bonuses.distancePower ? `Distance +${bonuses.distancePower}` : undefined,
     bonuses.fistPower ? `Fist +${bonuses.fistPower}` : undefined,
     bonuses.capacityBonus ? `Cap +${bonuses.capacityBonus}` : undefined,
+    bonuses.conditionResistancePenetrationPercent ? `Condition Pen +${bonuses.conditionResistancePenetrationPercent}%` : undefined,
   ].filter(Boolean);
   return parts.join(" / ") || "None";
 }

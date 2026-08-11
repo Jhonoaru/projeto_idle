@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 145 concluida: skills e equipamentos agora atravessam parte das resistencias positivas a burn, poison e slow, com caps, imunidades absolutas e relatorios completos.
 - Etapa 144.5 concluida: QA real no Tauri/SQLite validou resistencias, imunidades, snapshots, Boss party e catch-up offline em 36/36 checks, sem regressao de produto.
 - Etapa 144 concluida: criaturas e Bosses agora possuem resistencias, vulnerabilidades e imunidades deterministicas a burn, poison e slow, refletidas na timeline e nos relatorios.
 - Etapa 143.5 concluida: QA real no Tauri/SQLite validou condicoes, snapshots, Boss party, catch-up offline e corrigiu coleta duplicada de Hunt.
@@ -11952,6 +11953,49 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 145 - penetracao e reducao de resistencias a condicoes por skills e equipamentos.
+
+## Etapa 145 - Penetracao de resistencias a condicoes
+
+Status: concluida.
+
+Modelo e balanceamento:
+
+- Penetracao de resistencia a condicoes e um atributo separado de armor penetration.
+- Equipamentos contribuem com ate 30%; skills podem completar o total, limitado a 40%.
+- A penetracao reduz apenas resistencia positiva e nunca leva o valor efetivo abaixo de zero.
+- Vulnerabilidades negativas permanecem inalteradas, sem amplificacao pela penetracao.
+- Imunidades continuam absolutas: a chance efetiva, as aplicacoes e o dano da condicao permanecem em zero.
+- Dano direto, caps de DoT/slow e demais formulas de combate nao foram alterados.
+
+Skills e equipamentos:
+
+- Thorn Bolt: 4%; Frost Lance: 6%; Rootfall: 8%; Meteor Sigil: 12%.
+- Runed Wand: 3%; Crypt Scepter: 6%; Ember Staff: 9%; Emberheart Amulet: 6%.
+- Upgrade e tier da Forge escalam o atributo pelo multiplicador ja usado pelos demais bonus do item.
+- Character Details, Equipment, Forge, Market, hotbar e Armory Audit reconhecem o novo atributo.
+
+Relatorios:
+
+- O resumo por condicao mostra resistencia original, resistencia efetiva e penetracao media.
+- A timeline registra a penetracao por cast e distingue resistencia reduzida, vulnerabilidade sem uso e imunidade bloqueando a penetracao.
+- Activity Log de Hunt e relatorio de Boss informam a penetracao media aplicada.
+
+Validacao:
+
+- Fixture temporaria do motor passou em 17/17 checks, cobrindo valores de skills/itens, atributo derivado, Forge, stack, cap, piso zero, vulnerabilidade, imunidade, dano direto, determinismo, party e logs.
+- QA visual passou em 1280x900 e 375x812, sem overflow horizontal ou erros/warnings de console.
+- A fixture, o desvio de bootstrap, o servidor e os logs temporarios foram removidos.
+- `npm.cmd run build` passou com a fixture.
+
+Persistencia e limitacoes:
+
+- Nenhuma migration foi necessaria: o atributo e derivado dos equipamentos e das definicoes estaticas de skills.
+- Esta etapa nao alterou o save nem manipulou o SQLite real.
+- Persistencia por reload, snapshots de acoes e equivalencia no offline catch-up ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 145.5 - QA de penetracao de resistencias no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

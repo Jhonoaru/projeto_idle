@@ -1094,6 +1094,7 @@ export interface CharacterAttributes {
   accuracyPercent?: number;
   dodgePercent?: number;
   armorPenetrationPercent?: number;
+  conditionResistancePenetrationPercent?: number;
   blockChancePercent?: number;
   blockMitigationPercent?: number;
 }
@@ -1167,6 +1168,8 @@ export interface CombatSkillEffectEntry {
   conditionResisted: number;
   conditionImmuneHits: number;
   conditionResistanceTotal: number;
+  conditionResistancePenetrationTotal: number;
+  conditionEffectiveResistanceTotal: number;
   conditionEffectiveChanceTotal: number;
 }
 
@@ -1194,6 +1197,8 @@ export interface CombatConditionSummary {
   resisted: number;
   immuneHits: number;
   averageResistancePercent: number;
+  averageResistancePenetrationPercent: number;
+  averageEffectiveResistancePercent: number;
   averageEffectiveChancePercent: number;
 }
 
@@ -1277,6 +1282,8 @@ export interface CombatSkillTimelineEvent {
   conditionPotencyPercent: number;
   conditionOutcome: CombatConditionOutcome;
   conditionResistancePercent: number;
+  conditionResistancePenetrationPercent: number;
+  conditionEffectiveResistancePercent: number;
   conditionBaseChancePercent: number;
   conditionEffectiveChancePercent: number;
 }
@@ -1466,6 +1473,7 @@ export interface Item {
   healthBonus?: number;
   manaBonus?: number;
   speedBonus?: number;
+  conditionResistancePenetrationPercent?: number;
   vocationRestriction?: Vocation[];
   levelRequirement?: number;
   equipmentFamily?: EquipmentFamilyId;
@@ -1548,6 +1556,7 @@ export interface EquipmentBonuses {
   healthBonus: number;
   manaBonus: number;
   speedBonus: number;
+  conditionResistancePenetrationPercent: number;
 }
 
 export interface TrainingSession {

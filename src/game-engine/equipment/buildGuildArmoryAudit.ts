@@ -104,6 +104,7 @@ export function scoreEquipmentItem(character: Character, inventoryItem?: Invento
     + bonuses.speedBonus * 5
     + bonuses.xpBonusPercent * 5
     + bonuses.supplyReductionPercent * 5
+    + bonuses.conditionResistancePenetrationPercent * 5
     + identity.tier * 2
     + identity.upgradeLevel,
   ));

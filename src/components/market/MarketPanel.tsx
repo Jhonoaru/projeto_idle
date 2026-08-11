@@ -650,6 +650,7 @@ function ComparisonPreview({ equippedItem, marketItem }: { equippedItem: Invento
     ["ARM", marketItem.armor, equippedItem.item.armor],
     ["MAG", marketItem.magicPower, equippedItem.item.magicPower],
     ["DIST", marketItem.distancePower, equippedItem.item.distancePower],
+    ["C-PEN", marketItem.conditionResistancePenetrationPercent, equippedItem.item.conditionResistancePenetrationPercent],
   ].filter(([, next, current]) => next !== undefined || current !== undefined);
 
   if (rows.length === 0) return null;

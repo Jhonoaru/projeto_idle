@@ -15,6 +15,7 @@ export function calculateEquipmentBonuses(
     healthBonus: 0,
     manaBonus: 0,
     speedBonus: 0,
+    conditionResistancePenetrationPercent: 0,
   };
 
   for (const equippedItem of Object.values(equipment).filter(Boolean) as InventoryItem[]) {
@@ -29,7 +30,11 @@ export function calculateEquipmentBonuses(
     bonuses.healthBonus += enhanced.healthBonus;
     bonuses.manaBonus += enhanced.manaBonus;
     bonuses.speedBonus += enhanced.speedBonus;
+    bonuses.conditionResistancePenetrationPercent += enhanced.conditionResistancePenetrationPercent;
   }
 
-  return bonuses;
+  return {
+    ...bonuses,
+    conditionResistancePenetrationPercent: Number(bonuses.conditionResistancePenetrationPercent.toFixed(2)),
+  };
 }

@@ -19,6 +19,7 @@ export function calculateEnhancedItemBonuses(inventoryItem: InventoryItem) {
     healthBonus: Math.round((item.healthBonus ?? 0) * multiplier),
     manaBonus: Math.round((item.manaBonus ?? 0) * multiplier),
     speedBonus: item.speedBonus ?? 0,
+    conditionResistancePenetrationPercent: rounded((item.conditionResistancePenetrationPercent ?? 0) * multiplier),
     xpBonusPercent: 0,
     supplyReductionPercent: 0,
   };
@@ -43,6 +44,10 @@ export function calculateEnhancedItemBonuses(inventoryItem: InventoryItem) {
   }
 
   return bonuses;
+}
+
+function rounded(value: number) {
+  return Number(value.toFixed(2));
 }
 
 function getUpgradePercent(slot?: string) {

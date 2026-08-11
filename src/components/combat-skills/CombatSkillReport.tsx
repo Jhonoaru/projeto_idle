@@ -21,7 +21,8 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
             <span className={`is-${condition.type}`} key={condition.type}>
               <b>{conditionLabel(condition.type)}</b>
               <small>{condition.applications} applied / {condition.resisted} resisted / {condition.immuneHits} immune</small>
-              <small>{condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime / ${condition.potencyPercent}% power`} / {condition.averageEffectiveChancePercent}% effective</small>
+              <small>{condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime / ${condition.potencyPercent}% power`} / {condition.averageEffectiveChancePercent}% chance</small>
+              <small>{formatConditionResistanceProfile(condition)}</small>
             </span>
           ))}
         </div>
@@ -162,8 +163,8 @@ function formatEventCondition(event: CombatSkillEffectSummary["timeline"]["event
   if (!event.conditionType || event.outcome !== "hit") return "";
   const label = conditionLabel(event.conditionType);
   const chance = `${event.conditionEffectiveChancePercent}% effective`;
-  const resistance = event.conditionResistancePercent !== 0 ? ` / ${formatResistance(event.conditionResistancePercent)}` : "";
-  if (event.conditionOutcome === "immune") return ` / ${label} immune`;
+  const resistance = formatEventConditionResistance(event);
+  if (event.conditionOutcome === "immune") return ` / ${label} immune${event.conditionResistancePenetrationPercent > 0 ? ` / ${event.conditionResistancePenetrationPercent}% pen blocked` : ""}`;
   if (event.conditionOutcome === "resisted") return ` / ${label} resisted (${chance}${resistance})`;
   if (!event.conditionApplied) return ` / ${label} failed (${chance}${resistance})`;
   if (event.conditionType === "slow") return ` / ${label} ${event.conditionDurationSeconds}s at ${event.conditionPotencyPercent}% / ${chance}${resistance}`;
@@ -180,8 +181,22 @@ function conditionClassName(event: CombatSkillEffectSummary["timeline"]["events"
   return event.conditionApplied && event.conditionType ? ` is-condition-${event.conditionType}` : "";
 }
 
-function formatResistance(value: number) {
-  return value < 0 ? `${value}% vulnerability` : `${value}% resist`;
+function formatEventConditionResistance(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
+  const penetration = event.conditionResistancePenetrationPercent;
+  const resistance = event.conditionResistancePercent;
+  if (resistance < 0) return ` / ${resistance}% vulnerability${penetration > 0 ? ` / ${penetration}% pen unused` : ""}`;
+  if (resistance > 0) return ` / ${resistance}% resist -> ${event.conditionEffectiveResistancePercent}% / ${penetration}% pen`;
+  return penetration > 0 ? ` / neutral resist / ${penetration}% pen` : " / neutral resist";
+}
+
+function formatConditionResistanceProfile(condition: CombatSkillEffectSummary["conditions"][number]) {
+  if (condition.averageResistancePercent < 0) {
+    return `${condition.averageResistancePercent}% vulnerability${condition.averageResistancePenetrationPercent > 0 ? ` / ${condition.averageResistancePenetrationPercent}% pen unused` : ""}`;
+  }
+  if (condition.averageResistancePercent > 0) {
+    return `${condition.averageResistancePercent}% resist -> ${condition.averageEffectiveResistancePercent}% / ${condition.averageResistancePenetrationPercent}% pen`;
+  }
+  return `Neutral resist / ${condition.averageResistancePenetrationPercent}% pen`;
 }
 
 function formatElementalModifier(value: number) {

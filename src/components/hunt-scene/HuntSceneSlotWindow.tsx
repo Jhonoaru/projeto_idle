@@ -145,7 +145,7 @@ function getWindowConfig(character: Character, slot: HuntSceneSlotType): HuntSce
         icon: entry.code,
         skill: entry,
         name: entry.name,
-        meta: `Level ${entry.levelRequired} / Mana ${entry.manaCost} / CD ${entry.cooldownSeconds}s / ${entry.description}`,
+        meta: `Level ${entry.levelRequired} / Mana ${entry.manaCost} / CD ${entry.cooldownSeconds}s${entry.effect.conditionResistancePenetration > 0 ? ` / Cond Pen +${entry.effect.conditionResistancePenetration}%` : ""} / ${entry.description}`,
         state: !isUnlocked
           ? "locked"
           : slot === "attack"
