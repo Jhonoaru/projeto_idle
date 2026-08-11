@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 138.5 concluida: QA real de alvos e criticos no Tauri/SQLite validou atributos recalculados, Hunt/Boss, extremos criticos, catch-up offline e restauracao integral do save.
 - Etapa 138 concluida: timeline agora atribui alvos reais e acertos criticos deterministas sem alterar o dano agregado, rewards ou persistencia.
 - Etapa 137.5 concluida: QA real da timeline no Tauri/SQLite validou snapshots, limite de eventos, diversidade de skills, Hunt/Boss, catch-up offline e restauracao integral do save.
 - Etapa 137 concluida: timeline deterministica e limitada mostra casts amostrados, dano, cura, mitigacao e mana em Hunts e Bosses sem salvar eventos nem duplicar gameplay.
@@ -11224,6 +11225,65 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 138.5 - QA de alvos e criticos no Tauri/SQLite e offline catch-up.
+
+## Etapa 138.5 - QA de alvos e criticos no Tauri/SQLite
+
+Status: concluida.
+
+Persistencia e atributos:
+
+- O harness temporario executou dentro do aplicativo Tauri real usando o Tauri SQL Plugin e o SQLite local.
+- O snapshot da action persistiu separado do loadout atual e continuou sendo a fonte da rotacao apos Save/Reload.
+- A timeline com alvos permaneceu deterministica depois do reload.
+- Atributos foram recalculados pelo equipamento real durante o load, em vez de confiar cegamente no JSON salvo.
+- A Warden persistida voltou corretamente para 0% de critico conforme seu equipamento e produziu zero eventos criticos.
+- Totais de criticos continuaram iguais a soma das entradas por skill e ao total registrado na timeline.
+
+Hunt e targets:
+
+- A Hunt persistida registrou 1.323 casts e alternou entre Mud Rotter e Cave Spider.
+- Todos os ataques apontaram para IDs reais do catalogo da Hunt.
+- Renew apontou somente para Self no combate solo.
+- Sem contexto explicito, ataques usaram a area salva na action como encounter e suporte usou Self.
+- IDs, nomes, tipos de target e contribuicoes permaneceram validos e finitos.
+- `finishHunt` injetou corretamente o catalogo real de monstros no relatorio final.
+
+Criticos e extremos:
+
+- O cenario de 100% marcou os quatro ataques da timeline curta como criticos.
+- Com todos os eventos presentes, a soma do dano por evento permaneceu exatamente igual ao dano agregado.
+- O cenario de 0% produziu zero critical hits e nenhum evento marcado.
+- A primeira execucao do harness ficou em 21/22 porque esperava 35% apos reload; a premissa foi corrigida para respeitar os atributos derivados do equipamento.
+- A repeticao foi feita sobre o banco original restaurado e passou integralmente.
+
+Offline catch-up e Boss:
+
+- O catch-up marcou a Hunt pronta sem alterar rewards ou Guild Depot e permaneceu idempotente na segunda aplicacao.
+- `readyToResolve` e o snapshot persistiram depois de Save/Reload.
+- Resolucao ativa e offline produziram a mesma timeline, XP, gold e loot.
+- O log final apareceu uma vez, incluiu critical hits e a action foi removida.
+- A party Guardian/Warden/Arcanist agregou 340 criticos: 112 de Guardian, 114 de Warden e 114 de Arcanist.
+- Ataques dos tres integrantes apontaram para Khazgrim Gatekeeper.
+- Suportes apontaram apenas para membros reais da party e identificaram Self quando apropriado.
+- Boss Result recebeu o mesmo relatorio e exatamente uma linha `Party skill effects`.
+
+Restauracao e validacao:
+
+- A repeticao limpa passou em 22/22 checks no Tauri/SQLite.
+- App, Tauri CLI e Vite foram encerrados explicitamente antes da restauracao.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup, logs, harness e desvio de bootstrap foram removidos integralmente.
+- Uma validacao de limpeza recusou inicialmente o nome do backup por diferenca entre hifen e underscore; nenhum caminho foi apagado ate a lista exata ser confirmada.
+- `npm run build` passou antes do QA e com o harness temporario.
+
+Limitacoes mantidas:
+
+- Crit chance continua derivado dos atributos/equipamentos atuais no momento da resolucao; nao existe snapshot separado de atributos completos.
+- Targets ainda nao possuem HP individual persistente, resistencia, fraqueza, miss ou dodge.
+
+Proximo passo sugerido:
+
+- Etapa 139 - tipos de dano, resistencias e fraquezas elementais.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
