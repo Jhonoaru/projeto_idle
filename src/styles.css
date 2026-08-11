@@ -3099,6 +3099,11 @@ p {
   background: #69b6a2;
 }
 
+.combat-skill-timeline-track i.is-critical {
+  border-color: #f4dd8c;
+  box-shadow: 0 0 0 2px rgb(214 169 61 / 28%);
+}
+
 .combat-skill-timeline-list {
   display: grid;
   max-height: 214px;
@@ -3121,19 +3126,38 @@ p {
   border-left-color: #4f9785;
 }
 
+.combat-skill-timeline-event.is-critical {
+  border-left-color: #e2bd56;
+  background: #17170f;
+}
+
 .combat-skill-timeline-event time,
 .combat-skill-timeline-event small {
   color: #7f8b83;
   font-size: 0.61rem;
 }
 
-.combat-skill-timeline-event span {
+.combat-skill-timeline-event-skill {
   min-width: 0;
+}
+
+.combat-skill-timeline-event-skill span,
+.combat-skill-timeline-event-skill small {
+  display: block;
   overflow: hidden;
-  color: #d8cda9;
-  font-size: 0.68rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.combat-skill-timeline-event-skill span {
+  color: #d8cda9;
+  font-size: 0.68rem;
+}
+
+.combat-skill-timeline-event-skill small {
+  margin-top: 1px;
+  color: #718178;
+  font-size: 0.56rem;
 }
 
 .combat-skill-timeline-event strong {
@@ -3168,7 +3192,7 @@ p {
     grid-template-columns: 44px minmax(92px, 1fr) minmax(90px, 1fr);
   }
 
-  .combat-skill-timeline-event small {
+  .combat-skill-timeline-event-mana {
     display: none;
   }
 }

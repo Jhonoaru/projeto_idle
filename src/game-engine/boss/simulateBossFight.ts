@@ -24,6 +24,14 @@ export function simulateBossFight(
   const combatSkillEffects = calculatePartyCombatSkillEffects(
     participants,
     boss.durationMinutes * 60_000,
+    {
+      attackTargets: [{ id: boss.id, name: boss.name, kind: "boss" }],
+      supportTargets: participants.map((character) => ({
+        id: character.id,
+        name: character.name,
+        kind: "ally",
+      })),
+    },
   );
   const risk = calculateBossRisk(characters, party, boss, combatSkillEffects);
   const defeated = random() <= risk.successChance;
@@ -52,7 +60,7 @@ export function simulateBossFight(
       return `${character?.name ?? "A party member"} morreu durante ${boss.name}.`;
     }),
     ...risk.warnings,
-    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage, ${combatSkillEffects.totalHealing.toLocaleString("en-US")} healing, ${combatSkillEffects.totalDamagePrevented.toLocaleString("en-US")} prevented.`,
+    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage, ${combatSkillEffects.totalHealing.toLocaleString("en-US")} healing, ${combatSkillEffects.totalDamagePrevented.toLocaleString("en-US")} prevented, ${combatSkillEffects.totalCriticalHits.toLocaleString("en-US")} critical hits.`,
     `Boss loot enviado para o Guild Depot.`,
     ...participants.map(
       (character) => `${character.name} recebeu cooldown de ${boss.cooldownHours}h em ${boss.name}.`,

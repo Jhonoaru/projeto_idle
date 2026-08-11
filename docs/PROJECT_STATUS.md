@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 138 concluida: timeline agora atribui alvos reais e acertos criticos deterministas sem alterar o dano agregado, rewards ou persistencia.
 - Etapa 137.5 concluida: QA real da timeline no Tauri/SQLite validou snapshots, limite de eventos, diversidade de skills, Hunt/Boss, catch-up offline e restauracao integral do save.
 - Etapa 137 concluida: timeline deterministica e limitada mostra casts amostrados, dano, cura, mitigacao e mana em Hunts e Bosses sem salvar eventos nem duplicar gameplay.
 - Etapa 136.5 concluida: QA real do relatorio detalhado no Tauri/SQLite validou persistencia, snapshots, Hunt/Boss, catch-up offline idempotente e restauracao integral do save.
@@ -11161,6 +11162,68 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 138 - alvos e acertos criticos deterministas na timeline de combate.
+
+## Etapa 138 - Alvos e acertos criticos deterministas
+
+Status: concluida.
+
+Alvos reais:
+
+- Ataques de Hunt selecionam deterministicamente entre os monstros reais da area.
+- Ataques de Boss apontam para o Boss real da tentativa.
+- Suportes solo apontam para o proprio personagem.
+- Suportes de party selecionam deterministicamente entre os integrantes e identificam `Self` quando o alvo e o conjurador.
+- Chamadas sem contexto explicito usam o alvo salvo na action como fallback seguro.
+- Cada evento passa a carregar target ID, nome e tipo: monster, boss, ally, self ou encounter.
+
+Criticos deterministas:
+
+- A quantidade de criticos por skill deriva de casts e `critChancePercent` do personagem.
+- Criticos sao distribuidos por ordinal de cast com fase estavel baseada em personagem e skill.
+- O peso de um critico usa a mesma expectativa de `critDamagePercent` que ja participava do dano agregado.
+- Arredondamento cumulativo ponderado garante que a soma de todos os casts continue exatamente igual ao dano total anterior.
+- `0%` de chance produz zero criticos e `100%` marca todos os ataques, sem aplicar dano duas vezes.
+- Skills de suporte nao geram criticos ofensivos.
+
+Relatorio e UI:
+
+- O resumo mostra total de casts e criticos ao lado da mana.
+- Cada evento exibe skill, alvo e contribuicao; eventos criticos recebem texto `CRIT` e destaque dourado.
+- Marcadores criticos tambem sao destacados na trilha temporal.
+- O log compacto de Hunt e Boss inclui a contagem total de critical hits sem criar spam por evento.
+- No mobile, o alvo continua visivel e apenas a coluna secundaria de mana e ocultada.
+
+Persistencia e gameplay:
+
+- Nenhuma migration ou novo estado salvo foi necessario.
+- Alvos e criticos sao derivados na resolucao a partir do snapshot, personagens e encontro real.
+- XP, gold, loot, risco, supplies e bonus de clear speed nao recebem uma segunda aplicacao.
+- O total de dano existente e preservado; a mudanca detalha como ele e distribuido visualmente.
+
+Validacao:
+
+- Fixture deterministica passou em 14/14 checks: repetibilidade, somatorios, criticos, targets, party e integracao com Boss Result.
+- Uma timeline curta sem eventos omitidos somou exatamente o dano dos eventos ao dano agregado.
+- A Hunt de teste alternou entre Mud Rotter e Cave Spider e manteve suporte em Self.
+- A party Guardian/Warden/Arcanist apontou ataques para Khazgrim Gatekeeper e suportes para integrantes reais.
+- O Boss Result recebeu o mesmo relatorio calculado diretamente pela party.
+- A fixture de 60 minutos registrou 1.323 casts e 378 criticos com chance configurada de 35% nas skills ofensivas.
+- Desktop em 1280px e mobile em 390px permaneceram sem overflow horizontal.
+- No mobile, o alvo ocupou 112px dentro do evento de 304px e continuou legivel.
+- Evento validado visualmente: `Verdant Wave`, alvo `Cave Spider`, `CRIT / 1.791 dmg`.
+- Nenhum erro ou warning foi registrado no console.
+- Fixture e desvio temporario de bootstrap foram removidos integralmente.
+- `npm run build` passou depois da remocao com 466 modulos.
+
+Limitacoes atuais:
+
+- Alvos representam atribuicao da telemetria e ainda nao possuem HP individual persistente na simulacao idle.
+- Nao existem miss, dodge, resistencia elemental, fraqueza, overheal ou escudo restante.
+- Criticos de cura e mitigacao nao foram implementados.
+
+Proximo passo sugerido:
+
+- Etapa 138.5 - QA de alvos e criticos no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

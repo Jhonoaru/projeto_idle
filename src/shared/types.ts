@@ -1141,6 +1141,7 @@ export interface CombatSkillEffectEntry {
   damageDealt: number;
   healingDone: number;
   damagePrevented: number;
+  criticalHits: number;
 }
 
 export interface CombatSkillEffectSummary {
@@ -1152,6 +1153,7 @@ export interface CombatSkillEffectSummary {
   totalDamage: number;
   totalHealing: number;
   totalDamagePrevented: number;
+  totalCriticalHits: number;
   damagePerMinute: number;
   healingPerMinute: number;
   entries: CombatSkillEffectEntry[];
@@ -1165,6 +1167,10 @@ export interface CombatSkillTimelineEvent {
   skillId: string;
   skillName: string;
   category: "attack" | "support";
+  targetId: string;
+  targetName: string;
+  targetKind: CombatSkillTargetKind;
+  critical: boolean;
   manaCost: number;
   damageDealt: number;
   healingDone: number;
@@ -1175,7 +1181,21 @@ export interface CombatSkillTimelineSummary {
   durationMs: number;
   totalEvents: number;
   omittedEvents: number;
+  totalCriticalHits: number;
   events: CombatSkillTimelineEvent[];
+}
+
+export type CombatSkillTargetKind = "monster" | "boss" | "ally" | "self" | "encounter";
+
+export interface CombatSkillTarget {
+  id: string;
+  name: string;
+  kind: CombatSkillTargetKind;
+}
+
+export interface CombatSkillEffectOptions {
+  attackTargets?: CombatSkillTarget[];
+  supportTargets?: CombatSkillTarget[];
 }
 
 export interface CombatSkillPartyEffectSummary {
@@ -1186,6 +1206,7 @@ export interface CombatSkillPartyEffectSummary {
   totalDamage: number;
   totalHealing: number;
   totalDamagePrevented: number;
+  totalCriticalHits: number;
   members: Array<{
     characterId: string;
     characterName: string;

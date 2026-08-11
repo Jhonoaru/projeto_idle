@@ -120,6 +120,14 @@ export function finishHunt(
     character,
     character.currentAction,
     durationMinutes * 60_000,
+    {
+      attackTargets: hunt.monsters.map((monster) => ({
+        id: monster.id,
+        name: monster.name,
+        kind: "monster",
+      })),
+      supportTargets: [{ id: character.id, name: character.name, kind: "self" }],
+    },
   );
   const baseResult = simulateHunt({
     character,

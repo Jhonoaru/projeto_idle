@@ -12,7 +12,7 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
         <ReportMetric label="Damage" value={effects.totalDamage} detail={`${effects.damagePerMinute.toLocaleString("en-US")}/min`} />
         <ReportMetric label="Healing" value={effects.totalHealing} detail={`${effects.healingPerMinute.toLocaleString("en-US")}/min`} />
         <ReportMetric label="Prevented" value={effects.totalDamagePrevented} />
-        <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts`} />
+        <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
       </div>
 
       <div className="combat-skill-report-list" role="table" aria-label="Combat skill contribution report">
@@ -45,7 +45,7 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
           <div className="combat-skill-timeline-track" aria-hidden="true">
             {effects.timeline.events.map((event) => (
               <i
-                className={`is-${event.category}`}
+                className={`is-${event.category}${event.critical ? " is-critical" : ""}`}
                 key={`${event.sequence}-${event.skillId}`}
                 style={{ left: `${event.progressPercent}%` }}
               />
@@ -53,11 +53,14 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
           </div>
           <div className="combat-skill-timeline-list" role="list" aria-label="Sampled combat cast events">
             {effects.timeline.events.map((event) => (
-              <div className={`combat-skill-timeline-event is-${event.category}`} role="listitem" key={`${event.sequence}-${event.skillId}`}>
+              <div className={`combat-skill-timeline-event is-${event.category}${event.critical ? " is-critical" : ""}`} role="listitem" key={`${event.sequence}-${event.skillId}`}>
                 <time>{formatElapsed(event.occurredAtMs)}</time>
-                <span>{event.skillName}</span>
+                <div className="combat-skill-timeline-event-skill">
+                  <span>{event.skillName}</span>
+                  <small>{formatTarget(event)}</small>
+                </div>
                 <strong>{formatEventContribution(event)}</strong>
-                <small>{event.manaCost} mana</small>
+                <small className="combat-skill-timeline-event-mana">{event.manaCost} mana</small>
               </div>
             ))}
           </div>
@@ -77,7 +80,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
         <ReportMetric label="Party Damage" value={effects.totalDamage} />
         <ReportMetric label="Party Healing" value={effects.totalHealing} />
         <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented} />
-        <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts`} />
+        <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
       </div>
       {effects.members.map((member) => (
         <section key={member.characterId}>
@@ -118,5 +121,11 @@ function formatEventContribution(event: CombatSkillEffectSummary["timeline"]["ev
     event.healingDone > 0 ? `${event.healingDone.toLocaleString("en-US")} heal` : "",
     event.damagePrevented > 0 ? `${event.damagePrevented.toLocaleString("en-US")} blocked` : "",
   ].filter(Boolean);
-  return parts.join(" / ") || "Utility cast";
+  const contribution = parts.join(" / ") || "Utility cast";
+  return event.critical ? `CRIT / ${contribution}` : contribution;
+}
+
+function formatTarget(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
+  if (event.targetKind === "self") return "Self";
+  return event.targetName;
 }

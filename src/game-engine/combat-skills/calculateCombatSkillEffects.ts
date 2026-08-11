@@ -2,8 +2,10 @@ import { combatSkills } from "../../data/combatSkills";
 import type {
   Character,
   CharacterAction,
+  CombatSkillEffectOptions,
   CombatSkillEffectSummary,
   CombatSkillPartyEffectSummary,
+  CombatSkillTarget,
 } from "../../shared/types";
 import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
 
@@ -15,6 +17,7 @@ export function calculateCombatSkillEffects(
   character: Character,
   action: CharacterAction | undefined,
   elapsedMs: number,
+  options: CombatSkillEffectOptions = {},
 ): CombatSkillEffectSummary {
   const durationMinutes = normalizeDurationMinutes(elapsedMs);
   const rotation = simulateCombatSkillRotation(character, action, elapsedMs);
@@ -23,6 +26,7 @@ export function calculateCombatSkillEffects(
     const definition = combatSkills.find((skill) => skill.id === cast.skillId);
     if (!definition || cast.casts <= 0) return [];
 
+    const criticalProfile = getCriticalProfile(character, definition.id, cast.casts, definition.category === "attack");
     return [{
       skillId: definition.id,
       skillName: definition.name,
@@ -33,6 +37,7 @@ export function calculateCombatSkillEffects(
       damageDealt: contributionTotal(cast.casts, combatBase.damage, definition.effect.damage),
       healingDone: contributionTotal(cast.casts, combatBase.healing, definition.effect.healing),
       damagePrevented: contributionTotal(cast.casts, combatBase.mitigation, definition.effect.mitigation),
+      criticalHits: criticalProfile.criticalHits,
     }];
   });
   const total = entries.reduce(
@@ -48,14 +53,18 @@ export function calculateCombatSkillEffects(
       damage: sum.damage + entry.damageDealt,
       healing: sum.healing + entry.healingDone,
       prevented: sum.prevented + entry.damagePrevented,
+      criticalHits: sum.criticalHits + entry.criticalHits,
     }),
-    { damage: 0, healing: 0, prevented: 0 },
+    { damage: 0, healing: 0, prevented: 0, criticalHits: 0 },
   );
   const entriesBySkillId = new Map(entries.map((entry) => [entry.skillId, entry]));
   const timelineEvents = rotation.timeline.events.flatMap((event) => {
     const definition = combatSkills.find((skill) => skill.id === event.skillId);
     const entry = entriesBySkillId.get(event.skillId);
     if (!definition || !entry) return [];
+    const criticalProfile = getCriticalProfile(character, definition.id, entry.casts, definition.category === "attack");
+    const critical = isCriticalCast(criticalProfile, event.skillCastIndex);
+    const target = getEventTarget(character, action, definition.category, event, options);
 
     return [{
       sequence: event.sequence,
@@ -64,8 +73,12 @@ export function calculateCombatSkillEffects(
       skillId: definition.id,
       skillName: definition.name,
       category: definition.category,
+      targetId: target.id,
+      targetName: target.name,
+      targetKind: target.kind,
+      critical,
       manaCost: event.manaCost,
-      damageDealt: contributionAtCast(entry.damageDealt, entry.casts, event.skillCastIndex),
+      damageDealt: damageContributionAtCast(entry.damageDealt, entry.casts, event.skillCastIndex, criticalProfile),
       healingDone: contributionAtCast(entry.healingDone, entry.casts, event.skillCastIndex),
       damagePrevented: contributionAtCast(entry.damagePrevented, entry.casts, event.skillCastIndex),
     }];
@@ -80,6 +93,7 @@ export function calculateCombatSkillEffects(
     totalDamage: contribution.damage,
     totalHealing: contribution.healing,
     totalDamagePrevented: contribution.prevented,
+    totalCriticalHits: contribution.criticalHits,
     damagePerMinute: perMinute(contribution.damage, durationMinutes),
     healingPerMinute: perMinute(contribution.healing, durationMinutes),
     entries,
@@ -87,6 +101,7 @@ export function calculateCombatSkillEffects(
       durationMs: rotation.timeline.durationMs,
       totalEvents: rotation.timeline.totalEvents,
       omittedEvents: Math.max(0, rotation.timeline.totalEvents - timelineEvents.length),
+      totalCriticalHits: contribution.criticalHits,
       events: timelineEvents,
     },
   };
@@ -95,11 +110,18 @@ export function calculateCombatSkillEffects(
 export function calculatePartyCombatSkillEffects(
   characters: Character[],
   elapsedMs: number,
+  options: CombatSkillEffectOptions = {},
 ): CombatSkillPartyEffectSummary {
+  const supportTargets = normalizeTargets(options.supportTargets).length > 0
+    ? options.supportTargets
+    : characters.map((character) => ({ id: character.id, name: character.name, kind: "ally" as const }));
   const members = characters.map((character) => ({
     characterId: character.id,
     characterName: character.name,
-    effects: calculateCombatSkillEffects(character, character.currentAction, elapsedMs),
+    effects: calculateCombatSkillEffects(character, character.currentAction, elapsedMs, {
+      ...options,
+      supportTargets,
+    }),
   }));
   const divisor = Math.max(1, members.length);
 
@@ -111,12 +133,13 @@ export function calculatePartyCombatSkillEffects(
     totalDamage: members.reduce((sum, member) => sum + member.effects.totalDamage, 0),
     totalHealing: members.reduce((sum, member) => sum + member.effects.totalHealing, 0),
     totalDamagePrevented: members.reduce((sum, member) => sum + member.effects.totalDamagePrevented, 0),
+    totalCriticalHits: members.reduce((sum, member) => sum + member.effects.totalCriticalHits, 0),
     members,
   };
 }
 
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
-  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage, ${effects.totalHealing.toLocaleString("en-US")} healing, ${effects.totalDamagePrevented.toLocaleString("en-US")} prevented.`;
+  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage, ${effects.totalHealing.toLocaleString("en-US")} healing, ${effects.totalDamagePrevented.toLocaleString("en-US")} prevented, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.`;
 }
 
 function getCombatContributionBase(character: Character) {
@@ -146,6 +169,82 @@ function contributionAtCast(total: number, casts: number, castIndex: number) {
   const base = Math.floor(total / casts);
   const remainder = total % casts;
   return base + (castIndex <= remainder ? 1 : 0);
+}
+
+interface CriticalProfile {
+  casts: number;
+  criticalHits: number;
+  bonusWeight: number;
+  phase: number;
+}
+
+function getCriticalProfile(character: Character, skillId: string, casts: number, eligible: boolean): CriticalProfile {
+  const normalizedCasts = Math.max(0, Math.floor(casts));
+  if (!eligible || normalizedCasts <= 0) return { casts: normalizedCasts, criticalHits: 0, bonusWeight: 0, phase: 0 };
+  const chance = Math.min(100, safeNumber(character.attributes?.critChancePercent));
+  const criticalHits = Math.min(normalizedCasts, Math.round(normalizedCasts * chance / 100));
+  const criticalDamage = Math.min(300, safeNumber(character.attributes?.critDamagePercent));
+  return {
+    casts: normalizedCasts,
+    criticalHits,
+    bonusWeight: 0.5 + criticalDamage / 100,
+    phase: stableHash(`${character.id}:${skillId}:critical`) % normalizedCasts,
+  };
+}
+
+function isCriticalCast(profile: CriticalProfile, castIndex: number) {
+  if (profile.criticalHits <= 0 || castIndex <= 0 || castIndex > profile.casts) return false;
+  return criticalCountThrough(profile, castIndex) > criticalCountThrough(profile, castIndex - 1);
+}
+
+function damageContributionAtCast(total: number, casts: number, castIndex: number, profile: CriticalProfile) {
+  if (total <= 0 || casts <= 0 || castIndex <= 0) return 0;
+  const criticalBefore = criticalCountThrough(profile, castIndex - 1);
+  const criticalThrough = criticalCountThrough(profile, castIndex);
+  const previousWeight = castIndex - 1 + criticalBefore * profile.bonusWeight;
+  const currentWeight = castIndex + criticalThrough * profile.bonusWeight;
+  const totalWeight = casts + profile.criticalHits * profile.bonusWeight;
+  return Math.round(total * currentWeight / totalWeight) - Math.round(total * previousWeight / totalWeight);
+}
+
+function criticalCountThrough(profile: CriticalProfile, castIndex: number) {
+  if (profile.casts <= 0 || profile.criticalHits <= 0 || castIndex <= 0) return 0;
+  const boundedIndex = Math.min(profile.casts, Math.floor(castIndex));
+  return Math.floor((boundedIndex * profile.criticalHits + profile.phase) / profile.casts);
+}
+
+function getEventTarget(
+  character: Character,
+  action: CharacterAction | undefined,
+  category: "attack" | "support",
+  event: { sequence: number; skillId: string },
+  options: CombatSkillEffectOptions,
+): CombatSkillTarget {
+  const configuredTargets = normalizeTargets(category === "attack" ? options.attackTargets : options.supportTargets);
+  const fallback = category === "attack"
+    ? {
+        id: action?.targetId ?? "combat-encounter",
+        name: action?.targetName ?? "Combat Encounter",
+        kind: "encounter" as const,
+      }
+    : { id: character.id, name: character.name, kind: "self" as const };
+  const targets = configuredTargets.length > 0 ? configuredTargets : [fallback];
+  const target = targets[stableHash(`${character.id}:${event.skillId}:${event.sequence}:target`) % targets.length];
+  return target.id === character.id ? { ...target, kind: "self" } : target;
+}
+
+function normalizeTargets(targets: CombatSkillTarget[] | undefined) {
+  if (!Array.isArray(targets)) return [];
+  return targets.filter((target) => target && typeof target.id === "string" && target.id.length > 0 && typeof target.name === "string" && target.name.length > 0);
+}
+
+function stableHash(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
 }
 
 function progressPercent(occurredAtMs: number, durationMs: number) {
