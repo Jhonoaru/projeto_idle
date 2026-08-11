@@ -1157,6 +1157,32 @@ export interface CombatSkillEffectEntry {
   misses: number;
   dodges: number;
   criticalHits: number;
+  conditionType?: CombatConditionType;
+  conditionApplications: number;
+  conditionTicks: number;
+  conditionDamage: number;
+  conditionUptimeSeconds: number;
+  conditionPotencyPercent: number;
+}
+
+export type CombatConditionType = "burn" | "poison" | "slow";
+
+export interface CombatConditionDefinition {
+  type: CombatConditionType;
+  applicationChancePercent: number;
+  durationSeconds: number;
+  tickIntervalSeconds?: number;
+  damagePercentPerTick?: number;
+  potencyPercent?: number;
+}
+
+export interface CombatConditionSummary {
+  type: CombatConditionType;
+  applications: number;
+  ticks: number;
+  damage: number;
+  uptimePercent: number;
+  potencyPercent: number;
 }
 
 export interface CombatSkillEffectSummary {
@@ -1188,12 +1214,21 @@ export interface CombatSkillEffectSummary {
   defenseDamageDelta: number;
   defenseMitigationPercent: number;
   armorPenetrationPercent: number;
+  directDamage: number;
   totalDamage: number;
   elementalDamageDelta: number;
   elementalModifierPercent: number;
   totalHealing: number;
   totalDamagePrevented: number;
   totalCriticalHits: number;
+  totalConditionApplications: number;
+  totalConditionTicks: number;
+  totalConditionDamage: number;
+  conditionDamagePercent: number;
+  slowUptimePercent: number;
+  conditionAttackBonusPercent: number;
+  conditionRiskReductionPercent: number;
+  conditions: CombatConditionSummary[];
   damagePerMinute: number;
   healingPerMinute: number;
   entries: CombatSkillEffectEntry[];
@@ -1222,6 +1257,12 @@ export interface CombatSkillTimelineEvent {
   elementalModifierPercent: number;
   healingDone: number;
   damagePrevented: number;
+  conditionType?: CombatConditionType;
+  conditionApplied: boolean;
+  conditionTicks: number;
+  conditionDamage: number;
+  conditionDurationSeconds: number;
+  conditionPotencyPercent: number;
 }
 
 export interface CombatSkillTimelineSummary {
@@ -1289,12 +1330,21 @@ export interface CombatSkillPartyEffectSummary {
   defenseDamageDelta: number;
   defenseMitigationPercent: number;
   armorPenetrationPercent: number;
+  directDamage: number;
   totalDamage: number;
   elementalDamageDelta: number;
   elementalModifierPercent: number;
   totalHealing: number;
   totalDamagePrevented: number;
   totalCriticalHits: number;
+  totalConditionApplications: number;
+  totalConditionTicks: number;
+  totalConditionDamage: number;
+  conditionDamagePercent: number;
+  slowUptimePercent: number;
+  conditionAttackBonusPercent: number;
+  conditionRiskReductionPercent: number;
+  conditions: CombatConditionSummary[];
   members: Array<{
     characterId: string;
     characterName: string;

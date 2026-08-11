@@ -9,11 +9,22 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
   return (
     <div className={`combat-skill-report${compact ? " is-compact" : ""}`}>
       <div className="combat-skill-report-summary">
-        <ReportMetric label="Damage" value={effects.totalDamage} detail={`${effects.damagePerMinute.toLocaleString("en-US")}/min / ${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
+        <ReportMetric label="Damage" value={effects.totalDamage} detail={`${effects.damagePerMinute.toLocaleString("en-US")}/min / ${effects.totalConditionDamage.toLocaleString("en-US")} DoT / ${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
         <ReportMetric label="Healing" value={effects.totalHealing} detail={`${effects.healingPerMinute.toLocaleString("en-US")}/min`} />
         <ReportMetric label="Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
       </div>
+
+      {effects.conditions.length > 0 ? (
+        <div className="combat-condition-strip" aria-label="Applied combat conditions">
+          {effects.conditions.map((condition) => (
+            <span className={`is-${condition.type}`} key={condition.type}>
+              <b>{conditionLabel(condition.type)}</b>
+              <small>{condition.applications} applied / {condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime / ${condition.potencyPercent}% power`}</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="combat-skill-report-list" role="table" aria-label="Combat skill contribution report">
         <div className="combat-skill-report-row is-header" role="row">
@@ -45,7 +56,7 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
           <div className="combat-skill-timeline-track" aria-hidden="true">
             {effects.timeline.events.map((event) => (
               <i
-                className={`is-${event.category} is-${event.outcome}${event.critical ? " is-critical" : ""}${defenseClassName(event.defenseMitigationPercent)}${elementalClassName(event.elementalModifierPercent)}`}
+                className={`is-${event.category} is-${event.outcome}${event.critical ? " is-critical" : ""}${defenseClassName(event.defenseMitigationPercent)}${elementalClassName(event.elementalModifierPercent)}${conditionClassName(event)}`}
                 key={`${event.sequence}-${event.skillId}`}
                 style={{ left: `${event.progressPercent}%` }}
               />
@@ -53,11 +64,11 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
           </div>
           <div className="combat-skill-timeline-list" role="list" aria-label="Sampled combat cast events">
             {effects.timeline.events.map((event) => (
-              <div className={`combat-skill-timeline-event is-${event.category} is-${event.outcome}${event.critical ? " is-critical" : ""}${defenseClassName(event.defenseMitigationPercent)}${elementalClassName(event.elementalModifierPercent)}`} role="listitem" key={`${event.sequence}-${event.skillId}`}>
+              <div className={`combat-skill-timeline-event is-${event.category} is-${event.outcome}${event.critical ? " is-critical" : ""}${defenseClassName(event.defenseMitigationPercent)}${elementalClassName(event.elementalModifierPercent)}${conditionClassName(event)}`} role="listitem" key={`${event.sequence}-${event.skillId}`}>
                 <time>{formatElapsed(event.occurredAtMs)}</time>
                 <div className="combat-skill-timeline-event-skill">
                   <span>{event.skillName}</span>
-                  <small>{formatTarget(event)}{formatEventDefense(event)}{formatEventElement(event)}</small>
+                  <small>{formatTarget(event)}{formatEventDefense(event)}{formatEventElement(event)}{formatEventCondition(event)}</small>
                 </div>
                 <strong>{formatEventContribution(event)}</strong>
                 <small className="combat-skill-timeline-event-mana">{event.manaCost} mana</small>
@@ -77,10 +88,10 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
   return (
     <div className="party-combat-skill-report">
       <div className="combat-skill-report-summary">
-        <ReportMetric label="Party Damage" value={effects.totalDamage} detail={`${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${effects.armorPenetrationPercent}% penetration / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
+        <ReportMetric label="Party Damage" value={effects.totalDamage} detail={`${effects.totalConditionDamage.toLocaleString("en-US")} conditions / ${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${effects.armorPenetrationPercent}% penetration / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
         <ReportMetric label="Party Healing" value={effects.totalHealing} />
         <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.blockRatePercent}% block rate`} />
-        <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
+        <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits / ${effects.totalConditionApplications} conditions`} />
       </div>
       {effects.members.map((member) => (
         <section key={member.characterId}>
@@ -120,6 +131,7 @@ function formatEventContribution(event: CombatSkillEffectSummary["timeline"]["ev
   if (event.outcome === "dodged") return "DODGED";
   const parts = [
     event.damageDealt > 0 ? `${event.damageDealt.toLocaleString("en-US")} dmg` : "",
+    event.conditionDamage > 0 ? `+${event.conditionDamage.toLocaleString("en-US")} DoT` : "",
     event.healingDone > 0 ? `${event.healingDone.toLocaleString("en-US")} heal` : "",
     event.damagePrevented > 0 ? `${event.damagePrevented.toLocaleString("en-US")} blocked` : "",
   ].filter(Boolean);
@@ -143,6 +155,22 @@ function formatEventElement(event: CombatSkillEffectSummary["timeline"]["events"
 function formatEventDefense(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
   if (event.outcome !== "hit" || event.baseDamageDealt <= 0) return "";
   return ` / Defense -${event.defenseMitigationPercent}% (${event.armorPenetrationPercent}% pen)`;
+}
+
+function formatEventCondition(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
+  if (!event.conditionType || event.outcome !== "hit") return "";
+  const label = conditionLabel(event.conditionType);
+  if (!event.conditionApplied) return ` / ${label} did not apply`;
+  if (event.conditionType === "slow") return ` / ${label} ${event.conditionDurationSeconds}s at ${event.conditionPotencyPercent}%`;
+  return ` / ${label} ${event.conditionTicks} ticks, ${event.conditionDamage.toLocaleString("en-US")} dmg`;
+}
+
+function conditionLabel(type: NonNullable<CombatSkillEffectSummary["entries"][number]["conditionType"]>) {
+  return type[0].toUpperCase() + type.slice(1);
+}
+
+function conditionClassName(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
+  return event.conditionApplied && event.conditionType ? ` is-condition-${event.conditionType}` : "";
 }
 
 function formatElementalModifier(value: number) {

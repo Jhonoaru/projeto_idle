@@ -3,6 +3,8 @@ import type {
   Character,
   CharacterAction,
   CombatAttackOutcome,
+  CombatConditionDefinition,
+  CombatConditionSummary,
   CombatSkillEffectOptions,
   CombatSkillEffectSummary,
   CombatSkillPartyEffectSummary,
@@ -13,6 +15,9 @@ import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
 const MAX_ATTACK_BONUS_PERCENT = 8;
 const MAX_DEATH_RISK_REDUCTION_PERCENT = 10;
 const MAX_SUPPLY_REDUCTION_PERCENT = 8;
+const MAX_CONDITION_ATTACK_BONUS_PERCENT = 3;
+const MAX_CONDITION_RISK_REDUCTION_PERCENT = 2;
+const MAX_CONDITION_DAMAGE_PERCENT = 25;
 
 export function calculateCombatSkillEffects(
   character: Character,
@@ -40,6 +45,8 @@ export function calculateCombatSkillEffects(
       cast.casts,
       criticalProfile,
       definition.effect.armorPenetration,
+      definition.condition,
+      elapsedMs,
       options,
     );
     return [{
@@ -63,6 +70,12 @@ export function calculateCombatSkillEffects(
       misses: attackResolution.misses,
       dodges: attackResolution.dodges,
       criticalHits: attackResolution.criticalHits,
+      conditionType: definition.condition?.type,
+      conditionApplications: attackResolution.conditionApplications,
+      conditionTicks: attackResolution.conditionTicks,
+      conditionDamage: attackResolution.conditionDamage,
+      conditionUptimeSeconds: attackResolution.conditionUptimeSeconds,
+      conditionPotencyPercent: boundedValue(definition.condition?.potencyPercent, 0, 60, 0),
     }];
   });
   const total = entries.reduce(
@@ -85,9 +98,19 @@ export function calculateCombatSkillEffects(
       misses: sum.misses + entry.misses,
       dodges: sum.dodges + entry.dodges,
       criticalHits: sum.criticalHits + entry.criticalHits,
+      conditionApplications: sum.conditionApplications + entry.conditionApplications,
+      conditionTicks: sum.conditionTicks + entry.conditionTicks,
+      conditionDamage: sum.conditionDamage + entry.conditionDamage,
     }),
-    { baseDamage: 0, landedBaseDamage: 0, damageAfterDefense: 0, damage: 0, healing: 0, prevented: 0, hits: 0, misses: 0, dodges: 0, criticalHits: 0 },
+    { baseDamage: 0, landedBaseDamage: 0, damageAfterDefense: 0, damage: 0, healing: 0, prevented: 0, hits: 0, misses: 0, dodges: 0, criticalHits: 0, conditionApplications: 0, conditionTicks: 0, conditionDamage: 0 },
   );
+  const conditions = aggregateConditions(entries, durationMinutes);
+  const slow = conditions.find((condition) => condition.type === "slow");
+  const slowUptimePercent = slow?.uptimePercent ?? 0;
+  const slowControlPercent = slowUptimePercent * (slow?.potencyPercent ?? 0) / 100;
+  const conditionDamagePercent = positiveModifierPercent(contribution.damage, contribution.damage + contribution.conditionDamage);
+  const conditionAttackBonusPercent = boundedPercent(conditionDamagePercent * 0.08 + slowControlPercent * 0.06, MAX_CONDITION_ATTACK_BONUS_PERCENT);
+  const conditionRiskReductionPercent = boundedPercent(slowControlPercent * 0.08, MAX_CONDITION_RISK_REDUCTION_PERCENT);
   const entriesBySkillId = new Map(entries.map((entry) => [entry.skillId, entry]));
   const timelineEvents = rotation.timeline.events.flatMap((event) => {
     const definition = combatSkills.find((skill) => skill.id === event.skillId);
@@ -103,6 +126,15 @@ export function calculateCombatSkillEffects(
     const armorPenetrationPercent = getArmorPenetrationPercent(character, definition.effect.armorPenetration);
     const damageAfterDefense = outcome === "hit" ? applyTargetDefense(baseDamageDealt, target, armorPenetrationPercent) : 0;
     const damageDealt = outcome === "hit" ? applyElementalModifier(damageAfterDefense, target, definition.damageType) : 0;
+    const condition = calculateConditionAtCast(
+      character.id,
+      target,
+      definition.id,
+      event.skillCastIndex,
+      definition.condition,
+      damageDealt,
+      Math.max(0, rotation.timeline.durationMs - event.occurredAtMs),
+    );
 
     return [{
       sequence: event.sequence,
@@ -126,6 +158,12 @@ export function calculateCombatSkillEffects(
       elementalModifierPercent: getElementalModifierPercent(target, definition.damageType),
       healingDone: contributionAtCast(entry.healingDone, entry.casts, event.skillCastIndex),
       damagePrevented: contributionAtCast(entry.damagePrevented, entry.casts, event.skillCastIndex),
+      conditionType: definition.condition?.type,
+      conditionApplied: condition.applied,
+      conditionTicks: condition.ticks,
+      conditionDamage: condition.damage,
+      conditionDurationSeconds: condition.durationSeconds,
+      conditionPotencyPercent: condition.potencyPercent,
     }];
   });
   const totalAttacks = contribution.hits + contribution.misses + contribution.dodges;
@@ -134,8 +172,8 @@ export function calculateCombatSkillEffects(
   return {
     totalCasts: rotation.totalCasts,
     manaSpent: rotation.manaSpent,
-    attackBonusPercent: boundedPercent(total.attack * avoidanceEffectiveness(contribution.baseDamage, contribution.landedBaseDamage) * defenseEffectiveness(contribution.landedBaseDamage, contribution.damageAfterDefense) * elementalEffectiveness(contribution.damageAfterDefense, contribution.damage) * 0.35 / durationMinutes, MAX_ATTACK_BONUS_PERCENT),
-    deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes + dodgeRiskReductionPercent + defenseProfile.blockRiskReductionPercent, MAX_DEATH_RISK_REDUCTION_PERCENT),
+    attackBonusPercent: boundedPercent(total.attack * avoidanceEffectiveness(contribution.baseDamage, contribution.landedBaseDamage) * defenseEffectiveness(contribution.landedBaseDamage, contribution.damageAfterDefense) * elementalEffectiveness(contribution.damageAfterDefense, contribution.damage) * 0.35 / durationMinutes + conditionAttackBonusPercent, MAX_ATTACK_BONUS_PERCENT),
+    deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes + dodgeRiskReductionPercent + defenseProfile.blockRiskReductionPercent + conditionRiskReductionPercent, MAX_DEATH_RISK_REDUCTION_PERCENT),
     supplyReductionPercent: boundedPercent(total.supply * 0.7 / durationMinutes, MAX_SUPPLY_REDUCTION_PERCENT),
     dodgeRiskReductionPercent,
     ...defenseProfile,
@@ -151,13 +189,22 @@ export function calculateCombatSkillEffects(
     defenseDamageDelta: contribution.damageAfterDefense - contribution.landedBaseDamage,
     defenseMitigationPercent: reductionPercent(contribution.landedBaseDamage, contribution.damageAfterDefense),
     armorPenetrationPercent: weightedPenetration(entries),
-    totalDamage: contribution.damage,
+    directDamage: contribution.damage,
+    totalDamage: contribution.damage + contribution.conditionDamage,
     elementalDamageDelta: contribution.damage - contribution.damageAfterDefense,
     elementalModifierPercent: modifierPercent(contribution.damageAfterDefense, contribution.damage),
     totalHealing: contribution.healing,
     totalDamagePrevented: contribution.prevented,
     totalCriticalHits: contribution.criticalHits,
-    damagePerMinute: perMinute(contribution.damage, durationMinutes),
+    totalConditionApplications: contribution.conditionApplications,
+    totalConditionTicks: contribution.conditionTicks,
+    totalConditionDamage: contribution.conditionDamage,
+    conditionDamagePercent,
+    slowUptimePercent,
+    conditionAttackBonusPercent,
+    conditionRiskReductionPercent,
+    conditions,
+    damagePerMinute: perMinute(contribution.damage + contribution.conditionDamage, durationMinutes),
     healingPerMinute: perMinute(contribution.healing, durationMinutes),
     entries,
     timeline: {
@@ -197,11 +244,16 @@ export function calculatePartyCombatSkillEffects(
   const baseTotalDamage = members.reduce((sum, member) => sum + member.effects.baseTotalDamage, 0);
   const landedBaseDamage = members.reduce((sum, member) => sum + member.effects.landedBaseDamage, 0);
   const damageAfterDefense = members.reduce((sum, member) => sum + member.effects.damageAfterDefense, 0);
+  const directDamage = members.reduce((sum, member) => sum + member.effects.directDamage, 0);
   const totalDamage = members.reduce((sum, member) => sum + member.effects.totalDamage, 0);
   const incomingAttacks = members.reduce((sum, member) => sum + member.effects.incomingAttacks, 0);
   const blockedAttacks = members.reduce((sum, member) => sum + member.effects.blockedAttacks, 0);
   const incomingDamage = members.reduce((sum, member) => sum + member.effects.incomingDamage, 0);
   const blockedDamage = members.reduce((sum, member) => sum + member.effects.blockedDamage, 0);
+  const totalConditionApplications = members.reduce((sum, member) => sum + member.effects.totalConditionApplications, 0);
+  const totalConditionTicks = members.reduce((sum, member) => sum + member.effects.totalConditionTicks, 0);
+  const totalConditionDamage = members.reduce((sum, member) => sum + member.effects.totalConditionDamage, 0);
+  const conditions = aggregatePartyConditions(members);
 
   return {
     attackBonusPercent: rounded(members.reduce((sum, member) => sum + member.effects.attackBonusPercent, 0) / divisor),
@@ -231,18 +283,30 @@ export function calculatePartyCombatSkillEffects(
     defenseDamageDelta: damageAfterDefense - landedBaseDamage,
     defenseMitigationPercent: reductionPercent(landedBaseDamage, damageAfterDefense),
     armorPenetrationPercent: weightedPartyPenetration(members),
+    directDamage,
     totalDamage,
     elementalDamageDelta: members.reduce((sum, member) => sum + member.effects.elementalDamageDelta, 0),
-    elementalModifierPercent: modifierPercent(damageAfterDefense, totalDamage),
+    elementalModifierPercent: modifierPercent(damageAfterDefense, directDamage),
     totalHealing: members.reduce((sum, member) => sum + member.effects.totalHealing, 0),
     totalDamagePrevented: members.reduce((sum, member) => sum + member.effects.totalDamagePrevented, 0),
     totalCriticalHits: members.reduce((sum, member) => sum + member.effects.totalCriticalHits, 0),
+    totalConditionApplications,
+    totalConditionTicks,
+    totalConditionDamage,
+    conditionDamagePercent: positiveModifierPercent(directDamage, totalDamage),
+    slowUptimePercent: rounded(members.reduce((sum, member) => sum + member.effects.slowUptimePercent, 0) / divisor),
+    conditionAttackBonusPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionAttackBonusPercent, 0) / divisor),
+    conditionRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionRiskReductionPercent, 0) / divisor),
+    conditions,
     members,
   };
 }
 
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
-  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (-${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits. Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).`;
+  const conditionReport = effects.totalConditionApplications > 0
+    ? ` Conditions: ${effects.totalConditionApplications.toLocaleString("en-US")} applied, ${effects.totalConditionTicks.toLocaleString("en-US")} ticks, ${effects.totalConditionDamage.toLocaleString("en-US")} damage${effects.slowUptimePercent > 0 ? `, ${effects.slowUptimePercent}% slow uptime` : ""}.`
+    : " Conditions: none applied.";
+  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (${effects.totalConditionDamage.toLocaleString("en-US")} conditions, -${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.${conditionReport} Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).`;
 }
 
 function calculateAttackResolution(
@@ -255,6 +319,8 @@ function calculateAttackResolution(
   casts: number,
   criticalProfile: CriticalProfile,
   skillArmorPenetrationPercent: number,
+  condition: CombatConditionDefinition | undefined,
+  elapsedMs: number,
   options: CombatSkillEffectOptions,
 ) {
   let landedBaseDamage = 0;
@@ -264,7 +330,11 @@ function calculateAttackResolution(
   let misses = 0;
   let dodges = 0;
   let criticalHits = 0;
-  if (category !== "attack") return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits };
+  let conditionApplications = 0;
+  let conditionTicks = 0;
+  let conditionDamage = 0;
+  let conditionUptimeSeconds = 0;
+  if (category !== "attack") return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds };
   const armorPenetrationPercent = getArmorPenetrationPercent(character, skillArmorPenetrationPercent);
   for (let skillCastIndex = 1; skillCastIndex <= casts; skillCastIndex += 1) {
     const target = getEventTarget(character, action, category, { skillId, skillCastIndex }, options);
@@ -282,10 +352,103 @@ function calculateAttackResolution(
     landedBaseDamage += baseDamage;
     const defendedDamage = applyTargetDefense(baseDamage, target, armorPenetrationPercent);
     damageAfterDefense += defendedDamage;
-    damage += applyElementalModifier(defendedDamage, target, damageType);
+    const dealtDamage = applyElementalModifier(defendedDamage, target, damageType);
+    damage += dealtDamage;
+    const occurredAtMs = casts <= 0 ? 0 : (skillCastIndex - 1) / casts * Math.max(0, elapsedMs);
+    const conditionResult = calculateConditionAtCast(
+      character.id,
+      target,
+      skillId,
+      skillCastIndex,
+      condition,
+      dealtDamage,
+      Math.max(0, elapsedMs - occurredAtMs),
+    );
+    conditionApplications += conditionResult.applied ? 1 : 0;
+    conditionTicks += conditionResult.ticks;
+    conditionDamage += conditionResult.damage;
+    conditionUptimeSeconds += conditionResult.durationSeconds;
     if (isCriticalCast(criticalProfile, skillCastIndex)) criticalHits += 1;
   }
-  return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits };
+  conditionDamage = Math.min(conditionDamage, Math.round(damage * MAX_CONDITION_DAMAGE_PERCENT / 100));
+  return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds };
+}
+
+function calculateConditionAtCast(
+  characterId: string,
+  target: CombatSkillTarget,
+  skillId: string,
+  skillCastIndex: number,
+  condition: CombatConditionDefinition | undefined,
+  directDamage: number,
+  remainingMs: number,
+) {
+  const empty = {
+    applied: false,
+    ticks: 0,
+    damage: 0,
+    durationSeconds: 0,
+    potencyPercent: 0,
+  };
+  if (!condition || directDamage <= 0) return empty;
+  const chance = boundedValue(condition.applicationChancePercent, 0, 100, 0);
+  const applied = deterministicPercent(`${characterId}:${target.id}:${skillId}:${skillCastIndex}:${condition.type}:condition`) < chance;
+  if (!applied) return empty;
+  const configuredDuration = boundedValue(condition.durationSeconds, 0, 60, 0);
+  const durationSeconds = rounded(Math.min(configuredDuration, Math.max(0, remainingMs) / 1_000));
+  if (durationSeconds <= 0) return empty;
+  const potencyPercent = boundedValue(condition.potencyPercent, 0, 60, 0);
+  if (condition.type === "slow") {
+    return { applied: true, ticks: 0, damage: 0, durationSeconds, potencyPercent };
+  }
+  const tickIntervalSeconds = boundedValue(condition.tickIntervalSeconds, 0.5, 30, 1);
+  const ticks = Math.max(0, Math.floor(durationSeconds / tickIntervalSeconds));
+  const damagePercentPerTick = boundedValue(condition.damagePercentPerTick, 0, 10, 0);
+  const rawDamage = directDamage * damagePercentPerTick * ticks / 100;
+  const damage = Math.round(Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Number.isFinite(rawDamage) ? rawDamage : 0)));
+  return { applied: true, ticks, damage, durationSeconds, potencyPercent };
+}
+
+function aggregateConditions(
+  entries: CombatSkillEffectSummary["entries"],
+  durationMinutes: number,
+): CombatConditionSummary[] {
+  return (["burn", "poison", "slow"] as const).flatMap((type) => {
+    const matching = entries.filter((entry) => entry.conditionType === type);
+    const applications = matching.reduce((sum, entry) => sum + entry.conditionApplications, 0);
+    if (applications <= 0) return [];
+    const uptimeSeconds = matching.reduce((sum, entry) => sum + entry.conditionUptimeSeconds, 0);
+    const potencyWeight = matching.reduce((sum, entry) => sum + entry.conditionUptimeSeconds * entry.conditionPotencyPercent, 0);
+    return [{
+      type,
+      applications,
+      ticks: matching.reduce((sum, entry) => sum + entry.conditionTicks, 0),
+      damage: matching.reduce((sum, entry) => sum + entry.conditionDamage, 0),
+      uptimePercent: rounded(Math.min(100, uptimeSeconds / Math.max(1, durationMinutes * 60) * 100)),
+      potencyPercent: uptimeSeconds > 0 ? rounded(potencyWeight / uptimeSeconds) : 0,
+    }];
+  });
+}
+
+function aggregatePartyConditions(
+  members: CombatSkillPartyEffectSummary["members"],
+): CombatConditionSummary[] {
+  return (["burn", "poison", "slow"] as const).flatMap((type) => {
+    const matching = members.flatMap((member) => member.effects.conditions.filter((condition) => condition.type === type));
+    const applications = matching.reduce((sum, condition) => sum + condition.applications, 0);
+    if (applications <= 0) return [];
+    const uptimeWeight = matching.reduce((sum, condition) => sum + condition.uptimePercent, 0);
+    return [{
+      type,
+      applications,
+      ticks: matching.reduce((sum, condition) => sum + condition.ticks, 0),
+      damage: matching.reduce((sum, condition) => sum + condition.damage, 0),
+      uptimePercent: rounded(matching.reduce((sum, condition) => sum + condition.uptimePercent, 0) / Math.max(1, members.length)),
+      potencyPercent: uptimeWeight > 0
+        ? rounded(matching.reduce((sum, condition) => sum + condition.potencyPercent * condition.uptimePercent, 0) / uptimeWeight)
+        : 0,
+    }];
+  });
 }
 
 function getCombatContributionBase(character: Character) {
@@ -557,6 +720,10 @@ function weightedMemberMetric(
 function modifierPercent(baseDamage: number, adjustedDamage: number) {
   if (baseDamage <= 0) return 0;
   return rounded((adjustedDamage / baseDamage - 1) * 100);
+}
+
+function positiveModifierPercent(baseDamage: number, adjustedDamage: number) {
+  return Math.max(0, modifierPercent(baseDamage, adjustedDamage));
 }
 
 function ratePercent(value: number, total: number) {

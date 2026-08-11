@@ -1,4 +1,4 @@
-import type { DamageType, Vocation } from "../shared/types";
+import type { CombatConditionDefinition, DamageType, Vocation } from "../shared/types";
 
 export type CombatSkillCategory = "attack" | "support";
 export type CombatSkillVisual = "slash" | "projectile" | "burst" | "ward" | "nature" | "spirit";
@@ -15,6 +15,7 @@ export interface CombatSkillDefinition {
   cooldownSeconds: number;
   visual: CombatSkillVisual;
   damageType?: DamageType;
+  condition?: CombatConditionDefinition;
   effect: {
     attack: number;
     survival: number;
@@ -39,6 +40,7 @@ const skill = (
   visual: CombatSkillVisual,
   effect: Partial<CombatSkillDefinition["effect"]>,
   damageType?: DamageType,
+  condition?: CombatConditionDefinition,
 ): CombatSkillDefinition => ({
   id,
   vocation,
@@ -51,6 +53,7 @@ const skill = (
   cooldownSeconds,
   visual,
   damageType,
+  condition,
   effect: {
     attack: effect.attack ?? 0,
     survival: effect.survival ?? 0,
@@ -78,15 +81,15 @@ export const combatSkills: readonly CombatSkillDefinition[] = [
   skill("Ranger", "support", "ranger-wind-veil", "Wind Veil", "WV", "A protective current around the party.", 40, 44, 32, "ward", { survival: 2.6, mitigation: 2.6 }),
 
   skill("Arcanist", "attack", "arcanist-arc-spark", "Arc Spark", "AS", "A compact bolt of unstable arcane force.", 1, 8, 5, "burst", { attack: 1.15 }, "energy"),
-  skill("Arcanist", "attack", "arcanist-frost-lance", "Frost Lance", "FL", "A precise shard formed from condensed mana.", 12, 22, 7, "projectile", { attack: 1.55 }, "ice"),
+  skill("Arcanist", "attack", "arcanist-frost-lance", "Frost Lance", "FL", "A precise shard formed from condensed mana that slows its target.", 12, 22, 7, "projectile", { attack: 1.55 }, "ice", { type: "slow", applicationChancePercent: 75, durationSeconds: 5, potencyPercent: 20 }),
   skill("Arcanist", "attack", "arcanist-astral-burst", "Astral Burst", "AB", "A circular detonation around the target.", 24, 38, 10, "burst", { attack: 2.1 }, "energy"),
-  skill("Arcanist", "attack", "arcanist-meteor-sigil", "Meteor Sigil", "MS", "A delayed high-energy rune from above.", 46, 64, 15, "burst", { attack: 2.9 }, "fire"),
+  skill("Arcanist", "attack", "arcanist-meteor-sigil", "Meteor Sigil", "MS", "A delayed high-energy rune that leaves the target burning.", 46, 64, 15, "burst", { attack: 2.9 }, "fire", { type: "burn", applicationChancePercent: 85, durationSeconds: 8, tickIntervalSeconds: 2, damagePercentPerTick: 4 }),
   skill("Arcanist", "support", "arcanist-mana-ward", "Mana Ward", "MW", "Mana forms a temporary defensive shell.", 18, 32, 20, "ward", { survival: 1.8, supply: 0.4, mitigation: 1.8 }),
   skill("Arcanist", "support", "arcanist-chrono-veil", "Chrono Veil", "CV", "A brief field of slowed hostile motion.", 42, 70, 36, "ward", { attack: 0.8, survival: 2.2, mitigation: 2.2 }),
 
-  skill("Warden", "attack", "warden-thorn-bolt", "Thorn Bolt", "TB", "A hardened thorn propelled by nature magic.", 1, 7, 5, "nature", { attack: 1 }, "earth"),
+  skill("Warden", "attack", "warden-thorn-bolt", "Thorn Bolt", "TB", "A poisoned thorn propelled by nature magic.", 1, 7, 5, "nature", { attack: 1 }, "earth", { type: "poison", applicationChancePercent: 35, durationSeconds: 9, tickIntervalSeconds: 3, damagePercentPerTick: 4 }),
   skill("Warden", "attack", "warden-verdant-wave", "Verdant Wave", "VW", "A sweeping pulse of living energy.", 13, 20, 7, "nature", { attack: 1.45 }, "earth"),
-  skill("Warden", "attack", "warden-rootfall", "Rootfall", "RF", "Roots erupt beneath the current target.", 25, 34, 10, "nature", { attack: 1.95 }, "earth"),
+  skill("Warden", "attack", "warden-rootfall", "Rootfall", "RF", "Roots erupt beneath the current target and slow its advance.", 25, 34, 10, "nature", { attack: 1.95 }, "earth", { type: "slow", applicationChancePercent: 70, durationSeconds: 6, potencyPercent: 18 }),
   skill("Warden", "attack", "warden-grove-wrath", "Grove Wrath", "GW", "The hunting ground answers with force.", 47, 58, 15, "nature", { attack: 2.7 }, "earth"),
   skill("Warden", "support", "warden-renew", "Renew", "RN", "A steady restorative pulse for an ally.", 10, 18, 14, "nature", { survival: 1.2, supply: 2, healing: 2 }),
   skill("Warden", "support", "warden-barkskin-circle", "Barkskin Circle", "BC", "A protective living ring around the party.", 34, 46, 30, "ward", { survival: 2.5, supply: 1, healing: 0.5, mitigation: 2.5 }),

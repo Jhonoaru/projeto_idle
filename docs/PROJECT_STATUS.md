@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 143 concluida: burn, poison e slow deterministas agora integram skills, dano, controle, timeline, relatorios e Boss parties com caps seguros.
 - Etapa 142.5 concluida: QA real no Tauri/SQLite validou block, Boss party, reload, catch-up offline idempotente e restauracao integral do save.
 - Etapa 142 concluida: block chance e block power derivados agora simulam ataques recebidos, dano bloqueado e reducao limitada de risco em Hunts/Bosses.
 - Etapa 141.5 concluida: QA real no Tauri/SQLite validou defense, penetration, skills perfurantes, Boss party, reload, catch-up idempotente e restauracao integral do save.
@@ -11724,6 +11725,70 @@ Execucao e restauracao:
 Proximo passo sugerido:
 
 - Etapa 143 - condicoes de combate deterministicas, com burn, poison e slow em Hunts e Bosses.
+
+## Etapa 143 - Condicoes deterministicas de combate
+
+Status: concluida.
+
+Modelo e skills:
+
+- O sistema reconhece `burn`, `poison` e `slow` por meio de definicoes tipadas no catalogo de skills.
+- `Meteor Sigil` aplica burn com 85% de chance, 8 segundos de duracao e quatro ticks potenciais.
+- `Thorn Bolt` aplica poison com 35% de chance, 9 segundos de duracao e tres ticks potenciais.
+- `Frost Lance` aplica slow de 20% por 5 segundos com 75% de chance.
+- `Rootfall` aplica slow de 18% por 6 segundos com 70% de chance.
+- Skills sem uma condicao explicita permanecem neutras e nao recebem efeito implicito pelo tipo elemental.
+
+Resolucao deterministica:
+
+- Uma condicao so pode ser rolada depois de um hit valido; miss e dodge nunca aplicam efeitos.
+- O roll usa personagem, target, skill, indice do cast e tipo da condicao, produzindo o mesmo resultado em simulacoes equivalentes.
+- Burn e poison calculam ticks apenas dentro do tempo restante da atividade; casts no fim nao recebem duracao artificial.
+- O dano de condicao usa o dano direto daquele cast e fica limitado a 25% do dano direto da skill.
+- Slow nao causa dano e registra duracao, potencia e uptime limitado entre 0% e 100%.
+- Valores ausentes, negativos, NaN ou infinitos passam por limites finitos antes do calculo.
+
+Gameplay e agregados:
+
+- O dano total agora e a identidade exata `directDamage + totalConditionDamage`.
+- Dano de condicao contribui de forma pequena para clear speed; slow contribui para clear speed e reducao de risco.
+- A contribuicao adicional de condicoes fica limitada a 3% de ataque e 2% de reducao de risco.
+- Os caps globais anteriores continuam em 8% de ataque e 10% de reducao de risco.
+- Party report soma aplicacoes, ticks e dano exatamente e calcula uptime/potencia de slow entre os integrantes.
+- O modificador elemental continua medindo apenas dano direto, sem classificar DoT como fraqueza elemental.
+- Hunts, Bosses e catch-up offline usam a mesma funcao pura e os snapshots existentes; nenhuma migration foi necessaria.
+
+Interface e logs:
+
+- O Combat Skill Report mostra dano de condicoes no total e uma faixa compacta para burn, poison e slow.
+- A faixa informa aplicacoes, ticks, dano, uptime e potencia conforme o tipo.
+- Eventos amostrados da timeline mostram condicao aplicada e sua contribuicao, com cores distintas para burn, poison e slow.
+- Miss e dodge nao exibem mensagem enganosa de falha de condicao.
+- Relatorios individuais e de party mostram condicoes sem remover dano, healing, block ou mana.
+- Logs de Hunt e Boss adicionam um resumo unico de condicoes, evitando spam por tick.
+
+Validacao:
+
+- Fixture temporaria passou em 24/24 checks de burn, poison, slow, hits, caps, determinismo, timeline, party, logs e valores finitos.
+- Burn produziu 98 aplicacoes, 392 ticks e 33.908 de dano no cenario de 30 minutos.
+- Poison produziu 106 aplicacoes, 318 ticks e 3.852 de dano no mesmo intervalo.
+- Frost Lance atingiu 46,94% de uptime de slow; Rootfall atingiu 40%.
+- A party de Boss reuniu burn, poison e slow, preservando as identidades exatas dos agregados.
+- QA visual passou em 1280x720 e numa superficie compacta de 375 px sem overflow horizontal.
+- O console final ficou sem warnings ou erros da aplicacao; harness, servidor e logs temporarios foram removidos.
+- `npm.cmd run build` passou durante a implementacao e novamente com o produto limpo.
+
+Limitacoes mantidas:
+
+- Condicoes sao telemetria agregada da simulacao idle; nao existem entidades persistidas por criatura nem barras individuais de debuff.
+- Reaplicacoes somam tempo agregado para o relatorio e usam cap de uptime, sem uma fila persistida de refresh/stack por target.
+- Ainda nao existem imunidade especifica a condicoes, cleanse, dispel, stun, freeze, bleed ou curses.
+- Burn e poison nao podem causar morte separada nem rerrolam loot/rewards diretamente.
+- Reload SQLite e equivalencia temporal do catch-up ficam para a etapa dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 143.5 - QA de condicoes no Tauri/SQLite, reload, Boss party e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
