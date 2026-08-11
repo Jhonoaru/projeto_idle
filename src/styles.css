@@ -3112,6 +3112,18 @@ p {
   background: #6da9d8;
 }
 
+.combat-skill-timeline-track i.is-miss {
+  border-color: #6e7470;
+  background: #6e7470;
+  box-shadow: none;
+}
+
+.combat-skill-timeline-track i.is-dodged {
+  border-color: #53b4c5;
+  background: #53b4c5;
+  box-shadow: none;
+}
+
 .combat-skill-timeline-list {
   display: grid;
   max-height: 214px;
@@ -3145,6 +3157,22 @@ p {
 
 .combat-skill-timeline-event.is-resistant {
   border-left-color: #6da9d8;
+}
+
+.combat-skill-timeline-event.is-miss {
+  border-left-color: #6e7470;
+  background: #121513;
+}
+
+.combat-skill-timeline-event.is-dodged {
+  border-left-color: #53b4c5;
+  background: #101719;
+}
+
+.combat-skill-timeline-event.is-miss > strong,
+.combat-skill-timeline-event.is-dodged > strong {
+  color: #91a09a;
+  letter-spacing: 0;
 }
 
 .combat-skill-timeline-event time,

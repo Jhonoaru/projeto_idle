@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 140 concluida: accuracy, miss e dodge deterministas agora resolvem cada ataque, alimentam timeline/relatorios e afetam bonus ofensivo e risco com limites seguros.
 - Etapa 139.5 concluida: QA elemental real no Tauri/SQLite validou snapshot, reload, Hunt ativa/offline, idempotencia, Boss party, limites hostis e restauracao integral do save.
 - Etapa 139 concluida: skills ofensivas, 12 monstros e 6 Bosses agora usam tipos de dano, resistencias e fraquezas elementais deterministicas com leitura por cast na timeline.
 - Etapa 138.5 concluida: QA real de alvos e criticos no Tauri/SQLite validou atributos recalculados, Hunt/Boss, extremos criticos, catch-up offline e restauracao integral do save.
@@ -11399,6 +11400,57 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 140 - accuracy, miss e dodge deterministas no combate.
+
+## Etapa 140 - Accuracy, miss e dodge deterministas
+
+Status: concluida.
+
+Modelo de combate:
+
+- Personagens agora possuem `accuracyPercent` e `dodgePercent` derivados de level, skill principal, speed e vocacao.
+- Accuracy fica limitada entre 80% e 98%; dodge fica limitado entre 0% e 18%.
+- Os 12 monstros e 6 Bosses atuais receberam `evasionPercent` local entre 2% e 15%.
+- Cada ataque resolve deterministicamente `hit`, `miss` ou `dodged`; suporte continua usando o outcome proprio `support`.
+- Miss e dodge causam zero dano e nunca podem ser criticos.
+- Valores ausentes, infinitos ou invalidos recebem fallback neutro e nao propagam NaN.
+
+Gameplay e agregados:
+
+- O relatorio separa dano base potencial, dano base que acertou e dano final apos modificadores elementais.
+- Hit rate reduz proporcionalmente o bonus ofensivo das skills sem ultrapassar os caps existentes.
+- Dodge reduz levemente o risco de morte, com contribuicao propria limitada a 6% e cap agregado existente de 10% preservado.
+- Hunts e Boss parties somam ataques, hits, misses e dodges exatos por personagem.
+- A timeline limitada continua derivada e nao e persistida, evitando ampliar saves ou duplicar rewards.
+
+Interface e logs:
+
+- Character Details mostra Accuracy e Dodge no Combat Overview.
+- Relatorio de combate mostra hit rate, hits por casts e eventos `MISS`/`DODGED` com leitura visual distinta.
+- Logs de Hunt e Boss registram ataques, acertos, misses, dodges e criticos sem emitir uma linha por ataque.
+- Timeline e tabela permaneceram responsivas sem overflow em desktop e mobile.
+
+Validacao:
+
+- Fixture temporaria passou em 27/27 checks de determinismo, limites, miss, dodge, criticos, elementos, agregados, Hunts, Boss parties e entradas hostis.
+- Comparacao sobre os mesmos rolls confirmou 83,47% de hit com 80 accuracy e 95,04% com 98 accuracy.
+- Cenario com 100 accuracy e 0 evasion acertou todos os ataques; 100% critico marcou todos os hits como criticos.
+- Cenario com 25 evasion produziu 16 dodges e reduziu o bonus ofensivo de 4,16% para 2,54%.
+- Resistencia fire permaneceu independente da avoidance, com aproximadamente -25% de dano elemental.
+- QA visual passou em 1280x900 e 390x844 sem overflow de pagina, eventos ou tabela; console sem erros.
+- Fixture, servidor e logs temporarios foram removidos apos o QA.
+- `npm.cmd run build` passou com 466 modulos.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+
+Limitacoes mantidas:
+
+- Accuracy e dodge ainda nao recebem bonus especificos de equipamentos ou buffs; usam os atributos derivados atuais.
+- Evasion e um valor estatico do catalogo local e ainda nao possui painel dedicado no Bestiary/briefing.
+- Dano continua sendo telemetria agregada da simulacao idle, sem HP individual persistente por criatura.
+- Esta etapa validou engine e interface; persistencia SQLite, reload e catch-up offline ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 140.5 - QA de accuracy, miss e dodge no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

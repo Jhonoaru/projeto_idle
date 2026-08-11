@@ -1091,6 +1091,8 @@ export interface CharacterAttributes {
   armor: number;
   critChancePercent?: number;
   critDamagePercent?: number;
+  accuracyPercent?: number;
+  dodgePercent?: number;
 }
 
 export interface CombatSkillLoadout {
@@ -1140,10 +1142,14 @@ export interface CombatSkillEffectEntry {
   supplyImpact: number;
   damageType?: DamageType;
   baseDamageDealt: number;
+  landedBaseDamageDealt: number;
   damageDealt: number;
   elementalModifierPercent: number;
   healingDone: number;
   damagePrevented: number;
+  hits: number;
+  misses: number;
+  dodges: number;
   criticalHits: number;
 }
 
@@ -1153,7 +1159,15 @@ export interface CombatSkillEffectSummary {
   attackBonusPercent: number;
   deathRiskReductionPercent: number;
   supplyReductionPercent: number;
+  dodgeRiskReductionPercent: number;
+  totalAttacks: number;
+  totalHits: number;
+  totalMisses: number;
+  totalDodges: number;
+  hitRatePercent: number;
   baseTotalDamage: number;
+  landedBaseDamage: number;
+  avoidanceDamageDelta: number;
   totalDamage: number;
   elementalDamageDelta: number;
   elementalModifierPercent: number;
@@ -1176,6 +1190,7 @@ export interface CombatSkillTimelineEvent {
   targetId: string;
   targetName: string;
   targetKind: CombatSkillTargetKind;
+  outcome: CombatAttackOutcome;
   critical: boolean;
   manaCost: number;
   damageType?: DamageType;
@@ -1190,11 +1205,16 @@ export interface CombatSkillTimelineSummary {
   durationMs: number;
   totalEvents: number;
   omittedEvents: number;
+  totalHits: number;
+  totalMisses: number;
+  totalDodges: number;
   totalCriticalHits: number;
   events: CombatSkillTimelineEvent[];
 }
 
 export type CombatSkillTargetKind = "monster" | "boss" | "ally" | "self" | "encounter";
+
+export type CombatAttackOutcome = "hit" | "miss" | "dodged" | "support";
 
 export type DamageType = "physical" | "fire" | "ice" | "earth" | "energy" | "holy" | "death";
 
@@ -1205,6 +1225,7 @@ export interface CombatSkillTarget {
   name: string;
   kind: CombatSkillTargetKind;
   resistances?: ElementalResistances;
+  evasionPercent?: number;
 }
 
 export interface CombatSkillEffectOptions {
@@ -1215,9 +1236,17 @@ export interface CombatSkillEffectOptions {
 export interface CombatSkillPartyEffectSummary {
   attackBonusPercent: number;
   deathRiskReductionPercent: number;
+  dodgeRiskReductionPercent: number;
   totalCasts: number;
   manaSpent: number;
+  totalAttacks: number;
+  totalHits: number;
+  totalMisses: number;
+  totalDodges: number;
+  hitRatePercent: number;
   baseTotalDamage: number;
+  landedBaseDamage: number;
+  avoidanceDamageDelta: number;
   totalDamage: number;
   elementalDamageDelta: number;
   elementalModifierPercent: number;
@@ -1568,6 +1597,7 @@ export interface Boss {
   entryCost: number;
   risk: BossRisk;
   resistances?: ElementalResistances;
+  evasionPercent?: number;
   requirements: BossRequirement;
   reward: BossReward;
   tags: string[];
@@ -1628,6 +1658,7 @@ export interface Monster {
   armor: number;
   defense: number;
   resistances?: ElementalResistances;
+  evasionPercent?: number;
   goldMin: number;
   goldMax: number;
   lootTable: LootItem[];

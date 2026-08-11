@@ -12,6 +12,7 @@ export const monsters = {
     armor: 0,
     defense: 1,
     resistances: { fire: -10 },
+    evasionPercent: 2,
     goldMin: 1,
     goldMax: 5,
     lootTable: [
@@ -31,6 +32,7 @@ export const monsters = {
     armor: 1,
     defense: 3,
     resistances: { earth: 15, fire: -15 },
+    evasionPercent: 8,
     goldMin: 1,
     goldMax: 7,
     lootTable: [
@@ -50,6 +52,7 @@ export const monsters = {
     armor: 4,
     defense: 8,
     resistances: { earth: 10, fire: -20 },
+    evasionPercent: 4,
     goldMin: 8,
     goldMax: 22,
     lootTable: [
@@ -71,6 +74,7 @@ export const monsters = {
     armor: 7,
     defense: 12,
     resistances: { earth: 20, holy: -15 },
+    evasionPercent: 6,
     goldMin: 12,
     goldMax: 32,
     lootTable: [
@@ -91,6 +95,7 @@ export const monsters = {
     armor: 12,
     defense: 18,
     resistances: { physical: 10, ice: -10 },
+    evasionPercent: 5,
     goldMin: 22,
     goldMax: 58,
     lootTable: [
@@ -111,6 +116,7 @@ export const monsters = {
     armor: 10,
     defense: 16,
     resistances: { physical: 5, energy: -10 },
+    evasionPercent: 10,
     goldMin: 18,
     goldMax: 52,
     lootTable: [
@@ -131,6 +137,7 @@ export const monsters = {
     armor: 24,
     defense: 34,
     resistances: { physical: 20, fire: 10, ice: -10 },
+    evasionPercent: 3,
     goldMin: 45,
     goldMax: 110,
     lootTable: [
@@ -152,6 +159,7 @@ export const monsters = {
     armor: 18,
     defense: 24,
     resistances: { physical: 10, death: 25, holy: -25 },
+    evasionPercent: 7,
     goldMin: 28,
     goldMax: 78,
     lootTable: [
@@ -173,6 +181,7 @@ export const monsters = {
     armor: 28,
     defense: 42,
     resistances: { physical: 15, energy: -15 },
+    evasionPercent: 2,
     goldMin: 60,
     goldMax: 150,
     lootTable: [
@@ -193,6 +202,7 @@ export const monsters = {
     armor: 24,
     defense: 38,
     resistances: { fire: 15, earth: 10, ice: -15 },
+    evasionPercent: 14,
     goldMin: 75,
     goldMax: 180,
     lootTable: [
@@ -214,6 +224,7 @@ export const monsters = {
     armor: 32,
     defense: 46,
     resistances: { fire: 25, physical: 10, ice: -25 },
+    evasionPercent: 10,
     goldMin: 105,
     goldMax: 260,
     lootTable: [
@@ -237,6 +248,7 @@ export const monsters = {
     armor: 12,
     defense: 20,
     resistances: { death: 20, holy: -20, energy: 10 },
+    evasionPercent: 12,
     goldMin: 40,
     goldMax: 95,
     lootTable: [

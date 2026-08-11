@@ -86,6 +86,30 @@ export function calculateCharacterAttributes(
     baseDefensePower *
       (1 + (proficiencyBonuses.defensePowerPercent + (destinyBonuses.defensePowerPercent ?? 0) + equipmentSetBonuses.defensePowerPercent) / 100),
   );
+  const accuracyVocationBonus = {
+    Guardian: 0,
+    Ranger: 2,
+    Arcanist: 1,
+    Warden: 1,
+    Monk: 1.5,
+  }[character.vocation];
+  const dodgeVocationBonus = {
+    Guardian: 0,
+    Ranger: 2,
+    Arcanist: 0.5,
+    Warden: 1,
+    Monk: 3,
+  }[character.vocation];
+  const accuracyPercent = rounded(clamp(
+    88 + character.level * 0.04 + mainSkill.level * 0.08 + Math.max(0, speed - 210) * 0.015 + accuracyVocationBonus,
+    80,
+    98,
+  ));
+  const dodgePercent = rounded(clamp(
+    1 + character.level * 0.03 + Math.max(0, speed - 210) * 0.025 + dodgeVocationBonus,
+    0,
+    18,
+  ));
 
   return {
     maxHealth,
@@ -97,5 +121,15 @@ export function calculateCharacterAttributes(
     armor,
     critChancePercent: proficiencyBonuses.critChancePercent + (destinyBonuses.critChancePercent ?? 0) + equipmentSetBonuses.critChancePercent,
     critDamagePercent: proficiencyBonuses.critDamagePercent + (destinyBonuses.critDamagePercent ?? 0),
+    accuracyPercent,
+    dodgePercent,
   };
+}
+
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(maximum, Math.max(minimum, Number.isFinite(value) ? value : minimum));
+}
+
+function rounded(value: number) {
+  return Number(value.toFixed(2));
 }
