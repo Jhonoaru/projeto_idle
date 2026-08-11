@@ -5,6 +5,7 @@ import type { Boss, BossParty, Character } from "../../shared/types";
 import { BossSprite } from "../boss/BossSprite";
 import { CharacterSprite } from "../characters/CharacterSprite";
 import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
+import { CombatSkillRotation } from "../combat-skills/CombatSkillRotation";
 import { BossArenaBackground } from "./BossArenaBackground";
 
 interface BossSceneProps {
@@ -116,6 +117,7 @@ export function BossScene({
             ))}
           </div>
           <CombatEffectLayer actors={members} mode="boss" resolved={ready} target={{ x: 76, y: 43 }} />
+          <CombatSkillRotation actors={members} resolved={ready} />
           <div className="boss-scene-stage-status">
             <span>{ready ? "Raid complete" : "Encounter in progress"}</span>
             <div><i style={{ width: `${progress}%` }} /></div>

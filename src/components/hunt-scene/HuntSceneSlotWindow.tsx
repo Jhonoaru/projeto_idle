@@ -1,4 +1,7 @@
+import { getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills";
+import type { CombatSkillDefinition } from "../../data/combatSkills";
 import type { Character } from "../../shared/types";
+import { CombatSkillIcon } from "../combat-skills/CombatSkillIcon";
 import type { HuntSceneSlotType } from "./HuntSceneHotbar";
 
 interface HuntSceneSlotWindowProps {
@@ -9,6 +12,7 @@ interface HuntSceneSlotWindowProps {
 
 interface HuntSceneSlotEntry {
   icon: string;
+  skill?: CombatSkillDefinition;
   name: string;
   meta: string;
   state: "available" | "selected" | "locked";
@@ -24,7 +28,7 @@ interface HuntSceneSlotWindowConfig {
   entries: HuntSceneSlotEntry[];
 }
 
-const windowConfig: Record<HuntSceneSlotType, HuntSceneSlotWindowConfig> = {
+const staticWindowConfig: Record<Exclude<HuntSceneSlotType, "attack" | "support">, HuntSceneSlotWindowConfig> = {
   heal: {
     title: "Curas",
     count: "3 / 19",
@@ -32,9 +36,9 @@ const windowConfig: Record<HuntSceneSlotType, HuntSceneSlotWindowConfig> = {
     rule: "Usar cura quando vida <=",
     threshold: "80%",
     entries: [
-      { icon: "HP", name: "Small Health Potion", meta: "Nivel 0 · 0 gold", state: "available" },
-      { icon: "HP", name: "Health Potion", meta: "Nivel 0 · 50 gold", state: "available" },
-      { icon: "HP", name: "Strong Health Potion", meta: "Nivel 50 · 115 gold", state: "locked", lock: "Bloqueado" },
+      { icon: "HP", name: "Small Health Potion", meta: "Nivel 0 / 0 gold", state: "available" },
+      { icon: "HP", name: "Health Potion", meta: "Nivel 0 / 50 gold", state: "available" },
+      { icon: "HP", name: "Strong Health Potion", meta: "Nivel 50 / 115 gold", state: "locked", lock: "Bloqueado" },
     ],
   },
   mana: {
@@ -45,32 +49,8 @@ const windowConfig: Record<HuntSceneSlotType, HuntSceneSlotWindowConfig> = {
     threshold: "50%",
     entries: [
       { icon: "OFF", name: "Nao usar", meta: "Nunca consumir mana potion automaticamente", state: "selected" },
-      { icon: "MP", name: "Mana Potion", meta: "Nivel 0 · 75-125 mana · 56 gold", state: "available" },
-      { icon: "MP", name: "Strong Mana Potion", meta: "Nivel 50 · 115-185 mana · 108 gold", state: "locked", lock: "Bloqueado" },
-    ],
-  },
-  attack: {
-    title: "Magias",
-    count: "2 / 12",
-    subtitle: "Selecione a magia do slot",
-    rule: "Usar no minimo com:",
-    threshold: "1+ criatura",
-    entries: [
-      { icon: "SW", name: "Lesser Front Sweep", meta: "Nivel 1 · Mana 6 · CD 6s", state: "selected", lock: "Em outro slot" },
-      { icon: "ST", name: "Brutal Strike", meta: "Nivel 16 · Mana 30 · CD 6s", state: "available" },
-      { icon: "WW", name: "Whirlwind Throw", meta: "Nivel 28 · Mana 40 · CD 6s", state: "locked", lock: "Requer nivel 28" },
-    ],
-  },
-  support: {
-    title: "Magias",
-    count: "0 / 12",
-    subtitle: "Selecione a magia de suporte",
-    rule: "Slot de suporte com cooldown global compartilhado",
-    threshold: "",
-    entries: [
-      { icon: "UT", name: "Utamo Tempo", meta: "Nivel 55 · Mana 200 · CD 2s · Duracao 13s", state: "locked", lock: "Requer nivel 55" },
-      { icon: "CH", name: "Chivalrous Challenge", meta: "Nivel 150 · Mana 80 · CD 2s", state: "locked", lock: "Requer nivel 150" },
-      { icon: "AV", name: "Avatar Form", meta: "Nivel 300 · Mana 0 · CD 420s", state: "locked", lock: "Wheel Unlock" },
+      { icon: "MP", name: "Mana Potion", meta: "Nivel 0 / 75-125 mana / 56 gold", state: "available" },
+      { icon: "MP", name: "Strong Mana Potion", meta: "Nivel 50 / 115-185 mana / 108 gold", state: "locked", lock: "Bloqueado" },
     ],
   },
   utility: {
@@ -88,7 +68,7 @@ const windowConfig: Record<HuntSceneSlotType, HuntSceneSlotWindowConfig> = {
 };
 
 export function HuntSceneSlotWindow({ character, slot, onClose }: HuntSceneSlotWindowProps) {
-  const config = windowConfig[slot];
+  const config = getWindowConfig(character, slot);
 
   return (
     <div className="hunt-slot-overlay" role="dialog" aria-label={`${config.title} configuration`}>
@@ -118,15 +98,14 @@ export function HuntSceneSlotWindow({ character, slot, onClose }: HuntSceneSlotW
         <div className="hunt-slot-list">
           {config.entries.map((entry) => (
             <button
-              className={[
-                "hunt-slot-entry",
-                `is-${entry.state}`,
-              ].join(" ")}
+              className={`hunt-slot-entry is-${entry.state}`}
               disabled={entry.state === "locked"}
               key={entry.name}
               type="button"
             >
-              <span>{entry.icon}</span>
+              {entry.skill ? (
+                <CombatSkillIcon skill={entry.skill} locked={entry.state === "locked"} size="large" />
+              ) : <span>{entry.icon}</span>}
               <div>
                 <strong>{entry.name}</strong>
                 <small>{entry.meta}</small>
@@ -142,4 +121,31 @@ export function HuntSceneSlotWindow({ character, slot, onClose }: HuntSceneSlotW
       </div>
     </div>
   );
+}
+
+function getWindowConfig(character: Character, slot: HuntSceneSlotType): HuntSceneSlotWindowConfig {
+  if (slot !== "attack" && slot !== "support") return staticWindowConfig[slot];
+
+  const skills = getCombatSkills(character.vocation, slot);
+  const unlocked = skills.filter((entry) => character.level >= entry.levelRequired);
+  const primary = getPrimaryCombatSkill(character.vocation, character.level, slot);
+
+  return {
+    title: slot === "attack" ? "Combat Skills" : "Support Skills",
+    count: `${unlocked.length} / ${skills.length}`,
+    subtitle: `${character.vocation} ${slot === "attack" ? "attack rotation" : "support rotation"}`,
+    rule: slot === "attack" ? "Use with at least:" : "Shared support cooldown",
+    threshold: slot === "attack" ? "1+ creature" : "",
+    entries: skills.map((entry) => {
+      const isUnlocked = character.level >= entry.levelRequired;
+      return {
+        icon: entry.code,
+        skill: entry,
+        name: entry.name,
+        meta: `Level ${entry.levelRequired} / Mana ${entry.manaCost} / CD ${entry.cooldownSeconds}s / ${entry.description}`,
+        state: !isUnlocked ? "locked" : entry.id === primary.id ? "selected" : "available",
+        lock: !isUnlocked ? `Requires level ${entry.levelRequired}` : entry.id === primary.id ? "Active" : undefined,
+      };
+    }),
+  };
 }

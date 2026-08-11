@@ -1,4 +1,7 @@
+import { getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills";
+import type { CombatSkillDefinition } from "../../data/combatSkills";
 import type { Character, HuntArea } from "../../shared/types";
+import { CombatSkillIcon } from "../combat-skills/CombatSkillIcon";
 
 export type HuntSceneSlotType = "heal" | "mana" | "attack" | "support" | "utility";
 
@@ -6,6 +9,7 @@ export interface HuntSceneSlot {
   id: HuntSceneSlotType;
   title: string;
   icon: string;
+  skill?: CombatSkillDefinition;
   value: string;
   detail: string;
   status: "ready" | "selected" | "locked";
@@ -50,7 +54,9 @@ export function HuntSceneHotbar({
             onClick={() => onSelectSlot(slot.id)}
             type="button"
           >
-            <span>{slot.icon}</span>
+            {slot.skill ? (
+              <CombatSkillIcon skill={slot.skill} locked={slot.status === "locked"} size="small" />
+            ) : <span>{slot.icon}</span>}
             <strong>{slot.title}</strong>
             <em>{slot.value}</em>
             <small>{slot.detail}</small>
@@ -64,11 +70,14 @@ export function HuntSceneHotbar({
 export function getHuntSceneSlots(character: Character, hunt?: HuntArea): HuntSceneSlot[] {
   const healthPotions = countItems(character, ["minor-health-potion", "health-potion", "strong-health-potion"]);
   const manaPotions = countItems(character, ["mana-potion", "strong-mana-potion"]);
-  const mainSkill = character.vocation === "Arcanist" || character.vocation === "Warden"
-    ? "Spell"
-    : character.vocation === "Ranger"
-      ? "Shot"
-      : "Strike";
+  const primaryAttack = getPrimaryCombatSkill(character.vocation, character.level, "attack");
+  const primarySupport = getPrimaryCombatSkill(character.vocation, character.level, "support");
+  const attackCount = getCombatSkills(character.vocation, "attack").filter(
+    (skill) => character.level >= skill.levelRequired,
+  ).length;
+  const supportCount = getCombatSkills(character.vocation, "support").filter(
+    (skill) => character.level >= skill.levelRequired,
+  ).length;
 
   return [
     {
@@ -89,19 +98,21 @@ export function getHuntSceneSlots(character: Character, hunt?: HuntArea): HuntSc
     },
     {
       id: "attack",
-      title: "Magias",
-      icon: "ATK",
-      value: "2/4",
-      detail: mainSkill,
+      title: "Skills",
+      icon: primaryAttack.code,
+      skill: primaryAttack,
+      value: `${attackCount}/4`,
+      detail: primaryAttack.name,
       status: "selected",
     },
     {
       id: "support",
       title: "Suporte",
-      icon: "SUP",
-      value: character.level >= 30 ? "1/2" : "0/2",
-      detail: character.level >= 30 ? "Ready" : "Locked",
-      status: character.level >= 30 ? "ready" : "locked",
+      icon: primarySupport.code,
+      skill: primarySupport,
+      value: `${supportCount}/2`,
+      detail: supportCount > 0 ? primarySupport.name : `Lv ${primarySupport.levelRequired}`,
+      status: supportCount > 0 ? "ready" : "locked",
     },
     {
       id: "utility",

@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 133 concluida: catalogo visual de 30 skills originais por vocacao, hotbar dinamica, modais por nivel e rotacao visual da party em Bosses.
 - Etapa 132.5 concluida: QA das cinco vocacoes em Hunt/Boss, estados ativos/concluidos, movimento reduzido e quatro larguras, com sincronizacao visual da Hunt corrigida.
 - Etapa 132 concluida: efeitos cosmeticos de combate por vocacao nas Hunt e Boss Scenes, com alvos reais da cena, estado resolvido e movimento reduzido.
 - Etapa 131.5 concluida: QA dos seis sprites de Bosses em running, ready, fallback HTTP individual e cinco larguras responsivas, sem regressao encontrada.
@@ -10667,6 +10668,60 @@ Validacao e restauracao:
 Proximo passo sugerido:
 
 - Etapa 133 - catalogo visual de skills por vocacao e integracao com a hotbar.
+
+## Etapa 133 - Catalogo visual de skills por vocacao
+
+Status: concluida.
+
+Catalogo:
+
+- Criado um catalogo offline com 30 skills originais: quatro ataques e dois suportes para cada uma das cinco vocacoes.
+- Cada skill define nome, codigo, descricao, level requerido, mana, cooldown e linguagem visual.
+- Guardian usa golpes e wards; Ranger, projeteis; Arcanist, energia arcana; Warden, natureza; Monk, impacto espiritual.
+- Os icones usam composicoes CSS originais com as cores dos efeitos da vocacao, sem assets externos ou protegidos.
+
+Hotbar e janelas:
+
+- O slot ofensivo agora mostra a skill mais avancada disponivel no level atual e a contagem real `desbloqueadas/4`.
+- O slot de suporte mostra a skill disponivel ou o proximo level necessario, com contagem `desbloqueadas/2`.
+- As janelas de ataque e suporte deixaram de usar a lista fixa de Guardian e agora carregam o catalogo da vocacao selecionada.
+- Cada entrada mostra icone, level, mana, cooldown, descricao e estado active/available/locked.
+- Arkon level 1 exibe apenas Vanguard Slash ativa, tres ataques bloqueados e suporte aguardando level 18.
+
+Boss Scene:
+
+- A arena de Boss ganhou uma faixa compacta com a skill primaria de cada integrante, role e progresso `x/4`.
+- Parties de ate cinco membros preservam sua ordem e identidade de vocacao.
+- No mobile, a faixa reduz para cinco icones compactos sem encobrir a barra do encontro.
+- O estado resolvido interrompe o cooldown decorativo e mantem a leitura da formacao.
+
+Correcoes visuais:
+
+- O modal mobile agora se ancora ao viewport e permanece totalmente visivel dentro de `390x844`.
+- Nome, metadados e estado das skills usam blocos proprios e nao invadem cards vizinhos.
+- A largura responsiva passou a respeitar tanto o viewport quanto o container da Hunt Scene.
+- Seletores de estado foram restringidos aos elementos diretos para nao reposicionar os codigos internos dos novos icones.
+
+Validacao:
+
+- As cinco vocacoes carregaram quatro ataques, dois suportes, nomes e icones corretos em Hunts separadas.
+- Arkon level 1 confirmou progressao e locks reais do catalogo.
+- Ember Matriarch com party completa exibiu cinco skills dentro da arena, sem overflow.
+- Hotbar desktop passou com cinco slots, dois icones de skill e nenhum overflow interno.
+- Modal Warden passou no desktop e em `390x844`, com todos os filhos contidos nos cards.
+- A fixture temporaria foi removida integralmente; save, dano, mana e cooldown real nao foram alterados.
+- `npm run build` e `npm run tauri:build` passaram; MSI e NSIS foram gerados.
+- O SQLite permaneceu com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+
+Limitacoes atuais:
+
+- Skills, mana e cooldown continuam representacoes visuais; a engine ainda nao executa rotacoes individuais.
+- O jogador ainda nao salva uma ordem personalizada de quatro skills.
+- Efeitos da Etapa 132 continuam definidos por vocacao, nao por cada skill individual.
+
+Proximo passo sugerido:
+
+- Etapa 133.5 - QA do catalogo visual de skills e hotbar.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

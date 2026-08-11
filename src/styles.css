@@ -6390,7 +6390,7 @@ p {
   font-size: 0.76rem;
 }
 
-.hunt-hotbar-slot em {
+.hunt-hotbar-slot > em {
   position: absolute;
   right: 7px;
   top: 7px;
@@ -6552,7 +6552,12 @@ p {
   font-size: 1.1rem;
 }
 
-.hunt-slot-entry em {
+.hunt-slot-entry > div { min-width: 0; }
+.hunt-slot-entry > div strong,
+.hunt-slot-entry > div small { display: block; overflow-wrap: anywhere; }
+.hunt-slot-entry > div small { margin-top: 4px; line-height: 1.35; }
+
+.hunt-slot-entry > em {
   color: #ff4f75;
   font-size: 0.75rem;
   font-style: normal;
@@ -11023,7 +11028,7 @@ p {
   }
 
   .hunt-slot-window {
-    width: min(94vw, 640px);
+    width: min(94vw, calc(100% - 16px), 640px);
   }
 
   .region-hero,
@@ -11111,6 +11116,11 @@ p {
     padding: 18px;
   }
 
+  .hunt-slot-overlay {
+    position: fixed;
+    z-index: 100;
+  }
+
   .hunt-slot-window header,
   .hunt-slot-rule,
   .hunt-slot-entry {
@@ -11119,10 +11129,13 @@ p {
 
   .hunt-slot-rule strong,
   .hunt-slot-rule .hunt-threshold-control,
-  .hunt-slot-entry em {
+  .hunt-slot-entry > em {
     justify-self: start;
     text-align: left;
   }
+
+  .hunt-slot-entry { grid-template-columns: 54px minmax(0, 1fr); }
+  .hunt-slot-entry > em { grid-column: 2; }
 
   .region-list {
     grid-template-columns: 1fr;
@@ -15628,3 +15641,200 @@ html[data-client-motion="reduced"] .combat-effect-projectile { display: none; }
 html[data-client-motion="reduced"] .combat-effect-layer.is-active .combat-effect-caster { opacity: 0.3; transform: translate(-50%, -50%) scale(0.82); }
 html[data-client-motion="reduced"] .combat-effect-layer.is-active .combat-effect-impact { opacity: 0.24; transform: translate(-50%, -50%) scale(0.72); }
 html[data-client-motion="reduced"] .combat-effect-layer.is-resolved .combat-effect-resolve { opacity: 0.52; transform: translate(-50%, -50%) scale(0.92); }
+
+/* Stage 133: original vocation skill icons and shared combat rotation. */
+.combat-skill-icon {
+  --skill-size: 42px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--skill-size);
+  height: var(--skill-size);
+  flex: 0 0 var(--skill-size);
+  overflow: hidden;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--skill-accent) 72%, #344044);
+  border-radius: 4px;
+  background:
+    radial-gradient(circle at 48% 44%, color-mix(in srgb, var(--skill-secondary) 26%, transparent), transparent 48%),
+    linear-gradient(145deg, #182022, #080d0e 72%);
+  box-shadow: inset 0 0 9px rgba(0, 0, 0, 0.72), 0 0 5px color-mix(in srgb, var(--skill-accent) 24%, transparent);
+}
+
+.combat-skill-icon.size-small { --skill-size: 32px; }
+.combat-skill-icon.size-large { --skill-size: 54px; }
+.combat-skill-icon.is-locked { filter: grayscale(1); opacity: 0.58; }
+.combat-skill-icon > i,
+.combat-skill-icon > b {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+}
+
+.combat-skill-icon > em {
+  position: absolute;
+  right: 2px;
+  bottom: 1px;
+  z-index: 2;
+  color: #f6ecd0;
+  font-family: Arial, sans-serif;
+  font-size: calc(var(--skill-size) * 0.2);
+  font-style: normal;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 1px 2px #000;
+}
+
+.combat-skill-icon.visual-slash > i,
+.combat-skill-icon.visual-slash > b {
+  width: 10%;
+  height: 72%;
+  border-radius: 60% 60% 20% 20%;
+  background: linear-gradient(var(--skill-secondary), var(--skill-accent) 65%, transparent);
+  filter: drop-shadow(0 0 3px var(--skill-accent));
+  transform: rotate(42deg);
+}
+.combat-skill-icon.visual-slash > b { height: 48%; transform: translate(-22%, 13%) rotate(-47deg); opacity: 0.68; }
+
+.combat-skill-icon.visual-projectile > i {
+  width: 66%;
+  height: 9%;
+  background: linear-gradient(90deg, transparent, var(--skill-accent) 36%, var(--skill-secondary));
+  filter: drop-shadow(0 0 3px var(--skill-accent));
+  transform: rotate(-18deg);
+}
+.combat-skill-icon.visual-projectile > b {
+  width: 28%;
+  height: 28%;
+  border: 2px solid var(--skill-secondary);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  transform: translate(69%, -25%) rotate(27deg);
+}
+
+.combat-skill-icon.visual-burst > i {
+  width: 52%;
+  height: 52%;
+  border: 2px solid var(--skill-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 5px var(--skill-accent), inset 0 0 5px var(--skill-secondary);
+}
+.combat-skill-icon.visual-burst > b {
+  width: 76%;
+  height: 16%;
+  background: linear-gradient(90deg, transparent, var(--skill-secondary), transparent);
+  clip-path: polygon(0 40%, 40% 40%, 50% 0, 60% 40%, 100% 40%, 100% 60%, 60% 60%, 50% 100%, 40% 60%, 0 60%);
+}
+
+.combat-skill-icon.visual-ward > i {
+  width: 54%;
+  height: 62%;
+  border: 2px solid var(--skill-accent);
+  clip-path: polygon(50% 0, 100% 18%, 84% 78%, 50% 100%, 16% 78%, 0 18%);
+  background: color-mix(in srgb, var(--skill-accent) 16%, transparent);
+  box-shadow: inset 0 0 5px var(--skill-secondary);
+}
+.combat-skill-icon.visual-ward > b { width: 24%; height: 40%; border-left: 2px solid var(--skill-secondary); transform: rotate(34deg); }
+
+.combat-skill-icon.visual-nature > i,
+.combat-skill-icon.visual-nature > b {
+  width: 46%;
+  height: 58%;
+  border: 2px solid var(--skill-accent);
+  border-radius: 90% 8% 90% 8%;
+  background: color-mix(in srgb, var(--skill-accent) 22%, transparent);
+  transform: rotate(34deg) translate(-9%, 8%);
+}
+.combat-skill-icon.visual-nature > b { width: 27%; height: 39%; transform: translate(34%, -34%) rotate(-22deg); opacity: 0.72; }
+
+.combat-skill-icon.visual-spirit > i {
+  width: 58%;
+  height: 58%;
+  border: 2px solid var(--skill-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 5px var(--skill-accent), inset 0 0 5px var(--skill-secondary);
+}
+.combat-skill-icon.visual-spirit > b { width: 22%; height: 22%; border-radius: 50%; background: var(--skill-secondary); box-shadow: 0 0 6px var(--skill-secondary); }
+
+.hunt-hotbar-slot > .combat-skill-icon {
+  width: 34px;
+  height: 34px;
+  border-color: color-mix(in srgb, var(--skill-accent) 72%, #36454a);
+  padding: 0;
+}
+
+.hunt-slot-entry > .combat-skill-icon {
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  background:
+    radial-gradient(circle at 48% 44%, color-mix(in srgb, var(--skill-secondary) 26%, transparent), transparent 48%),
+    linear-gradient(145deg, #182022, #080d0e 72%);
+}
+
+.combat-skill-rotation {
+  position: absolute;
+  right: 12%;
+  bottom: 76px;
+  left: 12%;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  pointer-events: none;
+}
+
+.combat-skill-rotation-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  width: min(132px, 19%);
+  min-width: 0;
+  min-height: 42px;
+  overflow: hidden;
+  border: 1px solid #4b4938;
+  border-radius: 3px;
+  padding: 4px 5px;
+  color: #d9d5c5;
+  background: rgba(8, 13, 12, 0.9);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.48);
+}
+
+.combat-skill-rotation-entry span,
+.combat-skill-rotation-entry strong,
+.combat-skill-rotation-entry small { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.combat-skill-rotation-entry strong { color: #ead79c; font-size: 0.58rem; }
+.combat-skill-rotation-entry small { margin-top: 2px; color: #89958e; font-size: 0.5rem; text-transform: capitalize; }
+.combat-skill-rotation-entry > i {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #68a66c, #dbc271);
+  transform-origin: left center;
+  animation: combat-skill-cooldown 4s linear infinite;
+}
+.combat-skill-rotation.is-resolved { opacity: 0.58; }
+.combat-skill-rotation.is-resolved .combat-skill-rotation-entry > i { animation: none; transform: scaleX(1); }
+
+@keyframes combat-skill-cooldown {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+
+@media (max-width: 580px) {
+  .combat-skill-rotation { right: 8px; bottom: 61px; left: 8px; gap: 4px; }
+  .combat-skill-rotation-entry { grid-template-columns: 1fr; width: 42px; min-height: 40px; padding: 4px; }
+  .combat-skill-rotation-entry > span { display: none; }
+  .combat-skill-rotation-entry .combat-skill-icon { justify-self: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .combat-skill-rotation-entry > i { animation: none; transform: scaleX(1); }
+}
+
+html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation: none; transform: scaleX(1); }
