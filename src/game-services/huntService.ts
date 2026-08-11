@@ -125,6 +125,7 @@ export function finishHunt(
         id: monster.id,
         name: monster.name,
         kind: "monster",
+        resistances: monster.resistances,
       })),
       supportTargets: [{ id: character.id, name: character.name, kind: "self" }],
     },

@@ -27,6 +27,18 @@ export function calculateCombatSkillEffects(
     if (!definition || cast.casts <= 0) return [];
 
     const criticalProfile = getCriticalProfile(character, definition.id, cast.casts, definition.category === "attack");
+    const baseDamageDealt = contributionTotal(cast.casts, combatBase.damage, definition.effect.damage);
+    const damageDealt = calculateAdjustedDamageTotal(
+      character,
+      action,
+      definition.id,
+      definition.category,
+      definition.damageType,
+      baseDamageDealt,
+      cast.casts,
+      criticalProfile,
+      options,
+    );
     return [{
       skillId: definition.id,
       skillName: definition.name,
@@ -34,7 +46,10 @@ export function calculateCombatSkillEffects(
       attackImpact: cast.casts * definition.effect.attack,
       survivalImpact: cast.casts * definition.effect.survival,
       supplyImpact: cast.casts * definition.effect.supply,
-      damageDealt: contributionTotal(cast.casts, combatBase.damage, definition.effect.damage),
+      damageType: definition.damageType,
+      baseDamageDealt,
+      damageDealt,
+      elementalModifierPercent: modifierPercent(baseDamageDealt, damageDealt),
       healingDone: contributionTotal(cast.casts, combatBase.healing, definition.effect.healing),
       damagePrevented: contributionTotal(cast.casts, combatBase.mitigation, definition.effect.mitigation),
       criticalHits: criticalProfile.criticalHits,
@@ -50,12 +65,13 @@ export function calculateCombatSkillEffects(
   );
   const contribution = entries.reduce(
     (sum, entry) => ({
+      baseDamage: sum.baseDamage + entry.baseDamageDealt,
       damage: sum.damage + entry.damageDealt,
       healing: sum.healing + entry.healingDone,
       prevented: sum.prevented + entry.damagePrevented,
       criticalHits: sum.criticalHits + entry.criticalHits,
     }),
-    { damage: 0, healing: 0, prevented: 0, criticalHits: 0 },
+    { baseDamage: 0, damage: 0, healing: 0, prevented: 0, criticalHits: 0 },
   );
   const entriesBySkillId = new Map(entries.map((entry) => [entry.skillId, entry]));
   const timelineEvents = rotation.timeline.events.flatMap((event) => {
@@ -65,6 +81,8 @@ export function calculateCombatSkillEffects(
     const criticalProfile = getCriticalProfile(character, definition.id, entry.casts, definition.category === "attack");
     const critical = isCriticalCast(criticalProfile, event.skillCastIndex);
     const target = getEventTarget(character, action, definition.category, event, options);
+    const baseDamageDealt = damageContributionAtCast(entry.baseDamageDealt, entry.casts, event.skillCastIndex, criticalProfile);
+    const damageDealt = applyElementalModifier(baseDamageDealt, target, definition.damageType);
 
     return [{
       sequence: event.sequence,
@@ -78,7 +96,10 @@ export function calculateCombatSkillEffects(
       targetKind: target.kind,
       critical,
       manaCost: event.manaCost,
-      damageDealt: damageContributionAtCast(entry.damageDealt, entry.casts, event.skillCastIndex, criticalProfile),
+      damageType: definition.damageType,
+      baseDamageDealt,
+      damageDealt,
+      elementalModifierPercent: getElementalModifierPercent(target, definition.damageType),
       healingDone: contributionAtCast(entry.healingDone, entry.casts, event.skillCastIndex),
       damagePrevented: contributionAtCast(entry.damagePrevented, entry.casts, event.skillCastIndex),
     }];
@@ -87,10 +108,13 @@ export function calculateCombatSkillEffects(
   return {
     totalCasts: rotation.totalCasts,
     manaSpent: rotation.manaSpent,
-    attackBonusPercent: boundedPercent(total.attack * 0.35 / durationMinutes, MAX_ATTACK_BONUS_PERCENT),
+    attackBonusPercent: boundedPercent(total.attack * elementalEffectiveness(contribution.baseDamage, contribution.damage) * 0.35 / durationMinutes, MAX_ATTACK_BONUS_PERCENT),
     deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes, MAX_DEATH_RISK_REDUCTION_PERCENT),
     supplyReductionPercent: boundedPercent(total.supply * 0.7 / durationMinutes, MAX_SUPPLY_REDUCTION_PERCENT),
+    baseTotalDamage: contribution.baseDamage,
     totalDamage: contribution.damage,
+    elementalDamageDelta: contribution.damage - contribution.baseDamage,
+    elementalModifierPercent: modifierPercent(contribution.baseDamage, contribution.damage),
     totalHealing: contribution.healing,
     totalDamagePrevented: contribution.prevented,
     totalCriticalHits: contribution.criticalHits,
@@ -130,7 +154,13 @@ export function calculatePartyCombatSkillEffects(
     deathRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.deathRiskReductionPercent, 0) / divisor),
     totalCasts: members.reduce((sum, member) => sum + member.effects.totalCasts, 0),
     manaSpent: members.reduce((sum, member) => sum + member.effects.manaSpent, 0),
+    baseTotalDamage: members.reduce((sum, member) => sum + member.effects.baseTotalDamage, 0),
     totalDamage: members.reduce((sum, member) => sum + member.effects.totalDamage, 0),
+    elementalDamageDelta: members.reduce((sum, member) => sum + member.effects.elementalDamageDelta, 0),
+    elementalModifierPercent: modifierPercent(
+      members.reduce((sum, member) => sum + member.effects.baseTotalDamage, 0),
+      members.reduce((sum, member) => sum + member.effects.totalDamage, 0),
+    ),
     totalHealing: members.reduce((sum, member) => sum + member.effects.totalHealing, 0),
     totalDamagePrevented: members.reduce((sum, member) => sum + member.effects.totalDamagePrevented, 0),
     totalCriticalHits: members.reduce((sum, member) => sum + member.effects.totalCriticalHits, 0),
@@ -139,7 +169,27 @@ export function calculatePartyCombatSkillEffects(
 }
 
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
-  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage, ${effects.totalHealing.toLocaleString("en-US")} healing, ${effects.totalDamagePrevented.toLocaleString("en-US")} prevented, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.`;
+  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (${formatSignedPercent(effects.elementalModifierPercent)} elemental), ${effects.totalHealing.toLocaleString("en-US")} healing, ${effects.totalDamagePrevented.toLocaleString("en-US")} prevented, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.`;
+}
+
+function calculateAdjustedDamageTotal(
+  character: Character,
+  action: CharacterAction | undefined,
+  skillId: string,
+  category: "attack" | "support",
+  damageType: CombatSkillEffectSummary["entries"][number]["damageType"],
+  baseTotal: number,
+  casts: number,
+  criticalProfile: CriticalProfile,
+  options: CombatSkillEffectOptions,
+) {
+  let adjustedTotal = 0;
+  for (let skillCastIndex = 1; skillCastIndex <= casts; skillCastIndex += 1) {
+    const target = getEventTarget(character, action, category, { skillId, skillCastIndex }, options);
+    const baseDamage = damageContributionAtCast(baseTotal, casts, skillCastIndex, criticalProfile);
+    adjustedTotal += applyElementalModifier(baseDamage, target, damageType);
+  }
+  return adjustedTotal;
 }
 
 function getCombatContributionBase(character: Character) {
@@ -217,7 +267,7 @@ function getEventTarget(
   character: Character,
   action: CharacterAction | undefined,
   category: "attack" | "support",
-  event: { sequence: number; skillId: string },
+  event: { skillCastIndex: number; skillId: string },
   options: CombatSkillEffectOptions,
 ): CombatSkillTarget {
   const configuredTargets = normalizeTargets(category === "attack" ? options.attackTargets : options.supportTargets);
@@ -229,8 +279,42 @@ function getEventTarget(
       }
     : { id: character.id, name: character.name, kind: "self" as const };
   const targets = configuredTargets.length > 0 ? configuredTargets : [fallback];
-  const target = targets[stableHash(`${character.id}:${event.skillId}:${event.sequence}:target`) % targets.length];
+  const target = targets[stableHash(`${character.id}:${event.skillId}:${event.skillCastIndex}:target`) % targets.length];
   return target.id === character.id ? { ...target, kind: "self" } : target;
+}
+
+function applyElementalModifier(
+  baseDamage: number,
+  target: CombatSkillTarget,
+  damageType: CombatSkillEffectSummary["entries"][number]["damageType"],
+) {
+  if (baseDamage <= 0 || !damageType) return baseDamage;
+  return Math.round(baseDamage * (1 + getElementalModifierPercent(target, damageType) / 100));
+}
+
+function getElementalModifierPercent(
+  target: CombatSkillTarget,
+  damageType: CombatSkillEffectSummary["entries"][number]["damageType"],
+) {
+  if (!damageType) return 0;
+  const rawResistance = target.resistances?.[damageType];
+  const resistance = Number.isFinite(rawResistance) ? Math.min(25, Math.max(-25, Number(rawResistance))) : 0;
+  return -resistance;
+}
+
+function elementalEffectiveness(baseDamage: number, adjustedDamage: number) {
+  if (baseDamage <= 0) return 1;
+  const value = adjustedDamage / baseDamage;
+  return Number.isFinite(value) ? Math.min(1.25, Math.max(0.75, value)) : 1;
+}
+
+function modifierPercent(baseDamage: number, adjustedDamage: number) {
+  if (baseDamage <= 0) return 0;
+  return rounded((adjustedDamage / baseDamage - 1) * 100);
+}
+
+function formatSignedPercent(value: number) {
+  return `${value > 0 ? "+" : ""}${value}%`;
 }
 
 function normalizeTargets(targets: CombatSkillTarget[] | undefined) {

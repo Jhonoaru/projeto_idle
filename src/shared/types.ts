@@ -1138,7 +1138,10 @@ export interface CombatSkillEffectEntry {
   attackImpact: number;
   survivalImpact: number;
   supplyImpact: number;
+  damageType?: DamageType;
+  baseDamageDealt: number;
   damageDealt: number;
+  elementalModifierPercent: number;
   healingDone: number;
   damagePrevented: number;
   criticalHits: number;
@@ -1150,7 +1153,10 @@ export interface CombatSkillEffectSummary {
   attackBonusPercent: number;
   deathRiskReductionPercent: number;
   supplyReductionPercent: number;
+  baseTotalDamage: number;
   totalDamage: number;
+  elementalDamageDelta: number;
+  elementalModifierPercent: number;
   totalHealing: number;
   totalDamagePrevented: number;
   totalCriticalHits: number;
@@ -1172,7 +1178,10 @@ export interface CombatSkillTimelineEvent {
   targetKind: CombatSkillTargetKind;
   critical: boolean;
   manaCost: number;
+  damageType?: DamageType;
+  baseDamageDealt: number;
   damageDealt: number;
+  elementalModifierPercent: number;
   healingDone: number;
   damagePrevented: number;
 }
@@ -1187,10 +1196,15 @@ export interface CombatSkillTimelineSummary {
 
 export type CombatSkillTargetKind = "monster" | "boss" | "ally" | "self" | "encounter";
 
+export type DamageType = "physical" | "fire" | "ice" | "earth" | "energy" | "holy" | "death";
+
+export type ElementalResistances = Partial<Record<DamageType, number>>;
+
 export interface CombatSkillTarget {
   id: string;
   name: string;
   kind: CombatSkillTargetKind;
+  resistances?: ElementalResistances;
 }
 
 export interface CombatSkillEffectOptions {
@@ -1203,7 +1217,10 @@ export interface CombatSkillPartyEffectSummary {
   deathRiskReductionPercent: number;
   totalCasts: number;
   manaSpent: number;
+  baseTotalDamage: number;
   totalDamage: number;
+  elementalDamageDelta: number;
+  elementalModifierPercent: number;
   totalHealing: number;
   totalDamagePrevented: number;
   totalCriticalHits: number;
@@ -1550,6 +1567,7 @@ export interface Boss {
   cooldownHours: number;
   entryCost: number;
   risk: BossRisk;
+  resistances?: ElementalResistances;
   requirements: BossRequirement;
   reward: BossReward;
   tags: string[];
@@ -1609,6 +1627,7 @@ export interface Monster {
   maxDamage: number;
   armor: number;
   defense: number;
+  resistances?: ElementalResistances;
   goldMin: number;
   goldMax: number;
   lootTable: LootItem[];

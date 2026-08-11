@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-10
+Atualizado em: 2026-08-11
 
 ## Stack usada
 
@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 139 concluida: skills ofensivas, 12 monstros e 6 Bosses agora usam tipos de dano, resistencias e fraquezas elementais deterministicas com leitura por cast na timeline.
 - Etapa 138.5 concluida: QA real de alvos e criticos no Tauri/SQLite validou atributos recalculados, Hunt/Boss, extremos criticos, catch-up offline e restauracao integral do save.
 - Etapa 138 concluida: timeline agora atribui alvos reais e acertos criticos deterministas sem alterar o dano agregado, rewards ou persistencia.
 - Etapa 137.5 concluida: QA real da timeline no Tauri/SQLite validou snapshots, limite de eventos, diversidade de skills, Hunt/Boss, catch-up offline e restauracao integral do save.
@@ -11284,6 +11285,59 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 139 - tipos de dano, resistencias e fraquezas elementais.
+
+## Etapa 139 - Tipos de dano, resistencias e fraquezas elementais
+
+Status: concluida.
+
+Modelo implementado:
+
+- Sete tipos de dano: physical, fire, ice, earth, energy, holy e death.
+- As 20 skills ofensivas das cinco vocacoes possuem tipo explicito; as 10 skills de suporte continuam sem dano elemental.
+- Os 12 monstros e 6 Bosses atuais receberam perfis tematicos de resistencia e fraqueza.
+- Cada valor de perfil fica entre -25% de fraqueza e +25% de resistencia.
+- Valores ausentes sao neutros; perfis invalidos ou nao finitos tambem caem em neutro.
+- Valores hostis fora do limite sao normalizados em tempo de calculo para -25/+25.
+
+Integracao de combate:
+
+- A mesma selecao deterministica de alvo usada na timeline define o modificador de cada cast.
+- Dano base, dano ajustado, delta elemental e efetividade percentual permanecem separados no relatorio.
+- Critico e elemento sao compostos por cast sem alterar a contagem deterministica de criticos.
+- A soma de todos os eventos de uma timeline completa continua igual ao dano agregado.
+- Hunts passam os perfis dos monstros reais e Bosses passam o perfil do Boss para todos os integrantes da party.
+- Efetividade elemental ajusta apenas a contribuicao existente de clear speed/success power e continua limitada pelo teto global de 8%.
+- XP, gold, loot, supplies, death risk e persistencia nao receberam multiplicadores elementais paralelos.
+
+Interface e logs:
+
+- O relatorio mostra dano por minuto e efetividade elemental agregada.
+- Cada evento ofensivo mostra alvo, tipo e estado neutral, weak ou resisted.
+- Marcadores e linhas usam cores distintas para fraqueza e resistencia, preservando o destaque de critico.
+- O layout mobile permite quebra da legenda elemental sem overflow horizontal.
+- Logs finais de Hunt e Boss registram a efetividade elemental em uma unica linha, sem spam por cast.
+
+Validacao:
+
+- Fixture temporario passou em 17/17 checks de dados, limites, neutralidade, fraqueza, resistencia, determinismo, criticos, soma por evento, alvos mistos, Boss party e entradas hostis.
+- Dragon Whelp confirmou fire resistido em -25% e ice fraco em +25%.
+- Hunt mista com Mud Rotter e Cave Spider confirmou ambos os alvos reais e resistencia earth agregada.
+- Boss Ember Matriarch diferenciou fire resistido e ice fraco entre integrantes da mesma party.
+- QA visual passou em 1280x900 e 390x844 sem overflow horizontal ou falhas do fixture.
+- Fixture, servidor e logs temporarios foram removidos apos o QA.
+- `npm.cmd run build` passou.
+- `npm.cmd run tauri:build` passou e gerou executavel, MSI e NSIS.
+
+Limitacoes mantidas:
+
+- Alvos nao possuem HP individual persistente; o dano continua sendo telemetria agregada da simulacao idle.
+- Nao existem miss, dodge, penetration, dano ao longo do tempo, conversao elemental ou status ailments.
+- Perfis elementais sao dados locais estaticos e ainda nao aparecem em Bestiary/briefing como painel dedicado.
+- O QA desta etapa usou engine e interface web; a matriz Tauri/SQLite e catch-up offline fica para a etapa de QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 139.5 - QA elemental no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -3104,6 +3104,14 @@ p {
   box-shadow: 0 0 0 2px rgb(214 169 61 / 28%);
 }
 
+.combat-skill-timeline-track i.is-weakness {
+  background: #5fcf79;
+}
+
+.combat-skill-timeline-track i.is-resistant {
+  background: #6da9d8;
+}
+
 .combat-skill-timeline-list {
   display: grid;
   max-height: 214px;
@@ -3129,6 +3137,14 @@ p {
 .combat-skill-timeline-event.is-critical {
   border-left-color: #e2bd56;
   background: #17170f;
+}
+
+.combat-skill-timeline-event.is-weakness {
+  border-left-color: #5fcf79;
+}
+
+.combat-skill-timeline-event.is-resistant {
+  border-left-color: #6da9d8;
 }
 
 .combat-skill-timeline-event time,
@@ -3194,6 +3210,12 @@ p {
 
   .combat-skill-timeline-event-mana {
     display: none;
+  }
+
+  .combat-skill-timeline-event-skill small {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
   }
 }
 

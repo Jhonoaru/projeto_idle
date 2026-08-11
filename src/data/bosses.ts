@@ -11,6 +11,7 @@ export const bosses: Boss[] = [
     cooldownHours: 20,
     entryCost: 80,
     risk: "low",
+    resistances: { earth: 15, fire: -20 },
     requirements: {
       requiredLevel: 15,
       requiredAccessIds: ["thaeron-sewers-access"],
@@ -40,6 +41,7 @@ export const bosses: Boss[] = [
     cooldownHours: 20,
     entryCost: 140,
     risk: "medium",
+    resistances: { physical: 10, energy: -10 },
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["mudrot-cave-access"],
@@ -75,6 +77,7 @@ export const bosses: Boss[] = [
     cooldownHours: 20,
     entryCost: 240,
     risk: "high",
+    resistances: { physical: 15, death: 25, holy: -25 },
     requirements: {
       requiredLevel: 35,
       requiredAccessIds: ["ancient-crypt-access"],
@@ -109,6 +112,7 @@ export const bosses: Boss[] = [
     cooldownHours: 20,
     entryCost: 420,
     risk: "high",
+    resistances: { physical: 20, energy: -15 },
     requirements: {
       requiredLevel: 45,
       requiredAccessIds: ["cyclops-hills-access"],
@@ -143,6 +147,7 @@ export const bosses: Boss[] = [
     cooldownHours: 20,
     entryCost: 900,
     risk: "deadly",
+    resistances: { fire: 25, ice: -25 },
     requirements: {
       requiredLevel: 60,
       requiredAccessIds: ["ember-dragon-nest-access"],
@@ -183,6 +188,7 @@ export const bosses: Boss[] = [
     cooldownHours: 20,
     entryCost: 260,
     risk: "medium",
+    resistances: { physical: 10, energy: -10 },
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["novice-boss-access"],
