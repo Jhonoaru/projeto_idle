@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 133.5 concluida: QA do catalogo visual de skills e hotbar nas cinco vocacoes, limites de level, modais, Boss party, estados concluidos e quatro larguras responsivas.
 - Etapa 133 concluida: catalogo visual de 30 skills originais por vocacao, hotbar dinamica, modais por nivel e rotacao visual da party em Bosses.
 - Etapa 132.5 concluida: QA das cinco vocacoes em Hunt/Boss, estados ativos/concluidos, movimento reduzido e quatro larguras, com sincronizacao visual da Hunt corrigida.
 - Etapa 132 concluida: efeitos cosmeticos de combate por vocacao nas Hunt e Boss Scenes, com alvos reais da cena, estado resolvido e movimento reduzido.
@@ -10722,6 +10723,47 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 133.5 - QA do catalogo visual de skills e hotbar.
+
+## Etapa 133.5 - QA do catalogo visual de skills e hotbar
+
+Status: concluida.
+
+Integridade do catalogo:
+
+- Os 30 registros possuem IDs e nomes unicos, valores numericos validos e linguagem visual reconhecida.
+- Cada vocacao possui exatamente quatro ataques e dois suportes, com seis codigos de icone unicos.
+- Guardian, Ranger, Arcanist, Warden e Monk exibiram nomes, contagens e skill primaria coerentes com seus levels reais do mock.
+
+Progressao e modais:
+
+- Guardian confirmou os limites exatos de ataque nos levels 11/12 e de suporte nos levels 17/18 e 44/45.
+- Skills bloqueadas permaneceram desabilitadas; o dialog possui nome acessivel e os icones decorativos permanecem ocultos da arvore acessivel.
+- Modais de ataque e suporte passaram em `980x844` e `390x844`, sem overflow da pagina, janela ou cards e com o botao de fechar visivel.
+- Corrigida a quebra interna do contador no titulo mobile: valores como `0 / 2` agora permanecem juntos.
+
+Boss Scene:
+
+- Ember Matriarch com party completa exibiu Bastion Crash, Falcon Mark, Meteor Sigil, Grove Wrath e Inner Tempest.
+- As cinco entradas permaneceram dentro da arena em `980`, `760`, `520` e `390 px`, sem imagens quebradas ou overflow horizontal.
+- O estado concluido aplicou `is-resolved`, preservou as cinco skills e interrompeu todas as animacoes.
+- A preferencia `Reduce motion` tambem removeu as animacoes da rotacao ativa e foi restaurada ao final do QA.
+
+Validacao e restauracao:
+
+- O browser local percorreu Hunts e Bosses pelo fluxo real da interface; fora do Tauri, permaneceu apenas a indisponibilidade esperada do plugin SQLite.
+- Fixtures temporarias de vocacao, level, party e raid concluida foram removidas integralmente.
+- `npm run build` passou com 461 modulos; permanece somente o aviso conhecido de chunk acima de 500 kB.
+- `npm run tauri:build` passou e gerou os bundles MSI e NSIS.
+- O SQLite permaneceu com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+
+Limitacoes mantidas:
+
+- Skills, mana e cooldown ainda sao representacoes visuais; a engine nao executa uma rotacao individual persistida.
+- O jogador ainda nao configura nem salva a ordem das quatro skills.
+
+Proximo passo sugerido:
+
+- Etapa 134 - rotacao real de skills e cooldowns offline por personagem.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

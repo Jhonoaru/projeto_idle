@@ -6459,6 +6459,7 @@ p {
 .hunt-slot-window h3 span {
   margin-left: 8px;
   color: #e4b54c;
+  white-space: nowrap;
 }
 
 .hunt-slot-window header p {
