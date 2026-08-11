@@ -59,8 +59,10 @@ export function useHuntSceneSimulation(
       ? action?.durationMinutes ?? 1
       : 1;
     const totalMs = durationMinutes * 60_000;
-    const readyToResolve = action?.readyToResolve === true;
-    const rawRemainingMs = readyToResolve ? 0 : getSafeClockRemainingMs(action?.endsAt);
+    const clockRemainingMs = getSafeClockRemainingMs(action?.endsAt);
+    const readyToResolve = action?.readyToResolve === true
+      || Boolean(action?.endsAt && clockRemainingMs <= 0);
+    const rawRemainingMs = readyToResolve ? 0 : clockRemainingMs;
     const elapsedFromRemainingMs = Math.max(0, totalMs - rawRemainingMs);
     const elapsedFromStartedMs = getSafeClockElapsedMs(action?.startedAt);
     const elapsedMs = readyToResolve
@@ -108,7 +110,10 @@ export function useHuntSceneSimulation(
       };
     });
 
-    const activeTarget = visibleCreatures[activeIndex % Math.max(1, visibleCreatures.length)];
+    const targetCandidates = visibleCreatures.filter(
+      (creature) => creature.state === "alive" || creature.state === "damaged",
+    );
+    const activeTarget = targetCandidates[activeIndex % Math.max(1, targetCandidates.length)];
     const lootPreviewEvents = createLootPreviewEvents(hunt, elapsedMs, readyToResolve);
     const combatLogLines = createCombatLogLines(character, hunt, activeTarget?.monster, lootPreviewEvents, readyToResolve, action);
 

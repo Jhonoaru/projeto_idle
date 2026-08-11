@@ -39,6 +39,7 @@ export function HuntScene({
   const displayRemainingMs = isReady ? 0 : snapshot.remainingMs;
   const completedOffline = Boolean(action?.offlineCompletedAt);
   const activeCreature = snapshot.visibleCreatures.find((creature) => creature.id === snapshot.activeTargetId);
+  const effectTargetCreature = activeCreature ?? (isReady ? snapshot.visibleCreatures[0] : undefined);
 
   if (!action || action.type !== "hunting") {
     return null;
@@ -133,12 +134,14 @@ export function HuntScene({
             />
           ))}
           <HuntSceneActor character={character} actionText={snapshot.actionText} />
-          <CombatEffectLayer
-            actors={[{ character }]}
-            mode="hunt"
-            resolved={isReady}
-            target={getHuntEffectTarget(activeCreature?.position)}
-          />
+          {effectTargetCreature ? (
+            <CombatEffectLayer
+              actors={[{ character }]}
+              mode="hunt"
+              resolved={isReady}
+              target={getHuntEffectTarget(effectTargetCreature.position)}
+            />
+          ) : null}
           <div className={`hunt-scene-center-tools ${showSceneTools ? "is-visible" : ""}`.trim()}>
             <button disabled type="button">Loot Filter</button>
             <button type="button" onClick={(event) => event.stopPropagation()}>Combat Log</button>

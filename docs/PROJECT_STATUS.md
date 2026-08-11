@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 132.5 concluida: QA das cinco vocacoes em Hunt/Boss, estados ativos/concluidos, movimento reduzido e quatro larguras, com sincronizacao visual da Hunt corrigida.
 - Etapa 132 concluida: efeitos cosmeticos de combate por vocacao nas Hunt e Boss Scenes, com alvos reais da cena, estado resolvido e movimento reduzido.
 - Etapa 131.5 concluida: QA dos seis sprites de Bosses em running, ready, fallback HTTP individual e cinco larguras responsivas, sem regressao encontrada.
 - Etapa 131 concluida: seis sprites originais de Bosses, catalogo por boss ID, integracao em Explore, briefing, cards e Boss Scene, com fallback seguro.
@@ -10624,6 +10625,48 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 132.5 - QA dos efeitos de combate e skills.
+
+## Etapa 132.5 - QA dos efeitos de combate e skills
+
+Status: concluida.
+
+Cobertura das Hunts:
+
+- Guardian, Ranger, Arcanist, Warden e Monk foram iniciados separadamente pelo fluxo real de Explore/Hunts.
+- Cada vocacao carregou a classe visual esperada: `melee`, `ranged`, `arcane`, `nature` e `spirit`.
+- Todos os efeitos ativos permaneceram direcionados a criaturas `alive` ou `damaged`, sem atacar slots em spawn ou derrotados.
+- Nenhuma das cinco cenas criou overflow horizontal.
+
+Cobertura dos Bosses:
+
+- Ember Matriarch foi iniciada com party de cinco membros e roles tank, damage, damage, healer e support.
+- As cinco linguagens visuais foram renderizadas simultaneamente e permaneceram dentro da arena.
+- Nenhum sprite ou background ficou quebrado durante o teste.
+- A cena pronta para coleta manteve as cinco sequencias no DOM, ocultou as trajetorias, exibiu o selo resolvido e habilitou `Collect Raid Report`.
+
+Correcoes aplicadas:
+
+- A Hunt Scene agora seleciona alvo visual somente entre criaturas vivas ou feridas.
+- Quando nao existe alvo combatente, a camada de ataque nao e renderizada; o estado concluido conserva apenas o selo no primeiro slot da cena.
+- O relogio em `0s` agora tambem conclui a simulacao visual, sincronizando barra, criaturas derrotadas, alvo ativo e efeitos antes da persistencia de `readyToResolve`.
+
+Responsividade e acessibilidade:
+
+- A Boss Scene passou em `980`, `760`, `520` e `390 px`, sem overflow e com impacto dentro do palco.
+- A preferencia real `Reduce motion` do cliente foi ativada: projetil oculto, animacao reduzida a um frame e selo estatico preservado.
+- A preferencia foi restaurada ao final do QA e continua separada do save SQLite.
+
+Validacao e restauracao:
+
+- O console Vite apresentou somente a indisponibilidade esperada do Tauri SQL Plugin fora do runtime desktop.
+- Fixtures de vocacao, party e estado concluido foram removidas integralmente.
+- Nenhum campo de save, regra de dano, loot, cooldown ou balanceamento foi alterado.
+- `npm run build` e `npm run tauri:build` passaram; MSI e NSIS foram gerados.
+- O SQLite permaneceu com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+
+Proximo passo sugerido:
+
+- Etapa 133 - catalogo visual de skills por vocacao e integracao com a hotbar.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
