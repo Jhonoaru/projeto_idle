@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 145.5 concluida: QA real no Tauri/SQLite validou penetracao, snapshots, Boss party e catch-up offline em 37/37 checks, com restauracao integral do save.
 - Etapa 145 concluida: skills e equipamentos agora atravessam parte das resistencias positivas a burn, poison e slow, com caps, imunidades absolutas e relatorios completos.
 - Etapa 144.5 concluida: QA real no Tauri/SQLite validou resistencias, imunidades, snapshots, Boss party e catch-up offline em 36/36 checks, sem regressao de produto.
 - Etapa 144 concluida: criaturas e Bosses agora possuem resistencias, vulnerabilidades e imunidades deterministicas a burn, poison e slow, refletidas na timeline e nos relatorios.
@@ -11996,6 +11997,57 @@ Persistencia e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 145.5 - QA de penetracao de resistencias no Tauri/SQLite e offline catch-up.
+
+## Etapa 145.5 - QA de penetracao de resistencias no Tauri/SQLite
+
+Status: concluida sem regressao de produto.
+
+Persistencia e snapshots:
+
+- O harness temporario executou no WebView Tauri com o plugin SQLite real em `sqlite:guild_hunt_idle.db`.
+- Ember Staff e Emberheart Amulet persistiram equipados em Mira e restauraram 15% de penetracao derivada apos reload.
+- O snapshot de Hunt preservou exclusivamente Meteor Sigil; a acao de Boss preservou Thorn Bolt e Rootfall.
+- Status, target, datas, duracao e `combatSkillLoadout` das duas acoes persistiram em `current_action_json`.
+- O metadata permaneceu canonico no ID `primary`, com save version finita e `last_offline_catchup_at` persistido.
+
+Formula apos reload:
+
+- Meteor Sigil manteve 27% de penetracao total: 15% do equipamento e 12% da skill.
+- Uma resistencia de 40% foi reduzida para 13%, elevando a chance efetiva de burn para 73,95%.
+- O fingerprint completo permaneceu identico antes e depois do reload: 92.081 de dano direto, 101.649 total, 26 aplicacoes, 104 ticks e 9.568 de DoT.
+- Timeline e Activity Log mantiveram resistencia original, efetiva e penetracao por cast.
+
+Boss party:
+
+- Ember Matriarch permaneceu absolutamente imune a burn: 34 hits imunes, zero aplicacoes e zero dano da condicao, mesmo com 27% de penetracao.
+- A resistencia de 40% a poison caiu para 33% com os 7% combinados de Runed Wand e Thorn Bolt.
+- A vulnerabilidade de -25% a slow permaneceu em -25%; os 11% disponiveis nao amplificaram a vulnerabilidade.
+- Agregados da party coincidiram com a soma dos membros, permaneceram finitos e o log de Boss informou a penetracao media.
+
+Offline catch-up:
+
+- Uma Hunt e uma acao de Boss vencidas foram marcadas `readyToResolve` em uma unica aplicacao.
+- `offlineCompletedAt`, `offlineElapsedMs`, targets e snapshots de loadout persistiram depois de Save/Reload.
+- O catch-up nao concedeu gold, XP ou loot automaticamente.
+- A segunda aplicacao foi idempotente: zero novos reports e nenhum personagem alterado.
+- O fingerprint de combate permaneceu igual antes do save, depois do reload e depois do catch-up.
+
+Execucao e restauracao:
+
+- O harness passou em 37/37 checks dentro do Tauri/SQLite real.
+- A tabela `stage_1455_qa`, o bootstrap, o harness e os processos temporarios foram removidos.
+- O banco original tinha 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- Depois da QA, o SQLite foi restaurado com o mesmo tamanho e hash; backup, WAL e SHM nao permaneceram.
+- Nenhuma mudanca no codigo de produto foi necessaria.
+
+Limitacoes:
+
+- A QA automatizou o fluxo no WebView Tauri e auditou o SQLite diretamente; nao repetiu cliques manuais na interface completa.
+- Balanceamento de longo prazo da penetracao ainda depende de partidas extensas e variedade maior de equipamentos.
+
+Proximo passo sugerido:
+
+- Etapa 146 - limpeza e protecao temporaria contra condicoes por skills de suporte.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
