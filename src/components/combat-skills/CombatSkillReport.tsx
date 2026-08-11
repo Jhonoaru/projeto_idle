@@ -20,7 +20,8 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
           {effects.conditions.map((condition) => (
             <span className={`is-${condition.type}`} key={condition.type}>
               <b>{conditionLabel(condition.type)}</b>
-              <small>{condition.applications} applied / {condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime / ${condition.potencyPercent}% power`}</small>
+              <small>{condition.applications} applied / {condition.resisted} resisted / {condition.immuneHits} immune</small>
+              <small>{condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime / ${condition.potencyPercent}% power`} / {condition.averageEffectiveChancePercent}% effective</small>
             </span>
           ))}
         </div>
@@ -160,9 +161,13 @@ function formatEventDefense(event: CombatSkillEffectSummary["timeline"]["events"
 function formatEventCondition(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
   if (!event.conditionType || event.outcome !== "hit") return "";
   const label = conditionLabel(event.conditionType);
-  if (!event.conditionApplied) return ` / ${label} did not apply`;
-  if (event.conditionType === "slow") return ` / ${label} ${event.conditionDurationSeconds}s at ${event.conditionPotencyPercent}%`;
-  return ` / ${label} ${event.conditionTicks} ticks, ${event.conditionDamage.toLocaleString("en-US")} dmg`;
+  const chance = `${event.conditionEffectiveChancePercent}% effective`;
+  const resistance = event.conditionResistancePercent !== 0 ? ` / ${formatResistance(event.conditionResistancePercent)}` : "";
+  if (event.conditionOutcome === "immune") return ` / ${label} immune`;
+  if (event.conditionOutcome === "resisted") return ` / ${label} resisted (${chance}${resistance})`;
+  if (!event.conditionApplied) return ` / ${label} failed (${chance}${resistance})`;
+  if (event.conditionType === "slow") return ` / ${label} ${event.conditionDurationSeconds}s at ${event.conditionPotencyPercent}% / ${chance}${resistance}`;
+  return ` / ${label} ${event.conditionTicks} ticks, ${event.conditionDamage.toLocaleString("en-US")} dmg / ${chance}${resistance}`;
 }
 
 function conditionLabel(type: NonNullable<CombatSkillEffectSummary["entries"][number]["conditionType"]>) {
@@ -170,7 +175,13 @@ function conditionLabel(type: NonNullable<CombatSkillEffectSummary["entries"][nu
 }
 
 function conditionClassName(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
+  if (event.conditionOutcome === "immune") return " is-condition-immune";
+  if (event.conditionOutcome === "resisted") return " is-condition-resisted";
   return event.conditionApplied && event.conditionType ? ` is-condition-${event.conditionType}` : "";
+}
+
+function formatResistance(value: number) {
+  return value < 0 ? `${value}% vulnerability` : `${value}% resist`;
 }
 
 function formatElementalModifier(value: number) {

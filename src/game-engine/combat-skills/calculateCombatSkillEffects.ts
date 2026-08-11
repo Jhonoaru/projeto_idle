@@ -4,6 +4,7 @@ import type {
   CharacterAction,
   CombatAttackOutcome,
   CombatConditionDefinition,
+  CombatConditionOutcome,
   CombatConditionSummary,
   CombatSkillEffectOptions,
   CombatSkillEffectSummary,
@@ -76,6 +77,11 @@ export function calculateCombatSkillEffects(
       conditionDamage: attackResolution.conditionDamage,
       conditionUptimeSeconds: attackResolution.conditionUptimeSeconds,
       conditionPotencyPercent: boundedValue(definition.condition?.potencyPercent, 0, 60, 0),
+      conditionEligibleHits: attackResolution.conditionEligibleHits,
+      conditionResisted: attackResolution.conditionResisted,
+      conditionImmuneHits: attackResolution.conditionImmuneHits,
+      conditionResistanceTotal: attackResolution.conditionResistanceTotal,
+      conditionEffectiveChanceTotal: attackResolution.conditionEffectiveChanceTotal,
     }];
   });
   const total = entries.reduce(
@@ -164,6 +170,10 @@ export function calculateCombatSkillEffects(
       conditionDamage: condition.damage,
       conditionDurationSeconds: condition.durationSeconds,
       conditionPotencyPercent: condition.potencyPercent,
+      conditionOutcome: condition.outcome,
+      conditionResistancePercent: condition.resistancePercent,
+      conditionBaseChancePercent: condition.baseChancePercent,
+      conditionEffectiveChancePercent: condition.effectiveChancePercent,
     }];
   });
   const totalAttacks = contribution.hits + contribution.misses + contribution.dodges;
@@ -303,9 +313,11 @@ export function calculatePartyCombatSkillEffects(
 }
 
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
-  const conditionReport = effects.totalConditionApplications > 0
-    ? ` Conditions: ${effects.totalConditionApplications.toLocaleString("en-US")} applied, ${effects.totalConditionTicks.toLocaleString("en-US")} ticks, ${effects.totalConditionDamage.toLocaleString("en-US")} damage${effects.slowUptimePercent > 0 ? `, ${effects.slowUptimePercent}% slow uptime` : ""}.`
-    : " Conditions: none applied.";
+  const resisted = effects.conditions.reduce((sum, condition) => sum + condition.resisted, 0);
+  const immune = effects.conditions.reduce((sum, condition) => sum + condition.immuneHits, 0);
+  const conditionReport = effects.conditions.length > 0
+    ? ` Conditions: ${effects.totalConditionApplications.toLocaleString("en-US")} applied, ${resisted.toLocaleString("en-US")} resisted, ${immune.toLocaleString("en-US")} immune, ${effects.totalConditionTicks.toLocaleString("en-US")} ticks, ${effects.totalConditionDamage.toLocaleString("en-US")} damage${effects.slowUptimePercent > 0 ? `, ${effects.slowUptimePercent}% slow uptime` : ""}.`
+    : " Conditions: no eligible hits.";
   return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (${effects.totalConditionDamage.toLocaleString("en-US")} conditions, -${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.${conditionReport} Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).`;
 }
 
@@ -334,7 +346,12 @@ function calculateAttackResolution(
   let conditionTicks = 0;
   let conditionDamage = 0;
   let conditionUptimeSeconds = 0;
-  if (category !== "attack") return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds };
+  let conditionEligibleHits = 0;
+  let conditionResisted = 0;
+  let conditionImmuneHits = 0;
+  let conditionResistanceTotal = 0;
+  let conditionEffectiveChanceTotal = 0;
+  if (category !== "attack") return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds, conditionEligibleHits, conditionResisted, conditionImmuneHits, conditionResistanceTotal, conditionEffectiveChanceTotal };
   const armorPenetrationPercent = getArmorPenetrationPercent(character, skillArmorPenetrationPercent);
   for (let skillCastIndex = 1; skillCastIndex <= casts; skillCastIndex += 1) {
     const target = getEventTarget(character, action, category, { skillId, skillCastIndex }, options);
@@ -368,10 +385,28 @@ function calculateAttackResolution(
     conditionTicks += conditionResult.ticks;
     conditionDamage += conditionResult.damage;
     conditionUptimeSeconds += conditionResult.durationSeconds;
+    conditionEligibleHits += conditionResult.eligible ? 1 : 0;
+    conditionResisted += conditionResult.outcome === "resisted" ? 1 : 0;
+    conditionImmuneHits += conditionResult.outcome === "immune" ? 1 : 0;
+    conditionResistanceTotal += conditionResult.eligible ? conditionResult.resistancePercent : 0;
+    conditionEffectiveChanceTotal += conditionResult.eligible ? conditionResult.effectiveChancePercent : 0;
     if (isCriticalCast(criticalProfile, skillCastIndex)) criticalHits += 1;
   }
   conditionDamage = Math.min(conditionDamage, Math.round(damage * MAX_CONDITION_DAMAGE_PERCENT / 100));
-  return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds };
+  return { landedBaseDamage, damageAfterDefense, damage, hits, misses, dodges, criticalHits, conditionApplications, conditionTicks, conditionDamage, conditionUptimeSeconds, conditionEligibleHits, conditionResisted, conditionImmuneHits, conditionResistanceTotal, conditionEffectiveChanceTotal };
+}
+
+interface ConditionCastResult {
+  applied: boolean;
+  eligible: boolean;
+  outcome: CombatConditionOutcome;
+  ticks: number;
+  damage: number;
+  durationSeconds: number;
+  potencyPercent: number;
+  resistancePercent: number;
+  baseChancePercent: number;
+  effectiveChancePercent: number;
 }
 
 function calculateConditionAtCast(
@@ -382,31 +417,45 @@ function calculateConditionAtCast(
   condition: CombatConditionDefinition | undefined,
   directDamage: number,
   remainingMs: number,
-) {
-  const empty = {
+): ConditionCastResult {
+  const empty: ConditionCastResult = {
     applied: false,
+    eligible: false,
+    outcome: "none",
     ticks: 0,
     damage: 0,
     durationSeconds: 0,
     potencyPercent: 0,
+    resistancePercent: 0,
+    baseChancePercent: 0,
+    effectiveChancePercent: 0,
   };
   if (!condition || directDamage <= 0) return empty;
-  const chance = boundedValue(condition.applicationChancePercent, 0, 100, 0);
-  const applied = deterministicPercent(`${characterId}:${target.id}:${skillId}:${skillCastIndex}:${condition.type}:condition`) < chance;
-  if (!applied) return empty;
+  const baseChancePercent = rounded(boundedValue(condition.applicationChancePercent, 0, 100, 0));
+  const resistancePercent = rounded(boundedValue(target.conditionResistances?.[condition.type], -50, 80, 0));
+  const immune = Array.isArray(target.conditionImmunities) && target.conditionImmunities.includes(condition.type);
+  const effectiveChancePercent = immune ? 0 : rounded(Math.min(100, Math.max(0, baseChancePercent * (1 - resistancePercent / 100))));
+  const profile = { ...empty, eligible: true, resistancePercent, baseChancePercent, effectiveChancePercent };
+  if (immune) return { ...profile, outcome: "immune" };
+  const roll = deterministicPercent(`${characterId}:${target.id}:${skillId}:${skillCastIndex}:${condition.type}:condition`);
+  const applied = roll < effectiveChancePercent;
+  if (!applied) {
+    const resisted = resistancePercent > 0 && roll < baseChancePercent;
+    return { ...profile, outcome: resisted ? "resisted" : "failed" };
+  }
   const configuredDuration = boundedValue(condition.durationSeconds, 0, 60, 0);
   const durationSeconds = rounded(Math.min(configuredDuration, Math.max(0, remainingMs) / 1_000));
-  if (durationSeconds <= 0) return empty;
+  if (durationSeconds <= 0) return { ...profile, outcome: "failed" };
   const potencyPercent = boundedValue(condition.potencyPercent, 0, 60, 0);
   if (condition.type === "slow") {
-    return { applied: true, ticks: 0, damage: 0, durationSeconds, potencyPercent };
+    return { ...profile, applied: true, outcome: "applied", ticks: 0, damage: 0, durationSeconds, potencyPercent };
   }
   const tickIntervalSeconds = boundedValue(condition.tickIntervalSeconds, 0.5, 30, 1);
   const ticks = Math.max(0, Math.floor(durationSeconds / tickIntervalSeconds));
   const damagePercentPerTick = boundedValue(condition.damagePercentPerTick, 0, 10, 0);
   const rawDamage = directDamage * damagePercentPerTick * ticks / 100;
   const damage = Math.round(Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Number.isFinite(rawDamage) ? rawDamage : 0)));
-  return { applied: true, ticks, damage, durationSeconds, potencyPercent };
+  return { ...profile, applied: true, outcome: "applied", ticks, damage, durationSeconds, potencyPercent };
 }
 
 function aggregateConditions(
@@ -415,8 +464,9 @@ function aggregateConditions(
 ): CombatConditionSummary[] {
   return (["burn", "poison", "slow"] as const).flatMap((type) => {
     const matching = entries.filter((entry) => entry.conditionType === type);
+    const eligibleHits = matching.reduce((sum, entry) => sum + entry.conditionEligibleHits, 0);
     const applications = matching.reduce((sum, entry) => sum + entry.conditionApplications, 0);
-    if (applications <= 0) return [];
+    if (eligibleHits <= 0) return [];
     const uptimeSeconds = matching.reduce((sum, entry) => sum + entry.conditionUptimeSeconds, 0);
     const potencyWeight = matching.reduce((sum, entry) => sum + entry.conditionUptimeSeconds * entry.conditionPotencyPercent, 0);
     return [{
@@ -426,6 +476,11 @@ function aggregateConditions(
       damage: matching.reduce((sum, entry) => sum + entry.conditionDamage, 0),
       uptimePercent: rounded(Math.min(100, uptimeSeconds / Math.max(1, durationMinutes * 60) * 100)),
       potencyPercent: uptimeSeconds > 0 ? rounded(potencyWeight / uptimeSeconds) : 0,
+      eligibleHits,
+      resisted: matching.reduce((sum, entry) => sum + entry.conditionResisted, 0),
+      immuneHits: matching.reduce((sum, entry) => sum + entry.conditionImmuneHits, 0),
+      averageResistancePercent: rounded(matching.reduce((sum, entry) => sum + entry.conditionResistanceTotal, 0) / eligibleHits),
+      averageEffectiveChancePercent: rounded(matching.reduce((sum, entry) => sum + entry.conditionEffectiveChanceTotal, 0) / eligibleHits),
     }];
   });
 }
@@ -435,8 +490,9 @@ function aggregatePartyConditions(
 ): CombatConditionSummary[] {
   return (["burn", "poison", "slow"] as const).flatMap((type) => {
     const matching = members.flatMap((member) => member.effects.conditions.filter((condition) => condition.type === type));
+    const eligibleHits = matching.reduce((sum, condition) => sum + condition.eligibleHits, 0);
     const applications = matching.reduce((sum, condition) => sum + condition.applications, 0);
-    if (applications <= 0) return [];
+    if (eligibleHits <= 0) return [];
     const uptimeWeight = matching.reduce((sum, condition) => sum + condition.uptimePercent, 0);
     return [{
       type,
@@ -447,6 +503,11 @@ function aggregatePartyConditions(
       potencyPercent: uptimeWeight > 0
         ? rounded(matching.reduce((sum, condition) => sum + condition.potencyPercent * condition.uptimePercent, 0) / uptimeWeight)
         : 0,
+      eligibleHits,
+      resisted: matching.reduce((sum, condition) => sum + condition.resisted, 0),
+      immuneHits: matching.reduce((sum, condition) => sum + condition.immuneHits, 0),
+      averageResistancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageResistancePercent * condition.eligibleHits, 0) / eligibleHits),
+      averageEffectiveChancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageEffectiveChancePercent * condition.eligibleHits, 0) / eligibleHits),
     }];
   });
 }

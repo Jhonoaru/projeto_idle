@@ -25,7 +25,7 @@ export function simulateBossFight(
     participants,
     boss.durationMinutes * 60_000,
     {
-      attackTargets: [{ id: boss.id, name: boss.name, kind: "boss", resistances: boss.resistances, evasionPercent: boss.evasionPercent, armor: boss.armor, defense: boss.defense, level: boss.requirements.requiredLevel, minDamage: boss.minDamage, maxDamage: boss.maxDamage }],
+      attackTargets: [{ id: boss.id, name: boss.name, kind: "boss", resistances: boss.resistances, conditionResistances: boss.conditionResistances, conditionImmunities: boss.conditionImmunities, evasionPercent: boss.evasionPercent, armor: boss.armor, defense: boss.defense, level: boss.requirements.requiredLevel, minDamage: boss.minDamage, maxDamage: boss.maxDamage }],
       supportTargets: participants.map((character) => ({
         id: character.id,
         name: character.name,
@@ -52,6 +52,8 @@ export function simulateBossFight(
     return withCooldown.bossCooldowns.find((entry) => entry.bossId === boss.id)!;
   });
   const participantNames = participants.map((character) => character.name).join(", ");
+  const resistedConditions = combatSkillEffects.conditions.reduce((sum, condition) => sum + condition.resisted, 0);
+  const immuneConditions = combatSkillEffects.conditions.reduce((sum, condition) => sum + condition.immuneHits, 0);
   const logs = [
     `${boss.name} started by ${participantNames}.`,
     defeated ? `${boss.name} was defeated.` : `${boss.name} survived the attempt.`,
@@ -60,7 +62,7 @@ export function simulateBossFight(
       return `${character?.name ?? "A party member"} morreu durante ${boss.name}.`;
     }),
     ...risk.warnings,
-    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage (${combatSkillEffects.totalConditionDamage.toLocaleString("en-US")} conditions, -${combatSkillEffects.defenseMitigationPercent}% defense, ${combatSkillEffects.armorPenetrationPercent}% penetration, ${combatSkillEffects.elementalModifierPercent > 0 ? "+" : ""}${combatSkillEffects.elementalModifierPercent}% elemental), ${combatSkillEffects.totalHits.toLocaleString("en-US")}/${combatSkillEffects.totalAttacks.toLocaleString("en-US")} hits, ${combatSkillEffects.totalMisses.toLocaleString("en-US")} misses, ${combatSkillEffects.totalDodges.toLocaleString("en-US")} dodged, ${combatSkillEffects.totalCriticalHits.toLocaleString("en-US")} critical hits. Conditions: ${combatSkillEffects.totalConditionApplications.toLocaleString("en-US")} applied, ${combatSkillEffects.totalConditionTicks.toLocaleString("en-US")} ticks${combatSkillEffects.slowUptimePercent > 0 ? `, ${combatSkillEffects.slowUptimePercent}% slow uptime` : ""}. Defense report: ${combatSkillEffects.blockedAttacks.toLocaleString("en-US")}/${combatSkillEffects.incomingAttacks.toLocaleString("en-US")} blocks, ${combatSkillEffects.blockedDamage.toLocaleString("en-US")} damage blocked (${combatSkillEffects.blockDamageReductionPercent}% reduction).`,
+    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage (${combatSkillEffects.totalConditionDamage.toLocaleString("en-US")} conditions, -${combatSkillEffects.defenseMitigationPercent}% defense, ${combatSkillEffects.armorPenetrationPercent}% penetration, ${combatSkillEffects.elementalModifierPercent > 0 ? "+" : ""}${combatSkillEffects.elementalModifierPercent}% elemental), ${combatSkillEffects.totalHits.toLocaleString("en-US")}/${combatSkillEffects.totalAttacks.toLocaleString("en-US")} hits, ${combatSkillEffects.totalMisses.toLocaleString("en-US")} misses, ${combatSkillEffects.totalDodges.toLocaleString("en-US")} dodged, ${combatSkillEffects.totalCriticalHits.toLocaleString("en-US")} critical hits. Conditions: ${combatSkillEffects.totalConditionApplications.toLocaleString("en-US")} applied, ${resistedConditions.toLocaleString("en-US")} resisted, ${immuneConditions.toLocaleString("en-US")} immune, ${combatSkillEffects.totalConditionTicks.toLocaleString("en-US")} ticks${combatSkillEffects.slowUptimePercent > 0 ? `, ${combatSkillEffects.slowUptimePercent}% slow uptime` : ""}. Defense report: ${combatSkillEffects.blockedAttacks.toLocaleString("en-US")}/${combatSkillEffects.incomingAttacks.toLocaleString("en-US")} blocks, ${combatSkillEffects.blockedDamage.toLocaleString("en-US")} damage blocked (${combatSkillEffects.blockDamageReductionPercent}% reduction).`,
     `Boss loot enviado para o Guild Depot.`,
     ...participants.map(
       (character) => `${character.name} recebeu cooldown de ${boss.cooldownHours}h em ${boss.name}.`,

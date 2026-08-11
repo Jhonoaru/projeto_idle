@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 144 concluida: criaturas e Bosses agora possuem resistencias, vulnerabilidades e imunidades deterministicas a burn, poison e slow, refletidas na timeline e nos relatorios.
 - Etapa 143.5 concluida: QA real no Tauri/SQLite validou condicoes, snapshots, Boss party, catch-up offline e corrigiu coleta duplicada de Hunt.
 - Etapa 143 concluida: burn, poison e slow deterministas agora integram skills, dano, controle, timeline, relatorios e Boss parties com caps seguros.
 - Etapa 142.5 concluida: QA real no Tauri/SQLite validou block, Boss party, reload, catch-up offline idempotente e restauracao integral do save.
@@ -11847,6 +11848,56 @@ Execucao e restauracao:
 Proximo passo sugerido:
 
 - Etapa 144 - resistencias e imunidades a condicoes por criatura e Boss.
+
+## Etapa 144 - Resistencias e imunidades a condicoes
+
+Status: concluida.
+
+Modelo e regras:
+
+- Monstros, Bosses e alvos de combate aceitam resistencias individuais para `burn`, `poison` e `slow`, alem de uma lista explicita de imunidades.
+- A chance efetiva usa `chance base * (1 - resistencia / 100)`, limitada entre 0% e 100%.
+- Resistencias sao normalizadas entre -50% de vulnerabilidade e 80% de resistencia; imunidade sempre reduz a chance efetiva para 0%.
+- O resultado de cada cast distingue `applied`, `resisted`, `immune`, `failed` e `none`.
+- Um resultado resistente ocorre quando o roll passaria na chance base, mas nao passa na chance efetiva reduzida.
+- Miss e dodge continuam inelegiveis para condicoes, e resistencia nao altera dano direto, defesa ou modificador elemental.
+- Caps anteriores de dano de DoT, ataque por condicoes, controle e reducao de risco foram preservados.
+
+Catalogo:
+
+- Os 12 monstros receberam perfis coerentes com sua natureza e progressao.
+- Cave Spider e Ancient Skeleton sao imunes a poison; Dragon Whelp e imune a burn.
+- Sewer Rat, Cave Spider, Forest Troll, Wyvern Hatchling e Dragon Whelp possuem vulnerabilidades tematicas.
+- Os 6 Bosses receberam perfis proprios; Sewer Broodmother e Crypt Warden sao imunes a poison, enquanto Ember Matriarch e imune a burn.
+- Hunts e Boss parties enviam os perfis reais para a mesma engine pura de combate.
+
+Relatorios e logs:
+
+- O resumo por condicao mostra aplicacoes, resultados resistidos, imunidades, ticks ou uptime e chance efetiva media.
+- Condicoes totalmente imunes permanecem visiveis no resumo mesmo com zero aplicacoes.
+- A timeline identifica visual e textualmente aplicacao, falha normal, resistencia, imunidade, chance efetiva e vulnerabilidade/resistencia do alvo.
+- Logs de Hunt e Boss incluem totais concisos de condicoes aplicadas, resistidas e imunes.
+- O agregado de party pondera resistencia e chance efetiva por hits elegiveis e preserva somas exatas entre membros.
+
+QA executado:
+
+- A fixture temporaria passou em 26/26 checks deterministas.
+- Foram validados alvo neutro, resistente, vulneravel e imune com a mesma sequencia de rolls.
+- Os limites de 80% e -50%, dano direto inalterado, imunidade total, slow sem uptime, non-hits inelegiveis, perfis reais, party e determinismo foram confirmados.
+- O relatorio exibiu eventos aplicados, resistidos e imunes sem erros de console.
+- O layout foi validado em 1280 px e 375 px sem overflow horizontal da pagina.
+- `npm.cmd run build` passou com a fixture e sera executado novamente apos sua remocao.
+- A fixture, o desvio de bootstrap, o servidor e os logs temporarios foram removidos.
+
+Persistencia e limitacoes:
+
+- Nenhuma migration foi necessaria: os perfis pertencem aos dados estaticos de monstros e Bosses, nao ao save.
+- Esta etapa nao reabriu o runtime Tauri nem manipulou o SQLite real.
+- Reload, snapshot de Hunt/Boss e equivalencia do offline catch-up com resistencias ficam para a proxima QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 144.5 - QA de resistencias e imunidades no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

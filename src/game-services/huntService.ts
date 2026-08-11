@@ -133,6 +133,8 @@ export function finishHunt(
         name: monster.name,
         kind: "monster",
         resistances: monster.resistances,
+        conditionResistances: monster.conditionResistances,
+        conditionImmunities: monster.conditionImmunities,
         evasionPercent: monster.evasionPercent,
         armor: monster.armor,
         defense: monster.defense,

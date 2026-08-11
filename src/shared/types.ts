@@ -1163,9 +1163,16 @@ export interface CombatSkillEffectEntry {
   conditionDamage: number;
   conditionUptimeSeconds: number;
   conditionPotencyPercent: number;
+  conditionEligibleHits: number;
+  conditionResisted: number;
+  conditionImmuneHits: number;
+  conditionResistanceTotal: number;
+  conditionEffectiveChanceTotal: number;
 }
 
 export type CombatConditionType = "burn" | "poison" | "slow";
+export type CombatConditionOutcome = "none" | "applied" | "resisted" | "immune" | "failed";
+export type ConditionResistances = Partial<Record<CombatConditionType, number>>;
 
 export interface CombatConditionDefinition {
   type: CombatConditionType;
@@ -1183,6 +1190,11 @@ export interface CombatConditionSummary {
   damage: number;
   uptimePercent: number;
   potencyPercent: number;
+  eligibleHits: number;
+  resisted: number;
+  immuneHits: number;
+  averageResistancePercent: number;
+  averageEffectiveChancePercent: number;
 }
 
 export interface CombatSkillEffectSummary {
@@ -1263,6 +1275,10 @@ export interface CombatSkillTimelineEvent {
   conditionDamage: number;
   conditionDurationSeconds: number;
   conditionPotencyPercent: number;
+  conditionOutcome: CombatConditionOutcome;
+  conditionResistancePercent: number;
+  conditionBaseChancePercent: number;
+  conditionEffectiveChancePercent: number;
 }
 
 export interface CombatSkillTimelineSummary {
@@ -1289,6 +1305,8 @@ export interface CombatSkillTarget {
   name: string;
   kind: CombatSkillTargetKind;
   resistances?: ElementalResistances;
+  conditionResistances?: ConditionResistances;
+  conditionImmunities?: CombatConditionType[];
   evasionPercent?: number;
   armor?: number;
   defense?: number;
@@ -1689,6 +1707,8 @@ export interface Boss {
   entryCost: number;
   risk: BossRisk;
   resistances?: ElementalResistances;
+  conditionResistances?: ConditionResistances;
+  conditionImmunities?: CombatConditionType[];
   evasionPercent?: number;
   armor?: number;
   defense?: number;
@@ -1754,6 +1774,8 @@ export interface Monster {
   armor: number;
   defense: number;
   resistances?: ElementalResistances;
+  conditionResistances?: ConditionResistances;
+  conditionImmunities?: CombatConditionType[];
   evasionPercent?: number;
   goldMin: number;
   goldMax: number;

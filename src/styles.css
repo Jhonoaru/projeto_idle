@@ -3183,6 +3183,16 @@ p {
   box-shadow: 0 0 0 2px rgb(103 184 212 / 30%);
 }
 
+.combat-skill-timeline-track i.is-condition-resisted {
+  background: #d4a84f;
+  box-shadow: 0 0 0 2px rgb(212 168 79 / 28%);
+}
+
+.combat-skill-timeline-track i.is-condition-immune {
+  background: #8f9aa0;
+  box-shadow: 0 0 0 2px rgb(143 154 160 / 28%);
+}
+
 .combat-skill-timeline-list {
   display: grid;
   max-height: 214px;
@@ -3243,6 +3253,15 @@ p {
 
 .combat-skill-timeline-event.is-condition-slow {
   border-left-color: #67b8d4;
+}
+
+.combat-skill-timeline-event.is-condition-resisted {
+  border-left-color: #d4a84f;
+}
+
+.combat-skill-timeline-event.is-condition-immune {
+  border-left-color: #8f9aa0;
+  opacity: 0.82;
 }
 
 .combat-skill-timeline-event.is-miss > strong,
