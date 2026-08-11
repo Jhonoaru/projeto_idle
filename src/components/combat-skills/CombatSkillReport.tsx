@@ -33,6 +33,39 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
           </div>
         ))}
       </div>
+
+      {effects.timeline.events.length > 0 ? (
+        <details className="combat-skill-timeline" open={!compact}>
+          <summary>
+            <span>Cast Timeline</span>
+            <small>
+              {effects.timeline.events.length} shown / {effects.timeline.totalEvents.toLocaleString("en-US")} casts
+            </small>
+          </summary>
+          <div className="combat-skill-timeline-track" aria-hidden="true">
+            {effects.timeline.events.map((event) => (
+              <i
+                className={`is-${event.category}`}
+                key={`${event.sequence}-${event.skillId}`}
+                style={{ left: `${event.progressPercent}%` }}
+              />
+            ))}
+          </div>
+          <div className="combat-skill-timeline-list" role="list" aria-label="Sampled combat cast events">
+            {effects.timeline.events.map((event) => (
+              <div className={`combat-skill-timeline-event is-${event.category}`} role="listitem" key={`${event.sequence}-${event.skillId}`}>
+                <time>{formatElapsed(event.occurredAtMs)}</time>
+                <span>{event.skillName}</span>
+                <strong>{formatEventContribution(event)}</strong>
+                <small>{event.manaCost} mana</small>
+              </div>
+            ))}
+          </div>
+          {effects.timeline.omittedEvents > 0 ? (
+            <p>{effects.timeline.omittedEvents.toLocaleString("en-US")} intermediate casts omitted from this sample.</p>
+          ) : null}
+        </details>
+      ) : null}
     </div>
   );
 }
@@ -67,4 +100,23 @@ function ReportMetric({ label, value, detail }: { label: string; value: number; 
       {detail ? <small>{detail}</small> : null}
     </div>
   );
+}
+
+function formatElapsed(elapsedMs: number) {
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1_000));
+  const hours = Math.floor(totalSeconds / 3_600);
+  const minutes = Math.floor(totalSeconds % 3_600 / 60);
+  const seconds = totalSeconds % 60;
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`
+    : `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatEventContribution(event: CombatSkillEffectSummary["timeline"]["events"][number]) {
+  const parts = [
+    event.damageDealt > 0 ? `${event.damageDealt.toLocaleString("en-US")} dmg` : "",
+    event.healingDone > 0 ? `${event.healingDone.toLocaleString("en-US")} heal` : "",
+    event.damagePrevented > 0 ? `${event.damagePrevented.toLocaleString("en-US")} blocked` : "",
+  ].filter(Boolean);
+  return parts.join(" / ") || "Utility cast";
 }

@@ -51,6 +51,25 @@ export function calculateCombatSkillEffects(
     }),
     { damage: 0, healing: 0, prevented: 0 },
   );
+  const entriesBySkillId = new Map(entries.map((entry) => [entry.skillId, entry]));
+  const timelineEvents = rotation.timeline.events.flatMap((event) => {
+    const definition = combatSkills.find((skill) => skill.id === event.skillId);
+    const entry = entriesBySkillId.get(event.skillId);
+    if (!definition || !entry) return [];
+
+    return [{
+      sequence: event.sequence,
+      occurredAtMs: event.occurredAtMs,
+      progressPercent: progressPercent(event.occurredAtMs, rotation.timeline.durationMs),
+      skillId: definition.id,
+      skillName: definition.name,
+      category: definition.category,
+      manaCost: event.manaCost,
+      damageDealt: contributionAtCast(entry.damageDealt, entry.casts, event.skillCastIndex),
+      healingDone: contributionAtCast(entry.healingDone, entry.casts, event.skillCastIndex),
+      damagePrevented: contributionAtCast(entry.damagePrevented, entry.casts, event.skillCastIndex),
+    }];
+  });
 
   return {
     totalCasts: rotation.totalCasts,
@@ -64,6 +83,12 @@ export function calculateCombatSkillEffects(
     damagePerMinute: perMinute(contribution.damage, durationMinutes),
     healingPerMinute: perMinute(contribution.healing, durationMinutes),
     entries,
+    timeline: {
+      durationMs: rotation.timeline.durationMs,
+      totalEvents: rotation.timeline.totalEvents,
+      omittedEvents: Math.max(0, rotation.timeline.totalEvents - timelineEvents.length),
+      events: timelineEvents,
+    },
   };
 }
 
@@ -114,6 +139,18 @@ function getCombatContributionBase(character: Character) {
 function contributionTotal(casts: number, base: number, scale: number) {
   const value = casts * base * scale;
   return Math.round(Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Number.isFinite(value) ? value : 0)));
+}
+
+function contributionAtCast(total: number, casts: number, castIndex: number) {
+  if (total <= 0 || casts <= 0 || castIndex <= 0) return 0;
+  const base = Math.floor(total / casts);
+  const remainder = total % casts;
+  return base + (castIndex <= remainder ? 1 : 0);
+}
+
+function progressPercent(occurredAtMs: number, durationMs: number) {
+  if (durationMs <= 0) return 0;
+  return Number(Math.min(100, Math.max(0, occurredAtMs / durationMs * 100)).toFixed(1));
 }
 
 function perMinute(total: number, durationMinutes: number) {

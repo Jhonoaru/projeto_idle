@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 137 concluida: timeline deterministica e limitada mostra casts amostrados, dano, cura, mitigacao e mana em Hunts e Bosses sem salvar eventos nem duplicar gameplay.
 - Etapa 136.5 concluida: QA real do relatorio detalhado no Tauri/SQLite validou persistencia, snapshots, Hunt/Boss, catch-up offline idempotente e restauracao integral do save.
 - Etapa 136 concluida: relatorio detalhado contabiliza dano, cura e mitigacao por skill em Hunts e Bosses, sem duplicar bonus de gameplay.
 - Etapa 135.5 concluida: QA real dos efeitos de skills no Tauri/SQLite validou snapshots, catch-up idempotente, Hunt/Boss e restauracao integral do save.
@@ -11060,6 +11061,56 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 137 - timeline deterministica de casts e eventos de combate.
+
+## Etapa 137 - Timeline deterministica de casts e eventos de combate
+
+Status: concluida.
+
+Modelo da timeline:
+
+- O mesmo loop deterministico da rotacao agora registra a ordem e o instante relativo dos casts.
+- Cada relatorio carrega no maximo 24 eventos amostrados, mesmo em Hunts de varias horas.
+- A amostra reserva o primeiro cast de cada skill ativa, o ultimo cast e eventos proximos ao centro de faixas temporais distribuidas pela acao.
+- O relatorio informa quantos eventos foram exibidos, o total real de casts e quantos casts intermediarios foram omitidos.
+- Cada evento mostra tempo, skill, mana e sua contribuicao individual de dano, cura e/ou mitigacao.
+- Contribuicoes inteiras por cast sao distribuidas de forma deterministica e permanecem coerentes com os totais agregados.
+
+Integracao:
+
+- Hunt Result abre a timeline completa dentro de Combat Skill Effects.
+- Boss Result mantem a timeline de cada membro recolhida dentro de seu relatorio compacto.
+- Ataques e suportes recebem marcadores visuais distintos na trilha temporal.
+- A lista usa rolagem interna e dimensoes estaveis para nao expandir excessivamente o resultado.
+- No mobile, a coluna de mana do evento e ocultada, mantendo tempo, skill e contribuicao legiveis.
+
+Persistencia e gameplay:
+
+- Nenhuma migration foi necessaria.
+- A timeline e derivada do snapshot da action no momento da resolucao e nao vira estado salvo separado.
+- Dano, cura e mitigacao continuam sendo telemetria dos efeitos ja aplicados; nenhum bonus ou reward e executado novamente.
+- O teto de simulacao existente de oito horas e o limite de 20.000 iteracoes foram preservados.
+
+Validacao:
+
+- Fixture deterministica passou em 10/10 checks: repetibilidade, limite, contagem, omissoes, ordem, progresso, ataque, suporte desativado e party.
+- A primeira amostragem revelou viés para Renew nos limites das faixas; a selecao foi corrigida para garantir diversidade de skills e cobertura temporal.
+- A Warden de 60 minutos manteve 1.323 casts totais e exibiu somente 24 eventos representativos.
+- Desktop em 1280px ficou sem overflow horizontal, com timeline de 1.026px dentro do conteudo.
+- Mobile em 390px ficou sem overflow horizontal; evento e timeline permaneceram dentro de 304px e 321px.
+- Ataque e suporte apareceram na amostra depois da correcao.
+- Nenhum erro ou warning foi registrado no console da fixture.
+- A fixture e o desvio temporario de bootstrap foram removidos integralmente.
+- `npm run build` passou antes e depois da implementacao com 466 modulos.
+
+Limitacoes atuais:
+
+- A timeline e uma amostra, nao uma lista completa de milhares de casts.
+- Eventos ainda nao possuem alvo, resistencia elemental, critico individual, overheal ou escudo restante.
+- A cena ativa continua mostrando a rotacao atual; a timeline detalhada aparece no resultado concluido.
+
+Proximo passo sugerido:
+
+- Etapa 137.5 - QA da timeline no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

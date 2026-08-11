@@ -1113,6 +1113,22 @@ export interface CombatSkillRotationSummary {
   activeSkillId?: string;
   nextCastInMs: number;
   cooldownRemainingMs: Record<string, number>;
+  timeline: CombatSkillRotationTimeline;
+}
+
+export interface CombatSkillRotationEvent {
+  sequence: number;
+  skillCastIndex: number;
+  occurredAtMs: number;
+  skillId: string;
+  manaCost: number;
+}
+
+export interface CombatSkillRotationTimeline {
+  durationMs: number;
+  totalEvents: number;
+  omittedEvents: number;
+  events: CombatSkillRotationEvent[];
 }
 
 export interface CombatSkillEffectEntry {
@@ -1139,6 +1155,27 @@ export interface CombatSkillEffectSummary {
   damagePerMinute: number;
   healingPerMinute: number;
   entries: CombatSkillEffectEntry[];
+  timeline: CombatSkillTimelineSummary;
+}
+
+export interface CombatSkillTimelineEvent {
+  sequence: number;
+  occurredAtMs: number;
+  progressPercent: number;
+  skillId: string;
+  skillName: string;
+  category: "attack" | "support";
+  manaCost: number;
+  damageDealt: number;
+  healingDone: number;
+  damagePrevented: number;
+}
+
+export interface CombatSkillTimelineSummary {
+  durationMs: number;
+  totalEvents: number;
+  omittedEvents: number;
+  events: CombatSkillTimelineEvent[];
 }
 
 export interface CombatSkillPartyEffectSummary {
