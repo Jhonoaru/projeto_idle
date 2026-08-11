@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 144.5 concluida: QA real no Tauri/SQLite validou resistencias, imunidades, snapshots, Boss party e catch-up offline em 36/36 checks, sem regressao de produto.
 - Etapa 144 concluida: criaturas e Bosses agora possuem resistencias, vulnerabilidades e imunidades deterministicas a burn, poison e slow, refletidas na timeline e nos relatorios.
 - Etapa 143.5 concluida: QA real no Tauri/SQLite validou condicoes, snapshots, Boss party, catch-up offline e corrigiu coleta duplicada de Hunt.
 - Etapa 143 concluida: burn, poison e slow deterministas agora integram skills, dano, controle, timeline, relatorios e Boss parties com caps seguros.
@@ -11898,6 +11899,59 @@ Persistencia e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 144.5 - QA de resistencias e imunidades no Tauri/SQLite e offline catch-up.
+
+## Etapa 144.5 - QA de resistencias e imunidades no Tauri/SQLite
+
+Status: concluida sem regressao de produto.
+
+Persistencia e snapshots:
+
+- O harness temporario executou dentro do WebView Tauri e usou o plugin SQLite real em `sqlite:guild_hunt_idle.db`.
+- O personagem, o loadout vivo e o snapshot de `Thorn Bolt` na acao de Hunt persistiram nos JSONs do SQLite.
+- Reload restaurou status `hunting`, target da Cave Spider e loadout congelado da acao.
+- O metadata canonico permaneceu no ID `primary`, com `lastSavedAt` e `lastOfflineCatchupAt` persistidos.
+- As tres acoes da party contra Ember Matriarch preservaram target, membros, papeis e loadouts individuais apos save/reload.
+
+Hunt e imunidade:
+
+- Cave Spider permaneceu imune a poison depois do reload.
+- Foram registrados 228 hits elegiveis e 228 resultados imunes, com zero aplicacoes e zero dano de poison.
+- A timeline recalculada preservou eventos `immune`, e o log da Hunt informou o total imune.
+- O fingerprint ativo e offline coincidiu exatamente: 87.335 de dano direto e total, sem DoT.
+- A Hunt pronta foi resolvida uma unica vez e uma segunda chamada de `finishHunt` foi rejeitada.
+
+Offline catch-up:
+
+- A Hunt expirada foi marcada como `readyToResolve` sem conceder XP ou gold automaticamente.
+- `offlineCompletedAt`, snapshot da rotacao e estado pronto persistiram depois de novo save/reload.
+- A segunda aplicacao do catch-up foi idempotente, sem relatorio ou alteracao adicional.
+- O relatorio de condicoes ativo e o recalculado apos catch-up produziram o mesmo fingerprint.
+
+Boss party:
+
+- Ember Matriarch bloqueou todos os 84 hits de burn elegiveis, sem aplicacao ou dano de burn.
+- A resistencia de 40% a poison resultou em chance efetiva media de 21% e 22 resultados resistidos.
+- A vulnerabilidade de -25% a slow resultou em chance efetiva media de 87,5%.
+- O log de Boss informou resultados resistidos e imunes, e todos os agregados permaneceram finitos.
+- Aplicacoes de condicoes da party continuaram iguais a soma exata dos relatorios individuais.
+
+Execucao e restauracao:
+
+- A primeira rodada marcou 35/36 porque o harness temporario foi disparado duas vezes pelo `React.StrictMode`, criando corrida entre duas escritas de QA no mesmo banco.
+- O harness foi isolado do `StrictMode`; a segunda rodada passou em 36/36 checks.
+- Nenhuma mudanca no codigo do produto foi necessaria.
+- O banco original foi copiado antes da QA com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- Depois da QA, o SQLite foi restaurado com o mesmo tamanho e hash; WAL, SHM, tabela de QA, backup e harness foram removidos junto com a copia fisica restaurada.
+- `npm.cmd run build` passou antes da execucao e com o harness temporario.
+
+Limitacoes:
+
+- Esta QA automatizou o fluxo no WebView Tauri e inspecionou o SQLite diretamente; nao repetiu cliques manuais na interface completa do jogo.
+- Balanceamento de longo prazo entre perfis de resistencia continua sujeito a telemetria de partidas maiores.
+
+Proximo passo sugerido:
+
+- Etapa 145 - penetracao e reducao de resistencias a condicoes por skills e equipamentos.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
