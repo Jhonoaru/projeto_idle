@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 146.5 concluida: QA real no Tauri/SQLite validou cleanse, protecao, snapshots, Boss party e catch-up offline em 46/46 checks, com restauracao integral do save.
 - Etapa 146 concluida: condicoes hostis agora podem ser prevenidas e limpas por skills de suporte, com janelas temporarias, dano residual, risco limitado e relatorios deterministas.
 - Etapa 145.5 concluida: QA real no Tauri/SQLite validou penetracao, snapshots, Boss party e catch-up offline em 37/37 checks, com restauracao integral do save.
 - Etapa 145 concluida: skills e equipamentos agora atravessam parte das resistencias positivas a burn, poison e slow, com caps, imunidades absolutas e relatorios completos.
@@ -12105,6 +12106,61 @@ Persistencia e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 146.5 - QA de cleanse e protecao no Tauri/SQLite e offline catch-up.
+
+## Etapa 146.5 - QA de cleanse e protecao no Tauri/SQLite
+
+Status: concluida.
+
+Persistencia validada:
+
+- Uma fixture real salvou e recarregou dois personagens em acao de Boss contra Ember Matriarch.
+- Os snapshots de Barkskin Circle e Guardian Mantra permaneceram em `current_action_json`, incluindo `supportDisabled: false`.
+- Datas, tipo da acao, alvo, duracao e loadouts sobreviveram ao ciclo completo de save/load.
+- O fingerprint defensivo antes do save e depois do reload foi identico.
+- Nenhuma migration nova foi necessaria.
+
+Cleanse e protecao:
+
+- O baseline sem suporte recebeu tentativas e aplicacoes de burn sem prevenir ou limpar condicoes.
+- Barkskin Circle manteve 25% de protecao e 40% de uptime depois do reload.
+- Guardian Mantra manteve 30% de protecao depois do reload.
+- Ambos os suportes preveniram e limparam condicoes; Barkskin reduziu ticks e dano residual contra o baseline.
+- A reducao defensiva de risco permaneceu positiva e abaixo do cap de 3%.
+- A rotacao longa preservou 51 eventos de suporte, enquanto a timeline visual continuou limitada a 24 eventos e reteve um cast defensivo amostrado.
+
+Boss party e logs:
+
+- Tentativas, aplicacoes, prevencoes e cleanses da party coincidiram exatamente com a soma dos membros.
+- Agregados e metricas por condicao permaneceram finitos.
+- O log real de Boss incluiu `Condition defense` e o dano residual.
+- A imunidade da Ember Matriarch a burn ofensivo permaneceu absoluta.
+
+Offline catch-up:
+
+- As duas acoes expiradas foram marcadas como `readyToResolve`, com `offlineCompletedAt` e `offlineElapsedMs` corretos.
+- O catch-up preservou os snapshots de suporte e o mesmo fingerprint de combate.
+- Nenhum gold, XP ou item de depot foi concedido antes da coleta manual.
+- O estado pronto e `last_offline_catchup_at` sobreviveram ao reload.
+- Uma segunda aplicacao nao gerou relatorios, mudancas ou duplicacao.
+- A leitura direta do SQLite confirmou IDs de suporte, marcador de resolucao e timestamp offline no JSON bruto.
+
+Execucao e restauracao:
+
+- O harness passou em 46/46 checks dentro do WebView Tauri e do SQLite real.
+- A tentativa de fechamento automatico encontrou a permissao Tauri `core:window:allow-close`; a arvore exata do processo de QA foi encerrada manualmente depois da gravacao dos resultados.
+- O banco original tinha 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- Depois da QA, o banco foi restaurado com o mesmo tamanho e hash; backup, WAL e SHM foram removidos.
+- A tabela, o harness e o bootstrap temporarios nao permaneceram no codigo ou no save.
+- Nenhuma correcao no codigo de produto foi necessaria.
+
+Limitacoes:
+
+- A QA automatizou engine, persistencia e catch-up dentro do Tauri; nao repetiu cliques manuais na interface completa.
+- Cada membro ainda usa apenas o proprio suporte defensivo; compartilhamento de ward e cleanse entre aliados nao faz parte da Etapa 146.
+
+Proximo passo sugerido:
+
+- Etapa 147 - compartilhamento de protecao e cleanse entre membros da party.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
