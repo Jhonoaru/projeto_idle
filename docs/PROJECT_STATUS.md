@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 137.5 concluida: QA real da timeline no Tauri/SQLite validou snapshots, limite de eventos, diversidade de skills, Hunt/Boss, catch-up offline e restauracao integral do save.
 - Etapa 137 concluida: timeline deterministica e limitada mostra casts amostrados, dano, cura, mitigacao e mana em Hunts e Bosses sem salvar eventos nem duplicar gameplay.
 - Etapa 136.5 concluida: QA real do relatorio detalhado no Tauri/SQLite validou persistencia, snapshots, Hunt/Boss, catch-up offline idempotente e restauracao integral do save.
 - Etapa 136 concluida: relatorio detalhado contabiliza dano, cura e mitigacao por skill em Hunts e Bosses, sem duplicar bonus de gameplay.
@@ -11093,7 +11094,7 @@ Persistencia e gameplay:
 Validacao:
 
 - Fixture deterministica passou em 10/10 checks: repetibilidade, limite, contagem, omissoes, ordem, progresso, ataque, suporte desativado e party.
-- A primeira amostragem revelou viés para Renew nos limites das faixas; a selecao foi corrigida para garantir diversidade de skills e cobertura temporal.
+- A primeira amostragem revelou vies para Renew nos limites das faixas; a selecao foi corrigida para garantir diversidade de skills e cobertura temporal.
 - A Warden de 60 minutos manteve 1.323 casts totais e exibiu somente 24 eventos representativos.
 - Desktop em 1280px ficou sem overflow horizontal, com timeline de 1.026px dentro do conteudo.
 - Mobile em 390px ficou sem overflow horizontal; evento e timeline permaneceram dentro de 304px e 321px.
@@ -11111,6 +11112,55 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 137.5 - QA da timeline no Tauri/SQLite e offline catch-up.
+
+## Etapa 137.5 - QA da timeline no Tauri/SQLite
+
+Status: concluida.
+
+Persistencia e determinismo:
+
+- O harness temporario executou no aplicativo Tauri real com o Tauri SQL Plugin e o SQLite local.
+- O snapshot da action persistiu separado do loadout atual do personagem e permaneceu como fonte da timeline apos Save/Reload.
+- Duas derivacoes da mesma action persistida produziram timelines identicas.
+- A timeline manteve ordem estritamente crescente, progresso entre 0% e 100% e valores finitos e nao negativos.
+- Todas as skills configuradas apareceram na amostra, incluindo eventos ofensivos e de suporte.
+
+Hunt e offline catch-up:
+
+- A Hunt Warden de 60 minutos registrou 1.323 casts, mostrou 24 e omitiu 1.299 eventos intermediarios.
+- Renew, Thorn Bolt, Verdant Wave e Rootfall apareceram na mesma amostra.
+- O catch-up marcou a Hunt expirada como pronta sem conceder rewards nem alterar Guild Depot.
+- Aplicar o catch-up novamente foi idempotente.
+- `readyToResolve` e o snapshot persistiram depois de Save/Reload.
+- Resolver a Hunt ativa ou offline produziu a mesma timeline, XP, gold e loot.
+- A resolucao offline gerou exatamente uma linha `Skill effects` e removeu a action.
+- Suporte desativado eliminou eventos de suporte e cura sem remover ataques.
+
+Limites e Bosses:
+
+- Uma entrada de 24 horas foi limitada a oito horas de simulacao, com 10.563 casts, 24 exibidos e 10.539 omitidos.
+- A party Guardian/Warden/Arcanist manteve tres timelines independentes com 24 eventos cada.
+- Guardian registrou 353 casts, Warden 399 e Arcanist 381 na luta de 18 minutos.
+- Cada integrante preservou ao menos um ataque e um suporte na amostra.
+- O Boss Result recebeu as mesmas timelines calculadas e exatamente uma linha `Party skill effects`.
+- Atributos, duracao e IDs hostis continuaram produzindo timeline finita e limitada.
+
+Restauracao e validacao:
+
+- O QA passou em 18/18 checks no Tauri/SQLite.
+- A tentativa de auto-close foi recusada pela permissao Tauri `core:window:allow-close`; app, CLI e Vite foram encerrados explicitamente.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup temporario, harness e desvio de bootstrap foram removidos integralmente.
+- `npm run build` passou antes do QA e com o harness temporario.
+
+Limitacoes mantidas:
+
+- A timeline continua amostrada e derivada na resolucao, sem persistir milhares de eventos individuais.
+- Eventos ainda nao identificam alvo, critico individual, resistencia, overheal ou escudo restante.
+
+Proximo passo sugerido:
+
+- Etapa 138 - alvos e acertos criticos deterministas na timeline de combate.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
