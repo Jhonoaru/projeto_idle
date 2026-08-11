@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 142.5 concluida: QA real no Tauri/SQLite validou block, Boss party, reload, catch-up offline idempotente e restauracao integral do save.
 - Etapa 142 concluida: block chance e block power derivados agora simulam ataques recebidos, dano bloqueado e reducao limitada de risco em Hunts/Bosses.
 - Etapa 141.5 concluida: QA real no Tauri/SQLite validou defense, penetration, skills perfurantes, Boss party, reload, catch-up idempotente e restauracao integral do save.
 - Etapa 141 concluida: armor, defense e penetration agora reduzem dano e clear speed deterministicamente em Hunts/Bosses, com relatorio por cast e limites seguros.
@@ -11681,6 +11682,48 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 142.5 - QA de block e mitigacao defensiva no Tauri/SQLite e offline catch-up.
+
+## Etapa 142.5 - QA de block e mitigacao defensiva no Tauri/SQLite
+
+Status: concluida como QA de persistencia e equivalencia offline, sem correcao de gameplay necessaria.
+
+Persistencia e reload:
+
+- Um harness temporario executado pelo app Tauri real criou a fixture, salvou e recarregou o estado pelo SQLite local.
+- O reload preservou o ID canonico `primary`, a Hunt ativa, a rotacao de skills, o shield equipado e os snapshots da acao.
+- Os atributos derivados foram recalculados apos o reload em 15,1% de block chance e 37,05% de block power.
+- Tres snapshots de Boss persistiram corretamente antes da simulacao em grupo.
+
+Block e mitigacao:
+
+- A Hunt real gerou 482 ataques recebidos e 1.172 de dano bruto no cenario base.
+- O Guardian com shield bloqueou 59 ataques e evitou 45 de dano nessa Hunt curta.
+- Chance 0 produziu zero blocks; chance 35 produziu 199 blocks contra 80 do cenario de comparacao.
+- Alterar somente block power preservou os 199 rolls e aumentou o dano evitado de 7.235 para 19.910.
+- Identidades de dano, block rate e reducao permaneceram exatas e todos os valores ficaram finitos.
+- A contribuicao de block respeitou o cap proprio de 5%; a reducao defensiva agregada permaneceu abaixo do cap de 10%.
+- O fingerprint ofensivo permaneceu inalterado e targets ausentes produziram telemetria neutra.
+
+Boss party e catch-up offline:
+
+- Ember Matriarch usou seu perfil real de dano e produziu agregados exatos de 407.937 de dano recebido e 15.188 bloqueado.
+- As metricas ponderadas da party permaneceram limitadas, com 10,01% de block rate e 34,44% de block power.
+- O catch-up marcou a Hunt expirada como pronta sem aplicar rewards automaticamente.
+- Reaplicar o catch-up foi idempotente e a acao resolvida nao permitiu coleta duplicada.
+- A simulacao ativa e a simulacao offline produziram o mesmo relatorio defensivo e os mesmos rewards: 714 XP e 71 gold.
+
+Execucao e restauracao:
+
+- O harness passou em 35/35 checks no Tauri/SQLite real.
+- `npm.cmd run build` passou antes da execucao do harness.
+- App, Tauri CLI, Cargo e Vite foram encerrados antes da restauracao.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup, logs, harness e desvio de bootstrap foram removidos integralmente.
+- Nenhuma migration, alteracao de schema ou correcao de produto foi necessaria.
+
+Proximo passo sugerido:
+
+- Etapa 143 - condicoes de combate deterministicas, com burn, poison e slow em Hunts e Bosses.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
