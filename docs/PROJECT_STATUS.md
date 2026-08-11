@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 143.5 concluida: QA real no Tauri/SQLite validou condicoes, snapshots, Boss party, catch-up offline e corrigiu coleta duplicada de Hunt.
 - Etapa 143 concluida: burn, poison e slow deterministas agora integram skills, dano, controle, timeline, relatorios e Boss parties com caps seguros.
 - Etapa 142.5 concluida: QA real no Tauri/SQLite validou block, Boss party, reload, catch-up offline idempotente e restauracao integral do save.
 - Etapa 142 concluida: block chance e block power derivados agora simulam ataques recebidos, dano bloqueado e reducao limitada de risco em Hunts/Bosses.
@@ -11789,6 +11790,63 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 143.5 - QA de condicoes no Tauri/SQLite, reload, Boss party e offline catch-up.
+
+## Etapa 143.5 - QA de condicoes no Tauri/SQLite e offline catch-up
+
+Status: concluida como QA de persistencia, equivalencia offline e protecao de resolucao.
+
+Persistencia e snapshots:
+
+- O harness temporario executou dentro do app Tauri real e usou o SQLite local.
+- Mira level 60, seu loadout de Meteor Sigil e o snapshot da Hunt persistiram apos save/reload.
+- Lyra preservou o loadout de Thorn Bolt e Rootfall, mantendo poison e slow apos o reload.
+- Alterar o loadout vivo depois do inicio nao substituiu o snapshot salvo na acao.
+- O metadata canonico permaneceu no ID `primary` e a Hunt continuou associada a `hunt-sewers-thaeron`.
+
+Hunt e condicoes:
+
+- A Hunt real produziu 95 burns, 380 ticks e 31.445 de dano de condicao.
+- O dano de burn representou 12,99% do dano direto, abaixo do cap de 25%.
+- A identidade de dano permaneceu exata em 242.008 direto + 31.445 de condicao = 273.453 total.
+- Poison produziu 71 aplicacoes, 213 ticks e 2.982 de dano apos reload.
+- Slow produziu 117 aplicacoes e 39% de uptime sem adicionar dano.
+- Skills neutras permaneceram sem condicoes e non-hits nao aplicaram efeitos.
+- Caps de 3% para ataque de condicoes, 2% para risco de slow, 8% global de ataque e 10% global defensivo permaneceram ativos.
+- Entradas NaN, infinitas e negativas produziram somente metricas finitas.
+
+Boss party:
+
+- A party real contra Boss reuniu burn, poison e slow no mesmo relatorio.
+- Os agregados somaram exatamente 218 aplicacoes, 461 ticks e 12.862 de dano de condicao.
+- O dano total da party permaneceu igual a dano direto + dano de condicoes.
+- Todos os agregados de party permaneceram finitos e dentro dos limites existentes.
+
+Offline catch-up:
+
+- Uma Hunt expirada foi marcada como pronta sem conceder XP, gold ou loot automaticamente.
+- A acao pronta e `lastOfflineCatchupAt` persistiram no SQLite.
+- Uma segunda aplicacao do catch-up foi idempotente e nao gerou nova conclusao.
+- Relatorios ativo e offline produziram o mesmo fingerprint de condicoes.
+- A finalizacao ativa e offline produziu os mesmos 8.307 XP e 1.304 gold.
+
+Bug encontrado e corrigido:
+
+- A primeira execucao passou em 38/39 checks e revelou que `finishHunt` aceitava um personagem ja resolvido, mesmo sem `currentAction`.
+- `finishHunt` agora exige status `hunting`, acao do tipo `hunting` e `targetId` correspondente a Hunt solicitada.
+- A validacao fica no servico de dominio e protege contra clique duplo ou chamada duplicada fora da UI.
+- Depois da correcao, uma segunda tentativa de finalizar a mesma Hunt foi rejeitada.
+
+Execucao e restauracao:
+
+- O harness final passou em 39/39 checks no Tauri/SQLite real.
+- `npm.cmd run build` passou antes e depois da correcao.
+- O SQLite original foi restaurado com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- WAL, SHM, tabela de QA, backup, logs, harness e desvio de bootstrap foram removidos.
+- Nenhuma migration ou alteracao de schema foi necessaria.
+
+Proximo passo sugerido:
+
+- Etapa 144 - resistencias e imunidades a condicoes por criatura e Boss.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

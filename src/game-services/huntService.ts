@@ -109,6 +109,13 @@ export function finishHunt(
   guildXpBonusPercent = 0,
   guildGoldBonusPercent = 0,
 ): { character: Character; result: HuntSimulationResult; guildGoldLost: number } {
+  if (
+    character.status !== "hunting"
+    || character.currentAction?.type !== "hunting"
+    || character.currentAction.targetId !== hunt.id
+  ) {
+    throw new Error(`${character.name} does not have an active action for ${hunt.name}.`);
+  }
   const appliedGuildXpBonus = normalizeGuildBonus(character.currentAction?.guildXpBonusPercent ?? guildXpBonusPercent);
   const appliedGuildGoldBonus = normalizeGuildBonus(character.currentAction?.guildGoldBonusPercent ?? guildGoldBonusPercent);
   const charmBonuses = calculateCharmBonusesForHunt(bestiary, hunt);
