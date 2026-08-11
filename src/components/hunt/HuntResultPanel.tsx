@@ -1,6 +1,7 @@
 import { Panel } from "../ui/Panel";
 import { ItemIcon } from "../items/ItemIcon";
 import { items } from "../../data/items";
+import { CombatSkillReport } from "../combat-skills/CombatSkillReport";
 import type { Character, HuntArea, HuntSimulationResult } from "../../shared/types";
 
 interface HuntResultPanelProps {
@@ -182,6 +183,7 @@ export function HuntResultPanel({
               <li>Supplies: -{result.combatSkillEffects.supplyReductionPercent}%</li>
               <li>{result.combatSkillEffects.totalCasts} casts / {result.combatSkillEffects.manaSpent} mana</li>
             </ul>
+            <CombatSkillReport effects={result.combatSkillEffects} />
           </div>
         ) : null}
 

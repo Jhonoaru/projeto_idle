@@ -2911,6 +2911,146 @@ p {
   color: #aeb7aa;
 }
 
+.combat-skill-report,
+.party-combat-skill-report {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.combat-skill-report-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.combat-skill-report-summary > div {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #303a34;
+  background: #111714;
+}
+
+.combat-skill-report-summary span,
+.combat-skill-report-summary strong,
+.combat-skill-report-summary small {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.combat-skill-report-summary span {
+  color: #8b978e;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.combat-skill-report-summary strong {
+  margin-top: 3px;
+  color: #e4c66f;
+  font-size: 0.86rem;
+}
+
+.combat-skill-report-summary small {
+  margin-top: 2px;
+  color: #7f8b83;
+  font-size: 0.6rem;
+}
+
+.combat-skill-report-list {
+  min-width: 0;
+  border: 1px solid #303a34;
+  background: #0e1310;
+}
+
+.combat-skill-report-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.4fr) repeat(4, minmax(64px, 0.65fr));
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 6px 8px;
+  border-top: 1px solid #252e29;
+}
+
+.combat-skill-report-row:first-child {
+  border-top: 0;
+}
+
+.combat-skill-report-row.is-header {
+  min-height: 28px;
+  color: #7f8b83;
+  background: #141a17;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.combat-skill-report-row strong,
+.combat-skill-report-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combat-skill-report-row strong {
+  color: #ddd1a9;
+  font-size: 0.72rem;
+}
+
+.combat-skill-report-row span {
+  color: #aeb7b0;
+  font-size: 0.68rem;
+  text-align: right;
+}
+
+.combat-skill-report-row > :first-child {
+  text-align: left;
+}
+
+.party-combat-skill-report > section {
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #303a34;
+  background: #101512;
+}
+
+.party-combat-skill-report > section > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.party-combat-skill-report > section > header strong {
+  color: #e2d2a2;
+}
+
+.party-combat-skill-report > section > header span {
+  color: #9aa69d;
+  font-size: 0.66rem;
+}
+
+.combat-skill-report.is-compact .combat-skill-report-summary {
+  display: none;
+}
+
+@media (max-width: 620px) {
+  .combat-skill-report-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .combat-skill-report-row {
+    grid-template-columns: minmax(120px, 1fr) repeat(2, minmax(58px, 0.55fr));
+  }
+
+  .combat-skill-report-row > :nth-child(4),
+  .combat-skill-report-row > :nth-child(5) {
+    display: none;
+  }
+}
+
+
 .loot-result-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

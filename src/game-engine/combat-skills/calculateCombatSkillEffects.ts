@@ -18,6 +18,7 @@ export function calculateCombatSkillEffects(
 ): CombatSkillEffectSummary {
   const durationMinutes = normalizeDurationMinutes(elapsedMs);
   const rotation = simulateCombatSkillRotation(character, action, elapsedMs);
+  const combatBase = getCombatContributionBase(character);
   const entries = rotation.casts.flatMap((cast) => {
     const definition = combatSkills.find((skill) => skill.id === cast.skillId);
     if (!definition || cast.casts <= 0) return [];
@@ -29,6 +30,9 @@ export function calculateCombatSkillEffects(
       attackImpact: cast.casts * definition.effect.attack,
       survivalImpact: cast.casts * definition.effect.survival,
       supplyImpact: cast.casts * definition.effect.supply,
+      damageDealt: contributionTotal(cast.casts, combatBase.damage, definition.effect.damage),
+      healingDone: contributionTotal(cast.casts, combatBase.healing, definition.effect.healing),
+      damagePrevented: contributionTotal(cast.casts, combatBase.mitigation, definition.effect.mitigation),
     }];
   });
   const total = entries.reduce(
@@ -39,6 +43,14 @@ export function calculateCombatSkillEffects(
     }),
     { attack: 0, survival: 0, supply: 0 },
   );
+  const contribution = entries.reduce(
+    (sum, entry) => ({
+      damage: sum.damage + entry.damageDealt,
+      healing: sum.healing + entry.healingDone,
+      prevented: sum.prevented + entry.damagePrevented,
+    }),
+    { damage: 0, healing: 0, prevented: 0 },
+  );
 
   return {
     totalCasts: rotation.totalCasts,
@@ -46,6 +58,11 @@ export function calculateCombatSkillEffects(
     attackBonusPercent: boundedPercent(total.attack * 0.35 / durationMinutes, MAX_ATTACK_BONUS_PERCENT),
     deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes, MAX_DEATH_RISK_REDUCTION_PERCENT),
     supplyReductionPercent: boundedPercent(total.supply * 0.7 / durationMinutes, MAX_SUPPLY_REDUCTION_PERCENT),
+    totalDamage: contribution.damage,
+    totalHealing: contribution.healing,
+    totalDamagePrevented: contribution.prevented,
+    damagePerMinute: perMinute(contribution.damage, durationMinutes),
+    healingPerMinute: perMinute(contribution.healing, durationMinutes),
     entries,
   };
 }
@@ -66,12 +83,46 @@ export function calculatePartyCombatSkillEffects(
     deathRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.deathRiskReductionPercent, 0) / divisor),
     totalCasts: members.reduce((sum, member) => sum + member.effects.totalCasts, 0),
     manaSpent: members.reduce((sum, member) => sum + member.effects.manaSpent, 0),
+    totalDamage: members.reduce((sum, member) => sum + member.effects.totalDamage, 0),
+    totalHealing: members.reduce((sum, member) => sum + member.effects.totalHealing, 0),
+    totalDamagePrevented: members.reduce((sum, member) => sum + member.effects.totalDamagePrevented, 0),
     members,
   };
 }
 
 export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
-  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies.`;
+  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage, ${effects.totalHealing.toLocaleString("en-US")} healing, ${effects.totalDamagePrevented.toLocaleString("en-US")} prevented.`;
+}
+
+function getCombatContributionBase(character: Character) {
+  const attackPower = safeNumber(character.attributes?.attackPower);
+  const defensePower = safeNumber(character.attributes?.defensePower);
+  const maxHealth = safeNumber(character.attributes?.maxHealth);
+  const maxMana = safeNumber(character.attributes?.maxMana);
+  const level = safeNumber(character.level);
+  const critChance = Math.min(100, safeNumber(character.attributes?.critChancePercent));
+  const critDamage = Math.min(300, safeNumber(character.attributes?.critDamagePercent));
+  const expectedCritMultiplier = 1 + (critChance / 100) * (0.5 + critDamage / 100);
+
+  return {
+    damage: Math.max(1, (attackPower * 0.85 + level * 1.5) * expectedCritMultiplier),
+    healing: Math.max(1, maxHealth * 0.025 + maxMana * 0.015 + level * 0.6),
+    mitigation: Math.max(1, defensePower * 0.18 + maxHealth * 0.006),
+  };
+}
+
+function contributionTotal(casts: number, base: number, scale: number) {
+  const value = casts * base * scale;
+  return Math.round(Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Number.isFinite(value) ? value : 0)));
+}
+
+function perMinute(total: number, durationMinutes: number) {
+  return Math.round(total / Math.max(1, durationMinutes));
+}
+
+function safeNumber(value: unknown) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }
 
 function normalizeDurationMinutes(elapsedMs: number) {

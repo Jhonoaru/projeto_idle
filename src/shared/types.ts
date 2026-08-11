@@ -1122,6 +1122,9 @@ export interface CombatSkillEffectEntry {
   attackImpact: number;
   survivalImpact: number;
   supplyImpact: number;
+  damageDealt: number;
+  healingDone: number;
+  damagePrevented: number;
 }
 
 export interface CombatSkillEffectSummary {
@@ -1130,6 +1133,11 @@ export interface CombatSkillEffectSummary {
   attackBonusPercent: number;
   deathRiskReductionPercent: number;
   supplyReductionPercent: number;
+  totalDamage: number;
+  totalHealing: number;
+  totalDamagePrevented: number;
+  damagePerMinute: number;
+  healingPerMinute: number;
   entries: CombatSkillEffectEntry[];
 }
 
@@ -1138,6 +1146,9 @@ export interface CombatSkillPartyEffectSummary {
   deathRiskReductionPercent: number;
   totalCasts: number;
   manaSpent: number;
+  totalDamage: number;
+  totalHealing: number;
+  totalDamagePrevented: number;
   members: Array<{
     characterId: string;
     characterName: string;

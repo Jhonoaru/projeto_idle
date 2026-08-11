@@ -52,7 +52,7 @@ export function simulateBossFight(
       return `${character?.name ?? "A party member"} morreu durante ${boss.name}.`;
     }),
     ...risk.warnings,
-    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk.`,
+    `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage, ${combatSkillEffects.totalHealing.toLocaleString("en-US")} healing, ${combatSkillEffects.totalDamagePrevented.toLocaleString("en-US")} prevented.`,
     `Boss loot enviado para o Guild Depot.`,
     ...participants.map(
       (character) => `${character.name} recebeu cooldown de ${boss.cooldownHours}h em ${boss.name}.`,

@@ -1,4 +1,5 @@
 import type { BossSimulationResult, Character } from "../../shared/types";
+import { PartyCombatSkillReport } from "../combat-skills/CombatSkillReport";
 
 interface BossResultPanelProps {
   result?: BossSimulationResult;
@@ -59,6 +60,7 @@ export function BossResultPanel({ result, characters }: BossResultPanelProps) {
             +{result.combatSkillEffects.attackBonusPercent}% success power / -{result.combatSkillEffects.deathRiskReductionPercent}% death risk
           </p>
           <p>{result.combatSkillEffects.totalCasts} casts / {result.combatSkillEffects.manaSpent} mana</p>
+          <PartyCombatSkillReport effects={result.combatSkillEffects} />
         </div>
       ) : null}
 

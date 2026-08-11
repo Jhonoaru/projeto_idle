@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 136 concluida: relatorio detalhado contabiliza dano, cura e mitigacao por skill em Hunts e Bosses, sem duplicar bonus de gameplay.
 - Etapa 135.5 concluida: QA real dos efeitos de skills no Tauri/SQLite validou snapshots, catch-up idempotente, Hunt/Boss e restauracao integral do save.
 - Etapa 135 concluida: casts de skills agora alteram clear speed, risco, supplies e chances de Boss com efeitos deterministas e limitados.
 - Etapa 134.5 concluida: QA real da rotacao de skills no Tauri/SQLite, com migration, Save/Reload, snapshots, normalizacao hostil e equivalencia offline validados.
@@ -10961,6 +10962,59 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 136 - dano e cura por skill no relatorio detalhado de combate.
+
+## Etapa 136 - Dano, cura e mitigacao por skill
+
+Status: concluida.
+
+Modelo de contribuicao:
+
+- Cada skill agora possui perfil de dano, cura e/ou mitigacao alem dos impactos percentuais da Etapa 135.
+- Skills ofensivas herdam uma escala de dano coerente com sua potencia, level e cooldown.
+- Renew, Barkskin Circle, Centering Breath e Guardian Mantra geram cura contabilizada.
+- Guard Stance, Rallying Standard, Trailstep, Wind Veil, Mana Ward, Chrono Veil, Barkskin Circle e Guardian Mantra contabilizam dano prevenido.
+- O calculo usa attack power, defense power, HP, mana, level e expectativa de critico do personagem.
+- Casts, mana, cooldowns, ordem e snapshot da acao continuam sendo a fonte deterministica do relatorio.
+
+Integracao com gameplay:
+
+- O dano detalhado representa a contribuicao que ja sustenta o bonus de clear speed; ele nao multiplica recompensas novamente.
+- Cura e mitigacao representam os suportes que ja reduzem risco e supplies; nao existe uma segunda aplicacao desses bonus.
+- Hunt, Boss e resolucao offline usam o mesmo resumo derivado do snapshot persistido.
+- Nenhuma migration foi necessaria e nenhum novo estado precisa ser salvo.
+
+Relatorio de Hunt:
+
+- Combat Skill Effects mostra dano total, dano por minuto, cura total, cura por minuto, dano prevenido, mana e casts.
+- A tabela detalha Skill, Casts, Damage, Healing e Prevented para cada entrada da rotacao.
+- O Activity Log registra uma unica linha compacta com os totais do combate.
+
+Relatorio de Boss:
+
+- Party Skill Effects agrega dano, cura, mitigacao, mana e casts da equipe.
+- Cada integrante possui um bloco proprio com sua rotacao e contribuicao por skill.
+- O log do Boss inclui os totais agregados sem gerar entradas por cast.
+
+Validacao:
+
+- Fixture deterministica passou em 9/9 checks: repetibilidade, dano ofensivo, Renew, mitigacao, somatorios, dados hostis, party e recompensas finitas.
+- A Hunt Warden de 60 minutos registrou 562.159 de dano, 16.065 de cura, 9.369 dano/min e 268 cura/min.
+- A party Guardian/Warden/Arcanist registrou 444.391 de dano, 4.866 de cura e 1.825 de dano prevenido.
+- Desktop em 1280px permaneceu sem overflow; o relatorio mostrou as cinco colunas completas.
+- Mobile em 390px permaneceu sem overflow horizontal; os quatro totais continuam visiveis e a tabela reduz para Skill, Casts e Damage.
+- A fixture temporaria foi removida integralmente; o unico erro de console observado pertenceu ao hot reload da propria fixture recriando a raiz React.
+- `npm run build` passou depois da remocao com 466 modulos.
+- `npm run tauri:build` passou e gerou os bundles MSI e NSIS.
+
+Limitacoes atuais:
+
+- Dano e cura sao telemetria agregada do combate idle, nao eventos de HP por alvo na arena.
+- Nao existem overheal, escudo restante, resistencia elemental, acerto critico individual ou timeline cast a cast.
+- No mobile, Healing e Prevented permanecem nos cards de resumo, mas sao ocultados nas linhas da tabela para preservar legibilidade.
+
+Proximo passo sugerido:
+
+- Etapa 136.5 - QA do relatorio detalhado no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
