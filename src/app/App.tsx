@@ -117,6 +117,7 @@ import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { toggleCombatSkill } from "../game-engine/combat-skills/updateCombatSkillLoadout";
 import { moveItemOutOfContainer } from "../game-engine/container/moveItemOutOfContainer";
 import { moveItemToContainer } from "../game-engine/container/moveItemToContainer";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
@@ -481,6 +482,12 @@ export function App() {
       },
       ...currentLogs,
     ]);
+  }
+
+  function handleToggleCombatSkill(skillId: string) {
+    const updatedCharacter = toggleCombatSkill(selectedCharacter, skillId);
+    updateSelectedCharacter(updatedCharacter);
+    prependLog("Combat rotation", `${selectedCharacter.name} updated the next deployment skill order.`, "success");
   }
 
   function handleEquipGuildTitle(titleId: string | null) {
@@ -2662,6 +2669,7 @@ export function App() {
           onFinishBoss={handleFinishBoss}
           onFinishHunt={handleFinishHunt}
           onReturnToCity={handleReturnToCityFromHuntScene}
+          onToggleCombatSkill={handleToggleCombatSkill}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}

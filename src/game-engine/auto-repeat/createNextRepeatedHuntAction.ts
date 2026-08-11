@@ -2,6 +2,7 @@ import { formatClock } from "../../shared/time";
 import { clampMaxRepeats, normalizeCompletedRepeats } from "./canContinueAutoRepeat";
 import { MAX_AUTO_REPEAT_RUNS } from "./constants";
 import type { Character, HuntArea, HuntAutoRepeatConfig } from "../../shared/types";
+import { normalizeCombatSkillLoadout } from "../combat-skills/normalizeCombatSkillLoadout";
 
 export function createNextRepeatedHuntAction(
   character: Character,
@@ -36,6 +37,7 @@ export function createNextRepeatedHuntAction(
       guildXpBonusPercent: safeGuildXpBonus,
       guildGoldBonusPercent: safeGuildGoldBonus,
       expectedGold: Math.round((hunt.estimatedGoldPerHour / 60) * durationMinutes * (1 + safeGuildGoldBonus / 100)),
+      combatSkillLoadout: normalizeCombatSkillLoadout(character),
       autoRepeat: {
         ...config,
         maxRepeats,

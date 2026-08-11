@@ -1,6 +1,7 @@
 import type Database from "@tauri-apps/plugin-sql";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
+import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { normalizeCollectionsState } from "../game-engine/collections/normalizeCollectionsState";
 import { normalizeDailyRewardState } from "../game-engine/daily-reward/normalizeDailyRewardState";
 import { normalizeGuildCareerIdentity } from "../game-engine/achievements/getGuildIdentity";
@@ -333,9 +334,10 @@ async function saveCharacter(
       monster_focus_json,
       destiny_json,
       cosmetics_json,
+      combat_skill_loadout_json,
       created_at,
       updated_at
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28)`,
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29)`,
     [
       character.id,
       guildId,
@@ -363,6 +365,7 @@ async function saveCharacter(
       JSON.stringify(normalizeMonsterFocusState(character.monsterFocus)),
       JSON.stringify(normalizeDestinyState(character)),
       JSON.stringify(normalizeCharacterCosmetics(character, normalizeCollectionsState(collections))),
+      JSON.stringify(normalizeCombatSkillLoadout(character)),
       character.createdAt,
       now,
     ],

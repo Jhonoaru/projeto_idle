@@ -40,6 +40,7 @@ interface MainPlayAreaProps {
   onReturnToCity: () => void;
   onAbortBoss: () => void;
   onCollectBoss: () => void;
+  onToggleCombatSkill: (skillId: string) => void;
 }
 
 export function MainPlayArea({
@@ -62,6 +63,7 @@ export function MainPlayArea({
   onReturnToCity,
   onAbortBoss,
   onCollectBoss,
+  onToggleCombatSkill,
 }: MainPlayAreaProps) {
   const activeCount = characters.filter((entry) => entry.status !== "idle").length;
   const guildProgression = getGuildProgression(guild);
@@ -92,6 +94,7 @@ export function MainPlayArea({
           onCollectHunt={onCollectHunt}
           onOpenAction={onOpenAction}
           onReturnToCity={onReturnToCity}
+          onToggleCombatSkill={onToggleCombatSkill}
         />
       </div>
     );

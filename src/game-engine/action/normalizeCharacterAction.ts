@@ -1,5 +1,6 @@
 import { SKILL_LABELS } from "../../shared/constants";
-import type { CharacterAction, SkillSet, TrainingTarget } from "../../shared/types";
+import type { CharacterAction, CombatSkillLoadout, SkillSet, TrainingTarget, Vocation } from "../../shared/types";
+import { normalizeCombatSkillLoadout } from "../combat-skills/normalizeCombatSkillLoadout";
 
 const trainingTargets = Object.keys(SKILL_LABELS) as TrainingTarget[];
 
@@ -16,12 +17,19 @@ const trainingTargetAliases: Record<TrainingTarget, string[]> = {
 export function normalizeCharacterAction(
   action: CharacterAction | undefined,
   skills: SkillSet,
+  owner?: { vocation: Vocation; level: number; combatSkillLoadout?: CombatSkillLoadout },
 ): CharacterAction | undefined {
-  if (action?.type === "hunting") {
+  if (action?.type === "hunting" || action?.type === "bossing") {
     return {
       ...action,
-      guildXpBonusPercent: normalizeGuildBonus(action.guildXpBonusPercent),
-      guildGoldBonusPercent: normalizeGuildBonus(action.guildGoldBonusPercent),
+      ...(action.type === "hunting" ? {
+        guildXpBonusPercent: normalizeGuildBonus(action.guildXpBonusPercent),
+        guildGoldBonusPercent: normalizeGuildBonus(action.guildGoldBonusPercent),
+      } : {}),
+      combatSkillLoadout: owner ? normalizeCombatSkillLoadout({
+        ...owner,
+        combatSkillLoadout: action.combatSkillLoadout ?? owner.combatSkillLoadout,
+      }) : action.combatSkillLoadout,
     };
   }
   if (!action || action.type !== "training") return action;

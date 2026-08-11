@@ -2,12 +2,14 @@ import { getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills"
 import type { CombatSkillDefinition } from "../../data/combatSkills";
 import type { Character } from "../../shared/types";
 import { CombatSkillIcon } from "../combat-skills/CombatSkillIcon";
+import { normalizeCombatSkillLoadout } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import type { HuntSceneSlotType } from "./HuntSceneHotbar";
 
 interface HuntSceneSlotWindowProps {
   character: Character;
   slot: HuntSceneSlotType;
   onClose: () => void;
+  onToggleSkill?: (skillId: string) => void;
 }
 
 interface HuntSceneSlotEntry {
@@ -67,7 +69,7 @@ const staticWindowConfig: Record<Exclude<HuntSceneSlotType, "attack" | "support"
   },
 };
 
-export function HuntSceneSlotWindow({ character, slot, onClose }: HuntSceneSlotWindowProps) {
+export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill }: HuntSceneSlotWindowProps) {
   const config = getWindowConfig(character, slot);
 
   return (
@@ -101,6 +103,7 @@ export function HuntSceneSlotWindow({ character, slot, onClose }: HuntSceneSlotW
               className={`hunt-slot-entry is-${entry.state}`}
               disabled={entry.state === "locked"}
               key={entry.name}
+              onClick={() => entry.skill && onToggleSkill?.(entry.skill.id)}
               type="button"
             >
               {entry.skill ? (
@@ -128,14 +131,14 @@ function getWindowConfig(character: Character, slot: HuntSceneSlotType): HuntSce
 
   const skills = getCombatSkills(character.vocation, slot);
   const unlocked = skills.filter((entry) => character.level >= entry.levelRequired);
-  const primary = getPrimaryCombatSkill(character.vocation, character.level, slot);
+  const loadout = normalizeCombatSkillLoadout(character);
 
   return {
     title: slot === "attack" ? "Combat Skills" : "Support Skills",
     count: `${unlocked.length} / ${skills.length}`,
-    subtitle: `${character.vocation} ${slot === "attack" ? "attack rotation" : "support rotation"}`,
-    rule: slot === "attack" ? "Use with at least:" : "Shared support cooldown",
-    threshold: slot === "attack" ? "1+ creature" : "",
+    subtitle: `${character.vocation} ${slot === "attack" ? "next deployment order" : "next deployment support"}`,
+    rule: slot === "attack" ? "Click an active skill to rotate its priority" : "Click to select or disable support",
+    threshold: "",
     entries: skills.map((entry) => {
       const isUnlocked = character.level >= entry.levelRequired;
       return {
@@ -143,8 +146,16 @@ function getWindowConfig(character: Character, slot: HuntSceneSlotType): HuntSce
         skill: entry,
         name: entry.name,
         meta: `Level ${entry.levelRequired} / Mana ${entry.manaCost} / CD ${entry.cooldownSeconds}s / ${entry.description}`,
-        state: !isUnlocked ? "locked" : entry.id === primary.id ? "selected" : "available",
-        lock: !isUnlocked ? `Requires level ${entry.levelRequired}` : entry.id === primary.id ? "Active" : undefined,
+        state: !isUnlocked
+          ? "locked"
+          : slot === "attack"
+            ? loadout.attackSkillIds.includes(entry.id) ? "selected" : "available"
+            : loadout.supportSkillId === entry.id ? "selected" : "available",
+        lock: !isUnlocked
+          ? `Requires level ${entry.levelRequired}`
+          : slot === "attack" && loadout.attackSkillIds.includes(entry.id)
+            ? `Priority ${loadout.attackSkillIds.indexOf(entry.id) + 1}`
+            : slot === "support" && loadout.supportSkillId === entry.id ? "Active" : undefined,
       };
     }),
   };

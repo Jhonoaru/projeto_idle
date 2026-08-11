@@ -117,7 +117,7 @@ export function BossScene({
             ))}
           </div>
           <CombatEffectLayer actors={members} mode="boss" resolved={ready} target={{ x: 76, y: 43 }} />
-          <CombatSkillRotation actors={members} resolved={ready} />
+          <CombatSkillRotation actors={members} elapsedMs={elapsedMs} resolved={ready} />
           <div className="boss-scene-stage-status">
             <span>{ready ? "Raid complete" : "Encounter in progress"}</span>
             <div><i style={{ width: `${progress}%` }} /></div>

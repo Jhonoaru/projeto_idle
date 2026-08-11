@@ -1,6 +1,7 @@
-import { getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills";
+import { combatSkills, getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills";
 import type { CombatSkillDefinition } from "../../data/combatSkills";
-import type { Character, HuntArea } from "../../shared/types";
+import type { Character, CombatSkillRotationSummary, HuntArea } from "../../shared/types";
+import { normalizeCombatSkillLoadout } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { CombatSkillIcon } from "../combat-skills/CombatSkillIcon";
 
 export type HuntSceneSlotType = "heal" | "mana" | "attack" | "support" | "utility";
@@ -20,6 +21,7 @@ interface HuntSceneHotbarProps {
   hunt?: HuntArea;
   selectedSlot?: HuntSceneSlotType;
   onSelectSlot: (slot: HuntSceneSlotType) => void;
+  rotation?: CombatSkillRotationSummary;
 }
 
 export function HuntSceneHotbar({
@@ -27,8 +29,9 @@ export function HuntSceneHotbar({
   hunt,
   selectedSlot,
   onSelectSlot,
+  rotation,
 }: HuntSceneHotbarProps) {
-  const slots = getHuntSceneSlots(character, hunt);
+  const slots = getHuntSceneSlots(character, hunt, rotation);
 
   return (
     <div className="hunt-scene-hotbar" aria-label="Hunt combat slots">
@@ -67,11 +70,21 @@ export function HuntSceneHotbar({
   );
 }
 
-export function getHuntSceneSlots(character: Character, hunt?: HuntArea): HuntSceneSlot[] {
+export function getHuntSceneSlots(character: Character, hunt?: HuntArea, rotation?: CombatSkillRotationSummary): HuntSceneSlot[] {
   const healthPotions = countItems(character, ["minor-health-potion", "health-potion", "strong-health-potion"]);
   const manaPotions = countItems(character, ["mana-potion", "strong-mana-potion"]);
-  const primaryAttack = getPrimaryCombatSkill(character.vocation, character.level, "attack");
-  const primarySupport = getPrimaryCombatSkill(character.vocation, character.level, "support");
+  const actionLoadout = normalizeCombatSkillLoadout({
+    vocation: character.vocation,
+    level: character.level,
+    combatSkillLoadout: character.currentAction?.combatSkillLoadout ?? character.combatSkillLoadout,
+  });
+  const activeSkill = combatSkills.find((skill) => skill.id === rotation?.activeSkillId);
+  const primaryAttack = activeSkill?.category === "attack"
+    ? activeSkill
+    : combatSkills.find((skill) => skill.id === actionLoadout.attackSkillIds[0])
+      ?? getPrimaryCombatSkill(character.vocation, character.level, "attack");
+  const primarySupport = combatSkills.find((skill) => skill.id === actionLoadout.supportSkillId)
+    ?? getPrimaryCombatSkill(character.vocation, character.level, "support");
   const attackCount = getCombatSkills(character.vocation, "attack").filter(
     (skill) => character.level >= skill.levelRequired,
   ).length;
@@ -101,8 +114,8 @@ export function getHuntSceneSlots(character: Character, hunt?: HuntArea): HuntSc
       title: "Skills",
       icon: primaryAttack.code,
       skill: primaryAttack,
-      value: `${attackCount}/4`,
-      detail: primaryAttack.name,
+      value: rotation ? `${rotation.totalCasts}` : `${attackCount}/4`,
+      detail: rotation ? `${primaryAttack.name} / ${Math.ceil(rotation.nextCastInMs / 1_000)}s` : primaryAttack.name,
       status: "selected",
     },
     {
@@ -110,9 +123,9 @@ export function getHuntSceneSlots(character: Character, hunt?: HuntArea): HuntSc
       title: "Suporte",
       icon: primarySupport.code,
       skill: primarySupport,
-      value: `${supportCount}/2`,
-      detail: supportCount > 0 ? primarySupport.name : `Lv ${primarySupport.levelRequired}`,
-      status: supportCount > 0 ? "ready" : "locked",
+      value: actionLoadout.supportSkillId ? `${rotation?.casts.find((entry) => entry.skillId === actionLoadout.supportSkillId)?.casts ?? 0}` : "Off",
+      detail: actionLoadout.supportSkillId ? primarySupport.name : supportCount > 0 ? "Disabled" : `Lv ${primarySupport.levelRequired}`,
+      status: actionLoadout.supportSkillId ? "ready" : supportCount > 0 ? "ready" : "locked",
     },
     {
       id: "utility",

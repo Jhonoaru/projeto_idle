@@ -1,5 +1,6 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { normalizeCharacterAction } from "../game-engine/action/normalizeCharacterAction";
+import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { normalizeDestinyState } from "../game-engine/destiny/normalizeDestinyState";
@@ -35,9 +36,15 @@ function skills(levels: Record<SkillName, [number, number]>): SkillSet {
 function createCharacter(
   character: Omit<Character, "attributes" | "capacityUsed" | "capacityMax">,
 ): Character {
+  const combatSkillLoadout = normalizeCombatSkillLoadout(character);
   const characterWithProficiencies = {
     ...character,
-    currentAction: normalizeCharacterAction(character.currentAction, character.skills),
+    combatSkillLoadout,
+    currentAction: normalizeCharacterAction(character.currentAction, character.skills, {
+      vocation: character.vocation,
+      level: character.level,
+      combatSkillLoadout,
+    }),
     weaponProficiencies: normalizeWeaponProficiencies(character.weaponProficiencies),
     monsterFocus: normalizeMonsterFocusState(character.monsterFocus),
     destiny: normalizeDestinyState(character),

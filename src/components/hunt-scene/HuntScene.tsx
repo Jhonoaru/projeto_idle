@@ -14,6 +14,7 @@ import { HuntSceneLog } from "./HuntSceneLog";
 import { HuntSceneLootPreview } from "./HuntSceneLootPreview";
 import { HuntSceneSlotWindow } from "./HuntSceneSlotWindow";
 import { useHuntSceneSimulation } from "./useHuntSceneSimulation";
+import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 
 interface HuntSceneProps {
   character: Character;
@@ -21,6 +22,7 @@ interface HuntSceneProps {
   onCollectHunt: () => void;
   onOpenAction: () => void;
   onReturnToCity: () => void;
+  onToggleCombatSkill: (skillId: string) => void;
 }
 
 export function HuntScene({
@@ -29,12 +31,17 @@ export function HuntScene({
   onCollectHunt,
   onOpenAction,
   onReturnToCity,
+  onToggleCombatSkill,
 }: HuntSceneProps) {
   const [openSlot, setOpenSlot] = useState<HuntSceneSlotType>();
   const [showSceneTools, setShowSceneTools] = useState(false);
   const action = character.currentAction;
   const monsters = getHuntSceneMonsters(hunt);
   const snapshot = useHuntSceneSimulation(character, action, hunt, monsters);
+  const skillRotation = simulateCombatSkillRotation(character, action, snapshot.elapsedMs);
+  const activeRotationSkill = skillRotation.activeSkillId
+    ? skillRotation.casts.find((entry) => entry.skillId === skillRotation.activeSkillId)
+    : undefined;
   const isReady = snapshot.readyToResolve || snapshot.remainingMs <= 0;
   const displayRemainingMs = isReady ? 0 : snapshot.remainingMs;
   const completedOffline = Boolean(action?.offlineCompletedAt);
@@ -96,7 +103,11 @@ export function HuntScene({
         </div>
 
         <HuntSceneLootPreview loot={snapshot.lootPreviewEvents} />
-        <HuntSceneLog lines={snapshot.combatLogLines} />
+        <HuntSceneLog lines={[
+          ...snapshot.combatLogLines,
+          `Skill rotation: ${skillRotation.totalCasts} casts / ${skillRotation.manaSpent} mana.`,
+          activeRotationSkill ? `Current skill cycle: ${activeRotationSkill.casts} casts.` : "Skill rotation is preparing.",
+        ]} />
       </aside>
 
       <div className="hunt-scene-main">
@@ -155,6 +166,7 @@ export function HuntScene({
           hunt={hunt}
           onSelectSlot={(slot) => setOpenSlot(slot)}
           selectedSlot={openSlot}
+          rotation={skillRotation}
         />
 
         <div className="hunt-scene-progress">
@@ -169,6 +181,7 @@ export function HuntScene({
           <HuntSceneSlotWindow
             character={character}
             onClose={() => setOpenSlot(undefined)}
+            onToggleSkill={onToggleCombatSkill}
             slot={openSlot}
           />
         ) : null}

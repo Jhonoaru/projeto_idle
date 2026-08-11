@@ -2,6 +2,7 @@ import { items } from "../data/items";
 import { mockCharacters } from "../data/mockCharacters";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { normalizeCharacterAction } from "../game-engine/action/normalizeCharacterAction";
+import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { normalizeCollectionsState } from "../game-engine/collections/normalizeCollectionsState";
@@ -96,6 +97,7 @@ export interface CharacterRow {
   monster_focus_json?: string | null;
   destiny_json?: string | null;
   cosmetics_json?: string | null;
+  combat_skill_loadout_json?: string | null;
   created_at: string;
 }
 
@@ -255,11 +257,17 @@ export function mapCharacter(
     weaponProficiencies,
     destiny,
   });
+  const combatSkillLoadout = normalizeCombatSkillLoadout({
+    vocation: row.vocation,
+    level: row.level,
+    combatSkillLoadout: parseJson(row.combat_skill_loadout_json ?? "{}", undefined),
+  });
   const currentAction = normalizeCharacterAction(
     row.current_action_json
       ? parseJson<CharacterAction | undefined>(row.current_action_json, undefined)
       : undefined,
     skills,
+    { vocation: row.vocation, level: row.level, combatSkillLoadout },
   );
 
   return {
@@ -294,6 +302,7 @@ export function mapCharacter(
     monsterFocus,
     destiny,
     cosmetics,
+    combatSkillLoadout,
     createdAt: row.created_at,
   };
 }

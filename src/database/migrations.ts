@@ -59,6 +59,7 @@ const createStatements = [
     monster_focus_json TEXT NOT NULL DEFAULT '{}',
     destiny_json TEXT NOT NULL DEFAULT '{}',
     cosmetics_json TEXT NOT NULL DEFAULT '{}',
+    combat_skill_loadout_json TEXT NOT NULL DEFAULT '{}',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     FOREIGN KEY (guild_id) REFERENCES guilds(id) ON DELETE CASCADE
@@ -149,6 +150,7 @@ export async function runMigrations(db: Database) {
   await addColumnIfMissing(db, "characters", "monster_focus_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "characters", "destiny_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "characters", "cosmetics_json", "TEXT NOT NULL DEFAULT '{}'");
+  await addColumnIfMissing(db, "characters", "combat_skill_loadout_json", "TEXT NOT NULL DEFAULT '{}'");
   await addColumnIfMissing(db, "inventory_items", "upgrade_level", "INTEGER NOT NULL DEFAULT 0");
   await addColumnIfMissing(db, "inventory_items", "tier", "INTEGER NOT NULL DEFAULT 0");
   await addColumnIfMissing(db, "inventory_items", "imbuements_json", "TEXT NOT NULL DEFAULT '[]'");

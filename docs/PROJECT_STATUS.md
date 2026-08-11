@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 134 concluida: rotacao offline real por personagem, com ordem configuravel, suporte opcional, mana, cooldowns, snapshot de acao e persistencia SQLite.
 - Etapa 133.5 concluida: QA do catalogo visual de skills e hotbar nas cinco vocacoes, limites de level, modais, Boss party, estados concluidos e quatro larguras responsivas.
 - Etapa 133 concluida: catalogo visual de 30 skills originais por vocacao, hotbar dinamica, modais por nivel e rotacao visual da party em Bosses.
 - Etapa 132.5 concluida: QA das cinco vocacoes em Hunt/Boss, estados ativos/concluidos, movimento reduzido e quatro larguras, com sincronizacao visual da Hunt corrigida.
@@ -10764,6 +10765,59 @@ Limitacoes mantidas:
 Proximo passo sugerido:
 
 - Etapa 134 - rotacao real de skills e cooldowns offline por personagem.
+
+## Etapa 134 - Rotacao real de skills e cooldowns offline
+
+Status: concluida.
+
+Modelo e compatibilidade:
+
+- Cada personagem agora possui `combatSkillLoadout` com ate quatro ataques ordenados e um suporte opcional.
+- Loadouts antigos ou ausentes recebem automaticamente todas as skills liberadas; novos unlocks entram na configuracao ate o jogador personalizar a ordem.
+- IDs duplicados, skills de outra vocacao, skills bloqueadas e dados malformados sao removidos pela normalizacao.
+- Hunts, auto-repeat e Bosses guardam um snapshot do loadout ao iniciar, impedindo mudancas retroativas em operacoes em andamento.
+
+Execucao offline:
+
+- O simulador deterministico considera cooldown global de 1,5s, cooldown individual, custo de mana e regeneracao por personagem.
+- A mesma duracao produz a mesma contagem de casts em cena, apos tempo offline e no relatorio final.
+- Skills sem mana suficiente sao temporariamente ignoradas quando existe outra acao executavel, evitando que a rotacao inteira fique parada.
+- A simulacao e limitada a oito horas e 20.000 eventos por personagem para manter custo previsivel.
+- Casts ainda nao alteram dano, risco, XP ou loot; esta etapa torna ordem, cooldown e mana reais sem rebalancear recompensas.
+
+Interface:
+
+- A hotbar da Hunt mostra total de casts, skill ativa e tempo ate a proxima ativacao.
+- O modal ofensivo mostra prioridade 1-4; clicar em uma skill ativa altera sua posicao para a proxima expedicao.
+- O modal de suporte permite selecionar outra skill ou desativar o suporte.
+- O Combat Log mostra casts e mana processados sem criar entradas persistentes a cada segundo.
+- A Boss Scene calcula e exibe os casts reais de cada integrante da party.
+
+Persistencia:
+
+- Adicionada a coluna compativel `characters.combat_skill_loadout_json` com default `{}`.
+- O mapper normaliza loadout e snapshot de acao durante o load; o repository grava a configuracao por personagem.
+- Saves antigos continuam validos e recebem defaults derivados de vocacao e level.
+
+Validacao:
+
+- Build baseline e builds finais passaram com 464 modulos.
+- Smoke local validou quatro ataques Guardian, prioridades 1-4, reordenacao, suporte ativo/desativado e snapshot na Hunt seguinte.
+- Combat Log e hotbar exibiram casts e mana crescentes pelo tempo real da acao.
+- Ember Matriarch com cinco vocacoes exibiu casts independentes e corrigiu starvation do Guardian por suporte caro.
+- Boss Scene passou em `390x844` com cinco entradas de 42px, sem overflow ou imagens quebradas.
+- Fixtures temporarias foram removidas integralmente.
+- `npm run tauri:build` passou e gerou MSI e NSIS.
+
+Limitacoes atuais:
+
+- O save/load da nova coluna foi validado por migration, mapper, build e leitura do SQL, nao por alterar o save real do usuario no Tauri.
+- Skills ainda nao modificam dano, cura, defesa, alvos ou recompensas.
+- Nao existe editor de rotacao fora da hotbar de uma Hunt em andamento.
+
+Proximo passo sugerido:
+
+- Etapa 134.5 - QA da rotacao real, persistencia SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -5,6 +5,8 @@ import { canStartBoss } from "../game-engine/boss/canStartBoss";
 import { simulateBossFight } from "../game-engine/boss/simulateBossFight";
 import { mergeStackableItems } from "../game-engine/inventory/mergeStackableItems";
 import { addExperience } from "../game-engine/progression/addExperience";
+import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
+import { formatCombatSkillRotationLog } from "../game-engine/combat-skills/simulateCombatSkillRotation";
 import type {
   Boss,
   BossParty,
@@ -52,6 +54,7 @@ export function startBoss(
             cost: guildGoldSpent,
             partyMemberIds: memberIds,
             partyMembers: party.members,
+            combatSkillLoadout: normalizeCombatSkillLoadout(character),
           },
         }
       : character,
@@ -118,7 +121,13 @@ export function finishBoss(
   const resultWithDeath = {
     ...result,
     deathPenalties,
-    logs: [...result.logs, ...deathLogs],
+    logs: [
+      ...result.logs,
+      ...characters
+        .filter((character) => participantIds.has(character.id))
+        .map((character) => `${character.name}: ${formatCombatSkillRotationLog(character, character.currentAction, boss.durationMinutes * 60_000)}`),
+      ...deathLogs,
+    ],
   };
 
   return {

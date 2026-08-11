@@ -1,4 +1,6 @@
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
+import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
+import { formatCombatSkillRotationLog } from "../game-engine/combat-skills/simulateCombatSkillRotation";
 import { calculateCharmBonusesForHunt } from "../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { calculateDestinyBonuses } from "../game-engine/destiny/calculateDestinyBonuses";
 import { calculateActiveImbuementBonuses } from "../game-engine/forge/calculateActiveImbuementBonuses";
@@ -92,6 +94,7 @@ export function startHunt(
         (hunt.estimatedGoldPerHour / 60) * durationMinutes *
         (1 + appliedGuildGoldBonus / 100),
       ),
+      combatSkillLoadout: normalizeCombatSkillLoadout(character),
     },
   };
 }
@@ -240,6 +243,7 @@ export function finishHunt(
         ? [`Regional mastery applied: +${appliedGuildGoldBonus}% hunt gold.`]
         : []),
       ...focusBonuses.logs,
+      formatCombatSkillRotationLog(character, character.currentAction, result.durationMinutes * 60_000),
       ...supplyConsumption.logs,
       ...deathLogs,
       `Hunt finalizada. Ouro liquido apos supplies: ${netProfit >= 0 ? "+" : ""}${netProfit.toLocaleString("en-US")} gold. Loot fica no inventario para venda.`,

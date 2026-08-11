@@ -1093,6 +1093,28 @@ export interface CharacterAttributes {
   critDamagePercent?: number;
 }
 
+export interface CombatSkillLoadout {
+  attackSkillIds: string[];
+  supportSkillId: string | null;
+  customized?: boolean;
+  supportDisabled?: boolean;
+}
+
+export interface CombatSkillCastCount {
+  skillId: string;
+  casts: number;
+}
+
+export interface CombatSkillRotationSummary {
+  casts: CombatSkillCastCount[];
+  totalCasts: number;
+  manaSpent: number;
+  remainingMana: number;
+  activeSkillId?: string;
+  nextCastInMs: number;
+  cooldownRemainingMs: Record<string, number>;
+}
+
 export interface CharacterAction {
   type: CharacterStatus;
   label: string;
@@ -1121,6 +1143,7 @@ export interface CharacterAction {
   repeatGroupId?: string;
   repeatIndex?: number;
   maxRepeatIndex?: number;
+  combatSkillLoadout?: CombatSkillLoadout;
 }
 
 export interface HuntAutoRepeatConfig {
@@ -1521,6 +1544,7 @@ export interface Character {
   monsterFocus?: MonsterFocusState;
   destiny?: CharacterDestinyState;
   cosmetics?: CharacterCosmetics;
+  combatSkillLoadout?: CombatSkillLoadout;
   createdAt: string;
 }
 

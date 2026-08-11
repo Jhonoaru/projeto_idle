@@ -199,6 +199,7 @@ interface MainPanelProps {
   onStartHunt: (autoRepeat?: HuntAutoRepeatConfig) => void;
   onFinishHunt: () => void;
   onReturnToCity: () => void;
+  onToggleCombatSkill: (skillId: string) => void;
   onStopHuntAutoRepeat: () => void;
   onSendToDepot: (inventoryItem: InventoryItem) => void;
   onSendToCharacterDepot: (inventoryItem: InventoryItem) => void;
@@ -342,6 +343,7 @@ export function MainPanel({
   onStartHunt,
   onFinishHunt,
   onReturnToCity,
+  onToggleCombatSkill,
   onStopHuntAutoRepeat,
   onSendToDepot,
   onSendToCharacterDepot,
@@ -430,6 +432,7 @@ export function MainPanel({
           onOpenQuickSell={() => onChangeTab("market")}
           onOpenQuests={() => onChangeTab("quests")}
           onReturnToCity={onReturnToCity}
+          onToggleCombatSkill={onToggleCombatSkill}
           selectedHunt={selectedHunt}
         />
       ) : null}
