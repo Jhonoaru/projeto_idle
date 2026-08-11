@@ -11,7 +11,7 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
       <div className="combat-skill-report-summary">
         <ReportMetric label="Damage" value={effects.totalDamage} detail={`${effects.damagePerMinute.toLocaleString("en-US")}/min / ${effects.totalConditionDamage.toLocaleString("en-US")} DoT / ${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
         <ReportMetric label="Healing" value={effects.totalHealing} detail={`${effects.healingPerMinute.toLocaleString("en-US")}/min`} />
-        <ReportMetric label="Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks`} />
+        <ReportMetric label="Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.incomingConditionPrevented} conditions prevented / ${effects.incomingConditionsCleansed} cleansed`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits`} />
       </div>
 
@@ -23,6 +23,23 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
               <small>{condition.applications} applied / {condition.resisted} resisted / {condition.immuneHits} immune</small>
               <small>{condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime / ${condition.potencyPercent}% power`} / {condition.averageEffectiveChancePercent}% chance</small>
               <small>{formatConditionResistanceProfile(condition)}</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {effects.incomingConditionAttempts > 0 || effects.conditionProtectionUptimePercent > 0 ? (
+        <div className="combat-condition-defense-strip" aria-label="Incoming condition defense">
+          <div>
+            <span>Condition Defense</span>
+            <strong>{effects.incomingConditionPrevented} prevented / {effects.incomingConditionsCleansed} cleansed</strong>
+            <small>{effects.averageConditionProtectionPercent}% protection / {effects.conditionProtectionUptimePercent}% uptime / -{effects.conditionDefenseRiskReductionPercent}% risk</small>
+          </div>
+          {effects.incomingConditions.map((condition) => (
+            <span className={`is-${condition.type}`} key={condition.type}>
+              <b>{conditionLabel(condition.type)}</b>
+              <small>{condition.applications}/{condition.attempts} applied / {condition.prevented} prevented / {condition.cleansed} cleansed</small>
+              <small>{condition.ticks > 0 ? `${condition.ticks} ticks / ${condition.damage.toLocaleString("en-US")} dmg` : `${condition.uptimePercent}% uptime`}</small>
             </span>
           ))}
         </div>
@@ -42,7 +59,7 @@ export function CombatSkillReport({ effects, compact = false }: CombatSkillRepor
             <span role="cell">{entry.damageType ? `${entry.hits.toLocaleString("en-US")}/${entry.casts.toLocaleString("en-US")}` : `-/${entry.casts.toLocaleString("en-US")}`}</span>
             <span role="cell">{entry.damageDealt.toLocaleString("en-US")}</span>
             <span role="cell">{entry.healingDone.toLocaleString("en-US")}</span>
-            <span role="cell">{entry.damagePrevented.toLocaleString("en-US")}</span>
+            <span role="cell">{formatEntryPrevention(entry)}</span>
           </div>
         ))}
       </div>
@@ -92,7 +109,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
       <div className="combat-skill-report-summary">
         <ReportMetric label="Party Damage" value={effects.totalDamage} detail={`${effects.totalConditionDamage.toLocaleString("en-US")} conditions / ${effects.hitRatePercent}% hit / -${effects.defenseMitigationPercent}% defense / ${effects.armorPenetrationPercent}% penetration / ${formatElementalModifier(effects.elementalModifierPercent)}`} />
         <ReportMetric label="Party Healing" value={effects.totalHealing} />
-        <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.blockRatePercent}% block rate`} />
+        <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.incomingConditionPrevented} conditions prevented / ${effects.incomingConditionsCleansed} cleansed`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits / ${effects.totalConditionApplications} conditions`} />
       </div>
       {effects.members.map((member) => (
@@ -136,9 +153,20 @@ function formatEventContribution(event: CombatSkillEffectSummary["timeline"]["ev
     event.conditionDamage > 0 ? `+${event.conditionDamage.toLocaleString("en-US")} DoT` : "",
     event.healingDone > 0 ? `${event.healingDone.toLocaleString("en-US")} heal` : "",
     event.damagePrevented > 0 ? `${event.damagePrevented.toLocaleString("en-US")} blocked` : "",
+    event.conditionCleanseCount > 0 ? `cleanse ${event.conditionCleanseCount}` : "",
+    event.conditionProtectionPercent > 0 ? `${event.conditionProtectionPercent}% ward / ${event.conditionProtectionDurationSeconds}s` : "",
   ].filter(Boolean);
   const contribution = parts.join(" / ") || "Utility cast";
   return event.critical ? `CRIT / ${contribution}` : contribution;
+}
+
+function formatEntryPrevention(entry: CombatSkillEffectSummary["entries"][number]) {
+  const parts = [
+    entry.damagePrevented > 0 ? entry.damagePrevented.toLocaleString("en-US") : "",
+    entry.conditionsCleansed > 0 ? `${entry.conditionsCleansed} cleanse` : "",
+    entry.conditionProtectionUptimeSeconds > 0 ? `${entry.conditionProtectionUptimeSeconds}s ward` : "",
+  ].filter(Boolean);
+  return parts.join(" / ") || "0";
 }
 
 function formatTarget(event: CombatSkillEffectSummary["timeline"]["events"][number]) {

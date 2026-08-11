@@ -2981,6 +2981,53 @@ p {
   border-left-color: #67b8d4;
 }
 
+.combat-condition-defense-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid #465a52;
+  background: #101918;
+}
+
+.combat-condition-defense-strip > div,
+.combat-condition-defense-strip > span {
+  display: grid;
+  gap: 2px;
+  min-width: min(100%, 180px);
+  padding-left: 7px;
+  border-left: 2px solid #79a998;
+}
+
+.combat-condition-defense-strip > span.is-burn { border-left-color: #d86b3f; }
+.combat-condition-defense-strip > span.is-poison { border-left-color: #7dbf59; }
+.combat-condition-defense-strip > span.is-slow { border-left-color: #67b8d4; }
+
+.combat-condition-defense-strip span,
+.combat-condition-defense-strip b,
+.combat-condition-defense-strip strong,
+.combat-condition-defense-strip small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.combat-condition-defense-strip span,
+.combat-condition-defense-strip b {
+  color: #d8cda9;
+  font-size: 0.65rem;
+}
+
+.combat-condition-defense-strip strong {
+  color: #9ac9b8;
+  font-size: 0.68rem;
+}
+
+.combat-condition-defense-strip small {
+  color: #879890;
+  font-size: 0.6rem;
+}
+
 .combat-skill-report-summary span {
   color: #8b978e;
   font-size: 0.62rem;

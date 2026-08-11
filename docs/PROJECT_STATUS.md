@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 146 concluida: condicoes hostis agora podem ser prevenidas e limpas por skills de suporte, com janelas temporarias, dano residual, risco limitado e relatorios deterministas.
 - Etapa 145.5 concluida: QA real no Tauri/SQLite validou penetracao, snapshots, Boss party e catch-up offline em 37/37 checks, com restauracao integral do save.
 - Etapa 145 concluida: skills e equipamentos agora atravessam parte das resistencias positivas a burn, poison e slow, com caps, imunidades absolutas e relatorios completos.
 - Etapa 144.5 concluida: QA real no Tauri/SQLite validou resistencias, imunidades, snapshots, Boss party e catch-up offline em 36/36 checks, sem regressao de produto.
@@ -12048,6 +12049,62 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 146 - limpeza e protecao temporaria contra condicoes por skills de suporte.
+
+## Etapa 146 - Limpeza e protecao temporaria contra condicoes
+
+Status: concluida.
+
+Condicoes recebidas:
+
+- `Monster`, `Boss` e `CombatSkillTarget` agora podem declarar `conditionAttacks` usando burn, poison ou slow.
+- Sete criaturas e os seis Bosses atuais receberam perfis ofensivos pequenos e coerentes com seus temas.
+- Tentativas recebidas usam os mesmos ataques inimigos deterministas do relatorio defensivo.
+- Burn e poison geram ticks e dano residual proporcionais ao golpe; slow contabiliza duracao ativa.
+- Resultados nao sao persistidos: sao recalculados a partir do snapshot da acao e dos dados estaticos.
+
+Skills de suporte:
+
+- As dez skills de suporte agora oferecem cleanse, protecao temporaria ou ambos.
+- Guard Stance, Wind Veil e Mana Ward oferecem protecao; Trailstep, Renew e Centering Breath oferecem cleanse.
+- Rallying Standard, Chrono Veil, Barkskin Circle e Guardian Mantra combinam cleanse com protecao.
+- Protecao fica limitada a 35% por janela e nunca cria imunidade.
+- Cada cleanse remove no maximo a quantidade configurada e corta apenas a duracao restante da condicao.
+- A reducao adicional de risco derivada da defesa contra condicoes fica limitada a 3%.
+
+Simulacao e relatorios:
+
+- A rotacao preserva todos os eventos internos de suporte, mesmo quando a timeline visual mostra somente 24 casts amostrados.
+- O relatorio informa tentativas, aplicacoes, prevencoes, cleanses, ticks, dano residual, protecao media e uptime.
+- A tabela por skill atribui cleanses e segundos de ward ao suporte responsavel.
+- A timeline mostra `cleanse`, percentual da ward e duracao em cada cast de suporte amostrado.
+- Hunt Activity Log e Boss log incluem o resumo defensivo contra condicoes.
+- Agregados de party somam aplicacoes, prevencoes, cleanses, ticks e dano, mantendo medias limitadas.
+
+Balanceamento inicial validado:
+
+- Contra Ember Matriarch, a fixture registrou 245 tentativas de burn e 113 aplicacoes sem suporte.
+- Barkskin Circle reduziu as aplicacoes para 101, preveniu 12 e limpou 33 condicoes.
+- Renew reduziu ticks de 565 para 394 e dano residual de 12.585 para 8.857 apenas com cleanse.
+- Barkskin combinou prevencao e cleanse, reduzindo o dano residual para 9.491, com 25% de protecao e 40% de uptime.
+- A reducao de risco defensiva permaneceu em 0,45% no caso testado, abaixo do cap de 3%.
+
+Validacao:
+
+- Fixture temporaria passou em 20/20 checks, cobrindo dados, suporte, prevencao, cleanse, dano, caps, rotacao longa, timeline, party, logs e determinismo.
+- QA visual passou em 1280x900 e 375x812, sem overflow horizontal ou erros/warnings de console.
+- A fixture, o desvio de bootstrap e o servidor temporario foram removidos.
+- `npm.cmd run build` passou antes e com a fixture.
+
+Persistencia e limitacoes:
+
+- Nenhuma migration foi necessaria; perfis, eventos e resultados sao derivados.
+- Cada relatorio individual aplica a skill de suporte ativa do proprio personagem; transferencia defensiva entre membros da party ainda nao e simulada.
+- Nao ha consumivel de cleanse, dispel manual durante combate ou condicao persistente fora da simulacao.
+- Save/Reload, snapshots e equivalencia do catch-up offline ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 146.5 - QA de cleanse e protecao no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

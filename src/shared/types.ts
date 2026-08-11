@@ -1113,6 +1113,7 @@ export interface CombatSkillCastCount {
 
 export interface CombatSkillRotationSummary {
   casts: CombatSkillCastCount[];
+  supportEvents: CombatSkillRotationEvent[];
   totalCasts: number;
   manaSpent: number;
   remainingMana: number;
@@ -1171,6 +1172,9 @@ export interface CombatSkillEffectEntry {
   conditionResistancePenetrationTotal: number;
   conditionEffectiveResistanceTotal: number;
   conditionEffectiveChanceTotal: number;
+  conditionsCleansed: number;
+  conditionProtectionPercent: number;
+  conditionProtectionUptimeSeconds: number;
 }
 
 export type CombatConditionType = "burn" | "poison" | "slow";
@@ -1184,6 +1188,12 @@ export interface CombatConditionDefinition {
   tickIntervalSeconds?: number;
   damagePercentPerTick?: number;
   potencyPercent?: number;
+}
+
+export interface CombatConditionSupportEffect {
+  cleanseCount?: number;
+  protectionPercent?: number;
+  protectionDurationSeconds?: number;
 }
 
 export interface CombatConditionSummary {
@@ -1200,6 +1210,17 @@ export interface CombatConditionSummary {
   averageResistancePenetrationPercent: number;
   averageEffectiveResistancePercent: number;
   averageEffectiveChancePercent: number;
+}
+
+export interface IncomingCombatConditionSummary {
+  type: CombatConditionType;
+  attempts: number;
+  applications: number;
+  prevented: number;
+  cleansed: number;
+  ticks: number;
+  damage: number;
+  uptimePercent: number;
 }
 
 export interface CombatSkillEffectSummary {
@@ -1246,6 +1267,17 @@ export interface CombatSkillEffectSummary {
   conditionAttackBonusPercent: number;
   conditionRiskReductionPercent: number;
   conditions: CombatConditionSummary[];
+  incomingConditionAttempts: number;
+  incomingConditionApplications: number;
+  incomingConditionPrevented: number;
+  incomingConditionsCleansed: number;
+  incomingConditionTicks: number;
+  incomingConditionDamage: number;
+  incomingSlowUptimePercent: number;
+  conditionProtectionUptimePercent: number;
+  averageConditionProtectionPercent: number;
+  conditionDefenseRiskReductionPercent: number;
+  incomingConditions: IncomingCombatConditionSummary[];
   damagePerMinute: number;
   healingPerMinute: number;
   entries: CombatSkillEffectEntry[];
@@ -1286,6 +1318,9 @@ export interface CombatSkillTimelineEvent {
   conditionEffectiveResistancePercent: number;
   conditionBaseChancePercent: number;
   conditionEffectiveChancePercent: number;
+  conditionCleanseCount: number;
+  conditionProtectionPercent: number;
+  conditionProtectionDurationSeconds: number;
 }
 
 export interface CombatSkillTimelineSummary {
@@ -1314,6 +1349,7 @@ export interface CombatSkillTarget {
   resistances?: ElementalResistances;
   conditionResistances?: ConditionResistances;
   conditionImmunities?: CombatConditionType[];
+  conditionAttacks?: CombatConditionDefinition[];
   evasionPercent?: number;
   armor?: number;
   defense?: number;
@@ -1370,6 +1406,17 @@ export interface CombatSkillPartyEffectSummary {
   conditionAttackBonusPercent: number;
   conditionRiskReductionPercent: number;
   conditions: CombatConditionSummary[];
+  incomingConditionAttempts: number;
+  incomingConditionApplications: number;
+  incomingConditionPrevented: number;
+  incomingConditionsCleansed: number;
+  incomingConditionTicks: number;
+  incomingConditionDamage: number;
+  incomingSlowUptimePercent: number;
+  conditionProtectionUptimePercent: number;
+  averageConditionProtectionPercent: number;
+  conditionDefenseRiskReductionPercent: number;
+  incomingConditions: IncomingCombatConditionSummary[];
   members: Array<{
     characterId: string;
     characterName: string;
@@ -1718,6 +1765,7 @@ export interface Boss {
   resistances?: ElementalResistances;
   conditionResistances?: ConditionResistances;
   conditionImmunities?: CombatConditionType[];
+  conditionAttacks?: CombatConditionDefinition[];
   evasionPercent?: number;
   armor?: number;
   defense?: number;
@@ -1785,6 +1833,7 @@ export interface Monster {
   resistances?: ElementalResistances;
   conditionResistances?: ConditionResistances;
   conditionImmunities?: CombatConditionType[];
+  conditionAttacks?: CombatConditionDefinition[];
   evasionPercent?: number;
   goldMin: number;
   goldMax: number;

@@ -12,6 +12,7 @@ import type {
   CombatSkillTarget,
 } from "../../shared/types";
 import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
+import { calculateIncomingConditionDefense } from "./calculateIncomingConditionDefense";
 
 const MAX_ATTACK_BONUS_PERCENT = 8;
 const MAX_DEATH_RISK_REDUCTION_PERCENT = 10;
@@ -28,6 +29,12 @@ export function calculateCombatSkillEffects(
 ): CombatSkillEffectSummary {
   const durationMinutes = normalizeDurationMinutes(elapsedMs);
   const rotation = simulateCombatSkillRotation(character, action, elapsedMs);
+  const incomingConditionDefense = calculateIncomingConditionDefense(
+    character,
+    rotation,
+    elapsedMs,
+    normalizeTargets(options.attackTargets),
+  );
   const defenseProfile = calculateDefenseProfile(character, durationMinutes, options);
   const combatBase = getCombatContributionBase(character);
   const entries = rotation.casts.flatMap((cast) => {
@@ -85,6 +92,9 @@ export function calculateCombatSkillEffects(
       conditionResistancePenetrationTotal: attackResolution.conditionResistancePenetrationTotal,
       conditionEffectiveResistanceTotal: attackResolution.conditionEffectiveResistanceTotal,
       conditionEffectiveChanceTotal: attackResolution.conditionEffectiveChanceTotal,
+      conditionsCleansed: incomingConditionDefense.cleansedBySkillId[definition.id] ?? 0,
+      conditionProtectionPercent: boundedValue(definition.effect.conditionSupport.protectionPercent, 0, 35, 0),
+      conditionProtectionUptimeSeconds: incomingConditionDefense.protectionUptimeSecondsBySkillId[definition.id] ?? 0,
     }];
   });
   const total = entries.reduce(
@@ -180,6 +190,9 @@ export function calculateCombatSkillEffects(
       conditionEffectiveResistancePercent: condition.effectiveResistancePercent,
       conditionBaseChancePercent: condition.baseChancePercent,
       conditionEffectiveChancePercent: condition.effectiveChancePercent,
+      conditionCleanseCount: definition.effect.conditionSupport.cleanseCount ?? 0,
+      conditionProtectionPercent: definition.effect.conditionSupport.protectionPercent ?? 0,
+      conditionProtectionDurationSeconds: definition.effect.conditionSupport.protectionDurationSeconds ?? 0,
     }];
   });
   const totalAttacks = contribution.hits + contribution.misses + contribution.dodges;
@@ -189,7 +202,7 @@ export function calculateCombatSkillEffects(
     totalCasts: rotation.totalCasts,
     manaSpent: rotation.manaSpent,
     attackBonusPercent: boundedPercent(total.attack * avoidanceEffectiveness(contribution.baseDamage, contribution.landedBaseDamage) * defenseEffectiveness(contribution.landedBaseDamage, contribution.damageAfterDefense) * elementalEffectiveness(contribution.damageAfterDefense, contribution.damage) * 0.35 / durationMinutes + conditionAttackBonusPercent, MAX_ATTACK_BONUS_PERCENT),
-    deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes + dodgeRiskReductionPercent + defenseProfile.blockRiskReductionPercent + conditionRiskReductionPercent, MAX_DEATH_RISK_REDUCTION_PERCENT),
+    deathRiskReductionPercent: boundedPercent(total.survival * 0.9 / durationMinutes + dodgeRiskReductionPercent + defenseProfile.blockRiskReductionPercent + conditionRiskReductionPercent + incomingConditionDefense.riskReductionPercent, MAX_DEATH_RISK_REDUCTION_PERCENT),
     supplyReductionPercent: boundedPercent(total.supply * 0.7 / durationMinutes, MAX_SUPPLY_REDUCTION_PERCENT),
     dodgeRiskReductionPercent,
     ...defenseProfile,
@@ -220,6 +233,17 @@ export function calculateCombatSkillEffects(
     conditionAttackBonusPercent,
     conditionRiskReductionPercent,
     conditions,
+    incomingConditionAttempts: incomingConditionDefense.attempts,
+    incomingConditionApplications: incomingConditionDefense.applications,
+    incomingConditionPrevented: incomingConditionDefense.prevented,
+    incomingConditionsCleansed: incomingConditionDefense.cleansed,
+    incomingConditionTicks: incomingConditionDefense.ticks,
+    incomingConditionDamage: incomingConditionDefense.damage,
+    incomingSlowUptimePercent: incomingConditionDefense.slowUptimePercent,
+    conditionProtectionUptimePercent: incomingConditionDefense.protectionUptimePercent,
+    averageConditionProtectionPercent: incomingConditionDefense.averageProtectionPercent,
+    conditionDefenseRiskReductionPercent: incomingConditionDefense.riskReductionPercent,
+    incomingConditions: incomingConditionDefense.conditions,
     damagePerMinute: perMinute(contribution.damage + contribution.conditionDamage, durationMinutes),
     healingPerMinute: perMinute(contribution.healing, durationMinutes),
     entries,
@@ -270,6 +294,7 @@ export function calculatePartyCombatSkillEffects(
   const totalConditionTicks = members.reduce((sum, member) => sum + member.effects.totalConditionTicks, 0);
   const totalConditionDamage = members.reduce((sum, member) => sum + member.effects.totalConditionDamage, 0);
   const conditions = aggregatePartyConditions(members);
+  const incomingConditions = aggregatePartyIncomingConditions(members);
 
   return {
     attackBonusPercent: rounded(members.reduce((sum, member) => sum + member.effects.attackBonusPercent, 0) / divisor),
@@ -314,6 +339,17 @@ export function calculatePartyCombatSkillEffects(
     conditionAttackBonusPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionAttackBonusPercent, 0) / divisor),
     conditionRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionRiskReductionPercent, 0) / divisor),
     conditions,
+    incomingConditionAttempts: members.reduce((sum, member) => sum + member.effects.incomingConditionAttempts, 0),
+    incomingConditionApplications: members.reduce((sum, member) => sum + member.effects.incomingConditionApplications, 0),
+    incomingConditionPrevented: members.reduce((sum, member) => sum + member.effects.incomingConditionPrevented, 0),
+    incomingConditionsCleansed: members.reduce((sum, member) => sum + member.effects.incomingConditionsCleansed, 0),
+    incomingConditionTicks: members.reduce((sum, member) => sum + member.effects.incomingConditionTicks, 0),
+    incomingConditionDamage: members.reduce((sum, member) => sum + member.effects.incomingConditionDamage, 0),
+    incomingSlowUptimePercent: rounded(members.reduce((sum, member) => sum + member.effects.incomingSlowUptimePercent, 0) / divisor),
+    conditionProtectionUptimePercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionProtectionUptimePercent, 0) / divisor),
+    averageConditionProtectionPercent: weightedMemberMetric(members, "averageConditionProtectionPercent", "incomingConditionAttempts"),
+    conditionDefenseRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionDefenseRiskReductionPercent, 0) / divisor),
+    incomingConditions,
     members,
   };
 }
@@ -328,7 +364,10 @@ export function formatCombatSkillEffectLog(effects: CombatSkillEffectSummary) {
   const conditionReport = effects.conditions.length > 0
     ? ` Conditions: ${effects.totalConditionApplications.toLocaleString("en-US")} applied, ${resisted.toLocaleString("en-US")} resisted, ${immune.toLocaleString("en-US")} immune, ${effects.totalConditionTicks.toLocaleString("en-US")} ticks, ${effects.totalConditionDamage.toLocaleString("en-US")} damage, ${averageConditionPenetration}% resistance penetration${effects.slowUptimePercent > 0 ? `, ${effects.slowUptimePercent}% slow uptime` : ""}.`
     : " Conditions: no eligible hits.";
-  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (${effects.totalConditionDamage.toLocaleString("en-US")} conditions, -${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.${conditionReport} Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).`;
+  const incomingConditionReport = effects.incomingConditionAttempts > 0
+    ? ` Condition defense: ${effects.incomingConditionApplications}/${effects.incomingConditionAttempts} applied, ${effects.incomingConditionPrevented} prevented, ${effects.incomingConditionsCleansed} cleansed, ${effects.incomingConditionDamage.toLocaleString("en-US")} residual damage, ${effects.averageConditionProtectionPercent}% protection at ${effects.conditionProtectionUptimePercent}% uptime.`
+    : effects.conditionProtectionUptimePercent > 0 ? ` Condition defense: no hostile condition attempts, ${effects.averageConditionProtectionPercent}% protection at ${effects.conditionProtectionUptimePercent}% uptime.` : "";
+  return `Skill effects: +${effects.attackBonusPercent}% clear speed, -${effects.deathRiskReductionPercent}% death risk, -${effects.supplyReductionPercent}% supplies. Combat report: ${effects.totalDamage.toLocaleString("en-US")} damage (${effects.totalConditionDamage.toLocaleString("en-US")} conditions, -${effects.defenseMitigationPercent}% defense, ${formatSignedPercent(effects.elementalModifierPercent)} elemental, ${effects.armorPenetrationPercent}% penetration), ${effects.totalHits.toLocaleString("en-US")}/${effects.totalAttacks.toLocaleString("en-US")} hits, ${effects.totalMisses.toLocaleString("en-US")} misses, ${effects.totalDodges.toLocaleString("en-US")} dodged, ${effects.totalCriticalHits.toLocaleString("en-US")} critical hits.${conditionReport} Defense report: ${effects.blockedAttacks.toLocaleString("en-US")}/${effects.incomingAttacks.toLocaleString("en-US")} blocks, ${effects.blockedDamage.toLocaleString("en-US")} damage blocked (${effects.blockDamageReductionPercent}% reduction).${incomingConditionReport}`;
 }
 
 function calculateAttackResolution(
@@ -538,6 +577,26 @@ function aggregatePartyConditions(
       averageResistancePenetrationPercent: rounded(matching.reduce((sum, condition) => sum + condition.averageResistancePenetrationPercent * condition.eligibleHits, 0) / eligibleHits),
       averageEffectiveResistancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageEffectiveResistancePercent * condition.eligibleHits, 0) / eligibleHits),
       averageEffectiveChancePercent: rounded(matching.reduce((sum, condition) => sum + condition.averageEffectiveChancePercent * condition.eligibleHits, 0) / eligibleHits),
+    }];
+  });
+}
+
+function aggregatePartyIncomingConditions(
+  members: CombatSkillPartyEffectSummary["members"],
+): CombatSkillPartyEffectSummary["incomingConditions"] {
+  return (["burn", "poison", "slow"] as const).flatMap((type) => {
+    const matching = members.flatMap((member) => member.effects.incomingConditions.filter((condition) => condition.type === type));
+    const attempts = matching.reduce((sum, condition) => sum + condition.attempts, 0);
+    if (attempts <= 0) return [];
+    return [{
+      type,
+      attempts,
+      applications: matching.reduce((sum, condition) => sum + condition.applications, 0),
+      prevented: matching.reduce((sum, condition) => sum + condition.prevented, 0),
+      cleansed: matching.reduce((sum, condition) => sum + condition.cleansed, 0),
+      ticks: matching.reduce((sum, condition) => sum + condition.ticks, 0),
+      damage: matching.reduce((sum, condition) => sum + condition.damage, 0),
+      uptimePercent: rounded(matching.reduce((sum, condition) => sum + condition.uptimePercent, 0) / Math.max(1, members.length)),
     }];
   });
 }
@@ -801,8 +860,8 @@ function weightedPartyPenetration(members: CombatSkillPartyEffectSummary["member
 
 function weightedMemberMetric(
   members: CombatSkillPartyEffectSummary["members"],
-  valueKey: "blockChancePercent" | "blockMitigationPercent",
-  weightKey: "incomingAttacks" | "blockedAttacks",
+  valueKey: "blockChancePercent" | "blockMitigationPercent" | "averageConditionProtectionPercent",
+  weightKey: "incomingAttacks" | "blockedAttacks" | "incomingConditionAttempts",
 ) {
   const totalWeight = members.reduce((sum, member) => sum + member.effects[weightKey], 0);
   if (totalWeight <= 0) {

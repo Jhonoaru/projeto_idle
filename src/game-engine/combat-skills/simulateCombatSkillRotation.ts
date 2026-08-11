@@ -41,6 +41,7 @@ export function simulateCombatSkillRotation(
     event: CombatSkillRotationSummary["timeline"]["events"][number];
     distance: number;
   }>();
+  const supportEvents: CombatSkillRotationSummary["supportEvents"] = [];
 
   while (attacks.length > 0 && time <= duration && iterations < 20_000) {
     iterations += 1;
@@ -78,6 +79,7 @@ export function simulateCombatSkillRotation(
       skillId: skill.id,
       manaCost: skill.manaCost,
     };
+    if (useSupport) supportEvents.push(timelineEvent);
     if (!firstEventsBySkill.has(skill.id)) firstEventsBySkill.set(skill.id, timelineEvent);
     const sample = getTimelineSample(time, duration, temporalBucketCount);
     const existingSample = sampledEvents.get(sample.bucket);
@@ -112,6 +114,7 @@ export function simulateCombatSkillRotation(
 
   return {
     casts,
+    supportEvents,
     totalCasts: casts.reduce((sum, cast) => sum + cast.casts, 0),
     manaSpent,
     remainingMana: Math.round(mana),
