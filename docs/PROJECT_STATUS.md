@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 134.5 concluida: QA real da rotacao de skills no Tauri/SQLite, com migration, Save/Reload, snapshots, normalizacao hostil e equivalencia offline validados.
 - Etapa 134 concluida: rotacao offline real por personagem, com ordem configuravel, suporte opcional, mana, cooldowns, snapshot de acao e persistencia SQLite.
 - Etapa 133.5 concluida: QA do catalogo visual de skills e hotbar nas cinco vocacoes, limites de level, modais, Boss party, estados concluidos e quatro larguras responsivas.
 - Etapa 133 concluida: catalogo visual de 30 skills originais por vocacao, hotbar dinamica, modais por nivel e rotacao visual da party em Bosses.
@@ -10818,6 +10819,46 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 134.5 - QA da rotacao real, persistencia SQLite e offline catch-up.
+
+## Etapa 134.5 - QA da rotacao real, SQLite e offline catch-up
+
+Status: concluida como QA de estabilizacao, sem alteracao permanente na gameplay.
+
+QA real no Tauri/SQLite:
+
+- O save original foi copiado e verificado antes do teste: 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- Um harness temporario executado exclusivamente com `VITE_QA_COMBAT_SQLITE=1` abriu o runtime Tauri e o plugin SQLite real.
+- A migration criou `characters.combat_skill_loadout_json` no banco operacional.
+- Save/Reload preservou a ordem personalizada `Shield Break -> Vanguard Slash`, suporte desativado e flags de configuracao.
+- O snapshot da Hunt permaneceu independente como `Vanguard Slash -> Shield Break` com `Guard Stance` ativo.
+- O relatorio persistido retornou 10/10 checks aprovados.
+
+Normalizacao e offline:
+
+- IDs invalidos, duplicados e de outra vocacao foram removidos; no level 12 restou apenas `guardian-shield-break`.
+- Suporte de outra vocacao foi descartado com fallback seguro para `null` quando nenhum suporte estava liberado.
+- Duas simulacoes de 60 segundos produziram JSON identico.
+- O resultado calculou 20 casts e 272 de mana ciclada: oito Vanguard Slash, oito Shield Break e quatro Guard Stance.
+- O offline catch-up marcou a acao como pronta sem alterar o snapshot ou o resultado da rotacao.
+
+Restauracao e limpeza:
+
+- O processo Tauri e o Vite de QA foram encerrados antes da restauracao.
+- O banco original foi restaurado; arquivos WAL/SHM foram removidos depois do encerramento dos processos.
+- O SQLite final voltou a 81.920 bytes e ao SHA-256 original.
+- Harness, banco de backup, logs e variavel de QA foram removidos integralmente.
+- Nenhum bug permanente de gameplay foi encontrado nesta QA.
+
+Validacao final:
+
+- `npm run build` passou antes e depois do QA com 464 modulos.
+- `npm run tauri:dev` compilou e abriu `guild-hunt-idle.exe` com o plugin SQLite ativo.
+- `npm run tauri:build` passou e gerou os bundles MSI e NSIS.
+- O aviso conhecido de chunk acima de 500 kB permaneceu sem regressao funcional.
+
+Proximo passo sugerido:
+
+- Etapa 135 - efeitos reais das skills na simulacao offline de combate.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
