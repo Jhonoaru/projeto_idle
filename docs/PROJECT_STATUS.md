@@ -15,6 +15,7 @@ Atualizado em: 2026-08-10
 
 ## Status recente
 
+- Etapa 135.5 concluida: QA real dos efeitos de skills no Tauri/SQLite validou snapshots, catch-up idempotente, Hunt/Boss e restauracao integral do save.
 - Etapa 135 concluida: casts de skills agora alteram clear speed, risco, supplies e chances de Boss com efeitos deterministas e limitados.
 - Etapa 134.5 concluida: QA real da rotacao de skills no Tauri/SQLite, com migration, Save/Reload, snapshots, normalizacao hostil e equivalencia offline validados.
 - Etapa 134 concluida: rotacao offline real por personagem, com ordem configuravel, suporte opcional, mana, cooldowns, snapshot de acao e persistencia SQLite.
@@ -10913,6 +10914,53 @@ Limitacoes atuais:
 Proximo passo sugerido:
 
 - Etapa 135.5 - QA dos efeitos reais das skills no Tauri/SQLite e offline catch-up.
+
+## Etapa 135.5 - QA dos efeitos reais das skills no Tauri/SQLite
+
+Status: concluida como QA de estabilizacao, sem correcao permanente de gameplay necessaria.
+
+QA real no Tauri/SQLite:
+
+- O save original foi copiado antes do teste com 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- Um harness temporario protegido por `VITE_QA_COMBAT_EFFECTS_SQLITE=1` executou no runtime Tauri e no plugin SQLite real.
+- O relatorio persistido retornou 10/10 verificacoes aprovadas.
+- Save/Reload preservou separadamente o loadout atual do personagem e o snapshot da acao em andamento.
+- Alterar o loadout do personagem depois do dispatch nao modificou o resumo calculado pelo snapshot.
+
+Hunt e offline catch-up:
+
+- O catch-up marcou a Hunt expirada como pronta sem conceder XP, gold, items ou supplies automaticamente.
+- Aplicar o mesmo catch-up uma segunda vez nao alterou personagens nem criou outro relatorio de conclusao.
+- O estado `readyToResolve` e o snapshot completo persistiram depois de Save/Reload.
+- Resolver a mesma Hunt pelo caminho ativo e pelo caminho offline produziu resultado equivalente.
+- O teste de 60 minutos com Warden produziu 1.323 casts, 26.325 de mana, +8% clear speed, -4,34% risco e -5,62% supplies.
+- A resolucao final removeu a acao ativa e adicionou exatamente uma linha `Skill effects`, confirmando aplicacao unica no fluxo normal.
+- Suporte desativado preservou o ataque, mas retornou 0% de reducao de risco e 0% de economia de supplies.
+
+Normalizacao e Bosses:
+
+- IDs inexistentes, duplicados, suporte de outra vocacao e duracao `NaN` foram normalizados para valores finitos e dentro dos tetos.
+- A party de Guardian e Warden manteve dois resumos independentes e agregou 580 casts e 9.015 de mana.
+- O efeito agregado foi +5,76% de poder de sucesso e -2,19% de risco de morte.
+- A chance de sucesso subiu de 66% para 69,8016% e a chance de morte caiu de 15% para 14,6715%.
+- O Boss Result recebeu o resumo dos dois integrantes e exatamente uma linha `Party skill effects`.
+
+Restauracao e validacao:
+
+- O processo Tauri e o Vite foram encerrados antes da restauracao do banco.
+- O SQLite original foi restaurado com 81.920 bytes e o mesmo SHA-256; WAL, SHM e backup temporario foram removidos.
+- O harness, sua variavel de ambiente e o desvio temporario de bootstrap foram removidos integralmente.
+- `npm run build` passou antes do QA e com o harness temporario.
+- O build final passou com 465 modulos e `npm run tauri:build` gerou novamente os bundles MSI e NSIS.
+
+Limitacoes mantidas:
+
+- Skills ainda nao causam dano por alvo nem cura numerica de HP na cena.
+- Bosses continuam agregando suporte por party, sem alcance ou alvo individual.
+
+Proximo passo sugerido:
+
+- Etapa 136 - dano e cura por skill no relatorio detalhado de combate.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
