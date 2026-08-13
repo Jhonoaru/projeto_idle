@@ -15,6 +15,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 151 concluida: todas as fases de Boss agora possuem habilidades especiais nomeadas, com condicoes exclusivas por segmento, normalizacao segura, timeline, Raid Analyzer e logs.
 - Etapa 150.5 concluida: QA real no Tauri/SQLite validou pressao temporal, dano, condicoes, risco, reload e catch-up offline em 32/32 checks, com restauracao integral do save.
 - Etapa 150 concluida: fases de Boss agora modificam ritmo de ataques, dano recebido e chance de condicoes em segmentos temporais deterministas, com caps e relatorios visuais.
 - Etapa 149.5 concluida: QA real no Tauri/SQLite validou fases, alvos temporais, normalizacao hostil e catch-up offline em 59/59 checks, com restauracao integral do save.
@@ -12608,6 +12609,69 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 151 - habilidades especiais e condicoes exclusivas por fase de Boss.
+
+## Etapa 151 - Habilidades especiais e condicoes exclusivas por fase de Boss
+
+Status: concluida.
+
+Modelo:
+
+- `BossPhaseDefinition` pode carregar uma `specialAbility` com ID, nome, descricao e condicao opcional.
+- A habilidade acompanha o resumo normalizado de threat e permanece derivada do catalogo do Boss.
+- A condicao exclusiva entra somente nos ataques pertencentes ao segmento temporal daquela fase.
+- Condicoes base do Boss continuam ativas e usam uma chave de roll diferente da habilidade de fase, mesmo quando possuem o mesmo tipo.
+- Ward, cleanse, protecao, ticks, dano residual e uptime reutilizam a engine de defesa existente.
+- O orcamento de ataques nao e duplicado; habilidades adicionam tentativas de condicao, nao ataques comuns.
+
+Normalizacao e seguranca:
+
+- Habilidade sem ID ou nome valido e descartada.
+- Tipos aceitos continuam limitados a burn, poison e slow.
+- Chance de aplicacao fica entre 0% e 60%.
+- Duracao fica entre 0,5 e 30 segundos.
+- Intervalo de tick fica entre 0,5 e 30 segundos.
+- Dano por tick fica entre 0% e 8%; potencia de slow fica entre 0% e 40%.
+- `NaN`, infinito e campos ausentes recebem fallback finito antes da simulacao.
+
+Habilidades configuradas:
+
+- Sewer Broodmother: Brood Web e Venom Lunge.
+- Grunk, the Camp Breaker: War Drums e Crushing Charge.
+- Crypt Warden: Grave Ward e Soul Shackles.
+- Khazgrim Gatekeeper: Iron Bulwark, Sundering Rush e Molten Retort.
+- Ember Matriarch: Wing Guard, Searing Brand e Ashstorm.
+- Novice Arena Champion: Measured Feint, Hamstring Cut e Arena Flurry.
+- As 15 fases possuem habilidade e 10 delas aplicam uma condicao exclusiva leve.
+
+Interface e logs:
+
+- A timeline mostra nome da habilidade e tipo da condicao em cada card de fase.
+- A Boss Scene mostra a habilidade da fase ativa no Raid Analyzer.
+- O relatorio final lista habilidade e condicao junto de alvo, ataques e multiplicadores da fase.
+- A descricao completa da habilidade fica disponivel no tooltip da timeline.
+
+Validacao:
+
+- Harness temporario de engine passou em 16/16 checks e foi removido.
+- IDs das 15 habilidades permaneceram unicos e as 10 condicoes foram reconhecidas.
+- Ember Matriarch preservou 265 ataques e passou de 265 para 442 tentativas de condicao.
+- Searing Brand adicionou burn durante Searing Pursuit e Ashstorm adicionou 83 tentativas de slow apenas no Ashen Frenzy.
+- Aplicacoes subiram de 138 para 170, enquanto o dano direto permaneceu identico em 165433.
+- Dados hostis respeitaram caps de chance, duracao, tick e dano; habilidade invalida foi descartada.
+- Logs registraram Wing Guard, Searing Brand e Ashstorm com seus segmentos corretos.
+- QA visual passou em 1280x900 e 375x812, sem overflow, sobreposicao incoerente ou logs de erro/warning.
+- `npm.cmd run build` passou com o bootstrap normal restaurado.
+
+Limitacoes:
+
+- Habilidades sao efeitos ativos da fase; ainda nao possuem casts discretos, cooldown proprio, telegraph ou interrupcao.
+- Fases ainda nao alteram resistencias ofensivas, imunidades ou repertorio completo de golpes.
+- A interface agrega defesa por tipo de condicao; ainda nao separa dano por nome da habilidade.
+- Save/Reload e equivalencia do catch-up ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 151.5 - QA das habilidades de fase no Tauri/SQLite e catch-up offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

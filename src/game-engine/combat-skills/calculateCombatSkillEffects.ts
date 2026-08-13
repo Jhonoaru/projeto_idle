@@ -301,6 +301,9 @@ export function calculatePartyCombatSkillEffects(
       incomingAttacks: phase.members.find((member) => member.characterId === character.id)?.incomingAttacks ?? 0,
       incomingDamageMultiplier: phase.incomingDamageMultiplier,
       conditionChanceMultiplier: phase.conditionChanceMultiplier,
+      phaseConditionAttacks: phase.specialAbility?.conditionAttack
+        ? [phase.specialAbility.conditionAttack]
+        : undefined,
     })),
   ]));
   const partyConditionDefense = calculatePartyIncomingConditionDefense(

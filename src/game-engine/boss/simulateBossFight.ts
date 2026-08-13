@@ -70,7 +70,10 @@ export function simulateBossFight(
   const phaseReport = combatSkillEffects.threat.phases
     .map((phase) => {
       const target = phase.members.find((member) => member.primaryTarget);
-      return `${phase.phaseName}: ${target?.characterName ?? "no target"} (${phase.incomingAttacks} attacks, ${phase.attackRateMultiplier}x rate, ${phase.incomingDamageMultiplier}x damage, ${phase.conditionChanceMultiplier}x condition)`;
+      const ability = phase.specialAbility
+        ? `, ability ${phase.specialAbility.name}${phase.specialAbility.conditionAttack ? ` [${phase.specialAbility.conditionAttack.type}]` : ""}`
+        : "";
+      return `${phase.phaseName}: ${target?.characterName ?? "no target"} (${phase.incomingAttacks} attacks, ${phase.attackRateMultiplier}x rate, ${phase.incomingDamageMultiplier}x damage, ${phase.conditionChanceMultiplier}x condition${ability})`;
     })
     .join("; ");
   const logs = [

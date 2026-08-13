@@ -94,6 +94,7 @@ export function BossScene({
             <div><dt>Current phase</dt><dd>{activePhase?.phaseName ?? "-"}</dd></div>
             <div><dt>Current target</dt><dd>{activePhase?.members.find((member) => member.primaryTarget)?.characterName ?? "-"}</dd></div>
             <div><dt>Phase pressure</dt><dd>{activePhase ? `${activePhase.attackRateMultiplier}x / ${activePhase.incomingDamageMultiplier}x` : "-"}</dd></div>
+            <div><dt>Special ability</dt><dd>{activePhase?.specialAbility?.name ?? "-"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
             <div><dt>Gold max</dt><dd>{action.expectedGold?.toLocaleString("en-US") ?? "-"}g</dd></div>

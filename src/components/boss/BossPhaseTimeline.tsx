@@ -28,6 +28,11 @@ export function BossPhaseTimeline({ threat, progressPercent, compact = false }: 
               <b>{phase.phaseName}</b>
               <small>{primary ? `${primary.characterName} / ${primary.role}` : "No target"}</small>
               <small className="boss-phase-pressure">{formatMultiplier(phase.attackRateMultiplier)} rate / {formatMultiplier(phase.incomingDamageMultiplier)} damage / {formatMultiplier(phase.conditionChanceMultiplier)} condition</small>
+              {phase.specialAbility ? (
+                <small className="boss-phase-ability" title={phase.specialAbility.description}>
+                  Ability: {phase.specialAbility.name}{phase.specialAbility.conditionAttack ? ` / ${phase.specialAbility.conditionAttack.type}` : ""}
+                </small>
+              ) : null}
               {!compact ? <p>{phase.description}</p> : null}
             </article>
           );

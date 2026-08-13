@@ -21,8 +21,8 @@ export const bosses: Boss[] = [
     minDamage: 45,
     maxDamage: 90,
     phases: [
-      { id: "nest-watch", name: "Nest Watch", durationPercent: 65, description: "The Broodmother holds standard aggro while guarding the nest.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.9, conditionChanceMultiplier: 0.85 },
-      { id: "venom-chase", name: "Venom Chase", durationPercent: 35, description: "The Broodmother pursues the main attacker.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.2, incomingDamageMultiplier: 1.1, conditionChanceMultiplier: 1.35 },
+      { id: "nest-watch", name: "Nest Watch", durationPercent: 65, description: "The Broodmother holds standard aggro while guarding the nest.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.9, conditionChanceMultiplier: 0.85, specialAbility: { id: "brood-web", name: "Brood Web", description: "Sticky nest strands briefly slow anyone holding the front line.", conditionAttack: { type: "slow", applicationChancePercent: 10, durationSeconds: 4, potencyPercent: 10 } } },
+      { id: "venom-chase", name: "Venom Chase", durationPercent: 35, description: "The Broodmother pursues the main attacker.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.2, incomingDamageMultiplier: 1.1, conditionChanceMultiplier: 1.35, specialAbility: { id: "venom-lunge", name: "Venom Lunge", description: "A marked attacker is exposed to a concentrated poison strike.", conditionAttack: { type: "poison", applicationChancePercent: 16, durationSeconds: 6, tickIntervalSeconds: 3, damagePercentPerTick: 2 } } },
     ],
     requirements: {
       requiredLevel: 15,
@@ -62,8 +62,8 @@ export const bosses: Boss[] = [
     minDamage: 90,
     maxDamage: 170,
     phases: [
-      { id: "camp-command", name: "Camp Command", durationPercent: 55, description: "Grunk tests the party's normal formation.", attackRateMultiplier: 0.95, incomingDamageMultiplier: 0.95, conditionChanceMultiplier: 0.9 },
-      { id: "line-breaker", name: "Line Breaker", durationPercent: 45, description: "Grunk charges the strongest attacker.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.25, incomingDamageMultiplier: 1.25, conditionChanceMultiplier: 1.1 },
+      { id: "camp-command", name: "Camp Command", durationPercent: 55, description: "Grunk tests the party's normal formation.", attackRateMultiplier: 0.95, incomingDamageMultiplier: 0.95, conditionChanceMultiplier: 0.9, specialAbility: { id: "war-drums", name: "War Drums", description: "Grunk steadies the camp before ordering the charge." } },
+      { id: "line-breaker", name: "Line Breaker", durationPercent: 45, description: "Grunk charges the strongest attacker.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.25, incomingDamageMultiplier: 1.25, conditionChanceMultiplier: 1.1, specialAbility: { id: "crushing-charge", name: "Crushing Charge", description: "A heavy rush disrupts the marked attacker's footing.", conditionAttack: { type: "slow", applicationChancePercent: 18, durationSeconds: 5, potencyPercent: 14 } } },
     ],
     requirements: {
       requiredLevel: 25,
@@ -110,8 +110,8 @@ export const bosses: Boss[] = [
     minDamage: 160,
     maxDamage: 280,
     phases: [
-      { id: "sealed-vigil", name: "Sealed Vigil", durationPercent: 60, description: "The Warden follows the established threat order.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 1, conditionChanceMultiplier: 0.9 },
-      { id: "soul-judgment", name: "Soul Judgment", durationPercent: 40, description: "The Warden turns its judgment toward sustain magic.", targetRole: "healer", targetThreatMultiplier: 4, attackRateMultiplier: 1.2, incomingDamageMultiplier: 1.3, conditionChanceMultiplier: 1.35 },
+      { id: "sealed-vigil", name: "Sealed Vigil", durationPercent: 60, description: "The Warden follows the established threat order.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 1, conditionChanceMultiplier: 0.9, specialAbility: { id: "grave-ward", name: "Grave Ward", description: "Ancient seals reinforce the Warden's measured opening." } },
+      { id: "soul-judgment", name: "Soul Judgment", durationPercent: 40, description: "The Warden turns its judgment toward sustain magic.", targetRole: "healer", targetThreatMultiplier: 4, attackRateMultiplier: 1.2, incomingDamageMultiplier: 1.3, conditionChanceMultiplier: 1.35, specialAbility: { id: "soul-shackles", name: "Soul Shackles", description: "Spectral chains hinder the healer during judgment.", conditionAttack: { type: "slow", applicationChancePercent: 20, durationSeconds: 6, potencyPercent: 16 } } },
     ],
     requirements: {
       requiredLevel: 35,
@@ -156,9 +156,9 @@ export const bosses: Boss[] = [
     minDamage: 230,
     maxDamage: 390,
     phases: [
-      { id: "hold-the-gate", name: "Hold the Gate", durationPercent: 45, description: "Khazgrim focuses the front line.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.95, conditionChanceMultiplier: 0.9 },
-      { id: "break-formation", name: "Break Formation", durationPercent: 30, description: "Khazgrim marks a damage dealer and leaves the tank.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.15, incomingDamageMultiplier: 1.15, conditionChanceMultiplier: 1.2 },
-      { id: "last-stand", name: "Last Stand", durationPercent: 25, description: "Khazgrim returns to the tank for a final clash.", targetRole: "tank", targetThreatMultiplier: 2, attackRateMultiplier: 1.3, incomingDamageMultiplier: 1.35, conditionChanceMultiplier: 1.3 },
+      { id: "hold-the-gate", name: "Hold the Gate", durationPercent: 45, description: "Khazgrim focuses the front line.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.95, conditionChanceMultiplier: 0.9, specialAbility: { id: "iron-bulwark", name: "Iron Bulwark", description: "Khazgrim anchors behind the gate and controls the front line." } },
+      { id: "break-formation", name: "Break Formation", durationPercent: 30, description: "Khazgrim marks a damage dealer and leaves the tank.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.15, incomingDamageMultiplier: 1.15, conditionChanceMultiplier: 1.2, specialAbility: { id: "sundering-rush", name: "Sundering Rush", description: "A sudden rush leaves the marked attacker off balance.", conditionAttack: { type: "slow", applicationChancePercent: 16, durationSeconds: 5, potencyPercent: 15 } } },
+      { id: "last-stand", name: "Last Stand", durationPercent: 25, description: "Khazgrim returns to the tank for a final clash.", targetRole: "tank", targetThreatMultiplier: 2, attackRateMultiplier: 1.3, incomingDamageMultiplier: 1.35, conditionChanceMultiplier: 1.3, specialAbility: { id: "molten-retort", name: "Molten Retort", description: "Heated gate fragments scorch the returning tank.", conditionAttack: { type: "burn", applicationChancePercent: 14, durationSeconds: 6, tickIntervalSeconds: 2, damagePercentPerTick: 2 } } },
     ],
     requirements: {
       requiredLevel: 45,
@@ -204,9 +204,9 @@ export const bosses: Boss[] = [
     minDamage: 400,
     maxDamage: 700,
     phases: [
-      { id: "brood-guard", name: "Brood Guard", durationPercent: 40, description: "The Matriarch tests the party's front line.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.9, conditionChanceMultiplier: 0.85 },
-      { id: "searing-pursuit", name: "Searing Pursuit", durationPercent: 35, description: "The Matriarch hunts the party's healer.", targetRole: "healer", targetThreatMultiplier: 4, attackRateMultiplier: 1.1, incomingDamageMultiplier: 1.1, conditionChanceMultiplier: 1.25 },
-      { id: "ashen-frenzy", name: "Ashen Frenzy", durationPercent: 25, description: "The Matriarch turns on the main damage dealer.", targetRole: "damage", targetThreatMultiplier: 2.5, attackRateMultiplier: 1.35, incomingDamageMultiplier: 1.4, conditionChanceMultiplier: 1.5 },
+      { id: "brood-guard", name: "Brood Guard", durationPercent: 40, description: "The Matriarch tests the party's front line.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.9, conditionChanceMultiplier: 0.85, specialAbility: { id: "wing-guard", name: "Wing Guard", description: "The Matriarch shields the nest behind a measured wing wall." } },
+      { id: "searing-pursuit", name: "Searing Pursuit", durationPercent: 35, description: "The Matriarch hunts the party's healer.", targetRole: "healer", targetThreatMultiplier: 4, attackRateMultiplier: 1.1, incomingDamageMultiplier: 1.1, conditionChanceMultiplier: 1.25, specialAbility: { id: "searing-brand", name: "Searing Brand", description: "A focused brand burns through the healer's sustain window.", conditionAttack: { type: "burn", applicationChancePercent: 18, durationSeconds: 6, tickIntervalSeconds: 2, damagePercentPerTick: 2 } } },
+      { id: "ashen-frenzy", name: "Ashen Frenzy", durationPercent: 25, description: "The Matriarch turns on the main damage dealer.", targetRole: "damage", targetThreatMultiplier: 2.5, attackRateMultiplier: 1.35, incomingDamageMultiplier: 1.4, conditionChanceMultiplier: 1.5, specialAbility: { id: "ashstorm", name: "Ashstorm", description: "Dense ash impairs the main attacker's movement during the frenzy.", conditionAttack: { type: "slow", applicationChancePercent: 16, durationSeconds: 5, potencyPercent: 18 } } },
     ],
     requirements: {
       requiredLevel: 60,
@@ -257,9 +257,9 @@ export const bosses: Boss[] = [
     minDamage: 130,
     maxDamage: 230,
     phases: [
-      { id: "opening-bell", name: "Opening Bell", durationPercent: 50, description: "The Champion follows standard arena aggro.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.9, conditionChanceMultiplier: 0.9 },
-      { id: "challengers-mark", name: "Challenger's Mark", durationPercent: 30, description: "The Champion calls out a damage dealer.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.1, incomingDamageMultiplier: 1.1, conditionChanceMultiplier: 1.1 },
-      { id: "final-bout", name: "Final Bout", durationPercent: 20, description: "The Champion pressures the party's healer.", targetRole: "healer", targetThreatMultiplier: 4, attackRateMultiplier: 1.25, incomingDamageMultiplier: 1.25, conditionChanceMultiplier: 1.3 },
+      { id: "opening-bell", name: "Opening Bell", durationPercent: 50, description: "The Champion follows standard arena aggro.", attackRateMultiplier: 0.9, incomingDamageMultiplier: 0.9, conditionChanceMultiplier: 0.9, specialAbility: { id: "measured-feint", name: "Measured Feint", description: "The Champion studies the formation with disciplined feints." } },
+      { id: "challengers-mark", name: "Challenger's Mark", durationPercent: 30, description: "The Champion calls out a damage dealer.", targetRole: "damage", targetThreatMultiplier: 3, attackRateMultiplier: 1.1, incomingDamageMultiplier: 1.1, conditionChanceMultiplier: 1.1, specialAbility: { id: "hamstring-cut", name: "Hamstring Cut", description: "A precise arena cut hinders the challenged attacker.", conditionAttack: { type: "slow", applicationChancePercent: 14, durationSeconds: 4, potencyPercent: 12 } } },
+      { id: "final-bout", name: "Final Bout", durationPercent: 20, description: "The Champion pressures the party's healer.", targetRole: "healer", targetThreatMultiplier: 4, attackRateMultiplier: 1.25, incomingDamageMultiplier: 1.25, conditionChanceMultiplier: 1.3, specialAbility: { id: "arena-flurry", name: "Arena Flurry", description: "A final enchanted flurry scorches the healer's guard.", conditionAttack: { type: "burn", applicationChancePercent: 10, durationSeconds: 4, tickIntervalSeconds: 2, damagePercentPerTick: 2 } } },
     ],
     requirements: {
       requiredLevel: 25,

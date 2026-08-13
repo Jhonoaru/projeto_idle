@@ -1373,6 +1373,7 @@ export interface BossIncomingPressureSegment {
   incomingAttacks: number;
   incomingDamageMultiplier: number;
   conditionChanceMultiplier: number;
+  phaseConditionAttacks?: CombatConditionDefinition[];
 }
 
 export interface CombatSkillEffectOptions {
@@ -1396,6 +1397,14 @@ export interface BossPhaseDefinition {
   attackRateMultiplier?: number;
   incomingDamageMultiplier?: number;
   conditionChanceMultiplier?: number;
+  specialAbility?: BossPhaseAbilityDefinition;
+}
+
+export interface BossPhaseAbilityDefinition {
+  id: string;
+  name: string;
+  description: string;
+  conditionAttack?: CombatConditionDefinition;
 }
 
 export interface BossThreatPhaseMemberSummary {
@@ -1419,6 +1428,7 @@ export interface BossThreatPhaseSummary {
   attackRateMultiplier: number;
   incomingDamageMultiplier: number;
   conditionChanceMultiplier: number;
+  specialAbility?: BossPhaseAbilityDefinition;
   targetRole?: PartyRole;
   primaryTargetCharacterId?: string;
   members: BossThreatPhaseMemberSummary[];

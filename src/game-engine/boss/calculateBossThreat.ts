@@ -2,6 +2,7 @@ import type {
   Boss,
   BossParty,
   BossPhaseDefinition,
+  BossPhaseAbilityDefinition,
   BossThreatMemberSummary,
   BossThreatPhaseSummary,
   BossThreatSummary,
@@ -123,6 +124,7 @@ export function calculateBossThreat(
       attackRateMultiplier: phase.attackRateMultiplier,
       incomingDamageMultiplier: phase.incomingDamageMultiplier,
       conditionChanceMultiplier: phase.conditionChanceMultiplier,
+      specialAbility: phase.specialAbility,
       targetRole: hasPreferredRole ? phase.targetRole : undefined,
       primaryTargetCharacterId: primary?.characterId,
       members: phaseMembers,
@@ -213,7 +215,47 @@ function normalizePhases(phases?: BossPhaseDefinition[]): NormalizedBossPhase[] 
     attackRateMultiplier: normalizePressureMultiplier(phase.attackRateMultiplier, 0.75, 1.5),
     incomingDamageMultiplier: normalizePressureMultiplier(phase.incomingDamageMultiplier, 0.75, 1.5),
     conditionChanceMultiplier: normalizePressureMultiplier(phase.conditionChanceMultiplier, 0.5, 1.5),
+    specialAbility: normalizePhaseAbility(phase.specialAbility),
   }));
+}
+
+function normalizePhaseAbility(ability?: BossPhaseAbilityDefinition): BossPhaseAbilityDefinition | undefined {
+  if (!ability
+    || typeof ability.id !== "string"
+    || !ability.id.trim()
+    || typeof ability.name !== "string"
+    || !ability.name.trim()
+  ) return undefined;
+  return {
+    id: ability.id.trim(),
+    name: ability.name.trim(),
+    description: typeof ability.description === "string" ? ability.description.trim() : "",
+    conditionAttack: normalizePhaseCondition(ability.conditionAttack),
+  };
+}
+
+function normalizePhaseCondition(condition: BossPhaseAbilityDefinition["conditionAttack"]) {
+  if (!condition || !["burn", "poison", "slow"].includes(condition.type)) return undefined;
+  const durationSeconds = normalizeFinite(condition.durationSeconds, 0.5, 30, 1);
+  if (condition.type === "slow") {
+    return {
+      type: condition.type,
+      applicationChancePercent: normalizeFinite(condition.applicationChancePercent, 0, 60, 0),
+      durationSeconds,
+      potencyPercent: normalizeFinite(condition.potencyPercent, 0, 40, 0),
+    };
+  }
+  return {
+    type: condition.type,
+    applicationChancePercent: normalizeFinite(condition.applicationChancePercent, 0, 60, 0),
+    durationSeconds,
+    tickIntervalSeconds: normalizeFinite(condition.tickIntervalSeconds, 0.5, 30, 1),
+    damagePercentPerTick: normalizeFinite(condition.damagePercentPerTick, 0, 8, 0),
+  };
+}
+
+function normalizeFinite(value: number | undefined, minimum: number, maximum: number, fallback: number) {
+  return typeof value === "number" && Number.isFinite(value) ? clamp(value, minimum, maximum) : fallback;
 }
 
 function normalizeMultiplier(value?: number) {
