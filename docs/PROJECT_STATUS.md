@@ -15,6 +15,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 151.5 concluida: QA real no Tauri/SQLite validou habilidades exclusivas, condicoes temporais, reload e catch-up offline em 39/39 checks, com restauracao integral do save.
 - Etapa 151 concluida: todas as fases de Boss agora possuem habilidades especiais nomeadas, com condicoes exclusivas por segmento, normalizacao segura, timeline, Raid Analyzer e logs.
 - Etapa 150.5 concluida: QA real no Tauri/SQLite validou pressao temporal, dano, condicoes, risco, reload e catch-up offline em 32/32 checks, com restauracao integral do save.
 - Etapa 150 concluida: fases de Boss agora modificam ritmo de ataques, dano recebido e chance de condicoes em segmentos temporais deterministas, com caps e relatorios visuais.
@@ -12672,6 +12673,72 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 151.5 - QA das habilidades de fase no Tauri/SQLite e catch-up offline.
+
+## Etapa 151.5 - QA das habilidades de fase no Tauri/SQLite
+
+Status: concluida.
+
+Execucao real:
+
+- Harness temporario executado dentro do aplicativo Tauri contra o SQLite local real.
+- A primeira chamada de `npm.cmd run tauri:dev` parou antes de abrir o app porque um Vite residual ocupava a porta 1420.
+- O processo residual foi identificado pelo comando, encerrado e a execucao foi repetida normalmente.
+- A rodada valida passou em 39/39 checks.
+- O harness, bootstrap, tabela de QA e captura temporaria foram removidos depois da execucao.
+- Nenhuma correcao no codigo de produto foi necessaria.
+
+Catalogo e normalizacao:
+
+- As 15 fases continuaram com habilidades e IDs unicos.
+- As 10 condicoes exclusivas permaneceram validas.
+- Wing Guard, Searing Brand e Ashstorm chegaram ao resumo normalizado da Ember Matriarch.
+- Chance, duracao, intervalo de tick e dano hostis respeitaram caps de 60%, 30s, 0,5s e 8%.
+- Habilidade sem ID valido foi descartada.
+
+Combate temporal:
+
+- O orcamento base permaneceu em 245 ataques e o pressionado em 265.
+- As fases permaneceram com 88, 94 e 83 ataques.
+- Sem habilidades exclusivas, a condicao base do Boss produziu 265 tentativas.
+- Searing Brand adicionou 94 tentativas de burn somente em Searing Pursuit.
+- Ashstorm adicionou 83 tentativas de slow somente em Ashen Frenzy.
+- O total passou de 265 para 442 tentativas, sem alterar os 265 ataques diretos.
+- Aplicacoes passaram de 138 para 170 e todos os totais permaneceram finitos.
+- Dano direto recebido permaneceu identico com e sem as condicoes exclusivas.
+- Risco geral e riscos individuais permaneceram finitos e limitados.
+
+Save, reload e logs:
+
+- Quatro acoes da Ember Matriarch foram salvas e recarregadas como `bossing`.
+- Roles tank, healer, damage e support e os quatro loadout snapshots persistiram.
+- O fingerprint de habilidades, tentativas, aplicacoes, dano de condicao, fases e risco permaneceu identico depois do reload.
+- `current_action_json` nao duplicou `specialAbility` nem nomes das habilidades; os dados continuaram derivados do catalogo.
+- O log final registrou Wing Guard, Searing Brand `[burn]` e Ashstorm `[slow]`.
+- Gold, renown, XP, inventarios e Guild Depot nao mudaram durante save/reload.
+
+Offline catch-up:
+
+- As quatro acoes expiradas receberam `readyToResolve` e timestamps de conclusao.
+- Quatro reports de personagem foram produzidos sem coleta automatica.
+- O estado pronto, metadados e fingerprint das habilidades persistiram no SQLite.
+- Nenhuma recompensa foi concedida antes da coleta manual.
+- A segunda aplicacao foi idempotente, sem novos reports ou mudanca de recompensas.
+
+Protecao do save:
+
+- O save atual foi copiado antes da execucao Tauri.
+- Banco restaurado com 86016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`.
+- WAL, SHM, tabela de QA, captura, harness e bootstrap temporario nao permaneceram no save ou no projeto.
+
+Limitacoes:
+
+- A QA automatizou engine, save/load e catch-up dentro do Tauri; nao repetiu o fluxo inteiro por cliques na interface normal.
+- Habilidades continuam como efeitos de fase, sem casts discretos, cooldown individual, telegraph ou interrupcao.
+- A interface ainda agrega defesa por tipo de condicao, sem breakdown por nome da habilidade.
+
+Proximo passo sugerido:
+
+- Etapa 152 - casts temporais, telegraphs e cooldowns de habilidades de Boss.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
