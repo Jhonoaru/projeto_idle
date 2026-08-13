@@ -15,6 +15,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 150.5 concluida: QA real no Tauri/SQLite validou pressao temporal, dano, condicoes, risco, reload e catch-up offline em 32/32 checks, com restauracao integral do save.
 - Etapa 150 concluida: fases de Boss agora modificam ritmo de ataques, dano recebido e chance de condicoes em segmentos temporais deterministas, com caps e relatorios visuais.
 - Etapa 149.5 concluida: QA real no Tauri/SQLite validou fases, alvos temporais, normalizacao hostil e catch-up offline em 59/59 checks, com restauracao integral do save.
 - Etapa 149 concluida: Bosses agora possuem fases temporais deterministicas, prioridades de alvo por role, trocas de aggro e timeline integrada ao briefing, arena e relatorio.
@@ -12550,6 +12551,63 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 150.5 - QA dos modificadores de fase no Tauri/SQLite e catch-up offline.
+
+## Etapa 150.5 - QA dos modificadores de fase no Tauri/SQLite
+
+Status: concluida.
+
+Execucao real:
+
+- Harness temporario executado dentro do aplicativo Tauri contra o SQLite local real.
+- A primeira tentativa foi descartada porque `React.StrictMode` montou o runner temporario duas vezes no modo dev.
+- O processo foi encerrado, o save baseline foi restaurado e a suite foi repetida com montagem unica.
+- A rodada valida passou em 32/32 checks.
+- O harness, bootstrap e capturas temporarias foram removidos depois da execucao.
+- Nenhuma correcao no codigo de produto foi necessaria.
+
+Save, reload e snapshots:
+
+- Quatro membros receberam acoes expiradas da Ember Matriarch com roles tank, healer, damage e support.
+- As quatro acoes voltaram do SQLite com status `bossing`, party snapshot e loadout snapshot completos.
+- As definicoes de fase continuaram derivadas de `src/data/bosses.ts`; `current_action_json` nao duplicou `phases` nem `attackRateMultiplier`.
+- O fingerprint de combate permaneceu identico antes e depois do primeiro reload.
+
+Pressao temporal:
+
+- O orcamento base permaneceu em 245 ataques.
+- A pressao de 108,25% produziu 265 ataques.
+- Brood Guard, Searing Pursuit e Ashen Frenzy receberam 88, 94 e 83 ataques.
+- A soma das fases, a soma dos membros, defense e tentativas de condicao permaneceram exatamente em 265.
+- Cada fase distribuiu seu proprio orcamento uma unica vez entre os quatro membros.
+- Dano recebido ficou acima do cenario neutro e as aplicacoes de condicao nao diminuiram.
+- Risco geral e riscos individuais permaneceram finitos e dentro dos caps.
+
+Offline catch-up:
+
+- As quatro acoes expiradas foram marcadas `readyToResolve` sem coleta automatica.
+- `offlineCompletedAt` e `offlineElapsedMs` foram gravados para todos os membros.
+- Quatro reports de personagem foram gerados na primeira aplicacao.
+- Gold, renown, XP, inventarios e Guild Depot permaneceram sem recompensa antecipada.
+- O estado pronto, timestamps e `last_offline_catchup_at` persistiram depois do save/reload.
+- O fingerprint de fases, dano, condicoes e risco continuou igual depois do catch-up.
+- A segunda aplicacao foi idempotente, sem novos reports ou mudanca de recompensas.
+
+Protecao do save:
+
+- O save atual foi copiado antes de qualquer execucao Tauri.
+- A rodada descartada e a rodada valida foram seguidas por restauracao do mesmo baseline.
+- Banco restaurado com 86016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`.
+- WAL, SHM, tabela de QA, harness e bootstrap temporario nao permaneceram no projeto ou no save restaurado.
+
+Limitacoes:
+
+- A permissao Tauri atual nao inclui `core:window:allow-destroy`; a suite terminou em 32/32, mas a janela minimizada precisou ser encerrada manualmente depois da captura do resultado.
+- A QA automatizou engine, save/load e catch-up dentro do Tauri; nao repetiu o fluxo completo por cliques na interface normal.
+- Resistencias, cooldowns e skills exclusivas por fase continuam fora do escopo atual.
+
+Proximo passo sugerido:
+
+- Etapa 151 - habilidades especiais e condicoes exclusivas por fase de Boss.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
