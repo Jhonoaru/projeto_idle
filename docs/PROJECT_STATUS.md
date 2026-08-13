@@ -2,6 +2,20 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 155 - Interrupcoes automaticas de habilidades de Boss
+
+- Guardian, Ranger, Arcanist, Warden e Monk agora possuem uma habilidade de ataque capaz de interromper casts telegraficos de Boss.
+- Cada habilidade de fase recebe resistencia de interrupcao normalizada, e a chance final fica limitada entre 10% e 90%.
+- O planejador usa somente eventos reais da rotacao dentro da janela do telegraph; cada evento e cada cast podem ser reservados no maximo uma vez.
+- A selecao prioriza maior poder de interrupcao e o evento mais proximo da resolucao, com resultado deterministico para preservar save/load e catch-up offline.
+- Sucesso cancela apenas a resolucao hostil do cast; resistencia preserva o fluxo existente de ward e cleanse como fallback.
+- Boss Scene, Raid Analyzer, timeline, janela de skills, relatorio e log final mostram poder, resistencia, chance e resultado sem criar spam por tentativa.
+- Saves antigos continuam compativeis porque agenda, reservas e resultados sao derivados em memoria e nao exigem migration SQLite.
+- QA deterministico temporario cobriu 28 regras; o fixture produziu 21 tentativas, 14 sucessos e 7 resistencias nos seis Bosses e 15 fases. O painel foi removido apos a validacao.
+- QA visual desktop confirmou o telegraph central e os estados `Ready` e `Resisted`; a rodada mobile final nao foi executada porque a conexao do navegador bloqueou a troca de viewport por politica local.
+- `npm run build` passou durante a implementacao e com o harness temporario.
+- Proximo passo sugerido: Etapa 155.5 - QA das interrupcoes no Tauri/SQLite e catch-up offline.
+
 ## Etapa 154.5 - QA das prioridades defensivas no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.

@@ -14,6 +14,7 @@ import type {
 } from "../../shared/types";
 import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
 import { calculateBossThreat } from "../boss/calculateBossThreat";
+import { planBossInterrupts } from "../boss/planBossInterrupts";
 import { calculateIncomingAttackCount } from "./calculateIncomingAttackCount";
 import {
   calculateIncomingConditionDefense,
@@ -292,6 +293,13 @@ export function calculatePartyCombatSkillEffects(
     attackTargets,
     options.bossPhases,
   );
+  const bossInterrupts = planBossInterrupts(
+    characters.map((character) => ({ character, rotation: rotations.get(character.id)! })),
+    threat.abilityCasts,
+    elapsedMs,
+  );
+  const interruptedCastIds = new Set(bossInterrupts.filter((entry) => entry.interrupted).map((entry) => entry.castId));
+  const resolvedAbilityCasts = threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId));
   const pressureSegmentsByCharacterId = Object.fromEntries(characters.map((character) => [
     character.id,
     threat.phases.map((phase) => ({
@@ -303,7 +311,7 @@ export function calculatePartyCombatSkillEffects(
       conditionChanceMultiplier: phase.conditionChanceMultiplier,
       phaseConditionCasts: phase.specialAbility?.conditionAttack
         ? phase.abilityCasts
-          .filter((cast) => cast.targetCharacterId === character.id)
+          .filter((cast) => cast.targetCharacterId === character.id && !interruptedCastIds.has(cast.castId))
           .map((cast) => ({
             castId: cast.castId,
             abilityId: cast.abilityId,
@@ -328,7 +336,7 @@ export function calculatePartyCombatSkillEffects(
       pressureSegments: pressureSegmentsByCharacterId[character.id],
     })),
     elapsedMs,
-    threat.abilityCasts,
+    resolvedAbilityCasts,
   );
   const members = characters.map((character) => {
     const effects = calculateCombatSkillEffects(character, character.currentAction, elapsedMs, {
@@ -428,6 +436,7 @@ export function calculatePartyCombatSkillEffects(
     incomingConditions,
     conditionSupportContributions: partyConditionDefense.contributions,
     bossDefensiveResponses: partyConditionDefense.responses,
+    bossInterrupts,
     threat,
     members,
   };

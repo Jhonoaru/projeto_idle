@@ -1116,6 +1116,7 @@ export interface CombatSkillCastCount {
 
 export interface CombatSkillRotationSummary {
   casts: CombatSkillCastCount[];
+  attackEvents: CombatSkillRotationEvent[];
   supportEvents: CombatSkillRotationEvent[];
   totalCasts: number;
   manaSpent: number;
@@ -1224,6 +1225,23 @@ export interface BossDefensiveResponseSummary {
   cooldownEndsAtMs: number;
   protectionPercent: number;
   cleanseCount: number;
+  reservedEventKey: string;
+}
+
+export interface BossInterruptSummary {
+  castId: string;
+  abilityId: string;
+  abilityName: string;
+  sourceCharacterId: string;
+  sourceCharacterName: string;
+  skillId: string;
+  skillName: string;
+  occurredAtMs: number;
+  interruptPowerPercent: number;
+  resistancePercent: number;
+  successChancePercent: number;
+  rollPercent: number;
+  interrupted: boolean;
   reservedEventKey: string;
 }
 
@@ -1441,6 +1459,7 @@ export interface BossPhaseAbilityDefinition {
   initialDelaySeconds?: number;
   castTimeSeconds?: number;
   cooldownSeconds?: number;
+  interruptResistancePercent?: number;
   conditionAttack?: CombatConditionDefinition;
 }
 
@@ -1453,6 +1472,7 @@ export interface BossAbilityCastSummary {
   telegraphStartsAtMs: number;
   resolvesAtMs: number;
   cooldownEndsAtMs: number;
+  interruptResistancePercent: number;
   targetCharacterId?: string;
   targetCharacterName?: string;
   conditionType?: CombatConditionType;
@@ -1568,6 +1588,7 @@ export interface CombatSkillPartyEffectSummary {
   incomingConditions: IncomingCombatConditionSummary[];
   conditionSupportContributions: CombatPartyConditionSupportContribution[];
   bossDefensiveResponses: BossDefensiveResponseSummary[];
+  bossInterrupts: BossInterruptSummary[];
   threat: BossThreatSummary;
   members: Array<{
     characterId: string;

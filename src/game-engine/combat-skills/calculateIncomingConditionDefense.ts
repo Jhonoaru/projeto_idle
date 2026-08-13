@@ -213,7 +213,7 @@ function applyDefensiveResponses(events: SupportEvent[], responses: BossDefensiv
 function buildAttempts(participants: DefenseParticipant[], durationMs: number): ConditionAttempt[] {
   if (durationMs <= 0) return [];
   return participants.flatMap(({ character, targets, incomingAttackCount, incomingDamageMultiplier, conditionChanceMultiplier, pressureSegments }) => {
-    const hasPhaseConditions = pressureSegments?.some((segment) => segment.phaseConditionCasts?.length);
+    const hasPhaseConditions = pressureSegments?.some((segment) => segment.phaseConditionCasts !== undefined);
     const eligibleTargets = hasPhaseConditions ? targets : targets.filter((target) => target.conditionAttacks?.length);
     if (eligibleTargets.length === 0) return [];
     const incomingAttacks = Number.isFinite(incomingAttackCount)

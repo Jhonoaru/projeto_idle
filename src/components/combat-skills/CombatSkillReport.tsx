@@ -154,6 +154,17 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           ))}
         </div>
       ) : null}
+      {effects.bossInterrupts.length > 0 ? (
+        <div className="party-condition-support-strip" aria-label="Automatic Boss interrupts">
+          <strong>Interrupt Attempts</strong>
+          {effects.bossInterrupts.slice(0, 8).map((interrupt) => (
+            <span key={interrupt.castId}>
+              <b>{interrupt.skillName} / {interrupt.sourceCharacterName}</b>
+              <small>{interrupt.abilityName} / {interrupt.interrupted ? "interrupted" : "resisted"} / {interrupt.successChancePercent}% chance</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
       {effects.members.map((member) => (
         <section key={member.characterId}>
           <header>

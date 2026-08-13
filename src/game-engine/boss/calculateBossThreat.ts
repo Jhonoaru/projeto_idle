@@ -246,6 +246,7 @@ function normalizePhaseAbility(ability?: BossPhaseAbilityDefinition): BossPhaseA
     initialDelaySeconds: normalizeFinite(ability.initialDelaySeconds, 0, 120, 5),
     castTimeSeconds: normalizeFinite(ability.castTimeSeconds, 0.5, 8, 2),
     cooldownSeconds: normalizeFinite(ability.cooldownSeconds, 5, 180, 30),
+    interruptResistancePercent: normalizeFinite(ability.interruptResistancePercent, 0, 90, 35),
     conditionAttack: normalizePhaseCondition(ability.conditionAttack),
   };
 }
@@ -279,6 +280,7 @@ function buildAbilityCasts(
       telegraphStartsAtMs: Math.round(telegraphStartsAtMs),
       resolvesAtMs: Math.round(resolvesAtMs),
       cooldownEndsAtMs: Math.round(Math.min(phaseEndMs, resolvesAtMs + cooldownMs)),
+      interruptResistancePercent: ability.interruptResistancePercent ?? 35,
       targetCharacterId,
       targetCharacterName,
       conditionType: ability.conditionAttack?.type,
