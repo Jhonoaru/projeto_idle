@@ -2,6 +2,21 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 155.5 - QA das interrupcoes no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
+- A rodada limpa passou em 47/47 checks com os cinco personagens da guilda contra a Ember Matriarch.
+- Foram reproduzidas 21 tentativas deterministicamente: 14 interrupcoes bem-sucedidas e 7 resistencias, preservadas com o mesmo fingerprint apos Save/Reload.
+- Cada tentativa reservou um evento real da rotacao dentro do telegraph; casts e eventos permaneceram unicos, e chance, roll e resultado ficaram dentro dos limites esperados.
+- Interrupcoes bem-sucedidas nao receberam resposta defensiva posterior; tentativas resistidas mantiveram ward/cleanse como fallback.
+- O SQLite persistiu party, roles, loadouts e snapshot das acoes, mas nao armazenou `bossInterrupts`, `reservedEventKey`, `rollPercent` nem `abilityCasts` derivados.
+- O catch-up offline marcou os cinco personagens como `readyToResolve`, preservou o fingerprint das interrupcoes e permaneceu idempotente na segunda aplicacao, com zero novos reports.
+- Gold, Renown, XP, inventarios e Guild Depot permaneceram inalterados; nenhuma recompensa foi concedida antes da coleta manual.
+- A primeira rodada de diagnostico foi descartada em 46/47 porque o teste tratava respostas de casts sem tentativa como fallback invalido; a assercao foi corrigida sem alteracao no produto.
+- O banco original foi restaurado com 86.016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`; WAL, SHM, tabela, backup, harness e bootstrap temporarios foram removidos.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 156 - esquiva automatica de habilidades telegraficas de Boss.
+
 ## Etapa 155 - Interrupcoes automaticas de habilidades de Boss
 
 - Guardian, Ranger, Arcanist, Warden e Monk agora possuem uma habilidade de ataque capaz de interromper casts telegraficos de Boss.
