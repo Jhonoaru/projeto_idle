@@ -1,6 +1,6 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-11
+Atualizado em: 2026-08-13
 
 ## Stack usada
 
@@ -14,6 +14,8 @@ Atualizado em: 2026-08-11
 - Sem Prisma ativo. A pasta `prisma/` existe apenas como reserva com `.gitkeep`.
 
 ## Status recente
+
+- Etapa 148.5 concluida: QA real no Tauri/SQLite validou threat, aggro, risco individual e catch-up offline em 50/50 checks, com restauracao integral do save.
 
 - Etapa 148 concluida: Boss parties agora possuem threat e aggro reais, com um orçamento unico de ataques distribuido por role, risco individual, tank control e relatorios responsivos.
 - Etapa 147.5 concluida: QA real no Tauri/SQLite validou suporte compartilhado, escopo pessoal, snapshots, Boss log e catch-up offline em 46/46 checks, com restauracao integral do save.
@@ -12329,6 +12331,47 @@ Persistencia e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 148.5 - QA de threat e aggro no Tauri/SQLite e offline catch-up.
+
+## Etapa 148.5 - QA de threat e aggro no Tauri/SQLite
+
+Status: concluida.
+
+Validacao real:
+
+- Harness temporario executado dentro do aplicativo Tauri contra o SQLite local real.
+- A suite passou em 50/50 checks, sem falha fatal e sem correcao necessaria no codigo de produto.
+- Quatro acoes de Boss foram salvas e recarregadas com status, datas, IDs, roles, snapshots completos da party e loadouts de suporte preservados.
+- O fingerprint de threat permaneceu identico antes do save, depois do reload, depois do catch-up e no reload final.
+- O orcamento unico permaneceu em 245 ataques, tambem usado por defense e tentativas de condicao.
+- A alocacao permaneceu exata: tank 115, damage 58, healer 36 e support 36 ataques.
+- O tank permaneceu alvo primario, com 47,06% de controle de aggro e 2,82% de reducao de risco.
+- Block, dano recebido, condicoes e cleanses mantiveram somas consistentes e sem atribuicao duplicada.
+- Risco de morte individual permaneceu finito e limitado entre 0,5% e 90%; a maior exposicao do tank ficou acima da exposicao do healer.
+- `simulateBossFight` preservou o mesmo threat e gerou os logs `Aggro report` e `Tank control 47.06%`.
+
+Offline catch-up:
+
+- Quatro acoes expiradas foram marcadas como prontas para coleta com `offlineCompletedAt` e `offlineElapsedMs` corretos.
+- Roles, snapshots e threat permaneceram iguais apos o catch-up.
+- Nenhum gold, XP ou item foi concedido antes da coleta manual.
+- O timestamp de catch-up foi persistido nos metadados do save.
+- Uma segunda aplicacao foi idempotente: zero novos reports e estado inalterado.
+- A inspecao direta do SQLite confirmou as quatro acoes, todas as roles, os marcadores `readyToResolve` e o timestamp offline.
+
+Protecao do save:
+
+- O save original foi copiado antes do teste e restaurado depois do encerramento do Tauri.
+- Banco restaurado com 81920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`, identico ao backup.
+- Backup, WAL, SHM, tabela de fixture e bootstrap temporario nao permaneceram no produto ou no save restaurado.
+
+Limitacoes:
+
+- A QA automatizou engine, persistencia e catch-up dentro do Tauri; nao repetiu manualmente todos os cliques da interface.
+- O Boss ainda nao troca de alvo por fases, provocacao ativa, morte do tank ou eventos temporais durante a luta.
+
+Proximo passo sugerido:
+
+- Etapa 149 - fases de Boss e troca temporal de alvo/aggro.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
