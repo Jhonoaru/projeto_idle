@@ -15,6 +15,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 149.5 concluida: QA real no Tauri/SQLite validou fases, alvos temporais, normalizacao hostil e catch-up offline em 59/59 checks, com restauracao integral do save.
 - Etapa 149 concluida: Bosses agora possuem fases temporais deterministicas, prioridades de alvo por role, trocas de aggro e timeline integrada ao briefing, arena e relatorio.
 - Etapa 148.5 concluida: QA real no Tauri/SQLite validou threat, aggro, risco individual e catch-up offline em 50/50 checks, com restauracao integral do save.
 
@@ -12441,6 +12442,71 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 149.5 - QA das fases de Boss no Tauri/SQLite e offline catch-up.
+
+## Etapa 149.5 - QA das fases de Boss no Tauri/SQLite
+
+Status: concluida.
+
+Execucao real:
+
+- Harness temporario executado dentro do aplicativo Tauri contra o SQLite local real.
+- A primeira rodada marcou 55/59 porque o fingerprint da fixture comparava tambem block, dano e condicoes normalizados, embora declarasse medir apenas fases.
+- A assercao temporaria foi limitada ao resumo de threat; nenhum codigo de produto foi alterado por essa correcao.
+- A suite completa foi repetida e passou em 59/59 checks, sem falha fatal.
+
+Save e snapshots:
+
+- Quatro acoes de Ember Matriarch foram salvas e recarregadas como `bossing`.
+- Datas, IDs da party, roles tank/healer/damage/support, snapshots completos e loadouts de suporte persistiram no SQLite.
+- As definicoes de fase permaneceram derivadas do catalogo do Boss e nao foram duplicadas em `current_action_json`.
+- O calculo direto de threat e o resumo usado pelo combate produziram a mesma timeline.
+
+Fases e orcamento:
+
+- O orcamento unico permaneceu em 245 ataques depois do reload.
+- As tres fases mantiveram intervalos 0-40%, 40-75% e 75-100%.
+- Os orcamentos por fase permaneceram em 98, 86 e 61 ataques.
+- Brood Guard manteve 46/15/23/14 ataques.
+- Searing Pursuit manteve 28/35/14/9 ataques.
+- Ashen Frenzy manteve 21/7/26/7 ataques.
+- O agregado permaneceu em 95/57/63/30 ataques.
+- A sequencia de alvos permaneceu tank, healer e damage, com duas trocas.
+- Tank control permaneceu em 38,78% e a reducao de risco em 2,33%.
+- Defense e tentativas de condicao continuaram usando exatamente os mesmos 245 ataques.
+
+Risco, logs e dados hostis:
+
+- Riscos individuais permaneceram finitos e limitados entre 0,5% e 90%.
+- A reducao de 2,33% chegou ao calculo real de risco da party.
+- `simulateBossFight` preservou a timeline e registrou fases, dois target switches e os nomes dos alvos temporais.
+- Fases com ID duplicado foram deduplicadas sem inflar o orcamento.
+- Duracao `NaN` foi descartada e multiplicador hostil permaneceu limitado a 4x.
+
+Offline catch-up:
+
+- Quatro acoes expiradas foram marcadas como prontas para coleta.
+- `offlineCompletedAt` e `offlineElapsedMs` ficaram corretos.
+- Roles, snapshots e fingerprint das fases permaneceram iguais depois do catch-up e do reload final.
+- Nenhum gold, XP ou item foi concedido antes da coleta manual.
+- O timestamp de catch-up foi persistido nos metadados.
+- A segunda aplicacao foi idempotente, sem novos reports ou mudanca de estado.
+- A inspecao direta do SQLite confirmou quatro acoes, todas as roles, ready markers e timestamp offline.
+
+Protecao do save:
+
+- O save original foi copiado antes do teste e restaurado depois do encerramento completo do Tauri.
+- Banco restaurado com 81920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`, identico ao backup.
+- Backup, WAL, SHM, tabela de QA e bootstrap temporario foram removidos.
+- Nenhuma correcao no codigo de produto foi necessaria.
+
+Limitacoes:
+
+- A QA automatizou engine, save/load e catch-up dentro do Tauri; nao repetiu cliques manuais na interface completa.
+- As fases ainda alteram prioridade de alvo, mas nao intensidade de ataques, resistencias ou condicoes do Boss.
+
+Proximo passo sugerido:
+
+- Etapa 150 - modificadores de combate por fase de Boss.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
