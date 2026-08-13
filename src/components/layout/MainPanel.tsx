@@ -47,6 +47,7 @@ import type { GuildLoadoutProcurementReservationRequest } from "../../game-engin
 import type { GuildLoadoutProcurementFulfillmentRequest } from "../../game-engine/loadout-templates/fulfillGuildLoadoutProcurementReservation";
 import type {
   Boss,
+  BossDefensiveResponsePriority,
   BossParty,
   BossSimulationResult,
   ActivityLogEntry,
@@ -200,6 +201,7 @@ interface MainPanelProps {
   onFinishHunt: () => void;
   onReturnToCity: () => void;
   onToggleCombatSkill: (skillId: string) => void;
+  onChangeDefensiveResponsePriority: (priority: BossDefensiveResponsePriority) => void;
   onStopHuntAutoRepeat: () => void;
   onSendToDepot: (inventoryItem: InventoryItem) => void;
   onSendToCharacterDepot: (inventoryItem: InventoryItem) => void;
@@ -344,6 +346,7 @@ export function MainPanel({
   onFinishHunt,
   onReturnToCity,
   onToggleCombatSkill,
+  onChangeDefensiveResponsePriority,
   onStopHuntAutoRepeat,
   onSendToDepot,
   onSendToCharacterDepot,
@@ -433,6 +436,7 @@ export function MainPanel({
           onOpenQuests={() => onChangeTab("quests")}
           onReturnToCity={onReturnToCity}
           onToggleCombatSkill={onToggleCombatSkill}
+          onChangeDefensiveResponsePriority={onChangeDefensiveResponsePriority}
           selectedHunt={selectedHunt}
         />
       ) : null}

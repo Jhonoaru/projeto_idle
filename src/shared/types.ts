@@ -1099,11 +1099,14 @@ export interface CharacterAttributes {
   blockMitigationPercent?: number;
 }
 
+export type BossDefensiveResponsePriority = "automatic" | "prevent" | "recover";
+
 export interface CombatSkillLoadout {
   attackSkillIds: string[];
   supportSkillId: string | null;
   customized?: boolean;
   supportDisabled?: boolean;
+  defensiveResponsePriority?: BossDefensiveResponsePriority;
 }
 
 export interface CombatSkillCastCount {
@@ -1216,6 +1219,7 @@ export interface BossDefensiveResponseSummary {
   skillId: string;
   skillName: string;
   responseType: "ward" | "cleanse";
+  configuredPriority: BossDefensiveResponsePriority;
   occurredAtMs: number;
   cooldownEndsAtMs: number;
   protectionPercent: number;

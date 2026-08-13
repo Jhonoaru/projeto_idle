@@ -7,6 +7,7 @@ import { getGuildBriefing } from "../../game-engine/onboarding/getGuildBriefing"
 import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
 import type {
   Boss,
+  BossDefensiveResponsePriority,
   BossParty,
   Character,
   Guild,
@@ -41,6 +42,7 @@ interface MainPlayAreaProps {
   onAbortBoss: () => void;
   onCollectBoss: () => void;
   onToggleCombatSkill: (skillId: string) => void;
+  onChangeDefensiveResponsePriority: (priority: BossDefensiveResponsePriority) => void;
 }
 
 export function MainPlayArea({
@@ -64,6 +66,7 @@ export function MainPlayArea({
   onAbortBoss,
   onCollectBoss,
   onToggleCombatSkill,
+  onChangeDefensiveResponsePriority,
 }: MainPlayAreaProps) {
   const activeCount = characters.filter((entry) => entry.status !== "idle").length;
   const guildProgression = getGuildProgression(guild);
@@ -95,6 +98,7 @@ export function MainPlayArea({
           onOpenAction={onOpenAction}
           onReturnToCity={onReturnToCity}
           onToggleCombatSkill={onToggleCombatSkill}
+          onChangeDefensiveResponsePriority={onChangeDefensiveResponsePriority}
         />
       </div>
     );

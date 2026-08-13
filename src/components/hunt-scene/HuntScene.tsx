@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { getHuntSceneMonsters } from "../../game-engine/hunt-scene/getHuntSceneMonsters";
 import { formatDuration } from "../../shared/time";
-import type { Character, HuntArea } from "../../shared/types";
+import type { BossDefensiveResponsePriority, Character, HuntArea } from "../../shared/types";
 import { getHuntEffectTarget } from "../../data/combatEffectProfiles";
 import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
 import { HuntActionBar } from "./HuntActionBar";
@@ -23,6 +23,7 @@ interface HuntSceneProps {
   onOpenAction: () => void;
   onReturnToCity: () => void;
   onToggleCombatSkill: (skillId: string) => void;
+  onChangeDefensiveResponsePriority: (priority: BossDefensiveResponsePriority) => void;
 }
 
 export function HuntScene({
@@ -32,6 +33,7 @@ export function HuntScene({
   onOpenAction,
   onReturnToCity,
   onToggleCombatSkill,
+  onChangeDefensiveResponsePriority,
 }: HuntSceneProps) {
   const [openSlot, setOpenSlot] = useState<HuntSceneSlotType>();
   const [showSceneTools, setShowSceneTools] = useState(false);
@@ -182,6 +184,7 @@ export function HuntScene({
             character={character}
             onClose={() => setOpenSlot(undefined)}
             onToggleSkill={onToggleCombatSkill}
+            onChangeDefensiveResponsePriority={onChangeDefensiveResponsePriority}
             slot={openSlot}
           />
         ) : null}

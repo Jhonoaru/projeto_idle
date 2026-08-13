@@ -2,6 +2,7 @@ import { combatSkills } from "../../data/combatSkills";
 import type {
   BossAbilityCastSummary,
   BossDefensiveResponseSummary,
+  BossDefensiveResponsePriority,
   Character,
   CombatSkillRotationSummary,
 } from "../../shared/types";
@@ -20,6 +21,14 @@ interface ResponseCandidate {
   protectionPercent: number;
   cleanseCount: number;
   scope: "self" | "party";
+  priority: BossDefensiveResponsePriority;
+}
+
+interface ResponseOption {
+  candidate: ResponseCandidate;
+  responseType: "ward" | "cleanse";
+  occurredAtMs: number;
+  priorityRank: number;
 }
 
 export function planBossDefensiveResponses(
@@ -28,7 +37,14 @@ export function planBossDefensiveResponses(
   durationMs: number,
 ): BossDefensiveResponseSummary[] {
   const duration = Math.max(0, Number.isFinite(durationMs) ? durationMs : 0);
-  const candidates: ResponseCandidate[] = participants.flatMap(({ character, rotation }) => rotation.supportEvents.flatMap((event) => {
+  const candidates: ResponseCandidate[] = participants.flatMap(({ character, rotation }) => {
+    const actionLoadout = character.currentAction?.combatSkillLoadout;
+    const priority = normalizePriority(
+      actionLoadout
+        ? actionLoadout.defensiveResponsePriority
+        : character.combatSkillLoadout?.defensiveResponsePriority,
+    );
+    return rotation.supportEvents.flatMap((event) => {
     const skill = combatSkills.find((entry) => entry.id === event.skillId && entry.category === "support");
     if (!skill) return [];
     const support = skill.effect.conditionSupport;
@@ -44,8 +60,10 @@ export function planBossDefensiveResponses(
       protectionPercent,
       cleanseCount,
       scope: support.scope === "party" ? "party" as const : "self" as const,
+      priority,
     }];
-  }));
+    });
+  });
   const reserved = new Set<string>();
   const nextAvailableBySkill = new Map<string, number>();
   const responses: BossDefensiveResponseSummary[] = [];
@@ -64,15 +82,15 @@ export function planBossDefensiveResponses(
       && candidate.occurredAtMs <= cast.resolvesAtMs
       && (candidate.scope === "party" || candidate.sourceCharacterId === cast.targetCharacterId)
     ));
-    const ward = chooseCandidate(
-      eligible.filter((candidate) => candidate.protectionPercent > 0 && candidate.occurredAtMs <= cast.telegraphStartsAtMs),
+    const response = chooseResponse(
+      eligible,
       cast.telegraphStartsAtMs,
+      cast.resolvesAtMs,
+      duration,
       nextAvailableBySkill,
     );
-    const candidate = ward ?? chooseCandidate(eligible.filter((entry) => entry.cleanseCount > 0), cast.resolvesAtMs + 250, nextAvailableBySkill);
-    if (!candidate) continue;
-    const responseType = candidate.protectionPercent > 0 ? "ward" as const : "cleanse" as const;
-    const occurredAtMs = Math.min(duration, Math.max(0, responseType === "ward" ? cast.telegraphStartsAtMs : cast.resolvesAtMs + 250));
+    if (!response) continue;
+    const { candidate, responseType, occurredAtMs } = response;
     const skillKey = `${candidate.sourceCharacterId}:${candidate.skill.id}`;
     reserved.add(candidate.key);
     nextAvailableBySkill.set(skillKey, occurredAtMs + candidate.skill.cooldownSeconds * 1_000);
@@ -87,6 +105,7 @@ export function planBossDefensiveResponses(
       skillId: candidate.skill.id,
       skillName: candidate.skill.name,
       responseType,
+      configuredPriority: candidate.priority,
       occurredAtMs: Math.round(occurredAtMs),
       cooldownEndsAtMs: Math.round(Math.min(duration, occurredAtMs + candidate.skill.cooldownSeconds * 1_000)),
       protectionPercent: candidate.protectionPercent,
@@ -97,19 +116,43 @@ export function planBossDefensiveResponses(
   return responses;
 }
 
-function chooseCandidate(
+function chooseResponse(
   candidates: ResponseCandidate[],
-  responseAtMs: number,
+  telegraphStartsAtMs: number,
+  resolvesAtMs: number,
+  durationMs: number,
   nextAvailableBySkill: Map<string, number>,
 ) {
-  return candidates
-    .filter((candidate) => responseAtMs >= (nextAvailableBySkill.get(`${candidate.sourceCharacterId}:${candidate.skill.id}`) ?? 0))
-    .sort((left, right) => (
-      right.protectionPercent - left.protectionPercent
-      || right.cleanseCount - left.cleanseCount
-      || right.occurredAtMs - left.occurredAtMs
-      || left.key.localeCompare(right.key)
-    ))[0];
+  const cleanseAtMs = Math.min(durationMs, resolvesAtMs + 250);
+  const options: ResponseOption[] = candidates.flatMap((candidate) => {
+    const skillAvailableAt = nextAvailableBySkill.get(`${candidate.sourceCharacterId}:${candidate.skill.id}`) ?? 0;
+    const ward = candidate.protectionPercent > 0
+      && candidate.occurredAtMs <= telegraphStartsAtMs
+      && telegraphStartsAtMs >= skillAvailableAt
+      ? [{ candidate, responseType: "ward" as const, occurredAtMs: telegraphStartsAtMs, priorityRank: responseRank(candidate.priority, "ward") }]
+      : [];
+    const cleanse = candidate.cleanseCount > 0 && cleanseAtMs >= skillAvailableAt
+      ? [{ candidate, responseType: "cleanse" as const, occurredAtMs: cleanseAtMs, priorityRank: responseRank(candidate.priority, "cleanse") }]
+      : [];
+    return [...ward, ...cleanse];
+  });
+  return options.sort((left, right) => (
+    left.priorityRank - right.priorityRank
+    || (right.responseType === "ward" ? right.candidate.protectionPercent : right.candidate.cleanseCount)
+      - (left.responseType === "ward" ? left.candidate.protectionPercent : left.candidate.cleanseCount)
+    || right.candidate.occurredAtMs - left.candidate.occurredAtMs
+    || left.candidate.key.localeCompare(right.candidate.key)
+  ))[0];
+}
+
+function responseRank(priority: BossDefensiveResponsePriority, responseType: "ward" | "cleanse") {
+  if (priority === "prevent") return responseType === "ward" ? 0 : 3;
+  if (priority === "recover") return responseType === "cleanse" ? 0 : 3;
+  return responseType === "ward" ? 1 : 2;
+}
+
+function normalizePriority(value: unknown): BossDefensiveResponsePriority {
+  return value === "prevent" || value === "recover" ? value : "automatic";
 }
 
 function bounded(value: number | undefined, minimum: number, maximum: number, fallback: number) {

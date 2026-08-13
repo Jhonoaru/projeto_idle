@@ -1,6 +1,6 @@
 import { getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills";
 import type { CombatSkillDefinition } from "../../data/combatSkills";
-import type { Character } from "../../shared/types";
+import type { BossDefensiveResponsePriority, Character } from "../../shared/types";
 import { CombatSkillIcon } from "../combat-skills/CombatSkillIcon";
 import { normalizeCombatSkillLoadout } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import type { HuntSceneSlotType } from "./HuntSceneHotbar";
@@ -10,6 +10,7 @@ interface HuntSceneSlotWindowProps {
   slot: HuntSceneSlotType;
   onClose: () => void;
   onToggleSkill?: (skillId: string) => void;
+  onChangeDefensiveResponsePriority?: (priority: BossDefensiveResponsePriority) => void;
 }
 
 interface HuntSceneSlotEntry {
@@ -69,8 +70,19 @@ const staticWindowConfig: Record<Exclude<HuntSceneSlotType, "attack" | "support"
   },
 };
 
-export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill }: HuntSceneSlotWindowProps) {
+const defensivePriorities: Array<{
+  value: BossDefensiveResponsePriority;
+  label: string;
+  detail: string;
+}> = [
+  { value: "automatic", label: "Automatic", detail: "Use wards first, then cleanses." },
+  { value: "prevent", label: "Prevent", detail: "Prefer wards during telegraphs." },
+  { value: "recover", label: "Recover", detail: "Prefer cleanses after impact." },
+];
+
+export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill, onChangeDefensiveResponsePriority }: HuntSceneSlotWindowProps) {
   const config = getWindowConfig(character, slot);
+  const loadout = normalizeCombatSkillLoadout(character);
 
   return (
     <div className="hunt-slot-overlay" role="dialog" aria-label={`${config.title} configuration`}>
@@ -96,6 +108,30 @@ export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill }:
             <button type="button">Limpar slot</button>
           )}
         </div>
+
+        {slot === "support" ? (
+          <section className="hunt-response-priority" aria-label="Boss response priority">
+            <div>
+              <strong>Boss Response</strong>
+              <small>Saved for the next deployment. Existing action snapshots do not change.</small>
+            </div>
+            <div className="hunt-response-priority-options">
+              {defensivePriorities.map((priority) => (
+                <button
+                  aria-pressed={loadout.defensiveResponsePriority === priority.value}
+                  className={loadout.defensiveResponsePriority === priority.value ? "is-active" : ""}
+                  key={priority.value}
+                  onClick={() => onChangeDefensiveResponsePriority?.(priority.value)}
+                  title={priority.detail}
+                  type="button"
+                >
+                  <strong>{priority.label}</strong>
+                  <span>{priority.detail}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="hunt-slot-list">
           {config.entries.map((entry) => (

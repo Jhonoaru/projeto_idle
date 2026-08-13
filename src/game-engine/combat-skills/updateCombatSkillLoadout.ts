@@ -1,5 +1,5 @@
 import { combatSkills } from "../../data/combatSkills";
-import type { Character } from "../../shared/types";
+import type { BossDefensiveResponsePriority, Character } from "../../shared/types";
 import { normalizeCombatSkillLoadout } from "./normalizeCombatSkillLoadout";
 
 export function toggleCombatSkill(character: Character, skillId: string): Character {
@@ -45,4 +45,16 @@ export function moveCombatSkill(character: Character, skillId: string, direction
   const attackSkillIds = [...loadout.attackSkillIds];
   [attackSkillIds[index], attackSkillIds[target]] = [attackSkillIds[target], attackSkillIds[index]];
   return { ...character, combatSkillLoadout: { ...loadout, attackSkillIds } };
+}
+
+export function setDefensiveResponsePriority(
+  character: Character,
+  priority: BossDefensiveResponsePriority,
+): Character {
+  const loadout = normalizeCombatSkillLoadout(character);
+  if (loadout.defensiveResponsePriority === priority) return character;
+  return {
+    ...character,
+    combatSkillLoadout: { ...loadout, defensiveResponsePriority: priority },
+  };
 }

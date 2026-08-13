@@ -2,6 +2,21 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 154 - Prioridades configuraveis para respostas defensivas
+
+- Cada personagem agora possui uma politica de resposta de Boss no loadout: `Automatic`, `Prevent` ou `Recover`.
+- `Automatic` preserva a regra anterior, priorizando ward no inicio do telegraph e usando cleanse quando ward nao esta disponivel.
+- `Prevent` favorece skills com ward durante o telegraph; `Recover` favorece cleanse 250 ms depois da resolucao hostil.
+- A preferencia e apenas um criterio de prioridade: escopo, alvo, skill equipada, mana, evento real da rotacao, cooldown e fallback seguro continuam obrigatorios.
+- A janela de Support Skills ganhou um controle segmentado responsivo com explicacao curta de cada politica.
+- A configuracao vale para o proximo deployment e e copiada para o snapshot da hunt/Boss; alterar o personagem nao reescreve uma acao em andamento.
+- O Raid Analyzer e o telegraph mostram se a resposta escolhida veio de `Auto`, `Prevent` ou `Recover`.
+- Saves antigos, snapshots antigos e valores invalidos normalizam para `Automatic`; a configuracao persiste no JSON de loadout existente, sem migration nova.
+- QA deterministico passou em 19/19 checks para normalizacao, updater, timing e fallback, e em 25/25 checks na party completa da Ember Matriarch.
+- Com cinco skills hibridas no fixture, `Automatic`/`Prevent` produziram 25 wards e `Recover` produziu 25 cleanses sobre os mesmos casts, sem duplicar reservas ou violar cooldowns.
+- QA visual passou em 1280x720 e 375x812, sem overflow horizontal, com os tres modos visiveis, estado selecionado interativo e lista rolavel.
+- Proximo passo sugerido: Etapa 154.5 - QA das prioridades defensivas no Tauri/SQLite e catch-up offline.
+
 ## Etapa 153.5 - QA das respostas automaticas no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
@@ -73,6 +88,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 154 concluida: loadouts agora configuram respostas de Boss em Automatic, Prevent ou Recover, com snapshot, UI e planner deterministico.
 - Etapa 153.5 concluida: QA real no Tauri/SQLite validou reservas, cooldowns, reload e catch-up offline em 44/44 checks, com restauracao integral do save.
 - Etapa 153 concluida: telegraphs condicionais de Boss agora reservam wards e cleanses reais da rotacao, respeitando escopo, alvo, cooldown e disponibilidade.
 - Etapa 152.5 concluida: QA real no Tauri/SQLite validou agenda de casts, transicoes, reload e catch-up offline em 37/37 checks, com restauracao integral do save.

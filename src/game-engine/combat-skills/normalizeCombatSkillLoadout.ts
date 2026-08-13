@@ -1,5 +1,5 @@
 import { getUnlockedCombatSkills } from "../../data/combatSkills";
-import type { Character, CombatSkillLoadout, Vocation } from "../../shared/types";
+import type { BossDefensiveResponsePriority, Character, CombatSkillLoadout, Vocation } from "../../shared/types";
 
 interface CombatSkillOwner {
   vocation: Vocation;
@@ -26,8 +26,9 @@ export function normalizeCombatSkillLoadout(owner: CombatSkillOwner): CombatSkil
     : candidate?.supportSkillId && supportIds.has(candidate.supportSkillId)
       ? candidate.supportSkillId
       : supports.at(-1)?.id ?? null;
+  const defensiveResponsePriority = normalizeDefensiveResponsePriority(candidate?.defensiveResponsePriority);
 
-  return { attackSkillIds, supportSkillId, customized, supportDisabled };
+  return { attackSkillIds, supportSkillId, customized, supportDisabled, defensiveResponsePriority };
 }
 
 export function withNormalizedCombatSkillLoadout(character: Character): Character {
@@ -36,4 +37,8 @@ export function withNormalizedCombatSkillLoadout(character: Character): Characte
 
 function normalizeLevel(value: number) {
   return Number.isFinite(value) ? Math.max(1, Math.floor(value)) : 1;
+}
+
+function normalizeDefensiveResponsePriority(value: unknown): BossDefensiveResponsePriority {
+  return value === "prevent" || value === "recover" ? value : "automatic";
 }

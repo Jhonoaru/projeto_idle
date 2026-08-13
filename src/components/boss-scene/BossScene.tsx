@@ -108,7 +108,7 @@ export function BossScene({
             <div><dt>Special ability</dt><dd>{activePhase?.specialAbility?.name ?? "-"}</dd></div>
             <div><dt>Ability state</dt><dd>{formatAbilityState(abilityCast.state, abilityCast.remainingMs)}</dd></div>
             <div><dt>Ability target</dt><dd>{visibleCast?.targetCharacterName ?? "-"}</dd></div>
-            <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName}` : "None ready"}</dd></div>
+            <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
             <div><dt>Gold max</dt><dd>{action.expectedGold?.toLocaleString("en-US") ?? "-"}g</dd></div>
@@ -139,7 +139,7 @@ export function BossScene({
               <span>Boss ability</span>
               <strong>{abilityCast.cast.abilityName}</strong>
               <small>{abilityCast.cast.targetCharacterName ? `Target: ${abilityCast.cast.targetCharacterName}` : "Arena cast"}</small>
-              {activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready</em> : <em>No defensive response ready</em>}
+              {activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready / {formatResponsePriority(activeResponse.configuredPriority)}</em> : <em>No defensive response ready</em>}
               <div><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
               <b>{formatCastSeconds(abilityCast.remainingMs)}</b>
             </div>
@@ -176,6 +176,10 @@ function formatAbilityState(state: ReturnType<typeof getBossAbilityCastState>["s
 
 function formatCastSeconds(milliseconds: number) {
   return `${Math.max(0, milliseconds / 1_000).toFixed(1)}s`;
+}
+
+function formatResponsePriority(priority: "automatic" | "prevent" | "recover") {
+  return priority === "prevent" ? "Prevent" : priority === "recover" ? "Recover" : "Auto";
 }
 
 function getActiveParty(

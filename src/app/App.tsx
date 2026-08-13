@@ -117,7 +117,7 @@ import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
-import { toggleCombatSkill } from "../game-engine/combat-skills/updateCombatSkillLoadout";
+import { setDefensiveResponsePriority, toggleCombatSkill } from "../game-engine/combat-skills/updateCombatSkillLoadout";
 import { moveItemOutOfContainer } from "../game-engine/container/moveItemOutOfContainer";
 import { moveItemToContainer } from "../game-engine/container/moveItemToContainer";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
@@ -165,6 +165,7 @@ import {
 import type {
   ActivityLogEntry,
   Boss,
+  BossDefensiveResponsePriority,
   BossParty,
   BossSimulationResult,
   Character,
@@ -488,6 +489,13 @@ export function App() {
     const updatedCharacter = toggleCombatSkill(selectedCharacter, skillId);
     updateSelectedCharacter(updatedCharacter);
     prependLog("Combat rotation", `${selectedCharacter.name} updated the next deployment skill order.`, "success");
+  }
+
+  function handleChangeDefensiveResponsePriority(priority: BossDefensiveResponsePriority) {
+    const updatedCharacter = setDefensiveResponsePriority(selectedCharacter, priority);
+    if (updatedCharacter === selectedCharacter) return;
+    updateSelectedCharacter(updatedCharacter);
+    prependLog("Boss response", `${selectedCharacter.name} set defensive responses to ${priority}.`, "success");
   }
 
   function handleEquipGuildTitle(titleId: string | null) {
@@ -2670,6 +2678,7 @@ export function App() {
           onFinishHunt={handleFinishHunt}
           onReturnToCity={handleReturnToCityFromHuntScene}
           onToggleCombatSkill={handleToggleCombatSkill}
+          onChangeDefensiveResponsePriority={handleChangeDefensiveResponsePriority}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}
