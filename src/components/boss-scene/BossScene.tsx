@@ -4,6 +4,7 @@ import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossTh
 import { getBossAbilityCastState } from "../../game-engine/boss/getBossAbilityCastState";
 import { planBossDefensiveResponses } from "../../game-engine/boss/planBossDefensiveResponses";
 import { planBossInterrupts } from "../../game-engine/boss/planBossInterrupts";
+import { planBossTelegraphDodges } from "../../game-engine/boss/planBossTelegraphDodges";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character } from "../../shared/types";
@@ -68,9 +69,14 @@ export function BossScene({
   const responseParticipants = members.map((member) => ({ character: member.character, rotation: simulateCombatSkillRotation(member.character, member.character.currentAction, totalMs) }));
   const interrupts = threat ? planBossInterrupts(responseParticipants, threat.abilityCasts, totalMs) : [];
   const interruptedCastIds = new Set(interrupts.filter((entry) => entry.interrupted).map((entry) => entry.castId));
-  const defensiveResponses = threat ? planBossDefensiveResponses(responseParticipants, threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId)), totalMs) : [];
+  const dodgeEligibleCasts = threat ? threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId)) : [];
+  const telegraphDodges = planBossTelegraphDodges(members.map((member) => member.character), dodgeEligibleCasts, totalMs);
+  const dodgedCastIds = new Set(telegraphDodges.filter((entry) => entry.dodged).map((entry) => entry.castId));
+  const defensiveResponses = threat ? planBossDefensiveResponses(responseParticipants, dodgeEligibleCasts.filter((cast) => !dodgedCastIds.has(cast.castId)), totalMs) : [];
   const activeInterrupt = abilityCast.cast ? interrupts.find((entry) => entry.castId === abilityCast.cast?.castId) : undefined;
   const interruptResolved = Boolean(activeInterrupt && elapsedMs >= activeInterrupt.occurredAtMs);
+  const activeDodge = abilityCast.cast ? telegraphDodges.find((entry) => entry.castId === abilityCast.cast?.castId) : undefined;
+  const dodgeResolved = Boolean(activeDodge && elapsedMs >= activeDodge.occurredAtMs);
   const activeResponse = abilityCast.cast ? defensiveResponses.find((response) => response.castId === abilityCast.cast?.castId) : undefined;
 
   return (
@@ -111,6 +117,7 @@ export function BossScene({
             <div><dt>Ability state</dt><dd>{formatAbilityState(abilityCast.state, abilityCast.remainingMs)}</dd></div>
             <div><dt>Ability target</dt><dd>{visibleCast?.targetCharacterName ?? "-"}</dd></div>
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
+            <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : "Not targeted"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -142,11 +149,15 @@ export function BossScene({
               <span>Boss ability</span>
               <strong>{abilityCast.cast.abilityName}</strong>
               <small>{abilityCast.cast.targetCharacterName ? `Target: ${abilityCast.cast.targetCharacterName}` : "Arena cast"}</small>
-              {activeInterrupt ? (
+              {activeInterrupt && (!interruptResolved || activeInterrupt.interrupted) ? (
                 <em className={interruptResolved ? activeInterrupt.interrupted ? "is-interrupted" : "is-resisted" : ""}>
                   {activeInterrupt.sourceCharacterName}: {activeInterrupt.skillName} / {interruptResolved ? activeInterrupt.interrupted ? "interrupted" : "resisted" : "ready"} / {activeInterrupt.successChancePercent}%
                 </em>
-              ) : activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready / {formatResponsePriority(activeResponse.configuredPriority)}</em> : <em>No interrupt or defensive response ready</em>}
+              ) : activeDodge ? (
+                <em className={dodgeResolved ? activeDodge.dodged ? "is-dodged" : "is-caught" : ""}>
+                  {activeDodge.targetCharacterName}: dodge / {dodgeResolved ? activeDodge.dodged ? "dodged" : "caught" : "ready"} / {activeDodge.successChancePercent}%
+                </em>
+              ) : activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready / {formatResponsePriority(activeResponse.configuredPriority)}</em> : <em>No automatic response ready</em>}
               <div><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
               <b>{formatCastSeconds(abilityCast.remainingMs)}</b>
             </div>

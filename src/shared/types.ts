@@ -1245,6 +1245,21 @@ export interface BossInterruptSummary {
   reservedEventKey: string;
 }
 
+export interface BossTelegraphDodgeSummary {
+  castId: string;
+  abilityId: string;
+  abilityName: string;
+  targetCharacterId: string;
+  targetCharacterName: string;
+  occurredAtMs: number;
+  dodgePercent: number;
+  difficultyPercent: number;
+  reactionWindowSeconds: number;
+  successChancePercent: number;
+  rollPercent: number;
+  dodged: boolean;
+}
+
 export interface CombatConditionSummary {
   type: CombatConditionType;
   applications: number;
@@ -1460,6 +1475,7 @@ export interface BossPhaseAbilityDefinition {
   castTimeSeconds?: number;
   cooldownSeconds?: number;
   interruptResistancePercent?: number;
+  dodgeDifficultyPercent?: number;
   conditionAttack?: CombatConditionDefinition;
 }
 
@@ -1473,6 +1489,7 @@ export interface BossAbilityCastSummary {
   resolvesAtMs: number;
   cooldownEndsAtMs: number;
   interruptResistancePercent: number;
+  dodgeDifficultyPercent: number;
   targetCharacterId?: string;
   targetCharacterName?: string;
   conditionType?: CombatConditionType;
@@ -1589,6 +1606,7 @@ export interface CombatSkillPartyEffectSummary {
   conditionSupportContributions: CombatPartyConditionSupportContribution[];
   bossDefensiveResponses: BossDefensiveResponseSummary[];
   bossInterrupts: BossInterruptSummary[];
+  bossTelegraphDodges: BossTelegraphDodgeSummary[];
   threat: BossThreatSummary;
   members: Array<{
     characterId: string;

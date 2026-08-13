@@ -15,6 +15,7 @@ import type {
 import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
 import { calculateBossThreat } from "../boss/calculateBossThreat";
 import { planBossInterrupts } from "../boss/planBossInterrupts";
+import { planBossTelegraphDodges } from "../boss/planBossTelegraphDodges";
 import { calculateIncomingAttackCount } from "./calculateIncomingAttackCount";
 import {
   calculateIncomingConditionDefense,
@@ -299,7 +300,10 @@ export function calculatePartyCombatSkillEffects(
     elapsedMs,
   );
   const interruptedCastIds = new Set(bossInterrupts.filter((entry) => entry.interrupted).map((entry) => entry.castId));
-  const resolvedAbilityCasts = threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId));
+  const dodgeEligibleCasts = threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId));
+  const bossTelegraphDodges = planBossTelegraphDodges(characters, dodgeEligibleCasts, elapsedMs);
+  const dodgedCastIds = new Set(bossTelegraphDodges.filter((entry) => entry.dodged).map((entry) => entry.castId));
+  const resolvedAbilityCasts = dodgeEligibleCasts.filter((cast) => !dodgedCastIds.has(cast.castId));
   const pressureSegmentsByCharacterId = Object.fromEntries(characters.map((character) => [
     character.id,
     threat.phases.map((phase) => ({
@@ -311,7 +315,7 @@ export function calculatePartyCombatSkillEffects(
       conditionChanceMultiplier: phase.conditionChanceMultiplier,
       phaseConditionCasts: phase.specialAbility?.conditionAttack
         ? phase.abilityCasts
-          .filter((cast) => cast.targetCharacterId === character.id && !interruptedCastIds.has(cast.castId))
+          .filter((cast) => cast.targetCharacterId === character.id && !interruptedCastIds.has(cast.castId) && !dodgedCastIds.has(cast.castId))
           .map((cast) => ({
             castId: cast.castId,
             abilityId: cast.abilityId,
@@ -437,6 +441,7 @@ export function calculatePartyCombatSkillEffects(
     conditionSupportContributions: partyConditionDefense.contributions,
     bossDefensiveResponses: partyConditionDefense.responses,
     bossInterrupts,
+    bossTelegraphDodges,
     threat,
     members,
   };

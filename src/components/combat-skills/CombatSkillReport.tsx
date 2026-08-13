@@ -165,6 +165,17 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           ))}
         </div>
       ) : null}
+      {effects.bossTelegraphDodges.length > 0 ? (
+        <div className="party-condition-support-strip" aria-label="Automatic Boss telegraph dodges">
+          <strong>Telegraph Dodges</strong>
+          {effects.bossTelegraphDodges.slice(0, 8).map((dodge) => (
+            <span key={dodge.castId}>
+              <b>{dodge.targetCharacterName} / {dodge.dodged ? "dodged" : "caught"}</b>
+              <small>{dodge.abilityName} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
       {effects.members.map((member) => (
         <section key={member.characterId}>
           <header>

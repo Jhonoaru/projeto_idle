@@ -2,6 +2,20 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 156 - Esquiva automatica de habilidades telegraficas de Boss
+
+- Casts direcionados de Boss agora usam o `dodgePercent` real do personagem alvo para uma tentativa automatica de esquiva no fim do telegraph.
+- A chance combina mobilidade, duracao da janela de reacao e dificuldade da habilidade, com normalizacao segura entre 3% e 75%.
+- Cada habilidade de fase possui `dodgeDifficultyPercent`, normalizado entre 0% e 90% com fallback de 30% para dados antigos.
+- O roll e deterministico por cast e alvo, preservando o mesmo resultado em reload e catch-up offline sem persistir estado derivado.
+- A ordem de resolucao agora e `interrupt > dodge > ward/cleanse`: casts interrompidos nao tentam esquiva, casts esquivados nao aplicam condicao e nao consomem resposta defensiva.
+- Falhas de esquiva mantem o fluxo existente de ward e cleanse; casts sem alvo valido ou tempos invalidos sao ignorados com seguranca.
+- Boss Scene e Raid Analyzer mostram alvo, chance e estados `Ready`, `Dodged` ou `Caught`; timeline, relatorio e log final exibem dificuldade e resultado agregado.
+- QA deterministico temporario passou em 36/36 checks sobre os seis Bosses e 15 fases. Na Ember Matriarch, 23 casts foram elegiveis depois das interrupcoes, com 4 esquivas e 19 acertos, mantendo 13 respostas defensivas validas.
+- QA visual confirmou a composicao em 1280x720 e 375x812, incluindo o estado `Caught` sem corte lateral aparente. A consulta numerica final de overflow/logs expirou na conexao do navegador e nao foi considerada validada.
+- `npm run build` passou; `npm run tauri:build` concluiu o binario, MSI e NSIS, embora o executor tenha atingido seu timeout logo depois da mensagem final do Tauri.
+- Proximo passo sugerido: Etapa 156.5 - QA da esquiva no Tauri/SQLite e catch-up offline.
+
 ## Etapa 155.5 - QA das interrupcoes no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
