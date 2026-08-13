@@ -199,6 +199,7 @@ export function ActionAnalyzer({
         ["Sucesso", risk ? `${Math.round(risk.successChance * 100)}%` : "-"],
         ["Morte", risk ? `${Math.round(risk.deathChance * 100)}%` : "-"],
         ["Tank control", threat ? `${threat.tankAggroControlPercent}%` : "-"],
+        ["Attack pressure", threat ? `${threat.baseIncomingAttacks} -> ${threat.totalIncomingAttacks}` : "-"],
         ["XP atual", xpNow.toLocaleString("en-US")],
         ["XP esperado", expectedXp.toLocaleString("en-US")],
         ["Gold max", (boss?.reward.goldMax ?? 0).toLocaleString("en-US")],

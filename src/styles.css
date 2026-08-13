@@ -16451,6 +16451,7 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
 .boss-phase-timeline article > span { color: #89958c; font-size: 9px; }
 .boss-phase-timeline article > b { margin-top: 3px; overflow-wrap: anywhere; color: #ecd58e; font-size: 11px; }
 .boss-phase-timeline article > small { margin-top: 3px; overflow-wrap: anywhere; color: #b7c2b7; font-size: 9px; text-transform: capitalize; }
+.boss-phase-timeline article > small.boss-phase-pressure { color: #d2a66f; text-transform: none; }
 .boss-phase-timeline article > p { margin: 5px 0 0; color: #818b83; font-size: 9px; line-height: 1.35; }
 .boss-phase-timeline.is-compact { margin: 0; padding: 6px; background: rgba(8, 12, 10, 0.92); }
 .boss-phase-timeline.is-compact > header { font-size: 9px; }

@@ -15,6 +15,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 150 concluida: fases de Boss agora modificam ritmo de ataques, dano recebido e chance de condicoes em segmentos temporais deterministas, com caps e relatorios visuais.
 - Etapa 149.5 concluida: QA real no Tauri/SQLite validou fases, alvos temporais, normalizacao hostil e catch-up offline em 59/59 checks, com restauracao integral do save.
 - Etapa 149 concluida: Bosses agora possuem fases temporais deterministicas, prioridades de alvo por role, trocas de aggro e timeline integrada ao briefing, arena e relatorio.
 - Etapa 148.5 concluida: QA real no Tauri/SQLite validou threat, aggro, risco individual e catch-up offline em 50/50 checks, com restauracao integral do save.
@@ -12507,6 +12508,48 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 150 - modificadores de combate por fase de Boss.
+
+## Etapa 150 - Modificadores de combate por fase de Boss
+
+Status: concluida.
+
+Modelo de combate:
+
+- Cada fase pode definir multiplicadores de ritmo de ataques, dano recebido e chance de aplicar condicoes.
+- O orcamento base de ataques continua deterministico e recebe a media temporal do ritmo de cada fase.
+- O total inteiro e distribuido primeiro entre as fases e depois entre os membros conforme threat e role.
+- Dano, block e tentativas de condicao percorrem os segmentos reais da timeline com um unico indice global por ataque.
+- Fases ausentes ou dados invalidos usam multiplicadores neutros de 1x.
+- Ritmo e dano ficam limitados entre 0,75x e 1,5x; chance de condicao fica entre 0,5x e 1,5x.
+- `NaN` e infinito nao propagam para combate; valores nao finitos voltam ao fallback neutro.
+
+Conteudo e interface:
+
+- Os seis Bosses do catalogo receberam curvas conservadoras de abertura, pressao intermediaria e fase final.
+- A timeline mostra ataques base e pressionados, percentual total e os tres multiplicadores de cada fase.
+- A Boss Scene mostra a pressao da fase ativa no Raid Analyzer.
+- O Action Analyzer mostra a transicao do orcamento base para o total pressionado.
+- Logs da luta registram ritmo, dano e condicao quando uma fase e ativada.
+
+Validacao:
+
+- Harness visual temporario anterior passou em 19/19 checks nos viewports 1280x900 e 375x812, sem overflow, sobreposicao ou erro de console.
+- Depois do refinamento temporal, um harness de engine temporario passou em 13/13 checks e foi removido integralmente.
+- Ember Matriarch manteve 245 ataques base e passou a 265 ataques pressionados, distribuidos em 88/94/83 pelas tres fases.
+- As somas por fase, membro, defesa e tentativas de condicao permaneceram iguais ao orcamento unico de 265 ataques.
+- O cenario pressionado aumentou o dano recebido e nao reduziu as aplicacoes de condicao em relacao ao neutro.
+- Dados hostis respeitaram caps e fallback sem inflar ou duplicar ataques.
+- `npm.cmd run build` passou depois da segmentacao temporal final.
+
+Limitacoes:
+
+- Fases ainda nao alteram resistencias ofensivas, cooldowns ou repertorio de skills do Boss.
+- Nao existe fase reativa por HP real, morte de membro, taunt manual ou interrupcao.
+- Esta etapa validou engine e interface web; persistencia SQLite e equivalencia do catch-up ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 150.5 - QA dos modificadores de fase no Tauri/SQLite e catch-up offline.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

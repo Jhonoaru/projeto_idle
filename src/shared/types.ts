@@ -1366,11 +1366,23 @@ export interface CombatSkillTarget {
   maxDamage?: number;
 }
 
+export interface BossIncomingPressureSegment {
+  phaseId: string;
+  startPercent: number;
+  endPercent: number;
+  incomingAttacks: number;
+  incomingDamageMultiplier: number;
+  conditionChanceMultiplier: number;
+}
+
 export interface CombatSkillEffectOptions {
   attackTargets?: CombatSkillTarget[];
   supportTargets?: CombatSkillTarget[];
   partyRoles?: Partial<Record<string, PartyRole>>;
   incomingAttackCountOverride?: number;
+  incomingDamageMultiplierOverride?: number;
+  incomingConditionChanceMultiplierOverride?: number;
+  incomingPressureSegmentsOverride?: BossIncomingPressureSegment[];
   bossPhases?: BossPhaseDefinition[];
 }
 
@@ -1381,6 +1393,9 @@ export interface BossPhaseDefinition {
   description: string;
   targetRole?: PartyRole;
   targetThreatMultiplier?: number;
+  attackRateMultiplier?: number;
+  incomingDamageMultiplier?: number;
+  conditionChanceMultiplier?: number;
 }
 
 export interface BossThreatPhaseMemberSummary {
@@ -1389,6 +1404,8 @@ export interface BossThreatPhaseMemberSummary {
   role: PartyRole;
   threatPercent: number;
   incomingAttacks: number;
+  incomingDamageMultiplier: number;
+  conditionChanceMultiplier: number;
   primaryTarget: boolean;
 }
 
@@ -1399,6 +1416,9 @@ export interface BossThreatPhaseSummary {
   startPercent: number;
   endPercent: number;
   incomingAttacks: number;
+  attackRateMultiplier: number;
+  incomingDamageMultiplier: number;
+  conditionChanceMultiplier: number;
   targetRole?: PartyRole;
   primaryTargetCharacterId?: string;
   members: BossThreatPhaseMemberSummary[];
@@ -1411,12 +1431,16 @@ export interface BossThreatMemberSummary {
   threatScore: number;
   threatPercent: number;
   incomingAttacks: number;
+  incomingDamageMultiplier: number;
+  conditionChanceMultiplier: number;
   deathRiskMultiplier: number;
   primaryTarget: boolean;
 }
 
 export interface BossThreatSummary {
+  baseIncomingAttacks: number;
   totalIncomingAttacks: number;
+  attackPressurePercent: number;
   primaryTargetCharacterId?: string;
   tankAggroControlPercent: number;
   aggroRiskReductionPercent: number;

@@ -1,5 +1,6 @@
 import { combatSkills } from "../../data/combatSkills";
 import type {
+  BossIncomingPressureSegment,
   Character,
   CharacterAction,
   CombatAttackOutcome,
@@ -41,6 +42,10 @@ export function calculateCombatSkillEffects(
     rotation,
     elapsedMs,
     normalizeTargets(options.attackTargets),
+    {
+      incomingDamageMultiplier: options.incomingDamageMultiplierOverride,
+      conditionChanceMultiplier: options.incomingConditionChanceMultiplierOverride,
+    },
   );
   const defenseProfile = calculateDefenseProfile(character, durationMinutes, options);
   const combatBase = getCombatContributionBase(character);
@@ -287,12 +292,26 @@ export function calculatePartyCombatSkillEffects(
     attackTargets,
     options.bossPhases,
   );
+  const pressureSegmentsByCharacterId = Object.fromEntries(characters.map((character) => [
+    character.id,
+    threat.phases.map((phase) => ({
+      phaseId: phase.phaseId,
+      startPercent: phase.startPercent,
+      endPercent: phase.endPercent,
+      incomingAttacks: phase.members.find((member) => member.characterId === character.id)?.incomingAttacks ?? 0,
+      incomingDamageMultiplier: phase.incomingDamageMultiplier,
+      conditionChanceMultiplier: phase.conditionChanceMultiplier,
+    })),
+  ]));
   const partyConditionDefense = calculatePartyIncomingConditionDefense(
     characters.map((character) => ({
       character,
       rotation: rotations.get(character.id)!,
       targets: attackTargets,
       incomingAttackCount: threat.members.find((member) => member.characterId === character.id)?.incomingAttacks,
+      incomingDamageMultiplier: threat.members.find((member) => member.characterId === character.id)?.incomingDamageMultiplier,
+      conditionChanceMultiplier: threat.members.find((member) => member.characterId === character.id)?.conditionChanceMultiplier,
+      pressureSegments: pressureSegmentsByCharacterId[character.id],
     })),
     elapsedMs,
   );
@@ -301,6 +320,9 @@ export function calculatePartyCombatSkillEffects(
       ...options,
       supportTargets,
       incomingAttackCountOverride: threat.members.find((member) => member.characterId === character.id)?.incomingAttacks,
+      incomingDamageMultiplierOverride: threat.members.find((member) => member.characterId === character.id)?.incomingDamageMultiplier,
+      incomingConditionChanceMultiplierOverride: threat.members.find((member) => member.characterId === character.id)?.conditionChanceMultiplier,
+      incomingPressureSegmentsOverride: pressureSegmentsByCharacterId[character.id],
     }, partyConditionDefense.profilesByCharacterId[character.id]);
     return {
       characterId: character.id,
@@ -781,17 +803,28 @@ function calculateDefenseProfile(
   let blockedAttacks = 0;
   let incomingDamage = 0;
   let blockedDamage = 0;
+  const incomingDamageMultiplier = boundedValue(options.incomingDamageMultiplierOverride, 0.75, 1.5, 1);
+  const pressureSegments = normalizeDefensePressureSegments(
+    options.incomingPressureSegmentsOverride,
+    incomingAttacks,
+    incomingDamageMultiplier,
+  );
+  let attackIndex = 0;
 
-  for (let attackIndex = 1; attackIndex <= incomingAttacks; attackIndex += 1) {
-    const target = targets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % targets.length];
-    const targetLevel = boundedValue(target.level, 1, 500, 1);
-    const minDamage = boundedValue(target.minDamage, 0, 1_000_000, targetLevel * 2);
-    const maxDamage = Math.max(minDamage, boundedValue(target.maxDamage, 0, 1_000_000, targetLevel * 4));
-    const rawDamage = Math.round(minDamage + (maxDamage - minDamage) * deterministicPercent(`${character.id}:${target.id}:${attackIndex}:incoming-damage`) / 100);
-    incomingDamage += rawDamage;
-    if (deterministicPercent(`${character.id}:${target.id}:${attackIndex}:block`) >= blockChancePercent) continue;
-    blockedAttacks += 1;
-    blockedDamage += Math.round(rawDamage * blockMitigationPercent / 100);
+  for (const segment of pressureSegments) {
+    for (let localIndex = 0; localIndex < segment.incomingAttacks; localIndex += 1) {
+      attackIndex += 1;
+      const target = targets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % targets.length];
+      const targetLevel = boundedValue(target.level, 1, 500, 1);
+      const minDamage = boundedValue(target.minDamage, 0, 1_000_000, targetLevel * 2);
+      const maxDamage = Math.max(minDamage, boundedValue(target.maxDamage, 0, 1_000_000, targetLevel * 4));
+      const rolledDamage = minDamage + (maxDamage - minDamage) * deterministicPercent(`${character.id}:${target.id}:${attackIndex}:incoming-damage`) / 100;
+      const rawDamage = Math.round(rolledDamage * segment.incomingDamageMultiplier);
+      incomingDamage += rawDamage;
+      if (deterministicPercent(`${character.id}:${target.id}:${attackIndex}:block`) >= blockChancePercent) continue;
+      blockedAttacks += 1;
+      blockedDamage += Math.round(rawDamage * blockMitigationPercent / 100);
+    }
   }
 
   const damageTakenAfterBlock = incomingDamage - blockedDamage;
@@ -808,6 +841,29 @@ function calculateDefenseProfile(
     damageTakenAfterBlock,
     blockDamageReductionPercent,
   };
+}
+
+function normalizeDefensePressureSegments(
+  segments: BossIncomingPressureSegment[] | undefined,
+  incomingAttacks: number,
+  fallbackDamageMultiplier: number,
+) {
+  const valid = (segments ?? []).filter((segment) => (
+    Number.isFinite(segment.incomingAttacks)
+    && segment.incomingAttacks >= 0
+    && Number.isFinite(segment.incomingDamageMultiplier)
+  ));
+  const allocatedAttacks = valid.reduce((sum, segment) => sum + Math.floor(segment.incomingAttacks), 0);
+  if (valid.length > 0 && allocatedAttacks === incomingAttacks) {
+    return valid.map((segment) => ({
+      incomingAttacks: Math.floor(segment.incomingAttacks),
+      incomingDamageMultiplier: boundedValue(segment.incomingDamageMultiplier, 0.75, 1.5, 1),
+    }));
+  }
+  return [{
+    incomingAttacks,
+    incomingDamageMultiplier: fallbackDamageMultiplier,
+  }];
 }
 
 function getArmorPenetrationPercent(character: Character, skillBonus: number) {

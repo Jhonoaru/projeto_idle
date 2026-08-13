@@ -1,5 +1,6 @@
 import { combatSkills } from "../../data/combatSkills";
 import type {
+  BossIncomingPressureSegment,
   Character,
   CombatConditionType,
   CombatPartyConditionSupportContribution,
@@ -30,6 +31,9 @@ interface DefenseParticipant {
   rotation: CombatSkillRotationSummary;
   targets: CombatSkillTarget[];
   incomingAttackCount?: number;
+  incomingDamageMultiplier?: number;
+  conditionChanceMultiplier?: number;
+  pressureSegments?: BossIncomingPressureSegment[];
 }
 
 interface ConditionAttempt {
@@ -38,6 +42,8 @@ interface ConditionAttempt {
   attackIndex: number;
   occurredAtMs: number;
   threat: NonNullable<CombatSkillTarget["conditionAttacks"]>[number];
+  incomingDamageMultiplier: number;
+  conditionChanceMultiplier: number;
 }
 
 export interface IncomingConditionDefenseProfile {
@@ -68,9 +74,10 @@ export function calculateIncomingConditionDefense(
   rotation: CombatSkillRotationSummary,
   durationMs: number,
   targets: CombatSkillTarget[],
+  pressure?: { incomingDamageMultiplier?: number; conditionChanceMultiplier?: number },
 ): IncomingConditionDefenseProfile {
   return calculateConditionDefenseProfiles(
-    [{ character, rotation, targets }],
+    [{ character, rotation, targets, ...pressure }],
     durationMs,
   ).profilesByCharacterId[character.id] ?? createEmptyProfile([], normalizeDuration(durationMs), character.id);
 }
@@ -106,7 +113,7 @@ function calculateConditionDefenseProfiles(
     summary.attempts += 1;
     const eligibleSupport = supportEvents.filter((event) => canSupport(event, attempt.character.id));
     const protectionPercent = getProtectionAt(eligibleSupport, attempt.occurredAtMs);
-    const baseChance = bounded(threat.applicationChancePercent, 0, 100, 0);
+    const baseChance = Math.min(100, bounded(threat.applicationChancePercent, 0, 100, 0) * attempt.conditionChanceMultiplier);
     const effectiveChance = baseChance * (1 - protectionPercent / 100);
     const roll = deterministicPercent(`${attempt.character.id}:${attempt.target.id}:${attempt.attackIndex}:${threat.type}:incoming-condition`);
     if (roll >= effectiveChance) {
@@ -139,7 +146,7 @@ function calculateConditionDefenseProfiles(
       const intervalMs = bounded(threat.tickIntervalSeconds, 0.5, 30, 1) * 1_000;
       const ticks = Math.max(0, Math.floor(activeDurationMs / intervalMs));
       summary.ticks += ticks;
-      const rawDamage = getIncomingDamage(attempt.character.id, attempt.target, attempt.attackIndex);
+      const rawDamage = Math.round(getIncomingDamage(attempt.character.id, attempt.target, attempt.attackIndex) * attempt.incomingDamageMultiplier);
       summary.damage += Math.round(rawDamage * bounded(threat.damagePercentPerTick, 0, 10, 0) / 100) * ticks;
     }
     state.byType.set(threat.type, summary);
@@ -178,24 +185,75 @@ function calculateConditionDefenseProfiles(
 
 function buildAttempts(participants: DefenseParticipant[], durationMs: number): ConditionAttempt[] {
   if (durationMs <= 0) return [];
-  return participants.flatMap(({ character, targets, incomingAttackCount }) => {
+  return participants.flatMap(({ character, targets, incomingAttackCount, incomingDamageMultiplier, conditionChanceMultiplier, pressureSegments }) => {
     const eligibleTargets = targets.filter((target) => target.conditionAttacks?.length);
     if (eligibleTargets.length === 0) return [];
     const incomingAttacks = Number.isFinite(incomingAttackCount)
       ? Math.max(0, Math.floor(incomingAttackCount ?? 0))
       : calculateIncomingAttackCount(durationMs, eligibleTargets);
-    return Array.from({ length: incomingAttacks }, (_, index) => {
-      const attackIndex = index + 1;
-      const target = eligibleTargets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % eligibleTargets.length];
-      const occurredAtMs = Math.round(index * durationMs / incomingAttacks);
-      return target.conditionAttacks!.map((threat) => ({ character, target, attackIndex, occurredAtMs, threat }));
-    }).flat();
+    const segments = normalizePressureSegments(pressureSegments, incomingAttacks, incomingDamageMultiplier, conditionChanceMultiplier);
+    const attempts: ConditionAttempt[] = [];
+    let globalAttackIndex = 0;
+    for (const segment of segments) {
+      const phaseStartMs = durationMs * segment.startPercent / 100;
+      const phaseDurationMs = durationMs * Math.max(0, segment.endPercent - segment.startPercent) / 100;
+      for (let localIndex = 0; localIndex < segment.incomingAttacks; localIndex += 1) {
+        globalAttackIndex += 1;
+        const target = eligibleTargets[stableHash(`${character.id}:${globalAttackIndex}:incoming-target`) % eligibleTargets.length];
+        const occurredAtMs = Math.round(phaseStartMs + localIndex * phaseDurationMs / Math.max(1, segment.incomingAttacks));
+        for (const threat of target.conditionAttacks ?? []) {
+          attempts.push({
+            character,
+            target,
+            attackIndex: globalAttackIndex,
+            occurredAtMs,
+            threat,
+            incomingDamageMultiplier: segment.incomingDamageMultiplier,
+            conditionChanceMultiplier: segment.conditionChanceMultiplier,
+          });
+        }
+      }
+    }
+    return attempts;
   }).sort((left, right) => (
     left.occurredAtMs - right.occurredAtMs
     || left.character.id.localeCompare(right.character.id)
     || left.attackIndex - right.attackIndex
     || left.threat.type.localeCompare(right.threat.type)
   ));
+}
+
+function normalizePressureSegments(
+  segments: BossIncomingPressureSegment[] | undefined,
+  incomingAttacks: number,
+  incomingDamageMultiplier?: number,
+  conditionChanceMultiplier?: number,
+): BossIncomingPressureSegment[] {
+  const valid = (segments ?? []).filter((segment) => (
+    Number.isFinite(segment.incomingAttacks)
+    && segment.incomingAttacks >= 0
+    && Number.isFinite(segment.startPercent)
+    && Number.isFinite(segment.endPercent)
+    && segment.endPercent >= segment.startPercent
+  ));
+  if (valid.length > 0 && valid.reduce((sum, segment) => sum + Math.floor(segment.incomingAttacks), 0) === incomingAttacks) {
+    return valid.map((segment) => ({
+      ...segment,
+      incomingAttacks: Math.floor(segment.incomingAttacks),
+      startPercent: bounded(segment.startPercent, 0, 100, 0),
+      endPercent: bounded(segment.endPercent, 0, 100, 100),
+      incomingDamageMultiplier: bounded(segment.incomingDamageMultiplier, 0.75, 1.5, 1),
+      conditionChanceMultiplier: bounded(segment.conditionChanceMultiplier, 0.5, 1.5, 1),
+    }));
+  }
+  return [{
+    phaseId: "encounter",
+    startPercent: 0,
+    endPercent: 100,
+    incomingAttacks,
+    incomingDamageMultiplier: bounded(incomingDamageMultiplier, 0.75, 1.5, 1),
+    conditionChanceMultiplier: bounded(conditionChanceMultiplier, 0.5, 1.5, 1),
+  }];
 }
 
 function finalizeProfile(

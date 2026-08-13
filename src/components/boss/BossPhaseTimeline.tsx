@@ -14,7 +14,7 @@ export function BossPhaseTimeline({ threat, progressPercent, compact = false }: 
     <div className={`boss-phase-timeline${compact ? " is-compact" : ""}`} aria-label="Boss phase and target timeline">
       <header>
         <span>Encounter phases</span>
-        <strong>{threat.targetSwitchCount} target {threat.targetSwitchCount === 1 ? "switch" : "switches"}</strong>
+        <strong>{threat.baseIncomingAttacks} → {threat.totalIncomingAttacks} attacks / {threat.attackPressurePercent}% pressure</strong>
       </header>
       <div>
         {threat.phases.map((phase) => {
@@ -27,6 +27,7 @@ export function BossPhaseTimeline({ threat, progressPercent, compact = false }: 
               <span>{Math.round(phase.startPercent)}-{Math.round(phase.endPercent)}%</span>
               <b>{phase.phaseName}</b>
               <small>{primary ? `${primary.characterName} / ${primary.role}` : "No target"}</small>
+              <small className="boss-phase-pressure">{formatMultiplier(phase.attackRateMultiplier)} rate / {formatMultiplier(phase.incomingDamageMultiplier)} damage / {formatMultiplier(phase.conditionChanceMultiplier)} condition</small>
               {!compact ? <p>{phase.description}</p> : null}
             </article>
           );
@@ -34,6 +35,10 @@ export function BossPhaseTimeline({ threat, progressPercent, compact = false }: 
       </div>
     </div>
   );
+}
+
+function formatMultiplier(value: number) {
+  return `${value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "")}x`;
 }
 
 export function getActiveBossPhase(threat: BossThreatSummary, progressPercent: number) {

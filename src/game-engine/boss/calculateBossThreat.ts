@@ -18,11 +18,19 @@ const ROLE_THREAT: Record<PartyRole, number> = {
   support: 1.25,
 };
 
-const DEFAULT_PHASE: BossPhaseDefinition = {
+type NormalizedBossPhase = BossPhaseDefinition & Required<Pick<
+  BossPhaseDefinition,
+  "attackRateMultiplier" | "incomingDamageMultiplier" | "conditionChanceMultiplier"
+>>;
+
+const DEFAULT_PHASE: NormalizedBossPhase = {
   id: "encounter",
   name: "Encounter",
   durationPercent: 100,
   description: "The Boss follows the party's standard threat order.",
+  attackRateMultiplier: 1,
+  incomingDamageMultiplier: 1,
+  conditionChanceMultiplier: 1,
 };
 
 export function calculateBossPartyThreat(characters: Character[], party: BossParty, boss: Boss) {
@@ -45,10 +53,17 @@ export function calculateBossThreat(
   targets: CombatSkillTarget[],
   bossPhases?: BossPhaseDefinition[],
 ): BossThreatSummary {
-  const totalIncomingAttacks = calculateIncomingAttackCount(durationMs, targets);
+  const baseIncomingAttacks = calculateIncomingAttackCount(durationMs, targets);
+  const phases = normalizePhases(bossPhases);
+  const attackPressureMultiplier = phases.reduce((sum, phase) => (
+    sum + phase.durationPercent / 100 * phase.attackRateMultiplier
+  ), 0);
+  const totalIncomingAttacks = Math.max(0, Math.round(baseIncomingAttacks * attackPressureMultiplier));
   if (characters.length === 0) {
     return {
+      baseIncomingAttacks,
       totalIncomingAttacks,
+      attackPressurePercent: rounded(attackPressureMultiplier * 100),
       tankAggroControlPercent: 0,
       aggroRiskReductionPercent: 0,
       targetSwitchCount: 0,
@@ -61,9 +76,8 @@ export function calculateBossThreat(
     character,
     role: partyRoles[character.id] ?? "damage" as PartyRole,
   }));
-  const phases = normalizePhases(bossPhases);
   const phaseAttackCounts = allocateInteger(
-    phases.map((phase) => ({ id: phase.id, weight: phase.durationPercent })),
+    phases.map((phase) => ({ id: phase.id, weight: phase.durationPercent * phase.attackRateMultiplier })),
     totalIncomingAttacks,
   );
   let elapsedPercent = 0;
@@ -91,6 +105,8 @@ export function calculateBossThreat(
       role: entry.role,
       threatPercent: rounded(totalWeight > 0 ? entry.weight / totalWeight * 100 : 0),
       incomingAttacks: allocations[entry.character.id] ?? 0,
+      incomingDamageMultiplier: phase.incomingDamageMultiplier,
+      conditionChanceMultiplier: phase.conditionChanceMultiplier,
       primaryTarget: false,
     }));
     const primary = [...phaseMembers].sort(compareThreatMembers)[0];
@@ -104,6 +120,9 @@ export function calculateBossThreat(
       startPercent,
       endPercent: rounded(Math.min(100, elapsedPercent)),
       incomingAttacks: phaseAttacks,
+      attackRateMultiplier: phase.attackRateMultiplier,
+      incomingDamageMultiplier: phase.incomingDamageMultiplier,
+      conditionChanceMultiplier: phase.conditionChanceMultiplier,
       targetRole: hasPreferredRole ? phase.targetRole : undefined,
       primaryTargetCharacterId: primary?.characterId,
       members: phaseMembers,
@@ -120,6 +139,16 @@ export function calculateBossThreat(
       const member = phase.members.find((entry) => entry.characterId === participant.character.id);
       return sum + (member?.threatPercent ?? 0) * Math.max(0, phase.endPercent - phase.startPercent) / 100;
     }, 0);
+    const incomingDamageMultiplier = weightedPhaseMultiplier(
+      phaseSummaries,
+      participant.character.id,
+      "incomingDamageMultiplier",
+    );
+    const conditionChanceMultiplier = weightedPhaseMultiplier(
+      phaseSummaries,
+      participant.character.id,
+      "conditionChanceMultiplier",
+    );
     return {
       characterId: participant.character.id,
       characterName: participant.character.name,
@@ -127,7 +156,9 @@ export function calculateBossThreat(
       threatScore: rounded(weightedThreatScore),
       threatPercent,
       incomingAttacks,
-      deathRiskMultiplier: rounded(clamp(Math.sqrt(threatPercent / equalSharePercent), 0.55, 1.65)),
+      incomingDamageMultiplier,
+      conditionChanceMultiplier,
+      deathRiskMultiplier: rounded(clamp(Math.sqrt(threatPercent / equalSharePercent) * Math.sqrt(incomingDamageMultiplier), 0.55, 1.65)),
       primaryTarget: false,
     };
   });
@@ -146,7 +177,9 @@ export function calculateBossThreat(
   ), 0);
 
   return {
+    baseIncomingAttacks,
     totalIncomingAttacks,
+    attackPressurePercent: rounded(attackPressureMultiplier * 100),
     primaryTargetCharacterId: primary?.characterId,
     tankAggroControlPercent,
     aggroRiskReductionPercent,
@@ -156,7 +189,7 @@ export function calculateBossThreat(
   };
 }
 
-function normalizePhases(phases?: BossPhaseDefinition[]) {
+function normalizePhases(phases?: BossPhaseDefinition[]): NormalizedBossPhase[] {
   const valid: BossPhaseDefinition[] = [];
   const phaseIds = new Set<string>();
   for (const phase of phases ?? []) {
@@ -177,11 +210,32 @@ function normalizePhases(phases?: BossPhaseDefinition[]) {
     name: typeof phase.name === "string" && phase.name.trim() ? phase.name.trim() : "Boss Phase",
     description: typeof phase.description === "string" ? phase.description : "The Boss changes its target priority.",
     durationPercent: phase.durationPercent / total * 100,
+    attackRateMultiplier: normalizePressureMultiplier(phase.attackRateMultiplier, 0.75, 1.5),
+    incomingDamageMultiplier: normalizePressureMultiplier(phase.incomingDamageMultiplier, 0.75, 1.5),
+    conditionChanceMultiplier: normalizePressureMultiplier(phase.conditionChanceMultiplier, 0.5, 1.5),
   }));
 }
 
 function normalizeMultiplier(value?: number) {
   return typeof value === "number" && Number.isFinite(value) ? clamp(value, 1, 4) : 1;
+}
+
+function normalizePressureMultiplier(value: number | undefined, minimum: number, maximum: number) {
+  return typeof value === "number" && Number.isFinite(value) ? clamp(value, minimum, maximum) : 1;
+}
+
+function weightedPhaseMultiplier(
+  phases: BossThreatPhaseSummary[],
+  characterId: string,
+  key: "incomingDamageMultiplier" | "conditionChanceMultiplier",
+) {
+  const exposure = phases.reduce((sum, phase) => (
+    sum + (phase.members.find((member) => member.characterId === characterId)?.incomingAttacks ?? 0)
+  ), 0);
+  if (exposure <= 0) return 1;
+  return rounded(phases.reduce((sum, phase) => (
+    sum + (phase.members.find((member) => member.characterId === characterId)?.incomingAttacks ?? 0) * phase[key]
+  ), 0) / exposure);
 }
 
 function allocateInteger(entries: Array<{ id: string; weight: number }>, total: number) {

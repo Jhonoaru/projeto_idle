@@ -58,9 +58,11 @@ export function calculateBossRisk(
   const attackBonusPercent = clamp(combatSkillBonuses?.attackBonusPercent ?? 0, 0, 8);
   const deathRiskReductionPercent = clamp(combatSkillBonuses?.deathRiskReductionPercent ?? 0, 0, 10);
   const aggroRiskReductionPercent = clamp(combatSkillBonuses?.threat?.aggroRiskReductionPercent ?? 0, 0, 4);
+  const phasePressureRiskMultiplier = clamp(Math.sqrt((combatSkillBonuses?.threat?.attackPressurePercent ?? 100) / 100), 0.85, 1.25);
   successChance *= 1 + attackBonusPercent / 100;
   deathChance *= 1 - deathRiskReductionPercent / 100;
   deathChance *= 1 - aggroRiskReductionPercent / 100;
+  deathChance *= phasePressureRiskMultiplier;
 
   const normalizedDeathChance = clamp(deathChance, 0.01, 0.85);
   const deathChanceByCharacterId = Object.fromEntries(party.members.map((member) => {
@@ -76,6 +78,7 @@ export function calculateBossRisk(
     warnings,
     power,
     aggroRiskReductionPercent,
+    phasePressureRiskMultiplier,
   };
 }
 
