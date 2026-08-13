@@ -16354,3 +16354,50 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
 @media (max-width: 600px) {
   .party-condition-support-strip { grid-template-columns: 1fr; }
 }
+.party-threat-strip {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.1fr) repeat(auto-fit, minmax(155px, 1fr));
+  gap: 1px;
+  margin-top: 8px;
+  border: 1px solid #4f4931;
+  background: #4f4931;
+}
+
+.party-threat-strip > div,
+.party-threat-strip > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 10px;
+  background: #111713;
+}
+
+.party-threat-strip > div > span {
+  color: #d1b85f;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.party-threat-strip > span.is-primary {
+  box-shadow: inset 3px 0 #d0a944;
+  background: #171a12;
+}
+
+.party-threat-strip b,
+.party-threat-strip strong {
+  overflow-wrap: anywhere;
+  color: #f0dfaa;
+}
+
+.party-threat-strip small {
+  color: #aeb9ad;
+}
+
+.party-threat-strip.is-preview {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 600px) {
+  .party-threat-strip { grid-template-columns: 1fr; }
+}

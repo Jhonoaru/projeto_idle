@@ -31,12 +31,13 @@ export function simulateBossFight(
         name: character.name,
         kind: "ally",
       })),
+      partyRoles: Object.fromEntries(party.members.map((member) => [member.characterId, member.role])),
     },
   );
   const risk = calculateBossRisk(characters, party, boss, combatSkillEffects);
   const defeated = random() <= risk.successChance;
   const diedCharacterIds = participants
-    .filter(() => random() <= risk.deathChance)
+    .filter((character) => random() <= (risk.deathChanceByCharacterId[character.id] ?? risk.deathChance))
     .map((character) => character.id);
   const goldGained = defeated
     ? randomInt(random, boss.reward.goldMin, boss.reward.goldMax)
@@ -62,6 +63,9 @@ export function simulateBossFight(
     .filter((contribution) => contribution.cleansed > 0 || contribution.protectionUptimeSeconds > 0)
     .map((contribution) => `${contribution.characterName}: ${contribution.cleansed} cleansed, ${Math.round(contribution.protectionUptimeSeconds)}s ward coverage`)
     .join("; ");
+  const threatReport = combatSkillEffects.threat.members
+    .map((member) => `${member.characterName} (${member.role}) ${member.threatPercent}% / ${member.incomingAttacks} attacks`)
+    .join("; ");
   const logs = [
     `${boss.name} started by ${participantNames}.`,
     defeated ? `${boss.name} was defeated.` : `${boss.name} survived the attempt.`,
@@ -72,6 +76,7 @@ export function simulateBossFight(
     ...risk.warnings,
     `Party skill effects: +${combatSkillEffects.attackBonusPercent}% success power, -${combatSkillEffects.deathRiskReductionPercent}% death risk. Combat report: ${combatSkillEffects.totalDamage.toLocaleString("en-US")} damage (${combatSkillEffects.totalConditionDamage.toLocaleString("en-US")} conditions, -${combatSkillEffects.defenseMitigationPercent}% defense, ${combatSkillEffects.armorPenetrationPercent}% penetration, ${combatSkillEffects.elementalModifierPercent > 0 ? "+" : ""}${combatSkillEffects.elementalModifierPercent}% elemental), ${combatSkillEffects.totalHits.toLocaleString("en-US")}/${combatSkillEffects.totalAttacks.toLocaleString("en-US")} hits, ${combatSkillEffects.totalMisses.toLocaleString("en-US")} misses, ${combatSkillEffects.totalDodges.toLocaleString("en-US")} dodged, ${combatSkillEffects.totalCriticalHits.toLocaleString("en-US")} critical hits. Conditions: ${combatSkillEffects.totalConditionApplications.toLocaleString("en-US")} applied, ${resistedConditions.toLocaleString("en-US")} resisted, ${immuneConditions.toLocaleString("en-US")} immune, ${combatSkillEffects.totalConditionTicks.toLocaleString("en-US")} ticks, ${averageConditionPenetration}% resistance penetration${combatSkillEffects.slowUptimePercent > 0 ? `, ${combatSkillEffects.slowUptimePercent}% slow uptime` : ""}. Defense report: ${combatSkillEffects.blockedAttacks.toLocaleString("en-US")}/${combatSkillEffects.incomingAttacks.toLocaleString("en-US")} blocks, ${combatSkillEffects.blockedDamage.toLocaleString("en-US")} damage blocked (${combatSkillEffects.blockDamageReductionPercent}% reduction). Condition defense: ${combatSkillEffects.incomingConditionApplications}/${combatSkillEffects.incomingConditionAttempts} applied, ${combatSkillEffects.incomingConditionPrevented} prevented, ${combatSkillEffects.incomingConditionsCleansed} cleansed, ${combatSkillEffects.incomingConditionDamage.toLocaleString("en-US")} residual damage, ${combatSkillEffects.averageConditionProtectionPercent}% protection at ${combatSkillEffects.conditionProtectionUptimePercent}% uptime.`,
     ...(sharedConditionSupport ? [`Shared condition support: ${sharedConditionSupport}.`] : []),
+    ...(threatReport ? [`Aggro report: ${threatReport}. Tank control ${combatSkillEffects.threat.tankAggroControlPercent}% (-${combatSkillEffects.threat.aggroRiskReductionPercent}% party death risk).`] : []),
     `Boss loot enviado para o Guild Depot.`,
     ...participants.map(
       (character) => `${character.name} recebeu cooldown de ${boss.cooldownHours}h em ${boss.name}.`,

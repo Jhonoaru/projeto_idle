@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
+import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossThreat";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character } from "../../shared/types";
 import { BossSprite } from "../boss/BossSprite";
@@ -49,7 +50,12 @@ export function BossScene({
   const remainingMs = ready ? 0 : getClockRemainingMs(action.endsAt);
   const elapsedMs = ready ? totalMs : Math.min(totalMs, getClockElapsedMs(action.startedAt));
   const progress = Math.min(100, Math.max(0, Math.round((elapsedMs / totalMs) * 100)));
-  const risk = boss ? calculateBossRisk(characters, activeParty, boss) : undefined;
+  const threat = boss ? calculateBossPartyThreat(characters, activeParty, boss) : undefined;
+  const risk = boss && threat ? calculateBossRisk(characters, activeParty, boss, {
+    attackBonusPercent: 0,
+    deathRiskReductionPercent: 0,
+    threat,
+  }) : undefined;
   const pulse = Math.floor(clock / 1_000) % 3;
 
   return (
@@ -82,6 +88,7 @@ export function BossScene({
             <div><dt>Party</dt><dd>{members.length}</dd></div>
             <div><dt>Success</dt><dd>{risk ? `${Math.round(risk.successChance * 100)}%` : "-"}</dd></div>
             <div><dt>Death risk</dt><dd>{risk ? `${Math.round(risk.deathChance * 100)}%` : "-"}</dd></div>
+            <div><dt>Tank control</dt><dd>{threat ? `${threat.tankAggroControlPercent}%` : "-"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
             <div><dt>Gold max</dt><dd>{action.expectedGold?.toLocaleString("en-US") ?? "-"}g</dd></div>

@@ -1369,6 +1369,27 @@ export interface CombatSkillTarget {
 export interface CombatSkillEffectOptions {
   attackTargets?: CombatSkillTarget[];
   supportTargets?: CombatSkillTarget[];
+  partyRoles?: Partial<Record<string, PartyRole>>;
+  incomingAttackCountOverride?: number;
+}
+
+export interface BossThreatMemberSummary {
+  characterId: string;
+  characterName: string;
+  role: PartyRole;
+  threatScore: number;
+  threatPercent: number;
+  incomingAttacks: number;
+  deathRiskMultiplier: number;
+  primaryTarget: boolean;
+}
+
+export interface BossThreatSummary {
+  totalIncomingAttacks: number;
+  primaryTargetCharacterId?: string;
+  tankAggroControlPercent: number;
+  aggroRiskReductionPercent: number;
+  members: BossThreatMemberSummary[];
 }
 
 export interface CombatSkillPartyEffectSummary {
@@ -1426,6 +1447,7 @@ export interface CombatSkillPartyEffectSummary {
   conditionDefenseRiskReductionPercent: number;
   incomingConditions: IncomingCombatConditionSummary[];
   conditionSupportContributions: CombatPartyConditionSupportContribution[];
+  threat: BossThreatSummary;
   members: Array<{
     characterId: string;
     characterName: string;

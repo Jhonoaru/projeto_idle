@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 148 concluida: Boss parties agora possuem threat e aggro reais, com um orçamento unico de ataques distribuido por role, risco individual, tank control e relatorios responsivos.
 - Etapa 147.5 concluida: QA real no Tauri/SQLite validou suporte compartilhado, escopo pessoal, snapshots, Boss log e catch-up offline em 46/46 checks, com restauracao integral do save.
 - Etapa 147 concluida: wards e cleanses de party agora protegem aliados em uma linha temporal compartilhada, com cargas unicas, caps seguros, atribuicao por caster e relatorio visual.
 - Etapa 146.5 concluida: QA real no Tauri/SQLite validou cleanse, protecao, snapshots, Boss party e catch-up offline em 46/46 checks, com restauracao integral do save.
@@ -12268,6 +12269,66 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 148 - threat, aggro e distribuicao de ataques em Boss parties.
+
+## Etapa 148 - Threat, aggro e distribuicao de ataques em Boss parties
+
+Status: concluida.
+
+Orcamento de ataques:
+
+- Cada Boss party agora recebe um unico volume deterministico de ataques durante a luta.
+- O volume considera duracao e nivel do Boss e fica limitado pelos mesmos caps defensivos existentes.
+- Os ataques sao alocados por maior resto, garantindo que a soma dos membros seja exatamente igual ao total do Boss.
+- Block, dano recebido e tentativas de condicao usam a alocacao individual, removendo a antiga replicacao do volume completo em cada membro.
+- Personagens solo continuam recebendo 100% do volume calculado.
+
+Threat e roles:
+
+- Tank usa peso 4, damage peso 2, healer e support peso 1,25 cada.
+- O maior threat vira o alvo primario de forma deterministica; empates usam o ID do personagem.
+- Cada membro recebe percentual de aggro, ataques esperados e multiplicador individual de exposicao.
+- A chance individual de morte usa essa exposicao, com limites de 0,5% a 90%.
+- Tanks geram `tankAggroControlPercent` e ate 4% de reducao adicional de risco de morte da party.
+- Sem tank, o bonus de controle e a reducao de risco ficam em zero.
+- Aggro nao aumenta diretamente a chance de sucesso nem cria imunidade para healer, damage ou support.
+
+Integracao:
+
+- `CombatSkillEffectOptions` aceita roles e override interno do numero de ataques.
+- `CombatSkillPartyEffectSummary` inclui o resumo completo de threat.
+- Boss simulation usa roles reais, chance de morte por personagem e log `Aggro report`.
+- O briefing da raid mostra uma previa que reage a alteracao das roles antes do lancamento.
+- Boss Scene mostra tank control durante a operacao.
+- Action Analyzer usa a mesma regra de threat e exibe tank control.
+- O relatorio final mostra alvo primario, role, aggro, ataques e risco de exposicao de cada membro.
+
+Balanceamento inicial:
+
+- Na fixture de quatro membros contra Ember Matriarch, o Boss gerou 245 ataques no total.
+- Tank recebeu 115 ataques e 47,06% de aggro.
+- Damage recebeu 58 ataques e 23,53% de aggro.
+- Healer e support receberam 36 ataques e 14,71% de aggro cada.
+- Tank control ficou em 47,06%, gerando 2,82% de reducao de risco da party.
+- A composicao equivalente sem tank recebeu 0% de controle e 0% de reducao por aggro.
+
+Validacao:
+
+- Fixture temporaria passou em 24/24 checks de orcamento, distribuicao, roles, alvo primario, caps, risco individual, ordem, solo, block, dano, condicoes, cleanse e logs.
+- QA visual passou em 1280x900 e 375x812, sem overflow horizontal, sobreposicao ou erros/warnings no console.
+- A fixture continuou em 24/24 depois da integracao com briefing, Boss Scene e Action Analyzer.
+- Bootstrap, fixture e servidor temporarios foram removidos.
+- `npm.cmd run build` passou antes da etapa, com a fixture e depois da remocao.
+
+Persistencia e limitacoes:
+
+- Nenhuma migration foi necessaria; roles ja pertencem ao snapshot da party e threat e derivado.
+- O Boss ainda nao troca de alvo por fases, provocacao ativa, morte do tank ou eventos temporais durante a luta.
+- Nao ha taunt manual, reducao de threat, stealth ou posicionamento por linha frontal/traseira.
+- Save/Reload e equivalencia do catch-up com a distribuicao de aggro ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 148.5 - QA de threat e aggro no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

@@ -7,6 +7,7 @@ import type {
   CombatSkillTarget,
   IncomingCombatConditionSummary,
 } from "../../shared/types";
+import { calculateIncomingAttackCount } from "./calculateIncomingAttackCount";
 
 const MAX_PROTECTION_PERCENT = 35;
 const MAX_RISK_REDUCTION_PERCENT = 3;
@@ -28,6 +29,7 @@ interface DefenseParticipant {
   character: Character;
   rotation: CombatSkillRotationSummary;
   targets: CombatSkillTarget[];
+  incomingAttackCount?: number;
 }
 
 interface ConditionAttempt {
@@ -176,12 +178,12 @@ function calculateConditionDefenseProfiles(
 
 function buildAttempts(participants: DefenseParticipant[], durationMs: number): ConditionAttempt[] {
   if (durationMs <= 0) return [];
-  return participants.flatMap(({ character, targets }) => {
+  return participants.flatMap(({ character, targets, incomingAttackCount }) => {
     const eligibleTargets = targets.filter((target) => target.conditionAttacks?.length);
     if (eligibleTargets.length === 0) return [];
-    const averageLevel = eligibleTargets.reduce((sum, target) => sum + bounded(target.level, 1, 500, 1), 0) / eligibleTargets.length;
-    const attacksPerMinute = Math.min(15, Math.max(6, 8 + averageLevel * 0.03));
-    const incomingAttacks = Math.min(20_000, Math.max(1, Math.round(durationMs / 60_000 * attacksPerMinute)));
+    const incomingAttacks = Number.isFinite(incomingAttackCount)
+      ? Math.max(0, Math.floor(incomingAttackCount ?? 0))
+      : calculateIncomingAttackCount(durationMs, eligibleTargets);
     return Array.from({ length: incomingAttacks }, (_, index) => {
       const attackIndex = index + 1;
       const target = eligibleTargets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % eligibleTargets.length];

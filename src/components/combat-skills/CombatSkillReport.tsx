@@ -112,6 +112,22 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
         <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.incomingConditionPrevented} conditions prevented / ${effects.incomingConditionsCleansed} cleansed`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits / ${effects.totalConditionApplications} conditions`} />
       </div>
+      {effects.threat.members.length > 0 ? (
+        <div className="party-threat-strip" aria-label="Boss aggro distribution">
+          <div>
+            <span>Boss Aggro</span>
+            <strong>{effects.threat.totalIncomingAttacks.toLocaleString("en-US")} attacks</strong>
+            <small>{effects.threat.tankAggroControlPercent}% tank control / -{effects.threat.aggroRiskReductionPercent}% party risk</small>
+          </div>
+          {effects.threat.members.map((member) => (
+            <span className={member.primaryTarget ? "is-primary" : ""} key={member.characterId}>
+              <b>{member.characterName}</b>
+              <small>{roleLabel(member.role)} / {member.threatPercent}% aggro</small>
+              <small>{member.incomingAttacks.toLocaleString("en-US")} attacks / {formatRiskMultiplier(member.deathRiskMultiplier)}</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
       {effects.conditionSupportContributions.some((contribution) => contribution.cleansed > 0 || contribution.protectionUptimeSeconds > 0) ? (
         <div className="party-condition-support-strip" aria-label="Shared party condition support">
           <strong>Party Condition Support</strong>
@@ -127,13 +143,28 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
         <section key={member.characterId}>
           <header>
             <strong>{member.characterName}</strong>
-            <span>{member.effects.totalDamage.toLocaleString("en-US")} damage</span>
+            <span>{formatMemberAggro(effects, member.characterId)} / {member.effects.totalDamage.toLocaleString("en-US")} damage</span>
           </header>
           <CombatSkillReport effects={member.effects} compact />
         </section>
       ))}
     </div>
   );
+}
+
+function formatMemberAggro(effects: CombatSkillPartyEffectSummary, characterId: string) {
+  const threat = effects.threat.members.find((member) => member.characterId === characterId);
+  return threat ? `${threat.threatPercent}% aggro` : "No aggro";
+}
+
+function roleLabel(role: CombatSkillPartyEffectSummary["threat"]["members"][number]["role"]) {
+  return role[0].toUpperCase() + role.slice(1);
+}
+
+function formatRiskMultiplier(multiplier: number) {
+  const percent = Math.round((multiplier - 1) * 100);
+  if (percent === 0) return "normal risk";
+  return `${percent > 0 ? "+" : ""}${percent}% exposure risk`;
 }
 
 function formatSupportUptime(seconds: number) {

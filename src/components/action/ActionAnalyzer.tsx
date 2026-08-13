@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
+import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossThreat";
 import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { calculateMonsterFocusBonuses } from "../../game-engine/monster-focus/calculateMonsterFocusBonuses";
 import { calculateDestinyBonuses } from "../../game-engine/destiny/calculateDestinyBonuses";
@@ -177,7 +178,12 @@ export function ActionAnalyzer({
 
     if (action.type === "bossing") {
       const boss = bosses.find((candidate) => candidate.id === action.targetId);
-      const risk = boss ? calculateBossRisk(characters, bossParty, boss) : undefined;
+      const threat = boss ? calculateBossPartyThreat(characters, bossParty, boss) : undefined;
+      const risk = boss && threat ? calculateBossRisk(characters, bossParty, boss, {
+        attackBonusPercent: 0,
+        deathRiskReductionPercent: 0,
+        threat,
+      }) : undefined;
       const partyNames =
         action.partyMemberIds
           ?.map((characterId) => characters.find((candidate) => candidate.id === characterId)?.name)
@@ -192,6 +198,7 @@ export function ActionAnalyzer({
         ["Party", partyNames],
         ["Sucesso", risk ? `${Math.round(risk.successChance * 100)}%` : "-"],
         ["Morte", risk ? `${Math.round(risk.deathChance * 100)}%` : "-"],
+        ["Tank control", threat ? `${threat.tankAggroControlPercent}%` : "-"],
         ["XP atual", xpNow.toLocaleString("en-US")],
         ["XP esperado", expectedXp.toLocaleString("en-US")],
         ["Gold max", (boss?.reward.goldMax ?? 0).toLocaleString("en-US")],

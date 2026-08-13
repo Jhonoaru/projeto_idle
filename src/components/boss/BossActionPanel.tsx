@@ -1,4 +1,5 @@
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
+import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossThreat";
 import { canStartBoss } from "../../game-engine/boss/canStartBoss";
 import { GameButton } from "../ui/GameButton";
 import type { Boss, BossParty, Character } from "../../shared/types";
@@ -26,7 +27,12 @@ export function BossActionPanel({
     return <div className="hunt-action-empty">Select a boss contract.</div>;
   }
 
-  const risk = calculateBossRisk(characters, party, boss);
+  const threat = calculateBossPartyThreat(characters, party, boss);
+  const risk = calculateBossRisk(characters, party, boss, {
+    attackBonusPercent: 0,
+    deathRiskReductionPercent: 0,
+    threat,
+  });
   const validation = canStartBoss(characters, boss, party, guildGold);
   const isInProgress = party.members.some((member) => {
     const character = characters.find((candidate) => candidate.id === member.characterId);
@@ -57,6 +63,23 @@ export function BossActionPanel({
           <strong>{Math.round(risk.deathChance * 100)}%</strong>
         </div>
       </div>
+
+      {threat.members.length > 0 ? (
+        <div className="party-threat-strip is-preview" aria-label="Projected boss aggro">
+          <div>
+            <span>Projected Aggro</span>
+            <strong>{threat.totalIncomingAttacks.toLocaleString("en-US")} attacks</strong>
+            <small>{threat.tankAggroControlPercent}% tank control / -{threat.aggroRiskReductionPercent}% risk</small>
+          </div>
+          {threat.members.map((member) => (
+            <span className={member.primaryTarget ? "is-primary" : ""} key={member.characterId}>
+              <b>{member.characterName}</b>
+              <small>{member.role} / {member.threatPercent}%</small>
+              <small>{member.incomingAttacks.toLocaleString("en-US")} incoming</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="assignment-summary">
         <div>

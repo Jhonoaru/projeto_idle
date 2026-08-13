@@ -1,5 +1,5 @@
 import { calculateBossPower } from "./calculateBossPower";
-import type { Boss, BossParty, Character } from "../../shared/types";
+import type { Boss, BossParty, BossThreatSummary, Character } from "../../shared/types";
 
 const baseRisk = {
   safe: { death: 0.01, success: 0.92 },
@@ -16,6 +16,7 @@ export function calculateBossRisk(
   combatSkillBonuses?: {
     attackBonusPercent: number;
     deathRiskReductionPercent: number;
+    threat?: BossThreatSummary;
   },
 ) {
   const power = calculateBossPower(characters, party, boss);
@@ -56,15 +57,25 @@ export function calculateBossRisk(
 
   const attackBonusPercent = clamp(combatSkillBonuses?.attackBonusPercent ?? 0, 0, 8);
   const deathRiskReductionPercent = clamp(combatSkillBonuses?.deathRiskReductionPercent ?? 0, 0, 10);
+  const aggroRiskReductionPercent = clamp(combatSkillBonuses?.threat?.aggroRiskReductionPercent ?? 0, 0, 4);
   successChance *= 1 + attackBonusPercent / 100;
   deathChance *= 1 - deathRiskReductionPercent / 100;
+  deathChance *= 1 - aggroRiskReductionPercent / 100;
+
+  const normalizedDeathChance = clamp(deathChance, 0.01, 0.85);
+  const deathChanceByCharacterId = Object.fromEntries(party.members.map((member) => {
+    const threat = combatSkillBonuses?.threat?.members.find((entry) => entry.characterId === member.characterId);
+    return [member.characterId, clamp(normalizedDeathChance * (threat?.deathRiskMultiplier ?? 1), 0.005, 0.9)];
+  }));
 
   return {
-    deathChance: clamp(deathChance, 0.01, 0.85),
+    deathChance: normalizedDeathChance,
+    deathChanceByCharacterId,
     successChance: clamp(successChance, 0.05, 0.98),
     riskLabel: boss.risk,
     warnings,
     power,
+    aggroRiskReductionPercent,
   };
 }
 

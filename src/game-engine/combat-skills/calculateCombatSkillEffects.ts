@@ -12,6 +12,8 @@ import type {
   CombatSkillTarget,
 } from "../../shared/types";
 import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
+import { calculateBossThreat } from "../boss/calculateBossThreat";
+import { calculateIncomingAttackCount } from "./calculateIncomingAttackCount";
 import {
   calculateIncomingConditionDefense,
   calculatePartyIncomingConditionDefense,
@@ -277,11 +279,19 @@ export function calculatePartyCombatSkillEffects(
     character.id,
     simulateCombatSkillRotation(character, character.currentAction, elapsedMs),
   ]));
+  const attackTargets = normalizeTargets(options.attackTargets);
+  const threat = calculateBossThreat(
+    characters,
+    options.partyRoles ?? {},
+    elapsedMs,
+    attackTargets,
+  );
   const partyConditionDefense = calculatePartyIncomingConditionDefense(
     characters.map((character) => ({
       character,
       rotation: rotations.get(character.id)!,
-      targets: normalizeTargets(options.attackTargets),
+      targets: attackTargets,
+      incomingAttackCount: threat.members.find((member) => member.characterId === character.id)?.incomingAttacks,
     })),
     elapsedMs,
   );
@@ -289,6 +299,7 @@ export function calculatePartyCombatSkillEffects(
     const effects = calculateCombatSkillEffects(character, character.currentAction, elapsedMs, {
       ...options,
       supportTargets,
+      incomingAttackCountOverride: threat.members.find((member) => member.characterId === character.id)?.incomingAttacks,
     }, partyConditionDefense.profilesByCharacterId[character.id]);
     return {
       characterId: character.id,
@@ -378,6 +389,7 @@ export function calculatePartyCombatSkillEffects(
     conditionDefenseRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionDefenseRiskReductionPercent, 0) / divisor),
     incomingConditions,
     conditionSupportContributions: partyConditionDefense.contributions,
+    threat,
     members,
   };
 }
@@ -762,12 +774,9 @@ function calculateDefenseProfile(
     };
   }
 
-  const averageLevel = targets.reduce(
-    (sum, target) => sum + boundedValue(target.level, 1, 500, 1),
-    0,
-  ) / targets.length;
-  const attacksPerMinute = Math.min(15, Math.max(6, 8 + averageLevel * 0.03));
-  const incomingAttacks = Math.min(20_000, Math.max(1, Math.round(durationMinutes * attacksPerMinute)));
+  const incomingAttacks = Number.isFinite(options.incomingAttackCountOverride)
+    ? Math.max(0, Math.floor(options.incomingAttackCountOverride ?? 0))
+    : calculateIncomingAttackCount(durationMinutes * 60_000, targets);
   let blockedAttacks = 0;
   let incomingDamage = 0;
   let blockedDamage = 0;
