@@ -2,6 +2,20 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 153.5 - QA das respostas automaticas no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
+- A rodada passou em 44/44 checks usando os cinco personagens reais da guilda contra a Ember Matriarch, com 25 respostas automaticas e zero respostas quando o suporte foi desabilitado.
+- Cada resposta reservou um evento real da rotacao; casts hostis, reservas e cooldowns permaneceram unicos, limitados e nos tempos corretos de telegraph/resolve.
+- Save/Reload preservou status `bossing`, party, roles, loadouts e o fingerprint completo de casts, respostas e defesa condicional.
+- `current_action_json` nao armazenou respostas, reservas, contadores, casts nem fases derivados; esses dados continuam recalculados deterministicamente.
+- O catch-up offline marcou os cinco membros como `readyToResolve`, preservou o mesmo fingerprint e foi idempotente na segunda aplicacao.
+- Gold, Renown, XP, inventarios e Guild Depot permaneceram inalterados durante save, reload e catch-up; nenhuma recompensa foi concedida antes da coleta manual.
+- Nesta party real, as 25 respostas disponiveis foram cleanses; a amostra deterministica teve dano condicional zero com suporte ativo e desabilitado, enquanto tentativas, aplicacoes e ausencia de aumento foram verificadas.
+- O banco original foi restaurado com 86.016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`; WAL, SHM, tabela, backup, harness e bootstrap temporarios foram removidos.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 154 - prioridades configuraveis para respostas defensivas automaticas.
+
 ## Etapa 153 - Respostas defensivas automaticas aos telegraphs
 
 - Parties de Boss agora reservam automaticamente casts de suporte ja existentes na rotacao para responder a habilidades condicionais telegraficas.
@@ -59,6 +73,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 153.5 concluida: QA real no Tauri/SQLite validou reservas, cooldowns, reload e catch-up offline em 44/44 checks, com restauracao integral do save.
 - Etapa 153 concluida: telegraphs condicionais de Boss agora reservam wards e cleanses reais da rotacao, respeitando escopo, alvo, cooldown e disponibilidade.
 - Etapa 152.5 concluida: QA real no Tauri/SQLite validou agenda de casts, transicoes, reload e catch-up offline em 37/37 checks, com restauracao integral do save.
 - Etapa 152 concluida: habilidades de Boss agora possuem casts temporais deterministas, telegraph central, alvo visivel, cooldown, timeline e condicoes exclusivas resolvidas uma vez por cast.
