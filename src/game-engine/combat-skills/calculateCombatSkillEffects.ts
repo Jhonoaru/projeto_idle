@@ -12,7 +12,11 @@ import type {
   CombatSkillTarget,
 } from "../../shared/types";
 import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
-import { calculateIncomingConditionDefense } from "./calculateIncomingConditionDefense";
+import {
+  calculateIncomingConditionDefense,
+  calculatePartyIncomingConditionDefense,
+  type IncomingConditionDefenseProfile,
+} from "./calculateIncomingConditionDefense";
 
 const MAX_ATTACK_BONUS_PERCENT = 8;
 const MAX_DEATH_RISK_REDUCTION_PERCENT = 10;
@@ -26,10 +30,11 @@ export function calculateCombatSkillEffects(
   action: CharacterAction | undefined,
   elapsedMs: number,
   options: CombatSkillEffectOptions = {},
+  incomingConditionDefenseOverride?: IncomingConditionDefenseProfile,
 ): CombatSkillEffectSummary {
   const durationMinutes = normalizeDurationMinutes(elapsedMs);
   const rotation = simulateCombatSkillRotation(character, action, elapsedMs);
-  const incomingConditionDefense = calculateIncomingConditionDefense(
+  const incomingConditionDefense = incomingConditionDefenseOverride ?? calculateIncomingConditionDefense(
     character,
     rotation,
     elapsedMs,
@@ -268,14 +273,36 @@ export function calculatePartyCombatSkillEffects(
   const supportTargets = normalizeTargets(options.supportTargets).length > 0
     ? options.supportTargets
     : characters.map((character) => ({ id: character.id, name: character.name, kind: "ally" as const }));
-  const members = characters.map((character) => ({
-    characterId: character.id,
-    characterName: character.name,
-    effects: calculateCombatSkillEffects(character, character.currentAction, elapsedMs, {
+  const rotations = new Map(characters.map((character) => [
+    character.id,
+    simulateCombatSkillRotation(character, character.currentAction, elapsedMs),
+  ]));
+  const partyConditionDefense = calculatePartyIncomingConditionDefense(
+    characters.map((character) => ({
+      character,
+      rotation: rotations.get(character.id)!,
+      targets: normalizeTargets(options.attackTargets),
+    })),
+    elapsedMs,
+  );
+  const members = characters.map((character) => {
+    const effects = calculateCombatSkillEffects(character, character.currentAction, elapsedMs, {
       ...options,
       supportTargets,
-    }),
-  }));
+    }, partyConditionDefense.profilesByCharacterId[character.id]);
+    return {
+      characterId: character.id,
+      characterName: character.name,
+      effects: {
+        ...effects,
+        entries: effects.entries.map((entry) => ({
+          ...entry,
+          conditionsCleansed: partyConditionDefense.cleansedBySourceSkillKey[`${character.id}::${entry.skillId}`] ?? 0,
+          conditionProtectionUptimeSeconds: partyConditionDefense.protectionUptimeSecondsBySourceSkillKey[`${character.id}::${entry.skillId}`] ?? 0,
+        })),
+      },
+    };
+  });
   const divisor = Math.max(1, members.length);
   const totalAttacks = members.reduce((sum, member) => sum + member.effects.totalAttacks, 0);
   const totalHits = members.reduce((sum, member) => sum + member.effects.totalHits, 0);
@@ -350,6 +377,7 @@ export function calculatePartyCombatSkillEffects(
     averageConditionProtectionPercent: weightedMemberMetric(members, "averageConditionProtectionPercent", "incomingConditionAttempts"),
     conditionDefenseRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionDefenseRiskReductionPercent, 0) / divisor),
     incomingConditions,
+    conditionSupportContributions: partyConditionDefense.contributions,
     members,
   };
 }

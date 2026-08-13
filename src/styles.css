@@ -16318,3 +16318,39 @@ html[data-client-motion="reduced"] .combat-effect-layer.is-resolved .combat-effe
 }
 
 html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation: none; transform: scaleX(1); }
+.party-condition-support-strip {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1px;
+  margin-top: 8px;
+  border: 1px solid #66552d;
+  background: #66552d;
+}
+
+.party-condition-support-strip > strong,
+.party-condition-support-strip > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 10px;
+  background: #111713;
+}
+
+.party-condition-support-strip > strong {
+  color: #e5c96f;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.party-condition-support-strip b {
+  overflow-wrap: anywhere;
+  color: #f0dfaa;
+}
+
+.party-condition-support-strip small {
+  color: #aeb9ad;
+}
+@media (max-width: 600px) {
+  .party-condition-support-strip { grid-template-columns: 1fr; }
+}

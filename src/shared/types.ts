@@ -1194,6 +1194,14 @@ export interface CombatConditionSupportEffect {
   cleanseCount?: number;
   protectionPercent?: number;
   protectionDurationSeconds?: number;
+  scope?: "self" | "party";
+}
+
+export interface CombatPartyConditionSupportContribution {
+  characterId: string;
+  characterName: string;
+  cleansed: number;
+  protectionUptimeSeconds: number;
 }
 
 export interface CombatConditionSummary {
@@ -1417,6 +1425,7 @@ export interface CombatSkillPartyEffectSummary {
   averageConditionProtectionPercent: number;
   conditionDefenseRiskReductionPercent: number;
   incomingConditions: IncomingCombatConditionSummary[];
+  conditionSupportContributions: CombatPartyConditionSupportContribution[];
   members: Array<{
     characterId: string;
     characterName: string;

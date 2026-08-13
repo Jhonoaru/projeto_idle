@@ -112,6 +112,17 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
         <ReportMetric label="Party Prevented" value={effects.totalDamagePrevented + effects.blockedDamage} detail={`${effects.blockedDamage.toLocaleString("en-US")} blocked / ${effects.incomingConditionPrevented} conditions prevented / ${effects.incomingConditionsCleansed} cleansed`} />
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits / ${effects.totalConditionApplications} conditions`} />
       </div>
+      {effects.conditionSupportContributions.some((contribution) => contribution.cleansed > 0 || contribution.protectionUptimeSeconds > 0) ? (
+        <div className="party-condition-support-strip" aria-label="Shared party condition support">
+          <strong>Party Condition Support</strong>
+          {effects.conditionSupportContributions.map((contribution) => (
+            <span key={contribution.characterId}>
+              <b>{contribution.characterName}</b>
+              <small>{contribution.cleansed} cleansed / {formatSupportUptime(contribution.protectionUptimeSeconds)} ward coverage</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
       {effects.members.map((member) => (
         <section key={member.characterId}>
           <header>
@@ -123,6 +134,14 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
       ))}
     </div>
   );
+}
+
+function formatSupportUptime(seconds: number) {
+  const roundedSeconds = Math.round(seconds);
+  if (roundedSeconds < 60) return `${roundedSeconds}s`;
+  const minutes = Math.floor(roundedSeconds / 60);
+  const remainingSeconds = roundedSeconds % 60;
+  return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
 }
 
 function ReportMetric({ label, value, detail }: { label: string; value: number; detail?: string }) {

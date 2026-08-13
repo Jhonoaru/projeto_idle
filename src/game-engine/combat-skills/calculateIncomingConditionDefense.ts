@@ -2,6 +2,7 @@ import { combatSkills } from "../../data/combatSkills";
 import type {
   Character,
   CombatConditionType,
+  CombatPartyConditionSupportContribution,
   CombatSkillRotationSummary,
   CombatSkillTarget,
   IncomingCombatConditionSummary,
@@ -9,14 +10,32 @@ import type {
 
 const MAX_PROTECTION_PERCENT = 35;
 const MAX_RISK_REDUCTION_PERCENT = 3;
+const MAX_DURATION_MS = 8 * 60 * 60_000;
 
 interface SupportEvent {
-  sequence: number;
+  key: string;
   skillId: string;
+  sourceCharacterId: string;
+  sourceCharacterName: string;
   occurredAtMs: number;
   cleanseCount: number;
   protectionPercent: number;
   protectionDurationMs: number;
+  scope: "self" | "party";
+}
+
+interface DefenseParticipant {
+  character: Character;
+  rotation: CombatSkillRotationSummary;
+  targets: CombatSkillTarget[];
+}
+
+interface ConditionAttempt {
+  character: Character;
+  target: CombatSkillTarget;
+  attackIndex: number;
+  occurredAtMs: number;
+  threat: NonNullable<CombatSkillTarget["conditionAttacks"]>[number];
 }
 
 export interface IncomingConditionDefenseProfile {
@@ -35,86 +54,172 @@ export interface IncomingConditionDefenseProfile {
   protectionUptimeSecondsBySkillId: Record<string, number>;
 }
 
+export interface PartyIncomingConditionDefenseResult {
+  profilesByCharacterId: Record<string, IncomingConditionDefenseProfile>;
+  contributions: CombatPartyConditionSupportContribution[];
+  cleansedBySourceSkillKey: Record<string, number>;
+  protectionUptimeSecondsBySourceSkillKey: Record<string, number>;
+}
+
 export function calculateIncomingConditionDefense(
   character: Character,
   rotation: CombatSkillRotationSummary,
   durationMs: number,
   targets: CombatSkillTarget[],
 ): IncomingConditionDefenseProfile {
-  const normalizedDurationMs = Math.max(0, Math.min(8 * 60 * 60_000, Number.isFinite(durationMs) ? durationMs : 0));
-  const eligibleTargets = targets.filter((target) => Array.isArray(target.conditionAttacks) && target.conditionAttacks.length > 0);
-  const supportEvents = getSupportEvents(rotation);
-  const empty = createEmptyProfile(supportEvents, normalizedDurationMs);
-  if (normalizedDurationMs <= 0 || eligibleTargets.length === 0) return empty;
+  return calculateConditionDefenseProfiles(
+    [{ character, rotation, targets }],
+    durationMs,
+  ).profilesByCharacterId[character.id] ?? createEmptyProfile([], normalizeDuration(durationMs), character.id);
+}
 
-  const averageLevel = targets.reduce((sum, target) => sum + bounded(target.level, 1, 500, 1), 0) / Math.max(1, targets.length);
-  const attacksPerMinute = Math.min(15, Math.max(6, 8 + averageLevel * 0.03));
-  const incomingAttacks = Math.min(20_000, Math.max(1, Math.round(normalizedDurationMs / 60_000 * attacksPerMinute)));
-  const cleanseCapacity = new Map(supportEvents.map((event) => [event.sequence, event.cleanseCount]));
-  const byType = new Map<CombatConditionType, IncomingCombatConditionSummary>();
-  const cleansedBySkillId: Record<string, number> = {};
+export function calculatePartyIncomingConditionDefense(
+  participants: DefenseParticipant[],
+  durationMs: number,
+): PartyIncomingConditionDefenseResult {
+  return calculateConditionDefenseProfiles(participants, durationMs);
+}
 
-  for (let attackIndex = 1; attackIndex <= incomingAttacks; attackIndex += 1) {
-    const target = targets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % targets.length];
-    if (!target.conditionAttacks?.length) continue;
-    const occurredAtMs = Math.round((attackIndex - 1) * normalizedDurationMs / incomingAttacks);
-    const rawDamage = getIncomingDamage(character.id, target, attackIndex);
-    const protectionPercent = getProtectionAt(supportEvents, occurredAtMs);
+function calculateConditionDefenseProfiles(
+  participants: DefenseParticipant[],
+  durationMs: number,
+): PartyIncomingConditionDefenseResult {
+  const normalizedDurationMs = normalizeDuration(durationMs);
+  const supportEvents = participants
+    .flatMap(({ character, rotation }) => getSupportEvents(character, rotation))
+    .sort(compareSupportEvents);
+  const profileStates = new Map(participants.map(({ character }) => [character.id, {
+    byType: new Map<CombatConditionType, IncomingCombatConditionSummary>(),
+    cleansedBySkillId: {} as Record<string, number>,
+  }]));
+  const cleanseCapacity = new Map(supportEvents.map((event) => [event.key, event.cleanseCount]));
+  const cleansedBySourceSkillKey: Record<string, number> = {};
+  const attempts = buildAttempts(participants, normalizedDurationMs);
 
-    for (const threat of target.conditionAttacks) {
-      const summary = byType.get(threat.type) ?? incomingSummary(threat.type);
-      summary.attempts += 1;
-      const baseChance = bounded(threat.applicationChancePercent, 0, 100, 0);
-      const effectiveChance = baseChance * (1 - protectionPercent / 100);
-      const roll = deterministicPercent(`${character.id}:${target.id}:${attackIndex}:${threat.type}:incoming-condition`);
-      if (roll >= effectiveChance) {
-        if (roll < baseChance) summary.prevented += 1;
-        byType.set(threat.type, summary);
-        continue;
-      }
-
-      summary.applications += 1;
-      const naturalDurationMs = bounded(threat.durationSeconds, 0, 60, 0) * 1_000;
-      const naturalEndMs = Math.min(normalizedDurationMs, occurredAtMs + naturalDurationMs);
-      const cleanseEvent = findNextCleanse(supportEvents, cleanseCapacity, occurredAtMs, naturalEndMs);
-      const resolvedEndMs = cleanseEvent?.occurredAtMs ?? naturalEndMs;
-      const activeDurationMs = Math.max(0, resolvedEndMs - occurredAtMs);
-      if (cleanseEvent) {
-        summary.cleansed += 1;
-        cleanseCapacity.set(cleanseEvent.sequence, (cleanseCapacity.get(cleanseEvent.sequence) ?? 0) - 1);
-        cleansedBySkillId[cleanseEvent.skillId] = (cleansedBySkillId[cleanseEvent.skillId] ?? 0) + 1;
-      }
-      if (threat.type === "slow") {
-        summary.uptimePercent += activeDurationMs / normalizedDurationMs * 100;
-      } else {
-        const intervalMs = bounded(threat.tickIntervalSeconds, 0.5, 30, 1) * 1_000;
-        const ticks = Math.max(0, Math.floor(activeDurationMs / intervalMs));
-        summary.ticks += ticks;
-        summary.damage += Math.round(rawDamage * bounded(threat.damagePercentPerTick, 0, 10, 0) / 100) * ticks;
-      }
-      byType.set(threat.type, summary);
+  for (const attempt of attempts) {
+    const state = profileStates.get(attempt.character.id);
+    if (!state) continue;
+    const { threat } = attempt;
+    const summary = state.byType.get(threat.type) ?? incomingSummary(threat.type);
+    summary.attempts += 1;
+    const eligibleSupport = supportEvents.filter((event) => canSupport(event, attempt.character.id));
+    const protectionPercent = getProtectionAt(eligibleSupport, attempt.occurredAtMs);
+    const baseChance = bounded(threat.applicationChancePercent, 0, 100, 0);
+    const effectiveChance = baseChance * (1 - protectionPercent / 100);
+    const roll = deterministicPercent(`${attempt.character.id}:${attempt.target.id}:${attempt.attackIndex}:${threat.type}:incoming-condition`);
+    if (roll >= effectiveChance) {
+      if (roll < baseChance) summary.prevented += 1;
+      state.byType.set(threat.type, summary);
+      continue;
     }
+
+    summary.applications += 1;
+    const naturalDurationMs = bounded(threat.durationSeconds, 0, 60, 0) * 1_000;
+    const naturalEndMs = Math.min(normalizedDurationMs, attempt.occurredAtMs + naturalDurationMs);
+    const cleanseEvent = findNextCleanse(
+      eligibleSupport,
+      cleanseCapacity,
+      attempt.occurredAtMs,
+      naturalEndMs,
+    );
+    const resolvedEndMs = cleanseEvent?.occurredAtMs ?? naturalEndMs;
+    const activeDurationMs = Math.max(0, resolvedEndMs - attempt.occurredAtMs);
+    if (cleanseEvent) {
+      summary.cleansed += 1;
+      cleanseCapacity.set(cleanseEvent.key, (cleanseCapacity.get(cleanseEvent.key) ?? 0) - 1);
+      state.cleansedBySkillId[cleanseEvent.skillId] = (state.cleansedBySkillId[cleanseEvent.skillId] ?? 0) + 1;
+      const sourceSkillKey = getSourceSkillKey(cleanseEvent.sourceCharacterId, cleanseEvent.skillId);
+      cleansedBySourceSkillKey[sourceSkillKey] = (cleansedBySourceSkillKey[sourceSkillKey] ?? 0) + 1;
+    }
+    if (threat.type === "slow") {
+      summary.uptimePercent += activeDurationMs / normalizedDurationMs * 100;
+    } else {
+      const intervalMs = bounded(threat.tickIntervalSeconds, 0.5, 30, 1) * 1_000;
+      const ticks = Math.max(0, Math.floor(activeDurationMs / intervalMs));
+      summary.ticks += ticks;
+      const rawDamage = getIncomingDamage(attempt.character.id, attempt.target, attempt.attackIndex);
+      summary.damage += Math.round(rawDamage * bounded(threat.damagePercentPerTick, 0, 10, 0) / 100) * ticks;
+    }
+    state.byType.set(threat.type, summary);
   }
 
+  const protectionUptimeSecondsBySourceSkillKey: Record<string, number> = {};
+  const profilesByCharacterId = Object.fromEntries(participants.map(({ character }) => {
+    const eligibleSupport = supportEvents.filter((event) => canSupport(event, character.id));
+    const state = profileStates.get(character.id)!;
+    const profile = finalizeProfile(state.byType, state.cleansedBySkillId, eligibleSupport, normalizedDurationMs);
+    for (const event of new Set(eligibleSupport.map((entry) => getSourceSkillKey(entry.sourceCharacterId, entry.skillId)))) {
+      const [sourceCharacterId, skillId] = splitSourceSkillKey(event);
+      const seconds = calculateSkillCoverage(eligibleSupport, normalizedDurationMs, sourceCharacterId, skillId);
+      protectionUptimeSecondsBySourceSkillKey[event] = rounded((protectionUptimeSecondsBySourceSkillKey[event] ?? 0) + seconds);
+    }
+    return [character.id, profile];
+  }));
+
+  const contributions = participants.map(({ character }) => {
+    const sourcePrefix = `${character.id}::`;
+    return {
+      characterId: character.id,
+      characterName: character.name,
+      cleansed: sumRecordByPrefix(cleansedBySourceSkillKey, sourcePrefix),
+      protectionUptimeSeconds: rounded(sumRecordByPrefix(protectionUptimeSecondsBySourceSkillKey, sourcePrefix)),
+    };
+  });
+
+  return {
+    profilesByCharacterId,
+    contributions,
+    cleansedBySourceSkillKey,
+    protectionUptimeSecondsBySourceSkillKey,
+  };
+}
+
+function buildAttempts(participants: DefenseParticipant[], durationMs: number): ConditionAttempt[] {
+  if (durationMs <= 0) return [];
+  return participants.flatMap(({ character, targets }) => {
+    const eligibleTargets = targets.filter((target) => target.conditionAttacks?.length);
+    if (eligibleTargets.length === 0) return [];
+    const averageLevel = eligibleTargets.reduce((sum, target) => sum + bounded(target.level, 1, 500, 1), 0) / eligibleTargets.length;
+    const attacksPerMinute = Math.min(15, Math.max(6, 8 + averageLevel * 0.03));
+    const incomingAttacks = Math.min(20_000, Math.max(1, Math.round(durationMs / 60_000 * attacksPerMinute)));
+    return Array.from({ length: incomingAttacks }, (_, index) => {
+      const attackIndex = index + 1;
+      const target = eligibleTargets[stableHash(`${character.id}:${attackIndex}:incoming-target`) % eligibleTargets.length];
+      const occurredAtMs = Math.round(index * durationMs / incomingAttacks);
+      return target.conditionAttacks!.map((threat) => ({ character, target, attackIndex, occurredAtMs, threat }));
+    }).flat();
+  }).sort((left, right) => (
+    left.occurredAtMs - right.occurredAtMs
+    || left.character.id.localeCompare(right.character.id)
+    || left.attackIndex - right.attackIndex
+    || left.threat.type.localeCompare(right.threat.type)
+  ));
+}
+
+function finalizeProfile(
+  byType: Map<CombatConditionType, IncomingCombatConditionSummary>,
+  cleansedBySkillId: Record<string, number>,
+  supportEvents: SupportEvent[],
+  durationMs: number,
+): IncomingConditionDefenseProfile {
   const conditions = [...byType.values()].map((entry) => ({
     ...entry,
     uptimePercent: rounded(Math.min(100, entry.uptimePercent)),
   }));
-  const attempts = conditions.reduce((sum, entry) => sum + entry.attempts, 0);
-  const applications = conditions.reduce((sum, entry) => sum + entry.applications, 0);
-  const prevented = conditions.reduce((sum, entry) => sum + entry.prevented, 0);
-  const cleansed = conditions.reduce((sum, entry) => sum + entry.cleansed, 0);
-  const coverage = calculateProtectionCoverage(supportEvents, normalizedDurationMs);
+  const attempts = sumConditions(conditions, "attempts");
+  const applications = sumConditions(conditions, "applications");
+  const prevented = sumConditions(conditions, "prevented");
+  const cleansed = sumConditions(conditions, "cleansed");
+  const coverage = calculateProtectionCoverage(supportEvents, durationMs);
   const preventionRate = attempts > 0 ? prevented / attempts * 100 : 0;
   const cleanseRate = applications > 0 ? cleansed / applications * 100 : 0;
-
   return {
     attempts,
     applications,
     prevented,
     cleansed,
-    ticks: conditions.reduce((sum, entry) => sum + entry.ticks, 0),
-    damage: conditions.reduce((sum, entry) => sum + entry.damage, 0),
+    ticks: sumConditions(conditions, "ticks"),
+    damage: sumConditions(conditions, "damage"),
     slowUptimePercent: rounded(Math.min(100, conditions.find((entry) => entry.type === "slow")?.uptimePercent ?? 0)),
     protectionUptimePercent: coverage.uptimePercent,
     averageProtectionPercent: coverage.averagePercent,
@@ -125,7 +230,7 @@ export function calculateIncomingConditionDefense(
   };
 }
 
-function getSupportEvents(rotation: CombatSkillRotationSummary): SupportEvent[] {
+function getSupportEvents(character: Character, rotation: CombatSkillRotationSummary): SupportEvent[] {
   return rotation.supportEvents.flatMap((event) => {
     const definition = combatSkills.find((skill) => skill.id === event.skillId && skill.category === "support");
     if (!definition) return [];
@@ -134,8 +239,18 @@ function getSupportEvents(rotation: CombatSkillRotationSummary): SupportEvent[] 
     const protectionPercent = bounded(support.protectionPercent, 0, MAX_PROTECTION_PERCENT, 0);
     const protectionDurationMs = bounded(support.protectionDurationSeconds, 0, 30, 0) * 1_000;
     if (cleanseCount <= 0 && (protectionPercent <= 0 || protectionDurationMs <= 0)) return [];
-    return [{ sequence: event.sequence, skillId: event.skillId, occurredAtMs: event.occurredAtMs, cleanseCount, protectionPercent, protectionDurationMs }];
-  }).sort((left, right) => left.occurredAtMs - right.occurredAtMs || left.sequence - right.sequence);
+    return [{
+      key: `${character.id}:${event.sequence}`,
+      skillId: event.skillId,
+      sourceCharacterId: character.id,
+      sourceCharacterName: character.name,
+      occurredAtMs: event.occurredAtMs,
+      cleanseCount,
+      protectionPercent,
+      protectionDurationMs,
+      scope: support.scope === "party" ? "party" as const : "self" as const,
+    }];
+  });
 }
 
 function calculateProtectionCoverage(events: SupportEvent[], durationMs: number) {
@@ -151,11 +266,13 @@ function calculateProtectionCoverage(events: SupportEvent[], durationMs: number)
     protectedMs += end - start;
     weightedPercentMs += (end - start) * percent;
   }
-  const uptimeSecondsBySkillId: Record<string, number> = {};
-  for (const skillId of new Set(protective.map((event) => event.skillId))) {
-    const intervals = protective.filter((event) => event.skillId === skillId).map((event) => [event.occurredAtMs, Math.min(durationMs, event.occurredAtMs + event.protectionDurationMs)] as const);
-    uptimeSecondsBySkillId[skillId] = rounded(mergedDuration(intervals) / 1_000);
-  }
+  const uptimeSecondsBySkillId = Object.fromEntries([...new Set(protective.map((event) => event.skillId))].map((skillId) => [
+    skillId,
+    rounded(mergedDuration(protective.filter((event) => event.skillId === skillId).map((event) => [
+      event.occurredAtMs,
+      Math.min(durationMs, event.occurredAtMs + event.protectionDurationMs),
+    ] as const)) / 1_000),
+  ]));
   return {
     uptimePercent: durationMs > 0 ? rounded(Math.min(100, protectedMs / durationMs * 100)) : 0,
     averagePercent: protectedMs > 0 ? rounded(weightedPercentMs / protectedMs) : 0,
@@ -163,13 +280,25 @@ function calculateProtectionCoverage(events: SupportEvent[], durationMs: number)
   };
 }
 
-function createEmptyProfile(events: SupportEvent[], durationMs: number): IncomingConditionDefenseProfile {
-  const coverage = calculateProtectionCoverage(events, durationMs);
-  return { attempts: 0, applications: 0, prevented: 0, cleansed: 0, ticks: 0, damage: 0, slowUptimePercent: 0, protectionUptimePercent: coverage.uptimePercent, averageProtectionPercent: coverage.averagePercent, riskReductionPercent: 0, conditions: [], cleansedBySkillId: {}, protectionUptimeSecondsBySkillId: coverage.uptimeSecondsBySkillId };
+function calculateSkillCoverage(events: SupportEvent[], durationMs: number, sourceCharacterId: string, skillId: string) {
+  return mergedDuration(events.filter((event) => (
+    event.sourceCharacterId === sourceCharacterId
+    && event.skillId === skillId
+    && event.protectionPercent > 0
+    && event.protectionDurationMs > 0
+  )).map((event) => [event.occurredAtMs, Math.min(durationMs, event.occurredAtMs + event.protectionDurationMs)] as const)) / 1_000;
+}
+
+function createEmptyProfile(events: SupportEvent[], durationMs: number, characterId: string): IncomingConditionDefenseProfile {
+  return finalizeProfile(new Map(), {}, events.filter((event) => canSupport(event, characterId)), durationMs);
 }
 
 function incomingSummary(type: CombatConditionType): IncomingCombatConditionSummary {
   return { type, attempts: 0, applications: 0, prevented: 0, cleansed: 0, ticks: 0, damage: 0, uptimePercent: 0 };
+}
+
+function canSupport(event: SupportEvent, characterId: string) {
+  return event.scope === "party" || event.sourceCharacterId === characterId;
 }
 
 function getProtectionAt(events: SupportEvent[], occurredAtMs: number) {
@@ -177,23 +306,16 @@ function getProtectionAt(events: SupportEvent[], occurredAtMs: number) {
   for (let index = lowerBoundAfter(events, occurredAtMs) - 1; index >= 0; index -= 1) {
     const event = events[index];
     if (event.occurredAtMs < occurredAtMs - 30_000) break;
-    if (occurredAtMs < event.occurredAtMs + event.protectionDurationMs) {
-      highest = Math.max(highest, event.protectionPercent);
-    }
+    if (occurredAtMs < event.occurredAtMs + event.protectionDurationMs) highest = Math.max(highest, event.protectionPercent);
   }
   return highest;
 }
 
-function findNextCleanse(
-  events: SupportEvent[],
-  capacity: Map<number, number>,
-  occurredAtMs: number,
-  naturalEndMs: number,
-) {
+function findNextCleanse(events: SupportEvent[], capacity: Map<string, number>, occurredAtMs: number, naturalEndMs: number) {
   for (let index = lowerBoundAfter(events, occurredAtMs); index < events.length; index += 1) {
     const event = events[index];
     if (event.occurredAtMs >= naturalEndMs) return undefined;
-    if ((capacity.get(event.sequence) ?? 0) > 0) return event;
+    if ((capacity.get(event.key) ?? 0) > 0) return event;
   }
   return undefined;
 }
@@ -207,6 +329,10 @@ function lowerBoundAfter(events: SupportEvent[], occurredAtMs: number) {
     else high = middle;
   }
   return low;
+}
+
+function compareSupportEvents(left: SupportEvent, right: SupportEvent) {
+  return left.occurredAtMs - right.occurredAtMs || left.key.localeCompare(right.key);
 }
 
 function getIncomingDamage(characterId: string, target: CombatSkillTarget, attackIndex: number) {
@@ -230,6 +356,27 @@ function mergedDuration(intervals: ReadonlyArray<readonly [number, number]>) {
     }
   }
   return total + (end > start ? end - start : 0);
+}
+
+function sumConditions(conditions: IncomingCombatConditionSummary[], key: "attempts" | "applications" | "prevented" | "cleansed" | "ticks" | "damage") {
+  return conditions.reduce((sum, condition) => sum + condition[key], 0);
+}
+
+function getSourceSkillKey(characterId: string, skillId: string) {
+  return `${characterId}::${skillId}`;
+}
+
+function splitSourceSkillKey(key: string) {
+  const separator = key.indexOf("::");
+  return [key.slice(0, separator), key.slice(separator + 2)] as const;
+}
+
+function sumRecordByPrefix(record: Record<string, number>, prefix: string) {
+  return Object.entries(record).reduce((sum, [key, value]) => sum + (key.startsWith(prefix) ? value : 0), 0);
+}
+
+function normalizeDuration(durationMs: number) {
+  return Math.max(0, Math.min(MAX_DURATION_MS, Number.isFinite(durationMs) ? durationMs : 0));
 }
 
 function deterministicPercent(value: string) {

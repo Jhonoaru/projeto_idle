@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 147 concluida: wards e cleanses de party agora protegem aliados em uma linha temporal compartilhada, com cargas unicas, caps seguros, atribuicao por caster e relatorio visual.
 - Etapa 146.5 concluida: QA real no Tauri/SQLite validou cleanse, protecao, snapshots, Boss party e catch-up offline em 46/46 checks, com restauracao integral do save.
 - Etapa 146 concluida: condicoes hostis agora podem ser prevenidas e limpas por skills de suporte, com janelas temporarias, dano residual, risco limitado e relatorios deterministas.
 - Etapa 145.5 concluida: QA real no Tauri/SQLite validou penetracao, snapshots, Boss party e catch-up offline em 37/37 checks, com restauracao integral do save.
@@ -12161,6 +12162,60 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 147 - compartilhamento de protecao e cleanse entre membros da party.
+
+## Etapa 147 - Compartilhamento de protecao e cleanse na party
+
+Status: concluida.
+
+Escopo das skills:
+
+- `CombatConditionSupportEffect` agora declara `scope` como `self` ou `party`.
+- Rallying Standard, Wind Veil, Chrono Veil, Renew, Barkskin Circle e Guardian Mantra atuam na party.
+- Guard Stance, Trailstep, Mana Ward e Centering Breath continuam pessoais.
+- Hunts solo preservam o comportamento anterior, inclusive para skills marcadas como party.
+
+Simulacao compartilhada:
+
+- Boss parties agora processam ataques recebidos e eventos de suporte em uma unica linha temporal deterministica.
+- Uma ward de party protege todos os membros enquanto sua janela esta ativa.
+- Wards simultaneas nao somam: vale o maior percentual ativo, limitado ao cap global de 35%.
+- Cada carga de cleanse e consumida uma unica vez pelo primeiro efeito nocivo elegivel em ordem cronologica.
+- A ordem original dos membros nao altera o resultado final.
+- Cleanse e segundos de ward sao atribuidos ao personagem e a skill que prestaram o suporte.
+
+Relatorios e UI:
+
+- `CombatSkillPartyEffectSummary` inclui contribuicoes defensivas por membro.
+- O relatorio de party ganhou o bloco `Party Condition Support`, com cleanses e cobertura de ward por personagem.
+- A tabela individual da skill do caster mostra toda a contribuicao compartilhada realizada.
+- O log de Boss informa quem compartilhou cleanse e ward coverage.
+- O bloco novo e responsivo e usa o visual compacto existente do client.
+
+Balanceamento validado:
+
+- Barkskin Circle aplicou 25% de protecao e 40% de uptime tanto no caster quanto no aliado.
+- As 41 cargas efetivas de cleanse da fixture foram divididas em 26 no caster e 15 no aliado, sem duplicacao.
+- Guard Stance manteve 12% apenas no caster e 0% no aliado.
+- Barkskin Circle com Guardian Mantra manteve o maior valor ativo, sem somar acima de 30% no caso testado.
+- A reducao de risco permaneceu abaixo do cap de 3%.
+
+Validacao:
+
+- Fixture temporaria passou em 14/14 checks de compartilhamento, escopo pessoal, consumo unico, atribuicao, sobreposicao, caps, determinismo e agregacao.
+- QA visual passou em 1280x900 e 375x812, sem overflow horizontal, sobreposicao ou erros/warnings no console.
+- O bootstrap, a fixture e o servidor temporarios foram removidos.
+- `npm.cmd run build` passou com a fixture e depois da remocao.
+
+Persistencia e limitacoes:
+
+- Nenhuma migration foi necessaria; `scope` pertence aos dados estaticos das skills e o resultado continua derivado do snapshot salvo.
+- O compartilhamento defensivo ocorre em Boss party; hunts ainda sao individuais.
+- Nao ha escolha manual do alvo do cleanse, prioridade configuravel, dispel de Boss ou consumivel de limpeza.
+- Save/Reload e equivalencia do catch-up compartilhado ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 147.5 - QA do suporte defensivo compartilhado no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
