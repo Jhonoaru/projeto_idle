@@ -301,8 +301,15 @@ export function calculatePartyCombatSkillEffects(
       incomingAttacks: phase.members.find((member) => member.characterId === character.id)?.incomingAttacks ?? 0,
       incomingDamageMultiplier: phase.incomingDamageMultiplier,
       conditionChanceMultiplier: phase.conditionChanceMultiplier,
-      phaseConditionAttacks: phase.specialAbility?.conditionAttack
-        ? [phase.specialAbility.conditionAttack]
+      phaseConditionCasts: phase.specialAbility?.conditionAttack
+        ? phase.abilityCasts
+          .filter((cast) => cast.targetCharacterId === character.id)
+          .map((cast) => ({
+            castId: cast.castId,
+            abilityId: cast.abilityId,
+            occurredAtMs: cast.resolvesAtMs,
+            conditionAttack: phase.specialAbility!.conditionAttack!,
+          }))
         : undefined,
     })),
   ]));

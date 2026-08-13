@@ -71,7 +71,7 @@ export function simulateBossFight(
     .map((phase) => {
       const target = phase.members.find((member) => member.primaryTarget);
       const ability = phase.specialAbility
-        ? `, ability ${phase.specialAbility.name}${phase.specialAbility.conditionAttack ? ` [${phase.specialAbility.conditionAttack.type}]` : ""}`
+        ? `, ability ${phase.specialAbility.name}${phase.specialAbility.conditionAttack ? ` [${phase.specialAbility.conditionAttack.type}]` : ""}, ${phase.abilityCasts.length} casts at ${phase.specialAbility.castTimeSeconds}s / ${phase.specialAbility.cooldownSeconds}s cooldown`
         : "";
       return `${phase.phaseName}: ${target?.characterName ?? "no target"} (${phase.incomingAttacks} attacks, ${phase.attackRateMultiplier}x rate, ${phase.incomingDamageMultiplier}x damage, ${phase.conditionChanceMultiplier}x condition${ability})`;
     })

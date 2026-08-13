@@ -15882,6 +15882,29 @@ html[data-client-motion="reduced"] *::after {
 .boss-scene-boss-actor strong { max-width: 180px; font-size: 0.72rem; text-align: center; }
 .boss-scene-boss-actor small { color: #d28d72; font-size: 0.62rem; text-transform: uppercase; }
 
+.boss-ability-telegraph {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  z-index: 7;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 12px;
+  width: min(360px, calc(100% - 32px));
+  padding: 10px 12px;
+  border: 1px solid #b56e45;
+  background: rgba(20, 11, 8, 0.94);
+  box-shadow: 0 0 20px rgba(175, 70, 35, 0.24), inset 0 0 0 1px #563022;
+  transform: translateX(-50%);
+  color: #e8d4b2;
+}
+.boss-ability-telegraph > span { grid-column: 1 / -1; color: #d38d6b; font-size: 0.58rem; text-transform: uppercase; }
+.boss-ability-telegraph > strong { min-width: 0; overflow-wrap: anywhere; color: #f2c36f; font-family: Georgia, serif; font-size: 0.92rem; }
+.boss-ability-telegraph > small { grid-column: 1 / -1; color: #c5b7a2; font-size: 0.62rem; }
+.boss-ability-telegraph > div { height: 7px; overflow: hidden; border: 1px solid #603828; background: #080706; }
+.boss-ability-telegraph > div i { display: block; height: 100%; background: linear-gradient(90deg, #8d3826, #e6a84f); transition: width 0.2s linear; }
+.boss-ability-telegraph > b { align-self: center; color: #efbf69; font-size: 0.68rem; }
+
 .boss-scene-party { position: absolute; top: 40%; left: 20%; width: 220px; height: 230px; }
 .boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
 .boss-scene-party-member strong { margin-top: -3px; color: #f0dd9d; font-size: 0.64rem; }
@@ -15929,6 +15952,7 @@ html[data-client-motion="reduced"] *::after {
   .boss-scene-stage { min-height: 470px; }
   .boss-scene-party { top: 40%; left: 4%; transform: scale(0.72); transform-origin: left center; }
   .boss-scene-boss-actor { top: 28%; right: 7%; transform: scale(0.82); transform-origin: right center; }
+  .boss-ability-telegraph { top: 22%; width: calc(100% - 16px); }
   .boss-scene-stage-status { right: 8px; bottom: 8px; left: 8px; grid-template-columns: 1fr auto; }
   .boss-scene-stage-status > div { grid-column: 1 / -1; grid-row: 2; }
 }

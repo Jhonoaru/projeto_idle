@@ -2,6 +2,19 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 152 - Casts temporais e telegraphs de Boss
+
+- As 15 habilidades de fase dos seis Bosses possuem atraso inicial, tempo de cast e cooldown explicitos.
+- A engine deriva uma agenda deterministica limitada a 100 casts por fase; nada novo e persistido no save e o mesmo snapshot reproduz a mesma agenda no calculo offline.
+- O telegraph aparece no centro da arena com nome, alvo, barra e contagem regressiva. O Raid Analyzer informa `Ready`, `Casting`, `Cooldown` ou `Resolved`.
+- A timeline mostra tempo de cast, cooldown e quantidade de usos de cada fase; o relatorio final registra os mesmos dados sem gerar spam por cast.
+- Burn, poison e slow exclusivos de habilidades nao sao mais tentados em todo ataque da fase: cada um ocorre somente na resolucao do cast e apenas contra o alvo primario daquela fase.
+- Tempos invalidos normalizam para limites seguros: atraso de 0 a 120s, cast de 0,5 a 8s e cooldown de 5 a 180s.
+- QA deterministico temporario passou em 100/100 checks sobre os seis Bosses: 137 casts totais, 90 casts condicionais, IDs unicos, ordem temporal, limites, alvos, ausencia de sobreposicao e preservacao do orcamento de ataques. O harness foi removido apos a validacao.
+- `npm run build` passou; permanece apenas o aviso conhecido do Vite sobre o tamanho do bundle principal.
+- Limitacao atual: casts ainda nao podem ser interrompidos, esquivados ou respondidos manualmente; habilidades sem condicao sao feedback temporal/visual nesta etapa.
+- Proximo passo sugerido: Etapa 152.5 - QA dos casts temporais no Tauri/SQLite, reload e catch-up offline.
+
 ## Stack usada
 
 - Tauri v2 para empacotamento desktop.
@@ -15,6 +28,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 152 concluida: habilidades de Boss agora possuem casts temporais deterministas, telegraph central, alvo visivel, cooldown, timeline e condicoes exclusivas resolvidas uma vez por cast.
 - Etapa 151.5 concluida: QA real no Tauri/SQLite validou habilidades exclusivas, condicoes temporais, reload e catch-up offline em 39/39 checks, com restauracao integral do save.
 - Etapa 151 concluida: todas as fases de Boss agora possuem habilidades especiais nomeadas, com condicoes exclusivas por segmento, normalizacao segura, timeline, Raid Analyzer e logs.
 - Etapa 150.5 concluida: QA real no Tauri/SQLite validou pressao temporal, dano, condicoes, risco, reload e catch-up offline em 32/32 checks, com restauracao integral do save.

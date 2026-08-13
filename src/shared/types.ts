@@ -1373,7 +1373,14 @@ export interface BossIncomingPressureSegment {
   incomingAttacks: number;
   incomingDamageMultiplier: number;
   conditionChanceMultiplier: number;
-  phaseConditionAttacks?: CombatConditionDefinition[];
+  phaseConditionCasts?: BossIncomingConditionCast[];
+}
+
+export interface BossIncomingConditionCast {
+  castId: string;
+  abilityId: string;
+  occurredAtMs: number;
+  conditionAttack: CombatConditionDefinition;
 }
 
 export interface CombatSkillEffectOptions {
@@ -1404,7 +1411,24 @@ export interface BossPhaseAbilityDefinition {
   id: string;
   name: string;
   description: string;
+  initialDelaySeconds?: number;
+  castTimeSeconds?: number;
+  cooldownSeconds?: number;
   conditionAttack?: CombatConditionDefinition;
+}
+
+export interface BossAbilityCastSummary {
+  castId: string;
+  phaseId: string;
+  abilityId: string;
+  abilityName: string;
+  sequence: number;
+  telegraphStartsAtMs: number;
+  resolvesAtMs: number;
+  cooldownEndsAtMs: number;
+  targetCharacterId?: string;
+  targetCharacterName?: string;
+  conditionType?: CombatConditionType;
 }
 
 export interface BossThreatPhaseMemberSummary {
@@ -1429,6 +1453,7 @@ export interface BossThreatPhaseSummary {
   incomingDamageMultiplier: number;
   conditionChanceMultiplier: number;
   specialAbility?: BossPhaseAbilityDefinition;
+  abilityCasts: BossAbilityCastSummary[];
   targetRole?: PartyRole;
   primaryTargetCharacterId?: string;
   members: BossThreatPhaseMemberSummary[];
@@ -1455,6 +1480,7 @@ export interface BossThreatSummary {
   tankAggroControlPercent: number;
   aggroRiskReductionPercent: number;
   targetSwitchCount: number;
+  abilityCasts: BossAbilityCastSummary[];
   phases: BossThreatPhaseSummary[];
   members: BossThreatMemberSummary[];
 }

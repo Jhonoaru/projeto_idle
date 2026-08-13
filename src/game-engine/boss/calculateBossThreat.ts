@@ -1,5 +1,6 @@
 import type {
   Boss,
+  BossAbilityCastSummary,
   BossParty,
   BossPhaseDefinition,
   BossPhaseAbilityDefinition,
@@ -68,6 +69,7 @@ export function calculateBossThreat(
       tankAggroControlPercent: 0,
       aggroRiskReductionPercent: 0,
       targetSwitchCount: 0,
+      abilityCasts: [],
       phases: [],
       members: [],
     };
@@ -114,17 +116,27 @@ export function calculateBossThreat(
     if (primary) primary.primaryTarget = true;
     const startPercent = rounded(elapsedPercent);
     elapsedPercent += phase.durationPercent;
+    const endPercent = rounded(Math.min(100, elapsedPercent));
+    const abilityCasts = buildAbilityCasts(
+      phase,
+      durationMs,
+      startPercent,
+      endPercent,
+      primary?.characterId,
+      primary?.characterName,
+    );
     return {
       phaseId: phase.id,
       phaseName: phase.name,
       description: phase.description,
       startPercent,
-      endPercent: rounded(Math.min(100, elapsedPercent)),
+      endPercent,
       incomingAttacks: phaseAttacks,
       attackRateMultiplier: phase.attackRateMultiplier,
       incomingDamageMultiplier: phase.incomingDamageMultiplier,
       conditionChanceMultiplier: phase.conditionChanceMultiplier,
       specialAbility: phase.specialAbility,
+      abilityCasts,
       targetRole: hasPreferredRole ? phase.targetRole : undefined,
       primaryTargetCharacterId: primary?.characterId,
       members: phaseMembers,
@@ -186,6 +198,7 @@ export function calculateBossThreat(
     tankAggroControlPercent,
     aggroRiskReductionPercent,
     targetSwitchCount,
+    abilityCasts: phaseSummaries.flatMap((phase) => phase.abilityCasts),
     phases: phaseSummaries,
     members,
   };
@@ -230,8 +243,49 @@ function normalizePhaseAbility(ability?: BossPhaseAbilityDefinition): BossPhaseA
     id: ability.id.trim(),
     name: ability.name.trim(),
     description: typeof ability.description === "string" ? ability.description.trim() : "",
+    initialDelaySeconds: normalizeFinite(ability.initialDelaySeconds, 0, 120, 5),
+    castTimeSeconds: normalizeFinite(ability.castTimeSeconds, 0.5, 8, 2),
+    cooldownSeconds: normalizeFinite(ability.cooldownSeconds, 5, 180, 30),
     conditionAttack: normalizePhaseCondition(ability.conditionAttack),
   };
+}
+
+function buildAbilityCasts(
+  phase: NormalizedBossPhase,
+  durationMs: number,
+  startPercent: number,
+  endPercent: number,
+  targetCharacterId?: string,
+  targetCharacterName?: string,
+): BossAbilityCastSummary[] {
+  const ability = phase.specialAbility;
+  if (!ability || durationMs <= 0) return [];
+  const phaseStartMs = durationMs * startPercent / 100;
+  const phaseEndMs = durationMs * endPercent / 100;
+  const castTimeMs = (ability.castTimeSeconds ?? 2) * 1_000;
+  const cooldownMs = (ability.cooldownSeconds ?? 30) * 1_000;
+  let telegraphStartsAtMs = phaseStartMs + (ability.initialDelaySeconds ?? 5) * 1_000;
+  const casts: BossAbilityCastSummary[] = [];
+  while (casts.length < 100) {
+    const resolvesAtMs = telegraphStartsAtMs + castTimeMs;
+    if (resolvesAtMs > phaseEndMs) break;
+    const sequence = casts.length + 1;
+    casts.push({
+      castId: `${phase.id}:${ability.id}:${sequence}`,
+      phaseId: phase.id,
+      abilityId: ability.id,
+      abilityName: ability.name,
+      sequence,
+      telegraphStartsAtMs: Math.round(telegraphStartsAtMs),
+      resolvesAtMs: Math.round(resolvesAtMs),
+      cooldownEndsAtMs: Math.round(Math.min(phaseEndMs, resolvesAtMs + cooldownMs)),
+      targetCharacterId,
+      targetCharacterName,
+      conditionType: ability.conditionAttack?.type,
+    });
+    telegraphStartsAtMs = resolvesAtMs + cooldownMs;
+  }
+  return casts;
 }
 
 function normalizePhaseCondition(condition: BossPhaseAbilityDefinition["conditionAttack"]) {

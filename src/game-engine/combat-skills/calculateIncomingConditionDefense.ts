@@ -188,15 +188,16 @@ function calculateConditionDefenseProfiles(
 function buildAttempts(participants: DefenseParticipant[], durationMs: number): ConditionAttempt[] {
   if (durationMs <= 0) return [];
   return participants.flatMap(({ character, targets, incomingAttackCount, incomingDamageMultiplier, conditionChanceMultiplier, pressureSegments }) => {
-    const hasPhaseConditions = pressureSegments?.some((segment) => segment.phaseConditionAttacks?.length);
+    const hasPhaseConditions = pressureSegments?.some((segment) => segment.phaseConditionCasts?.length);
     const eligibleTargets = hasPhaseConditions ? targets : targets.filter((target) => target.conditionAttacks?.length);
     if (eligibleTargets.length === 0) return [];
     const incomingAttacks = Number.isFinite(incomingAttackCount)
       ? Math.max(0, Math.floor(incomingAttackCount ?? 0))
       : calculateIncomingAttackCount(durationMs, eligibleTargets);
-    const segments = normalizePressureSegments(pressureSegments, incomingAttacks, incomingDamageMultiplier, conditionChanceMultiplier);
+    const segments = normalizePressureSegments(pressureSegments, incomingAttacks, durationMs, incomingDamageMultiplier, conditionChanceMultiplier);
     const attempts: ConditionAttempt[] = [];
     let globalAttackIndex = 0;
+    let globalCastIndex = 0;
     for (const segment of segments) {
       const phaseStartMs = durationMs * segment.startPercent / 100;
       const phaseDurationMs = durationMs * Math.max(0, segment.endPercent - segment.startPercent) / 100;
@@ -204,22 +205,32 @@ function buildAttempts(participants: DefenseParticipant[], durationMs: number): 
         globalAttackIndex += 1;
         const target = eligibleTargets[stableHash(`${character.id}:${globalAttackIndex}:incoming-target`) % eligibleTargets.length];
         const occurredAtMs = Math.round(phaseStartMs + localIndex * phaseDurationMs / Math.max(1, segment.incomingAttacks));
-        const conditionAttacks = [
-          ...(target.conditionAttacks ?? []).map((threat, index) => ({ threat, sourceKey: `base:${index}` })),
-          ...(segment.phaseConditionAttacks ?? []).map((threat, index) => ({ threat, sourceKey: `phase:${segment.phaseId}:${index}` })),
-        ];
-        for (const { threat, sourceKey } of conditionAttacks) {
+        for (const [index, threat] of (target.conditionAttacks ?? []).entries()) {
           attempts.push({
             character,
             target,
             attackIndex: globalAttackIndex,
             occurredAtMs,
             threat,
-            sourceKey,
+            sourceKey: `base:${index}`,
             incomingDamageMultiplier: segment.incomingDamageMultiplier,
             conditionChanceMultiplier: segment.conditionChanceMultiplier,
           });
         }
+      }
+      for (const cast of segment.phaseConditionCasts ?? []) {
+        globalCastIndex += 1;
+        const target = eligibleTargets[stableHash(`${character.id}:${cast.castId}:incoming-cast-target`) % eligibleTargets.length];
+        attempts.push({
+          character,
+          target,
+          attackIndex: incomingAttacks + globalCastIndex,
+          occurredAtMs: cast.occurredAtMs,
+          threat: cast.conditionAttack,
+          sourceKey: `cast:${cast.castId}`,
+          incomingDamageMultiplier: segment.incomingDamageMultiplier,
+          conditionChanceMultiplier: segment.conditionChanceMultiplier,
+        });
       }
     }
     return attempts;
@@ -234,6 +245,7 @@ function buildAttempts(participants: DefenseParticipant[], durationMs: number): 
 function normalizePressureSegments(
   segments: BossIncomingPressureSegment[] | undefined,
   incomingAttacks: number,
+  durationMs: number,
   incomingDamageMultiplier?: number,
   conditionChanceMultiplier?: number,
 ): BossIncomingPressureSegment[] {
@@ -252,7 +264,7 @@ function normalizePressureSegments(
       endPercent: bounded(segment.endPercent, 0, 100, 100),
       incomingDamageMultiplier: bounded(segment.incomingDamageMultiplier, 0.75, 1.5, 1),
       conditionChanceMultiplier: bounded(segment.conditionChanceMultiplier, 0.5, 1.5, 1),
-      phaseConditionAttacks: normalizePhaseConditionAttacks(segment.phaseConditionAttacks),
+      phaseConditionCasts: normalizePhaseConditionCasts(segment.phaseConditionCasts, durationMs),
     }));
   }
   return [{
@@ -265,26 +277,50 @@ function normalizePressureSegments(
   }];
 }
 
-function normalizePhaseConditionAttacks(attacks: CombatConditionDefinition[] | undefined): CombatConditionDefinition[] {
-  const normalized: CombatConditionDefinition[] = [];
-  for (const condition of attacks ?? []) {
+function normalizePhaseConditionCasts(
+  casts: BossIncomingPressureSegment["phaseConditionCasts"],
+  durationMs: number,
+): NonNullable<BossIncomingPressureSegment["phaseConditionCasts"]> {
+  const normalized: NonNullable<BossIncomingPressureSegment["phaseConditionCasts"]> = [];
+  const castIds = new Set<string>();
+  for (const cast of casts ?? []) {
+    if (!cast
+      || typeof cast.castId !== "string"
+      || !cast.castId
+      || castIds.has(cast.castId)
+      || typeof cast.abilityId !== "string"
+      || !cast.abilityId
+      || !Number.isFinite(cast.occurredAtMs)
+    ) continue;
+    const condition = cast.conditionAttack;
     if (!condition || !["burn", "poison", "slow"].includes(condition.type)) continue;
+    castIds.add(cast.castId);
     const durationSeconds = bounded(condition.durationSeconds, 0.5, 30, 1);
     if (condition.type === "slow") {
       normalized.push({
-        type: condition.type,
-        applicationChancePercent: bounded(condition.applicationChancePercent, 0, 60, 0),
-        durationSeconds,
-        potencyPercent: bounded(condition.potencyPercent, 0, 40, 0),
+        castId: cast.castId,
+        abilityId: cast.abilityId,
+        occurredAtMs: bounded(cast.occurredAtMs, 0, durationMs, 0),
+        conditionAttack: {
+          type: condition.type,
+          applicationChancePercent: bounded(condition.applicationChancePercent, 0, 60, 0),
+          durationSeconds,
+          potencyPercent: bounded(condition.potencyPercent, 0, 40, 0),
+        },
       });
       continue;
     }
     normalized.push({
-      type: condition.type,
-      applicationChancePercent: bounded(condition.applicationChancePercent, 0, 60, 0),
-      durationSeconds,
-      tickIntervalSeconds: bounded(condition.tickIntervalSeconds, 0.5, 30, 1),
-      damagePercentPerTick: bounded(condition.damagePercentPerTick, 0, 8, 0),
+      castId: cast.castId,
+      abilityId: cast.abilityId,
+      occurredAtMs: bounded(cast.occurredAtMs, 0, durationMs, 0),
+      conditionAttack: {
+        type: condition.type,
+        applicationChancePercent: bounded(condition.applicationChancePercent, 0, 60, 0),
+        durationSeconds,
+        tickIntervalSeconds: bounded(condition.tickIntervalSeconds, 0.5, 30, 1),
+        damagePercentPerTick: bounded(condition.damagePercentPerTick, 0, 8, 0),
+      },
     });
   }
   return normalized;
