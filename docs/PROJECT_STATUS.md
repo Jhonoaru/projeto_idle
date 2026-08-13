@@ -2,6 +2,21 @@
 
 Atualizado em: 2026-08-13
 
+## Etapa 152.5 - QA dos casts temporais no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
+- A rodada limpa passou em 37/37 checks sobre os seis Bosses, 15 fases, IDs de habilidade, tempos limitados, casts da Ember Matriarch, alvos e transicoes exatas `idle > telegraphing > cooldown`.
+- Quatro membros da raid foram salvos e recarregados como `bossing`, preservando roles, party e loadouts; o fingerprint completo de casts e combate permaneceu identico.
+- `current_action_json` nao armazenou `abilityCasts` nem `specialAbility`: a agenda continuou derivada deterministicamente do catalogo, sem ampliar ou fragilizar saves antigos.
+- Acoes expiradas produziram quatro reports, `readyToResolve`, timestamp estavel e nenhuma recompensa antes da coleta manual.
+- O estado pronto sobreviveu a novo Save/Reload e uma segunda aplicacao do catch-up foi idempotente, sem reports, rewards ou mutacoes duplicadas.
+- Gold, Renown, XP, inventarios e Guild Depot permaneceram inalterados durante save, reload e catch-up.
+- A primeira rodada de diagnostico foi descartada em 18/19 checks: o fixture elevava level sem recalcular atributos em memoria, enquanto o reload os normalizava corretamente. O fixture foi corrigido sem alteracao no codigo de produto.
+- A rodada valida terminou com 37/37; a tentativa posterior de fechar a janela por API foi negada pela capability Tauri, depois de todos os checks, e o processo foi encerrado externamente com seguranca.
+- O banco original foi restaurado com 86.016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`; WAL, SHM, tabela, harness e bootstrap temporarios foram removidos.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 153 - respostas defensivas automaticas aos telegraphs de Boss.
+
 ## Etapa 152 - Casts temporais e telegraphs de Boss
 
 - As 15 habilidades de fase dos seis Bosses possuem atraso inicial, tempo de cast e cooldown explicitos.
@@ -28,6 +43,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 152.5 concluida: QA real no Tauri/SQLite validou agenda de casts, transicoes, reload e catch-up offline em 37/37 checks, com restauracao integral do save.
 - Etapa 152 concluida: habilidades de Boss agora possuem casts temporais deterministas, telegraph central, alvo visivel, cooldown, timeline e condicoes exclusivas resolvidas uma vez por cast.
 - Etapa 151.5 concluida: QA real no Tauri/SQLite validou habilidades exclusivas, condicoes temporais, reload e catch-up offline em 39/39 checks, com restauracao integral do save.
 - Etapa 151 concluida: todas as fases de Boss agora possuem habilidades especiais nomeadas, com condicoes exclusivas por segmento, normalizacao segura, timeline, Raid Analyzer e logs.
