@@ -15,6 +15,7 @@ Atualizado em: 2026-08-13
 
 ## Status recente
 
+- Etapa 149 concluida: Bosses agora possuem fases temporais deterministicas, prioridades de alvo por role, trocas de aggro e timeline integrada ao briefing, arena e relatorio.
 - Etapa 148.5 concluida: QA real no Tauri/SQLite validou threat, aggro, risco individual e catch-up offline em 50/50 checks, com restauracao integral do save.
 
 - Etapa 148 concluida: Boss parties agora possuem threat e aggro reais, com um orçamento unico de ataques distribuido por role, risco individual, tank control e relatorios responsivos.
@@ -12372,6 +12373,74 @@ Limitacoes:
 Proximo passo sugerido:
 
 - Etapa 149 - fases de Boss e troca temporal de alvo/aggro.
+
+## Etapa 149 - Fases de Boss e troca temporal de alvo/aggro
+
+Status: concluida.
+
+Modelo de fases:
+
+- Os seis Bosses atuais receberam duas ou tres fases com nome, descricao, duracao percentual e prioridade opcional de alvo por role.
+- Cada fase pode multiplicar o threat de tank, damage, healer ou support entre 1x e 4x.
+- Se a role preferida nao estiver na party, a fase retorna automaticamente para a ordem normal de threat.
+- Fases ausentes, invalidas, com duracao hostil ou IDs duplicados sao normalizadas sem quebrar a simulacao.
+- As fases sao derivadas dos dados do Boss e nao exigem migration ou novo estado persistido.
+
+Orcamento e aggro:
+
+- O volume total de ataques continua unico para toda a luta.
+- O maior resto distribui primeiro o orcamento entre as fases e depois os ataques de cada fase entre os membros.
+- A soma por fase, por membro, por defense e por condicoes permanece exatamente igual ao volume do Boss.
+- Cada fase registra intervalo de progresso, ataques, alvo primario e distribuicao de threat.
+- O resumo agregado recalcula exposicao individual, alvo principal da luta, tank control e reducao de risco.
+- `targetSwitchCount` registra apenas mudancas reais entre alvos primarios consecutivos.
+
+Bosses configurados:
+
+- Sewer Broodmother: Nest Watch e Venom Chase.
+- Grunk the Camp Breaker: Camp Command e Line Breaker.
+- Crypt Warden: Sealed Vigil e Soul Judgment.
+- Khazgrim Gatekeeper: Hold the Gate, Break Formation e Last Stand.
+- Ember Matriarch: Brood Guard, Searing Pursuit e Ashen Frenzy.
+- Novice Arena Champion: Opening Bell, Challenger's Mark e Final Bout.
+
+Integracao visual e relatorios:
+
+- O briefing mostra a timeline projetada, intervalos, alvo de cada fase e quantidade de trocas.
+- A Boss Scene destaca a fase ativa pelo progresso real e mostra fase/alvo atuais no Raid Analyzer.
+- A timeline compacta fica sobre a arena sem cobrir o status; no mobile ela ocupa o topo seguro do palco.
+- O relatorio de skills mostra a mesma timeline agregada.
+- O Boss log registra fases, alvo, ataques por fase e total de trocas.
+
+Balanceamento validado:
+
+- Ember Matriarch manteve o orcamento anterior de 245 ataques.
+- As fases receberam 98, 86 e 61 ataques.
+- Brood Guard distribuiu 46/15/23/14 ataques entre tank/healer/damage/support.
+- Searing Pursuit distribuiu 28/35/14/9 e transferiu o alvo para healer.
+- Ashen Frenzy distribuiu 21/7/26/7 e transferiu o alvo para damage.
+- O agregado ficou em 95/57/63/30 ataques, com 38,78% de tank control e 2,33% de reducao de risco.
+- A sequencia de alvos foi tank, healer e damage, totalizando duas trocas.
+
+Validacao:
+
+- Fixture temporaria passou em 15/15 checks de orcamento, alocacao exata, intervalos, alvos, trocas, finitude, fallback, normalizacao hostil, simulacao e logs.
+- Briefing e Boss Scene passaram em 1280x900 e 375x812 sem overflow horizontal ou sobreposicao incoerente.
+- A arena mobile foi ajustada para manter a timeline longe dos personagens.
+- Console do navegador ficou sem erros ou warnings durante a QA visual.
+- Fixture, bootstrap e servidor temporarios foram removidos.
+- `npm.cmd run build` passou durante a implementacao e depois da integracao visual.
+
+Limitacoes:
+
+- As trocas sao predefinidas pelos dados do Boss; ainda nao existe taunt manual, stealth ou reducao ativa de threat.
+- Morte intermediaria do alvo, provocacao temporaria e mudanca reativa de fase ainda nao alteram a timeline.
+- Fases ainda nao mudam resistencias, skills ou intensidade total de ataques; elas mudam a prioridade temporal de alvo.
+- Save/Reload e equivalencia do catch-up ficam para a QA dedicada.
+
+Proximo passo sugerido:
+
+- Etapa 149.5 - QA das fases de Boss no Tauri/SQLite e offline catch-up.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 

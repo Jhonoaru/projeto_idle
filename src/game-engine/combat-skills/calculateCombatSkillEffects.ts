@@ -285,6 +285,7 @@ export function calculatePartyCombatSkillEffects(
     options.partyRoles ?? {},
     elapsedMs,
     attackTargets,
+    options.bossPhases,
   );
   const partyConditionDefense = calculatePartyIncomingConditionDefense(
     characters.map((character) => ({

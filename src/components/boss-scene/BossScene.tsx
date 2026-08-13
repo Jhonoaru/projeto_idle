@@ -4,6 +4,7 @@ import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossTh
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character } from "../../shared/types";
 import { BossSprite } from "../boss/BossSprite";
+import { BossPhaseTimeline, getActiveBossPhase } from "../boss/BossPhaseTimeline";
 import { CharacterSprite } from "../characters/CharacterSprite";
 import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
 import { CombatSkillRotation } from "../combat-skills/CombatSkillRotation";
@@ -57,6 +58,7 @@ export function BossScene({
     threat,
   }) : undefined;
   const pulse = Math.floor(clock / 1_000) % 3;
+  const activePhase = threat ? getActiveBossPhase(threat, progress) : undefined;
 
   return (
     <section className={`boss-scene ${ready ? "is-ready" : "is-running"}`}>
@@ -89,6 +91,8 @@ export function BossScene({
             <div><dt>Success</dt><dd>{risk ? `${Math.round(risk.successChance * 100)}%` : "-"}</dd></div>
             <div><dt>Death risk</dt><dd>{risk ? `${Math.round(risk.deathChance * 100)}%` : "-"}</dd></div>
             <div><dt>Tank control</dt><dd>{threat ? `${threat.tankAggroControlPercent}%` : "-"}</dd></div>
+            <div><dt>Current phase</dt><dd>{activePhase?.phaseName ?? "-"}</dd></div>
+            <div><dt>Current target</dt><dd>{activePhase?.members.find((member) => member.primaryTarget)?.characterName ?? "-"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
             <div><dt>Gold max</dt><dd>{action.expectedGold?.toLocaleString("en-US") ?? "-"}g</dd></div>
@@ -125,6 +129,7 @@ export function BossScene({
           </div>
           <CombatEffectLayer actors={members} mode="boss" resolved={ready} target={{ x: 76, y: 43 }} />
           <CombatSkillRotation actors={members} elapsedMs={elapsedMs} resolved={ready} />
+          {threat ? <BossPhaseTimeline threat={threat} progressPercent={progress} compact /> : null}
           <div className="boss-scene-stage-status">
             <span>{ready ? "Raid complete" : "Encounter in progress"}</span>
             <div><i style={{ width: `${progress}%` }} /></div>

@@ -20,6 +20,10 @@ export const bosses: Boss[] = [
     defense: 16,
     minDamage: 45,
     maxDamage: 90,
+    phases: [
+      { id: "nest-watch", name: "Nest Watch", durationPercent: 65, description: "The Broodmother holds standard aggro while guarding the nest." },
+      { id: "venom-chase", name: "Venom Chase", durationPercent: 35, description: "The Broodmother pursues the main attacker.", targetRole: "damage", targetThreatMultiplier: 3 },
+    ],
     requirements: {
       requiredLevel: 15,
       requiredAccessIds: ["thaeron-sewers-access"],
@@ -57,6 +61,10 @@ export const bosses: Boss[] = [
     defense: 24,
     minDamage: 90,
     maxDamage: 170,
+    phases: [
+      { id: "camp-command", name: "Camp Command", durationPercent: 55, description: "Grunk tests the party's normal formation." },
+      { id: "line-breaker", name: "Line Breaker", durationPercent: 45, description: "Grunk charges the strongest attacker.", targetRole: "damage", targetThreatMultiplier: 3 },
+    ],
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["mudrot-cave-access"],
@@ -101,6 +109,10 @@ export const bosses: Boss[] = [
     defense: 44,
     minDamage: 160,
     maxDamage: 280,
+    phases: [
+      { id: "sealed-vigil", name: "Sealed Vigil", durationPercent: 60, description: "The Warden follows the established threat order." },
+      { id: "soul-judgment", name: "Soul Judgment", durationPercent: 40, description: "The Warden turns its judgment toward sustain magic.", targetRole: "healer", targetThreatMultiplier: 4 },
+    ],
     requirements: {
       requiredLevel: 35,
       requiredAccessIds: ["ancient-crypt-access"],
@@ -143,6 +155,11 @@ export const bosses: Boss[] = [
     defense: 58,
     minDamage: 230,
     maxDamage: 390,
+    phases: [
+      { id: "hold-the-gate", name: "Hold the Gate", durationPercent: 45, description: "Khazgrim focuses the front line." },
+      { id: "break-formation", name: "Break Formation", durationPercent: 30, description: "Khazgrim marks a damage dealer and leaves the tank.", targetRole: "damage", targetThreatMultiplier: 3 },
+      { id: "last-stand", name: "Last Stand", durationPercent: 25, description: "Khazgrim returns to the tank for a final clash.", targetRole: "tank", targetThreatMultiplier: 2 },
+    ],
     requirements: {
       requiredLevel: 45,
       requiredAccessIds: ["cyclops-hills-access"],
@@ -186,6 +203,11 @@ export const bosses: Boss[] = [
     defense: 76,
     minDamage: 400,
     maxDamage: 700,
+    phases: [
+      { id: "brood-guard", name: "Brood Guard", durationPercent: 40, description: "The Matriarch tests the party's front line." },
+      { id: "searing-pursuit", name: "Searing Pursuit", durationPercent: 35, description: "The Matriarch hunts the party's healer.", targetRole: "healer", targetThreatMultiplier: 4 },
+      { id: "ashen-frenzy", name: "Ashen Frenzy", durationPercent: 25, description: "The Matriarch turns on the main damage dealer.", targetRole: "damage", targetThreatMultiplier: 2.5 },
+    ],
     requirements: {
       requiredLevel: 60,
       requiredAccessIds: ["ember-dragon-nest-access"],
@@ -234,6 +256,11 @@ export const bosses: Boss[] = [
     defense: 34,
     minDamage: 130,
     maxDamage: 230,
+    phases: [
+      { id: "opening-bell", name: "Opening Bell", durationPercent: 50, description: "The Champion follows standard arena aggro." },
+      { id: "challengers-mark", name: "Challenger's Mark", durationPercent: 30, description: "The Champion calls out a damage dealer.", targetRole: "damage", targetThreatMultiplier: 3 },
+      { id: "final-bout", name: "Final Bout", durationPercent: 20, description: "The Champion pressures the party's healer.", targetRole: "healer", targetThreatMultiplier: 4 },
+    ],
     requirements: {
       requiredLevel: 25,
       requiredAccessIds: ["novice-boss-access"],

@@ -16354,6 +16354,7 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
 @media (max-width: 600px) {
   .party-condition-support-strip { grid-template-columns: 1fr; }
 }
+
 .party-threat-strip {
   display: grid;
   grid-template-columns: minmax(180px, 1.1fr) repeat(auto-fit, minmax(155px, 1fr));
@@ -16400,4 +16401,72 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
 
 @media (max-width: 600px) {
   .party-threat-strip { grid-template-columns: 1fr; }
+}
+
+/* Stage 149: deterministic Boss phase and target timeline. */
+.boss-phase-timeline {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 8px 0 10px;
+  padding: 8px;
+  border: 1px solid #4f4931;
+  background: #0d1210;
+}
+
+.boss-phase-timeline > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #aeb7ad;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.boss-phase-timeline > header strong { color: #e6c86e; }
+.boss-phase-timeline > div { display: flex; min-width: 0; gap: 4px; }
+.boss-phase-timeline article {
+  position: relative;
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  padding: 9px 8px 7px;
+  border: 1px solid #303a34;
+  background: #141a17;
+}
+
+.boss-phase-timeline article > i {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  background: #4d564d;
+}
+
+.boss-phase-timeline article.is-complete > i { background: #6f865e; }
+.boss-phase-timeline article.is-active { border-color: #b18d3b; background: #1c1d14; box-shadow: inset 0 0 0 1px #594b28; }
+.boss-phase-timeline article.is-active > i { background: #e0b84f; }
+.boss-phase-timeline article > span { color: #89958c; font-size: 9px; }
+.boss-phase-timeline article > b { margin-top: 3px; overflow-wrap: anywhere; color: #ecd58e; font-size: 11px; }
+.boss-phase-timeline article > small { margin-top: 3px; overflow-wrap: anywhere; color: #b7c2b7; font-size: 9px; text-transform: capitalize; }
+.boss-phase-timeline article > p { margin: 5px 0 0; color: #818b83; font-size: 9px; line-height: 1.35; }
+.boss-phase-timeline.is-compact { margin: 0; padding: 6px; background: rgba(8, 12, 10, 0.92); }
+.boss-phase-timeline.is-compact > header { font-size: 9px; }
+.boss-phase-timeline.is-compact article { min-height: 49px; padding: 7px 6px 5px; }
+
+.boss-scene-stage > .boss-phase-timeline {
+  position: absolute;
+  right: 9%;
+  bottom: 78px;
+  left: 9%;
+  z-index: 6;
+}
+
+@media (max-width: 600px) {
+  .boss-phase-timeline > div { display: grid; grid-template-columns: 1fr; }
+  .boss-phase-timeline.is-compact > div { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .boss-phase-timeline.is-compact article > span { display: none; }
+  .boss-scene-stage > .boss-phase-timeline { top: 38px; right: 8px; bottom: auto; left: 8px; }
 }

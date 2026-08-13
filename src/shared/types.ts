@@ -1371,6 +1371,37 @@ export interface CombatSkillEffectOptions {
   supportTargets?: CombatSkillTarget[];
   partyRoles?: Partial<Record<string, PartyRole>>;
   incomingAttackCountOverride?: number;
+  bossPhases?: BossPhaseDefinition[];
+}
+
+export interface BossPhaseDefinition {
+  id: string;
+  name: string;
+  durationPercent: number;
+  description: string;
+  targetRole?: PartyRole;
+  targetThreatMultiplier?: number;
+}
+
+export interface BossThreatPhaseMemberSummary {
+  characterId: string;
+  characterName: string;
+  role: PartyRole;
+  threatPercent: number;
+  incomingAttacks: number;
+  primaryTarget: boolean;
+}
+
+export interface BossThreatPhaseSummary {
+  phaseId: string;
+  phaseName: string;
+  description: string;
+  startPercent: number;
+  endPercent: number;
+  incomingAttacks: number;
+  targetRole?: PartyRole;
+  primaryTargetCharacterId?: string;
+  members: BossThreatPhaseMemberSummary[];
 }
 
 export interface BossThreatMemberSummary {
@@ -1389,6 +1420,8 @@ export interface BossThreatSummary {
   primaryTargetCharacterId?: string;
   tankAggroControlPercent: number;
   aggroRiskReductionPercent: number;
+  targetSwitchCount: number;
+  phases: BossThreatPhaseSummary[];
   members: BossThreatMemberSummary[];
 }
 
@@ -1802,6 +1835,7 @@ export interface Boss {
   defense?: number;
   minDamage?: number;
   maxDamage?: number;
+  phases?: BossPhaseDefinition[];
   requirements: BossRequirement;
   reward: BossReward;
   tags: string[];

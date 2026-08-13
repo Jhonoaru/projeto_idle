@@ -1,4 +1,5 @@
 import type { CombatSkillEffectSummary, CombatSkillPartyEffectSummary } from "../../shared/types";
+import { BossPhaseTimeline } from "../boss/BossPhaseTimeline";
 
 interface CombatSkillReportProps {
   effects: CombatSkillEffectSummary;
@@ -113,20 +114,23 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
         <ReportMetric label="Mana" value={effects.manaSpent} detail={`${effects.totalCasts} casts / ${effects.totalCriticalHits} crits / ${effects.totalConditionApplications} conditions`} />
       </div>
       {effects.threat.members.length > 0 ? (
-        <div className="party-threat-strip" aria-label="Boss aggro distribution">
-          <div>
-            <span>Boss Aggro</span>
-            <strong>{effects.threat.totalIncomingAttacks.toLocaleString("en-US")} attacks</strong>
-            <small>{effects.threat.tankAggroControlPercent}% tank control / -{effects.threat.aggroRiskReductionPercent}% party risk</small>
+        <>
+          <div className="party-threat-strip" aria-label="Boss aggro distribution">
+            <div>
+              <span>Boss Aggro</span>
+              <strong>{effects.threat.totalIncomingAttacks.toLocaleString("en-US")} attacks</strong>
+              <small>{effects.threat.tankAggroControlPercent}% tank control / -{effects.threat.aggroRiskReductionPercent}% party risk</small>
+            </div>
+            {effects.threat.members.map((member) => (
+              <span className={member.primaryTarget ? "is-primary" : ""} key={member.characterId}>
+                <b>{member.characterName}</b>
+                <small>{roleLabel(member.role)} / {member.threatPercent}% aggro</small>
+                <small>{member.incomingAttacks.toLocaleString("en-US")} attacks / {formatRiskMultiplier(member.deathRiskMultiplier)}</small>
+              </span>
+            ))}
           </div>
-          {effects.threat.members.map((member) => (
-            <span className={member.primaryTarget ? "is-primary" : ""} key={member.characterId}>
-              <b>{member.characterName}</b>
-              <small>{roleLabel(member.role)} / {member.threatPercent}% aggro</small>
-              <small>{member.incomingAttacks.toLocaleString("en-US")} attacks / {formatRiskMultiplier(member.deathRiskMultiplier)}</small>
-            </span>
-          ))}
-        </div>
+          <BossPhaseTimeline threat={effects.threat} />
+        </>
       ) : null}
       {effects.conditionSupportContributions.some((contribution) => contribution.cleansed > 0 || contribution.protectionUptimeSeconds > 0) ? (
         <div className="party-condition-support-strip" aria-label="Shared party condition support">

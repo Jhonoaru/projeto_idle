@@ -2,6 +2,7 @@ import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
 import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossThreat";
 import { canStartBoss } from "../../game-engine/boss/canStartBoss";
 import { GameButton } from "../ui/GameButton";
+import { BossPhaseTimeline } from "./BossPhaseTimeline";
 import type { Boss, BossParty, Character } from "../../shared/types";
 
 interface BossActionPanelProps {
@@ -65,20 +66,23 @@ export function BossActionPanel({
       </div>
 
       {threat.members.length > 0 ? (
-        <div className="party-threat-strip is-preview" aria-label="Projected boss aggro">
-          <div>
-            <span>Projected Aggro</span>
-            <strong>{threat.totalIncomingAttacks.toLocaleString("en-US")} attacks</strong>
-            <small>{threat.tankAggroControlPercent}% tank control / -{threat.aggroRiskReductionPercent}% risk</small>
+        <>
+          <div className="party-threat-strip is-preview" aria-label="Projected boss aggro">
+            <div>
+              <span>Projected Aggro</span>
+              <strong>{threat.totalIncomingAttacks.toLocaleString("en-US")} attacks</strong>
+              <small>{threat.tankAggroControlPercent}% tank control / -{threat.aggroRiskReductionPercent}% risk</small>
+            </div>
+            {threat.members.map((member) => (
+              <span className={member.primaryTarget ? "is-primary" : ""} key={member.characterId}>
+                <b>{member.characterName}</b>
+                <small>{member.role} / {member.threatPercent}%</small>
+                <small>{member.incomingAttacks.toLocaleString("en-US")} incoming</small>
+              </span>
+            ))}
           </div>
-          {threat.members.map((member) => (
-            <span className={member.primaryTarget ? "is-primary" : ""} key={member.characterId}>
-              <b>{member.characterName}</b>
-              <small>{member.role} / {member.threatPercent}%</small>
-              <small>{member.incomingAttacks.toLocaleString("en-US")} incoming</small>
-            </span>
-          ))}
-        </div>
+          <BossPhaseTimeline threat={threat} />
+        </>
       ) : null}
 
       <div className="assignment-summary">
