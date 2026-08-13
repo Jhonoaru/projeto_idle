@@ -1202,6 +1202,25 @@ export interface CombatPartyConditionSupportContribution {
   characterName: string;
   cleansed: number;
   protectionUptimeSeconds: number;
+  telegraphResponses: number;
+}
+
+export interface BossDefensiveResponseSummary {
+  castId: string;
+  abilityId: string;
+  abilityName: string;
+  targetCharacterId: string;
+  targetCharacterName: string;
+  sourceCharacterId: string;
+  sourceCharacterName: string;
+  skillId: string;
+  skillName: string;
+  responseType: "ward" | "cleanse";
+  occurredAtMs: number;
+  cooldownEndsAtMs: number;
+  protectionPercent: number;
+  cleanseCount: number;
+  reservedEventKey: string;
 }
 
 export interface CombatConditionSummary {
@@ -1379,7 +1398,11 @@ export interface BossIncomingPressureSegment {
 export interface BossIncomingConditionCast {
   castId: string;
   abilityId: string;
+  abilityName: string;
+  telegraphStartsAtMs: number;
   occurredAtMs: number;
+  targetCharacterId: string;
+  targetCharacterName: string;
   conditionAttack: CombatConditionDefinition;
 }
 
@@ -1540,6 +1563,7 @@ export interface CombatSkillPartyEffectSummary {
   conditionDefenseRiskReductionPercent: number;
   incomingConditions: IncomingCombatConditionSummary[];
   conditionSupportContributions: CombatPartyConditionSupportContribution[];
+  bossDefensiveResponses: BossDefensiveResponseSummary[];
   threat: BossThreatSummary;
   members: Array<{
     characterId: string;

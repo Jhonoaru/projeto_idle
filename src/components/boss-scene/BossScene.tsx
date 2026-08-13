@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
 import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossThreat";
 import { getBossAbilityCastState } from "../../game-engine/boss/getBossAbilityCastState";
+import { planBossDefensiveResponses } from "../../game-engine/boss/planBossDefensiveResponses";
+import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character } from "../../shared/types";
 import { BossSprite } from "../boss/BossSprite";
@@ -62,6 +64,12 @@ export function BossScene({
   const activePhase = threat ? getActiveBossPhase(threat, progress) : undefined;
   const abilityCast = getBossAbilityCastState(threat, elapsedMs, ready);
   const visibleCast = abilityCast.cast ?? abilityCast.nextCast;
+  const defensiveResponses = threat ? planBossDefensiveResponses(
+    members.map((member) => ({ character: member.character, rotation: simulateCombatSkillRotation(member.character, member.character.currentAction, totalMs) })),
+    threat.abilityCasts,
+    totalMs,
+  ) : [];
+  const activeResponse = abilityCast.cast ? defensiveResponses.find((response) => response.castId === abilityCast.cast?.castId) : undefined;
 
   return (
     <section className={`boss-scene ${ready ? "is-ready" : "is-running"}`}>
@@ -100,6 +108,7 @@ export function BossScene({
             <div><dt>Special ability</dt><dd>{activePhase?.specialAbility?.name ?? "-"}</dd></div>
             <div><dt>Ability state</dt><dd>{formatAbilityState(abilityCast.state, abilityCast.remainingMs)}</dd></div>
             <div><dt>Ability target</dt><dd>{visibleCast?.targetCharacterName ?? "-"}</dd></div>
+            <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
             <div><dt>Gold max</dt><dd>{action.expectedGold?.toLocaleString("en-US") ?? "-"}g</dd></div>
@@ -130,6 +139,7 @@ export function BossScene({
               <span>Boss ability</span>
               <strong>{abilityCast.cast.abilityName}</strong>
               <small>{abilityCast.cast.targetCharacterName ? `Target: ${abilityCast.cast.targetCharacterName}` : "Arena cast"}</small>
+              {activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready</em> : <em>No defensive response ready</em>}
               <div><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
               <b>{formatCastSeconds(abilityCast.remainingMs)}</b>
             </div>

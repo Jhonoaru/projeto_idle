@@ -4,12 +4,15 @@ import type {
   Character,
   CombatConditionDefinition,
   CombatConditionType,
+  BossAbilityCastSummary,
+  BossDefensiveResponseSummary,
   CombatPartyConditionSupportContribution,
   CombatSkillRotationSummary,
   CombatSkillTarget,
   IncomingCombatConditionSummary,
 } from "../../shared/types";
 import { calculateIncomingAttackCount } from "./calculateIncomingAttackCount";
+import { planBossDefensiveResponses } from "../boss/planBossDefensiveResponses";
 
 const MAX_PROTECTION_PERCENT = 35;
 const MAX_RISK_REDUCTION_PERCENT = 3;
@@ -69,6 +72,7 @@ export interface PartyIncomingConditionDefenseResult {
   contributions: CombatPartyConditionSupportContribution[];
   cleansedBySourceSkillKey: Record<string, number>;
   protectionUptimeSecondsBySourceSkillKey: Record<string, number>;
+  responses: BossDefensiveResponseSummary[];
 }
 
 export function calculateIncomingConditionDefense(
@@ -87,18 +91,22 @@ export function calculateIncomingConditionDefense(
 export function calculatePartyIncomingConditionDefense(
   participants: DefenseParticipant[],
   durationMs: number,
+  abilityCasts: BossAbilityCastSummary[] = [],
 ): PartyIncomingConditionDefenseResult {
-  return calculateConditionDefenseProfiles(participants, durationMs);
+  return calculateConditionDefenseProfiles(participants, durationMs, abilityCasts);
 }
 
 function calculateConditionDefenseProfiles(
   participants: DefenseParticipant[],
   durationMs: number,
+  abilityCasts: BossAbilityCastSummary[] = [],
 ): PartyIncomingConditionDefenseResult {
   const normalizedDurationMs = normalizeDuration(durationMs);
-  const supportEvents = participants
+  const baseSupportEvents = participants
     .flatMap(({ character, rotation }) => getSupportEvents(character, rotation))
     .sort(compareSupportEvents);
+  const responses = planBossDefensiveResponses(participants, abilityCasts, normalizedDurationMs);
+  const supportEvents = applyDefensiveResponses(baseSupportEvents, responses).sort(compareSupportEvents);
   const profileStates = new Map(participants.map(({ character }) => [character.id, {
     byType: new Map<CombatConditionType, IncomingCombatConditionSummary>(),
     cleansedBySkillId: {} as Record<string, number>,
@@ -174,6 +182,7 @@ function calculateConditionDefenseProfiles(
       characterName: character.name,
       cleansed: sumRecordByPrefix(cleansedBySourceSkillKey, sourcePrefix),
       protectionUptimeSeconds: rounded(sumRecordByPrefix(protectionUptimeSecondsBySourceSkillKey, sourcePrefix)),
+      telegraphResponses: responses.filter((response) => response.sourceCharacterId === character.id).length,
     };
   });
 
@@ -182,7 +191,23 @@ function calculateConditionDefenseProfiles(
     contributions,
     cleansedBySourceSkillKey,
     protectionUptimeSecondsBySourceSkillKey,
+    responses,
   };
+}
+
+function applyDefensiveResponses(events: SupportEvent[], responses: BossDefensiveResponseSummary[]) {
+  const byReservedKey = new Map(responses.map((response) => [response.reservedEventKey, response]));
+  return events.flatMap((event) => {
+    const response = byReservedKey.get(event.key);
+    if (response) return [{ ...event, occurredAtMs: response.occurredAtMs }];
+    const suppressed = responses.some((entry) => (
+      entry.sourceCharacterId === event.sourceCharacterId
+      && entry.skillId === event.skillId
+      && event.occurredAtMs > entry.occurredAtMs
+      && event.occurredAtMs < entry.cooldownEndsAtMs
+    ));
+    return suppressed ? [] : [event];
+  });
 }
 
 function buildAttempts(participants: DefenseParticipant[], durationMs: number): ConditionAttempt[] {
@@ -290,6 +315,13 @@ function normalizePhaseConditionCasts(
       || castIds.has(cast.castId)
       || typeof cast.abilityId !== "string"
       || !cast.abilityId
+      || typeof cast.abilityName !== "string"
+      || !cast.abilityName
+      || !Number.isFinite(cast.telegraphStartsAtMs)
+      || typeof cast.targetCharacterId !== "string"
+      || !cast.targetCharacterId
+      || typeof cast.targetCharacterName !== "string"
+      || !cast.targetCharacterName
       || !Number.isFinite(cast.occurredAtMs)
     ) continue;
     const condition = cast.conditionAttack;
@@ -300,7 +332,11 @@ function normalizePhaseConditionCasts(
       normalized.push({
         castId: cast.castId,
         abilityId: cast.abilityId,
+        abilityName: cast.abilityName,
+        telegraphStartsAtMs: bounded(cast.telegraphStartsAtMs, 0, durationMs, 0),
         occurredAtMs: bounded(cast.occurredAtMs, 0, durationMs, 0),
+        targetCharacterId: cast.targetCharacterId,
+        targetCharacterName: cast.targetCharacterName,
         conditionAttack: {
           type: condition.type,
           applicationChancePercent: bounded(condition.applicationChancePercent, 0, 60, 0),
@@ -313,7 +349,11 @@ function normalizePhaseConditionCasts(
     normalized.push({
       castId: cast.castId,
       abilityId: cast.abilityId,
+      abilityName: cast.abilityName,
+      telegraphStartsAtMs: bounded(cast.telegraphStartsAtMs, 0, durationMs, 0),
       occurredAtMs: bounded(cast.occurredAtMs, 0, durationMs, 0),
+      targetCharacterId: cast.targetCharacterId,
+      targetCharacterName: cast.targetCharacterName,
       conditionAttack: {
         type: condition.type,
         applicationChancePercent: bounded(condition.applicationChancePercent, 0, 60, 0),

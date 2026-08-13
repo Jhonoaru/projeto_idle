@@ -307,7 +307,11 @@ export function calculatePartyCombatSkillEffects(
           .map((cast) => ({
             castId: cast.castId,
             abilityId: cast.abilityId,
+            abilityName: cast.abilityName,
+            telegraphStartsAtMs: cast.telegraphStartsAtMs,
             occurredAtMs: cast.resolvesAtMs,
+            targetCharacterId: cast.targetCharacterId!,
+            targetCharacterName: cast.targetCharacterName!,
             conditionAttack: phase.specialAbility!.conditionAttack!,
           }))
         : undefined,
@@ -324,6 +328,7 @@ export function calculatePartyCombatSkillEffects(
       pressureSegments: pressureSegmentsByCharacterId[character.id],
     })),
     elapsedMs,
+    threat.abilityCasts,
   );
   const members = characters.map((character) => {
     const effects = calculateCombatSkillEffects(character, character.currentAction, elapsedMs, {
@@ -422,6 +427,7 @@ export function calculatePartyCombatSkillEffects(
     conditionDefenseRiskReductionPercent: rounded(members.reduce((sum, member) => sum + member.effects.conditionDefenseRiskReductionPercent, 0) / divisor),
     incomingConditions,
     conditionSupportContributions: partyConditionDefense.contributions,
+    bossDefensiveResponses: partyConditionDefense.responses,
     threat,
     members,
   };

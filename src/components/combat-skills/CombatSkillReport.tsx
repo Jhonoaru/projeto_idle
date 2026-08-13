@@ -132,13 +132,24 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           <BossPhaseTimeline threat={effects.threat} />
         </>
       ) : null}
-      {effects.conditionSupportContributions.some((contribution) => contribution.cleansed > 0 || contribution.protectionUptimeSeconds > 0) ? (
+      {effects.conditionSupportContributions.some((contribution) => contribution.cleansed > 0 || contribution.protectionUptimeSeconds > 0 || contribution.telegraphResponses > 0) ? (
         <div className="party-condition-support-strip" aria-label="Shared party condition support">
           <strong>Party Condition Support</strong>
           {effects.conditionSupportContributions.map((contribution) => (
             <span key={contribution.characterId}>
               <b>{contribution.characterName}</b>
-              <small>{contribution.cleansed} cleansed / {formatSupportUptime(contribution.protectionUptimeSeconds)} ward coverage</small>
+              <small>{contribution.telegraphResponses} responses / {contribution.cleansed} cleansed / {formatSupportUptime(contribution.protectionUptimeSeconds)} ward coverage</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {effects.bossDefensiveResponses.length > 0 ? (
+        <div className="party-condition-support-strip" aria-label="Automatic Boss telegraph responses">
+          <strong>Telegraph Responses</strong>
+          {effects.bossDefensiveResponses.slice(0, 8).map((response) => (
+            <span key={response.castId}>
+              <b>{response.skillName} / {response.sourceCharacterName}</b>
+              <small>{response.abilityName} on {response.targetCharacterName} / {response.responseType}</small>
             </span>
           ))}
         </div>
