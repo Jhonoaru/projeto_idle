@@ -15,6 +15,7 @@ Atualizado em: 2026-08-11
 
 ## Status recente
 
+- Etapa 147.5 concluida: QA real no Tauri/SQLite validou suporte compartilhado, escopo pessoal, snapshots, Boss log e catch-up offline em 46/46 checks, com restauracao integral do save.
 - Etapa 147 concluida: wards e cleanses de party agora protegem aliados em uma linha temporal compartilhada, com cargas unicas, caps seguros, atribuicao por caster e relatorio visual.
 - Etapa 146.5 concluida: QA real no Tauri/SQLite validou cleanse, protecao, snapshots, Boss party e catch-up offline em 46/46 checks, com restauracao integral do save.
 - Etapa 146 concluida: condicoes hostis agora podem ser prevenidas e limpas por skills de suporte, com janelas temporarias, dano residual, risco limitado e relatorios deterministas.
@@ -12216,6 +12217,57 @@ Persistencia e limitacoes:
 Proximo passo sugerido:
 
 - Etapa 147.5 - QA do suporte defensivo compartilhado no Tauri/SQLite e offline catch-up.
+
+## Etapa 147.5 - QA do suporte defensivo compartilhado no Tauri/SQLite
+
+Status: concluida.
+
+Persistencia validada:
+
+- Tres personagens foram salvos em acoes expiradas contra Ember Matriarch com Barkskin Circle, Guardian Mantra e Guard Stance.
+- Tipo da acao, datas, alvo, duracao, IDs das skills e `supportDisabled: false` sobreviveram ao reload.
+- O fingerprint completo da party permaneceu identico antes do save, depois do reload e depois do catch-up.
+- A leitura direta de `current_action_json` confirmou os tres snapshots, `readyToResolve` e `offlineCompletedAt`.
+- Nenhuma migration nova foi necessaria.
+
+Compartilhamento e escopo:
+
+- Todos os membros receberam as wards compartilhadas salvas.
+- Barkskin Circle e Guardian Mantra mantiveram contribuicoes de cobertura depois do reload.
+- Wards sobrepostas permaneceram limitadas ao maior valor ativo, abaixo de 30% na fixture.
+- O total de cleanses da party coincidiu com a soma dos membros e com a soma atribuida aos casters, sem duplicacao de cargas.
+- As entradas das skills dos casters receberam exatamente a contribuicao compartilhada correspondente.
+- Guard Stance permaneceu em 12% somente no proprio Guardian e 0% nos aliados quando as auras de party foram desativadas.
+- Inverter a ordem dos membros produziu o mesmo fingerprint.
+- Todas as metricas permaneceram finitas e a reducao de risco respeitou o cap de 3%.
+
+Boss e offline catch-up:
+
+- O resultado real de Boss coincidiu com o calculo direto da engine.
+- O log incluiu `Shared condition support` e identificou os casters compartilhados.
+- As tres acoes expiradas foram marcadas como `readyToResolve`, com timestamps e tempo offline corretos.
+- Nenhum gold, XP ou item de depot foi concedido antes da coleta manual.
+- Os snapshots e o fingerprint compartilhado permaneceram intactos apos salvar e recarregar o estado pronto.
+- Uma segunda aplicacao do catch-up nao gerou relatorios, alteracoes ou duplicacao.
+- `last_offline_catchup_at` foi persistido no registro canonico `primary`.
+
+Execucao e restauracao:
+
+- O harness passou em 46/46 checks dentro do WebView Tauri e do SQLite real.
+- A arvore exata do Tauri, Vite, Cargo e WebView usada pela QA foi encerrada depois da leitura dos resultados.
+- O banco original tinha 81.920 bytes e SHA-256 `C8624591018E680FC60126EF6262DD936A81D46BAEC1A088C3422DEEE925ABF0`.
+- Depois da QA, o banco foi restaurado com o mesmo tamanho e hash; backup, WAL e SHM foram removidos.
+- Tabela, fixture e bootstrap temporarios nao permaneceram no produto ou no save.
+- Nenhuma correcao no codigo de produto foi necessaria.
+
+Limitacoes:
+
+- A QA automatizou engine, save/load e catch-up dentro do Tauri; nao repetiu cliques manuais na interface completa.
+- O sistema ainda nao simula threat, aggro ou distribuicao diferenciada de ataques por role da party.
+
+Proximo passo sugerido:
+
+- Etapa 148 - threat, aggro e distribuicao de ataques em Boss parties.
 
 ## Etapa 29.5 - QA de gameplay e balanceamento inicial
 
