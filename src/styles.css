@@ -15976,6 +15976,12 @@ html[data-client-motion="reduced"] *::after {
 .boss-ability-telegraph > em.is-resisted { color: #e5a36e; }
 .boss-ability-telegraph > em.is-dodged { color: #78d8c9; }
 .boss-ability-telegraph > em.is-caught { color: #e58b73; }
+.boss-ability-telegraph.profile-quick { border-color: #b95b51; box-shadow: 0 0 20px rgba(185, 61, 48, 0.22), inset 0 0 0 1px #5b2926; }
+.boss-ability-telegraph.profile-quick > span { color: #e28779; }
+.boss-ability-telegraph.profile-quick > div i { background: linear-gradient(90deg, #b63d36, #e59158); }
+.boss-ability-telegraph.profile-heavy { border-color: #668f89; box-shadow: 0 0 20px rgba(65, 143, 132, 0.2), inset 0 0 0 1px #294b47; }
+.boss-ability-telegraph.profile-heavy > span { color: #87c0b5; }
+.boss-ability-telegraph.profile-heavy > div i { background: linear-gradient(90deg, #397b73, #d8b86a); }
 
 
 .boss-ability-telegraph > div { height: 7px; overflow: hidden; border: 1px solid #603828; background: #080706; }

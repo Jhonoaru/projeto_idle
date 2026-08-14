@@ -116,6 +116,7 @@ export function BossScene({
             <div><dt>Special ability</dt><dd>{activePhase?.specialAbility?.name ?? "-"}</dd></div>
             <div><dt>Ability state</dt><dd>{formatAbilityState(abilityCast.state, abilityCast.remainingMs)}</dd></div>
             <div><dt>Ability target</dt><dd>{visibleCast?.targetCharacterName ?? "-"}</dd></div>
+            <div><dt>Telegraph</dt><dd>{visibleCast ? `${formatTelegraphProfile(visibleCast.telegraphProfile)} / ${visibleCast.dodgeDifficultyPercent}% difficulty` : "-"}</dd></div>
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
             <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : "Not targeted"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
@@ -145,8 +146,8 @@ export function BossScene({
             <small>{ready ? "Defeated" : abilityCast.state === "telegraphing" ? "Casting" : abilityCast.state === "cooldown" ? "Recovering" : ["Watching", "Striking", "Guarding"][pulse]}</small>
           </div>
           {abilityCast.state === "telegraphing" && abilityCast.cast ? (
-            <div className="boss-ability-telegraph" role="status" aria-live="polite">
-              <span>Boss ability</span>
+            <div className={`boss-ability-telegraph profile-${abilityCast.cast.telegraphProfile}`} role="status" aria-live="polite">
+              <span>Boss ability / {formatTelegraphProfile(abilityCast.cast.telegraphProfile)}</span>
               <strong>{abilityCast.cast.abilityName}</strong>
               <small>{abilityCast.cast.targetCharacterName ? `Target: ${abilityCast.cast.targetCharacterName}` : "Arena cast"}</small>
               {activeInterrupt && (!interruptResolved || activeInterrupt.interrupted) ? (
@@ -198,6 +199,10 @@ function formatCastSeconds(milliseconds: number) {
 
 function formatResponsePriority(priority: "automatic" | "prevent" | "recover") {
   return priority === "prevent" ? "Prevent" : priority === "recover" ? "Recover" : "Auto";
+}
+
+function formatTelegraphProfile(profile: "quick" | "focused" | "heavy") {
+  return profile === "quick" ? "Quick" : profile === "heavy" ? "Heavy" : "Focused";
 }
 
 function getActiveParty(

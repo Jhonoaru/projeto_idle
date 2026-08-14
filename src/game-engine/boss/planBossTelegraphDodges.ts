@@ -26,8 +26,10 @@ export function planBossTelegraphDodges(
       const dodgePercent = bounded(character.attributes?.dodgePercent, 0, 30, 0);
       const difficultyPercent = bounded(cast.dodgeDifficultyPercent, 0, 90, 30);
       const reactionWindowSeconds = rounded((cast.resolvesAtMs - cast.telegraphStartsAtMs) / 1_000);
+      const telegraphProfile = normalizeProfile(cast.telegraphProfile);
+      const profileModifierPercent = telegraphProfile === "quick" ? -8 : telegraphProfile === "heavy" ? 8 : 0;
       const successChancePercent = bounded(
-        rounded(dodgePercent * 4 + reactionWindowSeconds * 4 - difficultyPercent * 0.35),
+        rounded(dodgePercent * 4 + reactionWindowSeconds * 4 - difficultyPercent * 0.35 + profileModifierPercent),
         3,
         75,
         3,
@@ -43,6 +45,8 @@ export function planBossTelegraphDodges(
         dodgePercent,
         difficultyPercent,
         reactionWindowSeconds,
+        telegraphProfile,
+        profileModifierPercent,
         successChancePercent,
         rollPercent,
         dodged: rollPercent < successChancePercent,
@@ -69,4 +73,8 @@ function deterministicPercent(value: string) {
 
 function rounded(value: number) {
   return Math.round(value * 100) / 100;
+}
+
+function normalizeProfile(value: unknown) {
+  return value === "quick" || value === "heavy" ? value : "focused";
 }

@@ -1255,6 +1255,8 @@ export interface BossTelegraphDodgeSummary {
   dodgePercent: number;
   difficultyPercent: number;
   reactionWindowSeconds: number;
+  telegraphProfile: BossTelegraphProfile;
+  profileModifierPercent: number;
   successChancePercent: number;
   rollPercent: number;
   dodged: boolean;
@@ -1467,6 +1469,8 @@ export interface BossPhaseDefinition {
   specialAbility?: BossPhaseAbilityDefinition;
 }
 
+export type BossTelegraphProfile = "quick" | "focused" | "heavy";
+
 export interface BossPhaseAbilityDefinition {
   id: string;
   name: string;
@@ -1476,6 +1480,7 @@ export interface BossPhaseAbilityDefinition {
   cooldownSeconds?: number;
   interruptResistancePercent?: number;
   dodgeDifficultyPercent?: number;
+  telegraphProfile?: BossTelegraphProfile;
   conditionAttack?: CombatConditionDefinition;
 }
 
@@ -1490,6 +1495,7 @@ export interface BossAbilityCastSummary {
   cooldownEndsAtMs: number;
   interruptResistancePercent: number;
   dodgeDifficultyPercent: number;
+  telegraphProfile: BossTelegraphProfile;
   targetCharacterId?: string;
   targetCharacterName?: string;
   conditionType?: CombatConditionType;

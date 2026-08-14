@@ -171,7 +171,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossTelegraphDodges.slice(0, 8).map((dodge) => (
             <span key={dodge.castId}>
               <b>{dodge.targetCharacterName} / {dodge.dodged ? "dodged" : "caught"}</b>
-              <small>{dodge.abilityName} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
+              <small>{dodge.abilityName} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
             </span>
           ))}
         </div>
@@ -328,4 +328,12 @@ function elementalClassName(value: number) {
 
 function defenseClassName(value: number) {
   return value > 0 ? " is-armored" : "";
+}
+
+function formatTelegraphProfile(profile: "quick" | "focused" | "heavy") {
+  return profile === "quick" ? "Quick" : profile === "heavy" ? "Heavy" : "Focused";
+}
+
+function formatProfileModifier(value: number) {
+  return value === 0 ? "neutral" : `${value > 0 ? "+" : ""}${value}% reaction`;
 }

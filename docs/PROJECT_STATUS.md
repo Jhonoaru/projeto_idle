@@ -2,6 +2,19 @@
 
 Atualizado em: 2026-08-14
 
+## Etapa 157 - Dificuldades individuais e perfis de telegraph de Boss
+
+- As 15 habilidades de fase dos seis Bosses agora declaram dificuldade individual de esquiva e um perfil visual/mecanico: `Quick`, `Focused` ou `Heavy`.
+- O catalogo possui quatro habilidades `Quick`, cinco `Focused` e seis `Heavy`, com dificuldades entre 18% e 55% adequadas ao ritmo de cada golpe.
+- O perfil modifica a chance real de esquiva: `Quick` aplica -8 pontos percentuais, `Focused` preserva a chance base e `Heavy` aplica +8 pontos percentuais pela janela mais legivel.
+- Perfil ausente ou invalido normaliza para `Focused`; dificuldade invalida usa 30% e valores finitos permanecem limitados entre 0% e 90%.
+- Boss Scene diferencia visualmente os tres telegraphs e mostra perfil, alvo, dificuldade e chance; Raid Analyzer, timeline, relatorio e log final exibem os mesmos dados.
+- O log agregado informa sucessos e tentativas por perfil sem criar uma linha por cast.
+- Save/Load e saves antigos permanecem compativeis porque perfis, casts, rolls e resultados sao derivados do catalogo e do snapshot existente, sem migration SQLite.
+- Um harness temporario passou em 9/9 checks para catalogo, normalizacao, modificadores, limites e determinismo; ele foi removido depois da validacao.
+- QA visual passou em 1440x900 e 390x844. No mobile, telegraphs de 279 px e timeline de 327 px permaneceram dentro do viewport util de 375 px, sem overflow horizontal.
+- Proximo passo sugerido: Etapa 157.5 - QA dos perfis de telegraph no Tauri/SQLite e catch-up offline.
+
 ## Etapa 156.5 - QA da esquiva no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
@@ -161,6 +174,9 @@ Atualizado em: 2026-08-14
 
 ## Status recente
 
+- Etapa 157 concluida: habilidades de Boss agora possuem dificuldade individual e perfis Quick, Focused ou Heavy com impacto real na esquiva, feedback visual e relatorios.
+- Etapa 156.5 concluida: QA real no Tauri/SQLite validou esquivas, cadeia interrupt/dodge/defesa, reload e catch-up offline em 49/49 checks.
+- Etapa 156 concluida: casts telegraficos de Boss agora usam a esquiva real do alvo, com roll deterministico e ordem interrupt > dodge > defesa.
 - Etapa 154.5 concluida: QA real no Tauri/SQLite validou Automatic, Prevent, Recover, isolamento de snapshots e catch-up offline em 45/45 checks.
 - Etapa 154 concluida: loadouts agora configuram respostas de Boss em Automatic, Prevent ou Recover, com snapshot, UI e planner deterministico.
 - Etapa 153.5 concluida: QA real no Tauri/SQLite validou reservas, cooldowns, reload e catch-up offline em 44/44 checks, com restauracao integral do save.

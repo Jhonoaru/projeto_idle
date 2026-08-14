@@ -248,6 +248,7 @@ function normalizePhaseAbility(ability?: BossPhaseAbilityDefinition): BossPhaseA
     cooldownSeconds: normalizeFinite(ability.cooldownSeconds, 5, 180, 30),
     interruptResistancePercent: normalizeFinite(ability.interruptResistancePercent, 0, 90, 35),
     dodgeDifficultyPercent: normalizeFinite(ability.dodgeDifficultyPercent, 0, 90, 30),
+    telegraphProfile: normalizeTelegraphProfile(ability.telegraphProfile),
     conditionAttack: normalizePhaseCondition(ability.conditionAttack),
   };
 }
@@ -283,6 +284,7 @@ function buildAbilityCasts(
       cooldownEndsAtMs: Math.round(Math.min(phaseEndMs, resolvesAtMs + cooldownMs)),
       interruptResistancePercent: ability.interruptResistancePercent ?? 35,
       dodgeDifficultyPercent: ability.dodgeDifficultyPercent ?? 30,
+      telegraphProfile: ability.telegraphProfile ?? "focused",
       targetCharacterId,
       targetCharacterName,
       conditionType: ability.conditionAttack?.type,
@@ -290,6 +292,10 @@ function buildAbilityCasts(
     telegraphStartsAtMs = resolvesAtMs + cooldownMs;
   }
   return casts;
+}
+
+function normalizeTelegraphProfile(value: unknown) {
+  return value === "quick" || value === "heavy" ? value : "focused";
 }
 
 function normalizePhaseCondition(condition: BossPhaseAbilityDefinition["conditionAttack"]) {

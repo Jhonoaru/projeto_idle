@@ -30,7 +30,7 @@ export function BossPhaseTimeline({ threat, progressPercent, compact = false }: 
               <small className="boss-phase-pressure">{formatMultiplier(phase.attackRateMultiplier)} rate / {formatMultiplier(phase.incomingDamageMultiplier)} damage / {formatMultiplier(phase.conditionChanceMultiplier)} condition</small>
               {phase.specialAbility ? (
                 <small className="boss-phase-ability" title={phase.specialAbility.description}>
-                  Ability: {phase.specialAbility.name}{phase.specialAbility.conditionAttack ? ` / ${phase.specialAbility.conditionAttack.type}` : ""} / {formatSeconds(phase.specialAbility.castTimeSeconds)} cast / {phase.specialAbility.interruptResistancePercent}% interrupt resist / {phase.specialAbility.dodgeDifficultyPercent}% dodge difficulty / {formatSeconds(phase.specialAbility.cooldownSeconds)} CD / {phase.abilityCasts.length} uses
+                  Ability: {phase.specialAbility.name}{phase.specialAbility.conditionAttack ? ` / ${phase.specialAbility.conditionAttack.type}` : ""} / {formatProfile(phase.specialAbility.telegraphProfile)} / {formatSeconds(phase.specialAbility.castTimeSeconds)} cast / {phase.specialAbility.interruptResistancePercent}% interrupt resist / {phase.specialAbility.dodgeDifficultyPercent}% dodge difficulty / {formatSeconds(phase.specialAbility.cooldownSeconds)} CD / {phase.abilityCasts.length} uses
                 </small>
               ) : null}
               {!compact ? <p>{phase.description}</p> : null}
@@ -48,6 +48,10 @@ function formatMultiplier(value: number) {
 
 function formatSeconds(value = 0) {
   return `${Number(value.toFixed(1))}s`;
+}
+
+function formatProfile(value: "quick" | "focused" | "heavy" = "focused") {
+  return value === "quick" ? "Quick" : value === "heavy" ? "Heavy" : "Focused";
 }
 
 export function getActiveBossPhase(threat: BossThreatSummary, progressPercent: number) {

@@ -8,6 +8,7 @@ import type {
   BossLootResult,
   BossParty,
   BossSimulationResult,
+  BossTelegraphDodgeSummary,
   Character,
 } from "../../shared/types";
 
@@ -71,7 +72,7 @@ export function simulateBossFight(
     .map((phase) => {
       const target = phase.members.find((member) => member.primaryTarget);
       const ability = phase.specialAbility
-        ? `, ability ${phase.specialAbility.name}${phase.specialAbility.conditionAttack ? ` [${phase.specialAbility.conditionAttack.type}]` : ""}, ${phase.abilityCasts.length} casts at ${phase.specialAbility.castTimeSeconds}s / ${phase.specialAbility.cooldownSeconds}s cooldown`
+        ? `, ability ${phase.specialAbility.name}${phase.specialAbility.conditionAttack ? ` [${phase.specialAbility.conditionAttack.type}]` : ""}, ${phase.specialAbility.telegraphProfile} profile at ${phase.specialAbility.dodgeDifficultyPercent}% dodge difficulty, ${phase.abilityCasts.length} casts at ${phase.specialAbility.castTimeSeconds}s / ${phase.specialAbility.cooldownSeconds}s cooldown`
         : "";
       return `${phase.phaseName}: ${target?.characterName ?? "no target"} (${phase.incomingAttacks} attacks, ${phase.attackRateMultiplier}x rate, ${phase.incomingDamageMultiplier}x damage, ${phase.conditionChanceMultiplier}x condition${ability})`;
     })
@@ -88,7 +89,7 @@ export function simulateBossFight(
     ...(sharedConditionSupport ? [`Shared condition support: ${sharedConditionSupport}.`] : []),
     ...(combatSkillEffects.bossDefensiveResponses.length > 0 ? [`Automatic Boss responses: ${combatSkillEffects.bossDefensiveResponses.length} telegraphs answered with reserved support casts.`] : []),
     ...(combatSkillEffects.bossInterrupts.length > 0 ? [`Boss interrupts: ${combatSkillEffects.bossInterrupts.filter((entry) => entry.interrupted).length}/${combatSkillEffects.bossInterrupts.length} casts interrupted with reserved attack events.`] : []),
-    ...(combatSkillEffects.bossTelegraphDodges.length > 0 ? [`Boss telegraph dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.length} targeted casts avoided.`] : []),
+    ...(combatSkillEffects.bossTelegraphDodges.length > 0 ? [`Boss telegraph dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.length} targeted casts avoided (${formatDodgeProfiles(combatSkillEffects.bossTelegraphDodges)}).`] : []),
     ...(threatReport ? [`Aggro report: ${threatReport}. Tank control ${combatSkillEffects.threat.tankAggroControlPercent}% (-${combatSkillEffects.threat.aggroRiskReductionPercent}% party death risk).`] : []),
     ...(phaseReport ? [`Boss phases: ${phaseReport}. ${combatSkillEffects.threat.targetSwitchCount} target switches.`] : []),
     `Boss loot enviado para o Guild Depot.`,
@@ -144,4 +145,15 @@ function randomInt(random: () => number, min: number, max: number) {
 
 function rounded(value: number) {
   return Number(value.toFixed(2));
+}
+
+function formatDodgeProfiles(entries: BossTelegraphDodgeSummary[]) {
+  return (["quick", "focused", "heavy"] as const)
+    .map((profile) => {
+      const attempts = entries.filter((entry) => entry.telegraphProfile === profile);
+      const dodged = attempts.filter((entry) => entry.dodged).length;
+      return attempts.length > 0 ? `${profile} ${dodged}/${attempts.length}` : "";
+    })
+    .filter(Boolean)
+    .join(", ");
 }
