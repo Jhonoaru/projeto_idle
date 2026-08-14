@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-08-14
 
+## Etapa 157.5 - QA dos perfis de telegraph no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
+- A rodada limpa passou em 28/28 checks com os cinco personagens da guilda contra a Ember Matriarch.
+- Foram reproduzidas 22 tentativas de esquiva: 6 sucessos e 16 acertos, preservados com o fingerprint `8d2e8a51` apos Save/Reload e catch-up offline.
+- As fases da Ember produziram 6 tentativas `Focused`, sem esquivas, e 16 `Heavy`, com 6 esquivas; a Ember nao possui habilidade `Quick`, perfil ja coberto no QA deterministico completo da Etapa 157.
+- Perfil, dificuldade individual, modificador, chance, roll e resultado permaneceram identicos em todas as recomputacoes.
+- A cadeia `interrupt > dodge > defesa` permaneceu valida: casts interrompidos nao tentaram esquiva, casts esquivados nao reservaram defesa e respostas pertenceram somente a casts que atingiram o alvo.
+- O SQLite persistiu os cinco snapshots da acao e suas roles, mas nao armazenou `bossTelegraphDodges`, `rollPercent`, `successChancePercent`, `profileModifierPercent` nem `abilityCasts` derivados.
+- O catch-up marcou os cinco personagens como `readyToResolve`, preservou o fingerprint e permaneceu idempotente na segunda aplicacao, com zero novos reports.
+- Gold, Renown, inventarios e Guild Depot permaneceram inalterados; nenhuma recompensa foi coletada.
+- Duas rodadas preliminares foram descartadas apenas porque o ambiente nao possuia `sqlite3`/Python e a WebView oculta nao permitia leitura verificavel; o save foi restaurado antes da rodada valida.
+- O banco original foi restaurado com 86.016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`; WAL, SHM, tabela, harness, bootstrap e permissao temporaria foram removidos.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 158 - configuracao de comportamento de esquiva por personagem.
+
 ## Etapa 157 - Dificuldades individuais e perfis de telegraph de Boss
 
 - As 15 habilidades de fase dos seis Bosses agora declaram dificuldade individual de esquiva e um perfil visual/mecanico: `Quick`, `Focused` ou `Heavy`.
@@ -174,6 +190,7 @@ Atualizado em: 2026-08-14
 
 ## Status recente
 
+- Etapa 157.5 concluida: QA real no Tauri/SQLite validou perfis, dificuldades, fingerprint, cadeia defensiva, reload e catch-up offline em 28/28 checks.
 - Etapa 157 concluida: habilidades de Boss agora possuem dificuldade individual e perfis Quick, Focused ou Heavy com impacto real na esquiva, feedback visual e relatorios.
 - Etapa 156.5 concluida: QA real no Tauri/SQLite validou esquivas, cadeia interrupt/dodge/defesa, reload e catch-up offline em 49/49 checks.
 - Etapa 156 concluida: casts telegraficos de Boss agora usam a esquiva real do alvo, com roll deterministico e ordem interrupt > dodge > defesa.
