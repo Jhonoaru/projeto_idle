@@ -1,6 +1,21 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-13
+Atualizado em: 2026-08-14
+
+## Etapa 156.5 - QA da esquiva no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
+- A rodada limpa passou em 49/49 checks com os cinco personagens da guilda contra a Ember Matriarch.
+- Foram reproduzidas 23 tentativas de esquiva: 4 sucessos e 19 acertos, preservados com o mesmo fingerprint `134d777e` apos Save/Reload.
+- A cadeia completa permaneceu deterministica: 21 tentativas de interrupcao produziram 14 interrupcoes, casts interrompidos nao tentaram esquiva e casts esquivados nao receberam ward/cleanse.
+- Treze casts que falharam na esquiva mantiveram respostas defensivas validas, sem reservar resposta para casts evitados.
+- O SQLite persistiu party, roles, loadouts e snapshots das acoes, mas nao armazenou `bossTelegraphDodges`, `bossInterrupts`, `rollPercent`, `successChancePercent`, `reservedEventKey` nem `abilityCasts` derivados.
+- O catch-up offline marcou os cinco personagens como `readyToResolve`, preservou o fingerprint de esquiva e permaneceu idempotente na segunda aplicacao, com zero novos reports.
+- Gold, Renown, XP, inventarios e Guild Depot permaneceram inalterados; nenhuma recompensa foi concedida antes da coleta manual.
+- Uma consulta SQL externa adicional falhou por escape de aspas no PowerShell e foi descartada; as mesmas invariantes ja haviam passado dentro dos 49 checks do Tauri.
+- O banco original foi restaurado com 86.016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`; WAL, SHM, tabela, backup, harness e bootstrap temporarios foram removidos.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 157 - dificuldades individuais e perfis de telegraph por habilidade de Boss.
 
 ## Etapa 156 - Esquiva automatica de habilidades telegraficas de Boss
 
