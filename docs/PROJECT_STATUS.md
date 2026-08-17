@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-08-17
 
+## Etapa 158.5 - QA do comportamento de esquiva no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
+- A rodada passou em 32/32 checks com tres personagens reais da guilda contra Khazgrim Gatekeeper, cujas fases cobrem `Heavy`, `Quick` e `Focused`.
+- `Automatic` produziu 27 tentativas, `Safe Windows` produziu 18 tentativas sem nenhum cast `Quick` e `Hold Position` produziu zero tentativas.
+- Chances, rolls e resultados dos casts elegiveis de `Safe Windows` permaneceram identicos aos mesmos casts em `Automatic`.
+- A raid foi iniciada com os snapshots `Automatic`, `Safe Windows` e `Hold Position`; depois, os tres loadouts persistentes foram alterados para `Hold Position` sem modificar a acao ativa.
+- O fingerprint misto `88b68a44` permaneceu identico apos Save/Reload, catch-up offline e um Save/Reload adicional do estado pronto.
+- A cadeia `interrupt > dodge > defesa` permaneceu valida: casts interrompidos nao tentaram esquiva, esquivas bem-sucedidas nao reservaram defesa e respostas ficaram somente em casts nao esquivados.
+- O SQLite persistiu as tres politicas nos snapshots e `Hold Position` nos loadouts editados, mas nao armazenou `bossTelegraphDodges`, rolls, chances, modificadores nem casts derivados.
+- O catch-up marcou as tres acoes como `readyToResolve`, preservou as politicas e foi idempotente na segunda aplicacao, com zero novos reports.
+- Gold, Renown, inventarios e Guild Depot permaneceram inalterados; nenhuma recompensa foi coletada.
+- O banco original foi restaurado com 86.016 bytes e SHA-256 `8AD73B074435873707F5876AAA232B2F873EAADF5CFE8E3BDDE7B0F2DC26B169`; WAL, SHM, tabela, harness, bootstrap e permissao temporaria foram removidos.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 159 - trade-offs ofensivos e posicionais das politicas de esquiva.
+
 ## Etapa 158 - Comportamento de esquiva por personagem
 
 - Cada personagem agora configura o comportamento de esquiva de Boss no proprio loadout: `Automatic`, `Safe Windows` ou `Hold Position`.
@@ -205,6 +221,7 @@ Atualizado em: 2026-08-17
 
 ## Status recente
 
+- Etapa 158.5 concluida: QA real no Tauri/SQLite validou as tres politicas, isolamento de snapshots, cadeia defensiva, reload e catch-up em 32/32 checks.
 - Etapa 158 concluida: cada personagem agora escolhe Automatic, Safe Windows ou Hold Position, com snapshot, UI, planner, analyzer e logs.
 - Etapa 157.5 concluida: QA real no Tauri/SQLite validou perfis, dificuldades, fingerprint, cadeia defensiva, reload e catch-up offline em 28/28 checks.
 - Etapa 157 concluida: habilidades de Boss agora possuem dificuldade individual e perfis Quick, Focused ou Heavy com impacto real na esquiva, feedback visual e relatorios.
