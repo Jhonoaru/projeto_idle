@@ -1265,6 +1265,18 @@ export interface BossTelegraphDodgeSummary {
   dodged: boolean;
 }
 
+export interface BossDodgeTradeOffSummary {
+  characterId: string;
+  characterName: string;
+  dodgeBehavior: BossDodgeBehavior;
+  positioning: "mobile" | "selective" | "anchored";
+  targetedTelegraphs: number;
+  dodgeAttempts: number;
+  successfulDodges: number;
+  unavoidedTelegraphs: number;
+  offensiveBonusPercent: number;
+}
+
 export interface CombatConditionSummary {
   type: CombatConditionType;
   applications: number;
@@ -1616,6 +1628,8 @@ export interface CombatSkillPartyEffectSummary {
   bossDefensiveResponses: BossDefensiveResponseSummary[];
   bossInterrupts: BossInterruptSummary[];
   bossTelegraphDodges: BossTelegraphDodgeSummary[];
+  bossDodgeTradeOffs: BossDodgeTradeOffSummary[];
+  positioningAttackBonusPercent: number;
   threat: BossThreatSummary;
   members: Array<{
     characterId: string;

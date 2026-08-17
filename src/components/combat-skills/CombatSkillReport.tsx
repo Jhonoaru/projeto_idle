@@ -176,6 +176,17 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           ))}
         </div>
       ) : null}
+      {effects.bossDodgeTradeOffs.some((entry) => entry.targetedTelegraphs > 0) ? (
+        <div className="party-condition-support-strip" aria-label="Dodge positioning trade-offs">
+          <strong>Positioning Trade-offs / +{effects.positioningAttackBonusPercent}% party success power</strong>
+          {effects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => (
+            <span key={entry.characterId}>
+              <b>{entry.characterName} / {formatPositioning(entry.positioning)}</b>
+              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
+            </span>
+          ))}
+        </div>
+      ) : null}
       {effects.members.map((member) => (
         <section key={member.characterId}>
           <header>
@@ -340,4 +351,8 @@ function formatProfileModifier(value: number) {
 
 function formatDodgeBehavior(value: "automatic" | "safe_windows" | "hold_position") {
   return value === "safe_windows" ? "Safe Windows" : value === "hold_position" ? "Hold Position" : "Automatic";
+}
+
+function formatPositioning(value: "mobile" | "selective" | "anchored") {
+  return value[0].toUpperCase() + value.slice(1);
 }

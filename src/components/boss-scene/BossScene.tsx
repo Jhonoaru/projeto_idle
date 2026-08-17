@@ -5,6 +5,7 @@ import { getBossAbilityCastState } from "../../game-engine/boss/getBossAbilityCa
 import { planBossDefensiveResponses } from "../../game-engine/boss/planBossDefensiveResponses";
 import { planBossInterrupts } from "../../game-engine/boss/planBossInterrupts";
 import { planBossTelegraphDodges } from "../../game-engine/boss/planBossTelegraphDodges";
+import { calculateBossDodgeTradeOffs } from "../../game-engine/boss/calculateBossDodgeTradeOffs";
 import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
@@ -58,11 +59,6 @@ export function BossScene({
   const elapsedMs = ready ? totalMs : Math.min(totalMs, getClockElapsedMs(action.startedAt));
   const progress = Math.min(100, Math.max(0, Math.round((elapsedMs / totalMs) * 100)));
   const threat = boss ? calculateBossPartyThreat(characters, activeParty, boss) : undefined;
-  const risk = boss && threat ? calculateBossRisk(characters, activeParty, boss, {
-    attackBonusPercent: 0,
-    deathRiskReductionPercent: 0,
-    threat,
-  }) : undefined;
   const pulse = Math.floor(clock / 1_000) % 3;
   const activePhase = threat ? getActiveBossPhase(threat, progress) : undefined;
   const abilityCast = getBossAbilityCastState(threat, elapsedMs, ready);
@@ -72,6 +68,13 @@ export function BossScene({
   const interruptedCastIds = new Set(interrupts.filter((entry) => entry.interrupted).map((entry) => entry.castId));
   const dodgeEligibleCasts = threat ? threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId)) : [];
   const telegraphDodges = planBossTelegraphDodges(members.map((member) => member.character), dodgeEligibleCasts, totalMs);
+  const dodgeTradeOffs = calculateBossDodgeTradeOffs(members.map((member) => member.character), dodgeEligibleCasts, telegraphDodges);
+  const positioningAttackBonusPercent = dodgeTradeOffs.reduce((sum, entry) => sum + entry.offensiveBonusPercent, 0) / Math.max(1, members.length);
+  const risk = boss && threat ? calculateBossRisk(characters, activeParty, boss, {
+    attackBonusPercent: positioningAttackBonusPercent,
+    deathRiskReductionPercent: 0,
+    threat,
+  }) : undefined;
   const dodgedCastIds = new Set(telegraphDodges.filter((entry) => entry.dodged).map((entry) => entry.castId));
   const defensiveResponses = threat ? planBossDefensiveResponses(responseParticipants, dodgeEligibleCasts.filter((cast) => !dodgedCastIds.has(cast.castId)), totalMs) : [];
   const activeInterrupt = abilityCast.cast ? interrupts.find((entry) => entry.castId === abilityCast.cast?.castId) : undefined;
@@ -83,6 +86,7 @@ export function BossScene({
     : undefined;
   const dodgeTargetLoadout = dodgeTarget?.currentAction?.combatSkillLoadout ?? dodgeTarget?.combatSkillLoadout;
   const activeDodgeBehavior = normalizeBossDodgeBehavior(dodgeTargetLoadout?.bossDodgeBehavior);
+  const activeDodgeTradeOff = dodgeTarget ? dodgeTradeOffs.find((entry) => entry.characterId === dodgeTarget.id) : undefined;
   const activeResponse = abilityCast.cast ? defensiveResponses.find((response) => response.castId === abilityCast.cast?.castId) : undefined;
 
   return (
@@ -125,6 +129,7 @@ export function BossScene({
             <div><dt>Telegraph</dt><dd>{visibleCast ? `${formatTelegraphProfile(visibleCast.telegraphProfile)} / ${visibleCast.dodgeDifficultyPercent}% difficulty` : "-"}</dd></div>
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
             <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${formatDodgeBehavior(activeDodge.dodgeBehavior)} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : dodgeTarget ? `${dodgeTarget.name} / ${formatDodgeBehavior(activeDodgeBehavior)} / No attempt` : "Not targeted"}</dd></div>
+            <div><dt>Positioning</dt><dd>{activeDodgeTradeOff ? `${formatPositioning(activeDodgeTradeOff.positioning)} / +${activeDodgeTradeOff.offensiveBonusPercent}% power / ${activeDodgeTradeOff.unavoidedTelegraphs} exposed` : "No trade-off"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -170,13 +175,16 @@ export function BossScene({
             </div>
           ) : null}
           <div className={`boss-scene-party party-size-${Math.min(5, Math.max(1, members.length))}`}>
-            {members.map((member, index) => (
-              <div className={`boss-scene-party-member member-${index + 1}`} key={member.characterId}>
+            {members.map((member, index) => {
+              const tradeOff = dodgeTradeOffs.find((entry) => entry.characterId === member.characterId);
+              return (
+              <div className={`boss-scene-party-member member-${index + 1} is-${tradeOff?.positioning ?? "mobile"}`} key={member.characterId}>
                 <CharacterSprite character={member.character} size="scene" />
                 <strong>{member.character.name}</strong>
-                <span>{member.role}</span>
+                <span>{member.role} / {formatPositioning(tradeOff?.positioning ?? "mobile")}</span>
               </div>
-            ))}
+              );
+            })}
           </div>
           <CombatEffectLayer actors={members} mode="boss" resolved={ready} target={{ x: 76, y: 43 }} />
           <CombatSkillRotation actors={members} elapsedMs={elapsedMs} resolved={ready} />
@@ -213,6 +221,10 @@ function formatTelegraphProfile(profile: "quick" | "focused" | "heavy") {
 
 function formatDodgeBehavior(behavior: "automatic" | "safe_windows" | "hold_position") {
   return behavior === "safe_windows" ? "Safe Windows" : behavior === "hold_position" ? "Hold Position" : "Automatic";
+}
+
+function formatPositioning(value: "mobile" | "selective" | "anchored") {
+  return value[0].toUpperCase() + value.slice(1);
 }
 
 function getActiveParty(

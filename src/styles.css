@@ -6903,6 +6903,10 @@ p {
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.55);
 }
 
+.hunt-slot-window.has-response-priority {
+  grid-template-rows: auto auto auto minmax(150px, 1fr) auto;
+}
+
 .hunt-slot-close {
   position: absolute;
   right: 10px;
@@ -11658,6 +11662,10 @@ p {
     padding: 18px;
   }
 
+  .hunt-slot-window.has-response-priority {
+    grid-template-rows: auto auto auto minmax(120px, 1fr) auto;
+  }
+
   .hunt-slot-overlay {
     position: fixed;
     z-index: 100;
@@ -11668,6 +11676,9 @@ p {
   .hunt-slot-entry {
     grid-template-columns: 1fr;
   }
+
+  .hunt-slot-window header { padding-right: 38px; }
+  .hunt-slot-window h3 { font-size: 1.25rem; }
 
   .hunt-slot-rule strong,
   .hunt-slot-rule .hunt-threshold-control,
@@ -15992,6 +16003,9 @@ html[data-client-motion="reduced"] *::after {
 .boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
 .boss-scene-party-member strong { margin-top: -3px; color: #f0dd9d; font-size: 0.64rem; }
 .boss-scene-party-member > span:last-child { color: #a9c4b2; font-size: 0.55rem; text-transform: uppercase; }
+.boss-scene-party-member::after { width: 34px; height: 3px; margin-top: 2px; background: #598f88; box-shadow: 0 0 6px rgba(89, 143, 136, 0.5); content: ""; }
+.boss-scene-party-member.is-selective::after { background: #b69a55; box-shadow: 0 0 6px rgba(182, 154, 85, 0.5); }
+.boss-scene-party-member.is-anchored::after { background: #c26f4e; box-shadow: 0 0 7px rgba(194, 111, 78, 0.58); }
 .boss-scene-party-member.member-1 { left: 65px; top: 65px; }
 .boss-scene-party-member.member-2 { left: 0; top: 0; }
 .boss-scene-party-member.member-3 { left: 5px; top: 135px; }

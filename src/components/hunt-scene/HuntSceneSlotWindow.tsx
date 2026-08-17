@@ -86,9 +86,9 @@ const dodgeBehaviors: Array<{
   label: string;
   detail: string;
 }> = [
-  { value: "automatic", label: "Automatic", detail: "Attempt every eligible telegraph." },
-  { value: "safe_windows", label: "Safe Windows", detail: "Attempt focused and heavy casts." },
-  { value: "hold_position", label: "Hold Position", detail: "Do not attempt automatic dodges." },
+  { value: "automatic", label: "Automatic", detail: "Attempt every telegraph. Full mobility, no positioning bonus." },
+  { value: "safe_windows", label: "Safe Windows", detail: "Skip quick casts. +0.75% success power while targeted." },
+  { value: "hold_position", label: "Hold Position", detail: "Never dodge. +1.5% success power while targeted." },
 ];
 
 export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill, onChangeDefensiveResponsePriority, onChangeBossDodgeBehavior }: HuntSceneSlotWindowProps) {
@@ -97,7 +97,7 @@ export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill, o
 
   return (
     <div className="hunt-slot-overlay" role="dialog" aria-label={`${config.title} configuration`}>
-      <div className="hunt-slot-window" onClick={(event) => event.stopPropagation()}>
+      <div className={`hunt-slot-window${slot === "attack" || slot === "support" ? " has-response-priority" : ""}`} onClick={(event) => event.stopPropagation()}>
         <button className="hunt-slot-close" onClick={onClose} type="button">X</button>
         <header>
           <div>

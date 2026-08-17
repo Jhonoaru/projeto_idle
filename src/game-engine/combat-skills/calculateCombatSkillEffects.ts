@@ -16,6 +16,7 @@ import { simulateCombatSkillRotation } from "./simulateCombatSkillRotation";
 import { calculateBossThreat } from "../boss/calculateBossThreat";
 import { planBossInterrupts } from "../boss/planBossInterrupts";
 import { planBossTelegraphDodges } from "../boss/planBossTelegraphDodges";
+import { calculateBossDodgeTradeOffs } from "../boss/calculateBossDodgeTradeOffs";
 import { calculateIncomingAttackCount } from "./calculateIncomingAttackCount";
 import {
   calculateIncomingConditionDefense,
@@ -302,6 +303,7 @@ export function calculatePartyCombatSkillEffects(
   const interruptedCastIds = new Set(bossInterrupts.filter((entry) => entry.interrupted).map((entry) => entry.castId));
   const dodgeEligibleCasts = threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId));
   const bossTelegraphDodges = planBossTelegraphDodges(characters, dodgeEligibleCasts, elapsedMs);
+  const bossDodgeTradeOffs = calculateBossDodgeTradeOffs(characters, dodgeEligibleCasts, bossTelegraphDodges);
   const dodgedCastIds = new Set(bossTelegraphDodges.filter((entry) => entry.dodged).map((entry) => entry.castId));
   const resolvedAbilityCasts = dodgeEligibleCasts.filter((cast) => !dodgedCastIds.has(cast.castId));
   const pressureSegmentsByCharacterId = Object.fromEntries(characters.map((character) => [
@@ -351,11 +353,13 @@ export function calculatePartyCombatSkillEffects(
       incomingConditionChanceMultiplierOverride: threat.members.find((member) => member.characterId === character.id)?.conditionChanceMultiplier,
       incomingPressureSegmentsOverride: pressureSegmentsByCharacterId[character.id],
     }, partyConditionDefense.profilesByCharacterId[character.id]);
+    const positioningBonus = bossDodgeTradeOffs.find((entry) => entry.characterId === character.id)?.offensiveBonusPercent ?? 0;
     return {
       characterId: character.id,
       characterName: character.name,
       effects: {
         ...effects,
+        attackBonusPercent: rounded(Math.min(10, effects.attackBonusPercent + positioningBonus)),
         entries: effects.entries.map((entry) => ({
           ...entry,
           conditionsCleansed: partyConditionDefense.cleansedBySourceSkillKey[`${character.id}::${entry.skillId}`] ?? 0,
@@ -365,6 +369,7 @@ export function calculatePartyCombatSkillEffects(
     };
   });
   const divisor = Math.max(1, members.length);
+  const positioningAttackBonusPercent = rounded(bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.offensiveBonusPercent, 0) / divisor);
   const totalAttacks = members.reduce((sum, member) => sum + member.effects.totalAttacks, 0);
   const totalHits = members.reduce((sum, member) => sum + member.effects.totalHits, 0);
   const totalMisses = members.reduce((sum, member) => sum + member.effects.totalMisses, 0);
@@ -442,6 +447,8 @@ export function calculatePartyCombatSkillEffects(
     bossDefensiveResponses: partyConditionDefense.responses,
     bossInterrupts,
     bossTelegraphDodges,
+    bossDodgeTradeOffs,
+    positioningAttackBonusPercent,
     threat,
     members,
   };

@@ -55,7 +55,7 @@ export function calculateBossRisk(
     warnings.push("Healer reduces risk in the Novice Arena Champion fight.");
   }
 
-  const attackBonusPercent = clamp(combatSkillBonuses?.attackBonusPercent ?? 0, 0, 8);
+  const attackBonusPercent = clamp(combatSkillBonuses?.attackBonusPercent ?? 0, 0, 10);
   const deathRiskReductionPercent = clamp(combatSkillBonuses?.deathRiskReductionPercent ?? 0, 0, 10);
   const aggroRiskReductionPercent = clamp(combatSkillBonuses?.threat?.aggroRiskReductionPercent ?? 0, 0, 4);
   const phasePressureRiskMultiplier = clamp(Math.sqrt((combatSkillBonuses?.threat?.attackPressurePercent ?? 100) / 100), 0.85, 1.25);

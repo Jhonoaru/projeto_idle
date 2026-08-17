@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-08-17
 
+## Etapa 159 - Trade-offs ofensivos e posicionais da esquiva
+
+- As tres politicas de esquiva agora possuem identidade ofensiva real durante Boss raids: `Automatic` e movel e neutra, `Safe Windows` e seletiva e concede +0,75% de success power, e `Hold Position` fica ancorada e concede +1,5%.
+- O bonus so existe quando o personagem recebeu ao menos um telegraph elegivel, impedindo ganho gratuito em encontros ou membros sem exposicao mecanica.
+- A engine deriva por personagem postura, telegraphs recebidos, tentativas, esquivas bem-sucedidas, casts nao evitados e bonus ofensivo; nenhum desses resultados entra no save.
+- O bonus da party e a media dos membros e entra no `attackBonusPercent` usado pela chance de sucesso, agora limitado a 10%; dano bruto, casts, hits e condicoes permanecem coerentes e inalterados.
+- O snapshot da acao continua sendo a fonte da politica durante a raid, portanto mudancas no loadout persistente nao alteram um combate em andamento.
+- Raid Analyzer mostra postura, bonus e exposicao do alvo atual; relatorio e Activity Log final detalham os trade-offs de todos os membros expostos.
+- Os aventureiros na Boss Scene exibem `Mobile`, `Selective` ou `Anchored`, com sinais visuais discretos diferentes sob o sprite.
+- A janela Combat Skills explica claramente mobilidade, filtros de telegraph e bonus de cada opcao.
+- A grade da janela recebeu uma linha explicita para o seletor de postura; em 390x844 ela preserva 12px entre o seletor e a lista sem sobreposicao, overflow ou texto cortado.
+- Checks deterministas passaram em 16/16 e a integracao real com Khazgrim Gatekeeper passou em 8/8; o grupo misto gerou +0,75% e elevou a chance de sucesso de 79,5264% para 80,0964% sem alterar dano ou casts.
+- QA visual passou em 1280x800 e 390x844. Os dois erros de console observados eram apenas a indisponibilidade esperada do Tauri SQL Plugin no navegador web, com fallback local funcionando.
+- Limitacao atual: postura influencia success power e exposicao a telegraphs, mas ainda nao altera dano bruto nem oferece comando manual de movimento durante o cast.
+- Proximo passo sugerido: Etapa 159.5 - QA dos trade-offs de esquiva no Tauri/SQLite e catch-up offline.
+
 ## Etapa 158.5 - QA do comportamento de esquiva no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido depois da rodada valida.
@@ -221,6 +237,7 @@ Atualizado em: 2026-08-17
 
 ## Status recente
 
+- Etapa 159 concluida: politicas de esquiva agora equilibram mobilidade, exposicao e ate +1,5% de success power com feedback na arena, analyzer e relatorio.
 - Etapa 158.5 concluida: QA real no Tauri/SQLite validou as tres politicas, isolamento de snapshots, cadeia defensiva, reload e catch-up em 32/32 checks.
 - Etapa 158 concluida: cada personagem agora escolhe Automatic, Safe Windows ou Hold Position, com snapshot, UI, planner, analyzer e logs.
 - Etapa 157.5 concluida: QA real no Tauri/SQLite validou perfis, dificuldades, fingerprint, cadeia defensiva, reload e catch-up offline em 28/28 checks.
