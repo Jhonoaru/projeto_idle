@@ -1,5 +1,5 @@
 import { getUnlockedCombatSkills } from "../../data/combatSkills";
-import type { BossDefensiveResponsePriority, Character, CombatSkillLoadout, Vocation } from "../../shared/types";
+import type { BossDefensiveResponsePriority, BossDodgeBehavior, Character, CombatSkillLoadout, Vocation } from "../../shared/types";
 
 interface CombatSkillOwner {
   vocation: Vocation;
@@ -27,8 +27,9 @@ export function normalizeCombatSkillLoadout(owner: CombatSkillOwner): CombatSkil
       ? candidate.supportSkillId
       : supports.at(-1)?.id ?? null;
   const defensiveResponsePriority = normalizeDefensiveResponsePriority(candidate?.defensiveResponsePriority);
+  const bossDodgeBehavior = normalizeBossDodgeBehavior(candidate?.bossDodgeBehavior);
 
-  return { attackSkillIds, supportSkillId, customized, supportDisabled, defensiveResponsePriority };
+  return { attackSkillIds, supportSkillId, customized, supportDisabled, defensiveResponsePriority, bossDodgeBehavior };
 }
 
 export function withNormalizedCombatSkillLoadout(character: Character): Character {
@@ -41,4 +42,8 @@ function normalizeLevel(value: number) {
 
 function normalizeDefensiveResponsePriority(value: unknown): BossDefensiveResponsePriority {
   return value === "prevent" || value === "recover" ? value : "automatic";
+}
+
+export function normalizeBossDodgeBehavior(value: unknown): BossDodgeBehavior {
+  return value === "safe_windows" || value === "hold_position" ? value : "automatic";
 }

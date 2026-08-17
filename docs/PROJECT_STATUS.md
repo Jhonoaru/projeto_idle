@@ -1,6 +1,21 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-14
+Atualizado em: 2026-08-17
+
+## Etapa 158 - Comportamento de esquiva por personagem
+
+- Cada personagem agora configura o comportamento de esquiva de Boss no proprio loadout: `Automatic`, `Safe Windows` ou `Hold Position`.
+- `Automatic` preserva a regra anterior e tenta todos os telegraphs elegiveis; continua sendo o fallback de saves antigos e valores invalidos.
+- `Safe Windows` ignora casts `Quick` e tenta somente perfis `Focused` e `Heavy`; `Hold Position` nao cria tentativas automaticas.
+- Casts ignorados continuam na cadeia normal e podem receber respostas defensivas, preservando a ordem `interrupt > dodge > defesa`.
+- A configuracao fica na janela de Combat Skills, com controle segmentado, estado acessivel por `aria-pressed` e registro no Activity Log.
+- O comportamento e copiado para o snapshot da proxima hunt ou raid; editar o personagem depois do inicio nao altera a acao em andamento.
+- Boss Scene mostra comportamento e ausencia de tentativa no Raid Analyzer; relatorio e log final registram a politica usada por personagem.
+- A persistencia usa o JSON de `combatSkillLoadout` existente, sem migration SQLite; normalizacao mantem saves e snapshots antigos compativeis.
+- Um harness temporario passou em 13/13 checks para normalizacao, updater, filtros por perfil, isolamento de snapshot, limites e determinismo; ele foi removido depois da validacao.
+- Os controles reais alternaram corretamente entre os tres modos. QA visual passou em 1280x800 e 390x844, sem overflow horizontal, cortes internos ou erros no console.
+- Limitacao atual: as politicas controlam apenas quando tentar a esquiva; ainda nao existem custo de movimento, penalidade ofensiva ou comando manual durante o telegraph.
+- Proximo passo sugerido: Etapa 158.5 - QA do comportamento de esquiva no Tauri/SQLite e catch-up offline.
 
 ## Etapa 157.5 - QA dos perfis de telegraph no Tauri/SQLite
 
@@ -190,6 +205,7 @@ Atualizado em: 2026-08-14
 
 ## Status recente
 
+- Etapa 158 concluida: cada personagem agora escolhe Automatic, Safe Windows ou Hold Position, com snapshot, UI, planner, analyzer e logs.
 - Etapa 157.5 concluida: QA real no Tauri/SQLite validou perfis, dificuldades, fingerprint, cadeia defensiva, reload e catch-up offline em 28/28 checks.
 - Etapa 157 concluida: habilidades de Boss agora possuem dificuldade individual e perfis Quick, Focused ou Heavy com impacto real na esquiva, feedback visual e relatorios.
 - Etapa 156.5 concluida: QA real no Tauri/SQLite validou esquivas, cadeia interrupt/dodge/defesa, reload e catch-up offline em 49/49 checks.

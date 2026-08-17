@@ -5,6 +5,7 @@ import { getBossAbilityCastState } from "../../game-engine/boss/getBossAbilityCa
 import { planBossDefensiveResponses } from "../../game-engine/boss/planBossDefensiveResponses";
 import { planBossInterrupts } from "../../game-engine/boss/planBossInterrupts";
 import { planBossTelegraphDodges } from "../../game-engine/boss/planBossTelegraphDodges";
+import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character } from "../../shared/types";
@@ -77,6 +78,11 @@ export function BossScene({
   const interruptResolved = Boolean(activeInterrupt && elapsedMs >= activeInterrupt.occurredAtMs);
   const activeDodge = abilityCast.cast ? telegraphDodges.find((entry) => entry.castId === abilityCast.cast?.castId) : undefined;
   const dodgeResolved = Boolean(activeDodge && elapsedMs >= activeDodge.occurredAtMs);
+  const dodgeTarget = visibleCast?.targetCharacterId
+    ? members.find((member) => member.characterId === visibleCast.targetCharacterId)?.character
+    : undefined;
+  const dodgeTargetLoadout = dodgeTarget?.currentAction?.combatSkillLoadout ?? dodgeTarget?.combatSkillLoadout;
+  const activeDodgeBehavior = normalizeBossDodgeBehavior(dodgeTargetLoadout?.bossDodgeBehavior);
   const activeResponse = abilityCast.cast ? defensiveResponses.find((response) => response.castId === abilityCast.cast?.castId) : undefined;
 
   return (
@@ -118,7 +124,7 @@ export function BossScene({
             <div><dt>Ability target</dt><dd>{visibleCast?.targetCharacterName ?? "-"}</dd></div>
             <div><dt>Telegraph</dt><dd>{visibleCast ? `${formatTelegraphProfile(visibleCast.telegraphProfile)} / ${visibleCast.dodgeDifficultyPercent}% difficulty` : "-"}</dd></div>
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
-            <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : "Not targeted"}</dd></div>
+            <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${formatDodgeBehavior(activeDodge.dodgeBehavior)} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : dodgeTarget ? `${dodgeTarget.name} / ${formatDodgeBehavior(activeDodgeBehavior)} / No attempt` : "Not targeted"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -203,6 +209,10 @@ function formatResponsePriority(priority: "automatic" | "prevent" | "recover") {
 
 function formatTelegraphProfile(profile: "quick" | "focused" | "heavy") {
   return profile === "quick" ? "Quick" : profile === "heavy" ? "Heavy" : "Focused";
+}
+
+function formatDodgeBehavior(behavior: "automatic" | "safe_windows" | "hold_position") {
+  return behavior === "safe_windows" ? "Safe Windows" : behavior === "hold_position" ? "Hold Position" : "Automatic";
 }
 
 function getActiveParty(

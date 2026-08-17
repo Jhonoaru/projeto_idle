@@ -1100,6 +1100,7 @@ export interface CharacterAttributes {
 }
 
 export type BossDefensiveResponsePriority = "automatic" | "prevent" | "recover";
+export type BossDodgeBehavior = "automatic" | "safe_windows" | "hold_position";
 
 export interface CombatSkillLoadout {
   attackSkillIds: string[];
@@ -1107,6 +1108,7 @@ export interface CombatSkillLoadout {
   customized?: boolean;
   supportDisabled?: boolean;
   defensiveResponsePriority?: BossDefensiveResponsePriority;
+  bossDodgeBehavior?: BossDodgeBehavior;
 }
 
 export interface CombatSkillCastCount {
@@ -1255,6 +1257,7 @@ export interface BossTelegraphDodgeSummary {
   dodgePercent: number;
   difficultyPercent: number;
   reactionWindowSeconds: number;
+  dodgeBehavior: BossDodgeBehavior;
   telegraphProfile: BossTelegraphProfile;
   profileModifierPercent: number;
   successChancePercent: number;

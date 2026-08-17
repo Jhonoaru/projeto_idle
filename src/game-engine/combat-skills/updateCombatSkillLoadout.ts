@@ -1,5 +1,5 @@
 import { combatSkills } from "../../data/combatSkills";
-import type { BossDefensiveResponsePriority, Character } from "../../shared/types";
+import type { BossDefensiveResponsePriority, BossDodgeBehavior, Character } from "../../shared/types";
 import { normalizeCombatSkillLoadout } from "./normalizeCombatSkillLoadout";
 
 export function toggleCombatSkill(character: Character, skillId: string): Character {
@@ -56,5 +56,17 @@ export function setDefensiveResponsePriority(
   return {
     ...character,
     combatSkillLoadout: { ...loadout, defensiveResponsePriority: priority },
+  };
+}
+
+export function setBossDodgeBehavior(
+  character: Character,
+  behavior: BossDodgeBehavior,
+): Character {
+  const loadout = normalizeCombatSkillLoadout(character);
+  if (loadout.bossDodgeBehavior === behavior) return character;
+  return {
+    ...character,
+    combatSkillLoadout: { ...loadout, bossDodgeBehavior: behavior },
   };
 }

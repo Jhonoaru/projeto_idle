@@ -117,7 +117,7 @@ import { unlockDestinyNode } from "../game-engine/destiny/unlockDestinyNode";
 import { getDestinyResetCost, resetDestinyPath } from "../game-engine/destiny/resetDestinyPath";
 import { getContainerContents } from "../game-engine/container/getContainerContents";
 import { calculateCharacterAttributes } from "../game-engine/character/calculateCharacterAttributes";
-import { setDefensiveResponsePriority, toggleCombatSkill } from "../game-engine/combat-skills/updateCombatSkillLoadout";
+import { setBossDodgeBehavior, setDefensiveResponsePriority, toggleCombatSkill } from "../game-engine/combat-skills/updateCombatSkillLoadout";
 import { moveItemOutOfContainer } from "../game-engine/container/moveItemOutOfContainer";
 import { moveItemToContainer } from "../game-engine/container/moveItemToContainer";
 import { calculateCapacityUsed } from "../game-engine/inventory/calculateCapacityUsed";
@@ -166,6 +166,7 @@ import type {
   ActivityLogEntry,
   Boss,
   BossDefensiveResponsePriority,
+  BossDodgeBehavior,
   BossParty,
   BossSimulationResult,
   Character,
@@ -496,6 +497,14 @@ export function App() {
     if (updatedCharacter === selectedCharacter) return;
     updateSelectedCharacter(updatedCharacter);
     prependLog("Boss response", `${selectedCharacter.name} set defensive responses to ${priority}.`, "success");
+  }
+
+  function handleChangeBossDodgeBehavior(behavior: BossDodgeBehavior) {
+    const updatedCharacter = setBossDodgeBehavior(selectedCharacter, behavior);
+    if (updatedCharacter === selectedCharacter) return;
+    updateSelectedCharacter(updatedCharacter);
+    const label = behavior === "safe_windows" ? "Safe Windows" : behavior === "hold_position" ? "Hold Position" : "Automatic";
+    prependLog("Boss dodge", `${selectedCharacter.name} set Boss dodge behavior to ${label}.`, "success");
   }
 
   function handleEquipGuildTitle(titleId: string | null) {
@@ -2679,6 +2688,7 @@ export function App() {
           onReturnToCity={handleReturnToCityFromHuntScene}
           onToggleCombatSkill={handleToggleCombatSkill}
           onChangeDefensiveResponsePriority={handleChangeDefensiveResponsePriority}
+          onChangeBossDodgeBehavior={handleChangeBossDodgeBehavior}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}

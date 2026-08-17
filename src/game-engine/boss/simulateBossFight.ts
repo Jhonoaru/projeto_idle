@@ -3,6 +3,7 @@ import { createSeededRandom } from "../hunt/random";
 import { applyBossCooldown } from "./applyBossCooldown";
 import { calculateBossRisk } from "./calculateBossRisk";
 import { calculatePartyCombatSkillEffects } from "../combat-skills/calculateCombatSkillEffects";
+import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
 import type {
   Boss,
   BossLootResult,
@@ -90,6 +91,7 @@ export function simulateBossFight(
     ...(combatSkillEffects.bossDefensiveResponses.length > 0 ? [`Automatic Boss responses: ${combatSkillEffects.bossDefensiveResponses.length} telegraphs answered with reserved support casts.`] : []),
     ...(combatSkillEffects.bossInterrupts.length > 0 ? [`Boss interrupts: ${combatSkillEffects.bossInterrupts.filter((entry) => entry.interrupted).length}/${combatSkillEffects.bossInterrupts.length} casts interrupted with reserved attack events.`] : []),
     ...(combatSkillEffects.bossTelegraphDodges.length > 0 ? [`Boss telegraph dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.length} targeted casts avoided (${formatDodgeProfiles(combatSkillEffects.bossTelegraphDodges)}).`] : []),
+    `Boss dodge behaviors: ${participants.map((character) => `${character.name} ${formatDodgeBehavior(normalizeBossDodgeBehavior(character.currentAction?.combatSkillLoadout?.bossDodgeBehavior ?? character.combatSkillLoadout?.bossDodgeBehavior))}`).join("; ")}.`,
     ...(threatReport ? [`Aggro report: ${threatReport}. Tank control ${combatSkillEffects.threat.tankAggroControlPercent}% (-${combatSkillEffects.threat.aggroRiskReductionPercent}% party death risk).`] : []),
     ...(phaseReport ? [`Boss phases: ${phaseReport}. ${combatSkillEffects.threat.targetSwitchCount} target switches.`] : []),
     `Boss loot enviado para o Guild Depot.`,
@@ -156,4 +158,8 @@ function formatDodgeProfiles(entries: BossTelegraphDodgeSummary[]) {
     })
     .filter(Boolean)
     .join(", ");
+}
+
+function formatDodgeBehavior(value: "automatic" | "safe_windows" | "hold_position" | undefined) {
+  return value === "safe_windows" ? "Safe Windows" : value === "hold_position" ? "Hold Position" : "Automatic";
 }

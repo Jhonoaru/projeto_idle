@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { getHuntSceneMonsters } from "../../game-engine/hunt-scene/getHuntSceneMonsters";
 import { formatDuration } from "../../shared/time";
-import type { BossDefensiveResponsePriority, Character, HuntArea } from "../../shared/types";
+import type { BossDefensiveResponsePriority, BossDodgeBehavior, Character, HuntArea } from "../../shared/types";
 import { getHuntEffectTarget } from "../../data/combatEffectProfiles";
 import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
 import { HuntActionBar } from "./HuntActionBar";
@@ -24,6 +24,7 @@ interface HuntSceneProps {
   onReturnToCity: () => void;
   onToggleCombatSkill: (skillId: string) => void;
   onChangeDefensiveResponsePriority: (priority: BossDefensiveResponsePriority) => void;
+  onChangeBossDodgeBehavior: (behavior: BossDodgeBehavior) => void;
 }
 
 export function HuntScene({
@@ -34,6 +35,7 @@ export function HuntScene({
   onReturnToCity,
   onToggleCombatSkill,
   onChangeDefensiveResponsePriority,
+  onChangeBossDodgeBehavior,
 }: HuntSceneProps) {
   const [openSlot, setOpenSlot] = useState<HuntSceneSlotType>();
   const [showSceneTools, setShowSceneTools] = useState(false);
@@ -185,6 +187,7 @@ export function HuntScene({
             onClose={() => setOpenSlot(undefined)}
             onToggleSkill={onToggleCombatSkill}
             onChangeDefensiveResponsePriority={onChangeDefensiveResponsePriority}
+            onChangeBossDodgeBehavior={onChangeBossDodgeBehavior}
             slot={openSlot}
           />
         ) : null}

@@ -1,4 +1,5 @@
 import type { BossAbilityCastSummary, BossTelegraphDodgeSummary, Character } from "../../shared/types";
+import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
 
 const MAX_DURATION_MS = 8 * 60 * 60_000;
 
@@ -23,10 +24,15 @@ export function planBossTelegraphDodges(
     .flatMap((cast) => {
       const character = charactersById.get(cast.targetCharacterId!);
       if (!character) return [];
+      const actionLoadout = character.currentAction?.combatSkillLoadout;
+      const dodgeBehavior = normalizeBossDodgeBehavior(
+        actionLoadout ? actionLoadout.bossDodgeBehavior : character.combatSkillLoadout?.bossDodgeBehavior,
+      );
+      const telegraphProfile = normalizeProfile(cast.telegraphProfile);
+      if (dodgeBehavior === "hold_position" || dodgeBehavior === "safe_windows" && telegraphProfile === "quick") return [];
       const dodgePercent = bounded(character.attributes?.dodgePercent, 0, 30, 0);
       const difficultyPercent = bounded(cast.dodgeDifficultyPercent, 0, 90, 30);
       const reactionWindowSeconds = rounded((cast.resolvesAtMs - cast.telegraphStartsAtMs) / 1_000);
-      const telegraphProfile = normalizeProfile(cast.telegraphProfile);
       const profileModifierPercent = telegraphProfile === "quick" ? -8 : telegraphProfile === "heavy" ? 8 : 0;
       const successChancePercent = bounded(
         rounded(dodgePercent * 4 + reactionWindowSeconds * 4 - difficultyPercent * 0.35 + profileModifierPercent),
@@ -45,6 +51,7 @@ export function planBossTelegraphDodges(
         dodgePercent,
         difficultyPercent,
         reactionWindowSeconds,
+        dodgeBehavior,
         telegraphProfile,
         profileModifierPercent,
         successChancePercent,

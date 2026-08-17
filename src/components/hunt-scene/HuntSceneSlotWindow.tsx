@@ -1,6 +1,6 @@
 import { getCombatSkills, getPrimaryCombatSkill } from "../../data/combatSkills";
 import type { CombatSkillDefinition } from "../../data/combatSkills";
-import type { BossDefensiveResponsePriority, Character } from "../../shared/types";
+import type { BossDefensiveResponsePriority, BossDodgeBehavior, Character } from "../../shared/types";
 import { CombatSkillIcon } from "../combat-skills/CombatSkillIcon";
 import { normalizeCombatSkillLoadout } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import type { HuntSceneSlotType } from "./HuntSceneHotbar";
@@ -11,6 +11,7 @@ interface HuntSceneSlotWindowProps {
   onClose: () => void;
   onToggleSkill?: (skillId: string) => void;
   onChangeDefensiveResponsePriority?: (priority: BossDefensiveResponsePriority) => void;
+  onChangeBossDodgeBehavior?: (behavior: BossDodgeBehavior) => void;
 }
 
 interface HuntSceneSlotEntry {
@@ -80,7 +81,17 @@ const defensivePriorities: Array<{
   { value: "recover", label: "Recover", detail: "Prefer cleanses after impact." },
 ];
 
-export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill, onChangeDefensiveResponsePriority }: HuntSceneSlotWindowProps) {
+const dodgeBehaviors: Array<{
+  value: BossDodgeBehavior;
+  label: string;
+  detail: string;
+}> = [
+  { value: "automatic", label: "Automatic", detail: "Attempt every eligible telegraph." },
+  { value: "safe_windows", label: "Safe Windows", detail: "Attempt focused and heavy casts." },
+  { value: "hold_position", label: "Hold Position", detail: "Do not attempt automatic dodges." },
+];
+
+export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill, onChangeDefensiveResponsePriority, onChangeBossDodgeBehavior }: HuntSceneSlotWindowProps) {
   const config = getWindowConfig(character, slot);
   const loadout = normalizeCombatSkillLoadout(character);
 
@@ -127,6 +138,30 @@ export function HuntSceneSlotWindow({ character, slot, onClose, onToggleSkill, o
                 >
                   <strong>{priority.label}</strong>
                   <span>{priority.detail}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {slot === "attack" ? (
+          <section className="hunt-response-priority hunt-dodge-behavior" aria-label="Boss dodge behavior">
+            <div>
+              <strong>Boss Dodge</strong>
+              <small>Saved for the next deployment. Active action snapshots stay unchanged.</small>
+            </div>
+            <div className="hunt-response-priority-options">
+              {dodgeBehaviors.map((behavior) => (
+                <button
+                  aria-pressed={loadout.bossDodgeBehavior === behavior.value}
+                  className={loadout.bossDodgeBehavior === behavior.value ? "is-active" : ""}
+                  key={behavior.value}
+                  onClick={() => onChangeBossDodgeBehavior?.(behavior.value)}
+                  title={behavior.detail}
+                  type="button"
+                >
+                  <strong>{behavior.label}</strong>
+                  <span>{behavior.detail}</span>
                 </button>
               ))}
             </div>

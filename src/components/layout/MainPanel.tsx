@@ -48,6 +48,7 @@ import type { GuildLoadoutProcurementFulfillmentRequest } from "../../game-engin
 import type {
   Boss,
   BossDefensiveResponsePriority,
+  BossDodgeBehavior,
   BossParty,
   BossSimulationResult,
   ActivityLogEntry,
@@ -202,6 +203,7 @@ interface MainPanelProps {
   onReturnToCity: () => void;
   onToggleCombatSkill: (skillId: string) => void;
   onChangeDefensiveResponsePriority: (priority: BossDefensiveResponsePriority) => void;
+  onChangeBossDodgeBehavior: (behavior: BossDodgeBehavior) => void;
   onStopHuntAutoRepeat: () => void;
   onSendToDepot: (inventoryItem: InventoryItem) => void;
   onSendToCharacterDepot: (inventoryItem: InventoryItem) => void;
@@ -347,6 +349,7 @@ export function MainPanel({
   onReturnToCity,
   onToggleCombatSkill,
   onChangeDefensiveResponsePriority,
+  onChangeBossDodgeBehavior,
   onStopHuntAutoRepeat,
   onSendToDepot,
   onSendToCharacterDepot,
@@ -437,6 +440,7 @@ export function MainPanel({
           onReturnToCity={onReturnToCity}
           onToggleCombatSkill={onToggleCombatSkill}
           onChangeDefensiveResponsePriority={onChangeDefensiveResponsePriority}
+          onChangeBossDodgeBehavior={onChangeBossDodgeBehavior}
           selectedHunt={selectedHunt}
         />
       ) : null}
