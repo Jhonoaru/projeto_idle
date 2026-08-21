@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-08-21
 
+## Etapa 160 - Comandos manuais de reacao aos telegraphs de Boss
+
+- Durante um telegraph direcionado, a Boss Scene agora oferece os comandos opcionais `Manual Dodge` e `Hold Ground`; raids nao observadas continuam funcionando integralmente pelas politicas automaticas existentes.
+- `Manual Dodge` cria uma tentativa mesmo para `Hold Position` ou para um cast `Quick` ignorado por `Safe Windows`, adiciona 12 pontos percentuais a mesma rolagem deterministica e limita a chance final a 85%.
+- `Hold Ground` suprime a tentativa de esquiva daquele cast e concede +0,25% de success power posicional por comando valido, limitado a +1% por personagem na raid.
+- A precedencia continua `interrupt > dodge > defesa`: casts interrompidos descartam a reacao manual, nao geram tentativa e nao concedem bonus de posicionamento.
+- Cada cast aceita somente um comando; cliques repetidos sao ignorados pela engine e os controles ficam travados imediatamente depois da escolha.
+- As reacoes sao sincronizadas nos snapshots de todos os participantes, normalizadas contra dados invalidos e limitadas aos 40 registros mais recentes.
+- Saves antigos continuam compativeis sem migration SQLite; o campo opcional vive no JSON da acao ativa e nao modifica o loadout permanente do personagem.
+- Raid Analyzer, telegraph, relatorio de Combat Skills, simulacao final e Activity Log exibem a escolha e seus efeitos sem gerar mensagens por tick.
+- Checks deterministas passaram em 19/19, cobrindo normalizacao, sincronizacao, duplicacao, override das politicas, bonus, limites, historico e repetibilidade da rolagem.
+- QA visual passou em 1280x800 e 390x844: os dois comandos, estados travados e analisador responderam corretamente, sem overflow horizontal ou corte interno.
+- `npm run build` passou com 476 modulos e `npm run tauri:build` gerou os pacotes MSI e NSIS; permanece apenas o aviso conhecido de chunk principal acima de 500 kB.
+- Limitacao atual: a janela para reagir existe somente enquanto o jogador acompanha o telegraph ativo; catch-up e jogo fechado usam exclusivamente as configuracoes automaticas.
+- Proximo passo sugerido: Etapa 160.5 - QA dos comandos manuais no Tauri/SQLite e catch-up offline.
+
 ## Etapa 159.5 - QA dos trade-offs de esquiva no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.

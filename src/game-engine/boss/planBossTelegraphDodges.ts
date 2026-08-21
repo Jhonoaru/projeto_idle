@@ -1,5 +1,6 @@
 import type { BossAbilityCastSummary, BossTelegraphDodgeSummary, Character } from "../../shared/types";
 import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
+import { normalizeBossManualReactions } from "./recordBossManualReaction";
 
 const MAX_DURATION_MS = 8 * 60 * 60_000;
 
@@ -29,17 +30,22 @@ export function planBossTelegraphDodges(
         actionLoadout ? actionLoadout.bossDodgeBehavior : character.combatSkillLoadout?.bossDodgeBehavior,
       );
       const telegraphProfile = normalizeProfile(cast.telegraphProfile);
-      if (dodgeBehavior === "hold_position" || dodgeBehavior === "safe_windows" && telegraphProfile === "quick") return [];
+      const manualReaction = normalizeBossManualReactions(character.currentAction?.bossManualReactions)
+        .find((entry) => entry.castId === cast.castId && entry.targetCharacterId === character.id);
+      if (manualReaction?.reactionType === "hold") return [];
+      if (!manualReaction && (dodgeBehavior === "hold_position" || dodgeBehavior === "safe_windows" && telegraphProfile === "quick")) return [];
       const dodgePercent = bounded(character.attributes?.dodgePercent, 0, 30, 0);
       const difficultyPercent = bounded(cast.dodgeDifficultyPercent, 0, 90, 30);
       const reactionWindowSeconds = rounded((cast.resolvesAtMs - cast.telegraphStartsAtMs) / 1_000);
       const profileModifierPercent = telegraphProfile === "quick" ? -8 : telegraphProfile === "heavy" ? 8 : 0;
-      const successChancePercent = bounded(
+      const automaticChancePercent = bounded(
         rounded(dodgePercent * 4 + reactionWindowSeconds * 4 - difficultyPercent * 0.35 + profileModifierPercent),
         3,
         75,
         3,
       );
+      const manualBonusPercent = manualReaction?.reactionType === "dodge" ? 12 : 0;
+      const successChancePercent = bounded(automaticChancePercent + manualBonusPercent, 3, manualBonusPercent > 0 ? 85 : 75, 3);
       const rollPercent = deterministicPercent(`${cast.castId}:${character.id}:telegraph-dodge`);
       return [{
         castId: cast.castId,
@@ -57,6 +63,7 @@ export function planBossTelegraphDodges(
         successChancePercent,
         rollPercent,
         dodged: rollPercent < successChancePercent,
+        ...(manualBonusPercent > 0 ? { manualReaction: true, manualBonusPercent } : {}),
       }];
     });
 }

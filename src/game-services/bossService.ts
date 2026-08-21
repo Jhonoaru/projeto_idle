@@ -55,6 +55,7 @@ export function startBoss(
             partyMemberIds: memberIds,
             partyMembers: party.members,
             combatSkillLoadout: normalizeCombatSkillLoadout(character),
+            bossManualReactions: [],
           },
         }
       : character,

@@ -41,6 +41,7 @@ import { MainPlayArea } from "./MainPlayArea";
 import type { TrainingResult } from "../../game-services/trainingService";
 import type { ClientPreferences } from "../../client-preferences/clientPreferences";
 import type { GuildLogisticsPinAction } from "../../game-engine/logistics/updateGuildLogisticsPin";
+import type { BossManualReactionRequest } from "../../game-engine/boss/recordBossManualReaction";
 import type { GuildEquipmentOrderRequest, GuildEquipmentOrderResult } from "../../game-engine/equipment/executeGuildEquipmentOrder";
 import type { GuildLoadoutProcurementOrderRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementOrder";
 import type { GuildLoadoutProcurementReservationRequest } from "../../game-engine/loadout-templates/updateGuildLoadoutProcurementReservation";
@@ -266,6 +267,7 @@ interface MainPanelProps {
   onStartBoss: () => void;
   onFinishBoss: () => void;
   onCancelBoss: () => void;
+  onBossManualReaction: (request: BossManualReactionRequest) => void;
   onReviveCharacter: () => void;
   onBuyBlessing: (blessingId: string) => void;
   onClaimBestiaryReward: (monsterId: string) => void;
@@ -386,6 +388,7 @@ export function MainPanel({
   onStartBoss,
   onFinishBoss,
   onCancelBoss,
+  onBossManualReaction,
   onReviveCharacter,
   onBuyBlessing,
   onClaimBestiaryReward,
@@ -431,6 +434,7 @@ export function MainPanel({
           onCollectHunt={onFinishHunt}
           onCollectBoss={onFinishBoss}
           onAbortBoss={onCancelBoss}
+          onBossManualReaction={onBossManualReaction}
           onOpenAction={() => onChangeTab("action")}
           onOpenBlessings={() => onChangeTab("blessings")}
           onOpenExplore={() => onChangeTab("hunts")}

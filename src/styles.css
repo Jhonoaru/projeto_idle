@@ -15989,15 +15989,43 @@ html[data-client-motion="reduced"] *::after {
 .boss-ability-telegraph > em.is-caught { color: #e58b73; }
 .boss-ability-telegraph.profile-quick { border-color: #b95b51; box-shadow: 0 0 20px rgba(185, 61, 48, 0.22), inset 0 0 0 1px #5b2926; }
 .boss-ability-telegraph.profile-quick > span { color: #e28779; }
-.boss-ability-telegraph.profile-quick > div i { background: linear-gradient(90deg, #b63d36, #e59158); }
+.boss-ability-telegraph.profile-quick > .boss-ability-cast-progress i { background: linear-gradient(90deg, #b63d36, #e59158); }
 .boss-ability-telegraph.profile-heavy { border-color: #668f89; box-shadow: 0 0 20px rgba(65, 143, 132, 0.2), inset 0 0 0 1px #294b47; }
 .boss-ability-telegraph.profile-heavy > span { color: #87c0b5; }
-.boss-ability-telegraph.profile-heavy > div i { background: linear-gradient(90deg, #397b73, #d8b86a); }
+.boss-ability-telegraph.profile-heavy > .boss-ability-cast-progress i { background: linear-gradient(90deg, #397b73, #d8b86a); }
 
 
-.boss-ability-telegraph > div { height: 7px; overflow: hidden; border: 1px solid #603828; background: #080706; }
-.boss-ability-telegraph > div i { display: block; height: 100%; background: linear-gradient(90deg, #8d3826, #e6a84f); transition: width 0.2s linear; }
+.boss-ability-telegraph > .boss-ability-cast-progress { height: 7px; overflow: hidden; border: 1px solid #603828; background: #080706; }
+.boss-ability-telegraph > .boss-ability-cast-progress i { display: block; height: 100%; background: linear-gradient(90deg, #8d3826, #e6a84f); transition: width 0.2s linear; }
 .boss-ability-telegraph > b { align-self: center; color: #efbf69; font-size: 0.68rem; }
+
+.boss-manual-reaction-controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 4px;
+}
+.boss-manual-reaction-controls button,
+.boss-manual-reaction-controls > strong {
+  display: grid;
+  place-content: center;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #6c6245;
+  border-radius: 3px;
+  padding: 6px 8px;
+  color: #efd58c;
+  background: #18201c;
+  font-size: 0.64rem;
+  font-weight: 900;
+  text-align: center;
+}
+.boss-manual-reaction-controls button:first-child { border-color: #4e9289; color: #9bd8ce; }
+.boss-manual-reaction-controls button:last-child { border-color: #a8764d; color: #e6b27d; }
+.boss-manual-reaction-controls button small { margin-top: 2px; color: #aab2ab; font-size: 0.55rem; }
+.boss-manual-reaction-controls > strong { grid-column: 1 / -1; }
 
 .boss-scene-party { position: absolute; top: 40%; left: 20%; width: 220px; height: 230px; }
 .boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
@@ -16050,6 +16078,7 @@ html[data-client-motion="reduced"] *::after {
   .boss-scene-party { top: 40%; left: 4%; transform: scale(0.72); transform-origin: left center; }
   .boss-scene-boss-actor { top: 28%; right: 7%; transform: scale(0.82); transform-origin: right center; }
   .boss-ability-telegraph { top: 22%; width: calc(100% - 16px); }
+  .boss-manual-reaction-controls { grid-template-columns: 1fr; }
   .boss-scene-stage-status { right: 8px; bottom: 8px; left: 8px; grid-template-columns: 1fr auto; }
   .boss-scene-stage-status > div { grid-column: 1 / -1; grid-row: 2; }
 }

@@ -1,6 +1,7 @@
 import { SKILL_LABELS } from "../../shared/constants";
 import type { CharacterAction, CombatSkillLoadout, SkillSet, TrainingTarget, Vocation } from "../../shared/types";
 import { normalizeCombatSkillLoadout } from "../combat-skills/normalizeCombatSkillLoadout";
+import { normalizeBossManualReactions } from "../boss/recordBossManualReaction";
 
 const trainingTargets = Object.keys(SKILL_LABELS) as TrainingTarget[];
 
@@ -30,6 +31,7 @@ export function normalizeCharacterAction(
         ...owner,
         combatSkillLoadout: action.combatSkillLoadout ?? owner.combatSkillLoadout,
       }) : action.combatSkillLoadout,
+      ...(action.type === "bossing" ? { bossManualReactions: normalizeBossManualReactions(action.bossManualReactions) } : {}),
     };
   }
   if (!action || action.type !== "training") return action;

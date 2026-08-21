@@ -140,6 +140,7 @@ import { craftEquipment } from "../game-engine/crafting/craftEquipment";
 import { salvageEquipment } from "../game-engine/crafting/salvageEquipment";
 import { reviveCharacter } from "../game-engine/death/reviveCharacter";
 import { recordBossOperationOutcome } from "../game-engine/operations/recordBossOperationOutcome";
+import { recordBossManualReaction, type BossManualReactionRequest } from "../game-engine/boss/recordBossManualReaction";
 import {
   buildGuildRegionMastery,
   getGuildRegionMasteryBonuses,
@@ -505,6 +506,18 @@ export function App() {
     updateSelectedCharacter(updatedCharacter);
     const label = behavior === "safe_windows" ? "Safe Windows" : behavior === "hold_position" ? "Hold Position" : "Automatic";
     prependLog("Boss dodge", `${selectedCharacter.name} set Boss dodge behavior to ${label}.`, "success");
+  }
+
+  function handleBossManualReaction(request: BossManualReactionRequest) {
+    const result = recordBossManualReaction(charactersRef.current, request);
+    if (!result.applied || !result.reaction) return;
+    charactersRef.current = result.characters;
+    setCharacters(result.characters);
+    prependLog(
+      "Boss reaction",
+      `${result.reaction.targetCharacterName} chose ${result.reaction.reactionType === "dodge" ? "Manual Dodge" : "Hold Ground"} against ${result.reaction.abilityName}.`,
+      result.reaction.reactionType === "dodge" ? "success" : "neutral",
+    );
   }
 
   function handleEquipGuildTitle(titleId: string | null) {
@@ -2689,6 +2702,7 @@ export function App() {
           onToggleCombatSkill={handleToggleCombatSkill}
           onChangeDefensiveResponsePriority={handleChangeDefensiveResponsePriority}
           onChangeBossDodgeBehavior={handleChangeBossDodgeBehavior}
+          onBossManualReaction={handleBossManualReaction}
           onFinishQuest={handleFinishQuest}
           onFinishTravel={handleFinishTravel}
           onApplyForgeImbuement={handleApplyForgeImbuement}

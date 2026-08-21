@@ -1101,6 +1101,17 @@ export interface CharacterAttributes {
 
 export type BossDefensiveResponsePriority = "automatic" | "prevent" | "recover";
 export type BossDodgeBehavior = "automatic" | "safe_windows" | "hold_position";
+export type BossManualReactionType = "dodge" | "hold";
+
+export interface BossManualReaction {
+  castId: string;
+  abilityId: string;
+  abilityName: string;
+  targetCharacterId: string;
+  targetCharacterName: string;
+  reactionType: BossManualReactionType;
+  recordedAt: string;
+}
 
 export interface CombatSkillLoadout {
   attackSkillIds: string[];
@@ -1263,6 +1274,8 @@ export interface BossTelegraphDodgeSummary {
   successChancePercent: number;
   rollPercent: number;
   dodged: boolean;
+  manualReaction?: boolean;
+  manualBonusPercent?: number;
 }
 
 export interface BossDodgeTradeOffSummary {
@@ -1275,6 +1288,8 @@ export interface BossDodgeTradeOffSummary {
   successfulDodges: number;
   unavoidedTelegraphs: number;
   offensiveBonusPercent: number;
+  manualHoldCount: number;
+  manualPositionBonusPercent: number;
 }
 
 export interface CombatConditionSummary {
@@ -1667,6 +1682,7 @@ export interface CharacterAction {
   repeatIndex?: number;
   maxRepeatIndex?: number;
   combatSkillLoadout?: CombatSkillLoadout;
+  bossManualReactions?: BossManualReaction[];
 }
 
 export interface HuntAutoRepeatConfig {

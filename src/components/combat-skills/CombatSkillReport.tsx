@@ -171,7 +171,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossTelegraphDodges.slice(0, 8).map((dodge) => (
             <span key={dodge.castId}>
               <b>{dodge.targetCharacterName} / {dodge.dodged ? "dodged" : "caught"}</b>
-              <small>{dodge.abilityName} / {formatDodgeBehavior(dodge.dodgeBehavior)} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
+              <small>{dodge.abilityName} / {dodge.manualReaction ? `Manual Dodge +${dodge.manualBonusPercent}%` : formatDodgeBehavior(dodge.dodgeBehavior)} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
             </span>
           ))}
         </div>
@@ -182,7 +182,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => (
             <span key={entry.characterId}>
               <b>{entry.characterName} / {formatPositioning(entry.positioning)}</b>
-              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
+              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power{entry.manualHoldCount > 0 ? ` (${entry.manualHoldCount} manual hold)` : ""} / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
             </span>
           ))}
         </div>

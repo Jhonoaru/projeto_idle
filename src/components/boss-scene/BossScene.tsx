@@ -6,6 +6,7 @@ import { planBossDefensiveResponses } from "../../game-engine/boss/planBossDefen
 import { planBossInterrupts } from "../../game-engine/boss/planBossInterrupts";
 import { planBossTelegraphDodges } from "../../game-engine/boss/planBossTelegraphDodges";
 import { calculateBossDodgeTradeOffs } from "../../game-engine/boss/calculateBossDodgeTradeOffs";
+import { normalizeBossManualReactions, type BossManualReactionRequest } from "../../game-engine/boss/recordBossManualReaction";
 import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
@@ -25,6 +26,7 @@ interface BossSceneProps {
   onAbortBoss: () => void;
   onCollectBoss: () => void;
   onOpenAction: () => void;
+  onBossManualReaction: (request: BossManualReactionRequest) => void;
 }
 
 export function BossScene({
@@ -35,6 +37,7 @@ export function BossScene({
   onAbortBoss,
   onCollectBoss,
   onOpenAction,
+  onBossManualReaction,
 }: BossSceneProps) {
   const action = character.currentAction;
   const [clock, setClock] = useState(Date.now());
@@ -88,6 +91,24 @@ export function BossScene({
   const activeDodgeBehavior = normalizeBossDodgeBehavior(dodgeTargetLoadout?.bossDodgeBehavior);
   const activeDodgeTradeOff = dodgeTarget ? dodgeTradeOffs.find((entry) => entry.characterId === dodgeTarget.id) : undefined;
   const activeResponse = abilityCast.cast ? defensiveResponses.find((response) => response.castId === abilityCast.cast?.castId) : undefined;
+  const activeManualReaction = abilityCast.cast
+    ? normalizeBossManualReactions(action.bossManualReactions).find((reaction) => reaction.castId === abilityCast.cast?.castId)
+    : undefined;
+  const manualReactionBlocked = Boolean(activeInterrupt && interruptResolved && activeInterrupt.interrupted);
+
+  function reactToActiveCast(reactionType: "dodge" | "hold") {
+    const cast = abilityCast.cast;
+    if (!cast?.targetCharacterId || !cast.targetCharacterName || activeManualReaction || manualReactionBlocked) return;
+    onBossManualReaction({
+      castId: cast.castId,
+      abilityId: cast.abilityId,
+      abilityName: cast.abilityName,
+      targetCharacterId: cast.targetCharacterId,
+      targetCharacterName: cast.targetCharacterName,
+      reactionType,
+      recordedAt: new Date().toISOString(),
+    });
+  }
 
   return (
     <section className={`boss-scene ${ready ? "is-ready" : "is-running"}`}>
@@ -130,6 +151,7 @@ export function BossScene({
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
             <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${formatDodgeBehavior(activeDodge.dodgeBehavior)} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : dodgeTarget ? `${dodgeTarget.name} / ${formatDodgeBehavior(activeDodgeBehavior)} / No attempt` : "Not targeted"}</dd></div>
             <div><dt>Positioning</dt><dd>{activeDodgeTradeOff ? `${formatPositioning(activeDodgeTradeOff.positioning)} / +${activeDodgeTradeOff.offensiveBonusPercent}% power / ${activeDodgeTradeOff.unavoidedTelegraphs} exposed` : "No trade-off"}</dd></div>
+            <div><dt>Manual command</dt><dd>{activeManualReaction ? formatManualReaction(activeManualReaction.reactionType) : manualReactionBlocked ? "Cast interrupted" : abilityCast.state === "telegraphing" ? "Awaiting order" : "No active telegraph"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -170,8 +192,22 @@ export function BossScene({
                   {activeDodge.targetCharacterName}: dodge / {dodgeResolved ? activeDodge.dodged ? "dodged" : "caught" : "ready"} / {activeDodge.successChancePercent}%
                 </em>
               ) : activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready / {formatResponsePriority(activeResponse.configuredPriority)}</em> : <em>No automatic response ready</em>}
-              <div><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
+              <div className="boss-ability-cast-progress"><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
               <b>{formatCastSeconds(abilityCast.remainingMs)}</b>
+              {abilityCast.cast.targetCharacterId ? (
+                <div className="boss-manual-reaction-controls" aria-label="Manual Boss reaction">
+                  {activeManualReaction ? (
+                    <strong>{formatManualReaction(activeManualReaction.reactionType)} locked for this cast</strong>
+                  ) : manualReactionBlocked ? (
+                    <strong>Manual reaction unavailable: cast interrupted</strong>
+                  ) : (
+                    <>
+                      <button onClick={() => reactToActiveCast("dodge")} type="button">Manual Dodge <small>+12% chance</small></button>
+                      <button onClick={() => reactToActiveCast("hold")} type="button">Hold Ground <small>+0.25% power</small></button>
+                    </>
+                  )}
+                </div>
+              ) : null}
             </div>
           ) : null}
           <div className={`boss-scene-party party-size-${Math.min(5, Math.max(1, members.length))}`}>
@@ -225,6 +261,10 @@ function formatDodgeBehavior(behavior: "automatic" | "safe_windows" | "hold_posi
 
 function formatPositioning(value: "mobile" | "selective" | "anchored") {
   return value[0].toUpperCase() + value.slice(1);
+}
+
+function formatManualReaction(value: "dodge" | "hold") {
+  return value === "dodge" ? "Manual Dodge" : "Hold Ground";
 }
 
 function getActiveParty(

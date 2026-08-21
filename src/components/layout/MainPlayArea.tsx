@@ -5,6 +5,7 @@ import { BossScene } from "../boss-scene/BossScene";
 import { Panel } from "../ui/Panel";
 import { getGuildBriefing } from "../../game-engine/onboarding/getGuildBriefing";
 import { getGuildProgression } from "../../game-engine/guild-progression/getGuildProgression";
+import type { BossManualReactionRequest } from "../../game-engine/boss/recordBossManualReaction";
 import type {
   Boss,
   BossDefensiveResponsePriority,
@@ -42,6 +43,7 @@ interface MainPlayAreaProps {
   onReturnToCity: () => void;
   onAbortBoss: () => void;
   onCollectBoss: () => void;
+  onBossManualReaction: (request: BossManualReactionRequest) => void;
   onToggleCombatSkill: (skillId: string) => void;
   onChangeDefensiveResponsePriority: (priority: BossDefensiveResponsePriority) => void;
   onChangeBossDodgeBehavior: (behavior: BossDodgeBehavior) => void;
@@ -67,6 +69,7 @@ export function MainPlayArea({
   onReturnToCity,
   onAbortBoss,
   onCollectBoss,
+  onBossManualReaction,
   onToggleCombatSkill,
   onChangeDefensiveResponsePriority,
   onChangeBossDodgeBehavior,
@@ -116,6 +119,7 @@ export function MainPlayArea({
           character={character}
           characters={characters}
           onAbortBoss={onAbortBoss}
+          onBossManualReaction={onBossManualReaction}
           onCollectBoss={onCollectBoss}
           onOpenAction={onOpenAction}
           party={bossParty}
