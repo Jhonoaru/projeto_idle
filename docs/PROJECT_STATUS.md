@@ -1,6 +1,24 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-17
+Atualizado em: 2026-08-21
+
+## Etapa 159.5 - QA dos trade-offs de esquiva no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.
+- A rodada passou em 30/30 checks com tres personagens reais da guilda contra Khazgrim Gatekeeper, usando alvos e fases produzidos pela engine real.
+- As posturas `Mobile`, `Selective` e `Anchored` foram derivadas corretamente de `Automatic`, `Safe Windows` e `Hold Position`.
+- O grupo misto produziu +0,75% de success power medio; a media conferiu com os bonus individuais e a chance final nao regrediu.
+- Dano bruto e quantidade de casts permaneceram identicos ao grupo totalmente automatico, confirmando que o trade-off afeta apenas success power e exposicao.
+- Exposicao permaneceu igual a telegraphs recebidos menos esquivas bem-sucedidas, e `Hold Position` nao criou nenhuma tentativa de esquiva.
+- Os snapshots mistos permaneceram isolados dos loadouts persistentes, mantidos em `Automatic`, durante Save/Reload e catch-up offline.
+- O fingerprint derivado `3c7624d2` permaneceu identico apos reload, catch-up e um Save/Reload adicional do estado pronto.
+- O SQLite persistiu apenas as politicas do snapshot e do loadout; `bossDodgeTradeOffs`, `positioningAttackBonusPercent` e `unavoidedTelegraphs` nao foram armazenados.
+- O catch-up marcou os tres participantes como `readyToResolve`, gerou tres reports e permaneceu idempotente na segunda aplicacao.
+- Gold, Renown, inventarios e Guild Depot permaneceram inalterados; nenhuma recompensa foi coletada.
+- O banco original foi restaurado com 90.112 bytes e SHA-256 `0377048DC932D80C2FAFCA3683F56F888D576657115EA04D6988A46AF6906930`, sem WAL ou SHM.
+- A primeira compilacao do harness encontrou dois acessos ao nome antigo do campo de reports; eles foram corrigidos antes de qualquer escrita no SQLite.
+- Nenhuma correcao de produto foi necessaria nesta etapa.
+- Proximo passo sugerido: Etapa 160 - comandos manuais de reacao aos telegraphs de Boss.
 
 ## Etapa 159 - Trade-offs ofensivos e posicionais da esquiva
 
@@ -237,6 +255,7 @@ Atualizado em: 2026-08-17
 
 ## Status recente
 
+- Etapa 159.5 concluida: QA real no Tauri/SQLite validou trade-offs, snapshots, reload, catch-up e integridade da economia em 30/30 checks.
 - Etapa 159 concluida: politicas de esquiva agora equilibram mobilidade, exposicao e ate +1,5% de success power com feedback na arena, analyzer e relatorio.
 - Etapa 158.5 concluida: QA real no Tauri/SQLite validou as tres politicas, isolamento de snapshots, cadeia defensiva, reload e catch-up em 32/32 checks.
 - Etapa 158 concluida: cada personagem agora escolhe Automatic, Safe Windows ou Hold Position, com snapshot, UI, planner, analyzer e logs.
