@@ -171,7 +171,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossTelegraphDodges.slice(0, 8).map((dodge) => (
             <span key={dodge.castId}>
               <b>{dodge.targetCharacterName} / {dodge.dodged ? "dodged" : "caught"}</b>
-              <small>{dodge.abilityName} / {dodge.manualReaction ? `Manual Dodge ${formatReactionQuality(dodge.manualReactionQuality)} +${dodge.manualBonusPercent}%` : formatDodgeBehavior(dodge.dodgeBehavior)} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
+              <small>{dodge.abilityName} / {dodge.manualReaction ? `Manual Dodge ${formatReactionQuality(dodge.manualReactionQuality)}${formatPerfectChain(dodge.perfectChainStreak)} +${dodge.manualBonusPercent}%` : formatDodgeBehavior(dodge.dodgeBehavior)} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
             </span>
           ))}
         </div>
@@ -182,7 +182,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => (
             <span key={entry.characterId}>
               <b>{entry.characterName} / {formatPositioning(entry.positioning)}</b>
-              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power{entry.manualHoldCount > 0 ? ` (${formatHoldQualities(entry.manualHoldQualityCounts)})` : ""} / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
+              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power{entry.manualHoldCount > 0 ? ` (${formatHoldQualities(entry.manualHoldQualityCounts)}${formatPerfectChain(entry.maxPerfectReactionStreak)}${entry.perfectHoldChainBonusPercent > 0 ? `, +${entry.perfectHoldChainBonusPercent}% chain` : ""})` : ""} / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
             </span>
           ))}
         </div>
@@ -214,6 +214,10 @@ function formatHoldQualities(counts: CombatSkillPartyEffectSummary["bossDodgeTra
     .filter((quality) => counts[quality] > 0)
     .map((quality) => `${counts[quality]} ${formatReactionQuality(quality)} hold`)
     .join(", ");
+}
+
+function formatPerfectChain(streak: number | undefined) {
+  return streak && streak > 1 ? ` / Perfect chain x${streak}` : "";
 }
 
 function roleLabel(role: CombatSkillPartyEffectSummary["threat"]["members"][number]["role"]) {

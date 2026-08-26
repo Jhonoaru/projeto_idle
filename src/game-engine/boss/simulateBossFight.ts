@@ -92,8 +92,8 @@ export function simulateBossFight(
     ...(combatSkillEffects.bossDefensiveResponses.length > 0 ? [`Automatic Boss responses: ${combatSkillEffects.bossDefensiveResponses.length} telegraphs answered with reserved support casts.`] : []),
     ...(combatSkillEffects.bossInterrupts.length > 0 ? [`Boss interrupts: ${combatSkillEffects.bossInterrupts.filter((entry) => entry.interrupted).length}/${combatSkillEffects.bossInterrupts.length} casts interrupted with reserved attack events.`] : []),
     ...(combatSkillEffects.bossTelegraphDodges.length > 0 ? [`Boss telegraph dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.length} targeted casts avoided (${formatDodgeProfiles(combatSkillEffects.bossTelegraphDodges)}).`] : []),
-    ...(combatSkillEffects.bossTelegraphDodges.some((entry) => entry.manualReaction) ? [`Manual dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction && entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction).length} manual attempts succeeded (${formatManualDodgeQualities(combatSkillEffects.bossTelegraphDodges)}).`] : []),
-    ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.manualHoldCount > 0) ? [`Hold Ground commands: ${combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualHoldCount, 0)} casts held for +${rounded(combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualPositionBonusPercent, 0))}% member positioning power (${formatManualHoldQualities(combatSkillEffects.bossDodgeTradeOffs)}).`] : []),
+    ...(combatSkillEffects.bossTelegraphDodges.some((entry) => entry.manualReaction) ? [`Manual dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction && entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction).length} manual attempts succeeded (${formatManualDodgeQualities(combatSkillEffects.bossTelegraphDodges)}${formatBestDodgePerfectChain(combatSkillEffects.bossTelegraphDodges)}).`] : []),
+    ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.manualHoldCount > 0) ? [`Hold Ground commands: ${combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualHoldCount, 0)} casts held for +${rounded(combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualPositionBonusPercent, 0))}% member positioning power (${formatManualHoldQualities(combatSkillEffects.bossDodgeTradeOffs)}${formatBestHoldPerfectChain(combatSkillEffects.bossDodgeTradeOffs)}).`] : []),
     ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.targetedTelegraphs > 0) ? [`Dodge positioning: ${combatSkillEffects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => `${entry.characterName} ${entry.positioning} (+${entry.offensiveBonusPercent}% power, ${entry.unavoidedTelegraphs} exposed)`).join("; ")}. Party positioning bonus +${combatSkillEffects.positioningAttackBonusPercent}%.`] : []),
     `Boss dodge behaviors: ${participants.map((character) => `${character.name} ${formatDodgeBehavior(normalizeBossDodgeBehavior(character.currentAction?.combatSkillLoadout?.bossDodgeBehavior ?? character.combatSkillLoadout?.bossDodgeBehavior))}`).join("; ")}.`,
     ...(threatReport ? [`Aggro report: ${threatReport}. Tank control ${combatSkillEffects.threat.tankAggroControlPercent}% (-${combatSkillEffects.threat.aggroRiskReductionPercent}% party death risk).`] : []),
@@ -186,4 +186,15 @@ function formatManualHoldQualities(entries: CombatSkillPartyEffectSummary["bossD
     })
     .filter(Boolean)
     .join(", ");
+}
+
+function formatBestDodgePerfectChain(entries: BossTelegraphDodgeSummary[]) {
+  const best = entries.reduce((maximum, entry) => Math.max(maximum, entry.perfectChainStreak ?? 0), 0);
+  return best > 1 ? `, best Perfect chain x${best}` : "";
+}
+
+function formatBestHoldPerfectChain(entries: CombatSkillPartyEffectSummary["bossDodgeTradeOffs"]) {
+  const best = entries.reduce((maximum, entry) => Math.max(maximum, entry.maxPerfectReactionStreak), 0);
+  const bonus = rounded(entries.reduce((sum, entry) => sum + entry.perfectHoldChainBonusPercent, 0));
+  return best > 1 ? `, best Perfect chain x${best}, +${bonus}% chain power` : "";
 }

@@ -2,6 +2,7 @@ import type { BossAbilityCastSummary, BossTelegraphDodgeSummary, Character } fro
 import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
 import { normalizeBossManualReactions } from "./recordBossManualReaction";
 import { getBossManualReactionEffects, normalizeBossManualReactionQuality } from "./getBossManualReactionTiming";
+import { calculateBossPerfectReactionChains } from "./calculateBossPerfectReactionChains";
 
 const MAX_DURATION_MS = 8 * 60 * 60_000;
 
@@ -12,6 +13,13 @@ export function planBossTelegraphDodges(
 ): BossTelegraphDodgeSummary[] {
   const duration = normalizeDuration(durationMs);
   const charactersById = new Map(characters.map((character) => [character.id, character]));
+  const perfectChainsByCharacterId = new Map(characters.map((character) => [
+    character.id,
+    calculateBossPerfectReactionChains(
+      normalizeBossManualReactions(character.currentAction?.bossManualReactions),
+      abilityCasts,
+    ),
+  ]));
 
   return [...abilityCasts]
     .filter((cast) => (
@@ -47,7 +55,9 @@ export function planBossTelegraphDodges(
       );
       const manualBonusPercent = manualReaction?.reactionType === "dodge"
         ? getBossManualReactionEffects(manualReaction.quality).dodgeBonusPercent
+          + (perfectChainsByCharacterId.get(character.id)?.find((entry) => entry.castId === cast.castId)?.dodgeBonusPercent ?? 0)
         : 0;
+      const perfectChain = perfectChainsByCharacterId.get(character.id)?.find((entry) => entry.castId === cast.castId);
       const successChancePercent = bounded(automaticChancePercent + manualBonusPercent, 3, manualBonusPercent > 0 ? 85 : 75, 3);
       const rollPercent = deterministicPercent(`${cast.castId}:${character.id}:telegraph-dodge`);
       return [{
@@ -70,6 +80,8 @@ export function planBossTelegraphDodges(
           manualReaction: true,
           manualBonusPercent,
           manualReactionQuality: normalizeBossManualReactionQuality(manualReaction?.quality),
+          perfectChainStreak: perfectChain?.streak ?? 0,
+          perfectChainBonusPercent: perfectChain?.dodgeBonusPercent ?? 0,
         } : {}),
       }];
     });

@@ -7,6 +7,7 @@ import type {
 import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
 import { normalizeBossManualReactions } from "./recordBossManualReaction";
 import { getBossManualReactionEffects, normalizeBossManualReactionQuality } from "./getBossManualReactionTiming";
+import { calculateBossPerfectReactionChains } from "./calculateBossPerfectReactionChains";
 
 export function calculateBossDodgeTradeOffs(
   characters: Character[],
@@ -14,6 +15,10 @@ export function calculateBossDodgeTradeOffs(
   dodges: BossTelegraphDodgeSummary[],
 ): BossDodgeTradeOffSummary[] {
   return characters.map((character) => {
+    const perfectChains = calculateBossPerfectReactionChains(
+      normalizeBossManualReactions(character.currentAction?.bossManualReactions),
+      abilityCasts,
+    );
     const behavior = normalizeBossDodgeBehavior(
       character.currentAction?.combatSkillLoadout?.bossDodgeBehavior
         ?? character.combatSkillLoadout?.bossDodgeBehavior,
@@ -25,10 +30,18 @@ export function calculateBossDodgeTradeOffs(
     const manualHolds = normalizeBossManualReactions(character.currentAction?.bossManualReactions)
       .filter((entry) => entry.targetCharacterId === character.id && entry.reactionType === "hold" && targetedCastIds.has(entry.castId));
     const manualHoldCount = manualHolds.length;
-    const manualPositionBonusPercent = rounded(Math.min(1, manualHolds.reduce(
+    const baseManualPositionBonusPercent = manualHolds.reduce(
       (sum, entry) => sum + getBossManualReactionEffects(entry.quality).holdPowerPercent,
       0,
-    )));
+    );
+    const perfectHoldChainBonusRaw = manualHolds.reduce(
+      (sum, entry) => sum + (perfectChains.find((chain) => chain.castId === entry.castId)?.holdPowerPercent ?? 0),
+      0,
+    );
+    const manualPositionBonusPercent = rounded(Math.min(1, baseManualPositionBonusPercent + perfectHoldChainBonusRaw));
+    const perfectHoldChainBonusPercent = rounded(
+      Math.max(0, manualPositionBonusPercent - Math.min(1, baseManualPositionBonusPercent)),
+    );
     const manualHoldQualityCounts = manualHolds.reduce((counts, entry) => ({
       ...counts,
       [normalizeBossManualReactionQuality(entry.quality)]: counts[normalizeBossManualReactionQuality(entry.quality)] + 1,
@@ -51,6 +64,10 @@ export function calculateBossDodgeTradeOffs(
       manualHoldCount,
       manualPositionBonusPercent,
       manualHoldQualityCounts,
+      maxPerfectReactionStreak: perfectChains
+        .filter((entry) => entry.targetCharacterId === character.id && entry.reactionType === "hold")
+        .reduce((maximum, entry) => Math.max(maximum, entry.streak), 0),
+      perfectHoldChainBonusPercent,
     };
   });
 }

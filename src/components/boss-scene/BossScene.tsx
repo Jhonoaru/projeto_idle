@@ -12,10 +12,11 @@ import {
   getBossManualReactionTiming,
   normalizeBossManualReactionQuality,
 } from "../../game-engine/boss/getBossManualReactionTiming";
+import { calculateBossPerfectReactionChains } from "../../game-engine/boss/calculateBossPerfectReactionChains";
 import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
-import type { Boss, BossParty, Character } from "../../shared/types";
+import type { Boss, BossManualReaction, BossParty, Character } from "../../shared/types";
 import { BossSprite } from "../boss/BossSprite";
 import { BossPhaseTimeline, getActiveBossPhase } from "../boss/BossPhaseTimeline";
 import { CharacterSprite } from "../characters/CharacterSprite";
@@ -75,6 +76,8 @@ export function BossScene({
   const interrupts = threat ? planBossInterrupts(responseParticipants, threat.abilityCasts, totalMs) : [];
   const interruptedCastIds = new Set(interrupts.filter((entry) => entry.interrupted).map((entry) => entry.castId));
   const dodgeEligibleCasts = threat ? threat.abilityCasts.filter((cast) => !interruptedCastIds.has(cast.castId)) : [];
+  const allManualReactions = normalizeBossManualReactions(action.bossManualReactions);
+  const perfectReactionChains = calculateBossPerfectReactionChains(allManualReactions, dodgeEligibleCasts);
   const telegraphDodges = planBossTelegraphDodges(members.map((member) => member.character), dodgeEligibleCasts, totalMs);
   const dodgeTradeOffs = calculateBossDodgeTradeOffs(members.map((member) => member.character), dodgeEligibleCasts, telegraphDodges);
   const positioningAttackBonusPercent = dodgeTradeOffs.reduce((sum, entry) => sum + entry.offensiveBonusPercent, 0) / Math.max(1, members.length);
@@ -103,7 +106,19 @@ export function BossScene({
   const manualTiming = abilityCast.cast
     ? getBossManualReactionTiming(action.startedAt, abilityCast.cast, new Date(clock))
     : undefined;
+  const activePerfectChain = abilityCast.cast
+    ? perfectReactionChains.find((entry) => entry.castId === abilityCast.cast?.castId)
+    : undefined;
+  const projectedPerfectChain = abilityCast.cast?.targetCharacterId && !activeManualReaction && manualTiming?.quality === "perfect"
+    ? calculateBossPerfectReactionChains([
+      ...allManualReactions,
+      createProjectedPerfectReaction(abilityCast.cast, new Date(clock).toISOString()),
+    ], dodgeEligibleCasts).find((entry) => entry.castId === abilityCast.cast?.castId)
+    : undefined;
+  const displayedPerfectChain = activePerfectChain ?? projectedPerfectChain;
   const manualEffects = getBossManualReactionEffects(manualTiming?.quality);
+  const manualDodgeBonusPercent = manualEffects.dodgeBonusPercent + (displayedPerfectChain?.dodgeBonusPercent ?? 0);
+  const manualHoldPowerPercent = rounded(manualEffects.holdPowerPercent + (displayedPerfectChain?.holdPowerPercent ?? 0));
 
   function reactToActiveCast(reactionType: "dodge" | "hold") {
     const cast = abilityCast.cast;
@@ -162,7 +177,7 @@ export function BossScene({
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
             <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${formatDodgeBehavior(activeDodge.dodgeBehavior)} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : dodgeTarget ? `${dodgeTarget.name} / ${formatDodgeBehavior(activeDodgeBehavior)} / No attempt` : "Not targeted"}</dd></div>
             <div><dt>Positioning</dt><dd>{activeDodgeTradeOff ? `${formatPositioning(activeDodgeTradeOff.positioning)} / +${activeDodgeTradeOff.offensiveBonusPercent}% power / ${activeDodgeTradeOff.unavoidedTelegraphs} exposed` : "No trade-off"}</dd></div>
-            <div><dt>Manual command</dt><dd>{activeManualReaction ? `${formatManualReaction(activeManualReaction.reactionType)} / ${formatReactionQuality(activeManualReaction.quality)}` : manualReactionBlocked ? "Cast interrupted" : abilityCast.state === "telegraphing" ? `${formatReactionQuality(manualTiming?.quality)} window` : "No active telegraph"}</dd></div>
+            <div><dt>Manual command</dt><dd>{activeManualReaction ? `${formatManualReaction(activeManualReaction.reactionType)} / ${formatReactionQuality(activeManualReaction.quality)}${formatPerfectChain(displayedPerfectChain?.streak)}` : manualReactionBlocked ? "Cast interrupted" : abilityCast.state === "telegraphing" ? `${formatReactionQuality(manualTiming?.quality)} window${formatPerfectChain(projectedPerfectChain?.streak)}` : "No active telegraph"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -209,7 +224,7 @@ export function BossScene({
                 <div className={`boss-manual-reaction-controls quality-${normalizeBossManualReactionQuality(activeManualReaction?.quality ?? manualTiming?.quality)}`} aria-label="Manual Boss reaction">
                   <div className="boss-manual-reaction-timing">
                     <span>{activeManualReaction ? "Reaction quality" : "Current timing"}</span>
-                    <strong>{formatReactionQuality(activeManualReaction?.quality ?? manualTiming?.quality)}</strong>
+                    <strong>{formatReactionQuality(activeManualReaction?.quality ?? manualTiming?.quality)}{formatPerfectChain(displayedPerfectChain?.streak)}</strong>
                     <div aria-hidden="true">
                       <i className="is-early" />
                       <i className="is-perfect" />
@@ -219,13 +234,13 @@ export function BossScene({
                     <small>{activeManualReaction?.timingPercent !== undefined ? `${Math.round(activeManualReaction.timingPercent)}% into cast` : manualTiming?.timingPercent !== undefined ? `${Math.round(manualTiming.timingPercent)}% into cast` : "Standard timing"}</small>
                   </div>
                   {activeManualReaction ? (
-                    <strong>{formatManualReaction(activeManualReaction.reactionType)} locked / {formatReactionQuality(activeManualReaction.quality)}</strong>
+                    <strong>{formatManualReaction(activeManualReaction.reactionType)} locked / {formatReactionQuality(activeManualReaction.quality)}{formatPerfectChain(displayedPerfectChain?.streak)}</strong>
                   ) : manualReactionBlocked ? (
                     <strong>Manual reaction unavailable: cast interrupted</strong>
                   ) : (
                     <>
-                      <button onClick={() => reactToActiveCast("dodge")} type="button">Manual Dodge <small>+{manualEffects.dodgeBonusPercent}% chance</small></button>
-                      <button onClick={() => reactToActiveCast("hold")} type="button">Hold Ground <small>+{manualEffects.holdPowerPercent}% power</small></button>
+                      <button onClick={() => reactToActiveCast("dodge")} type="button">Manual Dodge <small>+{manualDodgeBonusPercent}% chance{formatPerfectChain(projectedPerfectChain?.streak)}</small></button>
+                      <button onClick={() => reactToActiveCast("hold")} type="button">Hold Ground <small>+{manualHoldPowerPercent}% power{formatPerfectChain(projectedPerfectChain?.streak)}</small></button>
                     </>
                   )}
                 </div>
@@ -292,6 +307,31 @@ function formatManualReaction(value: "dodge" | "hold") {
 function formatReactionQuality(value: unknown) {
   const quality = normalizeBossManualReactionQuality(value);
   return quality === "perfect" ? "Perfect" : quality === "early" ? "Early" : quality === "late" ? "Late" : "Standard";
+}
+
+function formatPerfectChain(streak: number | undefined) {
+  return streak && streak > 1 ? ` / Perfect chain x${streak}` : "";
+}
+
+function createProjectedPerfectReaction(
+  cast: NonNullable<ReturnType<typeof getBossAbilityCastState>["cast"]>,
+  recordedAt: string,
+): BossManualReaction {
+  return {
+    castId: cast.castId,
+    abilityId: cast.abilityId,
+    abilityName: cast.abilityName,
+    targetCharacterId: cast.targetCharacterId!,
+    targetCharacterName: cast.targetCharacterName ?? "Unknown",
+    reactionType: "dodge",
+    recordedAt,
+    quality: "perfect",
+    timingPercent: 50,
+  };
+}
+
+function rounded(value: number) {
+  return Math.round(value * 100) / 100;
 }
 
 function getActiveParty(

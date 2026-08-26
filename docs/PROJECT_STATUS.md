@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-08-26
 
+## Etapa 162 - Sequencias Perfect e bonus de execucao em Bosses
+
+- Reacoes manuais `Perfect` consecutivas agora formam uma sequencia independente por personagem e podem misturar `Manual Dodge` com `Hold Ground`.
+- O primeiro `Perfect` mantem os efeitos da Etapa 161; o segundo, terceiro e quarto adicionam respectivamente +2, +4 e +6 pontos percentuais de esquiva ou +0,05%, +0,10% e +0,15% de posicionamento.
+- O bonus fica limitado no quarto acerto, enquanto o contador pode continuar exibindo a sequencia real; a chance final de esquiva continua limitada a 85% e o posicionamento manual a +1% por personagem.
+- `Early`, `Late`, `Standard` e um telegraph direcionado sem comando quebram a sequencia daquele personagem. Casts interrompidos sao excluidos antes do calculo e nao avancam nem quebram a cadeia.
+- A ordem usa o inicio deterministico dos casts, e nao o relogio do save. Sequencias sao derivadas das reacoes ja persistidas em `current_action_json`, sem nova coluna, migracao ou campo redundante.
+- Saves antigos continuam seguros: reacoes sem qualidade normalizam como `Standard`, nao recebem bonus e reiniciam a sequencia.
+- A Boss Scene mostra a proxima cadeia e o bonus total antes do clique, trava o resultado depois da reacao e atualiza o Raid Analyzer e a chance do cast imediatamente.
+- Combat Skill Report e log final da simulacao exibem a melhor cadeia, bonus de esquiva aplicado e contribuicao efetiva de posicionamento depois dos limites.
+- Checks deterministas temporarios passaram em 28/28, cobrindo progressao, teto, reset, telegraph ignorado, alvos independentes, ordem de casts, interrupcao excluida, legado, esquiva e Hold Ground.
+- QA interativo passou em 1280x800 e 390x844: a segunda reacao mostrou `Perfect chain x2`, +18% de esquiva e +0,45% de Hold; apos o clique, a chance subiu de 37,9% para 55,9% e o estado ficou travado sem overflow horizontal.
+- Os harnesses temporarios foram removidos antes da validacao final.
+- Limitacao atual: sequencias exigem reacoes manuais durante a raid; telegraphs processados com o jogo fechado continuam usando somente as politicas automaticas.
+- Proximo passo sugerido: Etapa 162.5 - QA das sequencias Perfect no Tauri/SQLite e catch-up offline.
+
 ## Etapa 161.5 - QA do timing manual no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.

@@ -1280,6 +1280,8 @@ export interface BossTelegraphDodgeSummary {
   manualReaction?: boolean;
   manualBonusPercent?: number;
   manualReactionQuality?: BossManualReactionQuality;
+  perfectChainStreak?: number;
+  perfectChainBonusPercent?: number;
 }
 
 export interface BossDodgeTradeOffSummary {
@@ -1295,6 +1297,8 @@ export interface BossDodgeTradeOffSummary {
   manualHoldCount: number;
   manualPositionBonusPercent: number;
   manualHoldQualityCounts: Record<BossManualReactionQuality, number>;
+  maxPerfectReactionStreak: number;
+  perfectHoldChainBonusPercent: number;
 }
 
 export interface CombatConditionSummary {
