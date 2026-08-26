@@ -2,6 +2,25 @@
 
 Atualizado em: 2026-08-26
 
+## Etapa 161.5 - QA do timing manual no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.
+- A rodada passou em 35/35 checks com tres personagens reais da guilda contra Khazgrim Gatekeeper e encontrou 22 casts direcionados nao interrompidos elegiveis.
+- Foram gravadas reacoes reais em 20% (`Early`), 50% (`Perfect`) e 90% (`Late`), alem de um comando legado sem janela que normalizou como `Standard`.
+- `Early Manual Dodge` concedeu +8 pontos percentuais, `Perfect Manual Dodge` concedeu +16 e o comando `Standard` preservou +12, todos mantendo os mesmos rolls deterministicos da simulacao sem reacao.
+- `Late Hold Ground` suprimiu a tentativa de esquiva, concedeu +0,15% ao personagem e produziu +0,05% de positioning power medio na party de tres membros.
+- Um comando em 110% da janela e um segundo comando para um cast ja respondido foram rejeitados sem mutacao.
+- Os quatro comandos foram sincronizados nos snapshots dos tres participantes sem modificar os objetos originais nem os loadouts permanentes em `Automatic`.
+- Save/Reload preservou cast, alvo, tipo, horario, qualidade e percentual exatos das reacoes.
+- O SQLite armazenou `quality` e `timingPercent` somente em `current_action_json`; dodges, trade-offs, rolls e demais resultados derivados nao foram persistidos.
+- O fingerprint derivado permaneceu identico antes e depois do reload e catch-up, com 943 casts de personagem e 267.245 de dano total na simulacao usada pelo QA.
+- O catch-up offline gerou tres reports, marcou os participantes como `readyToResolve` e preservou timing e qualidade sem coletar recompensas.
+- Uma segunda aplicacao do catch-up gerou zero reports e nenhuma mudanca, confirmando idempotencia.
+- Gold, Renown, inventarios e Guild Depot permaneceram inalterados durante toda a rodada.
+- O banco original foi restaurado com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, sem WAL ou SHM.
+- Nenhuma correcao de produto foi necessaria; o bootstrap normal voltou a compilar com 477 modulos depois da remocao do harness.
+- Proximo passo sugerido: Etapa 162 - sequencias de reacao e bonus de execucao perfeita em Bosses.
+
 ## Etapa 161 - Timing e qualidade das reacoes manuais de Boss
 
 - Reacoes manuais agora recebem uma qualidade deterministica pela posicao real do clique dentro do telegraph: `Early` antes de 35%, `Perfect` entre 35% e 75% e `Late` depois de 75%.
