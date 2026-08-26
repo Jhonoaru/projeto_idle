@@ -1,6 +1,24 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-21
+Atualizado em: 2026-08-26
+
+## Etapa 160.5 - QA dos comandos manuais no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.
+- A rodada passou em 31/31 checks com tres personagens reais da guilda contra Khazgrim Gatekeeper e encontrou 22 casts direcionados nao interrompidos elegiveis.
+- `Manual Dodge` foi aplicado a um cast de Iron Bulwark, preservou o roll deterministico de 0,16% e elevou a chance de 19,34% para 31,34% com o bonus exato de 12 pontos percentuais.
+- `Hold Ground` suprimiu a tentativa do segundo cast, concedeu +0,25% ao personagem alvo e produziu +0,08% de positioning power medio para a party de tres membros.
+- Os dois comandos foram sincronizados nos snapshots dos tres participantes; uma segunda ordem para o mesmo cast foi rejeitada sem criar mutacao.
+- Save/Reload preservou integralmente cast, alvo, tipo e horario das reacoes, mantendo os loadouts permanentes em `Automatic`.
+- O SQLite armazenou somente `bossManualReactions` dentro de `current_action_json`; resultados derivados, rolls, dodges e trade-offs nao foram persistidos.
+- O fingerprint derivado permaneceu identico antes e depois do reload, com 943 casts de personagem e 267.245 de dano total na simulacao usada pelo QA.
+- O catch-up offline marcou os tres participantes como `readyToResolve`, preservou comandos e resultados derivados e gerou tres reports sem coletar recompensas.
+- Uma segunda aplicacao do catch-up gerou zero reports e nenhuma mudanca, confirmando idempotencia.
+- Gold, Renown, inventarios e Guild Depot permaneceram inalterados durante Save/Reload e catch-up.
+- O banco original foi restaurado com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, sem WAL ou SHM.
+- A primeira compilacao do harness encontrou um loadout opcional sem normalizacao; a tipagem foi corrigida antes de iniciar o Tauri ou escrever no SQLite.
+- Nenhuma correcao de produto foi necessaria nesta etapa; `npm run build` passou antes e depois do QA.
+- Proximo passo sugerido: Etapa 161 - timing e qualidade das reacoes manuais aos telegraphs de Boss.
 
 ## Etapa 160 - Comandos manuais de reacao aos telegraphs de Boss
 
