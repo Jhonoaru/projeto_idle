@@ -515,7 +515,7 @@ export function App() {
     setCharacters(result.characters);
     prependLog(
       "Boss reaction",
-      `${result.reaction.targetCharacterName} chose ${result.reaction.reactionType === "dodge" ? "Manual Dodge" : "Hold Ground"} against ${result.reaction.abilityName}.`,
+      `${result.reaction.targetCharacterName} chose ${result.reaction.reactionType === "dodge" ? "Manual Dodge" : "Hold Ground"} against ${result.reaction.abilityName} (${formatBossReactionQuality(result.reaction.quality)} timing).`,
       result.reaction.reactionType === "dodge" ? "success" : "neutral",
     );
   }
@@ -2915,4 +2915,8 @@ function removeInventoryItemById(items: InventoryItem[], inventoryItemId: string
 function hasContainerContents(items: InventoryItem[], inventoryItem: InventoryItem) {
   return inventoryItem.item.isContainer === true &&
     getContainerContents(items, inventoryItem.id).length > 0;
+}
+
+function formatBossReactionQuality(value: unknown) {
+  return value === "perfect" ? "Perfect" : value === "early" ? "Early" : value === "late" ? "Late" : "Standard";
 }

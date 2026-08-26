@@ -171,7 +171,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossTelegraphDodges.slice(0, 8).map((dodge) => (
             <span key={dodge.castId}>
               <b>{dodge.targetCharacterName} / {dodge.dodged ? "dodged" : "caught"}</b>
-              <small>{dodge.abilityName} / {dodge.manualReaction ? `Manual Dodge +${dodge.manualBonusPercent}%` : formatDodgeBehavior(dodge.dodgeBehavior)} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
+              <small>{dodge.abilityName} / {dodge.manualReaction ? `Manual Dodge ${formatReactionQuality(dodge.manualReactionQuality)} +${dodge.manualBonusPercent}%` : formatDodgeBehavior(dodge.dodgeBehavior)} / {formatTelegraphProfile(dodge.telegraphProfile)} {formatProfileModifier(dodge.profileModifierPercent)} / {dodge.successChancePercent}% chance / {dodge.reactionWindowSeconds}s reaction</small>
             </span>
           ))}
         </div>
@@ -182,7 +182,7 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
           {effects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => (
             <span key={entry.characterId}>
               <b>{entry.characterName} / {formatPositioning(entry.positioning)}</b>
-              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power{entry.manualHoldCount > 0 ? ` (${entry.manualHoldCount} manual hold)` : ""} / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
+              <small>{formatDodgeBehavior(entry.dodgeBehavior)} / +{entry.offensiveBonusPercent}% power{entry.manualHoldCount > 0 ? ` (${formatHoldQualities(entry.manualHoldQualityCounts)})` : ""} / {entry.successfulDodges}/{entry.dodgeAttempts} dodges / {entry.unavoidedTelegraphs} exposed</small>
             </span>
           ))}
         </div>
@@ -203,6 +203,17 @@ export function PartyCombatSkillReport({ effects }: { effects: CombatSkillPartyE
 function formatMemberAggro(effects: CombatSkillPartyEffectSummary, characterId: string) {
   const threat = effects.threat.members.find((member) => member.characterId === characterId);
   return threat ? `${threat.threatPercent}% aggro` : "No aggro";
+}
+
+function formatReactionQuality(value: unknown) {
+  return value === "perfect" ? "Perfect" : value === "early" ? "Early" : value === "late" ? "Late" : "Standard";
+}
+
+function formatHoldQualities(counts: CombatSkillPartyEffectSummary["bossDodgeTradeOffs"][number]["manualHoldQualityCounts"]) {
+  return (["perfect", "early", "late", "standard"] as const)
+    .filter((quality) => counts[quality] > 0)
+    .map((quality) => `${counts[quality]} ${formatReactionQuality(quality)} hold`)
+    .join(", ");
 }
 
 function roleLabel(role: CombatSkillPartyEffectSummary["threat"]["members"][number]["role"]) {

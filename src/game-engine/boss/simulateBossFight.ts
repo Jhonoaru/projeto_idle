@@ -11,6 +11,7 @@ import type {
   BossSimulationResult,
   BossTelegraphDodgeSummary,
   Character,
+  CombatSkillPartyEffectSummary,
 } from "../../shared/types";
 
 export function simulateBossFight(
@@ -91,8 +92,8 @@ export function simulateBossFight(
     ...(combatSkillEffects.bossDefensiveResponses.length > 0 ? [`Automatic Boss responses: ${combatSkillEffects.bossDefensiveResponses.length} telegraphs answered with reserved support casts.`] : []),
     ...(combatSkillEffects.bossInterrupts.length > 0 ? [`Boss interrupts: ${combatSkillEffects.bossInterrupts.filter((entry) => entry.interrupted).length}/${combatSkillEffects.bossInterrupts.length} casts interrupted with reserved attack events.`] : []),
     ...(combatSkillEffects.bossTelegraphDodges.length > 0 ? [`Boss telegraph dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.length} targeted casts avoided (${formatDodgeProfiles(combatSkillEffects.bossTelegraphDodges)}).`] : []),
-    ...(combatSkillEffects.bossTelegraphDodges.some((entry) => entry.manualReaction) ? [`Manual dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction && entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction).length} manual attempts succeeded.`] : []),
-    ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.manualHoldCount > 0) ? [`Hold Ground commands: ${combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualHoldCount, 0)} casts held for +${combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualPositionBonusPercent, 0)}% member positioning power.`] : []),
+    ...(combatSkillEffects.bossTelegraphDodges.some((entry) => entry.manualReaction) ? [`Manual dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction && entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction).length} manual attempts succeeded (${formatManualDodgeQualities(combatSkillEffects.bossTelegraphDodges)}).`] : []),
+    ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.manualHoldCount > 0) ? [`Hold Ground commands: ${combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualHoldCount, 0)} casts held for +${rounded(combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualPositionBonusPercent, 0))}% member positioning power (${formatManualHoldQualities(combatSkillEffects.bossDodgeTradeOffs)}).`] : []),
     ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.targetedTelegraphs > 0) ? [`Dodge positioning: ${combatSkillEffects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => `${entry.characterName} ${entry.positioning} (+${entry.offensiveBonusPercent}% power, ${entry.unavoidedTelegraphs} exposed)`).join("; ")}. Party positioning bonus +${combatSkillEffects.positioningAttackBonusPercent}%.`] : []),
     `Boss dodge behaviors: ${participants.map((character) => `${character.name} ${formatDodgeBehavior(normalizeBossDodgeBehavior(character.currentAction?.combatSkillLoadout?.bossDodgeBehavior ?? character.combatSkillLoadout?.bossDodgeBehavior))}`).join("; ")}.`,
     ...(threatReport ? [`Aggro report: ${threatReport}. Tank control ${combatSkillEffects.threat.tankAggroControlPercent}% (-${combatSkillEffects.threat.aggroRiskReductionPercent}% party death risk).`] : []),
@@ -165,4 +166,24 @@ function formatDodgeProfiles(entries: BossTelegraphDodgeSummary[]) {
 
 function formatDodgeBehavior(value: "automatic" | "safe_windows" | "hold_position" | undefined) {
   return value === "safe_windows" ? "Safe Windows" : value === "hold_position" ? "Hold Position" : "Automatic";
+}
+
+function formatManualDodgeQualities(entries: BossTelegraphDodgeSummary[]) {
+  return (["perfect", "early", "late", "standard"] as const)
+    .map((quality) => {
+      const count = entries.filter((entry) => entry.manualReaction && (entry.manualReactionQuality ?? "standard") === quality).length;
+      return count > 0 ? `${quality} ${count}` : "";
+    })
+    .filter(Boolean)
+    .join(", ");
+}
+
+function formatManualHoldQualities(entries: CombatSkillPartyEffectSummary["bossDodgeTradeOffs"]) {
+  return (["perfect", "early", "late", "standard"] as const)
+    .map((quality) => {
+      const count = entries.reduce((sum, entry) => sum + entry.manualHoldQualityCounts[quality], 0);
+      return count > 0 ? `${quality} ${count}` : "";
+    })
+    .filter(Boolean)
+    .join(", ");
 }

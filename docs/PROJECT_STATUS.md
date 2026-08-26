@@ -2,6 +2,24 @@
 
 Atualizado em: 2026-08-26
 
+## Etapa 161 - Timing e qualidade das reacoes manuais de Boss
+
+- Reacoes manuais agora recebem uma qualidade deterministica pela posicao real do clique dentro do telegraph: `Early` antes de 35%, `Perfect` entre 35% e 75% e `Late` depois de 75%.
+- `Manual Dodge` recebe +8 pontos percentuais em `Early`, +16 em `Perfect` e +6 em `Late`; a chance final continua limitada a 85% e usa exatamente o mesmo roll deterministico do cast.
+- `Hold Ground` concede +0,20% em `Early`, +0,40% em `Perfect` e +0,15% em `Late`, com soma arredondada e limite preservado de +1% por personagem.
+- Comandos da Etapa 160 sem informacao temporal continuam como `Standard`, preservando +12 pontos de esquiva ou +0,25% de posicionamento em saves antigos.
+- A engine calcula o percentual usando `action.startedAt`, inicio/fim relativo do cast e `recordedAt`; pedidos temporizados antes ou depois da janela ativa sao rejeitados sem mutacao.
+- Qualidade e percentual do clique entram no snapshot sincronizado da raid, portanto Save/Reload e catch-up podem reproduzir o mesmo resultado sem persistir rolls ou efeitos derivados.
+- A Boss Scene ganhou uma regua compacta com zonas Early/Perfect/Late, marcador movel, bonus dinamicos nos dois comandos e estado travado com a qualidade obtida.
+- Raid Analyzer, Activity Log, Combat Skill Report e log final da simulacao exibem qualidade, bonus e distribuicao dos comandos manuais.
+- A atualizacao visual ocorre a cada 200 ms, com transicao suave do marcador, sem elevar desnecessariamente a recomputacao da cena para 10 quadros por segundo.
+- Checks deterministas temporarios passaram em 26/26, cobrindo fronteiras de 35%/75%, relogios invalidos, bonus, roll preservado, sincronizacao, duplicacao, rejeicao fora da janela, compatibilidade Standard e cap de Hold Ground.
+- O primeiro harness comparou resultados pela ordem de insercao, mas a engine ordena casts por tempo e ID; a assercao foi corrigida e a rodada completa passou sem alteracao de produto.
+- QA visual passou em 1280x800 e 390x844, incluindo clique `Perfect`, chance atualizada de 37,9% para 53,9%, estado travado, botoes sem corte e ausencia de overflow ou erros no console.
+- Os harnesses temporarios de engine e interface foram removidos; `npm run build` passou com o bootstrap real e 477 modulos.
+- Limitacao atual: reacoes continuam opcionais e exigem que o jogador esteja observando o cast; jogo fechado e catch-up usam somente as politicas automaticas.
+- Proximo passo sugerido: Etapa 161.5 - QA do timing manual no Tauri/SQLite e catch-up offline.
+
 ## Etapa 160.5 - QA dos comandos manuais no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.

@@ -7,6 +7,11 @@ import { planBossInterrupts } from "../../game-engine/boss/planBossInterrupts";
 import { planBossTelegraphDodges } from "../../game-engine/boss/planBossTelegraphDodges";
 import { calculateBossDodgeTradeOffs } from "../../game-engine/boss/calculateBossDodgeTradeOffs";
 import { normalizeBossManualReactions, type BossManualReactionRequest } from "../../game-engine/boss/recordBossManualReaction";
+import {
+  getBossManualReactionEffects,
+  getBossManualReactionTiming,
+  normalizeBossManualReactionQuality,
+} from "../../game-engine/boss/getBossManualReactionTiming";
 import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
@@ -50,7 +55,7 @@ export function BossScene({
     .filter((member): member is typeof member & { character: Character } => Boolean(member.character));
 
   useEffect(() => {
-    const interval = window.setInterval(() => setClock(Date.now()), 1_000);
+    const interval = window.setInterval(() => setClock(Date.now()), 200);
     return () => window.clearInterval(interval);
   }, []);
 
@@ -95,6 +100,10 @@ export function BossScene({
     ? normalizeBossManualReactions(action.bossManualReactions).find((reaction) => reaction.castId === abilityCast.cast?.castId)
     : undefined;
   const manualReactionBlocked = Boolean(activeInterrupt && interruptResolved && activeInterrupt.interrupted);
+  const manualTiming = abilityCast.cast
+    ? getBossManualReactionTiming(action.startedAt, abilityCast.cast, new Date(clock))
+    : undefined;
+  const manualEffects = getBossManualReactionEffects(manualTiming?.quality);
 
   function reactToActiveCast(reactionType: "dodge" | "hold") {
     const cast = abilityCast.cast;
@@ -107,6 +116,8 @@ export function BossScene({
       targetCharacterName: cast.targetCharacterName,
       reactionType,
       recordedAt: new Date().toISOString(),
+      telegraphStartsAtMs: cast.telegraphStartsAtMs,
+      resolvesAtMs: cast.resolvesAtMs,
     });
   }
 
@@ -151,7 +162,7 @@ export function BossScene({
             <div><dt>Interrupt</dt><dd>{activeInterrupt ? `${activeInterrupt.skillName} / ${interruptResolved ? activeInterrupt.interrupted ? "Success" : "Resisted" : "Ready"} / ${activeInterrupt.successChancePercent}%` : "None ready"}</dd></div>
             <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${formatDodgeBehavior(activeDodge.dodgeBehavior)} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : dodgeTarget ? `${dodgeTarget.name} / ${formatDodgeBehavior(activeDodgeBehavior)} / No attempt` : "Not targeted"}</dd></div>
             <div><dt>Positioning</dt><dd>{activeDodgeTradeOff ? `${formatPositioning(activeDodgeTradeOff.positioning)} / +${activeDodgeTradeOff.offensiveBonusPercent}% power / ${activeDodgeTradeOff.unavoidedTelegraphs} exposed` : "No trade-off"}</dd></div>
-            <div><dt>Manual command</dt><dd>{activeManualReaction ? formatManualReaction(activeManualReaction.reactionType) : manualReactionBlocked ? "Cast interrupted" : abilityCast.state === "telegraphing" ? "Awaiting order" : "No active telegraph"}</dd></div>
+            <div><dt>Manual command</dt><dd>{activeManualReaction ? `${formatManualReaction(activeManualReaction.reactionType)} / ${formatReactionQuality(activeManualReaction.quality)}` : manualReactionBlocked ? "Cast interrupted" : abilityCast.state === "telegraphing" ? `${formatReactionQuality(manualTiming?.quality)} window` : "No active telegraph"}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -195,15 +206,26 @@ export function BossScene({
               <div className="boss-ability-cast-progress"><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
               <b>{formatCastSeconds(abilityCast.remainingMs)}</b>
               {abilityCast.cast.targetCharacterId ? (
-                <div className="boss-manual-reaction-controls" aria-label="Manual Boss reaction">
+                <div className={`boss-manual-reaction-controls quality-${normalizeBossManualReactionQuality(activeManualReaction?.quality ?? manualTiming?.quality)}`} aria-label="Manual Boss reaction">
+                  <div className="boss-manual-reaction-timing">
+                    <span>{activeManualReaction ? "Reaction quality" : "Current timing"}</span>
+                    <strong>{formatReactionQuality(activeManualReaction?.quality ?? manualTiming?.quality)}</strong>
+                    <div aria-hidden="true">
+                      <i className="is-early" />
+                      <i className="is-perfect" />
+                      <i className="is-late" />
+                      {!activeManualReaction && manualTiming?.timingPercent !== undefined ? <b style={{ left: `${manualTiming.timingPercent}%` }} /> : null}
+                    </div>
+                    <small>{activeManualReaction?.timingPercent !== undefined ? `${Math.round(activeManualReaction.timingPercent)}% into cast` : manualTiming?.timingPercent !== undefined ? `${Math.round(manualTiming.timingPercent)}% into cast` : "Standard timing"}</small>
+                  </div>
                   {activeManualReaction ? (
-                    <strong>{formatManualReaction(activeManualReaction.reactionType)} locked for this cast</strong>
+                    <strong>{formatManualReaction(activeManualReaction.reactionType)} locked / {formatReactionQuality(activeManualReaction.quality)}</strong>
                   ) : manualReactionBlocked ? (
                     <strong>Manual reaction unavailable: cast interrupted</strong>
                   ) : (
                     <>
-                      <button onClick={() => reactToActiveCast("dodge")} type="button">Manual Dodge <small>+12% chance</small></button>
-                      <button onClick={() => reactToActiveCast("hold")} type="button">Hold Ground <small>+0.25% power</small></button>
+                      <button onClick={() => reactToActiveCast("dodge")} type="button">Manual Dodge <small>+{manualEffects.dodgeBonusPercent}% chance</small></button>
+                      <button onClick={() => reactToActiveCast("hold")} type="button">Hold Ground <small>+{manualEffects.holdPowerPercent}% power</small></button>
                     </>
                   )}
                 </div>
@@ -265,6 +287,11 @@ function formatPositioning(value: "mobile" | "selective" | "anchored") {
 
 function formatManualReaction(value: "dodge" | "hold") {
   return value === "dodge" ? "Manual Dodge" : "Hold Ground";
+}
+
+function formatReactionQuality(value: unknown) {
+  const quality = normalizeBossManualReactionQuality(value);
+  return quality === "perfect" ? "Perfect" : quality === "early" ? "Early" : quality === "late" ? "Late" : "Standard";
 }
 
 function getActiveParty(

@@ -1,6 +1,7 @@
 import type { BossAbilityCastSummary, BossTelegraphDodgeSummary, Character } from "../../shared/types";
 import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
 import { normalizeBossManualReactions } from "./recordBossManualReaction";
+import { getBossManualReactionEffects, normalizeBossManualReactionQuality } from "./getBossManualReactionTiming";
 
 const MAX_DURATION_MS = 8 * 60 * 60_000;
 
@@ -44,7 +45,9 @@ export function planBossTelegraphDodges(
         75,
         3,
       );
-      const manualBonusPercent = manualReaction?.reactionType === "dodge" ? 12 : 0;
+      const manualBonusPercent = manualReaction?.reactionType === "dodge"
+        ? getBossManualReactionEffects(manualReaction.quality).dodgeBonusPercent
+        : 0;
       const successChancePercent = bounded(automaticChancePercent + manualBonusPercent, 3, manualBonusPercent > 0 ? 85 : 75, 3);
       const rollPercent = deterministicPercent(`${cast.castId}:${character.id}:telegraph-dodge`);
       return [{
@@ -63,7 +66,11 @@ export function planBossTelegraphDodges(
         successChancePercent,
         rollPercent,
         dodged: rollPercent < successChancePercent,
-        ...(manualBonusPercent > 0 ? { manualReaction: true, manualBonusPercent } : {}),
+        ...(manualBonusPercent > 0 ? {
+          manualReaction: true,
+          manualBonusPercent,
+          manualReactionQuality: normalizeBossManualReactionQuality(manualReaction?.quality),
+        } : {}),
       }];
     });
 }

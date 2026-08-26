@@ -1102,6 +1102,7 @@ export interface CharacterAttributes {
 export type BossDefensiveResponsePriority = "automatic" | "prevent" | "recover";
 export type BossDodgeBehavior = "automatic" | "safe_windows" | "hold_position";
 export type BossManualReactionType = "dodge" | "hold";
+export type BossManualReactionQuality = "early" | "perfect" | "late" | "standard";
 
 export interface BossManualReaction {
   castId: string;
@@ -1111,6 +1112,8 @@ export interface BossManualReaction {
   targetCharacterName: string;
   reactionType: BossManualReactionType;
   recordedAt: string;
+  quality?: BossManualReactionQuality;
+  timingPercent?: number;
 }
 
 export interface CombatSkillLoadout {
@@ -1276,6 +1279,7 @@ export interface BossTelegraphDodgeSummary {
   dodged: boolean;
   manualReaction?: boolean;
   manualBonusPercent?: number;
+  manualReactionQuality?: BossManualReactionQuality;
 }
 
 export interface BossDodgeTradeOffSummary {
@@ -1290,6 +1294,7 @@ export interface BossDodgeTradeOffSummary {
   offensiveBonusPercent: number;
   manualHoldCount: number;
   manualPositionBonusPercent: number;
+  manualHoldQualityCounts: Record<BossManualReactionQuality, number>;
 }
 
 export interface CombatConditionSummary {

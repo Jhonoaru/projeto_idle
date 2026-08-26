@@ -1,4 +1,8 @@
 import type { BossManualReaction, BossManualReactionType, Character } from "../../shared/types";
+import {
+  getBossManualReactionTiming,
+  normalizeBossManualReactionQuality,
+} from "./getBossManualReactionTiming";
 
 const MAX_MANUAL_REACTIONS = 40;
 
@@ -10,22 +14,37 @@ export interface BossManualReactionRequest {
   targetCharacterName: string;
   reactionType: BossManualReactionType;
   recordedAt: string;
+  telegraphStartsAtMs?: number;
+  resolvesAtMs?: number;
 }
 
 export function recordBossManualReaction(
   characters: Character[],
   request: BossManualReactionRequest,
 ) {
-  const reaction = normalizeBossManualReaction(request);
-  if (!reaction) return { characters, applied: false, reason: "Invalid manual reaction." };
-  const target = characters.find((character) => character.id === reaction.targetCharacterId);
+  const normalizedReaction = normalizeBossManualReaction(request);
+  if (!normalizedReaction) return { characters, applied: false, reason: "Invalid manual reaction." };
+  const target = characters.find((character) => character.id === normalizedReaction.targetCharacterId);
   const action = target?.currentAction;
   if (!target || target.status !== "bossing" || action?.type !== "bossing") {
     return { characters, applied: false, reason: "The target is not in an active Boss raid." };
   }
-  if (normalizeBossManualReactions(action.bossManualReactions).some((entry) => entry.castId === reaction.castId)) {
+  if (normalizeBossManualReactions(action.bossManualReactions).some((entry) => entry.castId === normalizedReaction.castId)) {
     return { characters, applied: false, reason: "This telegraph already has a manual reaction." };
   }
+  const hasTimingWindow = Number.isFinite(request.telegraphStartsAtMs) && Number.isFinite(request.resolvesAtMs);
+  const timing = hasTimingWindow
+    ? getBossManualReactionTiming(action.startedAt, {
+        telegraphStartsAtMs: request.telegraphStartsAtMs!,
+        resolvesAtMs: request.resolvesAtMs!,
+      }, normalizedReaction.recordedAt)
+    : undefined;
+  if (timing && !timing.validWindow) {
+    return { characters, applied: false, reason: "The manual reaction arrived outside the active telegraph." };
+  }
+  const reaction: BossManualReaction = timing
+    ? { ...normalizedReaction, quality: timing.quality, timingPercent: timing.timingPercent }
+    : normalizedReaction;
   const participantIds = new Set(action.partyMemberIds ?? action.partyMembers?.map((member) => member.characterId) ?? [target.id]);
   const updatedCharacters = characters.map((character) => {
     if (!participantIds.has(character.id) || character.currentAction?.type !== "bossing" || character.currentAction.targetId !== action.targetId) return character;
@@ -71,6 +90,10 @@ function normalizeBossManualReaction(value: unknown): BossManualReaction | undef
     targetCharacterName: candidate.targetCharacterName,
     reactionType: candidate.reactionType,
     recordedAt: candidate.recordedAt,
+    ...(candidate.quality ? { quality: normalizeBossManualReactionQuality(candidate.quality) } : {}),
+    ...(typeof candidate.timingPercent === "number" && Number.isFinite(candidate.timingPercent)
+      ? { timingPercent: Math.min(100, Math.max(0, Math.round(candidate.timingPercent * 100) / 100)) }
+      : {}),
   };
 }
 

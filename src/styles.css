@@ -16022,10 +16022,52 @@ html[data-client-motion="reduced"] *::after {
   font-weight: 900;
   text-align: center;
 }
-.boss-manual-reaction-controls button:first-child { border-color: #4e9289; color: #9bd8ce; }
-.boss-manual-reaction-controls button:last-child { border-color: #a8764d; color: #e6b27d; }
+.boss-manual-reaction-controls button:first-of-type { border-color: #4e9289; color: #9bd8ce; }
+.boss-manual-reaction-controls button:last-of-type { border-color: #a8764d; color: #e6b27d; }
 .boss-manual-reaction-controls button small { margin-top: 2px; color: #aab2ab; font-size: 0.55rem; }
 .boss-manual-reaction-controls > strong { grid-column: 1 / -1; }
+
+.boss-manual-reaction-timing {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 8px;
+  min-width: 0;
+  padding: 5px 7px;
+  border: 1px solid #3e463f;
+  background: #0d1210;
+}
+.boss-manual-reaction-timing > span,
+.boss-manual-reaction-timing > small { color: #879289; font-size: 0.54rem; text-transform: uppercase; }
+.boss-manual-reaction-timing > strong { color: #d8c486; font-size: 0.61rem; text-transform: uppercase; }
+.boss-manual-reaction-timing > small { text-align: right; }
+.boss-manual-reaction-timing > div {
+  position: relative;
+  display: flex;
+  grid-column: 1 / -1;
+  height: 6px;
+  overflow: visible;
+  border: 1px solid #292f2a;
+  background: #080a09;
+}
+.boss-manual-reaction-timing > div > i { display: block; height: 100%; }
+.boss-manual-reaction-timing > div > i.is-early { width: 35%; background: #526b65; }
+.boss-manual-reaction-timing > div > i.is-perfect { width: 40%; background: #b69845; box-shadow: 0 0 7px rgba(214, 176, 67, 0.45); }
+.boss-manual-reaction-timing > div > i.is-late { width: 25%; background: #7b463a; }
+.boss-manual-reaction-timing > div > b {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 12px;
+  background: #f5e5b0;
+  box-shadow: 0 0 5px #f5d476;
+  transform: translateX(-1px);
+  transition: left 0.1s linear;
+}
+.boss-manual-reaction-controls.quality-early .boss-manual-reaction-timing > strong { color: #8fc4b7; }
+.boss-manual-reaction-controls.quality-perfect .boss-manual-reaction-timing { border-color: #9f8137; }
+.boss-manual-reaction-controls.quality-perfect .boss-manual-reaction-timing > strong { color: #f2d475; }
+.boss-manual-reaction-controls.quality-late .boss-manual-reaction-timing > strong { color: #db8b72; }
 
 .boss-scene-party { position: absolute; top: 40%; left: 20%; width: 220px; height: 230px; }
 .boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
@@ -16079,6 +16121,7 @@ html[data-client-motion="reduced"] *::after {
   .boss-scene-boss-actor { top: 28%; right: 7%; transform: scale(0.82); transform-origin: right center; }
   .boss-ability-telegraph { top: 22%; width: calc(100% - 16px); }
   .boss-manual-reaction-controls { grid-template-columns: 1fr; }
+  .boss-manual-reaction-timing { grid-template-columns: minmax(0, 1fr) auto; }
   .boss-scene-stage-status { right: 8px; bottom: 8px; left: 8px; grid-template-columns: 1fr auto; }
   .boss-scene-stage-status > div { grid-column: 1 / -1; grid-row: 2; }
 }
