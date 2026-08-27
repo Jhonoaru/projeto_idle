@@ -1,6 +1,25 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-26
+Atualizado em: 2026-08-27
+
+## Etapa 162.5 - QA das sequencias Perfect no Tauri/SQLite
+
+- Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.
+- A rodada passou em 52/52 checks com tres personagens reais da guilda contra Khazgrim Gatekeeper, 26 casts elegiveis e nove comandos manuais temporizados.
+- O SQLite preservou oito reacoes `Perfect`, uma `Early`, todos os percentuais de timing e os snapshots identicos nos tres participantes apos Save/Reload.
+- A sequencia principal avancou por `x1`, `x2`, `x3`, `x4` e `x5`; o contador continuou alem do teto, enquanto o bonus de esquiva permaneceu limitado a +6 pontos adicionais.
+- Um cast removido como interrompido nao avancou nem quebrou a sequencia. A reacao `Early` zerou a cadeia e o `Perfect` seguinte reiniciou em `x1`.
+- Um segundo personagem manteve sua propria sequencia `x2`, confirmando isolamento por alvo mesmo com o historico sincronizado na party.
+- `Manual Dodge` resultou em +16 no primeiro Perfect, +20 em `x3`, +22 em `x5`, +16 depois do reset e +18 na cadeia independente `x2`, sempre com chance final limitada a 85%.
+- Dois comandos `Perfect Hold Ground` suprimiram suas tentativas de esquiva, chegaram ao teto existente de +1% e registraram +0,20% de contribuicao efetiva da cadeia, com melhor Hold em `x4`.
+- Os rolls deterministicos permaneceram identicos aos da simulacao sem comandos manuais; somente os bonus e as decisoes de Dodge/Hold mudaram.
+- O banco armazenou o historico somente em `current_action_json`; campos derivados como `perfectChainStreak` nao foram persistidos.
+- O primeiro catch-up gerou tres reports, marcou os participantes como `readyToResolve` e preservou exatamente reacoes, chains, dodges e trade-offs.
+- Uma segunda aplicacao do catch-up gerou zero reports e nenhuma mudanca, confirmando idempotencia.
+- Save/Reload depois do catch-up preservou `readyToResolve`, o historico manual e o mesmo fingerprint de economia, sem coletar gold, inventario ou Guild Depot.
+- Nenhuma correcao de produto foi necessaria.
+- O banco original foi restaurado com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, sem WAL ou SHM.
+- Proximo passo sugerido: Etapa 163 - feedback visual e recompensas cosmeticas por dominio de execucao em Bosses.
 
 ## Etapa 162 - Sequencias Perfect e bonus de execucao em Bosses
 
