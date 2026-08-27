@@ -55,6 +55,8 @@ export function recordBossOperationOutcome(
       totalBossAttempts: outcomes.totalBossAttempts + 1,
       totalBossDefeats: outcomes.totalBossDefeats + (result.defeated ? 1 : 0),
       regionMastery: outcomes.regionMastery,
+      regionalOrders: outcomes.regionalOrders,
+      bossExecutionMastery: outcomes.bossExecutionMastery,
     }),
   };
   return recordGuildRegionMastery(guildWithOutcome, {

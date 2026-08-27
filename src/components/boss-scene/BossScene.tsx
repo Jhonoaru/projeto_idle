@@ -13,6 +13,7 @@ import {
   normalizeBossManualReactionQuality,
 } from "../../game-engine/boss/getBossManualReactionTiming";
 import { calculateBossPerfectReactionChains } from "../../game-engine/boss/calculateBossPerfectReactionChains";
+import { calculateBossExecutionPerformance, getBossExecutionGradeLabel } from "../../game-engine/boss/calculateBossExecutionPerformance";
 import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
@@ -80,6 +81,7 @@ export function BossScene({
   const perfectReactionChains = calculateBossPerfectReactionChains(allManualReactions, dodgeEligibleCasts);
   const telegraphDodges = planBossTelegraphDodges(members.map((member) => member.character), dodgeEligibleCasts, totalMs);
   const dodgeTradeOffs = calculateBossDodgeTradeOffs(members.map((member) => member.character), dodgeEligibleCasts, telegraphDodges);
+  const executionPerformance = calculateBossExecutionPerformance(telegraphDodges, dodgeTradeOffs);
   const positioningAttackBonusPercent = dodgeTradeOffs.reduce((sum, entry) => sum + entry.offensiveBonusPercent, 0) / Math.max(1, members.length);
   const risk = boss && threat ? calculateBossRisk(characters, activeParty, boss, {
     attackBonusPercent: positioningAttackBonusPercent,
@@ -178,6 +180,7 @@ export function BossScene({
             <div><dt>Dodge</dt><dd>{activeDodge ? `${activeDodge.targetCharacterName} / ${formatDodgeBehavior(activeDodge.dodgeBehavior)} / ${dodgeResolved ? activeDodge.dodged ? "Dodged" : "Caught" : "Ready"} / ${activeDodge.successChancePercent}%` : dodgeTarget ? `${dodgeTarget.name} / ${formatDodgeBehavior(activeDodgeBehavior)} / No attempt` : "Not targeted"}</dd></div>
             <div><dt>Positioning</dt><dd>{activeDodgeTradeOff ? `${formatPositioning(activeDodgeTradeOff.positioning)} / +${activeDodgeTradeOff.offensiveBonusPercent}% power / ${activeDodgeTradeOff.unavoidedTelegraphs} exposed` : "No trade-off"}</dd></div>
             <div><dt>Manual command</dt><dd>{activeManualReaction ? `${formatManualReaction(activeManualReaction.reactionType)} / ${formatReactionQuality(activeManualReaction.quality)}${formatPerfectChain(displayedPerfectChain?.streak)}` : manualReactionBlocked ? "Cast interrupted" : abilityCast.state === "telegraphing" ? `${formatReactionQuality(manualTiming?.quality)} window${formatPerfectChain(projectedPerfectChain?.streak)}` : "No active telegraph"}</dd></div>
+            <div><dt>Execution</dt><dd>{`${getBossExecutionGradeLabel(executionPerformance.grade)} / ${executionPerformance.perfectReactions} Perfect / best x${executionPerformance.bestPerfectChain}`}</dd></div>
             <div><dt>Auto response</dt><dd>{activeResponse ? `${activeResponse.skillName} / ${activeResponse.sourceCharacterName} / ${formatResponsePriority(activeResponse.configuredPriority)}` : "None ready"}</dd></div>
             <div><dt>Entry cost</dt><dd>{action.cost?.toLocaleString("en-US") ?? 0}g</dd></div>
             <div><dt>XP reward</dt><dd>{action.expectedXp?.toLocaleString("en-US") ?? "-"}</dd></div>
@@ -220,6 +223,13 @@ export function BossScene({
               ) : activeResponse ? <em>{activeResponse.sourceCharacterName}: {activeResponse.skillName} ready / {formatResponsePriority(activeResponse.configuredPriority)}</em> : <em>No automatic response ready</em>}
               <div className="boss-ability-cast-progress"><i style={{ width: `${abilityCast.progressPercent}%` }} /></div>
               <b>{formatCastSeconds(abilityCast.remainingMs)}</b>
+              {displayedPerfectChain && displayedPerfectChain.streak > 1 ? (
+                <div className={`boss-perfect-chain-feedback ${getPerfectChainTier(displayedPerfectChain.streak)}`} role="status">
+                  <span>Execution chain</span>
+                  <strong>x{displayedPerfectChain.streak}</strong>
+                  <small>{displayedPerfectChain.streak >= 4 ? "Maximum execution bonus" : "Perfect timing sustained"}</small>
+                </div>
+              ) : null}
               {abilityCast.cast.targetCharacterId ? (
                 <div className={`boss-manual-reaction-controls quality-${normalizeBossManualReactionQuality(activeManualReaction?.quality ?? manualTiming?.quality)}`} aria-label="Manual Boss reaction">
                   <div className="boss-manual-reaction-timing">
@@ -311,6 +321,10 @@ function formatReactionQuality(value: unknown) {
 
 function formatPerfectChain(streak: number | undefined) {
   return streak && streak > 1 ? ` / Perfect chain x${streak}` : "";
+}
+
+function getPerfectChainTier(streak: number) {
+  return streak >= 6 ? "tier-master" : streak >= 4 ? "tier-gold" : streak >= 3 ? "tier-silver" : "tier-bronze";
 }
 
 function createProjectedPerfectReaction(

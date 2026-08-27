@@ -1,4 +1,6 @@
 import { getAccessName } from "../../data/accesses";
+import { bossExecutionMasteryMilestones } from "../../data/bossExecutionMastery";
+import { getCollectionItemById } from "../../data/collections";
 import { getItemById } from "../../data/items";
 import { BossActionPanel } from "./BossActionPanel";
 import { BossCard } from "./BossCard";
@@ -9,6 +11,7 @@ import { ItemIcon } from "../items/ItemIcon";
 import { BossArenaBackground } from "../boss-scene/BossArenaBackground";
 import { BossSprite } from "./BossSprite";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
+import { normalizeBossExecutionMastery } from "../../game-engine/boss/normalizeBossExecutionMastery";
 import type {
   Boss,
   BossParty,
@@ -58,6 +61,10 @@ export function BossPanel({
   onLoadGuildSquad,
 }: BossPanelProps) {
   const squadStatus = getGuildSquadStatus(guild, characters);
+  const executionMastery = normalizeBossExecutionMastery(guild.operationOutcomes?.bossExecutionMastery);
+  const selectedExecutionRecord = executionMastery.records.find((record) => record.bossId === selectedBoss?.id);
+  const totalPerfectReactions = executionMastery.records.reduce((sum, record) => sum + record.totalPerfectReactions, 0);
+  const bestPerfectChain = executionMastery.records.reduce((best, record) => Math.max(best, record.bestPerfectChain), 0);
   return (
     <div className="boss-panel raid-board">
       <section className="raid-board-hero">
@@ -83,6 +90,30 @@ export function BossPanel({
             <span>Operation arena</span>
             <strong>{selectedBoss.name}</strong>
             <small>{selectedBoss.city} / {selectedBoss.durationMinutes} min deployment</small>
+          </div>
+        </section>
+      ) : null}
+
+      {selectedBoss ? (
+        <section className="raid-execution-mastery">
+          <header>
+            <div><span>Manual reaction record</span><h3>Execution Mastery</h3></div>
+            <strong>{selectedExecutionRecord ? `${selectedExecutionRecord.totalPerfectReactions} Perfect / best x${selectedExecutionRecord.bestPerfectChain}` : "No victorious record"}</strong>
+          </header>
+          <div>
+            {bossExecutionMasteryMilestones.map((milestone) => {
+              const claimed = executionMastery.claimedMilestoneIds.includes(milestone.id);
+              const reward = getCollectionItemById(milestone.collectionItemId);
+              return (
+                <article className={claimed ? "is-claimed" : ""} key={milestone.id}>
+                  <span>{claimed ? "Claimed" : "Mastery reward"}</span>
+                  <strong>{milestone.label}</strong>
+                  <small>{reward?.name ?? milestone.collectionItemId}</small>
+                  <div><i style={{ width: `${masteryProgress(bestPerfectChain, totalPerfectReactions, milestone.requiredBestPerfectChain, milestone.requiredTotalPerfectReactions)}%` }} /></div>
+                  <em>x{Math.min(bestPerfectChain, milestone.requiredBestPerfectChain)}/{milestone.requiredBestPerfectChain} chain / {Math.min(totalPerfectReactions, milestone.requiredTotalPerfectReactions)}/{milestone.requiredTotalPerfectReactions} Perfect</em>
+                </article>
+              );
+            })}
           </div>
         </section>
       ) : null}
@@ -183,6 +214,12 @@ export function BossPanel({
 function formatChance(chance: number) {
   const percent = Math.max(0, Math.min(100, chance * 100));
   return percent < 10 ? `${percent.toFixed(1)}%` : `${Math.round(percent)}%`;
+}
+
+function masteryProgress(currentChain: number, currentPerfect: number, requiredChain: number, requiredPerfect: number) {
+  const chainProgress = requiredChain > 0 ? currentChain / requiredChain : 1;
+  const perfectProgress = requiredPerfect > 0 ? currentPerfect / requiredPerfect : 1;
+  return Math.round(Math.min(1, chainProgress, perfectProgress) * 100);
 }
 
 function normalizeGold(value: number) {

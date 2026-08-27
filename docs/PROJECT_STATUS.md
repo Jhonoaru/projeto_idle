@@ -2,6 +2,23 @@
 
 Atualizado em: 2026-08-27
 
+## Etapa 163 - Dominio de execucao e recompensas cosmeticas em Bosses
+
+- Vitorias contra Bosses com ao menos uma reacao manual `Perfect` agora alimentam uma progressao guild-wide de Execution Mastery, sem alterar chance de sucesso, dano, loot, gold ou XP do combate.
+- O estado persistido mantem registros por Boss com vitorias qualificadas, Perfect totais, divisao entre Dodge/Hold, melhor sequencia e data da ultima operacao.
+- Um ledger limitado aos 40 IDs mais recentes impede que a mesma operacao seja contabilizada duas vezes; derrotas e vitorias sem `Perfect` nao geram progresso.
+- A performance da raid recebe os graus `Unranked`, `Precise`, `Disciplined` ou `Masterful`, derivados da quantidade de reacoes Perfect e da melhor sequencia.
+- Tres marcos guild-wide foram adicionados: `Precision Mark` em x2/2 Perfect desbloqueia o avatar `Perfect Execution Sigil`; `Raid Tactician` em x4/12 desbloqueia o outfit homonimo; `Flawless Vanguard` em x6/30 desbloqueia a montaria `Battle Ram`.
+- Os cosmeticos usam o fluxo real de Collections, incluindo `newlyUnlockedCollectionItemIds`, badge e protecao contra unlock duplicado.
+- O painel de Bosses mostra os tres marcos, recompensa, progresso combinado e estado conquistado; a Boss Scene mostra grau, Perfect totais e melhor sequencia no Raid Analyzer.
+- Sequencias a partir de x2 recebem feedback visual compacto por tier durante o telegraph, e o relatorio final resume grau, melhor chain, Perfect totais, Dodges e Holds.
+- A persistencia reutiliza `operation_outcomes_json`; saves antigos e valores invalidos recebem estado seguro sem nova migration SQLite.
+- O Activity Log registra um resumo unico da execucao por operacao e mensagens apenas quando um marco ou cosmetico e desbloqueado.
+- Um harness temporario passou em 25/25 checks deterministas, cobrindo normalizacao, saves antigos, calculo de grau, acumulacao, milestones, Collections, badge, economia preservada, derrota, ausencia de Perfect e idempotencia.
+- QA visual passou em 1440x1000 e 430x900 para o painel de recompensas, sem overflow ou sobreposicao; uma raid real confirmou a nova metrica no Raid Analyzer.
+- Nao foi possivel produzir manualmente uma chain x2 pela janela acelerada do navegador web nesta rodada; o calculo e o feedback foram validados por testes deterministas e leitura, mas o clique interativo completo fica para o Tauri.
+- Proximo passo sugerido: Etapa 163.5 - QA da Execution Mastery no Tauri/SQLite, incluindo Save/Reload, catch-up e desbloqueios reais.
+
 ## Etapa 162.5 - QA das sequencias Perfect no Tauri/SQLite
 
 - Um harness temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.

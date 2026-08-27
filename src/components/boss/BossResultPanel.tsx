@@ -1,5 +1,6 @@
 import type { BossSimulationResult, Character } from "../../shared/types";
 import { PartyCombatSkillReport } from "../combat-skills/CombatSkillReport";
+import { getBossExecutionGradeLabel } from "../../game-engine/boss/calculateBossExecutionPerformance";
 
 interface BossResultPanelProps {
   result?: BossSimulationResult;
@@ -52,6 +53,19 @@ export function BossResultPanel({ result, characters }: BossResultPanelProps) {
         <h3>Deaths</h3>
         <p>{deadNames.length > 0 ? deadNames.join(", ") : "No deaths."}</p>
       </div>
+
+      {result.executionPerformance ? (
+        <div className={`result-section boss-execution-result grade-${result.executionPerformance.grade}`}>
+          <h3>Execution Mastery</h3>
+          <strong>{getBossExecutionGradeLabel(result.executionPerformance.grade)}</strong>
+          <div>
+            <span><b>x{result.executionPerformance.bestPerfectChain}</b> Best chain</span>
+            <span><b>{result.executionPerformance.perfectReactions}/{result.executionPerformance.manualReactions}</b> Perfect</span>
+            <span><b>{result.executionPerformance.perfectDodges}</b> Dodges</span>
+            <span><b>{result.executionPerformance.perfectHolds}</b> Holds</span>
+          </div>
+        </div>
+      ) : null}
 
       {result.combatSkillEffects ? (
         <div className="result-section">

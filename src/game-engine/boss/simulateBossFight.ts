@@ -4,6 +4,7 @@ import { applyBossCooldown } from "./applyBossCooldown";
 import { calculateBossRisk } from "./calculateBossRisk";
 import { calculatePartyCombatSkillEffects } from "../combat-skills/calculateCombatSkillEffects";
 import { normalizeBossDodgeBehavior } from "../combat-skills/normalizeCombatSkillLoadout";
+import { calculateBossExecutionPerformance, getBossExecutionGradeLabel } from "./calculateBossExecutionPerformance";
 import type {
   Boss,
   BossLootResult,
@@ -39,6 +40,10 @@ export function simulateBossFight(
     },
   );
   const risk = calculateBossRisk(characters, party, boss, combatSkillEffects);
+  const executionPerformance = calculateBossExecutionPerformance(
+    combatSkillEffects.bossTelegraphDodges,
+    combatSkillEffects.bossDodgeTradeOffs,
+  );
   const defeated = random() <= risk.successChance;
   const diedCharacterIds = participants
     .filter((character) => random() <= (risk.deathChanceByCharacterId[character.id] ?? risk.deathChance))
@@ -95,6 +100,7 @@ export function simulateBossFight(
     ...(combatSkillEffects.bossTelegraphDodges.some((entry) => entry.manualReaction) ? [`Manual dodges: ${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction && entry.dodged).length}/${combatSkillEffects.bossTelegraphDodges.filter((entry) => entry.manualReaction).length} manual attempts succeeded (${formatManualDodgeQualities(combatSkillEffects.bossTelegraphDodges)}${formatBestDodgePerfectChain(combatSkillEffects.bossTelegraphDodges)}).`] : []),
     ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.manualHoldCount > 0) ? [`Hold Ground commands: ${combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualHoldCount, 0)} casts held for +${rounded(combatSkillEffects.bossDodgeTradeOffs.reduce((sum, entry) => sum + entry.manualPositionBonusPercent, 0))}% member positioning power (${formatManualHoldQualities(combatSkillEffects.bossDodgeTradeOffs)}${formatBestHoldPerfectChain(combatSkillEffects.bossDodgeTradeOffs)}).`] : []),
     ...(combatSkillEffects.bossDodgeTradeOffs.some((entry) => entry.targetedTelegraphs > 0) ? [`Dodge positioning: ${combatSkillEffects.bossDodgeTradeOffs.filter((entry) => entry.targetedTelegraphs > 0).map((entry) => `${entry.characterName} ${entry.positioning} (+${entry.offensiveBonusPercent}% power, ${entry.unavoidedTelegraphs} exposed)`).join("; ")}. Party positioning bonus +${combatSkillEffects.positioningAttackBonusPercent}%.`] : []),
+    ...(executionPerformance.manualReactions > 0 ? [`Boss execution: ${getBossExecutionGradeLabel(executionPerformance.grade)}, ${executionPerformance.perfectReactions}/${executionPerformance.manualReactions} Perfect reactions, best chain x${executionPerformance.bestPerfectChain}.`] : []),
     `Boss dodge behaviors: ${participants.map((character) => `${character.name} ${formatDodgeBehavior(normalizeBossDodgeBehavior(character.currentAction?.combatSkillLoadout?.bossDodgeBehavior ?? character.combatSkillLoadout?.bossDodgeBehavior))}`).join("; ")}.`,
     ...(threatReport ? [`Aggro report: ${threatReport}. Tank control ${combatSkillEffects.threat.tankAggroControlPercent}% (-${combatSkillEffects.threat.aggroRiskReductionPercent}% party death risk).`] : []),
     ...(phaseReport ? [`Boss phases: ${phaseReport}. ${combatSkillEffects.threat.targetSwitchCount} target switches.`] : []),
@@ -117,6 +123,7 @@ export function simulateBossFight(
     renownGained,
     cooldownsApplied,
     combatSkillEffects,
+    executionPerformance,
     logs,
   };
 }

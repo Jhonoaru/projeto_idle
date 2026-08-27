@@ -9,6 +9,7 @@ export const collectionItems: CollectionItem[] = [
   outfit("outfit-rat-catcher", "Rat Catcher", "A grimy badge of sewer contracts survived.", "bestiary", "RC", 110, undefined, "Complete an early creature entry in the Bestiary."),
   outfit("outfit-cave-delver", "Cave Delver", "Heavy cloth, lamp hooks, and dust-stained boots.", "quest", "CD", 120, undefined, "Complete an early access quest."),
   outfit("outfit-bandit-breaker", "Bandit Breaker", "A rough adventurer style earned by breaking ambushes.", "boss", "BB", 130, undefined, "Defeat a bandit boss encounter."),
+  outfit("outfit-raid-tactician", "Raid Tactician", "A disciplined command coat awarded for sustained precision against Boss telegraphs.", "boss", "RT", 135, undefined, "Reach Perfect chain x4 and record 12 Perfect Boss reactions."),
   outfit("outfit-guild-cartographer", "Guild Cartographer", "A practical map keeper's coat earned by completing the Cartographers' Archive.", "achievement", "GC", 140, undefined, "Complete the Cartographers' Archive guild project."),
   outfit("outfit-noble-adventurer", "Noble Adventurer", "A polished formal style commissioned from the guild tailor.", "store_placeholder", "NA", 900, undefined, "Exchange 350 guild gold in the Wardrobe Exchange."),
 
@@ -19,6 +20,7 @@ export const collectionItems: CollectionItem[] = [
   mount("mount-cave-boar", "Cave Boar", "A compact beast with more courage than grace.", "bestiary", "Boar", 120, "Future Bestiary unlock."),
   mount("mount-ash-wolf", "Ash Wolf", "A smoke-gray wolf bonded through an Ember Matriarch trophy exchange.", "event_placeholder", "Wolf", 130, "Exchange a Dragon Ember in the Wardrobe Exchange."),
   mount("mount-merchant-cart", "Merchant Cart", "A small trade cart earned through a Khazgrim trophy contract.", "store_placeholder", "Cart", 900, "Exchange 250 guild gold and two Dwarf Badges in the Wardrobe Exchange."),
+  mount("mount-battle-ram", "Battle Ram", "A steadfast war mount reserved for guilds with flawless Boss execution.", "boss", "Ram", 140, "Reach Perfect chain x6 and record 30 Perfect Boss reactions."),
 
   avatar("avatar-recruit-emblem", "Recruit Emblem", "A simple badge for new adventurers.", "starter", "R", 10),
   avatar("avatar-sword-emblem", "Sword Emblem", "A blade mark for martial characters.", "starter", "S", 20, ["Guardian"]),
@@ -28,6 +30,7 @@ export const collectionItems: CollectionItem[] = [
   avatar("avatar-monk-emblem", "Monk Emblem", "A calm hand mark.", "starter", "M", 60, ["Monk"]),
   avatar("avatar-beast-hunter-sigil", "Beast Hunter Sigil", "A sigil planned for Bestiary achievements.", "bestiary", "BH", 120, undefined, "Complete a creature family in the Bestiary."),
   avatar("avatar-dungeon-victor-sigil", "Dungeon Victor Sigil", "A sigil planned for boss victories.", "boss", "DV", 130, undefined, "Defeat a dungeon boss."),
+  avatar("avatar-perfect-execution-sigil", "Perfect Execution Sigil", "A timing mark earned by chaining precise reactions during a victorious Boss operation.", "boss", "PX", 135, undefined, "Complete a victorious Boss operation with Perfect chain x2."),
   avatar("avatar-golden-guild-sigil", "Golden Guild Sigil", "A bright guild mark awarded when the company reaches Rank S.", "achievement", "GG", 140, undefined, "Claim the Guild Level 6 reward cache."),
   avatar("avatar-quartermaster-seal", "Quartermaster Seal", "A supply station seal earned through permanent guild work.", "achievement", "QS", 145, undefined, "Complete the Field Supply Station guild project."),
   avatar("avatar-founders-mark", "Founders' Mark", "A restrained memorial mark for a guild with lasting local works.", "achievement", "FM", 146, undefined, "Complete the Founders' Monument guild project."),

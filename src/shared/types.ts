@@ -646,12 +646,40 @@ export interface GuildBossOutcome {
   loot: GuildBossOutcomeLoot[];
 }
 
+export type BossExecutionGrade = "unranked" | "precise" | "disciplined" | "masterful";
+
+export interface BossExecutionPerformanceSummary {
+  manualReactions: number;
+  perfectReactions: number;
+  perfectDodges: number;
+  perfectHolds: number;
+  bestPerfectChain: number;
+  grade: BossExecutionGrade;
+}
+
+export interface BossExecutionMasteryRecord {
+  bossId: string;
+  victoriesWithPerfectReactions: number;
+  totalPerfectReactions: number;
+  perfectDodges: number;
+  perfectHolds: number;
+  bestPerfectChain: number;
+  lastRecordedAt: string;
+}
+
+export interface BossExecutionMasteryState {
+  records: BossExecutionMasteryRecord[];
+  claimedMilestoneIds: string[];
+  recordedOperationIds: string[];
+}
+
 export interface GuildOperationOutcomesState {
   bossHistory: GuildBossOutcome[];
   totalBossAttempts: number;
   totalBossDefeats: number;
   regionMastery?: GuildRegionMasteryProgress[];
   regionalOrders?: GuildRegionalOrdersState;
+  bossExecutionMastery?: BossExecutionMasteryState;
 }
 
 export type GuildRegionalOrderObjective = "hunt_minutes" | "boss_defeats" | "contract_successes";
@@ -2057,6 +2085,7 @@ export interface BossSimulationResult {
   renownGained: number;
   cooldownsApplied: BossCooldown[];
   combatSkillEffects?: CombatSkillPartyEffectSummary;
+  executionPerformance?: BossExecutionPerformanceSummary;
   logs: string[];
 }
 

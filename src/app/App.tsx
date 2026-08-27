@@ -58,6 +58,7 @@ import {
 import { clearNewCollectionFlags } from "../game-engine/collections/clearNewCollectionFlags";
 import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
+import { recordBossExecutionMastery } from "../game-engine/boss/recordBossExecutionMastery";
 import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
 import { exchangeCosmetic } from "../game-engine/cosmetic-exchange/exchangeCosmetic";
 import { equipGuildTitle, getGuildIdentity, getPersistedGuildTitle } from "../game-engine/achievements/getGuildIdentity";
@@ -2564,6 +2565,13 @@ export function App() {
         result.guildGoldLost,
         { operationStartedAt },
       );
+      const executionMastery = recordBossExecutionMastery(
+        bossGuild,
+        activeBossContext.boss,
+        activeBossContext.party,
+        result.result,
+        { operationStartedAt },
+      );
       const currentRegionMastery = buildGuildRegionMastery(bossGuild)
         .find((entry) => entry.definition.id === previousRegionMastery?.definition.id);
       if (previousRegionMastery && currentRegionMastery && currentRegionMastery.points > previousRegionMastery.points) {
@@ -2576,15 +2584,18 @@ export function App() {
           "success",
         );
       }
+      for (const message of [...executionMastery.logs].reverse()) {
+        prependLog("Boss execution", message, "success");
+      }
       if (result.result.defeated) {
-        const collectionUnlock = unlockCollectionItem(bossGuild, "avatar-dungeon-victor-sigil");
+        const collectionUnlock = unlockCollectionItem(executionMastery.guild, "avatar-dungeon-victor-sigil");
         setGuild(collectionUnlock.guild);
         const collectionLogs = collectionUnlock.logs;
         for (const message of [...collectionLogs].reverse()) {
           prependLog("Collections", message, "success");
         }
       } else {
-        setGuild(bossGuild);
+        setGuild(executionMastery.guild);
       }
 
       if (result.result.goldGained > 0) {
