@@ -1,6 +1,7 @@
 import type { Boss, BossParty, BossSimulationResult, Guild } from "../../shared/types";
 import { recordGuildRegionMastery } from "../region-mastery/guildRegionMastery";
 import { normalizeGuildOperationOutcomes } from "./normalizeGuildOperationOutcomes";
+import { recordBossRaidCodexOutcome } from "../boss/recordBossRaidCodexOutcome";
 
 interface RecordBossOperationOutcomeOptions {
   completedAt?: Date;
@@ -57,6 +58,7 @@ export function recordBossOperationOutcome(
       regionMastery: outcomes.regionMastery,
       regionalOrders: outcomes.regionalOrders,
       bossExecutionMastery: outcomes.bossExecutionMastery,
+      bossRaidCodex: recordBossRaidCodexOutcome(outcomes.bossRaidCodex, entry),
     }),
   };
   return recordGuildRegionMastery(guildWithOutcome, {

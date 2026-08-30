@@ -12,6 +12,7 @@ import { BossArenaBackground } from "../boss-scene/BossArenaBackground";
 import { BossSprite } from "./BossSprite";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import { normalizeBossExecutionMastery } from "../../game-engine/boss/normalizeBossExecutionMastery";
+import { RaidCodex } from "./RaidCodex";
 import type {
   Boss,
   BossParty,
@@ -117,6 +118,8 @@ export function BossPanel({
           </div>
         </section>
       ) : null}
+
+      <RaidCodex bosses={bosses} guild={guild} onSelectBoss={onSelectBoss} selectedBoss={selectedBoss} />
 
       <div className="boss-command-grid">
         <section className="boss-command-section">

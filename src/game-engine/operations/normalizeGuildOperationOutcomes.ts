@@ -20,6 +20,7 @@ import type {
   GuildRegionMasteryProgress,
 } from "../../shared/types";
 import { normalizeBossExecutionMastery } from "../boss/normalizeBossExecutionMastery";
+import { normalizeBossRaidCodex } from "../boss/normalizeBossRaidCodex";
 
 export function createDefaultGuildOperationOutcomes(): GuildOperationOutcomesState {
   return {
@@ -29,6 +30,7 @@ export function createDefaultGuildOperationOutcomes(): GuildOperationOutcomesSta
     regionMastery: [],
     regionalOrders: createDefaultGuildRegionalOrders(),
     bossExecutionMastery: normalizeBossExecutionMastery(undefined),
+    bossRaidCodex: normalizeBossRaidCodex(undefined),
   };
 }
 
@@ -62,6 +64,7 @@ export function normalizeGuildOperationOutcomes(value: unknown): GuildOperationO
     regionMastery: normalizeRegionMastery(candidate.regionMastery),
     regionalOrders: normalizeGuildRegionalOrders(candidate.regionalOrders),
     bossExecutionMastery: normalizeBossExecutionMastery(candidate.bossExecutionMastery),
+    bossRaidCodex: normalizeBossRaidCodex(candidate.bossRaidCodex, bossHistory),
   };
 }
 

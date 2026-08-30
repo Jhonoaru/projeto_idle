@@ -2,6 +2,25 @@
 
 Atualizado em: 2026-08-30
 
+## Etapa 164 - Raid Codex e recordes de dominio por Boss
+
+- O painel de Bosses agora possui um Raid Codex offline com um indice persistente dos seis contratos e dossier selecionavel por Boss.
+- Cada recorde vitalicio guarda tentativas, vitorias, taxas de entrada, gold recebido e perdido, Renown, XP, loot agregado, ultima tentativa e ultima vitoria.
+- A atualizacao acontece somente depois que `recordBossOperationOutcome` aceita uma operacao inedita; o mesmo ID nao incrementa historico nem Codex duas vezes.
+- O estado vive em `bossRaidCodex` dentro do `operation_outcomes_json` existente, sem coluna ou migration SQLite nova.
+- Saves antigos recebem um Codex reconstruido automaticamente a partir do `bossHistory` ainda retido e continuam carregando com defaults seguros.
+- O indice classifica cada Boss como `Untested`, `Encountered`, `Conquered`, `Mastered` ou `Flawless`.
+- `Mastered` exige no proprio Boss melhor chain x4 e 12 Perfect; `Flawless` exige x6 e 30 Perfect, combinando o Codex com a Execution Mastery da Etapa 163.
+- O resumo global mostra Bosses conquistados e dominados, tentativas rastreadas e win rate; selecionar uma entrada tambem troca o briefing, arena, party e loot table do contrato.
+- O dossier mostra oito metricas, saldo liquido considerando entrada e perdas, loot acumulado com icones, cinco operacoes recentes e vitorias qualificadas de execucao.
+- Estados vazios permanecem completos: todos os Bosses aparecem antes da primeira tentativa, sem inventar loot ou historico.
+- A normalizacao remove Bosses, datas, itens e numeros invalidos, limita loot agregado e preserva os sistemas irmaos de region mastery, regional orders e execution mastery.
+- Um harness temporario passou em 33/33 checks deterministas para legado, corrupcao, dois Bosses, vitoria, derrota, duplicacao, economia, loot, datas, round-trip JSON e os cinco estados do Codex.
+- QA visual passou em 1440x1000 e 430x900. O indice, dossier e selecao cruzada ficaram legiveis, sem sobreposicao ou overflow horizontal; no mobile, `scrollWidth` permaneceu igual ao `clientWidth` em 343px.
+- Os unicos erros de console foram a indisponibilidade esperada do Tauri SQL Plugin no navegador web, com fallback local normal.
+- Limitacao de compatibilidade: em saves anteriores, os totais por Boss importam somente as ate 20 operacoes preservadas no historico; novas operacoes passam a ser acumuladas de forma vitalicia.
+- Proximo passo sugerido: Etapa 164.5 - QA do Raid Codex no Tauri/SQLite, incluindo import legado, Save/Reload e idempotencia real.
+
 ## Etapa 163.5 - QA da Execution Mastery no Tauri/SQLite
 
 - Um runner temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.

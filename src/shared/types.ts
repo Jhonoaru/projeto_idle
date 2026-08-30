@@ -646,6 +646,24 @@ export interface GuildBossOutcome {
   loot: GuildBossOutcomeLoot[];
 }
 
+export interface BossRaidRecord {
+  bossId: string;
+  attempts: number;
+  defeats: number;
+  totalEntryCost: number;
+  totalGoldGained: number;
+  totalGoldLost: number;
+  totalRenownGained: number;
+  totalExperienceGained: number;
+  lootTotals: GuildBossOutcomeLoot[];
+  lastAttemptAt: string;
+  lastDefeatedAt?: string;
+}
+
+export interface BossRaidCodexState {
+  records: BossRaidRecord[];
+}
+
 export type BossExecutionGrade = "unranked" | "precise" | "disciplined" | "masterful";
 
 export interface BossExecutionPerformanceSummary {
@@ -680,6 +698,7 @@ export interface GuildOperationOutcomesState {
   regionMastery?: GuildRegionMasteryProgress[];
   regionalOrders?: GuildRegionalOrdersState;
   bossExecutionMastery?: BossExecutionMasteryState;
+  bossRaidCodex?: BossRaidCodexState;
 }
 
 export type GuildRegionalOrderObjective = "hunt_minutes" | "boss_defeats" | "contract_successes";
