@@ -2,6 +2,23 @@
 
 Atualizado em: 2026-08-30
 
+## Etapa 164.5 - QA do Raid Codex no Tauri/SQLite
+
+- Um runner temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.
+- A rodada passou em 46/46 checks usando Sewer Broodmother e Khazgrim Gatekeeper, com tres operacoes legadas, uma nova vitoria, uma nova derrota e tres ciclos reais de Save/Reload.
+- Um `operation_outcomes_json` sem `bossRaidCodex` reconstruiu dois recordes independentes a partir do historico legado e persistiu o novo campo no Save seguinte.
+- Tentativas, vitorias, taxas de entrada, gold recebido e perdido, Renown, XP, loot agregado, ultima tentativa e ultima vitoria permaneceram corretos depois dos reloads.
+- O mesmo ID de operacao foi rejeitado antes do primeiro Save e novamente depois do Reload, sem inflar historico, totais globais ou recorde vitalicio.
+- Uma derrota posterior incrementou apenas as tentativas, acumulou a perda e atualizou a ultima tentativa sem substituir a data da ultima vitoria.
+- A leitura SQL crua confirmou dois recordes, cinco IDs unicos no historico e o total final de Sewer Broodmother em quatro tentativas e duas vitorias.
+- O dossier derivado confirmou cinco tentativas globais, tres vitorias, 60% de win rate e Sewer Broodmother em 4/2, 50%, saldo liquido de +415g e quatro operacoes recentes.
+- Regional Orders e Execution Mastery permaneceram identicos; Region Mastery continuou normalizado e recebeu somente a progressao esperada das operacoes reais de Boss.
+- A janela Tauri em 1280x800 exibiu o Raid Codex real, sprites, seis Bosses, estados vazios, loot e historico sem sobreposicao ou overflow visivel.
+- O clique adicional para trocar o dossier nao foi repetido nesta rodada porque outra entrada de usuario assumiu o foco da janela; a selecao cruzada ja havia passado no QA visual da Etapa 164.
+- Nenhuma correcao de produto foi necessaria.
+- O banco original foi restaurado com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, novamente sem WAL ou SHM.
+- Proximo passo sugerido: Etapa 165 - Boss Trophy Hall e recompensas offline por dominio do Raid Codex.
+
 ## Etapa 164 - Raid Codex e recordes de dominio por Boss
 
 - O painel de Bosses agora possui um Raid Codex offline com um indice persistente dos seis contratos e dossier selecionavel por Boss.
