@@ -1,6 +1,24 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-27
+Atualizado em: 2026-08-30
+
+## Etapa 163.5 - QA da Execution Mastery no Tauri/SQLite
+
+- Um runner temporario executou dentro do aplicativo Tauri contra o SQLite local real e foi removido integralmente depois da rodada valida.
+- A rodada passou em 36/36 checks usando Arkon e Sewer Broodmother, com tres operacoes vitoriosas qualificadas e Save/Reload entre os marcos.
+- Um save no formato anterior recebeu o estado default de Execution Mastery e o persistiu corretamente em `operation_outcomes_json`.
+- `Precision Mark`, `Raid Tactician` e `Flawless Vanguard` foram conquistados nos limites x2/2, x4/12 e x6/30, respectivamente.
+- `Perfect Execution Sigil`, outfit `Raid Tactician` e montaria `Battle Ram` persistiram em `collections_json` e mantiveram os tres flags de badge apos reload.
+- O ledger preservou exatamente tres IDs unicos. Reprocessar a primeira operacao depois de reload nao alterou totais, claims ou Collections.
+- Uma derrota com oito Perfect e uma vitoria sem Perfect nao concederam progresso.
+- O estado final preservou 30 reacoes Perfect, melhor chain x6, tres vitorias qualificadas e todos os tres milestones.
+- Gold, Renown, Guild Depot e todos os campos anteriores de operation outcomes permaneceram identicos durante a progressao.
+- A leitura crua do SQLite confirmou os totais em `operation_outcomes_json` e os unlocks/badges em `collections_json`.
+- O catch-up de uma raid expirada gerou um report e marcou a acao como `readyToResolve`, sem conceder ou alterar Execution Mastery.
+- Save/Reload preservou o mesmo fingerprint de mastery depois do catch-up; uma segunda aplicacao gerou zero reports e nenhuma mudanca.
+- Nenhuma correcao de produto foi necessaria.
+- O banco original foi restaurado com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`; SHM e WAL tambem voltaram aos hashes originais.
+- Proximo passo sugerido: Etapa 164 - Raid Codex e recordes de dominio por Boss, totalmente offline.
 
 ## Etapa 163 - Dominio de execucao e recompensas cosmeticas em Bosses
 
