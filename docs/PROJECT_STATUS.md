@@ -2,6 +2,24 @@
 
 Atualizado em: 2026-09-02
 
+## Etapa 165.5 - QA do Boss Trophy Hall no Tauri/SQLite
+
+- QA automatizado aprovado em duas rodadas de 114/114 checks, executadas no aplicativo Tauri com SQL Plugin e migrations reais.
+- A rodada usou exclusivamente `stage1655_20260902.db`, separado do save do jogador. A inicializacao normal do jogo nao foi alterada no resultado final.
+- Saves sem `bossTrophyHall` recebem estado vazio e disponibilizam claims retroativos conforme o Raid Codex, sem resgate automatico.
+- As 18 recompensas dos seis Bosses foram resgatadas em ordem, com Save/Reload entre cada resgate. Ledger, historico, datas, unlocks e flags de Collections persistiram.
+- Duplicatas foram rejeitadas antes e depois do reload; saltar tiers, resgatar sem progresso ou usar ID invalido tambem foi rejeitado.
+- Cosmeticos ja desbloqueados arquivam o trofeu sem duplicar unlock, log de Collections ou badge. Marcar Collections como vista permanece salvo e um claim repetido nao recria o badge.
+- Avatar, outfit e montaria equipados persistiram; gold, Renown, depot, Raid Codex e Execution Mastery permaneceram inalterados pelos claims.
+- Uma nova operacao de Boss preservou os 18 trofeus depois do Save/Reload. Ledger e historico corrompidos inseridos diretamente no SQLite foram normalizados no load.
+- A consulta SQL crua confirmou 18 claims e 18 flags antes da limpeza; a tabela `stage1655_report` preserva os resultados das duas rodadas.
+- O runner foi mantido como QA opt-in em `src/qa/bossTrophyHallSqliteQa.ts`, com pagina e configuracao Tauri dedicadas em `qa/`. Ele nao e importado pela aplicacao normal nem pelo bundle de producao.
+- Nenhuma correcao de gameplay foi necessaria. Houve apenas um ajuste de tipagem no runner durante sua preparacao.
+- Build inicial e final passaram com `npm run build`; o bundle final manteve os mesmos 491 modulos e hashes de assets da Etapa 165. O aviso existente de chunk acima de 500 kB permanece. O empacotamento release nao foi repetido nesta etapa de QA.
+- O save principal manteve 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, sem modificacao.
+- Limitacao: o resultado 114/114 foi visto na janela Tauri, mas a verificacao visual por clique no Hall normal foi interrompida por outra janela assumindo o foco. Badge renderizado, cliques em Claim/Archived e selecao cruzada ainda nao foram aprovados nesta rodada.
+- Proximo passo: concluir essa verificacao interativa antes de considerar todo o QA visual da Etapa 165.5 encerrado. Procedimento em `qa/README.md`.
+
 ## Etapa 165 - Boss Trophy Hall e recompensas offline por dominio
 
 - O painel de Bosses agora possui um Boss Trophy Hall guild-wide com seis alas, uma para cada contrato do Raid Codex.

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Boss Trophy Hall SQLite QA</title>
+  </head>
+  <body style="background:#101411;color:#ddd;font:14px monospace;padding:24px">
+    <h1 id="status">Running Boss Trophy Hall SQLite QA...</h1>
+    <pre id="report" style="white-space:pre-wrap"></pre>
+    <script type="module">
+      import { runStage1655Qa } from "/src/qa/bossTrophyHallSqliteQa.ts";
+      try {
+        const report = await runStage1655Qa();
+        document.querySelector("#status").textContent = `${report.length}/${report.length} checks passed`;
+        document.querySelector("#report").textContent = report.join("\n");
+      } catch (error) {
+        document.querySelector("#status").textContent = "QA FAILED";
+        document.querySelector("#report").textContent = String(error);
+      }
+    </script>
+  </body>
+</html>
