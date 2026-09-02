@@ -9716,6 +9716,15 @@ p {
 
 .collections-card-preview.is-mount { border-radius: 50% 50% 35% 35%; }
 .collections-card-preview.is-avatar { border-radius: 50%; }
+.collections-card-preview,
+.collections-showcase-preview > span,
+.boss-trophy-rewards article > i {
+  min-width: 0;
+  padding: 3px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
 .collections-card-copy { min-width: 0; }
 .collections-card-copy small,
 .collections-card-copy em { display: block; color: #829087; font-size: 0.57rem; font-style: normal; text-transform: uppercase; }

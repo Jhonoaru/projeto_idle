@@ -37,7 +37,7 @@ On 2026-09-02, both runs passed **114/114** checks. The first used a temporary
 entry point; the second validated this reusable isolated entry point. Reports
 are appended to `stage1655_report` in the QA database.
 
-## Interactive Checks Still Pending
+## Interactive Checks
 
 The automated checks validate state and persistence, not rendered interactions.
 Use a separate QA save with retroactive Boss progress; never seed a player's save.
@@ -50,5 +50,24 @@ Use a separate QA save with retroactive Boss progress; never seed a player's sav
 6. Open Collections and verify the cosmetics and clearing of the visible badge.
 7. Repeat at the Tauri minimum window size and check clipping/overlap.
 
-This click-through was not completed in the recorded run because another window
-took focus. The 114 automated passes do not imply these manual checks passed.
+The first attempt was interrupted by another window taking focus. A later
+authorized session completed this click-through on 2026-09-02 using the normal
+application connected temporarily to the isolated QA database. The connection
+change was reverted before committing.
+
+Khazgrim Gatekeeper was selected in the Hall and verified in the Raid Codex.
+All three rewards were claimed in order, including a double-click on Conquered.
+The UI showed 3/3 archived and a Collections badge of 3. Save/Reload preserved
+the claims; each cosmetic appeared unlocked in its category. Opening Collections
+cleared the badge, and a second Save/Reload kept it cleared.
+
+The Hall was inspected at 1280x800 and the minimum 960x640 client area.
+Collections was inspected maximized. The Ironhorn preview overflow found there
+was fixed with bounded wrapping in catalog, showcase and trophy previews; catalog
+and showcase were visually rechecked after the fix.
+
+An independent SQLite read confirmed three unique claim IDs/history entries,
+three cosmetic unlocks, zero pending new-item flags, six expected trophy/unlock
+log entries, and unchanged 420 gold. The player database SHA-256 remained
+`E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
+The automated 114-check suite was not rerun in this interactive continuation.

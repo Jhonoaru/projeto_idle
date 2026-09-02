@@ -15,10 +15,16 @@ Atualizado em: 2026-09-02
 - A consulta SQL crua confirmou 18 claims e 18 flags antes da limpeza; a tabela `stage1655_report` preserva os resultados das duas rodadas.
 - O runner foi mantido como QA opt-in em `src/qa/bossTrophyHallSqliteQa.ts`, com pagina e configuracao Tauri dedicadas em `qa/`. Ele nao e importado pela aplicacao normal nem pelo bundle de producao.
 - Nenhuma correcao de gameplay foi necessaria. Houve apenas um ajuste de tipagem no runner durante sua preparacao.
-- Build inicial e final passaram com `npm run build`; o bundle final manteve os mesmos 491 modulos e hashes de assets da Etapa 165. O aviso existente de chunk acima de 500 kB permanece. O empacotamento release nao foi repetido nesta etapa de QA.
+- Na rodada automatizada, build inicial e final passaram com `npm run build`; o bundle manteve os mesmos 491 modulos e hashes de assets da Etapa 165. O aviso existente de chunk acima de 500 kB permanece. O empacotamento release nao foi repetido nesta etapa de QA.
 - O save principal manteve 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, sem modificacao.
-- Limitacao: o resultado 114/114 foi visto na janela Tauri, mas a verificacao visual por clique no Hall normal foi interrompida por outra janela assumindo o foco. Badge renderizado, cliques em Claim/Archived e selecao cruzada ainda nao foram aprovados nesta rodada.
-- Proximo passo: concluir essa verificacao interativa antes de considerar todo o QA visual da Etapa 165.5 encerrado. Procedimento em `qa/README.md`.
+- QA interativo concluido em uma rodada posterior no aplicativo normal, conectado temporariamente apenas ao banco de QA. Selecionar Khazgrim no Hall atualizou tambem o Raid Codex e o briefing.
+- Os tres claims de Khazgrim passaram pela UI em ordem; um clique duplo no primeiro gerou apenas um claim. Os botoes anteriores ficaram `Archived`, a ala chegou a 3/3 e o badge Collections exibiu 3.
+- Dois ciclos de Save/Reload pelos botoes normais preservaram os resgates e depois a limpeza do badge. Os tres cosmeticos apareceram desbloqueados em suas categorias no Collections Hall.
+- O Hall foi inspecionado em area cliente 1280x800 e no minimo Tauri de 960x640, com rolagem e controles acessiveis. Collections tambem foi inspecionada em janela maximizada.
+- O QA encontrou e corrigiu um problema de CSS: o preview textual `Ironhorn` transbordava e encostava no nome do item. Previews do catalogo, showcase e Trophy Hall agora limitam e quebram texto longo dentro das dimensoes fixas; a correcao foi conferida no catalogo e showcase reais.
+- A consulta SQLite final confirmou exatamente tres claims/historicos de Khazgrim, tres unlocks, nenhuma flag pendente, seis logs esperados e gold mantido em 420. O save principal continuou com o mesmo SHA-256.
+- A conexao normal foi restaurada integralmente ao encerrar o QA. A suite automatizada 114/114 e da rodada anterior; nesta continuacao passaram os testes interativos e `npm run build` com 491 modulos e a correcao CSS, sem repetir o empacotamento release.
+- Etapa 165.5 concluida. Proxima etapa proposta: 166 - arte original dos trofeus e avatares do Boss Trophy Hall, substituindo os previews textuais. Procedimento de QA em `qa/README.md`.
 
 ## Etapa 165 - Boss Trophy Hall e recompensas offline por dominio
 
