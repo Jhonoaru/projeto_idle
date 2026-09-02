@@ -230,6 +230,7 @@ interface MainPanelProps {
   ) => void;
   onSyncBazaar: (nowIso: string) => void;
   onClaimDailyReward: () => void;
+  onClaimBossTrophyReward: (rewardId: string) => void;
   onActivateMonsterFocus: (
     slotIndex: number,
     monsterId: string,
@@ -363,6 +364,7 @@ export function MainPanel({
   onPurchaseBazaarOffer,
   onSyncBazaar,
   onClaimDailyReward,
+  onClaimBossTrophyReward,
   onActivateMonsterFocus,
   onClearMonsterFocus,
   onRerollMonsterFocus,
@@ -634,6 +636,7 @@ export function MainPanel({
             onStartTraining={onStartTraining}
             onToggleBossPartyMember={onToggleBossPartyMember}
             onLoadGuildSquad={onLoadGuildSquad}
+            onClaimBossTrophyReward={onClaimBossTrophyReward}
             quests={quests}
             selectedBoss={selectedBoss}
             selectedHunt={selectedHunt}
@@ -768,6 +771,7 @@ export function MainPanel({
               onStartBoss={onStartBoss}
               onToggleMember={onToggleBossPartyMember}
               onLoadGuildSquad={onLoadGuildSquad}
+              onClaimTrophyReward={onClaimBossTrophyReward}
               party={bossParty}
               selectedBoss={selectedBoss}
               selectedCharacter={selectedCharacter}

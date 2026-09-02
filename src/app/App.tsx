@@ -59,6 +59,7 @@ import { clearNewCollectionFlags } from "../game-engine/collections/clearNewColl
 import { equipCollectionItem } from "../game-engine/collections/equipCollectionItem";
 import { unlockCollectionItem } from "../game-engine/collections/unlockCollectionItem";
 import { recordBossExecutionMastery } from "../game-engine/boss/recordBossExecutionMastery";
+import { claimBossTrophyReward } from "../game-engine/boss/claimBossTrophyReward";
 import { claimDailyReward } from "../game-engine/daily-reward/claimDailyReward";
 import { exchangeCosmetic } from "../game-engine/cosmetic-exchange/exchangeCosmetic";
 import { equipGuildTitle, getGuildIdentity, getPersistedGuildTitle } from "../game-engine/achievements/getGuildIdentity";
@@ -2623,6 +2624,18 @@ export function App() {
     }
   }
 
+  function handleClaimBossTrophyReward(rewardId: string) {
+    const claim = claimBossTrophyReward(guild, rewardId);
+    if (!claim.success) {
+      prependLog("Boss Trophy Hall", claim.message, "warning");
+      return;
+    }
+    setGuild(claim.guild);
+    for (const message of [...claim.logs].reverse()) {
+      prependLog("Boss Trophy Hall", message, "success");
+    }
+  }
+
   function handleCancelBoss() {
     const activeBossContext = getActiveBossContext(
       selectedCharacter,
@@ -2776,6 +2789,7 @@ export function App() {
           onFulfillLoadoutProcurementReservation={handleFulfillLoadoutProcurementReservation}
           onFulfillLoadoutProcurementBatch={handleFulfillLoadoutProcurementBatch}
           onClaimDailyReward={handleClaimDailyReward}
+          onClaimBossTrophyReward={handleClaimBossTrophyReward}
           onMarkCollectionsSeen={handleMarkCollectionsSeen}
           onResetDestinyPath={handleResetDestinyPath}
           onManualSave={handleManualSave}

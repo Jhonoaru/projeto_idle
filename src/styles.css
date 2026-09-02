@@ -16193,6 +16193,44 @@ html[data-client-motion="reduced"] *::after {
 .raid-codex-dossier > footer { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 7px; align-items: center; padding-top: 7px; border-top: 1px solid #303a34; }
 .raid-codex-dossier > footer strong { color: #c9bea0; font-size: 0.6rem; }
 
+.boss-trophy-hall { display: grid; gap: 9px; padding: 11px 0; border-bottom: 1px solid #39423c; }
+.boss-trophy-hall > header { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: end; }
+.boss-trophy-hall > header span,
+.boss-trophy-display > header span,
+.boss-trophy-rewards article > span { color: #8a978f; font-size: 0.57rem; text-transform: uppercase; }
+.boss-trophy-hall > header h3,
+.boss-trophy-display h4 { margin: 2px 0 0; color: #e9ce80; font-family: Georgia, serif; }
+.boss-trophy-hall > header h3 { font-size: 0.92rem; }
+.boss-trophy-hall > header dl { display: grid; grid-template-columns: repeat(3, minmax(70px, 1fr)); margin: 0; }
+.boss-trophy-hall > header dl div { padding: 5px 9px; border-left: 1px solid #303a34; }
+.boss-trophy-hall > header dt { color: #7f8d85; font-size: 0.52rem; text-transform: uppercase; }
+.boss-trophy-hall > header dd { margin: 2px 0 0; color: #d8cca0; font-size: 0.72rem; font-weight: 900; }
+.boss-trophy-hall > header .has-ready dd { color: #8ed09a; }
+.boss-trophy-wings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.boss-trophy-wings button { display: grid; grid-template-columns: 38px minmax(0, 1fr) 18px; gap: 7px; align-items: center; min-width: 0; min-height: 48px; padding: 5px; border: 1px solid #323c36; border-radius: 3px; color: #cbd0ca; background: #111613; text-align: left; cursor: pointer; }
+.boss-trophy-wings button[aria-pressed="true"] { border-color: #9d7f3e; background: #19190f; box-shadow: inset 3px 0 #c7a64b; }
+.boss-trophy-wings button > span { min-width: 0; }
+.boss-trophy-wings strong,
+.boss-trophy-wings small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.boss-trophy-wings strong { color: #d8d0b4; font-size: 0.64rem; }
+.boss-trophy-wings small { margin-top: 2px; color: #7c8b83; font-size: 0.54rem; }
+.boss-trophy-wings button > b { display: grid; width: 17px; height: 17px; place-items: center; border: 1px solid #63886b; border-radius: 50%; color: #9ce0a5; background: #16231a; font-size: 0.65rem; }
+.boss-trophy-display { display: grid; gap: 8px; padding: 9px; border: 1px solid #3b4136; border-left: 3px solid #a8893f; border-radius: 4px; background: #10140f; }
+.boss-trophy-display > header { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 9px; align-items: center; }
+.boss-trophy-display h4 { font-size: 0.84rem; }
+.boss-trophy-display > header small { display: block; margin-top: 3px; color: #87938b; font-size: 0.57rem; }
+.boss-trophy-display > header > strong { color: #ddc578; font: 700 0.74rem Georgia, serif; }
+.boss-trophy-rewards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+.boss-trophy-rewards article { display: grid; grid-template-rows: auto 52px auto minmax(32px, 1fr) 28px; gap: 5px; min-width: 0; padding: 8px; border: 1px solid #303832; border-radius: 4px; background: #111613; }
+.boss-trophy-rewards article.is-available { border-color: #7b6b39; background: #18180f; }
+.boss-trophy-rewards article.is-claimed { border-color: #476e55; background: #111914; }
+.boss-trophy-rewards article > i { display: grid; width: 50px; height: 50px; place-items: center; border: 1px solid #596256; border-radius: 4px; color: #e3cf8e; background: #1a201b; font: 700 0.72rem Georgia, serif; }
+.boss-trophy-rewards article > strong { overflow-wrap: anywhere; color: #dccb91; font-size: 0.7rem; }
+.boss-trophy-rewards article > small { color: #89958d; font-size: 0.57rem; line-height: 1.35; }
+.boss-trophy-rewards article > button { min-height: 28px; border: 1px solid #8d7337; color: #f0d68c; background: #2a2718; font-family: Georgia, serif; font-size: 0.6rem; font-weight: 700; cursor: pointer; }
+.boss-trophy-rewards article > button:disabled { border-color: #343c36; color: #68736c; background: #151a17; cursor: not-allowed; }
+.boss-trophy-rewards article.is-claimed > button:disabled { border-color: #466451; color: #7eb48b; }
+
 .boss-scene-party { position: absolute; top: 40%; left: 20%; width: 220px; height: 230px; }
 .boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
 .boss-scene-party-member strong { margin-top: -3px; color: #f0dd9d; font-size: 0.64rem; }
@@ -16228,6 +16266,7 @@ html[data-client-motion="reduced"] *::after {
 
 @media (max-width: 900px) {
   .raid-codex-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .boss-trophy-rewards { grid-template-columns: 1fr; }
   .boss-scene { grid-template-columns: 1fr; min-height: 0; }
   .boss-scene-side { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .boss-scene-side > header, .boss-scene-roster { grid-column: 1 / -1; }
@@ -16246,6 +16285,10 @@ html[data-client-motion="reduced"] *::after {
   .raid-execution-mastery > header { align-items: start; flex-direction: column; }
   .raid-execution-mastery > header > strong { text-align: left; }
   .raid-execution-mastery > div { grid-template-columns: 1fr; }
+  .boss-trophy-hall > header { grid-template-columns: 1fr; }
+  .boss-trophy-hall > header dl { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .boss-trophy-wings { grid-template-columns: 1fr; }
+  .boss-trophy-display > header { grid-template-columns: 46px minmax(0, 1fr) auto; }
   .boss-execution-result > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .boss-scene-side { grid-template-columns: 1fr; }
   .boss-scene-side > header, .boss-scene-roster { grid-column: auto; }

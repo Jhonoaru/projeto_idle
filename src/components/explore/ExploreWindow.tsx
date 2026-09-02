@@ -68,6 +68,7 @@ interface ExploreWindowProps {
   ) => void;
   onToggleBossPartyMember: (characterId: string) => void;
   onLoadGuildSquad: (slotId: GuildSquadSlotId) => void;
+  onClaimBossTrophyReward: (rewardId: string) => void;
 }
 
 const tabs: Array<{ id: ExploreTab; label: string; icon: string }> = [
@@ -108,6 +109,7 @@ export function ExploreWindow({
   onStartTraining,
   onToggleBossPartyMember,
   onLoadGuildSquad,
+  onClaimBossTrophyReward,
 }: ExploreWindowProps) {
   const [activeTab, setActiveTab] = useState<ExploreTab>("hunts");
   const [huntSearch, setHuntSearch] = useState("");
@@ -228,6 +230,7 @@ export function ExploreWindow({
               onStartBoss={onStartBoss}
               onToggleMember={onToggleBossPartyMember}
               onLoadGuildSquad={onLoadGuildSquad}
+              onClaimTrophyReward={onClaimBossTrophyReward}
               party={bossParty}
               selectedBoss={selectedBoss}
               selectedCharacter={character}

@@ -664,6 +664,21 @@ export interface BossRaidCodexState {
   records: BossRaidRecord[];
 }
 
+export type BossTrophyRewardTier = "conquered" | "mastered" | "flawless";
+
+export interface BossTrophyClaim {
+  rewardId: string;
+  bossId: string;
+  tier: BossTrophyRewardTier;
+  collectionItemId: string;
+  claimedAt: string;
+}
+
+export interface BossTrophyHallState {
+  claimedRewardIds: string[];
+  claimHistory: BossTrophyClaim[];
+}
+
 export type BossExecutionGrade = "unranked" | "precise" | "disciplined" | "masterful";
 
 export interface BossExecutionPerformanceSummary {
@@ -699,6 +714,7 @@ export interface GuildOperationOutcomesState {
   regionalOrders?: GuildRegionalOrdersState;
   bossExecutionMastery?: BossExecutionMasteryState;
   bossRaidCodex?: BossRaidCodexState;
+  bossTrophyHall?: BossTrophyHallState;
 }
 
 export type GuildRegionalOrderObjective = "hunt_minutes" | "boss_defeats" | "contract_successes";

@@ -13,6 +13,7 @@ import { BossSprite } from "./BossSprite";
 import { getGuildSquadStatus } from "../../game-engine/guild-squads/getGuildSquadStatus";
 import { normalizeBossExecutionMastery } from "../../game-engine/boss/normalizeBossExecutionMastery";
 import { RaidCodex } from "./RaidCodex";
+import { BossTrophyHall } from "./BossTrophyHall";
 import type {
   Boss,
   BossParty,
@@ -41,6 +42,7 @@ interface BossPanelProps {
   onFinishBoss: () => void;
   onCancelBoss: () => void;
   onLoadGuildSquad: (slotId: GuildSquadSlotId) => void;
+  onClaimTrophyReward: (rewardId: string) => void;
 }
 
 export function BossPanel({
@@ -60,6 +62,7 @@ export function BossPanel({
   onFinishBoss,
   onCancelBoss,
   onLoadGuildSquad,
+  onClaimTrophyReward,
 }: BossPanelProps) {
   const squadStatus = getGuildSquadStatus(guild, characters);
   const executionMastery = normalizeBossExecutionMastery(guild.operationOutcomes?.bossExecutionMastery);
@@ -120,6 +123,8 @@ export function BossPanel({
       ) : null}
 
       <RaidCodex bosses={bosses} guild={guild} onSelectBoss={onSelectBoss} selectedBoss={selectedBoss} />
+
+      <BossTrophyHall bosses={bosses} guild={guild} onClaimReward={onClaimTrophyReward} onSelectBoss={onSelectBoss} selectedBoss={selectedBoss} />
 
       <div className="boss-command-grid">
         <section className="boss-command-section">

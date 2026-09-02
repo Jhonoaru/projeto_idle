@@ -59,6 +59,7 @@ export function recordBossOperationOutcome(
       regionalOrders: outcomes.regionalOrders,
       bossExecutionMastery: outcomes.bossExecutionMastery,
       bossRaidCodex: recordBossRaidCodexOutcome(outcomes.bossRaidCodex, entry),
+      bossTrophyHall: outcomes.bossTrophyHall,
     }),
   };
   return recordGuildRegionMastery(guildWithOutcome, {

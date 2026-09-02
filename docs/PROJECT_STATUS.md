@@ -1,6 +1,27 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-08-30
+Atualizado em: 2026-09-02
+
+## Etapa 165 - Boss Trophy Hall e recompensas offline por dominio
+
+- O painel de Bosses agora possui um Boss Trophy Hall guild-wide com seis alas, uma para cada contrato do Raid Codex.
+- Cada Boss oferece tres recompensas cosmeticas permanentes: avatar em `Conquered`, outfit em `Mastered` e montaria em `Flawless`, totalizando 18 novos itens em Collections.
+- As recompensas sao somente visuais e nao alteram atributos, dano, defesa, chance de sucesso, economia, loot ou cooldown.
+- O claim e manual para atender saves antigos: uma guilda que ja cumpriu o requisito encontra a recompensa disponivel sem precisar repetir a progressao.
+- As tiers precisam ser arquivadas em ordem; Mastered exige o trofeu Conquered e Flawless exige o trofeu Mastered do mesmo Boss.
+- Claims vivem em `bossTrophyHall` dentro do `operation_outcomes_json` existente, com ledger de IDs e historico limitado, sem migration SQLite nova.
+- O claim usa Collections real, atualiza `newlyUnlockedCollectionItemIds`, aciona o badge e continua seguro se o cosmetico ja estiver desbloqueado por um save anterior.
+- IDs invalidos, historico corrompido, datas invalidas e claims duplicados sao normalizados ou rejeitados sem quebrar o save.
+- A interface mostra total arquivado, recompensas disponiveis, progresso 0/3 por Boss e estados `Locked`, `Claim reward`, `Claim prior tier` e `Archived`.
+- Selecionar uma ala tambem seleciona o Boss no restante do painel, mantendo Raid Codex, briefing, arena, party e loot sincronizados.
+- O Activity Log recebe uma entrada unica de trofeu e a mensagem de Collections somente quando ocorre um unlock novo.
+- Um harness temporario passou em 35/35 checks deterministas cobrindo as 18 definicoes, seis Bosses, tres tiers, ordem, elegibilidade, duplicacao, cosmetico preexistente, badge, corrupcao, economia preservada e round-trip JSON.
+- QA visual passou em 1440x1000 e 430x900. As seis alas e tres recompensas ficaram legiveis; no mobile o Hall manteve `scrollWidth` igual ao `clientWidth` em 343px.
+- Os unicos erros do QA web foram a indisponibilidade esperada do Tauri SQL Plugin no navegador, com fallback mock normal.
+- Os 18 novos cosmeticos usam previews de texto/badge do sistema Collections; esta etapa nao criou sprites exclusivos para eles. O Hall usa os sprites existentes dos Bosses.
+- Claims foram validados pelo harness, mas nao por cliques no aplicativo Tauri. Save/Reload e badges contra SQLite real ainda precisam do QA da Etapa 165.5.
+- `npm run build` e `npm run tauri:build` passaram; o empacotamento gerou MSI e NSIS/EXE. Permanece o aviso existente de bundle JavaScript acima de 500 kB.
+- Proximo passo sugerido: Etapa 165.5 - QA do Boss Trophy Hall no Tauri/SQLite, incluindo claims retroativos, Save/Reload e badge real de Collections.
 
 ## Etapa 164.5 - QA do Raid Codex no Tauri/SQLite
 
