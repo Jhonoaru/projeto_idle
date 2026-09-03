@@ -2,6 +2,21 @@
 
 Atualizado em: 2026-09-03
 
+## Etapa 168.5 - QA integrado das montarias no Tauri/SQLite
+
+- Runner opt-in executado dentro do aplicativo Tauri com o SQL Plugin e migrations reais, usando exclusivamente `stage1685_20260903.db`.
+- A rodada valida passou em 77/77 checks: seis PNGs servidos dentro do WebView, 18 claims em ordem, seis unlocks de montaria e seis ciclos de equip/save/reload.
+- Cada `activeMountId` foi confirmado pela API carregada e diretamente em `characters.cosmetics_json`; os seis unlocks e 18 claims tambem foram conferidos em `collections_json` e `operation_outcomes_json` brutos.
+- Avatar Broodmother Crest e outfit Webkeeper Regalia permaneceram equipados durante a troca das seis montarias. Gold, Renown, depot e atributos permaneceram inalterados.
+- Um `activeMountId` invalido injetado diretamente no SQLite normalizou para `mount-none` sem descartar outfit ou avatar; o estado valido foi restaurado e salvo ao fim.
+- A tela dedicada renderizou no Tauri os seis previews e as seis composicoes reais de `CharacterSprite`, todas com heroi, outfit e montaria legiveis em 1280x800.
+- A primeira execucao parou em 70 checks porque o harness fotografava o depot antes da normalizacao inicial do repository. O baseline foi movido para depois do primeiro reload e a rodada seguinte passou em 77/77; nenhuma correcao de produto foi necessaria.
+- A tentativa de redimensionar o aplicativo foi interrompida por entrada do usuario, portanto esta rodada nao afirma QA nativo em 960x640. A responsividade web em 960x640 e 430x900 permanece como evidencia da Etapa 168.
+- O banco isolado ficou com 98.304 bytes. O save principal permaneceu com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`, sem ser aberto pelo runner.
+- `npm run build` passou antes e depois do QA com 493 modulos. Permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+- O runner e a pagina visual foram mantidos em `src/qa/` e `qa/`; nao entram no entrypoint de producao. O empacotamento release nao precisa ser repetido nesta etapa de QA.
+- Proximo passo proposto: Etapa 169 - pipeline de otimizacao das artes de Collections e carregamento progressivo, reduzindo o peso local antes do proximo lote visual.
+
 ## Etapa 168 - Visuais originais das seis montarias de Boss
 
 - Etapa implementada com Sewer Stalker, War Boar, Grave Charger, Ironhorn Ram, Cinder Drake e Victory Lion.

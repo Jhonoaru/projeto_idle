@@ -9813,6 +9813,26 @@ p {
   .collection-art-qa-grid { grid-template-columns: minmax(0, 1fr) !important; }
 }
 
+.mount-sqlite-qa { min-height: 100vh; padding: 20px; color: #d7d4c5; background: #0d1210; }
+.mount-sqlite-qa > header { padding: 14px; border: 1px solid #71602f; background: #141a16; }
+.mount-sqlite-qa > header span { color: #89958c; font-size: 0.65rem; font-weight: 800; }
+.mount-sqlite-qa > header h1 { margin: 5px 0; color: #ebd188; font-family: Georgia, serif; font-size: 1.35rem; }
+.mount-sqlite-qa > header strong { color: #91c783; }
+.mount-sqlite-qa > header p { margin: 5px 0 0; color: #9ba59e; font-size: 0.72rem; }
+.mount-sqlite-qa-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+.mount-sqlite-qa-grid article { position: relative; display: grid; min-width: 0; min-height: 210px; place-items: center; padding: 10px; border: 1px solid #39443c; background: #111713; }
+.mount-sqlite-qa-preview { width: 100%; height: 120px; }
+.mount-sqlite-qa-grid .character-sprite { position: absolute; right: 8px; bottom: 8px; border: 1px solid #675a32; background: #18201b; }
+.mount-sqlite-qa-grid h2 { margin: 5px 0 0; color: #e3ce91; font-family: Georgia, serif; font-size: 0.9rem; }
+.mount-sqlite-qa-grid small { color: #8da283; font-size: 0.62rem; text-transform: uppercase; }
+.mount-sqlite-qa details { padding: 10px; border: 1px solid #303a33; background: #111713; }
+.mount-sqlite-qa summary { color: #d4c27f; cursor: pointer; font-weight: 800; }
+.mount-sqlite-qa pre { max-height: 280px; overflow: auto; white-space: pre-wrap; }
+
+@media (max-width: 900px) {
+  .mount-sqlite-qa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 .collections-showcase-copy { padding: 10px 2px 7px; }
 .collections-showcase-copy p { margin: 5px 0 0; color: #b9c0ba; font-size: 0.74rem; line-height: 1.4; }
 .collections-showcase-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }

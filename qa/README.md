@@ -1,5 +1,31 @@
 # Boss Trophy Hall: Tauri/SQLite QA
 
+## Stage 168.5: Mount Artwork Tauri/SQLite QA
+
+From the repository root, run:
+
+```powershell
+npm run tauri:dev -- --config "$PWD/qa/tauri.mount-artwork.json"
+```
+
+The dedicated page runs `runStage1685Qa` against
+`stage1685_20260903.db`. It uses production migrations, repository, mapper,
+Boss Trophy Hall and Collections functions, but never opens
+`guild_hunt_idle.db` or mounts the production App.
+
+Coverage includes all six local PNG responses in the Tauri WebView, ordered
+Conquered/Mastered/Flawless claims, six unlocks, six mount equip/save/reload
+cycles, raw JSON columns, unchanged economy/attributes and invalid persisted
+mount recovery. The result page renders each mount and the shared
+`CharacterSprite` composition for visual inspection.
+
+Completed on 2026-09-03: the valid run passed **77/77** checks at 1280x800. The
+first harness attempt stopped at 70 checks because its depot baseline was taken
+before the repository's initial load normalization; moving the baseline after
+that reload fixed the test. The native minimum-size check was interrupted by
+user input and is not claimed. The player database remained 102,400 bytes with
+SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
+
 ## Stage 168: Mount Artwork (Browser)
 
 With `npm run dev` running, open
