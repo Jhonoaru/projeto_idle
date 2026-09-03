@@ -1,5 +1,31 @@
 # Boss Trophy Hall: Tauri/SQLite QA
 
+## Stage 167: Outfit Artwork (Browser)
+
+With `npm run dev` running, open
+`http://127.0.0.1:1420/qa/collection-art.html?category=outfit`.
+This selects the outfit variant of the memory-only fixture. The plain URL still
+runs the Stage 166 avatar checks. Neither variant opens SQLite or mounts App.
+
+- The seed has Mastered progress and Conquered claims, leaving six outfits ready.
+- 59 checks cover mapping, locked equip, claim/equip, duplicate rejection, input
+  immutability, unchanged power/gold, unchanged avatar/mount and JSON round-trip
+  through cosmetic normalization. JSON is not a substitute for SQLite QA.
+- Claim Webkeeper from Trophy Hall, inspect Collections, and equip it. Profile
+  uses the real CharacterSprite, HuntSceneActor and RightCharacterPanel.
+- Claim all six outfits, then equip each one in Collections and inspect Profile.
+- Equip a trophy avatar as well; its badge must not replace the outfit.
+- Simulate unavailable artwork: catalog previews use sigils and CharacterSprite
+  uses the original hero. Restore artwork to recover the outfit.
+- Reset fixture removes outfit claims and restores the base appearance.
+
+Completed on 2026-09-03: 59/59 outfit checks and 38/38 avatar regression checks;
+six loaded RGBA assets; manual claim, locked equip, all six equipped appearances,
+actor/panel rendering, avatar coexistence, text/base-hero fallback and reset.
+Screenshots covered 1280x720, Hall 960x640 and Collections 430x900. Production
+build and MSI/NSIS packaging passed. No new interactive Tauri/SQLite run or
+installer execution was performed.
+
 ## Stage 166: Collection Artwork (Browser)
 
 Run `npm run dev` and open `http://127.0.0.1:1420/qa/collection-art.html`.

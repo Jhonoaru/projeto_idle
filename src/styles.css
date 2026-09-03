@@ -6575,6 +6575,7 @@ p {
 }
 
 .character-sprite-small { width: 36px; height: 44px; }
+.character-sprite.is-outfit > img { image-rendering: auto; }
 .character-sprite-medium { width: 54px; height: 54px; }
 .character-sprite-large { width: 76px; height: 72px; }
 .character-sprite-scene { width: 104px; height: 116px; }
@@ -9770,6 +9771,8 @@ p {
 .collections-showcase-preview.is-mount i { width: 180px; height: 100px; border-radius: 50% 55% 38% 42%; }
 .collections-showcase-preview.is-avatar i { width: 132px; height: 132px; border-radius: 50%; }
 .collections-showcase-preview.is-avatar > span { width: 124px; height: 124px; border-radius: 50%; }
+.collections-showcase-preview.is-outfit:has(.collection-preview-image) > span { width: 150px; height: 174px; border: 0; background: transparent; }
+.collections-showcase-preview.is-outfit:has(.collection-preview-image) > i { display: none; }
 .collections-showcase-preview > span { position: relative; z-index: 1; display: grid; place-items: center; width: 74px; height: 74px; border: 1px solid #847442; color: #ead180; background: #20241e; font-family: Georgia, serif; font-size: 1.15rem; font-weight: 900; }
 .collections-showcase-preview.rarity-uncommon > span { color: #9cc28e; border-color: #5d7955; }
 .collections-showcase-preview.rarity-rare > span { color: #8fbacc; border-color: #557a8a; }

@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { getCharacterSprite } from "../../data/characterSprites";
-import { getCollectionSprite } from "../../data/collectionSprites";
+import { getCollectionSprite, getOutfitSprite } from "../../data/collectionSprites";
 import { CollectionPreview } from "../collections/CollectionPreview";
 import type { Character, CollectionItem } from "../../shared/types";
 
 type CharacterSpriteSize = "small" | "medium" | "large" | "scene";
 
 interface CharacterSpriteProps {
-  character: Pick<Character, "id" | "name">;
+  character: Pick<Character, "id" | "name" | "cosmetics">;
   className?: string;
   fallbackSymbol?: string;
   avatar?: CollectionItem;
@@ -21,8 +21,11 @@ export function CharacterSprite({
   avatar,
   size = "medium",
 }: CharacterSpriteProps) {
-  const sprite = getCharacterSprite(character.id);
-  const [failed, setFailed] = useState(false);
+  const baseSprite = getCharacterSprite(character.id);
+  const outfit = getOutfitSprite(character.cosmetics?.activeOutfitId);
+  const [failedSources, setFailedSources] = useState<string[]>([]);
+  const outfitVisible = outfit && !failedSources.includes(outfit.src);
+  const sprite = outfitVisible ? outfit : baseSprite && !failedSources.includes(baseSprite.src) ? baseSprite : undefined;
   const initials = fallbackSymbol ?? character.name
     .split(" ")
     .map((part) => part[0])
@@ -30,20 +33,19 @@ export function CharacterSprite({
     .slice(0, 2)
     .toUpperCase();
 
-  useEffect(() => setFailed(false), [sprite?.src]);
-
   return (
     <span
-      aria-label={`${character.name} character portrait${avatar ? ` / ${avatar.name}` : ""}`}
-      className={`character-sprite character-sprite-${size} ${className}`.trim()}
+      aria-label={`${character.name} character portrait${outfitVisible ? ` / ${outfit.name}` : ""}${avatar ? ` / ${avatar.name}` : ""}`}
+      className={`character-sprite character-sprite-${size} ${outfitVisible ? "is-outfit" : ""} ${className}`.trim()}
       role="img"
     >
-      {sprite && !failed ? (
+      {sprite ? (
         <img
           alt=""
           aria-hidden="true"
           decoding="async"
-          onError={() => setFailed(true)}
+          key={sprite.src}
+          onError={() => setFailedSources((current) => current.includes(sprite.src) ? current : [...current, sprite.src])}
           src={sprite.src}
         />
       ) : (

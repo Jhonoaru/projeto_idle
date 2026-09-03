@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-09-03
 
+## Etapa 167 - Visuais originais dos seis outfits de Boss
+
+- Etapa concluida com Webkeeper Regalia, Warcamp Raider, Crypt Sentinel, Gatekeeper Plate, Ashen Warden e Arena Champion.
+- Seis PNGs originais com transparencia real, gerados individualmente pela ferramenta integrada, foram adicionados em `public/assets/collections/generated/`. Os originais RGBA de 1254x1254 somam 6.028.363 bytes. Prompts e limites em `public/assets/collections/OUTFITS.md`.
+- O mapa `collectionSprites` preserva os IDs existentes de Mastered. Trophy Hall, Collections e Store passam a mostrar a roupa pelo componente de preview compartilhado; itens bloqueados de Collections continuam ocultos e nao podem ser equipados.
+- `CharacterSprite` resolve o `activeOutfitId` equipado. Isso conecta a aparencia a Details, painel direito, roster, equipes, rankings, hunts e bosses que ja usam o renderer compartilhado, sem alterar suas regras.
+- A sequencia de fallback e roupa, sprite original do heroi e iniciais. Falhas sao registradas por URL, evitando reaplicar uma imagem conhecida como indisponivel durante o mesmo mount do componente.
+- O showcase de outfit apresenta uma figura maior e transparente; frames e tamanhos dos atores permanecem fixos. Avatar equipado continua como emblema independente e a selecao de montaria e preservada.
+- Sem mudancas em atributos, armas equipadas, vocacoes, economia, requisitos, claims, IDs, migrations, mapper ou formato de save. Os IDs ja persistidos resolvem os novos arquivos locais.
+- O fixture `qa/collection-art.html?category=outfit` passou em 59/59 checks: mapeamento, bloqueios, claim/equip, duplicatas, imutabilidade, atributos/gold, preservacao de avatar/montaria e resolucao apos round-trip JSON com normalizacao. A variante de avatares da Etapa 166 foi reexecutada e passou em 38/38.
+- QA por cliques no navegador: resgate manual de Webkeeper, roupa bloqueada, equipamento e troca dos seis outfits, ator real de hunt no fixture, painel direito, coexistencia com Broodmother Crest, seis fallbacks textuais, fallback de personagem para Arkon e reset restaurando a aparencia inicial.
+- Screenshots inspecionados em 1280x720, Hall em 960x640 e Collections em 430x900. Hall manteve clientWidth/scrollWidth de 928px; a pagina estreita manteve largura de conteudo 415px dentro de 430px.
+- `npm run build` e `npm run tauri:build` passaram com 493 modulos; MSI e NSIS foram gerados. Continua o aviso existente de bundle JavaScript acima de 500 kB.
+- Limites: uma figura estatica por outfit, sem variacoes por heroi, animacoes, camadas de roupa ou desenho dinamico de armas. Montarias ainda usam previews anteriores. Nao houve novo QA interativo Tauri/SQLite ou instalacao dos bundles; round-trip JSON nao e teste de SQLite. O fixture usa memoria e nao abre o save do jogador.
+- Proximo passo proposto: Etapa 168 - visuais originais das seis montarias de Boss, seguida pelo QA visual integrado da Etapa 168.5.
+
 ## Etapa 166 - Arte original dos avatares do Boss Trophy Hall
 
 - Etapa concluida com seis emblemas originais locais: Broodmother Crest, Camp Breaker Mark, Crypt Warden Seal, Khazgrim Gate Sigil, Ember Crown e Arena Laurel.

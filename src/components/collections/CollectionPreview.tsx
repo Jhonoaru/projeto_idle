@@ -15,7 +15,7 @@ export function CollectionPreview({ item, hidden = false, fallback = "?" }: Coll
   if (!sprite || failedSrc === sprite.src) return <>{item?.previewValue ?? fallback}</>;
   return (
     <img
-      className="collection-preview-image"
+      className={`collection-preview-image is-${item?.category ?? "unknown"}`}
       alt=""
       aria-hidden="true"
       decoding="async"

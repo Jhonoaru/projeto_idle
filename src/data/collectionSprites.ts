@@ -1,3 +1,5 @@
+import { getCollectionItemById } from "./collections";
+
 export interface CollectionSpriteDefinition {
   src: string;
   source: "generated-original";
@@ -9,6 +11,12 @@ const generatedSprite = (collectionId: string): CollectionSpriteDefinition => ({
 });
 
 export const collectionSprites: Record<string, CollectionSpriteDefinition> = {
+  "outfit-webkeeper": generatedSprite("outfit-webkeeper"),
+  "outfit-warcamp-raider": generatedSprite("outfit-warcamp-raider"),
+  "outfit-crypt-sentinel": generatedSprite("outfit-crypt-sentinel"),
+  "outfit-gatekeeper-plate": generatedSprite("outfit-gatekeeper-plate"),
+  "outfit-ashen-warden": generatedSprite("outfit-ashen-warden"),
+  "outfit-arena-champion": generatedSprite("outfit-arena-champion"),
   "avatar-broodmother-crest": generatedSprite("avatar-broodmother-crest"),
   "avatar-camp-breaker-mark": generatedSprite("avatar-camp-breaker-mark"),
   "avatar-crypt-warden-seal": generatedSprite("avatar-crypt-warden-seal"),
@@ -19,4 +27,10 @@ export const collectionSprites: Record<string, CollectionSpriteDefinition> = {
 
 export function getCollectionSprite(collectionId?: string) {
   return collectionId && Object.hasOwn(collectionSprites, collectionId) ? collectionSprites[collectionId] : undefined;
+}
+
+export function getOutfitSprite(collectionId?: string) {
+  const item = getCollectionItemById(collectionId);
+  const sprite = item?.category === "outfit" ? getCollectionSprite(item.id) : undefined;
+  return sprite && item ? { ...sprite, name: item.name } : undefined;
 }
