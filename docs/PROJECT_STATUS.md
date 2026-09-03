@@ -1,6 +1,22 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-02
+Atualizado em: 2026-09-03
+
+## Etapa 166 - Arte original dos avatares do Boss Trophy Hall
+
+- Etapa concluida com seis emblemas originais locais: Broodmother Crest, Camp Breaker Mark, Crypt Warden Seal, Khazgrim Gate Sigil, Ember Crown e Arena Laurel.
+- As imagens foram geradas individualmente pela ferramenta de imagem integrada, sem imagens externas de referencia, e copiadas para `public/assets/collections/generated/`. Prompts e procedencia estao no README da pasta.
+- `collectionSprites.ts` associa os IDs existentes aos PNGs. `CollectionPreview` compartilha renderizacao e fallback textual entre Trophy Hall, Collections e Store, sem alterar as definicoes de recompensa.
+- Collections preserva o ponto de interrogacao para itens bloqueados e mostra a arte no catalogo, showcase e loadout apos o desbloqueio. O showcase de avatar possui preview maior; frames permanecem com dimensoes fixas.
+- Details e painel direito mostram o avatar equipado como pequeno emblema junto ao retrato. O sprite do heroi continua intacto; esta etapa nao substitui outfits, montarias ou animacoes de combate.
+- Nao houve alteracao de IDs, claims, requisitos, atributos, economia, tipos de save, mapper ou schema SQLite. Saves existentes passam a resolver a arte por ID, sem migration.
+- Fixture opt-in `qa/collection-art.html` passou em 38/38 checks: seis mapeamentos, IDs invalidos, equipamento bloqueado, claim/equip existentes, entradas imutaveis e atributos/gold preservados.
+- QA por cliques no navegador verificou as seis alas e imagens, resgate manual de Arena Laurel, estado Archived desabilitado, bloqueio de Broodmother nao obtida, equipamento do avatar, showcase, loadout e emblema junto ao retrato.
+- As seis imagens carregaram no catalogo apos os claims; reset do fixture removeu os desbloqueios e restaurou o avatar inicial. Simular arquivos ausentes mostrou as seis siglas, e restaurar os arquivos fez a arte reaparecer.
+- Screenshots inspecionados em 1280x720, Hall em 960x640 e Collections em 430x900. O Hall em 960px manteve clientWidth/scrollWidth de 928px; Collections estreita nao apresentou overflow horizontal.
+- `npm run build` e `npm run tauri:build` passaram, com 493 modulos e instaladores MSI/NSIS gerados. Permanece o aviso existente de chunk JavaScript acima de 500 kB.
+- Limites: PNGs originais opacos, sem animacao, somando aproximadamente 11,9 MB; otimizacao de entrega ainda nao feita. Nao foi executado novo QA interativo no Tauri/SQLite nem instalacao dos bundles nesta etapa. A pagina de QA usa somente memoria e nao abre o banco do jogador.
+- Proximo passo proposto: Etapa 167 - visuais originais dos seis outfits de Boss, mantendo a separacao entre avatar, outfit e montaria.
 
 ## Etapa 165.5 - QA do Boss Trophy Hall no Tauri/SQLite
 

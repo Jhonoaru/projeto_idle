@@ -59,6 +59,7 @@ export function RightCharacterPanel({
         <div className="client-character-card">
           <CharacterSprite
             character={character}
+            avatar={activeCosmetics.avatar}
             className="client-avatar"
             fallbackSymbol={activeCosmetics.avatar?.previewValue}
             size="medium"

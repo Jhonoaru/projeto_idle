@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { getCharacterSprite } from "../../data/characterSprites";
-import type { Character } from "../../shared/types";
+import { getCollectionSprite } from "../../data/collectionSprites";
+import { CollectionPreview } from "../collections/CollectionPreview";
+import type { Character, CollectionItem } from "../../shared/types";
 
 type CharacterSpriteSize = "small" | "medium" | "large" | "scene";
 
@@ -8,6 +10,7 @@ interface CharacterSpriteProps {
   character: Pick<Character, "id" | "name">;
   className?: string;
   fallbackSymbol?: string;
+  avatar?: CollectionItem;
   size?: CharacterSpriteSize;
 }
 
@@ -15,6 +18,7 @@ export function CharacterSprite({
   character,
   className = "",
   fallbackSymbol,
+  avatar,
   size = "medium",
 }: CharacterSpriteProps) {
   const sprite = getCharacterSprite(character.id);
@@ -30,7 +34,7 @@ export function CharacterSprite({
 
   return (
     <span
-      aria-label={`${character.name} character portrait`}
+      aria-label={`${character.name} character portrait${avatar ? ` / ${avatar.name}` : ""}`}
       className={`character-sprite character-sprite-${size} ${className}`.trim()}
       role="img"
     >
@@ -45,6 +49,11 @@ export function CharacterSprite({
       ) : (
         <strong className="character-sprite-fallback">{initials || "?"}</strong>
       )}
+      {avatar && getCollectionSprite(avatar.id) ? (
+        <span className="character-avatar-emblem" title={avatar.name}>
+          <CollectionPreview item={avatar} />
+        </span>
+      ) : null}
     </span>
   );
 }

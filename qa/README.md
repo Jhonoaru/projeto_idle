@@ -1,5 +1,35 @@
 # Boss Trophy Hall: Tauri/SQLite QA
 
+## Stage 166: Collection Artwork (Browser)
+
+Run `npm run dev` and open `http://127.0.0.1:1420/qa/collection-art.html`.
+Use the actual port printed by Vite if 1420 is already occupied. This opt-in
+fixture uses production components and engine functions, but only in-memory
+state. It never connects to SQLite or saves player data and is not included in
+the production entrypoint.
+
+- 38 deterministic checks cover the six mappings, invalid IDs, locked equip,
+  existing claim/equip flow and unchanged inputs, attributes and gold.
+- Gallery displays all six assets at 144px and in the compact avatar frame.
+- Simulate unavailable artwork switches only this fixture's paths to missing
+  files; all six sigils must fall back to text. Uncheck to restore the art.
+- Trophy Hall starts with six Conquered rewards available. Select each wing,
+  claim one, and confirm `Archived` becomes disabled.
+- Collections must still hide locked previews and disable equip. After a claim,
+  equip the avatar and inspect catalog, showcase, active loadout and Profile.
+- Claim all six avatars exercises the same claim engine in memory. Reset fixture
+  discards that test progress; it does not touch any database.
+- Inspect at 1280x720, 960x640 and 430x900. The latter is web responsive QA, not a
+  claim that the native Tauri window supports that width.
+
+Completed on 2026-09-03: 38/38 checks; all six PNGs loaded; six fallback sigils
+and restored art; all six wing selections; manual Arena Laurel claim; locked
+Broodmother equip rejected; Arena Laurel equipped in Collections and Profile;
+all six claimed avatars rendered in the catalog; reset removed those unlocks;
+desktop and narrow-screen screenshots. No new interactive Tauri/SQLite run was
+performed for this visual-only stage. Stage 165.5 evidence below remains from
+its own run, not a new Stage 166 SQL test.
+
 ## Automated Checks
 
 From the repository root, with port 1420 available:

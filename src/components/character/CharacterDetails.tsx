@@ -131,6 +131,7 @@ export function CharacterDetails({
           <div className="character-hall-portrait">
             <CharacterSprite
               character={character}
+              avatar={activeCosmetics.avatar}
               fallbackSymbol={activeCosmetics.avatar?.previewValue}
               size="large"
             />

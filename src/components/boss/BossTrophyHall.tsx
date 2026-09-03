@@ -1,6 +1,7 @@
 import { buildBossTrophyHall, getBossTrophyTierLabel } from "../../game-engine/boss/buildBossTrophyHall";
 import type { Boss, Guild } from "../../shared/types";
 import { BossSprite } from "./BossSprite";
+import { CollectionPreview } from "../collections/CollectionPreview";
 
 interface BossTrophyHallProps {
   bosses: Boss[];
@@ -45,7 +46,7 @@ export function BossTrophyHall({ bosses, guild, selectedBoss, onClaimReward, onS
             return (
               <article className={`is-${state}`} key={reward.definition.id}>
                 <span>{getBossTrophyTierLabel(reward.definition.tier)}</span>
-                <i aria-hidden="true">{reward.collectionItem?.previewValue ?? "?"}</i>
+                <i aria-hidden="true"><CollectionPreview item={reward.collectionItem} /></i>
                 <strong>{reward.collectionItem?.name ?? reward.definition.label}</strong>
                 <small>{reward.definition.description}</small>
                 <button disabled={!reward.available} onClick={() => onClaimReward(reward.definition.id)} type="button">

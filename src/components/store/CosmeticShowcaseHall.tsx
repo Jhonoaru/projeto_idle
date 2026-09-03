@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { CollectionPreview } from "../collections/CollectionPreview";
 import { collectionItems } from "../../data/collections";
 import {
   cosmeticExchanges,
@@ -215,7 +216,7 @@ export function CosmeticShowcaseHall({
 }
 
 function PreviewSigil({ item, large = false }: { item: CollectionItem; large?: boolean }) {
-  return <i className={`store-preview-sigil is-${item.category} ${large ? "is-large" : ""}`}>{item.previewValue}</i>;
+  return <i className={`store-preview-sigil is-${item.category} ${large ? "is-large" : ""}`}><CollectionPreview item={item} /></i>;
 }
 
 function SummaryStat({ label, value }: { label: string; value: string }) {

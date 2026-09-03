@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { CollectionPreview } from "./CollectionPreview";
 import { collectionItems, getCollectionItemsByCategory } from "../../data/collections";
 import { getActiveCharacterCosmetics } from "../../game-engine/collections/getActiveCharacterCosmetics";
 import { isCollectionItemUnlocked } from "../../game-engine/collections/isCollectionItemUnlocked";
@@ -113,7 +114,7 @@ export function CollectionsHall({ character, guild, onEquip, onMarkSeen }: Colle
                   onClick={() => setSelectedItemId(item.id)}
                   type="button"
                 >
-                  <span className={`collections-card-preview is-${item.category}`}>{unlocked ? item.previewValue : "?"}</span>
+                  <span className={`collections-card-preview is-${item.category}`}><CollectionPreview item={item} hidden={!unlocked} /></span>
                   <span className="collections-card-copy">
                     <small>{item.rarity} / {formatUnlockSource(item.unlockSource)}</small>
                     <strong>{item.name}</strong>
@@ -130,7 +131,7 @@ export function CollectionsHall({ character, guild, onEquip, onMarkSeen }: Colle
           {selectedItem ? (
             <>
               <div className={`collections-showcase-preview is-${selectedItem.category} rarity-${selectedItem.rarity}`}>
-                <i /><span>{selectedUnlocked ? selectedItem.previewValue : "?"}</span>
+                <i /><span><CollectionPreview item={selectedItem} hidden={!selectedUnlocked} /></span>
               </div>
               <div className="collections-showcase-copy">
                 <span>{formatCollectionCategory(selectedItem.category)} / {formatUnlockSource(selectedItem.unlockSource)}</span>
@@ -218,7 +219,7 @@ function ShowcaseStat({ label, value }: { label: string; value: string }) {
 function LoadoutSlot({ category, item }: { category: CollectionCategory; item?: CollectionItem }) {
   return (
     <div className={`collections-loadout-slot is-${category}`}>
-      <span>{item?.previewValue ?? getCategorySigil(category)}</span>
+      <span><CollectionPreview item={item} fallback={getCategorySigil(category)} /></span>
       <div><small>{formatCollectionCategory(category).slice(0, -1)}</small><strong>{item?.name ?? "None"}</strong><em>{item?.rarity ?? "empty"}</em></div>
     </div>
   );
