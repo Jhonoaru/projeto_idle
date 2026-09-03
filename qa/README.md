@@ -1,5 +1,31 @@
 # Boss Trophy Hall: Tauri/SQLite QA
 
+## Stage 168: Mount Artwork (Browser)
+
+With `npm run dev` running, open
+`http://127.0.0.1:1420/qa/collection-art.html?category=mount`. This selects the
+mount variant of the memory-only fixture and never opens SQLite or mounts App.
+
+- The seed has Flawless progress and the prior Conquered/Mastered claims, leaving
+  all six mounts ready while Webkeeper Regalia remains equipped.
+- 59 checks cover mapping, locked equip, ordered claim/equip, duplicate rejection,
+  input immutability, unchanged power/gold, outfit/avatar preservation and JSON
+  round-trip through cosmetic normalization.
+- Claim and equip every mount through Trophy Hall and Collections. Profile uses
+  the real shared character renderer in Details, hunt actor and right panel.
+- Confirm that mount, outfit and avatar remain independent layers.
+- Simulate unavailable artwork: collection previews return to text and the
+  character remains visible with its outfit instead of showing a broken image.
+- Inspect Gallery, Trophy Hall, Collections and Profile at 1280x720, 960x640 and
+  430x900. Reset must restore the fixture's initial cosmetic state.
+
+Completed on 2026-09-03: 59/59 mount checks, 59/59 outfit regression checks and
+38/38 avatar regression checks. Browser clicks covered all six claims, mount
+catalog and showcase, Sewer Stalker equipped with Webkeeper Regalia, hunt actor,
+right panel, missing-art fallback and reset behavior. Screenshots were inspected
+at 960x640 and 430x900; the narrow gallery uses one column. This is browser QA
+only; JSON round-trip does not replace a Tauri/SQLite persistence run.
+
 ## Stage 167: Outfit Artwork (Browser)
 
 With `npm run dev` running, open

@@ -11,6 +11,12 @@ const generatedSprite = (collectionId: string): CollectionSpriteDefinition => ({
 });
 
 export const collectionSprites: Record<string, CollectionSpriteDefinition> = {
+  "mount-sewer-stalker": generatedSprite("mount-sewer-stalker"),
+  "mount-war-boar": generatedSprite("mount-war-boar"),
+  "mount-grave-charger": generatedSprite("mount-grave-charger"),
+  "mount-ironhorn-ram": generatedSprite("mount-ironhorn-ram"),
+  "mount-cinder-drake": generatedSprite("mount-cinder-drake"),
+  "mount-victory-lion": generatedSprite("mount-victory-lion"),
   "outfit-webkeeper": generatedSprite("outfit-webkeeper"),
   "outfit-warcamp-raider": generatedSprite("outfit-warcamp-raider"),
   "outfit-crypt-sentinel": generatedSprite("outfit-crypt-sentinel"),
@@ -32,5 +38,11 @@ export function getCollectionSprite(collectionId?: string) {
 export function getOutfitSprite(collectionId?: string) {
   const item = getCollectionItemById(collectionId);
   const sprite = item?.category === "outfit" ? getCollectionSprite(item.id) : undefined;
+  return sprite && item ? { ...sprite, name: item.name } : undefined;
+}
+
+export function getMountSprite(collectionId?: string) {
+  const item = getCollectionItemById(collectionId);
+  const sprite = item?.category === "mount" ? getCollectionSprite(item.id) : undefined;
   return sprite && item ? { ...sprite, name: item.name } : undefined;
 }

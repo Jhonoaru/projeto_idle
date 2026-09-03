@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createInitialGameState } from "../database/saveGameRepository";
 import { bosses } from "../data/bosses";
-import { collectionSprites, getCollectionSprite, getOutfitSprite } from "../data/collectionSprites";
+import { collectionSprites, getCollectionSprite, getMountSprite, getOutfitSprite } from "../data/collectionSprites";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { HuntSceneActor } from "../components/hunt-scene/HuntSceneActor";
 import { getCollectionItemById } from "../data/collections";
@@ -19,18 +19,25 @@ import { claimBossTrophyReward } from "../game-engine/boss/claimBossTrophyReward
 import { normalizeGuildOperationOutcomes } from "../game-engine/operations/normalizeGuildOperationOutcomes";
 import "../styles.css";
 
-const category = new URLSearchParams(location.search).get("category") === "outfit" ? "outfit" : "avatar";
-const rewardIndex = category === "outfit" ? 1 : 0;
+const categoryParam = new URLSearchParams(location.search).get("category");
+const category = categoryParam === "outfit" || categoryParam === "mount" ? categoryParam : "avatar";
+const rewardIndex = { avatar: 0, outfit: 1, mount: 2 }[category];
 
 // Memory-only fixture: no database connection, persistence or production entrypoint.
 function seed() {
   const state = structuredClone(createInitialGameState());
   state.guild.operationOutcomes = normalizeGuildOperationOutcomes({
     bossRaidCodex: { records: bosses.map((boss) => ({ bossId: boss.id, attempts: 1, defeats: 1, lastAttemptAt: "2026-09-03T12:00:00.000Z", lastDefeatedAt: "2026-09-03T12:00:00.000Z" })) },
-    ...(category === "outfit" ? { bossExecutionMastery: { records: bosses.map((boss) => ({ bossId: boss.id, victoriesWithPerfectReactions: 3, totalPerfectReactions: 12, perfectDodges: 6, perfectHolds: 6, bestPerfectChain: 4, lastRecordedAt: "2026-09-03T12:00:00.000Z" })) } } : {}),
+    ...(category !== "avatar" ? { bossExecutionMastery: { records: bosses.map((boss) => ({ bossId: boss.id, victoriesWithPerfectReactions: category === "mount" ? 6 : 3, totalPerfectReactions: category === "mount" ? 30 : 12, perfectDodges: category === "mount" ? 15 : 6, perfectHolds: category === "mount" ? 15 : 6, bestPerfectChain: category === "mount" ? 6 : 4, lastRecordedAt: "2026-09-03T12:00:00.000Z" })) } } : {}),
   });
-  if (category === "outfit") {
-    for (const boss of bosses) state.guild = claimBossTrophyReward(state.guild, getBossTrophyRewards(boss.id)[0].id).guild;
+  if (category !== "avatar") {
+    for (const boss of bosses) {
+      state.guild = claimBossTrophyReward(state.guild, getBossTrophyRewards(boss.id)[0].id).guild;
+      if (category === "mount") state.guild = claimBossTrophyReward(state.guild, getBossTrophyRewards(boss.id)[1].id).guild;
+    }
+  }
+  if (category === "mount") {
+    state.characters[0] = equipCollectionItem(state.characters[0], state.guild, getBossTrophyRewards(bosses[0].id)[1].collectionItemId);
   }
   return state;
 }
@@ -63,11 +70,15 @@ for (const boss of bosses) {
   check(getActiveCharacterCosmetics(character, claim.guild.collections)[category]?.id === reward.collectionItemId, `${boss.id}: equipped ${category} resolves`);
   check(JSON.stringify(state) === before, `${boss.id}: inputs unchanged`);
   check(claim.guild.gold === state.guild.gold && character.attributes === state.characters[0].attributes, `${boss.id}: no power or economy change`);
-  if (category === "outfit") {
+  if (category !== "avatar") {
     const restored = JSON.parse(JSON.stringify(character));
     const normalized = normalizeCharacterCosmetics(restored, claim.guild.collections);
-    check(getOutfitSprite(normalized.activeOutfitId)?.src === getCollectionSprite(reward.collectionItemId)?.src, `${boss.id}: restored appearance resolves`);
-    check(normalized.activeAvatarId === state.characters[0].cosmetics?.activeAvatarId && normalized.activeMountId === state.characters[0].cosmetics?.activeMountId, `${boss.id}: avatar and mount preserved`);
+    const restoredSprite = category === "mount" ? getMountSprite(normalized.activeMountId) : getOutfitSprite(normalized.activeOutfitId);
+    check(restoredSprite?.src === getCollectionSprite(reward.collectionItemId)?.src, `${boss.id}: restored appearance resolves`);
+    const companionsPreserved = category === "mount"
+      ? normalized.activeAvatarId === state.characters[0].cosmetics?.activeAvatarId && normalized.activeOutfitId === state.characters[0].cosmetics?.activeOutfitId
+      : normalized.activeAvatarId === state.characters[0].cosmetics?.activeAvatarId && normalized.activeMountId === state.characters[0].cosmetics?.activeMountId;
+    check(companionsPreserved, `${boss.id}: other cosmetic slots preserved`);
     check(!claimBossTrophyReward(claim.guild, reward.id).success, `${boss.id}: duplicate rejected`);
   }
 }
@@ -75,6 +86,11 @@ if (category === "outfit") {
   check(!getOutfitSprite(undefined), "legacy outfit uses base portrait");
   check(!getOutfitSprite("missing"), "invalid outfit uses base portrait");
   check(!getOutfitSprite("avatar-arena-laurel"), "avatar cannot replace outfit");
+}
+if (category === "mount") {
+  check(!getMountSprite(undefined), "legacy mount keeps hero-only portrait");
+  check(!getMountSprite("missing"), "invalid mount keeps hero-only portrait");
+  check(!getMountSprite("outfit-arena-champion"), "outfit cannot replace mount");
 }
 
 function CollectionArtQa() {
@@ -86,7 +102,7 @@ function CollectionArtQa() {
   const avatar = getActiveCharacterCosmetics(character, state.guild.collections).avatar;
   return (
     <main style={{ maxWidth: 1440, margin: "0 auto", padding: 16 }}>
-      <h1 style={{ fontSize: 20 }}>Stage {category === "outfit" ? "167" : "166"} - Collection Art QA</h1>
+      <h1 style={{ fontSize: 20 }}>Stage {{ avatar: "166", outfit: "167", mount: "168" }[category]} - Collection Art QA</h1>
       <p>{checks.length}/{checks.length} deterministic checks passed. Memory-only fixture.</p>
       <nav style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
         {["Gallery", "Trophy Hall", "Collections", "Profile"].map((tab) => <button key={tab} onClick={() => setView(tab)}>{tab}</button>)}
@@ -103,9 +119,12 @@ function CollectionArtQa() {
         })}>Claim all six {category}s</button>
       </nav>
       <div key={String(missing)}>
-        {view === "Gallery" ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+        {view === "Gallery" ? <div className="collection-art-qa-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
           {artIds.map((id) => <article key={id}>
-            <div style={{ width: 144, height: 144 }}><CollectionPreview item={getCollectionItemById(id)} /></div>
+            <div className={`collections-showcase-preview is-${category}`} style={{ minHeight: 160 }}>
+              <i aria-hidden="true" />
+              <span><CollectionPreview item={getCollectionItemById(id)} /></span>
+            </div>
             <h2 style={{ fontSize: 14 }}>{getCollectionItemById(id)?.name}</h2>
             <div className={`collections-card-preview is-${category}`}><CollectionPreview item={getCollectionItemById(id)} /></div>
           </article>)}
@@ -114,7 +133,7 @@ function CollectionArtQa() {
         {view === "Collections" ? <CollectionsHall character={character} guild={state.guild} onEquip={(id) => setState((current) => ({ ...current, characters: [equipCollectionItem(current.characters[0], current.guild, id), ...current.characters.slice(1)] }))} onMarkSeen={() => setState((current) => ({ ...current, guild: clearNewCollectionFlags(current.guild) }))} /> : null}
         {view === "Profile" ? <>
           <CharacterSprite character={character} avatar={avatar} size="large" />
-          <div style={{ position: "relative", height: 300, width: "min(100%, 600px)", background: "#263b37" }}><HuntSceneActor character={character} actionText="Outfit QA" /></div>
+          <div style={{ position: "relative", height: 300, width: "min(100%, 600px)", background: "#263b37" }}><HuntSceneActor character={character} actionText={`${category} QA`} /></div>
           <div style={{ width: "min(100%, 320px)" }}><RightCharacterPanel character={character} guild={state.guild} logs={[]} /></div>
         </> : null}
       </div>

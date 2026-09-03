@@ -2,6 +2,20 @@
 
 Atualizado em: 2026-09-03
 
+## Etapa 168 - Visuais originais das seis montarias de Boss
+
+- Etapa implementada com Sewer Stalker, War Boar, Grave Charger, Ironhorn Ram, Cinder Drake e Victory Lion.
+- Seis PNGs originais transparentes foram gerados individualmente pela ferramenta integrada e adicionados a `public/assets/collections/generated/`. Os arquivos RGBA somam 13.724.299 bytes; os prompts exatos e a procedencia estao em `public/assets/collections/MOUNTS.md`.
+- Os IDs e requisitos Flawless existentes foram preservados. `collectionSprites` agora resolve as montarias em Trophy Hall, Collections e Store sem migration ou alteracao do save.
+- `CharacterSprite` compoe a montaria ao fundo, heroi/outfit acima e avatar como emblema separado. A composicao e compartilhada por Details, roster, equipes, rankings, painel direito, hunts e bosses que usam esse renderer.
+- A falha de uma imagem de montaria remove somente essa camada; outfit, sprite-base ou iniciais continuam visiveis. Montarias antigas sem arte exclusiva preservam o comportamento anterior.
+- Showcase e previews compactos usam dimensoes estaveis, `object-fit: contain` e fundo transparente, sem mudar atributos, economia, loot, cooldowns ou regras de Boss.
+- O fixture `qa/collection-art.html?category=mount` passou em 59/59 checks: seis mappings, ordem de claim, bloqueios, equip, duplicatas, imutabilidade, power/gold, coexistencia dos tres slots e round-trip JSON. As regressoes passaram em 59/59 para outfits e 38/38 para avatares.
+- QA por cliques no navegador confirmou claim das seis montarias, catalogo, showcase, equip da Sewer Stalker com Webkeeper Regalia, ator de hunt, painel direito e fallback mantendo o heroi/outfit. Capturas em 960x640 e 430x900 foram inspecionadas; a galeria usa uma coluna no breakpoint estreito para preservar as silhuetas largas.
+- `npm run build` e `npm run tauri:build` passaram com 493 modulos; MSI e NSIS foram gerados. Permanece apenas o aviso conhecido de bundle JavaScript acima de 500 kB.
+- Limites: sprites estaticos sem animacao ou variacao por heroi; a composicao sobrepoe o heroi ao assento e nao redesenha pernas/pose especificas para cada montaria. Nao houve novo QA Tauri/SQLite; o fixture usa memoria e o round-trip JSON nao substitui SQLite.
+- Proximo passo proposto: Etapa 168.5 - QA visual integrado das montarias no app e persistencia Tauri/SQLite.
+
 ## Etapa 167 - Visuais originais dos seis outfits de Boss
 
 - Etapa concluida com Webkeeper Regalia, Warcamp Raider, Crypt Sentinel, Gatekeeper Plate, Ashen Warden e Arena Champion.

@@ -12,8 +12,8 @@ emblems with charcoal backgrounds, not transparent character sprites. CSS uses
 The filenames match existing collection IDs. `src/data/collectionSprites.ts`
 maps those IDs to local paths; no paths or image data are persisted in saves.
 `previewValue` remains the fallback for missing artwork. Stage 167 adds six
-transparent outfit sprites, documented in `OUTFITS.md`. Mounts retain their
-previous previews until their separate visual stage.
+transparent outfit sprites, documented in `OUTFITS.md`. Stage 168 adds six
+transparent mount sprites, documented in `MOUNTS.md`.
 
 ## Prompts
 
