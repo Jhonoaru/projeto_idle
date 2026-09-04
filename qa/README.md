@@ -207,3 +207,17 @@ three cosmetic unlocks, zero pending new-item flags, six expected trophy/unlock
 log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
+# Stage 171: Boss and Party Motion QA
+
+Open `http://127.0.0.1:1420/qa/boss-motion.html` while `npm run dev` is running.
+
+The memory-only fixture renders the production Boss Scene with five party members and verifies:
+
+- deterministic boss guard, preparation, lunge, impact, recovery and defeated phases;
+- staggered party advance, strike, recoil, recovery and guard cycles;
+- telegraph-target dodge versus anchored hold-position behavior;
+- victorious party precedence after the raid resolves;
+- five movement vectors converging toward the boss;
+- local Boss/character sprites, desktop/mobile framing and reduced-motion behavior.
+
+Completed on 2026-09-04: **22/22** deterministic checks passed. Browser QA confirmed five simultaneous party phases, all seven arena images decoded, no horizontal overflow at desktop or 430 px, and `animation: none` plus `transform: none` for the boss and all five party members after enabling Reduce motion.

@@ -16270,9 +16270,22 @@ html[data-client-motion="reduced"] *::after {
   filter: drop-shadow(0 3px 4px #000);
 }
 
-.boss-scene-boss-actor > .boss-sprite { filter: drop-shadow(0 14px 9px rgba(0, 0, 0, 0.75)); }
+.boss-scene-boss-core { display: grid; place-items: center; transform: translate(0, 0); transform-origin: 45% 80%; will-change: transform; }
+.boss-scene-boss-core > .boss-sprite { filter: drop-shadow(0 14px 9px rgba(0, 0, 0, 0.75)); }
 .boss-scene-boss-actor strong { max-width: 180px; font-size: 0.72rem; text-align: center; }
 .boss-scene-boss-actor small { color: #d28d72; font-size: 0.62rem; text-transform: uppercase; }
+.boss-scene-boss-actor.motion-guarding .boss-scene-boss-core { animation: boss-motion-guard 1.2s ease-in-out infinite alternate; }
+.boss-scene-boss-actor.motion-preparing .boss-scene-boss-core { animation: boss-motion-prepare 0.7s ease-in-out infinite alternate; }
+.boss-scene-boss-actor.motion-lunging .boss-scene-boss-core { animation: boss-motion-lunge 0.48s ease-out infinite; }
+.boss-scene-boss-actor.motion-impacting .boss-scene-boss-core { animation: boss-motion-impact 0.34s ease-out infinite; }
+.boss-scene-boss-actor.motion-recovering .boss-scene-boss-core { animation: boss-motion-recover 0.75s ease-in-out infinite alternate; }
+.boss-scene-boss-actor.motion-defeated .boss-scene-boss-core { transform: translateY(18px) rotate(7deg) scale(0.94); filter: grayscale(0.45) brightness(0.72); }
+
+@keyframes boss-motion-guard { from { transform: translateY(0) scale(1); } to { transform: translateY(-3px) scale(1.015); } }
+@keyframes boss-motion-prepare { from { transform: translate(2px, 0) scale(1); filter: brightness(1); } to { transform: translate(6px, -2px) scale(1.035); filter: brightness(1.16); } }
+@keyframes boss-motion-lunge { 0% { transform: translate(0, 0); } 56% { transform: translate(-18px, 8px) scale(1.05); } 100% { transform: translate(-7px, 3px); } }
+@keyframes boss-motion-impact { 0%, 100% { transform: translate(-15px, 6px); } 45% { transform: translate(-20px, 9px) rotate(-2deg) scale(1.07); filter: brightness(1.2); } }
+@keyframes boss-motion-recover { from { transform: translate(-7px, 3px) scale(0.98); } to { transform: translate(0, 0) scale(1); } }
 
 .boss-ability-telegraph {
   position: absolute;
@@ -16544,6 +16557,30 @@ html[data-client-motion="reduced"] *::after {
 
 .boss-scene-party { position: absolute; top: 40%; left: 20%; width: 220px; height: 230px; }
 .boss-scene-party-member { position: absolute; display: grid; justify-items: center; filter: drop-shadow(0 3px 3px #000); }
+.boss-scene-party-core { display: grid; place-items: center; transform: translate(0, 0); will-change: transform; }
+.boss-scene-party-member.motion-advancing .boss-scene-party-core { animation: boss-party-advance 0.58s ease-in-out infinite alternate; }
+.boss-scene-party-member.motion-striking .boss-scene-party-core { animation: boss-party-strike 0.48s ease-out infinite; }
+.boss-scene-party-member.motion-recoiling .boss-scene-party-core { animation: boss-party-recoil 0.4s ease-out infinite; }
+.boss-scene-party-member.motion-recovering .boss-scene-party-core { animation: boss-party-recover 0.7s ease-in-out infinite alternate; }
+.boss-scene-party-member.motion-dodging .boss-scene-party-core { animation: boss-party-dodge 0.52s ease-in-out infinite alternate; }
+.boss-scene-party-member.motion-guarding .boss-scene-party-core { animation: boss-party-guard 1.1s ease-in-out infinite alternate; }
+.boss-scene-party-member.motion-victorious .boss-scene-party-core { animation: boss-party-victory 0.9s ease-in-out infinite alternate; }
+
+@keyframes boss-party-advance { from { transform: translate(0, 0); } to { transform: translate(var(--boss-party-motion-x), var(--boss-party-motion-y)); } }
+@keyframes boss-party-strike { 0% { transform: translate(0, 0); } 58% { transform: translate(var(--boss-party-motion-x), var(--boss-party-motion-y)) scale(1.06); filter: brightness(1.14); } 100% { transform: translate(5px, 0); } }
+@keyframes boss-party-recoil { from { transform: translate(var(--boss-party-motion-x), var(--boss-party-motion-y)); } to { transform: translate(-5px, 2px); } }
+@keyframes boss-party-recover { from { transform: translate(-4px, 2px) scale(0.98); } to { transform: translate(0, 0) scale(1); } }
+@keyframes boss-party-dodge { from { transform: translate(0, 0); } to { transform: translate(-12px, var(--boss-party-dodge-y)) rotate(-3deg); } }
+@keyframes boss-party-guard { from { transform: translateY(0); } to { transform: translateY(-2px); } }
+@keyframes boss-party-victory { from { transform: translateY(0); filter: brightness(1); } to { transform: translateY(-6px); filter: brightness(1.15); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .boss-scene-boss-core,
+  .boss-scene-party-core { animation: none !important; transform: none !important; transition: none !important; }
+}
+
+html[data-client-motion="reduced"] .boss-scene-boss-core,
+html[data-client-motion="reduced"] .boss-scene-party-core { animation: none !important; transform: none !important; transition: none !important; }
 .boss-scene-party-member strong { margin-top: -3px; color: #f0dd9d; font-size: 0.64rem; }
 .boss-scene-party-member > span:last-child { color: #a9c4b2; font-size: 0.55rem; text-transform: uppercase; }
 .boss-scene-party-member::after { width: 34px; height: 3px; margin-top: 2px; background: #598f88; box-shadow: 0 0 6px rgba(89, 143, 136, 0.5); content: ""; }
@@ -16613,6 +16650,19 @@ html[data-client-motion="reduced"] *::after {
   .boss-manual-reaction-timing { grid-template-columns: minmax(0, 1fr) auto; }
   .boss-scene-stage-status { right: 8px; bottom: 8px; left: 8px; grid-template-columns: 1fr auto; }
   .boss-scene-stage-status > div { grid-column: 1 / -1; grid-row: 2; }
+}
+
+.boss-motion-qa { min-height: 100vh; padding: 10px; color: #d8d8cd; background: #080c0a; }
+.boss-motion-qa > header { display: flex; justify-content: space-between; gap: 12px; align-items: center; max-width: 1500px; margin: 0 auto 8px; padding: 9px 11px; border: 1px solid #51462d; background: #111713; }
+.boss-motion-qa h1, .boss-motion-qa p { margin: 3px 0; }
+.boss-motion-qa h1 { color: #efd184; font-family: Georgia, serif; font-size: 1.25rem; }
+.boss-motion-qa p { color: #929d95; font-size: 0.7rem; }
+.boss-motion-qa label { color: #d8c68e; white-space: nowrap; }
+.boss-motion-qa > .boss-scene { max-width: 1500px; margin: 0 auto; }
+
+@media (max-width: 580px) {
+  .boss-motion-qa { padding: 5px; }
+  .boss-motion-qa > header { align-items: flex-start; flex-direction: column; }
 }
 
 /* Stage 132: vocation combat language shared by hunt and boss scenes. */

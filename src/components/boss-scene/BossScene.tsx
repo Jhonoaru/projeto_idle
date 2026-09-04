@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { calculateBossRisk } from "../../game-engine/boss/calculateBossRisk";
 import { calculateBossPartyThreat } from "../../game-engine/boss/calculateBossThreat";
 import { getBossAbilityCastState } from "../../game-engine/boss/getBossAbilityCastState";
@@ -15,6 +15,13 @@ import {
 import { calculateBossPerfectReactionChains } from "../../game-engine/boss/calculateBossPerfectReactionChains";
 import { calculateBossExecutionPerformance, getBossExecutionGradeLabel } from "../../game-engine/boss/calculateBossExecutionPerformance";
 import { normalizeBossDodgeBehavior } from "../../game-engine/combat-skills/normalizeCombatSkillLoadout";
+import {
+  getBossMotionPhase,
+  getBossPartyMotionPhase,
+  getBossPartyMotionVector,
+  type BossMotionPhase,
+  type BossPartyMotionPhase,
+} from "../../game-engine/boss-scene/getBossMotionState";
 import { simulateCombatSkillRotation } from "../../game-engine/combat-skills/simulateCombatSkillRotation";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossManualReaction, BossParty, Character } from "../../shared/types";
@@ -69,7 +76,7 @@ export function BossScene({
   const elapsedMs = ready ? totalMs : Math.min(totalMs, getClockElapsedMs(action.startedAt));
   const progress = Math.min(100, Math.max(0, Math.round((elapsedMs / totalMs) * 100)));
   const threat = boss ? calculateBossPartyThreat(characters, activeParty, boss) : undefined;
-  const pulse = Math.floor(clock / 1_000) % 3;
+  const combatCycleProgress = ready ? 1 : (elapsedMs % 2_200) / 2_200;
   const activePhase = threat ? getActiveBossPhase(threat, progress) : undefined;
   const abilityCast = getBossAbilityCastState(threat, elapsedMs, ready);
   const visibleCast = abilityCast.cast ?? abilityCast.nextCast;
@@ -121,6 +128,12 @@ export function BossScene({
   const manualEffects = getBossManualReactionEffects(manualTiming?.quality);
   const manualDodgeBonusPercent = manualEffects.dodgeBonusPercent + (displayedPerfectChain?.dodgeBonusPercent ?? 0);
   const manualHoldPowerPercent = rounded(manualEffects.holdPowerPercent + (displayedPerfectChain?.holdPowerPercent ?? 0));
+  const bossMotionPhase = getBossMotionPhase({
+    abilityProgressPercent: abilityCast.progressPercent,
+    abilityState: abilityCast.state,
+    cycleProgress: combatCycleProgress,
+    ready,
+  });
 
   function reactToActiveCast(reactionType: "dodge" | "hold") {
     const cast = abilityCast.cast;
@@ -202,10 +215,12 @@ export function BossScene({
       <div className="boss-scene-main">
         <div className="boss-scene-stage">
           <BossArenaBackground boss={boss} />
-          <div className="boss-scene-boss-actor">
-            <BossSprite boss={boss} fallbackSymbol="B" size="scene" />
+          <div className={`boss-scene-boss-actor motion-${bossMotionPhase}`} data-motion-phase={bossMotionPhase}>
+            <span className="boss-scene-boss-core">
+              <BossSprite boss={boss} fallbackSymbol="B" size="scene" />
+            </span>
             <strong>{boss?.name ?? action.targetName}</strong>
-            <small>{ready ? "Defeated" : abilityCast.state === "telegraphing" ? "Casting" : abilityCast.state === "cooldown" ? "Recovering" : ["Watching", "Striking", "Guarding"][pulse]}</small>
+            <small>{formatBossMotionPhase(bossMotionPhase)}</small>
           </div>
           {abilityCast.state === "telegraphing" && abilityCast.cast ? (
             <div className={`boss-ability-telegraph profile-${abilityCast.cast.telegraphProfile}`} role="status" aria-live="polite">
@@ -260,11 +275,34 @@ export function BossScene({
           <div className={`boss-scene-party party-size-${Math.min(5, Math.max(1, members.length))}`}>
             {members.map((member, index) => {
               const tradeOff = dodgeTradeOffs.find((entry) => entry.characterId === member.characterId);
+              const positioning = tradeOff?.positioning ?? "mobile";
+              const motionPhase = getBossPartyMotionPhase({
+                abilityProgressPercent: abilityCast.progressPercent,
+                abilityState: abilityCast.state,
+                cycleProgress: combatCycleProgress,
+                memberIndex: index,
+                positioning,
+                ready,
+                targeted: abilityCast.cast?.targetCharacterId === member.characterId,
+              });
+              const motionVector = getBossPartyMotionVector(index);
+              const motionStyle = {
+                "--boss-party-motion-x": `${motionVector.x * 15}px`,
+                "--boss-party-motion-y": `${motionVector.y * 8}px`,
+                "--boss-party-dodge-y": `${motionVector.y * -8}px`,
+              } as CSSProperties;
               return (
-              <div className={`boss-scene-party-member member-${index + 1} is-${tradeOff?.positioning ?? "mobile"}`} key={member.characterId}>
-                <CharacterSprite character={member.character} size="scene" />
+              <div
+                className={`boss-scene-party-member member-${index + 1} is-${positioning} motion-${motionPhase}`}
+                data-motion-phase={motionPhase}
+                key={member.characterId}
+                style={motionStyle}
+              >
+                <span className="boss-scene-party-core">
+                  <CharacterSprite character={member.character} size="scene" />
+                </span>
                 <strong>{member.character.name}</strong>
-                <span>{member.role} / {formatPositioning(tradeOff?.positioning ?? "mobile")}</span>
+                <span>{member.role} / {formatPositioning(positioning)}</span>
               </div>
               );
             })}
@@ -288,6 +326,10 @@ function formatAbilityState(state: ReturnType<typeof getBossAbilityCastState>["s
   if (state === "cooldown") return `Cooldown / ${formatCastSeconds(remainingMs)}`;
   if (state === "resolved") return "Resolved";
   return "Ready";
+}
+
+function formatBossMotionPhase(phase: BossMotionPhase | BossPartyMotionPhase) {
+  return phase[0].toUpperCase() + phase.slice(1);
 }
 
 function formatCastSeconds(milliseconds: number) {

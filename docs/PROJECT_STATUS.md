@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-09-04
 
+## Etapa 171 - Movimento visual da party e dos Bosses
+
+- A Boss Scene agora deriva movimento visual do relogio local ja usado pelo encontro, sem alterar poder, ameaca, risco, dano, cooldowns ou recompensas.
+- O boss possui fases deterministicas de guarda, preparacao, investida, impacto, recuperacao e derrota. Telegraph em andamento assume preparacao/investida, cooldown assume recuperacao e raid concluida sempre assume derrota.
+- Os cinco membros da party possuem ciclos defasados de avanco, ataque, recuo, recuperacao e guarda. O alvo de um telegraph esquiva quando esta mobile/selective e sustenta a posicao quando esta anchored.
+- A party concluida entra em estado victorious. As fases sao expostas por `data-motion-phase`, preservando leitura, depuracao e futuro QA integrado.
+- O movimento atua somente em wrappers internos dos sprites. Cards, nomes, barras, analyzer, timeline e controles mantem dimensoes estaveis durante o combate.
+- Vetores por posicao conduzem os cinco membros na direcao do boss; no mobile, a escala e a formacao existentes continuam aplicadas no container sem disputar `transform` com a animacao interna.
+- `prefers-reduced-motion` e a preferencia `Reduce motion` removem animacao, transicao e deslocamento do boss e de toda a party, mantendo as fases e o conteudo visiveis.
+- O fixture `qa/boss-motion.html` renderizou a cena de producao e passou em 22/22 checks de fases, precedencias, defasagem e vetores.
+- QA no browser confirmou cinco fases simultaneas da party, boss em telegraph/preparacao, sete imagens locais decodificadas e zero overflow horizontal no desktop. Em uma viewport real de 430 px, cena e arena ficaram em coluna unica, boss/party permaneceram dentro do palco e o overflow horizontal continuou zero.
+- O controle Reduce motion foi acionado no fixture: CSS computado retornou `animation: none` e `transform: none` para boss e os cinco membros.
+- O primeiro build detectou o nome incorreto `ready` para o estado neutro da habilidade; o helper foi alinhado ao contrato real `idle`. O primeiro fixture tambem revelou um instante de teste que nao atravessava a fronteira de fase; o instante foi corrigido antes da rodada aprovada.
+- `npm run build` passou com 495 modulos. `npm run tauri:build` tambem passou e gerou os pacotes MSI e NSIS; permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+- O QA desta etapa foi visual no browser e em memoria; nao executou persistencia SQLite nem a janela nativa Tauri. Proximo passo proposto: Etapa 171.5 - QA integrado da Boss Scene animada no Tauri/SQLite, cobrindo party ativa/concluida, telegraph, assets e movimento reduzido.
+
 ## Etapa 170.5 - QA integrado da Hunt Scene animada no Tauri/SQLite
 
 - Um runner opt-in foi executado no aplicativo Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1705_20260904.db`.
