@@ -4,10 +4,10 @@ Stage 166. Generated on 2026-09-02 with the built-in OpenAI image generation
 tool, one text-to-image call per asset. No external reference images, franchise
 assets, downloads, paid currency or online service are used at runtime.
 
-The PNG outputs were copied unchanged into `generated/`. They are opaque square
-emblems with charcoal backgrounds, not transparent character sprites. CSS uses
-`object-fit: contain` and smooth downsampling. The six originals total about
-11.9 MB; an optimized delivery set is not part of this stage.
+The PNG outputs were originally copied unchanged into `generated/`. They are
+opaque square emblems with charcoal backgrounds, not transparent character
+sprites. Stage 169 resized the runtime copies to 384x384 with the deterministic
+pipeline documented in `OPTIMIZATION.md`; prompts, IDs and paths did not change.
 
 The filenames match existing collection IDs. `src/data/collectionSprites.ts`
 maps those IDs to local paths; no paths or image data are persisted in saves.

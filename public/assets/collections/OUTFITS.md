@@ -2,9 +2,9 @@
 
 Stage 167. Generated on 2026-09-03 using the built-in OpenAI image generation tool.
 Six separate text-to-image requests, no external reference images or franchise assets.
-The original PNG outputs are copied unchanged into `generated/`; no postprocessing
-or alpha removal was performed. All six are 1254x1254 RGBA images; transparent
-corner pixels and visible subject pixels were verified.
+The original PNG outputs were initially copied unchanged into `generated/`.
+Stage 169 resized the runtime copies to 512x512 RGBA using the deterministic
+pipeline in `OPTIMIZATION.md`; transparent corner pixels remain preserved.
 
 The shared sprite renderer resolves the equipped `activeOutfitId`. These are
 static full-body costumes, one figure per outfit, not layered clothing fitted
@@ -39,4 +39,3 @@ Use case: stylized-concept. Original fantasy idle RPG outfit sprite: Ashen Warde
 ### outfit-arena-champion.png
 
 Use case: stylized-concept. Original fantasy idle RPG outfit sprite: Arena Champion. One full-body adventurer wearing polished steel arena harness with gold laurel shoulder details, emerald cloth tabard, short ivory cape, enclosed tournament helmet, armored boots and gloves. Detailed hand-painted pixel-art RPG character, strong readable silhouette, three-quarter front view facing slightly left, neutral standing combat-ready pose, arms slightly apart and empty hands, no weapon. Entire head and feet inside frame, character fills 80 percent of square canvas, centered, no ground plane or scenery. Genuinely transparent background with alpha, no checkerboard painted into image, no shadow rectangle. No text, UI, labels, watermark or franchise symbols.
-

@@ -3,7 +3,9 @@
 Stage 168. Generated on 2026-09-03 with the built-in OpenAI image generation
 tool, using one text-to-image call per asset. No external reference image,
 franchise asset or runtime online service was used. The generated PNGs were
-copied unchanged into `generated/` and preserve their alpha channel.
+initially copied unchanged into `generated/`. Stage 169 resized the runtime
+copies to a maximum edge of 640px with the deterministic pipeline documented
+in `OPTIMIZATION.md`; their aspect ratio and transparent corners are preserved.
 
 The mounts contain no rider. `CharacterSprite` composes the selected mount
 behind the independently selected hero/outfit and avatar. Existing collection

@@ -67,7 +67,7 @@ export function CharacterSprite({
       )}
       {avatar && getCollectionSprite(avatar.id) ? (
         <span className="character-avatar-emblem" title={avatar.name}>
-          <CollectionPreview item={avatar} />
+          <CollectionPreview item={avatar} priority />
         </span>
       ) : null}
     </span>

@@ -131,7 +131,7 @@ export function CollectionsHall({ character, guild, onEquip, onMarkSeen }: Colle
           {selectedItem ? (
             <>
               <div className={`collections-showcase-preview is-${selectedItem.category} rarity-${selectedItem.rarity}`}>
-                <i /><span><CollectionPreview item={selectedItem} hidden={!selectedUnlocked} /></span>
+                <i /><span><CollectionPreview item={selectedItem} hidden={!selectedUnlocked} priority /></span>
               </div>
               <div className="collections-showcase-copy">
                 <span>{formatCollectionCategory(selectedItem.category)} / {formatUnlockSource(selectedItem.unlockSource)}</span>

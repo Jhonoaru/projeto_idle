@@ -216,7 +216,7 @@ export function CosmeticShowcaseHall({
 }
 
 function PreviewSigil({ item, large = false }: { item: CollectionItem; large?: boolean }) {
-  return <i className={`store-preview-sigil is-${item.category} ${large ? "is-large" : ""}`}><CollectionPreview item={item} /></i>;
+  return <i className={`store-preview-sigil is-${item.category} ${large ? "is-large" : ""}`}><CollectionPreview item={item} priority={large} /></i>;
 }
 
 function SummaryStat({ label, value }: { label: string; value: string }) {

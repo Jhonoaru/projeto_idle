@@ -6,9 +6,10 @@ interface CollectionPreviewProps {
   item?: CollectionItem;
   hidden?: boolean;
   fallback?: string;
+  priority?: boolean;
 }
 
-export function CollectionPreview({ item, hidden = false, fallback = "?" }: CollectionPreviewProps) {
+export function CollectionPreview({ item, hidden = false, fallback = "?", priority = false }: CollectionPreviewProps) {
   const sprite = getCollectionSprite(item?.id);
   const [failedSrc, setFailedSrc] = useState<string>();
   if (hidden) return <>?</>;
@@ -20,6 +21,8 @@ export function CollectionPreview({ item, hidden = false, fallback = "?" }: Coll
       aria-hidden="true"
       decoding="async"
       draggable={false}
+      fetchPriority={priority ? "high" : "auto"}
+      loading={priority ? "eager" : "lazy"}
       onError={() => setFailedSrc(sprite.src)}
       src={sprite.src}
     />

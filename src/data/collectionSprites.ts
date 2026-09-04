@@ -6,7 +6,7 @@ export interface CollectionSpriteDefinition {
 }
 
 const generatedSprite = (collectionId: string): CollectionSpriteDefinition => ({
-  src: `/assets/collections/generated/${collectionId}.png`,
+  src: `/assets/collections/generated/${collectionId}.png?v=169`,
   source: "generated-original",
 });
 

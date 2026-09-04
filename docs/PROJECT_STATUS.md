@@ -1,6 +1,20 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-03
+Atualizado em: 2026-09-04
+
+## Etapa 169 - Otimizacao das artes de Collections
+
+- As 18 artes locais de avatar, outfit e montaria mantiveram nomes, IDs, formato PNG e caminhos de arquivo, sem migration ou alteracao de save. As URLs receberam `?v=169` para invalidar imagens antigas no cache do WebView.
+- Um pipeline PowerShell reproduzivel foi adicionado com dry-run padrao e escrita explicita por `-Apply`. Cada saida e criada em diretorio temporario, decodificada e validada antes de substituir o arquivo do projeto.
+- Avatares passaram para 384x384; outfits para 512x512; montarias preservam a proporcao com aresta maxima de 640px. Os 12 arquivos que exigem alpha mantiveram cantos transparentes.
+- O conjunto caiu de 31.627.090 bytes (30,16 MiB) para 5.927.062 bytes (5,65 MiB), reducao de 81,3% sem mudar o contrato de runtime.
+- `CollectionPreview` agora usa carregamento nativo lazy por padrao. Showcase selecionado, destaque grande da Store e avatar equipado usam carregamento eager com prioridade alta.
+- Prompts e procedencia continuam nos documentos originais; `OPTIMIZATION.md` registra dimensoes, totais e uso do pipeline.
+- As galerias web passaram em 38/38 checks para avatares e 59/59 para outfits e montarias. As 18 resolucoes novas foram confirmadas no DOM; desktop e 430x900 ficaram sem overflow, com transparencia e leitura visual preservadas.
+- A regressao Tauri/SQLite passou em 77/77 checks no banco isolado `stage1685_20260903.db`. O save principal permaneceu com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
+- `npm run build` e `npm run tauri:build` passaram com 493 modulos. O MSI caiu de 54,86 para 30,58 MiB e o NSIS de 53,87 para 29,39 MiB; permanece apenas o aviso conhecido do chunk JavaScript acima de 500 kB.
+- Limites: o pipeline usa `System.Drawing` e portanto e voltado ao ambiente Windows do projeto; preserva PNG, sem conversao WebP ou quantizacao de cor. Os PNGs em resolucao de geracao permanecem recuperaveis pelo historico Git, mas nao sao duplicados no pacote atual.
+- Proximo passo proposto: Etapa 170 - ampliar o movimento visual das criaturas e herois nas cenas de Hunt, preservando o combate idle deterministico.
 
 ## Etapa 168.5 - QA integrado das montarias no Tauri/SQLite
 
