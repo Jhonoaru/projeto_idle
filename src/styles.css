@@ -7696,9 +7696,73 @@ html[data-client-motion="reduced"] .hunt-creature-token {
 .hunt-motion-contract { display: flex; flex-wrap: wrap; gap: 6px; }
 .hunt-motion-contract span { border: 1px solid #4b4938; padding: 5px 8px; color: #cdbb83; background: #141916; font-size: 0.68rem; text-transform: uppercase; }
 
+.hunt-motion-sqlite-qa {
+  display: grid;
+  gap: 10px;
+  min-height: 100vh;
+  padding: 12px;
+  color: #d7d4c5;
+  background: #0d1210;
+}
+
+.hunt-motion-sqlite-qa > header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #71602f;
+  padding: 10px 12px;
+  background: #141a16;
+}
+
+.hunt-motion-sqlite-qa > header span { color: #89958c; font-size: 0.64rem; font-weight: 800; }
+.hunt-motion-sqlite-qa > header h1 { margin: 4px 0; color: #ebd188; font-family: Georgia, serif; font-size: 1.24rem; }
+.hunt-motion-sqlite-qa > header strong { color: #91c783; }
+.hunt-motion-sqlite-qa > header p { margin: 4px 0 0; color: #9ba59e; font-size: 0.7rem; }
+.hunt-motion-sqlite-controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
+.hunt-motion-sqlite-controls button,
+.hunt-motion-sqlite-controls label { min-height: 34px; border: 1px solid #3d463e; padding: 7px 10px; color: #c9bea0; background: #111713; }
+.hunt-motion-sqlite-controls button.is-active { border-color: #b3924e; color: #f1d58c; }
+
+.hunt-motion-sqlite-vocations {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.hunt-motion-sqlite-vocations > button {
+  display: grid;
+  min-width: 0;
+  border: 1px solid #343c36;
+  padding: 5px;
+  color: #c9c5b5;
+  background: #111713;
+}
+
+.hunt-motion-sqlite-vocations > button.is-selected { border-color: #b3924e; box-shadow: inset 0 0 0 1px rgba(216, 185, 106, 0.18); }
+.hunt-motion-sqlite-vocations > button > strong { color: #e2ce91; font-size: 0.76rem; }
+.hunt-motion-sqlite-vocations > button > span { color: #89958c; font-size: 0.62rem; text-transform: uppercase; }
+.hunt-motion-sqlite-actor-stage { position: relative; height: 126px; overflow: hidden; pointer-events: none; }
+.hunt-motion-sqlite-actor-stage .hunt-scene-character { width: 100%; }
+.hunt-motion-sqlite-actor-stage .hunt-scene-character > span,
+.hunt-motion-sqlite-actor-stage .hunt-scene-character small,
+.hunt-motion-sqlite-actor-stage .hunt-scene-character em,
+.hunt-motion-sqlite-actor-stage .hunt-scene-hpbar { display: none; }
+.hunt-motion-sqlite-actor-stage .character-sprite-scene { width: 72px; height: 88px; }
+.hunt-motion-sqlite-scene { min-width: 0; }
+.hunt-motion-sqlite-scene .hunt-scene { min-height: 660px; }
+.hunt-motion-sqlite-probe { position: fixed; left: -10000px; top: -10000px; width: 1000px; visibility: hidden; pointer-events: none; }
+.hunt-motion-sqlite-qa > details { border: 1px solid #303a33; padding: 9px; background: #111713; }
+.hunt-motion-sqlite-qa > details summary { color: #d4c27f; cursor: pointer; font-weight: 800; }
+.hunt-motion-sqlite-qa > details pre { max-height: 260px; overflow: auto; white-space: pre-wrap; }
+
 @media (max-width: 600px) {
   .hunt-motion-qa { padding: 6px; }
   .hunt-motion-qa > header { align-items: flex-start; flex-direction: column; }
+  .hunt-motion-sqlite-qa { padding: 6px; }
+  .hunt-motion-sqlite-qa > header { align-items: flex-start; flex-direction: column; }
+  .hunt-motion-sqlite-controls { justify-content: flex-start; }
+  .hunt-motion-sqlite-vocations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 .client-summary-grid {

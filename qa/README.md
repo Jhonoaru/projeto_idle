@@ -1,5 +1,25 @@
 # Boss Trophy Hall: Tauri/SQLite QA
 
+## Stage 170.5: Hunt Motion Tauri/SQLite QA
+
+From the repository root, run:
+
+```powershell
+npm run tauri:dev -- --config "$PWD/qa/tauri.hunt-motion.json"
+```
+
+The dedicated page uses `stage1705_20260904.db`, production migrations and the
+real repository. It persists active and completed hunts for all five vocations,
+checks raw action JSON and local artwork, restores the active state, then writes
+WebView animation/reduced-motion evidence to `stage1705_report`. Controls allow
+manual switching between vocations, Active/Completed and Reduce motion. The
+player database is never opened.
+
+Completed on 2026-09-04: **59/59** checks passed (`database:50`, `runtime:9`).
+The isolated database finished with five restored active hunts and the player
+database retained its exact size and SHA-256. WebView checks were automatic;
+the native controls were not manually clicked during this run.
+
 ## Stage 170: Hunt Motion QA
 
 Run `npm run dev` and open `http://127.0.0.1:1420/qa/hunt-motion.html`.

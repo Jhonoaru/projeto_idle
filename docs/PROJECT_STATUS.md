@@ -2,6 +2,21 @@
 
 Atualizado em: 2026-09-04
 
+## Etapa 170.5 - QA integrado da Hunt Scene animada no Tauri/SQLite
+
+- Um runner opt-in foi executado no aplicativo Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1705_20260904.db`.
+- A rodada passou em 59/59 checks: 50 de persistencia/engine e 9 executados no DOM/CSS do WebView Tauri.
+- Guardian, Ranger, Arcanist, Warden e Monk receberam hunts ativas de cinco minutos; status, target, duracao e `current_action_json` foram confirmados depois do save/reload e diretamente nas cinco linhas SQLite.
+- As cinco acoes foram convertidas para concluido, com `readyToResolve` e `offlineCompletedAt` persistidos e conferidos no JSON bruto. Ao final, o runner restaurou as cinco hunts ativas para a matriz visual.
+- Os cinco PNGs de heroi e o Sewer Rat carregaram dentro do Tauri. O WebView renderizou os cinco atores, tres criaturas com fases e uma probe concluida com heroi `resolved` e criaturas `defeated`.
+- CSS computado confirmou movimento no ator ativo. Ao aplicar `data-client-motion=reduced`, heroi e criaturas retornaram `animation: none` e `transform: none`; a preferencia foi restaurada em seguida.
+- Guilda, depot, logs, atributos, equipamentos e inventarios permaneceram iguais ao baseline. O banco isolado terminou com 94.208 bytes e duas evidencias em `stage1705_report` (`database:50`, `runtime:9`).
+- O save principal nao foi aberto: permaneceu com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A` antes e depois da rodada.
+- O QA do WebView foi automatizado pela pagina Tauri. Nao houve clique manual nos controles nativos de vocacao, Active/Completed ou Reduce motion nesta rodada.
+- O primeiro build detectou que a selecao visual poderia ser `undefined`; a pagina de QA passou a usar o personagem de exibicao ja normalizado antes das validacoes finais.
+- `npm run build` passou com 494 modulos. `npm run tauri:build` tambem passou e gerou os pacotes MSI e NSIS; permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+- Proximo passo proposto: Etapa 171 - movimento visual da party e dos Bosses na Boss Scene, reutilizando fases deterministicas e acessibilidade de movimento.
+
 ## Etapa 170 - Movimento visual de criaturas e herois em Hunts
 
 - A Hunt Scene agora deriva fases visuais deterministicas do mesmo `attackProgress` local: heroi em windup, strike, recoil, recovery ou resolved; criaturas em spawn, advance, strike, stagger, guard ou defeated.
