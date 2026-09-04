@@ -1,4 +1,6 @@
+import type { CSSProperties } from "react";
 import { getCreatureVisualMeta } from "../../game-engine/hunt-scene/getCreatureVisualMeta";
+import { getHuntMotionVector } from "../../game-engine/hunt-scene/getHuntMotionState";
 import { CreatureSprite } from "../creatures/CreatureSprite";
 import type { HuntSceneCreature } from "./useHuntSceneSimulation";
 
@@ -9,6 +11,13 @@ interface HuntCreatureCardProps {
 
 export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
   const meta = getCreatureVisualMeta(creature.monster);
+  const vector = getHuntMotionVector(creature.position);
+  const motionStyle = {
+    "--hunt-motion-x": `${vector.x * 11}px`,
+    "--hunt-motion-y": `${vector.y * 8}px`,
+    "--hunt-recoil-x": `${vector.x * -6}px`,
+    "--hunt-recoil-y": `${vector.y * -5}px`,
+  } as CSSProperties;
 
   return (
     <article
@@ -17,8 +26,11 @@ export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
         `pos-${creature.position}`,
         `tone-${meta.tone}`,
         `is-${creature.state}`,
+        `motion-${creature.motionPhase}`,
         active ? "is-active" : "",
       ].filter(Boolean).join(" ")}
+      data-motion-phase={creature.motionPhase}
+      style={motionStyle}
     >
       <CreatureSprite
         className="hunt-creature-token"

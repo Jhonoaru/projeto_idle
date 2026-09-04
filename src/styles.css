@@ -6637,6 +6637,28 @@ p {
 .hunt-scene-character-core {
   position: relative;
   filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.48));
+  transform-origin: 50% 82%;
+  will-change: transform, filter;
+}
+
+.hunt-scene-character.motion-windup .hunt-scene-character-core {
+  animation: hunt-actor-windup 0.72s ease-in-out infinite;
+}
+
+.hunt-scene-character.motion-striking .hunt-scene-character-core {
+  animation: hunt-actor-strike 0.62s cubic-bezier(0.22, 0.78, 0.2, 1);
+}
+
+.hunt-scene-character.motion-recoiling .hunt-scene-character-core {
+  transform: translate(var(--hunt-recoil-x), var(--hunt-recoil-y)) scale(0.97);
+}
+
+.hunt-scene-character.motion-recovering .hunt-scene-character-core {
+  animation: hunt-actor-recover 0.82s ease-out;
+}
+
+.hunt-scene-character.motion-resolved .hunt-scene-character-core {
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.42)) saturate(0.82);
 }
 
 .hunt-scene-hpbar,
@@ -6783,6 +6805,36 @@ p {
   width: 40px;
   height: 40px;
   padding: 2px;
+  transform-origin: 50% 80%;
+  transition: transform 180ms ease-out, filter 180ms ease-out, opacity 180ms ease-out;
+  will-change: transform, filter, opacity;
+}
+
+.hunt-scene-creature.motion-spawning .hunt-creature-token {
+  animation: hunt-creature-materialize 0.92s ease-out infinite;
+}
+
+.hunt-scene-creature.motion-advancing .hunt-creature-token {
+  transform: translate(var(--hunt-motion-x), var(--hunt-motion-y)) scale(1.06);
+}
+
+.hunt-scene-creature.motion-striking .hunt-creature-token {
+  animation: hunt-creature-strike 0.46s cubic-bezier(0.2, 0.78, 0.22, 1);
+}
+
+.hunt-scene-creature.motion-staggered .hunt-creature-token {
+  animation: hunt-creature-stagger 0.38s ease-out;
+  filter: brightness(1.22) saturate(0.78);
+}
+
+.hunt-scene-creature.motion-guarding .hunt-creature-token {
+  animation: hunt-creature-guard 1.6s ease-in-out infinite;
+}
+
+.hunt-scene-creature.motion-defeated .hunt-creature-token {
+  opacity: 0.46;
+  filter: grayscale(0.62);
+  transform: translateY(6px) rotate(8deg) scale(0.82);
 }
 
 .hunt-scene-creature .hunt-scene-hpbar {
@@ -7560,6 +7612,93 @@ p {
 @keyframes hunt-character-pulse {
   0%, 100% { transform: translate(-50%, -50%) scale(1); }
   50% { transform: translate(-50%, -52%) scale(1.025); }
+}
+
+@keyframes hunt-actor-windup {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(var(--hunt-recoil-x), var(--hunt-recoil-y)) scale(0.97); }
+}
+
+@keyframes hunt-actor-strike {
+  0% { transform: translate(var(--hunt-recoil-x), var(--hunt-recoil-y)) scale(0.98); }
+  58% { transform: translate(var(--hunt-motion-x), var(--hunt-motion-y)) scale(1.07); filter: brightness(1.13); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes hunt-actor-recover {
+  0% { transform: translate(var(--hunt-motion-x), var(--hunt-motion-y)) scale(1.03); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes hunt-creature-materialize {
+  0% { opacity: 0.18; transform: translateY(8px) scale(0.72); filter: saturate(0.35) blur(1px); }
+  70% { opacity: 0.92; transform: translateY(-2px) scale(1.04); filter: saturate(1.08) blur(0); }
+  100% { opacity: 0.72; transform: translateY(0) scale(1); }
+}
+
+@keyframes hunt-creature-strike {
+  0% { transform: translate(0, 0) scale(1); }
+  56% { transform: translate(var(--hunt-motion-x), var(--hunt-motion-y)) scale(1.1); filter: brightness(1.16); }
+  100% { transform: translate(var(--hunt-recoil-x), var(--hunt-recoil-y)) scale(0.98); }
+}
+
+@keyframes hunt-creature-stagger {
+  0% { transform: translate(0, 0) rotate(0); }
+  34% { transform: translate(var(--hunt-recoil-x), var(--hunt-recoil-y)) rotate(-5deg) scale(0.94); }
+  68% { transform: translate(2px, -1px) rotate(3deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
+
+@keyframes hunt-creature-guard {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.015); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hunt-scene-character-core,
+  .hunt-creature-token {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+html[data-client-motion="reduced"] .hunt-scene-character-core,
+html[data-client-motion="reduced"] .hunt-creature-token {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+.hunt-motion-qa {
+  display: grid;
+  gap: 10px;
+  max-width: 1500px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.hunt-motion-qa > header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #39372f;
+  padding: 10px 12px;
+  background: #101513;
+}
+
+.hunt-motion-qa h1,
+.hunt-motion-qa p { margin: 3px 0; }
+.hunt-motion-qa h1 { color: #f1d58c; font-size: 1.25rem; }
+.hunt-motion-qa label { color: #d8c68e; white-space: nowrap; }
+.hunt-motion-contract { display: flex; flex-wrap: wrap; gap: 6px; }
+.hunt-motion-contract span { border: 1px solid #4b4938; padding: 5px 8px; color: #cdbb83; background: #141916; font-size: 0.68rem; text-transform: uppercase; }
+
+@media (max-width: 600px) {
+  .hunt-motion-qa { padding: 6px; }
+  .hunt-motion-qa > header { align-items: flex-start; flex-direction: column; }
 }
 
 .client-summary-grid {
@@ -11745,9 +11884,13 @@ p {
   }
 
   .hunt-spawn-timer {
+    position: static;
+    left: auto;
+    bottom: auto;
     grid-template-columns: 70px minmax(0, 1fr) 42px;
     min-width: 0;
     width: 100%;
+    transform: none;
   }
 
   .hunt-hotbar-slots {
@@ -11824,6 +11967,10 @@ p {
   .hunt-scene-creature {
     position: static;
     width: 100%;
+    --hunt-motion-x: 0px !important;
+    --hunt-motion-y: -4px !important;
+    --hunt-recoil-x: 0px !important;
+    --hunt-recoil-y: 3px !important;
     transform: none;
     animation: none;
   }
@@ -11838,14 +11985,17 @@ p {
 }
 
 @media (max-width: 1100px) {
+  .hunt-scene,
   .game-layout.is-hunt-scene-mode .hunt-scene {
     grid-template-columns: 1fr;
   }
 
+  .hunt-scene-main,
   .game-layout.is-hunt-scene-mode .hunt-scene-main {
     grid-template-rows: minmax(420px, 1fr) auto auto auto;
   }
 
+  .hunt-scene-stage,
   .game-layout.is-hunt-scene-mode .hunt-scene-stage {
     min-height: 420px;
   }

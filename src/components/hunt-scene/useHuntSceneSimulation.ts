@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getItemById } from "../../data/items";
 import { getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Character, CharacterAction, HuntArea, Item, Monster } from "../../shared/types";
+import { getHuntActorMotionPhase, getHuntCreatureMotionPhase, type HuntActorMotionPhase, type HuntCreatureMotionPhase } from "../../game-engine/hunt-scene/getHuntMotionState";
 
 const creaturePositions = ["top-left", "top-right", "left", "right", "bottom-left", "bottom-right"];
 
@@ -13,6 +14,7 @@ export interface HuntSceneCreature {
   spawnProgress: number;
   spawnSeconds: number;
   state: "spawning" | "alive" | "damaged" | "defeated";
+  motionPhase: HuntCreatureMotionPhase;
 }
 
 export interface HuntSceneLootPreview {
@@ -26,6 +28,7 @@ export interface HuntSceneLootPreview {
 export interface HuntSceneSnapshot {
   visibleCreatures: HuntSceneCreature[];
   activeTargetId?: string;
+  actorMotionPhase: HuntActorMotionPhase;
   actionText: string;
   combatLogLines: string[];
   lootPreviewEvents: HuntSceneLootPreview[];
@@ -81,7 +84,7 @@ export function useHuntSceneSimulation(
     const activeIndex = safeMonsters.length > 0 ? Math.floor(elapsedMs / cycleMs) % safeMonsters.length : 0;
     const creatureCount = safeMonsters.length > 0 ? Math.min(6, Math.max(3, safeMonsters.length * 2)) : 0;
 
-    const visibleCreatures = Array.from({ length: creatureCount }).map((_, index) => {
+    const creatureDrafts = Array.from({ length: creatureCount }).map((_, index) => {
       const monster = safeMonsters[index % safeMonsters.length];
       const offset = (cyclePercent + index * 0.19) % 1;
       const spawnProgress = readyToResolve || offset > 0.28
@@ -110,16 +113,21 @@ export function useHuntSceneSimulation(
       };
     });
 
-    const targetCandidates = visibleCreatures.filter(
+    const targetCandidates = creatureDrafts.filter(
       (creature) => creature.state === "alive" || creature.state === "damaged",
     );
     const activeTarget = targetCandidates[activeIndex % Math.max(1, targetCandidates.length)];
+    const visibleCreatures = creatureDrafts.map((creature) => ({
+      ...creature,
+      motionPhase: getHuntCreatureMotionPhase(creature.state, creature.id === activeTarget?.id, attackProgress),
+    }));
     const lootPreviewEvents = createLootPreviewEvents(hunt, elapsedMs, readyToResolve);
     const combatLogLines = createCombatLogLines(character, hunt, activeTarget?.monster, lootPreviewEvents, readyToResolve, action);
 
     return {
       visibleCreatures,
       activeTargetId: activeTarget?.id,
+      actorMotionPhase: getHuntActorMotionPhase(attackProgress, readyToResolve),
       actionText: getActionText(character, attackProgress),
       combatLogLines,
       lootPreviewEvents,

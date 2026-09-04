@@ -2,6 +2,21 @@
 
 Atualizado em: 2026-09-04
 
+## Etapa 170 - Movimento visual de criaturas e herois em Hunts
+
+- A Hunt Scene agora deriva fases visuais deterministicas do mesmo `attackProgress` local: heroi em windup, strike, recoil, recovery ou resolved; criaturas em spawn, advance, strike, stagger, guard ou defeated.
+- As seis posicoes da arena possuem vetores convergentes. O heroi avanca na direcao do alvo ativo enquanto a criatura se aproxima do centro, sem mover os cards ou alterar suas dimensoes.
+- Spawn tem materializacao progressiva; impacto produz stagger curto; contra-ataque, recuperacao, guarda e derrota possuem leitura distinta. As animacoes atuam nas camadas de sprite e continuam combinando com os efeitos de combate por vocacao.
+- Estados de spawn e derrota tem precedencia, impedindo que uma criatura inexistente ou vencida receba animacao de ataque. Alvos passivos permanecem em guarda ou reagem quando danificados.
+- `prefers-reduced-motion` e a preferencia `Reduce motion` do cliente removem animacoes, transicoes e deslocamentos, mantendo todos os estados e informacoes visiveis.
+- A responsividade da Hunt Scene foi desacoplada do wrapper principal: o componente isolado tambem passa para uma coluna. Em ate 720px, os vetores ficam compactos e o contador de spawn entra no fluxo, sem sobrepor criaturas.
+- O novo fixture `qa/hunt-motion.html` usa a cena de producao em memoria e passou em 19/19 checks de limites de fase, precedencia de estados e vetores das seis posicoes.
+- QA visual passou em 1280x720 e 430x900. Fases alternaram com o relogio, o modo reduzido retornou `animation: none`/`transform: none`, nao houve overflow, sobreposicao do contador ou erros no console.
+- Nenhuma regra de combate, dano, loot, XP, gold, supplies, duracao, coleta, persistencia ou schema SQLite foi alterada. Movimento e somente feedback da simulacao idle existente.
+- Limitacoes: os PNGs continuam estaticos, sem spritesheet, caminhada por tiles ou pathfinding; a cena usa transicoes curtas em ciclos de 500 ms e nao representa posicao autoritativa de gameplay.
+- `npm run build` e `npm run tauri:build` passaram com 494 modulos e geraram MSI/NSIS. Permanece apenas o aviso conhecido do chunk JavaScript acima de 500 kB. Nao houve QA nativo interativo nesta etapa.
+- Proximo passo proposto: Etapa 170.5 - QA integrado da Hunt Scene animada no Tauri, cobrindo vocacoes, estados concluido/ativo e preferencia de movimento reduzido.
+
 ## Etapa 169 - Otimizacao das artes de Collections
 
 - As 18 artes locais de avatar, outfit e montaria mantiveram nomes, IDs, formato PNG e caminhos de arquivo, sem migration ou alteracao de save. As URLs receberam `?v=169` para invalidar imagens antigas no cache do WebView.

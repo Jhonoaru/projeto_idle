@@ -133,7 +133,7 @@ function CollectionArtQa() {
         {view === "Collections" ? <CollectionsHall character={character} guild={state.guild} onEquip={(id) => setState((current) => ({ ...current, characters: [equipCollectionItem(current.characters[0], current.guild, id), ...current.characters.slice(1)] }))} onMarkSeen={() => setState((current) => ({ ...current, guild: clearNewCollectionFlags(current.guild) }))} /> : null}
         {view === "Profile" ? <>
           <CharacterSprite character={character} avatar={avatar} size="large" />
-          <div style={{ position: "relative", height: 300, width: "min(100%, 600px)", background: "#263b37" }}><HuntSceneActor character={character} actionText={`${category} QA`} /></div>
+          <div style={{ position: "relative", height: 300, width: "min(100%, 600px)", background: "#263b37" }}><HuntSceneActor character={character} actionText={`${category} QA`} motionPhase="recovering" /></div>
           <div style={{ width: "min(100%, 320px)" }}><RightCharacterPanel character={character} guild={state.guild} logs={[]} /></div>
         </> : null}
       </div>

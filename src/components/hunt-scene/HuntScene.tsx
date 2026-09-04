@@ -148,7 +148,12 @@ export function HuntScene({
               key={creature.id}
             />
           ))}
-          <HuntSceneActor character={character} actionText={snapshot.actionText} />
+          <HuntSceneActor
+            character={character}
+            actionText={snapshot.actionText}
+            motionPhase={snapshot.actorMotionPhase}
+            targetPosition={activeCreature?.position}
+          />
           {effectTargetCreature ? (
             <CombatEffectLayer
               actors={[{ character }]}

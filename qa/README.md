@@ -1,5 +1,13 @@
 # Boss Trophy Hall: Tauri/SQLite QA
 
+## Stage 170: Hunt Motion QA
+
+Run `npm run dev` and open `http://127.0.0.1:1420/qa/hunt-motion.html`.
+The memory-only fixture renders the production Hunt Scene and checks actor phase
+boundaries, creature state precedence and all six converging position vectors.
+Use the Reduce motion checkbox to verify the client preference fallback. It does
+not open SQLite, resolve a hunt or modify the player save.
+
 ## Stage 168.5: Mount Artwork Tauri/SQLite QA
 
 From the repository root, run:
