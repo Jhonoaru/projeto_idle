@@ -16660,9 +16660,35 @@ html[data-client-motion="reduced"] .boss-scene-party-core { animation: none !imp
 .boss-motion-qa label { color: #d8c68e; white-space: nowrap; }
 .boss-motion-qa > .boss-scene { max-width: 1500px; margin: 0 auto; }
 
+.boss-motion-sqlite-qa { display: grid; gap: 8px; min-height: 100vh; padding: 9px; color: #d8d8cd; background: #080c0a; }
+.boss-motion-sqlite-qa > header { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 9px 11px; border: 1px solid #51462d; background: #111713; }
+.boss-motion-sqlite-qa > header span { color: #89958c; font-size: 0.64rem; font-weight: 800; }
+.boss-motion-sqlite-qa > header h1 { margin: 4px 0; color: #efd184; font-family: Georgia, serif; font-size: 1.24rem; }
+.boss-motion-sqlite-qa > header strong { color: #91c783; }
+.boss-motion-sqlite-qa > header p { margin: 4px 0 0; color: #9ba59e; font-size: 0.7rem; }
+.boss-motion-sqlite-controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: flex-end; }
+.boss-motion-sqlite-controls button,
+.boss-motion-sqlite-controls label { min-height: 34px; border: 1px solid #3d463e; padding: 7px 10px; color: #c9bea0; background: #111713; }
+.boss-motion-sqlite-controls button.is-active { border-color: #b3924e; color: #f1d58c; }
+.boss-motion-sqlite-party { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; }
+.boss-motion-sqlite-party article { min-width: 0; padding: 7px 9px; border: 1px solid #303a33; background: #111713; }
+.boss-motion-sqlite-party strong,
+.boss-motion-sqlite-party span { display: block; overflow-wrap: anywhere; }
+.boss-motion-sqlite-party strong { color: #e2ce91; font-size: 0.72rem; }
+.boss-motion-sqlite-party span { margin-top: 2px; color: #89958c; font-size: 0.6rem; text-transform: capitalize; }
+.boss-motion-sqlite-scene { min-width: 0; }
+.boss-motion-sqlite-probe { position: fixed; top: -10000px; left: -10000px; width: 1400px; visibility: hidden; pointer-events: none; }
+.boss-motion-sqlite-qa > details { border: 1px solid #303a33; padding: 9px; background: #111713; }
+.boss-motion-sqlite-qa > details summary { color: #d4c27f; cursor: pointer; font-weight: 800; }
+.boss-motion-sqlite-qa > details pre { max-height: 260px; overflow: auto; white-space: pre-wrap; }
+
 @media (max-width: 580px) {
   .boss-motion-qa { padding: 5px; }
   .boss-motion-qa > header { align-items: flex-start; flex-direction: column; }
+  .boss-motion-sqlite-qa { padding: 5px; }
+  .boss-motion-sqlite-qa > header { align-items: flex-start; flex-direction: column; }
+  .boss-motion-sqlite-controls { justify-content: flex-start; }
+  .boss-motion-sqlite-party { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* Stage 132: vocation combat language shared by hunt and boss scenes. */

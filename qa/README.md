@@ -207,6 +207,20 @@ three cosmetic unlocks, zero pending new-item flags, six expected trophy/unlock
 log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
+# Stage 171.5: Boss Motion Tauri/SQLite QA
+
+Run the isolated native fixture with:
+
+```powershell
+npm run tauri:dev -- --config "$PWD/qa/tauri.boss-motion.json"
+```
+
+It uses only `stage1715_20260905.db`, runs the production migrations/repository, persists one five-member Ember Matriarch raid into every participant row, validates active/completed raw action JSON, restores the active raid, and writes database/WebView evidence to `stage1715_report`. The page offers Active/Completed and Reduce motion controls; hidden time-controlled probes verify telegraph and resolved states without depending on machine speed.
+
+The player database is never opened by this runner.
+
+Completed on 2026-09-05: **69/69** checks passed (`database:58`, `runtime:11`). The isolated database finished at 94,208 bytes, all five raw party snapshots remained active after restoration, and the player save retained its original size and SHA-256. WebView controls were covered by automated DOM/CSS probes; native controls were not manually clicked.
+
 # Stage 171: Boss and Party Motion QA
 
 Open `http://127.0.0.1:1420/qa/boss-motion.html` while `npm run dev` is running.

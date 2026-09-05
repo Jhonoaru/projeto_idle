@@ -1,6 +1,22 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-04
+Atualizado em: 2026-09-05
+
+## Etapa 171.5 - QA integrado da Boss Scene animada no Tauri/SQLite
+
+- Um runner opt-in executou no aplicativo Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1715_20260905.db`.
+- A rodada passou em 69/69 checks: 58 de persistencia/engine e 11 executados no DOM/CSS do WebView Tauri.
+- Guardian, Ranger, Arcanist, Warden e Monk receberam a mesma raid ativa de cinco minutos contra Ember Matriarch. Status, target, duracao, IDs, roles e snapshot completo da party foram confirmados apos save/reload e diretamente nas cinco colunas `current_action_json` do SQLite.
+- As cinco acoes foram convertidas para concluido, com `readyToResolve` e `offlineCompletedAt` persistidos e conferidos no JSON bruto. Ao final, o runner restaurou a party inteira para a raid ativa.
+- Um relogio controlado confirmou o primeiro telegraph com alvo. O WebView renderizou a Boss Scene de producao, expôs fase no boss e nos cinco membros e mostrou pelo menos tres fases simultaneas na party.
+- O PNG da Ember Matriarch, o JPG da arena e os cinco PNGs de heroi carregaram dentro do Tauri. Todos os sete assets tambem foram decodificados pelo WebView.
+- Probes temporais ocultos, derivados do estado recarregado, confirmaram telegraph com dodge/hold, boss `defeated` e os cinco membros `victorious` sem depender da velocidade da maquina.
+- CSS computado confirmou animacao no boss e na party. Ao aplicar `data-client-motion=reduced`, boss e cinco membros retornaram `animation: none` e `transform: none`; a preferencia foi restaurada em seguida.
+- Guilda, depot, logs, atributos, equipamentos, inventarios e boss cooldowns permaneceram iguais ao baseline. O banco isolado terminou com 94.208 bytes e duas evidencias em `stage1715_report` (`database:58`, `runtime:11`).
+- O save principal nao foi aberto: permaneceu com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A` antes e depois da rodada.
+- O QA do WebView foi automatizado pela pagina Tauri. Nao houve clique manual nos controles nativos Active/Completed ou Reduce motion nesta rodada.
+- `npm run build` passou com 495 modulos. `npm run tauri:build` tambem passou e gerou os pacotes MSI e NSIS; permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+- Proximo passo proposto: Etapa 172 - feedback visual de dano, cura e numeros flutuantes nas cenas de Hunt e Boss, mantendo simulacao offline deterministica.
 
 ## Etapa 171 - Movimento visual da party e dos Bosses
 
