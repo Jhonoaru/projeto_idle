@@ -207,6 +207,21 @@ three cosmetic unlocks, zero pending new-item flags, six expected trophy/unlock
 log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
+
+# Stage 172.5: Combat Feedback Tauri/SQLite QA
+
+Run the isolated native fixture with:
+
+```powershell
+npm run tauri:dev -- --config "$PWD/qa/tauri.combat-feedback.json"
+```
+
+It uses only `stage1725_20260906.db`, runs the production migrations/repository, persists active and completed Hunts for all five vocations plus a five-member Ember Matriarch raid, checks raw action JSON, and writes database/WebView evidence to `stage1725_report`. The page offers Hunt/Boss, vocation, Completed and Reduce motion controls; controlled probes validate damage, critical, incoming and healing feedback without depending on machine speed.
+
+The player database is never opened by this runner.
+
+Completed on 2026-09-06: **71/71** checks passed (`database:58`, `runtime:13`). The isolated database finished at 94,208 bytes, the active five-member raid was restored, and the player save retained its original 102,400-byte size and SHA-256. WebView behavior was covered by automated DOM/CSS probes; native controls were not manually clicked.
+
 # Stage 172: Combat Floating Feedback QA
 
 Open `http://127.0.0.1:1420/qa/combat-feedback.html` while `npm run dev` is running.

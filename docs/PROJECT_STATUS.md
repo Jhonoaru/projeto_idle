@@ -2,6 +2,22 @@
 
 Atualizado em: 2026-09-06
 
+## Etapa 172.5 - QA integrado do feedback flutuante no Tauri/SQLite
+
+- Um runner opt-in executou no aplicativo Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1725_20260906.db`.
+- A rodada passou em 71/71 checks: 58 de persistencia/engine e 13 executados no DOM/CSS do WebView Tauri.
+- Guardian, Ranger, Arcanist, Warden e Monk receberam hunts ativas de cinco minutos. Status e target foram confirmados depois do save/reload e diretamente em `current_action_json`.
+- As cinco vocacoes produziram dano e dano recebido positivos, coordenadas limitadas entre 4% e 96% e ao menos um critico na cadencia deterministica. Warden tambem produziu cura.
+- As hunts foram persistidas como concluidas e deixaram de produzir numeros. O mesmo contrato foi validado para uma raid completa contra Ember Matriarch.
+- A raid preservou cinco membros e roles em todas as linhas SQLite. Sua cadencia controlada produziu dano recebido e cura, encontrou critico deterministico e suprimiu todos os eventos depois da conclusao.
+- O WebView montou a `HuntScene` de producao e os componentes reais de feedback. Probes derivados dos estados recarregados cobriram as cinco vocacoes, dano recebido, cura, critico, Boss, Hunt/Boss concluidos, valores legiveis e coordenadas limitadas.
+- CSS computado confirmou animacao no modo normal. `data-client-motion=reduced` retornou `animation: none` em todos os numeros e a preferencia foi restaurada ao final.
+- Guilda, depot, logs, atributos, equipamentos, inventarios e boss cooldowns permaneceram iguais ao baseline. O banco isolado terminou com 94.208 bytes e duas evidencias em `stage1725_report` (`database:58`, `runtime:13`).
+- O save principal nao foi aberto: permaneceu com 102.400 bytes e SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A` antes e depois da rodada.
+- O QA do WebView foi automatizado pela pagina Tauri. Nao houve clique manual nos controles nativos Hunt/Boss, vocacao, Completed ou Reduce motion nesta rodada.
+- `npm run build` passou com 497 modulos. `npm run tauri:build` tambem passou e gerou os pacotes MSI e NSIS; permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+- Proximo passo proposto: Etapa 173 - polimento visual integrado das cenas de combate, unificando hierarquia, contraste e leitura de alvos/impactos sem alterar a simulacao offline.
+
 ## Etapa 172 - Feedback visual de dano, cura e numeros flutuantes
 
 - Hunts e Bosses agora compartilham uma camada de feedback flutuante com dano causado, critico, dano recebido e cura em cadencia visual deterministica.

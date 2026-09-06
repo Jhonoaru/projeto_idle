@@ -17281,3 +17281,41 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
   .boss-phase-timeline.is-compact article > span { display: none; }
   .boss-scene-stage > .boss-phase-timeline { top: 38px; right: 8px; bottom: auto; left: 8px; }
 }
+/* Stage 172.5 isolated Tauri/SQLite report */
+.combat-feedback-sqlite-qa {
+  min-height: 100vh;
+  padding: 18px;
+  background: #090e0e;
+  color: #e9dfbd;
+}
+
+.combat-feedback-sqlite-qa > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+  padding: 14px;
+  border: 1px solid #66562d;
+  background: #111817;
+}
+
+.combat-feedback-sqlite-qa h1 { margin: 4px 0; font-size: 22px; }
+.combat-feedback-sqlite-qa p { margin: 4px 0 0; color: #9fa79d; }
+.combat-feedback-sqlite-controls,
+.combat-feedback-sqlite-vocations { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.combat-feedback-sqlite-controls button,
+.combat-feedback-sqlite-vocations button { min-height: 34px; border: 1px solid #48514a; background: #151d1c; color: #d9cfad; }
+.combat-feedback-sqlite-controls button.is-active,
+.combat-feedback-sqlite-vocations button.is-active { border-color: #c8a74e; color: #ffe08a; }
+.combat-feedback-sqlite-vocations { margin-bottom: 10px; }
+.combat-feedback-sqlite-scene { min-height: 620px; }
+.combat-feedback-sqlite-probes { position: fixed; left: -10000px; top: 0; width: 1100px; height: 700px; visibility: hidden; }
+.combat-feedback-sqlite-probes > div { position: relative; width: 1100px; height: 700px; }
+.combat-feedback-sqlite-qa details { margin-top: 12px; border: 1px solid #39423d; padding: 10px; background: #0e1514; }
+.combat-feedback-sqlite-qa pre { white-space: pre-wrap; }
+
+@media (max-width: 760px) {
+  .combat-feedback-sqlite-qa { padding: 8px; }
+  .combat-feedback-sqlite-qa > header { align-items: stretch; flex-direction: column; }
+  .combat-feedback-sqlite-scene { min-height: 520px; }
+}
