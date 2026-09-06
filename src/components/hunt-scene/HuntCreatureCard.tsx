@@ -30,6 +30,7 @@ export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
         active ? "is-active" : "",
       ].filter(Boolean).join(" ")}
       data-motion-phase={creature.motionPhase}
+      data-combat-target={active && creature.state !== "defeated" && creature.state !== "spawning" ? "active" : undefined}
       style={motionStyle}
     >
       <CreatureSprite

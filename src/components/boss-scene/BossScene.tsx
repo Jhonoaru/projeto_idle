@@ -216,7 +216,7 @@ export function BossScene({
       <div className="boss-scene-main">
         <div className="boss-scene-stage">
           <BossArenaBackground boss={boss} />
-          <div className={`boss-scene-boss-actor motion-${bossMotionPhase}`} data-motion-phase={bossMotionPhase}>
+          <div className={`boss-scene-boss-actor motion-${bossMotionPhase}`} data-motion-phase={bossMotionPhase} data-combat-target={ready ? undefined : "active"}>
             <span className="boss-scene-boss-core">
               <BossSprite boss={boss} fallbackSymbol="B" size="scene" />
             </span>

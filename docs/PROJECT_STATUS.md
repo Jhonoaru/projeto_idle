@@ -2,6 +2,16 @@
 
 Atualizado em: 2026-09-06
 
+## Etapa 173 - Polimento visual das cenas de combate
+
+- Alvos ativos de Hunt e Boss recebem uma marca de selecao fixa, independente do movimento do sprite. Criaturas nascendo/derrotadas e encontros concluidos nao recebem a marca.
+- Numeros usam fonte de sistema maior, fundo escuro, digitos tabulares e contraste reforcado. Criticos preservam selo e contorno; dano causado fica acima do nome do alvo.
+- Nomes de criaturas, boss e party ganharam contraste; a faixa compacta de fases conserva fase/alvo e omite detalhes extensos de habilidade/pressao, disponiveis na versao expandida.
+- Playwright com Edge verificou Hunt/Boss em 1280x900 e 430x900: imagens carregadas, zero overflow horizontal, um alvo ativo e nenhum alvo/numeros apos concluir. Movimento reduzido retornou animation none. Fixture existente passou em 14/14 checks.
+- Capturas revisadas revelaram excesso de texto na faixa mobile; apos ajuste ela ocupou 81px e liberou a arena. QA desta etapa foi no navegador com fixture em memoria; nao houve rodada SQLite ou clique nativo Tauri.
+- Proximo passo proposto: Etapa 173.5 - QA integrado do polimento de combate no Tauri, incluindo alvos, conclusao e faixa compacta.
+- Build web e empacotamento Tauri finais passaram com 497 modulos, MSI e NSIS gerados. Permanece o aviso conhecido de chunk acima de 500 kB.
+
 ## Etapa 172.5 - QA integrado do feedback flutuante no Tauri/SQLite
 
 - Um runner opt-in executou no aplicativo Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1725_20260906.db`.

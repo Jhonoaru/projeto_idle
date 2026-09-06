@@ -16590,16 +16590,23 @@ html[data-client-motion="reduced"] .boss-scene-party-core { animation: none !imp
   display: grid;
   justify-items: center;
   min-width: 34px;
-  color: #f4d57d;
-  font: 900 0.82rem/1 Georgia, serif;
+  color: #fff4d6;
+  font: 800 16px/1.15 system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(6, 10, 12, 0.78);
   text-shadow: -1px -1px 0 #25150e, 1px -1px 0 #25150e, -1px 1px 0 #25150e, 1px 1px 0 #25150e, 0 2px 4px #000;
   transform: translate(-50%, 0);
   animation: combat-floating-rise 1.15s ease-out var(--feedback-delay) both;
 }
-.combat-floating-number small { margin-top: 2px; color: #ffd36b; font: 900 0.46rem/1 system-ui, sans-serif; letter-spacing: 0; }
+.combat-floating-number small { margin-top: 2px; color: #ffd36b; font: 900 9px/1 system-ui, sans-serif; letter-spacing: 0; }
 .combat-floating-number.is-incoming { color: #f0836f; }
 .combat-floating-number.is-healing { color: #79dfa0; text-shadow: -1px -1px 0 #0e2618, 1px -1px 0 #0e2618, -1px 1px 0 #0e2618, 1px 1px 0 #0e2618, 0 2px 4px #000; }
-.combat-floating-number.is-critical { color: #ffd05d; font-size: 1rem; }
+.combat-floating-number.is-critical { color: #ffe08a; font-size: 19px; outline: 1px solid #ad823b; }
+.combat-floating-number.is-damage,
+.combat-floating-number.is-critical { margin-top: -28px; }
 
 @keyframes combat-floating-rise {
   0% { opacity: 0; transform: translate(-50%, 6px) scale(0.82); }
@@ -17281,6 +17288,30 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
   .boss-phase-timeline.is-compact article > span { display: none; }
   .boss-scene-stage > .boss-phase-timeline { top: 38px; right: 8px; bottom: auto; left: 8px; }
 }
+/* Target markers stay fixed while the sprite inside moves. */
+.hunt-scene-creature[data-combat-target="active"]::after,
+.boss-scene-boss-actor[data-combat-target="active"]::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+  border: 2px solid #a3e6ef;
+  clip-path: polygon(0 0, 16px 0, 16px 3px, 3px 3px, 3px 16px, 0 16px, 0 0, 100% 0, 100% 16px, calc(100% - 3px) 16px, calc(100% - 3px) 3px, calc(100% - 16px) 3px, calc(100% - 16px) 0, 100% 0, 100% 100%, calc(100% - 16px) 100%, calc(100% - 16px) calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) calc(100% - 16px), 100% calc(100% - 16px), 100% 100%, 0 100%, 0 calc(100% - 16px), 3px calc(100% - 16px), 3px calc(100% - 3px), 16px calc(100% - 3px), 16px 100%, 0 100%);
+}
+.hunt-scene-creature[data-combat-target="active"] { border-color: #a3e6ef; }
+.hunt-scene-creature strong,
+.boss-scene-boss-actor strong,
+.boss-scene-party-member strong {
+  color: #f4f3e9;
+  text-shadow: 0 1px 2px #000, 0 0 5px #000;
+  overflow-wrap: anywhere;
+}
+.boss-scene-boss-actor strong,
+.boss-scene-party-member strong { padding: 3px 6px; background: rgba(7, 13, 15, 0.86); border-radius: 3px; }
+.hunt-scene-hpbar i { background: #85cf90; }
+.boss-phase-timeline.is-compact .boss-phase-pressure,
+.boss-phase-timeline.is-compact .boss-phase-ability { display: none; }
+
 /* Stage 172.5 isolated Tauri/SQLite report */
 .combat-feedback-sqlite-qa {
   min-height: 100vh;
