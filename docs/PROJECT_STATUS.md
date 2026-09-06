@@ -1,6 +1,21 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-05
+Atualizado em: 2026-09-06
+
+## Etapa 172 - Feedback visual de dano, cura e numeros flutuantes
+
+- Hunts e Bosses agora compartilham uma camada de feedback flutuante com dano causado, critico, dano recebido e cura em cadencia visual deterministica.
+- Os eventos usam o `elapsedMs` real da cena, atributos dos personagens, alvo visual e roles da party. A sequencia escolhe o ator de forma estavel, aplica pequena variacao reproduzivel e nunca usa `Math.random`.
+- Dano aparece sobre a criatura/boss; dano recebido aparece sobre o membro ativo; cura aparece no alvo aliado quando existe Warden, healer ou support. Criticos recebem escala e selo `CRIT` proprios.
+- Eventos possuem IDs estaveis por sequencia, valores inteiros positivos, coordenadas limitadas entre 4% e 96% da arena e desaparecem completamente quando a acao esta concluida.
+- A camada e `aria-hidden`, nao captura cliques e fica separada dos efeitos de vocacao, movimentos, telegraphs, hotbar e analyzer.
+- `prefers-reduced-motion` e a preferencia `Reduce motion` removem a subida/fade. Os numeros permanecem estaticos e legiveis ate a proxima sequencia visual.
+- O fixture `qa/combat-feedback.html` alterna entre as cenas de producao Hunt/Boss, Active/Completed e movimento reduzido. Passou em 14/14 checks de determinismo, limites, identidades, rotacao, cura, dano recebido, critico e supressao final.
+- QA visual no browser confirmou Hunt com dano/dano recebido e Boss com dano/cura, valores dentro das duas arenas, assets carregados e zero overflow horizontal. Completed removeu todos os eventos do DOM.
+- Em viewport de 430x900, a largura util foi 415 px, a arena ficou com 405 px, os numeros permaneceram dentro do palco e o overflow horizontal foi zero. A viewport temporaria foi restaurada ao final.
+- Estes numeros sao estimativas visuais derivadas dos atributos e da cadencia da cena; nao representam um novo ledger por golpe e nao alteram os calculos agregados de dano, risco, resultado, loot ou progressao.
+- `npm run build` passou com 497 modulos. `npm run tauri:build` tambem passou e gerou os pacotes MSI e NSIS; permanece apenas o aviso conhecido de chunk JavaScript acima de 500 kB.
+- Proximo passo proposto: Etapa 172.5 - QA integrado do feedback flutuante no Tauri/SQLite, cobrindo as cinco vocacoes, party, estados concluido/ativo e movimento reduzido.
 
 ## Etapa 171.5 - QA integrado da Boss Scene animada no Tauri/SQLite
 

@@ -207,6 +207,14 @@ three cosmetic unlocks, zero pending new-item flags, six expected trophy/unlock
 log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
+# Stage 172: Combat Floating Feedback QA
+
+Open `http://127.0.0.1:1420/qa/combat-feedback.html` while `npm run dev` is running.
+
+The memory-only fixture switches between the production Hunt and Boss scenes and verifies deterministic outgoing damage, critical, incoming damage and healing events. Active/Completed and Reduce motion controls cover event suppression and accessibility without touching the player save.
+
+Completed on 2026-09-06: **14/14** deterministic checks passed. Browser QA confirmed live damage/incoming feedback in Hunt, damage/healing feedback in Boss, complete event suppression after resolution, static reduced-motion feedback, decoded local assets and zero horizontal overflow at desktop and 430x900.
+
 # Stage 171.5: Boss Motion Tauri/SQLite QA
 
 Run the isolated native fixture with:

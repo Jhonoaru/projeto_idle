@@ -16581,6 +16581,57 @@ html[data-client-motion="reduced"] *::after {
 
 html[data-client-motion="reduced"] .boss-scene-boss-core,
 html[data-client-motion="reduced"] .boss-scene-party-core { animation: none !important; transform: none !important; transition: none !important; }
+
+.combat-floating-feedback { position: absolute; inset: 0; z-index: 8; overflow: hidden; pointer-events: none; }
+.combat-floating-number {
+  position: absolute;
+  top: var(--feedback-y);
+  left: var(--feedback-x);
+  display: grid;
+  justify-items: center;
+  min-width: 34px;
+  color: #f4d57d;
+  font: 900 0.82rem/1 Georgia, serif;
+  text-shadow: -1px -1px 0 #25150e, 1px -1px 0 #25150e, -1px 1px 0 #25150e, 1px 1px 0 #25150e, 0 2px 4px #000;
+  transform: translate(-50%, 0);
+  animation: combat-floating-rise 1.15s ease-out var(--feedback-delay) both;
+}
+.combat-floating-number small { margin-top: 2px; color: #ffd36b; font: 900 0.46rem/1 system-ui, sans-serif; letter-spacing: 0; }
+.combat-floating-number.is-incoming { color: #f0836f; }
+.combat-floating-number.is-healing { color: #79dfa0; text-shadow: -1px -1px 0 #0e2618, 1px -1px 0 #0e2618, -1px 1px 0 #0e2618, 1px 1px 0 #0e2618, 0 2px 4px #000; }
+.combat-floating-number.is-critical { color: #ffd05d; font-size: 1rem; }
+
+@keyframes combat-floating-rise {
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.82); }
+  18% { opacity: 1; transform: translate(-50%, 0) scale(1.08); }
+  72% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -25px) scale(0.94); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .combat-floating-number { animation: none !important; opacity: 0.88; transform: translate(-50%, 0) !important; }
+}
+
+html[data-client-motion="reduced"] .combat-floating-number { animation: none !important; opacity: 0.88; transform: translate(-50%, 0) !important; }
+
+.combat-feedback-qa { min-height: 100vh; padding: 9px; color: #d8d8cd; background: #080c0a; }
+.combat-feedback-qa > header { display: flex; justify-content: space-between; gap: 12px; align-items: center; max-width: 1500px; margin: 0 auto 8px; padding: 9px 11px; border: 1px solid #51462d; background: #111713; }
+.combat-feedback-qa h1,
+.combat-feedback-qa p { margin: 3px 0; }
+.combat-feedback-qa h1 { color: #efd184; font-family: Georgia, serif; font-size: 1.25rem; }
+.combat-feedback-qa p { color: #929d95; font-size: 0.7rem; }
+.combat-feedback-qa-controls { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; justify-content: flex-end; }
+.combat-feedback-qa-controls button,
+.combat-feedback-qa-controls label { min-height: 34px; border: 1px solid #3d463e; padding: 7px 10px; color: #c9bea0; background: #111713; }
+.combat-feedback-qa-controls button.is-active { border-color: #b3924e; color: #f1d58c; }
+.combat-feedback-qa > .hunt-scene,
+.combat-feedback-qa > .boss-scene { max-width: 1500px; margin: 0 auto; }
+
+@media (max-width: 580px) {
+  .combat-feedback-qa { padding: 5px; }
+  .combat-feedback-qa > header { align-items: flex-start; flex-direction: column; }
+  .combat-feedback-qa-controls { justify-content: flex-start; }
+}
 .boss-scene-party-member strong { margin-top: -3px; color: #f0dd9d; font-size: 0.64rem; }
 .boss-scene-party-member > span:last-child { color: #a9c4b2; font-size: 0.55rem; text-transform: uppercase; }
 .boss-scene-party-member::after { width: 34px; height: 3px; margin-top: 2px; background: #598f88; box-shadow: 0 0 6px rgba(89, 143, 136, 0.5); content: ""; }

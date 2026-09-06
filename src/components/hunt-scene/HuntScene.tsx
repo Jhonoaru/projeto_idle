@@ -4,6 +4,7 @@ import { formatDuration } from "../../shared/time";
 import type { BossDefensiveResponsePriority, BossDodgeBehavior, Character, HuntArea } from "../../shared/types";
 import { getHuntEffectTarget } from "../../data/combatEffectProfiles";
 import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
+import { CombatFloatingFeedback } from "../combat-feedback/CombatFloatingFeedback";
 import { HuntActionBar } from "./HuntActionBar";
 import { HuntCreatureCard } from "./HuntCreatureCard";
 import { HuntSceneHotbar, type HuntSceneSlotType } from "./HuntSceneHotbar";
@@ -155,12 +156,21 @@ export function HuntScene({
             targetPosition={activeCreature?.position}
           />
           {effectTargetCreature ? (
-            <CombatEffectLayer
-              actors={[{ character }]}
-              mode="hunt"
-              resolved={isReady}
-              target={getHuntEffectTarget(effectTargetCreature.position)}
-            />
+            <>
+              <CombatEffectLayer
+                actors={[{ character }]}
+                mode="hunt"
+                resolved={isReady}
+                target={getHuntEffectTarget(effectTargetCreature.position)}
+              />
+              <CombatFloatingFeedback
+                actors={[{ character }]}
+                elapsedMs={snapshot.elapsedMs}
+                mode="hunt"
+                resolved={isReady}
+                target={getHuntEffectTarget(effectTargetCreature.position)}
+              />
+            </>
           ) : null}
           <div className={`hunt-scene-center-tools ${showSceneTools ? "is-visible" : ""}`.trim()}>
             <button disabled type="button">Loot Filter</button>

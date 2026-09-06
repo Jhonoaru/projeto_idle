@@ -29,6 +29,7 @@ import { BossSprite } from "../boss/BossSprite";
 import { BossPhaseTimeline, getActiveBossPhase } from "../boss/BossPhaseTimeline";
 import { CharacterSprite } from "../characters/CharacterSprite";
 import { CombatEffectLayer } from "../combat-effects/CombatEffectLayer";
+import { CombatFloatingFeedback } from "../combat-feedback/CombatFloatingFeedback";
 import { CombatSkillRotation } from "../combat-skills/CombatSkillRotation";
 import { BossArenaBackground } from "./BossArenaBackground";
 
@@ -308,6 +309,7 @@ export function BossScene({
             })}
           </div>
           <CombatEffectLayer actors={members} mode="boss" resolved={ready} target={{ x: 76, y: 43 }} />
+          <CombatFloatingFeedback actors={members} elapsedMs={elapsedMs} mode="boss" resolved={ready} target={{ x: 76, y: 43 }} />
           <CombatSkillRotation actors={members} elapsedMs={elapsedMs} resolved={ready} />
           {threat ? <BossPhaseTimeline threat={threat} progressPercent={progress} compact /> : null}
           <div className="boss-scene-stage-status">
