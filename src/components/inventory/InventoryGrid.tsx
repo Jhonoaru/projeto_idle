@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
 import { canSellItem } from "../../game-engine/market/canSellItem";
+import { getItemVisualIdentity } from "../../game-engine/items/getItemVisualIdentity";
 import type { InventoryItem } from "../../shared/types";
 
 interface InventoryGridProps {
@@ -22,19 +23,24 @@ export function InventoryGrid({
   onOpenContainer,
 }: InventoryGridProps) {
   const [hoveredItemId, setHoveredItemId] = useState<string | undefined>();
-  const hoveredItem = items.find((item) => item.id === hoveredItemId);
+  const [focusedItemId, setFocusedItemId] = useState<string>();
+  const inspectedItem = items.find((item) => item.id === hoveredItemId)
+    ?? items.find((item) => item.id === focusedItemId)
+    ?? items.find((item) => item.id === selectedItemId);
   const slots = Math.max(emptySlots, Math.ceil(items.length / 8) * 8) || 8;
 
   return (
     <div className="inventory-grid-wrap">
       <div className="inventory-grid">
         {items.map((inventoryItem) => {
-          const sellStatus = canSellItem(inventoryItem, items);
+          const identity = getItemVisualIdentity(inventoryItem.item, inventoryItem);
           const equipped = equippedItemIds.has(inventoryItem.id);
 
           return (
             <button
-              className={selectedItemId === inventoryItem.id ? "item-slot is-selected" : "item-slot"}
+              className={`item-slot ${identity.surfaceClassName} ${selectedItemId === inventoryItem.id ? "is-selected" : ""}`}
+              aria-label={`${inventoryItem.item.name}, ${identity.combinedLabel}, x${inventoryItem.quantity}${equipped ? ", equipped" : ""}`}
+              aria-pressed={selectedItemId === inventoryItem.id}
               key={inventoryItem.id}
               onClick={() => {
                 onSelectItem?.(inventoryItem);
@@ -42,6 +48,8 @@ export function InventoryGrid({
               }}
               onMouseEnter={() => setHoveredItemId(inventoryItem.id)}
               onMouseLeave={() => setHoveredItemId(undefined)}
+              onFocus={() => setFocusedItemId(inventoryItem.id)}
+              onBlur={() => setFocusedItemId(undefined)}
               type="button"
             >
               <ItemIcon
@@ -51,13 +59,7 @@ export function InventoryGrid({
                 size="medium"
               />
               <span>{inventoryItem.item.name}</span>
-              {hoveredItemId === inventoryItem.id ? (
-                <ItemTooltip
-                  equipped={equipped}
-                  inventoryItem={inventoryItem}
-                  sellReason={sellStatus.reason}
-                />
-              ) : null}
+              <small className="inventory-rarity-label">{identity.rarityLabel}</small>
             </button>
           );
         })}
@@ -67,15 +69,15 @@ export function InventoryGrid({
           </div>
         ))}
       </div>
-      {hoveredItem && (
-        <div className="inventory-grid-active-tooltip">
+        <aside className="inventory-grid-active-tooltip" aria-label="Item details">
+          {inspectedItem ? (
           <ItemTooltip
-            equipped={equippedItemIds.has(hoveredItem.id)}
-            inventoryItem={hoveredItem}
-            sellReason={canSellItem(hoveredItem, items).reason}
+            equipped={equippedItemIds.has(inspectedItem.id)}
+            inventoryItem={inspectedItem}
+            sellReason={canSellItem(inspectedItem, items).reason}
           />
-        </div>
-      )}
+          ) : <div className="inventory-inspection-empty">Nenhum item selecionado</div>}
+        </aside>
     </div>
   );
 }

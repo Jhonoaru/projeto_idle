@@ -2,6 +2,17 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 174 - Consistencia visual de inventario e equipamentos
+
+- Grade exibe nome em ate duas linhas e raridade textual com a cor existente. Selecao recebe contorno ciano separado da raridade; foco por teclado possui contorno tracejado.
+- Removido tooltip duplicado dentro dos botoes. Um unico painel de inspecao acompanha hover, foco ou selecao, nessa prioridade. Em telas estreitas ele fica abaixo da grade.
+- Slots possuem altura estavel; vazios deixam de mostrar o simbolo generico. Equipamentos recebem nomes claros com quebra de palavras longas.
+- Fixture opt-in `qa/inventory-polish.html` usa itens reais das cinco raridades, T3, pilha bloqueada de 9999 e EquipmentPanel de producao. Todas as alteracoes do fixture ficam em memoria.
+- Playwright/Edge confirmou em 1280x900 e 430x900: imagens carregadas, ausencia de overflow, detalhes por foco, um unico tooltip, selecao persistente e callback de remover equipamento. Capturas de grade e equipamentos revisadas.
+- Nao houve alteracao de economia, raridades, tiers, venda ou persistencia. QA visual no navegador; sem rodada SQLite ou cliques nativos nesta etapa.
+- Proximo passo proposto: Etapa 174.5 - QA integrado de inventario/equipamentos no Tauri, incluindo selecao, foco, itens bloqueados e save/reload.
+- Build web e Tauri aprovados com 497 modulos; MSI e NSIS gerados. Permanece o aviso conhecido do chunk acima de 500 kB.
+
 ## Etapa 173.5 - QA integrado do polimento de combate
 
 - Runner de combate existente ampliado e executado no Tauri com SQL Plugin real. Reutiliza somente o banco isolado `stage1725_20260906.db` e a tabela `stage1725_report`.

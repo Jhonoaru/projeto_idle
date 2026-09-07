@@ -208,6 +208,10 @@ log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
 
+# Stage 174: Inventory Polish Browser QA
+
+Open `/qa/inventory-polish.html` with the dev server running. This memory-only fixture renders the production inventory grid and equipment panel with all five existing rarities, T3, a locked stack and empty slots. Check mouse/keyboard inspection, selected state after pointer exit, exactly one detail panel, long names and the unequip callback. On 2026-09-07, Playwright/Edge checks and screenshot inspection passed at 1280x900 and 430x900 with decoded assets and no horizontal overflow. No SQLite or native interaction was tested.
+
 # Stage 172.5: Combat Feedback Tauri/SQLite QA
 
 Stage 173.5 extension (2026-09-07): the same command and isolated database now run **79/79** checks (`database:58`, `runtime:21`). Production Hunt/Boss probes cover active target markers, completed scene cleanup, compact phase names/details, readable number size/background and reduced motion. The player database SHA-256 stayed unchanged. This was automated native WebView QA, without manual control clicks or new mobile screenshots.
