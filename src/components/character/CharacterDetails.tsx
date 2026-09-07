@@ -133,6 +133,7 @@ export function CharacterDetails({
               character={character}
               avatar={activeCosmetics.avatar}
               fallbackSymbol={activeCosmetics.avatar?.previewValue}
+              showLoadout
               size="large"
             />
             <small>Level {character.level}</small>

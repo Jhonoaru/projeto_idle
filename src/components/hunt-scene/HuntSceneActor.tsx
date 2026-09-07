@@ -27,7 +27,7 @@ export function HuntSceneActor({ character, actionText, motionPhase, targetPosit
       style={motionStyle}
     >
       <span>{character.name}</span>
-      <CharacterSprite character={character} className="hunt-scene-character-core" size="scene" />
+      <CharacterSprite character={character} className="hunt-scene-character-core" showLoadout size="scene" />
       <div className="hunt-scene-hpbar">
         <i style={{ width: "86%" }} />
       </div>

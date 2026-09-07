@@ -300,7 +300,7 @@ export function BossScene({
                 style={motionStyle}
               >
                 <span className="boss-scene-party-core">
-                  <CharacterSprite character={member.character} size="scene" />
+                  <CharacterSprite character={member.character} showLoadout size="scene" />
                 </span>
                 <strong>{member.character.name}</strong>
                 <span>{member.role} / {formatPositioning(positioning)}</span>

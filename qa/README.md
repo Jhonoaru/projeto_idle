@@ -208,6 +208,21 @@ log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
 
+# Stage 175: Character Loadout Visuals
+
+Run `npm run dev`, then inspect Character Details and
+`http://127.0.0.1:1420/qa/hunt-motion.html`. The shared `CharacterSprite`
+renders the real weapon, offhand and armor sprites only where a detailed
+portrait is useful: Character Details, Hunt Scene and Boss Scene. Roster-scale
+portraits intentionally remain uncluttered. Each marker keeps its rarity edge
+and tier label, while missing sprites degrade to a short slot letter.
+
+Completed on 2026-09-07: the Character Details profile and Hunt Motion fixture
+were inspected in the browser. Arkon rendered Worn Sword, Wooden Shield and
+Leather Armor without obscuring the character sprite; Hunt Motion retained its
+**19/19** deterministic checks. This is visual browser QA only and does not
+write SQLite or alter a player save.
+
 # Stage 174.5: Inventory / Equipment Tauri/SQLite QA
 
 From the repository root, run:

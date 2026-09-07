@@ -2,6 +2,15 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 175 - Identidade visual de personagens e equipamentos equipados
+
+- `CharacterSprite` agora pode compor arma, offhand e armadura reais sobre o retrato, usando os sprites locais existentes, bordas por raridade e selo de tier quando aplicavel.
+- A composicao esta ativa na ficha detalhada do personagem, no ator da Hunt Scene e nos membros da party da Boss Scene. Listas compactas continuam limpas e nao recebem marcadores extras.
+- Cada retrato com loadout informa os itens equipados no rotulo acessivel. Se um sprite de item estiver indisponivel, um indicador textual ocupa o lugar sem esconder o personagem.
+- A composicao respeita outfit, mount e avatar existentes; nao altera atributos, equipamento salvo, economia, progressao ou regras de combate.
+- Inspecao no navegador confirmou a ficha de Arkon e a Hunt Scene com Worn Sword, Wooden Shield e Leather Armor. O fixture de movimento continuou com 19/19 checks deterministas aprovados.
+- Proximo passo proposto: Etapa 175.5 - QA integrada da identidade visual de loadout no Tauri/SQLite, cobrindo save/reload, raridade, tier e fallback de sprite.
+
 ## Etapa 174.5 - QA integrado de inventario e equipamentos no Tauri/SQLite
 
 - Um runner opt-in executou no Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1745_20260907.db`.

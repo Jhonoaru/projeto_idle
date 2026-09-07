@@ -6663,6 +6663,33 @@ p {
 
 .character-sprite-large .character-avatar-emblem { width: 32px; height: 32px; }
 
+.character-loadout-visual { position: absolute; z-index: 4; inset: 0; pointer-events: none; }
+.character-loadout-item {
+  position: absolute;
+  display: grid;
+  width: 28%;
+  aspect-ratio: 1;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #776840;
+  border-radius: 3px;
+  background: #101614;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.48);
+}
+.character-loadout-item img { width: 84%; height: 84%; object-fit: contain; image-rendering: pixelated; }
+.character-loadout-item b { color: #d9c27d; font-size: 0.58rem; font-style: normal; }
+.character-loadout-item em { position: absolute; right: 1px; bottom: 0; padding: 0 2px; background: #151310; color: #f2d88c; font-size: 0.44rem; font-style: normal; font-weight: 900; line-height: 1.15; }
+.character-loadout-item.loadout-weapon { left: 1%; bottom: 7%; }
+.character-loadout-item.loadout-offhand { right: 1%; bottom: 7%; }
+.character-loadout-item.loadout-armor { top: 3%; left: 3%; width: 22%; }
+.character-loadout-item.item-rarity-uncommon { border-color: #55a965; }
+.character-loadout-item.item-rarity-rare { border-color: #5599dc; }
+.character-loadout-item.item-rarity-epic { border-color: #b569d5; }
+.character-loadout-item.item-rarity-legendary { border-color: #e29d3a; box-shadow: 0 0 7px rgba(226, 157, 58, 0.54); }
+.character-sprite-small .character-loadout-item { display: none; }
+.character-sprite-large .character-loadout-item { min-width: 21px; }
+.character-sprite-scene .character-loadout-item { min-width: 26px; }
+
 .hunt-scene-character-core {
   position: relative;
   filter: drop-shadow(0 14px 10px rgba(0, 0, 0, 0.48));
