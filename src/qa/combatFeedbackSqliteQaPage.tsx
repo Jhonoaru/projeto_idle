@@ -34,13 +34,13 @@ function CombatFeedbackSqliteQaPage() {
   const character = sceneMode === "hunt" ? huntCharacters[vocationIndex] : bossCharacters[0];
 
   if (error) return <main className="combat-feedback-sqlite-qa"><h1>QA FAILED</h1><pre>{error}</pre></main>;
-  if (!result || !character) return <main className="combat-feedback-sqlite-qa"><h1>Running Stage 172.5 Tauri/SQLite QA...</h1></main>;
+  if (!result || !character) return <main className="combat-feedback-sqlite-qa"><h1>Running combat Tauri/SQLite QA...</h1></main>;
   const totalChecks = result.report.length + (runtimeReport?.length ?? 0);
 
   return (
     <main className="combat-feedback-sqlite-qa">
       <header>
-        <div><span>ISOLATED TAURI / SQLITE + WEBVIEW REPORT</span><h1>Stage 172.5 - Combat Feedback Integrated QA</h1><strong>{runtimeReport ? `${totalChecks}/${totalChecks} checks passed` : `${result.report.length}/${result.report.length} database checks passed / checking WebView`}</strong><p>Database: stage1725_20260906.db. The player save is not opened.</p></div>
+        <div><span>ISOLATED TAURI / SQLITE + WEBVIEW REPORT</span><h1>Stage 173.5 - Combat Polish Integrated QA</h1><strong>{runtimeReport ? `${totalChecks}/${totalChecks} checks passed` : `${result.report.length}/${result.report.length} database checks passed / checking WebView`}</strong><p>Database: stage1725_20260906.db. The player save is not opened.</p></div>
         <div className="combat-feedback-sqlite-controls">
           <button className={sceneMode === "hunt" ? "is-active" : ""} onClick={() => setSceneMode("hunt")} type="button">Hunt</button>
           <button className={sceneMode === "boss" ? "is-active" : ""} onClick={() => setSceneMode("boss")} type="button">Boss</button>
@@ -65,10 +65,14 @@ function CombatFeedbackSqliteQaPage() {
 }
 
 function FeedbackProbes({ result }: { result: Stage1725QaResult }) {
+  const completedParty = result.bossState.characters.map(withCompletedVisualState);
   const warden = result.huntState.characters.find((character) => character.vocation === "Warden")!;
   const bossActors = result.party.members.map((member) => ({ character: result.bossState.characters.find((character) => character.id === member.characterId)!, role: member.role }));
   return (
     <div aria-hidden="true" className="combat-feedback-sqlite-probes">
+      <div className="is-production-boss"><BossScene boss={stage1725Boss} character={result.bossState.characters[0]} characters={result.bossState.characters} party={result.party} onAbortBoss={noOp} onBossManualReaction={noOp} onCollectBoss={noOp} onOpenAction={noOp} /></div>
+      <div className="is-production-boss-completed"><BossScene boss={stage1725Boss} character={completedParty[0]} characters={completedParty} party={result.party} onAbortBoss={noOp} onBossManualReaction={noOp} onCollectBoss={noOp} onOpenAction={noOp} /></div>
+      <div className="is-production-hunt-completed"><HuntScene character={withCompletedVisualState(warden)} hunt={stage1725Hunt} onChangeBossDodgeBehavior={noOp} onChangeDefensiveResponsePriority={noOp} onCollectHunt={noOp} onOpenAction={noOp} onReturnToCity={noOp} onToggleCombatSkill={noOp} /></div>
       {result.huntState.characters.map((character) => <div className="is-vocation" data-vocation={character.vocation} key={character.id}><CombatFloatingFeedback actors={[{ character }]} elapsedMs={findCriticalElapsed([{ character }], "hunt")} mode="hunt" resolved={false} target={{ x: 96, y: 4 }} /></div>)}
       <div className="is-incoming"><CombatFloatingFeedback actors={[{ character: warden }]} elapsedMs={1_800} mode="hunt" resolved={false} target={{ x: 50, y: 50 }} /></div>
       <div className="is-healing"><CombatFloatingFeedback actors={[{ character: warden }]} elapsedMs={0} mode="hunt" resolved={false} target={{ x: 50, y: 50 }} /></div>
@@ -98,6 +102,18 @@ async function runRuntimeChecks() {
   check(numbers.length >= 10 && numbers.every((node) => Number(node.textContent?.replace(/\D/g, "")) > 0), "rendered feedback values are positive and readable");
   check(numbers.every((node) => { const x = Number.parseFloat(node.style.getPropertyValue("--feedback-x")); const y = Number.parseFloat(node.style.getPropertyValue("--feedback-y")); return x >= 4 && x <= 96 && y >= 4 && y <= 96; }), "rendered feedback coordinates remain bounded");
   check(numbers.some((node) => getComputedStyle(node).animationName !== "none"), "full-motion feedback animates in Tauri WebView");
+  check(scene?.querySelectorAll('[data-combat-target="active"]').length === 1, "active Hunt has exactly one marked target");
+  check(!scene?.querySelector('.is-spawning[data-combat-target], .is-defeated[data-combat-target]'), "spawning and defeated creatures are not marked");
+  const boss = document.querySelector(".is-production-boss");
+  check(boss?.querySelectorAll('[data-combat-target="active"]').length === 1, "production Boss Scene marks exactly one target");
+  for (const selector of [".is-production-boss-completed", ".is-production-hunt-completed"]) {
+    const completedScene = document.querySelector(selector);
+    check(Boolean(completedScene) && !completedScene?.querySelector('[data-combat-target="active"], .combat-floating-number'), `${selector}: completed production scene clears target and numbers`);
+  }
+  const compactDetails = [...boss!.querySelectorAll(".boss-phase-timeline.is-compact .boss-phase-pressure, .boss-phase-timeline.is-compact .boss-phase-ability")];
+  check(compactDetails.length > 0 && compactDetails.every((node) => getComputedStyle(node).display === "none"), "compact boss timeline hides verbose details");
+  check(boss!.querySelectorAll(".boss-phase-timeline article b").length === 3, "compact boss timeline retains all three phase names");
+  check(numbers.every((node) => parseFloat(getComputedStyle(node).fontSize) >= 16 && getComputedStyle(node).backgroundColor !== "rgba(0, 0, 0, 0)"), "numbers retain readable size and contrast background");
   document.documentElement.dataset.clientMotion = "reduced";
   await nextFrame();
   check(numbers.every((node) => getComputedStyle(node).animationName === "none"), "Reduce motion disables every floating-number animation");

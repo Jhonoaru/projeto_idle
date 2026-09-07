@@ -210,6 +210,8 @@ The automated 114-check suite was not rerun in this interactive continuation.
 
 # Stage 172.5: Combat Feedback Tauri/SQLite QA
 
+Stage 173.5 extension (2026-09-07): the same command and isolated database now run **79/79** checks (`database:58`, `runtime:21`). Production Hunt/Boss probes cover active target markers, completed scene cleanup, compact phase names/details, readable number size/background and reduced motion. The player database SHA-256 stayed unchanged. This was automated native WebView QA, without manual control clicks or new mobile screenshots.
+
 Run the isolated native fixture with:
 
 ```powershell

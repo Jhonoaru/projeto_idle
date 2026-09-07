@@ -1,6 +1,16 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-06
+Atualizado em: 2026-09-07
+
+## Etapa 173.5 - QA integrado do polimento de combate
+
+- Runner de combate existente ampliado e executado no Tauri com SQL Plugin real. Reutiliza somente o banco isolado `stage1725_20260906.db` e a tabela `stage1725_report`.
+- Rodada de 2026-09-07: 79/79 checks aprovados, sendo 58 de persistencia/engine e 21 de DOM/CSS no WebView.
+- Cenas de producao confirmaram um alvo ativo em Hunt/Boss e ausencia de marcacao em criaturas nascendo/derrotadas. Hunts e Bosses concluidos removeram marcacao e numeros.
+- Faixa compacta preservou os tres nomes de fase e ocultou detalhes extensos; numeros mantiveram fonte de pelo menos 16px, fundo de contraste e animacao desativada com movimento reduzido.
+- Save principal preservado com SHA-256 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A` antes/depois. Nenhuma regra de gameplay ou schema alterada.
+- `npm run build` aprovado com 497 modulos e aviso conhecido de chunk acima de 500 kB. QA nativo automatizado; nao houve clique manual nem nova rodada de screenshots mobile nesta etapa.
+- Proximo passo proposto: Etapa 174 - revisar consistencia visual de inventario e equipamentos com o combate atualizado.
 
 ## Etapa 173 - Polimento visual das cenas de combate
 
