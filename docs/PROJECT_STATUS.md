@@ -2,6 +2,18 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 174.5 - QA integrado de inventario e equipamentos no Tauri/SQLite
+
+- Um runner opt-in executou no Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1745_20260907.db`.
+- A rodada passou em 25/25 checks: 14 de persistencia e 11 executados no DOM do WebView Tauri.
+- A fixture usou seis itens reais, cobrindo as cinco raridades, Emberheart Amulet T3 e Rat Tail bloqueado em uma pilha de 9.999; tres itens tambem ficaram equipados.
+- Save/reload e as colunas brutas de `inventory_items` confirmaram quantidade, bloqueio, tier e os slots armor, offhand e weapon. A remocao do weapon e sua restauracao tambem persistiram corretamente.
+- No WebView, o InventoryGrid de producao expos identidade e quantidade por aria; foco abriu um unico painel de inspecao, selecao preservou o contorno e Remover atualizou o EquipmentPanel para slot vazio.
+- Guilda, depot e activity log foram comparados ao baseline e preservados. O banco isolado terminou com 90.112 bytes e gravou `stage1745_report` (`database:14`, `runtime:11`).
+- O save principal nao foi aberto: SHA-256 permaneceu `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A` antes e depois.
+- A QA nativa foi automatizada; nao houve clique manual nos controles da janela Tauri. Permanece o aviso conhecido do chunk JavaScript acima de 500 kB.
+- Proximo passo proposto: Etapa 175 - identidade visual de personagens e equipamentos equipados, levando silhuetas, armas e cores de raridade para a ficha e para o combate.
+
 ## Etapa 174 - Consistencia visual de inventario e equipamentos
 
 - Grade exibe nome em ate duas linhas e raridade textual com a cor existente. Selecao recebe contorno ciano separado da raridade; foco por teclado possui contorno tracejado.

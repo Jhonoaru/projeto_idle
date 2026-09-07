@@ -3921,6 +3921,14 @@ p {
 .inventory-polish-qa { height: 100vh; overflow: auto; padding: 16px; background: #0c1113; color: #ecece5; }
 .inventory-polish-qa h1 { font-size: 20px; }
 .inventory-polish-qa h2 { font-size: 16px; margin-top: 20px; }
+.inventory-sqlite-qa { min-height: 100vh; padding: 18px; overflow: auto; color: #e9dfbd; background: #090e0e; }
+.inventory-sqlite-qa > header { margin-bottom: 14px; padding: 14px; border: 1px solid #66562d; background: #111817; }
+.inventory-sqlite-qa h1 { margin: 4px 0; font-size: 22px; }
+.inventory-sqlite-qa h2 { margin: 18px 0 8px; font-size: 17px; }
+.inventory-sqlite-qa header p { margin: 4px 0 0; color: #9fa79d; }
+.inventory-sqlite-qa details { margin-top: 14px; padding: 10px; border: 1px solid #39423d; background: #0e1514; }
+.inventory-sqlite-qa pre { white-space: pre-wrap; }
+@media (max-width: 720px) { .inventory-sqlite-qa { padding: 8px; } }
 .inventory-grid-active-tooltip .item-tooltip { width: 100%; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .equipment-slot .equipment-slot-copy > strong { color: #f4f3e9; overflow-wrap: anywhere; }
 .inventory-grid .item-slot.is-empty .item-icon > strong { visibility: hidden; }
