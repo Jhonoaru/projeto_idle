@@ -1,6 +1,15 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-07
+Atualizado em: 2026-09-08
+
+## Etapa 177.5 - QA integrada do Bestiario no Tauri/SQLite
+
+- O runner opt-in usa somente `stage1775_20260908.db`, com migrations e repository reais. O save principal nao foi aberto e manteve o mesmo SHA-256 antes e depois da rodada.
+- A validacao percorre kills reais nos estagios Started, Revealed e Completed; confirma o limiar de revelacao da Cave Spider, claim unico de recompensa, compra de Scavenger e sua atribuicao ao Dragon Whelp.
+- Persistencia SQL foi conferida tanto pelo reload do repository quanto pelo JSON bruto em `guilds.bestiary_json`. Estado corrompido (kills negativo, pontos NaN e assignments invalidos) tambem normaliza sem quebrar o load.
+- A pagina WebView de producao confirmou os tres registros, dossie com drops reais e chance rara, sprites locais, Charm atribuido, classificacao do registro Started e ausencia de overflow. Resultado: 22/22 checks aprovados (14 SQL + 8 WebView).
+- Nenhum clique manual no app foi feito; a validacao foi automatizada dentro do WebView Tauri e por leitura do SQLite isolado.
+- Proximo passo proposto: Etapa 178 - painel visual de Charms, com leitura de bonus ativos na Hunt e no Bestiario.
 
 ## Etapa 177 - Bestiario visual de silhuetas, drops e progresso
 
