@@ -2,6 +2,15 @@
 
 Atualizado em: 2026-09-08
 
+## Etapa 178.5 - QA integrada de Charms em Hunt no Tauri/SQLite
+
+- O runner opt-in executou uma Hunt de Sewer Rats com Scavenger atribuido usando o SQL Plugin, migrations, repository, service e engine de Charm reais. Somente `stage1785_20260908.db` foi aberto.
+- A rodada compara o mesmo cenario deterministico com e sem Charm e confirmou que Scavenger aplica exatamente +5% ao valor de loot. O resultado final tambem preserva o log de bonus e a atribuicao do Charm apos resolver a Hunt.
+- O reload verificou acao ativa, resultado resolvido e `guilds.bestiary_json` antes da resolucao. O painel de producao Action Analyzer confirmou alvo, bonus e log no WebView Tauri.
+- Resultado: 16/16 checks aprovados (11 SQLite/engine + 5 WebView). O SHA-256 do save principal permaneceu identico antes e depois.
+- Nenhum clique manual no app foi feito; a validacao ocorreu no WebView Tauri e por leitura do SQLite isolado.
+- Proximo passo proposto: Etapa 179 - painel de recompensas de Hunt com comparativo de loot, supplies e Charms.
+
 ## Etapa 178 - Painel visual de Charms ativos
 
 - O Bestiario agora mostra um resumo de efeitos de campo da guilda: Charm, criatura vinculada e bonus total. O gabinete tambem deixa claro quando um Charm esta atribuido a outra criatura e oferece Move ao seleciona-la.
