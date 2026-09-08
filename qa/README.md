@@ -208,6 +208,27 @@ log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
 
+# Stage 175.5: Character Loadout Tauri/SQLite QA
+
+From the repository root, run:
+
+```powershell
+npm run tauri:dev -- --config "$PWD/qa/tauri.character-loadout.json"
+```
+
+The dedicated page runs `runStage1755Qa` against `stage1755_20260907.db` with
+production migrations, repository, `CharacterSprite` and `HuntSceneActor`.
+It persists a rare T2 weapon, uncommon T1 offhand and epic T3 armor, checks raw
+SQLite data and an unequip/re-equip cycle, then records WebView evidence in
+`stage1755_report`. The player database is never opened.
+
+Completed on 2026-09-07: **23/23** checks passed (`database:13`,
+`runtime:10`). Real loadout sprites, accessibility labels, rarity/tier markers,
+the Hunt Scene composition, missing-sprite fallback and overflow all passed.
+The player database retained SHA-256
+`E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
+WebView checks were automated; native controls were not manually clicked.
+
 # Stage 175: Character Loadout Visuals
 
 Run `npm run dev`, then inspect Character Details and

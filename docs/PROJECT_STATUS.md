@@ -2,6 +2,17 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 175.5 - QA integrada da identidade visual de loadout no Tauri/SQLite
+
+- Um runner opt-in executou no Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1755_20260907.db`.
+- A rodada passou em 23/23 checks: 13 de persistencia e 10 do DOM/WebView.
+- O fixture salvou e recarregou Cryptsteel Blade rara T2 +3, Brass Shield incomum T1 +2 e Dragonscale Armor epica T3 +4. As colunas brutas de `inventory_items` mantiveram slots, IDs, tiers e upgrades.
+- A remocao e a restauracao do offhand sobreviveram ao save/reload. Guilda, depot e activity log foram comparados ao baseline e preservados.
+- `CharacterSprite` confirmou os tres marcadores, rotulo acessivel, bordas de raridade e selos de tier. O `HuntSceneActor` de producao reutilizou a mesma composicao e os tres PNGs locais carregaram no WebView Tauri.
+- Um item com sprite ausente mostrou o marcador textual de weapon, sem quebrar ou esconder o retrato. A pagina nao apresentou overflow horizontal.
+- O save principal nao foi aberto: SHA-256 permaneceu `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A` antes e depois. QA nativa automatizada, sem cliques manuais.
+- Proximo passo proposto: Etapa 176 - identidade visual de criaturas, levando silhuetas, raridade e variantes de elite para Hunt e Boss Scene sem alterar o combate offline.
+
 ## Etapa 175 - Identidade visual de personagens e equipamentos equipados
 
 - `CharacterSprite` agora pode compor arma, offhand e armadura reais sobre o retrato, usando os sprites locais existentes, bordas por raridade e selo de tier quando aplicavel.

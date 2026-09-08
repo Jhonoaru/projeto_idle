@@ -3929,6 +3929,20 @@ p {
 .inventory-sqlite-qa details { margin-top: 14px; padding: 10px; border: 1px solid #39423d; background: #0e1514; }
 .inventory-sqlite-qa pre { white-space: pre-wrap; }
 @media (max-width: 720px) { .inventory-sqlite-qa { padding: 8px; } }
+.loadout-sqlite-qa { min-height: 100vh; padding: 18px; overflow: auto; color: #e9dfbd; background: #090e0e; }
+.loadout-sqlite-qa > header { margin-bottom: 14px; padding: 14px; border: 1px solid #66562d; background: #111817; }
+.loadout-sqlite-qa h1 { margin: 4px 0; font-size: 22px; }
+.loadout-sqlite-qa h2 { margin: 0; color: #dec47f; font-size: 14px; text-transform: uppercase; }
+.loadout-sqlite-qa > header p { margin: 4px 0 0; color: #9fa79d; }
+.loadout-sqlite-qa > section { margin-bottom: 12px; padding: 12px; border: 1px solid #39423d; background: #0e1514; }
+.loadout-qa-profile { display: grid; gap: 10px; justify-items: center; }
+.loadout-qa-profile .character-sprite { width: 132px; height: 132px; background: #141c18; }
+.loadout-qa-hunt > div { position: relative; min-height: 260px; overflow: hidden; border: 1px solid #54482c; background: #17211c; }
+.loadout-qa-fallback { display: grid; gap: 10px; justify-items: center; }
+.loadout-qa-fallback .character-sprite { width: 132px; height: 132px; background: #141c18; }
+.loadout-sqlite-qa details { padding: 10px; border: 1px solid #39423d; background: #0e1514; }
+.loadout-sqlite-qa pre { white-space: pre-wrap; }
+@media (max-width: 720px) { .loadout-sqlite-qa { padding: 8px; } .loadout-qa-hunt > div { min-height: 340px; } }
 .inventory-grid-active-tooltip .item-tooltip { width: 100%; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .equipment-slot .equipment-slot-copy > strong { color: #f4f3e9; overflow-wrap: anywhere; }
 .inventory-grid .item-slot.is-empty .item-icon > strong { visibility: hidden; }
