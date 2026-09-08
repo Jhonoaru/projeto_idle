@@ -2,6 +2,14 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 177 - Bestiario visual de silhuetas, drops e progresso
+
+- O dossie de criatura agora exibe loot real apos a revelacao, com icones locais, chance e faixa de quantidade. Registros em progresso mantem drops, XP e gold classificados ate atingir a meta de kills.
+- Cards de criaturas ganharam brilho discreto para estagios Revealed e Completed. O dossie continua mostrando a silhueta, kills, recompensa de charms, XP e gold quando conhecidos.
+- Fixture em memoria `qa/bestiary-visual.html` cobre tres registros reais nos estagios Started, Revealed e Completed; os seis checks renderizam sprites, progresso, drops, chance rara e ausencia de overflow.
+- Inspecao no navegador confirmou o dossie completo de Dragon Whelp e a classificacao do Sewer Rat antes da revelacao. Nenhum dado de progresso, charms, save ou economia foi alterado.
+- Proximo passo proposto: Etapa 177.5 - QA integrada do Bestiario no Tauri/SQLite, incluindo persistencia de kills, recompensa, charms e revelacao de drops.
+
 ## Etapa 176.5 - QA visual responsiva de criaturas e Boss
 
 - Hunt Motion e Boss Motion foram inspecionados no navegador com os componentes de producao e mantiveram, respectivamente, 19/19 e 22/22 checks deterministas.

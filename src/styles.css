@@ -12721,6 +12721,22 @@ html[data-client-motion="reduced"] .hunt-creature-token {
 .bestiary-dossier-stats { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .bestiary-dossier-stats > div { min-height: 54px !important; padding: 8px !important; border: 1px solid #303832 !important; background: #151a17 !important; }
 .bestiary-dossier-stats strong { font-size: 0.78rem; }
+.bestiary-card.bestiary-stage-completed .bestiary-card-sigil { filter: drop-shadow(0 0 5px rgba(224, 190, 98, 0.5)); }
+.bestiary-card.bestiary-stage-revealed .bestiary-card-sigil { filter: drop-shadow(0 0 4px rgba(116, 183, 147, 0.38)); }
+.bestiary-dossier-loot { padding: 10px !important; border: 1px solid #343b36 !important; background: #151a17 !important; }
+.bestiary-dossier-loot > header { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.bestiary-dossier-loot > header strong { color: #e1c77e; font-size: 0.7rem; }
+.bestiary-dossier-loot > p { margin: 9px 0 0; color: #919a91; font-size: 0.72rem; line-height: 1.4; }
+.bestiary-loot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 9px; }
+.bestiary-loot-grid article { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 6px; align-items: center; min-width: 0; padding: 5px; border: 1px solid #303832; background: #101512; }
+.bestiary-loot-grid .item-icon { width: 30px; height: 30px; }
+.bestiary-loot-grid strong, .bestiary-loot-grid small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bestiary-loot-grid strong { color: #dbd5bf; font-size: 0.68rem; }
+.bestiary-loot-grid small { margin-top: 2px; color: #98a48e; font-size: 0.6rem; }
+.bestiary-visual-qa { min-height: 100vh; padding: 12px; color: #e4ddc5; background: #080c0a; }
+.bestiary-visual-qa > header { margin-bottom: 12px; padding: 12px; border: 1px solid #665733; background: #111713; }
+.bestiary-visual-qa > header h1 { margin: 4px 0; font-size: 1.25rem; }
+.bestiary-visual-qa > header p { margin: 0; color: #9aa497; font-size: 0.72rem; }
 .bestiary-claim-notice { margin-top: 9px; padding: 8px; border: 1px solid #8c743e; color: #dfc67f; background: #1b1c15; text-align: center; }
 
 .charm-panel { display: grid; gap: 6px; max-height: 560px; overflow-y: auto; }
@@ -12820,7 +12836,8 @@ html[data-client-motion="reduced"] .hunt-creature-token {
   .research-hall-summary,
   .research-hall-tabs,
   .monster-focus-bonus-grid,
-  .bestiary-dossier-stats { grid-template-columns: 1fr; }
+  .bestiary-dossier-stats,
+  .bestiary-loot-grid { grid-template-columns: 1fr; }
   .bestiary-stage-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .charm-card { grid-template-columns: 38px minmax(0, 1fr); }
   .charm-card button { grid-column: 1 / -1; }

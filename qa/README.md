@@ -208,6 +208,19 @@ log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
 
+# Stage 177: Bestiary Visual QA
+
+Run `npm run dev`, then open `http://127.0.0.1:1420/qa/bestiary-visual.html`.
+The memory-only fixture renders the production Bestiary with real Sewer Rat,
+Cave Spider and Dragon Whelp progress at Started, Revealed and Completed.
+It verifies sprites, stage selection, real loot entries, rare-drop chance text
+and horizontal overflow. Select Sewer Rat to confirm that its drops remain
+classified until the reveal threshold.
+
+Completed on 2026-09-08: **6/6** component checks passed. Browser inspection
+confirmed Dragon Whelp loot records and the classified Sewer Rat dossier. This
+fixture does not open SQLite or mutate a player save.
+
 # Stage 176.5: Creature and Boss Responsive Visual QA
 
 Run `npm run dev`, then inspect `/qa/hunt-motion.html` and

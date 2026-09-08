@@ -31,7 +31,8 @@ export function BestiaryMonsterCard({
 
   return (
     <div
-      className={`bestiary-card${isSelected ? " is-selected" : ""}`}
+      className={`bestiary-card bestiary-stage-${progress.stage}${isSelected ? " is-selected" : ""}`}
+      aria-current={isSelected ? "true" : undefined}
       onClick={onSelect}
       role="button"
       tabIndex={0}
