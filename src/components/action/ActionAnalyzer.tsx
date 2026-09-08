@@ -7,6 +7,7 @@ import { calculateDestinyBonuses } from "../../game-engine/destiny/calculateDest
 import { calculateSupplyUsage } from "../../game-engine/supplies/calculateSupplyUsage";
 import { calculateTrainingGain } from "../../game-engine/progression/calculateTrainingGain";
 import { getItemById } from "../../data/items";
+import { CharmStatusSummary } from "../bestiary/CharmStatusSummary";
 import { SKILL_LABELS } from "../../shared/constants";
 import { formatDuration, getClockElapsedMs, getClockRemainingMs } from "../../shared/time";
 import type { Boss, BossParty, Character, GuildBestiaryState, HuntArea, Quest } from "../../shared/types";
@@ -237,15 +238,22 @@ export function ActionAnalyzer({
     );
   }
 
+  const activeHunt = action.type === "hunting"
+    ? hunts.find((candidate) => candidate.id === action.targetId)
+    : undefined;
+
   return (
-    <div className="action-analyzer">
-      {rows.map(([label, value]) => (
-        <div key={label}>
-          <span>{label}</span>
-          <strong>{value}</strong>
-        </div>
-      ))}
-    </div>
+    <>
+      <div className="action-analyzer">
+        {rows.map(([label, value]) => (
+          <div key={label}>
+            <span>{label}</span>
+            <strong>{value}</strong>
+          </div>
+        ))}
+      </div>
+      {activeHunt ? <CharmStatusSummary bestiary={bestiary} hunt={activeHunt} /> : null}
+    </>
   );
 }
 

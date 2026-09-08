@@ -2,6 +2,15 @@
 
 Atualizado em: 2026-09-08
 
+## Etapa 178 - Painel visual de Charms ativos
+
+- O Bestiario agora mostra um resumo de efeitos de campo da guilda: Charm, criatura vinculada e bonus total. O gabinete tambem deixa claro quando um Charm esta atribuido a outra criatura e oferece Move ao seleciona-la.
+- Uma Hunt em andamento exibe os Charms que realmente atingem suas criaturas, com o efeito proporcional aplicado pelo engine e a mesma mensagem de calculo usada no resultado da simulacao.
+- Nenhum multiplicador, regra de unlock, atribuicao ou simulacao foi alterado. A etapa apenas torna o estado e os bonus ja existentes legiveis no fluxo de jogo.
+- A fixture `qa/charm-visual.html` foi inspecionada no navegador com 7/7 checks: resumo global, resumo da Hunt, alvo, bonus de loot, multiplicador de producao, estado atribuido e ausencia de overflow.
+- Build web aprovado. QA manual dentro de uma Hunt real e QA SQLite adicional nao foram executados nesta etapa, pois persistencia e fluxo de Charm ja foram cobertos na Etapa 177.5.
+- Proximo passo proposto: Etapa 178.5 - QA integrada de Charms em uma Hunt no Tauri/SQLite.
+
 ## Etapa 177.5 - QA integrada do Bestiario no Tauri/SQLite
 
 - O runner opt-in usa somente `stage1775_20260908.db`, com migrations e repository reais. O save principal nao foi aberto e manteve o mesmo SHA-256 antes e depois da rodada.

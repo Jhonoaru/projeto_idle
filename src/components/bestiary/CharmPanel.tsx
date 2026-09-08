@@ -1,4 +1,5 @@
 import { charms } from "../../data/charms";
+import { monsters } from "../../data/monsters";
 import { CharmCard } from "./CharmCard";
 import type { GuildBestiaryState, MonsterBestiaryProgress } from "../../shared/types";
 
@@ -17,6 +18,7 @@ export function CharmPanel({
   onAssignCharm,
   onRemoveCharm,
 }: CharmPanelProps) {
+  const monsterList = Object.values(monsters);
   return (
     <div className="charm-panel">
       {charms.map((charm) => {
@@ -24,7 +26,10 @@ export function CharmPanel({
         const selectedAssignment = bestiary.activeCharms.find(
           (assignment) => assignment.monsterId === selectedProgress?.monsterId,
         );
+        const charmAssignment = bestiary.activeCharms.find((assignment) => assignment.charmId === charm.id);
         const isAssignedToSelected = selectedAssignment?.charmId === charm.id;
+        const isAssignedElsewhere = Boolean(charmAssignment && !isAssignedToSelected);
+        const assignedMonsterName = monsterList.find((monster) => monster.id === charmAssignment?.monsterId)?.name;
         const canAssign = Boolean(
           selectedProgress &&
             selectedProgress.stage === "completed" &&
@@ -35,8 +40,10 @@ export function CharmPanel({
         return (
           <CharmCard
             canAssign={canAssign}
+            assignedMonsterName={assignedMonsterName}
             canUnlock={!isUnlocked && bestiary.charmPoints >= charm.unlockCost}
             charm={charm}
+            isAssignedElsewhere={isAssignedElsewhere}
             isAssignedToSelected={isAssignedToSelected}
             isUnlocked={isUnlocked}
             key={charm.id}

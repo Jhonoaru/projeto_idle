@@ -6,6 +6,8 @@ interface CharmCardProps {
   isAssignedToSelected: boolean;
   canUnlock: boolean;
   canAssign: boolean;
+  assignedMonsterName?: string;
+  isAssignedElsewhere: boolean;
   selectedMonsterName?: string;
   onUnlock: () => void;
   onAssign: () => void;
@@ -18,6 +20,8 @@ export function CharmCard({
   isAssignedToSelected,
   canUnlock,
   canAssign,
+  assignedMonsterName,
+  isAssignedElsewhere,
   selectedMonsterName,
   onUnlock,
   onAssign,
@@ -27,13 +31,13 @@ export function CharmCard({
   const sigil = charm.type === "defense" ? "DF" : charm.type === "supply" ? "SP" : charm.type.slice(0, 2).toUpperCase();
 
   return (
-    <div className={`charm-card ${isUnlocked ? "is-unlocked" : "is-locked"} ${isAssignedToSelected ? "is-assigned" : ""}`.trim()}>
+    <div className={`charm-card ${isUnlocked ? "is-unlocked" : "is-locked"} ${isAssignedToSelected ? "is-assigned" : ""} ${isAssignedElsewhere ? "is-linked" : ""}`.trim()}>
       <span className={`charm-card-sigil is-${charm.type}`}>{sigil}</span>
       <div>
         <span>{charm.type}</span>
         <strong>{charm.name}</strong>
         <p>{charm.description}</p>
-        <em>{isAssignedToSelected ? `Assigned to ${selectedMonsterName}` : isUnlocked ? "Unlocked" : `${charm.unlockCost} charm points`}</em>
+        <em>{isAssignedToSelected ? `Assigned to ${selectedMonsterName}` : isAssignedElsewhere ? `Assigned to ${assignedMonsterName}` : isUnlocked ? "Unlocked" : `${charm.unlockCost} charm points`}</em>
       </div>
       {!isUnlocked ? (
         <button disabled={!canUnlock} onClick={onUnlock} type="button">Unlock</button>
@@ -41,7 +45,7 @@ export function CharmCard({
         <button onClick={onRemove} type="button">Remove</button>
       ) : (
         <button disabled={!canAssign} onClick={onAssign} type="button">
-          {assignLabel}
+          {isAssignedElsewhere ? "Move" : assignLabel}
         </button>
       )}
     </div>

@@ -5,6 +5,7 @@ import type { BestiaryStage, Character, Guild } from "../../shared/types";
 import { BestiaryDetails } from "./BestiaryDetails";
 import { BestiaryMonsterCard } from "./BestiaryMonsterCard";
 import { CharmPanel } from "./CharmPanel";
+import { CharmStatusSummary } from "./CharmStatusSummary";
 
 interface BestiaryPanelProps {
   character: Character;
@@ -115,6 +116,7 @@ export function BestiaryPanel({
 
         <section className="bestiary-charms">
           <ResearchHeading eyebrow="Guild charms" title="Charm Cabinet" value={`${bestiary.unlockedCharmIds.length} unlocked`} />
+          <CharmStatusSummary bestiary={bestiary} />
           <CharmPanel
             bestiary={bestiary}
             onAssignCharm={onAssignCharm}

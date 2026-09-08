@@ -12753,6 +12753,7 @@ html[data-client-motion="reduced"] .hunt-creature-token {
 
 .charm-card.is-unlocked { border-color: #596847; }
 .charm-card.is-assigned { border-color: #aa914e; box-shadow: inset 3px 0 0 #aa914e; }
+.charm-card.is-linked { border-color: #647553; }
 .charm-card-sigil { width: 40px; height: 40px; font-size: 0.72rem; }
 .charm-card-sigil.is-gold { color: #d8b85b; }
 .charm-card-sigil.is-defense { color: #79a6b0; }
@@ -12760,6 +12761,31 @@ html[data-client-motion="reduced"] .hunt-creature-token {
 .charm-card p { margin-top: 3px; font-size: 0.68rem; }
 .charm-card em { font-size: 0.66rem; }
 .charm-card button { min-height: 30px; border-radius: 3px; font-size: 0.66rem; }
+
+.charm-status-summary {
+  display: grid;
+  gap: 7px;
+  padding: 9px;
+  border: 1px solid #3d4737;
+  background: #121713;
+}
+.charm-status-summary > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.charm-status-summary > header span { display: block; color: #94a48a; font-size: 0.62rem; text-transform: uppercase; }
+.charm-status-summary > header strong { color: #ead28a; font-size: 0.78rem; }
+.charm-status-summary > header > b { color: #b9ca8d; font-size: 0.68rem; white-space: nowrap; }
+.charm-status-summary > p { margin: 0; color: #919d90; font-size: 0.7rem; }
+.charm-status-list { display: grid; gap: 5px; }
+.charm-status-list article { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 7px; padding: 5px; border: 1px solid #303b30; background: #171c18; }
+.charm-status-sigil { display: grid; width: 26px; height: 26px; place-items: center; border: 1px solid #687959; background: #252d21; color: #d4e3a6; font-size: 0.57rem; font-weight: 800; }
+.charm-status-sigil.is-gold { border-color: #947946; color: #e4c778; }
+.charm-status-sigil.is-defense { border-color: #547b83; color: #9fcbd2; }
+.charm-status-sigil.is-supply { border-color: #668c62; color: #b4d69e; }
+.charm-status-list strong, .charm-status-list small { display: block; }
+.charm-status-list strong { color: #e7d3a0; font-size: 0.7rem; }
+.charm-status-list small { color: #929e90; font-size: 0.62rem; }
+.charm-status-list b { color: #c0d58e; font-size: 0.66rem; white-space: nowrap; }
+.charm-status-summary > footer { padding-top: 6px; border-top: 1px solid #303b30; color: #9eac91; font-size: 0.64rem; line-height: 1.35; }
+.action-analyzer + .charm-status-summary { margin-top: 8px; }
 
 .research-empty-state { display: grid; gap: 5px; min-height: 90px; place-content: center; padding: 12px; border: 1px dashed #384038; color: #8e9890; text-align: center; }
 .research-empty-state strong { color: #d8ccaa; }
