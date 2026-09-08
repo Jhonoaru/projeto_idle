@@ -208,6 +208,20 @@ log entries, and unchanged 420 gold. The player database SHA-256 remained
 `E8F7C93A7131E629DCB01D5A212F057F08E955126F7FC03B44D2AB1992AD764A`.
 The automated 114-check suite was not rerun in this interactive continuation.
 
+# Stage 176.5: Creature and Boss Responsive Visual QA
+
+Run `npm run dev`, then inspect `/qa/hunt-motion.html` and
+`/qa/boss-motion.html`. Hunt Motion covers local creature art, active targets,
+spawn and defeated motion precedence. Boss Motion covers the local boss sprite,
+party composition and arena motion. At widths up to 760px, each Hunt creature
+must become a compact 96px row: sprite on the left, name and level on the right,
+and a full-width health or spawn bar below the text.
+
+Completed on 2026-09-07: desktop browser inspection passed with Hunt Motion
+at **19/19** and Boss Motion at **22/22** deterministic checks. The responsive
+CSS cascade was reviewed after the mobile row correction. A browser screenshot
+at an actual mobile viewport was not produced in this run.
+
 # Stage 175.5: Character Loadout Tauri/SQLite QA
 
 From the repository root, run:

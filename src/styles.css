@@ -17406,6 +17406,22 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
 .hunt-scene-creature.is-spawning .hunt-scene-hpbar { display: none; }
 .hunt-scene-creature[data-combat-target="active"]::after { inset: 2px auto auto 22px; width: 92px; height: 92px; }
 .boss-scene-boss-actor .boss-sprite > img { filter: drop-shadow(0 5px 3px #000); }
+@media (max-width: 760px) {
+  .hunt-scene-creature {
+    grid-template-columns: 88px minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 6px;
+    justify-items: start;
+    width: 100%;
+    min-height: 96px;
+    padding: 4px 8px;
+    text-align: left;
+  }
+  .hunt-scene-creature .hunt-creature-token.creature-sprite { grid-row: 1 / -1; grid-column: 1; }
+  .hunt-scene-creature > div:not(.hunt-scene-hpbar):not(.hunt-scene-spawnbar) { align-self: center; width: 100%; }
+  .hunt-scene-creature .hunt-scene-hpbar,
+  .hunt-scene-creature .hunt-scene-spawnbar { grid-column: 2; grid-row: 2; width: 100%; }
+  .hunt-scene-creature[data-combat-target="active"]::after { inset: 2px auto auto 4px; }
+}
 .hunt-scene-creature strong,
 .boss-scene-boss-actor strong,
 .boss-scene-party-member strong {

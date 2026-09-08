@@ -2,6 +2,15 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 176.5 - QA visual responsiva de criaturas e Boss
+
+- Hunt Motion e Boss Motion foram inspecionados no navegador com os componentes de producao e mantiveram, respectivamente, 19/19 e 22/22 checks deterministas.
+- A Hunt confirmou sprites locais, alvo ativo, spawn com barra propria e barra de vida acessivel. A Boss Scene confirmou o sprite do boss, a arena e a party com loadout visual.
+- Foi corrigida a precedencia das regras mobile: em telas ate 760px cada criatura passa a usar uma linha de 96px, com sprite, nome e barra lado a lado. Isso impede que a largura fixa de desktop reduza ou empilhe a leitura da arena no mobile.
+- Estados de derrota e spawn continuam priorizados pela simulacao existente; nenhum dado de criatura, recompensa, risco ou combate foi alterado.
+- A inspecao automatizada do navegador ocorreu em desktop. O layout mobile foi validado pela cascata CSS e pelos limites responsivos; uma captura manual em viewport mobile continua pendente.
+- Proximo passo proposto: Etapa 177 - bestiario visual, conectando o atlas de criaturas a silhuetas, drops e progresso de caca.
+
 ## Etapa 176 - Silhuetas de criaturas na arena
 
 - Hunt agora renderiza os sprites locais em 88px sobre o cenario, com nome, nivel e barra compactos. A moldura de cartao foi removida e a marca de alvo envolve a silhueta.
