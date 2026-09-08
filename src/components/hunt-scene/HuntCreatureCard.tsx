@@ -37,7 +37,7 @@ export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
         className="hunt-creature-token"
         fallbackSymbol={meta.symbol}
         monster={creature.monster}
-        size="small"
+        size="large"
       />
       <div>
         <strong>{creature.monster.name}</strong>
@@ -52,7 +52,7 @@ export function HuntCreatureCard({ creature, active }: HuntCreatureCardProps) {
           <i style={{ width: `${Math.round(creature.spawnProgress * 100)}%` }} />
         </div>
       ) : null}
-      <div className="hunt-scene-hpbar">
+      <div className="hunt-scene-hpbar" aria-label={`Health ${Math.round(creature.hpPercent)}%`}>
         <i style={{ width: `${creature.hpPercent}%` }} />
       </div>
     </article>

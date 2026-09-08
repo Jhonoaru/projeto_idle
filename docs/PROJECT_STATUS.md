@@ -2,6 +2,16 @@
 
 Atualizado em: 2026-09-07
 
+## Etapa 176 - Silhuetas de criaturas na arena
+
+- Hunt agora renderiza os sprites locais em 88px sobre o cenario, com nome, nivel e barra compactos. A moldura de cartao foi removida e a marca de alvo envolve a silhueta.
+- Nascimento mostra apenas a barra de spawn; vida possui rotulo acessivel. Movimento, derrota e selecao continuam derivados do estado existente.
+- Sprites de Hunt e Boss receberam sombra de contraste sobre o cenario.
+- Build web aprovado. Inspecao visual da Hunt em navegador desktop e fixture de movimento com 19/19 checks aprovados. Nao houve QA SQLite, inspecao mobile ou rodada interativa de Boss nesta etapa.
+- Raridade e variantes elite de criaturas nao existem no modelo atual e nao foram inventadas como indicadores visuais.
+- Empacotamento Tauri aprovado, com MSI e NSIS gerados; permanece o aviso conhecido de chunk acima de 500 kB.
+- Proximo passo: Etapa 176.5 - QA visual responsiva de criaturas, cobrindo nomes longos, spawn, derrota e Boss.
+
 ## Etapa 175.5 - QA integrada da identidade visual de loadout no Tauri/SQLite
 
 - Um runner opt-in executou no Tauri com SQL Plugin, migrations e repository reais, usando somente `stage1755_20260907.db`.

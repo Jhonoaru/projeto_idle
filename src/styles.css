@@ -17368,7 +17368,44 @@ html[data-client-motion="reduced"] .combat-skill-rotation-entry > i { animation:
   border: 2px solid #a3e6ef;
   clip-path: polygon(0 0, 16px 0, 16px 3px, 3px 3px, 3px 16px, 0 16px, 0 0, 100% 0, 100% 16px, calc(100% - 3px) 16px, calc(100% - 3px) 3px, calc(100% - 16px) 3px, calc(100% - 16px) 0, 100% 0, 100% 100%, calc(100% - 16px) 100%, calc(100% - 16px) calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) calc(100% - 16px), 100% calc(100% - 16px), 100% 100%, 0 100%, 0 calc(100% - 16px), 3px calc(100% - 16px), 3px calc(100% - 3px), 16px calc(100% - 3px), 16px 100%, 0 100%);
 }
-.hunt-scene-creature[data-combat-target="active"] { border-color: #a3e6ef; }
+.hunt-scene-creature[data-combat-target="active"] { border-color: transparent; }
+.hunt-scene-creature {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 88px 38px 6px;
+  justify-items: center;
+  align-content: start;
+  gap: 3px;
+  width: 136px;
+  min-height: 144px;
+  padding: 3px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+}
+.hunt-scene-creature.is-active { border: 0; box-shadow: none; }
+.hunt-scene-creature .hunt-creature-token.creature-sprite {
+  width: 88px;
+  height: 88px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.hunt-creature-token > img { filter: drop-shadow(0 3px 2px #000); }
+.hunt-scene-creature > div:not(.hunt-scene-hpbar):not(.hunt-scene-spawnbar) {
+  width: 100%;
+  min-width: 0;
+  padding: 1px 3px;
+  background: rgba(8, 13, 12, 0.82);
+}
+.hunt-scene-creature strong { white-space: normal; overflow-wrap: anywhere; font-size: 12px; line-height: 14px; }
+.hunt-scene-creature .hunt-scene-hpbar,
+.hunt-scene-creature .hunt-scene-spawnbar { width: 88px; }
+.hunt-scene-creature.is-spawning .hunt-scene-hpbar { display: none; }
+.hunt-scene-creature[data-combat-target="active"]::after { inset: 2px auto auto 22px; width: 92px; height: 92px; }
+.boss-scene-boss-actor .boss-sprite > img { filter: drop-shadow(0 5px 3px #000); }
 .hunt-scene-creature strong,
 .boss-scene-boss-actor strong,
 .boss-scene-party-member strong {
