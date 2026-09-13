@@ -18,8 +18,10 @@ Rodada de persistencia/offline (2026-09-13): gravacao agora usa uma transacao SQ
 
 Testes Node adicionais aprovados: horario legado atravessando meia-noite, rejeicao de horarios malformados, 72h offline com Hunt/treino/quest/boss, repeticao do catch-up sem duplicar relatorios nem conceder recompensas. Isso nao substitui encerrar o processo durante escrita nem uma sessao manual longa.
 
-- [ ] Saves antigos: migracao e recuperacao com backups representativos, inclusive datas HH:mm, inventario parcial e JSON invalido. Nenhum save pessoal foi migrado nesta revisao.
-- [ ] Persistencia sob falha: rollback e fila verificados; falta encerramento forcado durante escrita e recuperacao apos queda do processo.
+- [x] Mapper com fixtures sinteticas legadas: JSON malformado, null, primitivos e objeto no lugar de lista recebem fallback; skills/inventario ausentes, item fora do catalogo e HH:mm verificados. Listas validas e gold preservados. Isso nao valida todos os campos internos de cada objeto.
+- [x] SQLite isolado sob queda real: processo Node encerrado apos DELETE/INSERT sem commit; reabertura preserva estado anterior, integrity_check OK e nova gravacao persiste. Banco temporario removido ao terminar.
+- [ ] Saves antigos: migracao e recuperacao com backups representativos ainda pendentes. Fixtures sinteticas testam o mapper, nao a cadeia completa de migrations. Nenhum save pessoal foi migrado nesta revisao.
+- [ ] Persistencia sob falha: rollback, fila e queda do SQLite isolado verificados; falta encerramento forcado do cliente Tauri completo durante escrita.
 - [ ] Sessao offline longa: virada de dia, 24h+, multiplos personagens e reconexao ao cliente; nenhuma recompensa duplicada.
 - [ ] Fluxos interativos: clicar coleta/cancelamento/retorno a cidade em Hunt, treino, quest e boss; spam de clique e troca de personagem durante a acao.
 - [ ] Economia completa: NPC, Bazaar, forge, supplies, death penalty, treasury, upgrades e combinacoes de loot bonus de Destiny/Focus/Charms.
@@ -32,6 +34,8 @@ Testes Node adicionais aprovados: horario legado atravessando meia-noite, rejeic
 ## Comandos de reproducao
 
 `node qa/audit-regressions.mjs`
+
+`node qa/sqlite-crash-recovery.mjs`
 
 `cargo test --manifest-path src-tauri/Cargo.toml --lib`
 

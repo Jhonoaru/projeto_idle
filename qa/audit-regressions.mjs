@@ -22,7 +22,47 @@ registerHooks({
   },
 });
 
+const { mapGuild, mapCharacter, mapInventoryItem } = await import('../src/database/saveMapper.ts');
+const legacyGuildRow = { id: 'legacy-audit', name: 'Legacy', gold: 123, renown: 0, rank: 'Recruit', level: 1 };
+for (const invalid of ['{broken', 'null', '{}', '42', '"text"']) {
+  assert.deepEqual(mapGuild({ ...legacyGuildRow, hunt_presets_json: invalid }).huntPresets, [], `invalid list: ${invalid}`);
+}
+const legacyItemRow = { id: 'legacy-item', item_id: 'removed-catalog-item', quantity: 2, locked: 1,
+  location: 'inventory', character_id: 'legacy-hero', parent_container_id: null };
+for (const invalid of ['{broken', 'null', '{}', '42']) {
+  const item = mapInventoryItem({ ...legacyItemRow, imbuements_json: invalid });
+  assert.deepEqual(item.imbuements, []);
+  assert.equal(item.item.value, 0);
+  assert.equal(item.quantity, 2);
+  assert.equal(item.locked, true);
+}
+
 const { mockCharacters } = await import('../src/data/mockCharacters.ts');
+const sourceHero = mockCharacters[0];
+const legacyCharacterRow = {
+  id: sourceHero.id, name: sourceHero.name, vocation: sourceHero.vocation, level: sourceHero.level,
+  experience: sourceHero.experience, experience_to_next_level: sourceHero.experienceToNextLevel,
+  status: 'idle', city: sourceHero.city, stamina_hours: 42, capacity_used: 0,
+  current_action_json: null, attributes_json: '{}', completed_quest_ids_json: 'null',
+  access_ids_json: '{}', quest_progress_json: '42', boss_cooldowns_json: '{broken',
+  blessings_json: 'null', created_at: '2020-01-01T00:00:00.000Z',
+};
+const recoveredHero = mapCharacter(legacyCharacterRow, [], [], mapGuild(legacyGuildRow));
+for (const key of ['completedQuestIds', 'accessIds', 'questProgress', 'bossCooldowns', 'blessings', 'inventory']) {
+  assert.deepEqual(recoveredHero[key], [], `recovered ${key}`);
+}
+assert.ok(Number.isFinite(recoveredHero.attributes.capacity));
+assert.ok(recoveredHero.skills.sword.level > 0);
+assert.equal(recoveredHero.currentAction, undefined);
+assert.equal(mapGuild(legacyGuildRow).gold, 123);
+const validHero = mapCharacter({ ...legacyCharacterRow,
+  completed_quest_ids_json: '["quest-old"]', access_ids_json: '["access-old"]',
+  current_action_json: JSON.stringify({ type: 'training', label: 'Sword', startedAt: '23:50', endsAt: '00:20', targetSkill: 'sword' }),
+}, [], [], mapGuild(legacyGuildRow));
+assert.deepEqual(validHero.completedQuestIds, ['quest-old']);
+assert.deepEqual(validHero.accessIds, ['access-old']);
+assert.equal(validHero.currentAction.endsAt, '00:20');
+console.log('PASS: synthetic legacy rows, missing skills/inventory, invalid JSON shapes, unknown item preserved without sale value');
 const { hunts } = await import('../src/data/hunts.ts');
 const { startHunt, finishHunt } = await import('../src/game-services/huntService.ts');
 const { startTraining } = await import('../src/game-services/trainingService.ts');

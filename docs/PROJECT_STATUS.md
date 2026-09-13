@@ -4,6 +4,9 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Terceira rodada de manutencao: saveMapper rejeita JSON null/primitivo e formatos incompativeis com listas/objetos de fallback. Regressao reproduziu null em huntPresets antes da correcao. Fixtures legadas verificam inventario/skills ausentes, item desconhecido, listas validas, gold e acao HH:mm.
+- Novo `qa/sqlite-crash-recovery.mjs`: queda real de processo Node durante transacao SQLite isolada, recuperacao do estado anterior, integrity_check e commit posterior aprovados. Nao equivale a encerrar o cliente Tauri; backups reais e QA manual continuam pendentes. Nenhum save pessoal aberto.
+
 - Segunda rodada: save atomico em transacao nativa usando o pool SQLite existente; snapshot copiado ao enfileirar e load serializado com save. Falha forcada apos exclusao das tabelas restaura integralmente o save anterior, e a fila continua funcionando.
 - Rust: teste de rollback e recuperacao aprovado. Tauri/SQLite: fixture ampliada para 19 verificacoes aprovadas. Node: 72h offline em quatro tipos de acao, catch-up repetido sem recompensa duplicada, relogio legado e rejeicao de horas invalidas.
 - Permanecem pendentes backups antigos representativos, queda real do processo durante escrita e QA manual longo. Nao foram apagados dados do jogador.

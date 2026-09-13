@@ -417,7 +417,11 @@ function getCatalogItem(itemId: string): Item {
 
 function parseJson<T>(value: string, fallback: T): T {
   try {
-    return JSON.parse(value) as T;
+    const parsed: unknown = JSON.parse(value);
+    if (parsed === null || typeof parsed !== "object") return fallback;
+    if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+    if (fallback && !Array.isArray(fallback) && Array.isArray(parsed)) return fallback;
+    return parsed as T;
   } catch {
     return fallback;
   }
