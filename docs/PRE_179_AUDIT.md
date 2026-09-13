@@ -14,8 +14,12 @@ Data: 2026-09-13. Esta e uma auditoria direcionada, nao uma certificacao de todo
 
 ## Ainda verificar antes de fechar a versao
 
+Rodada de persistencia/offline (2026-09-13): gravacao agora usa uma transacao SQLx na mesma conexao do pool do SQL Plugin, com rollback. A fila copia o estado solicitado e serializa loads junto com saves. Teste Rust de rollback e recuperacao aprovado; fixture Tauri ampliada para 19 checks, incluindo falha forcada depois dos deletes, recuperacao e snapshot imutavel. Save principal permaneceu intacto.
+
+Testes Node adicionais aprovados: horario legado atravessando meia-noite, rejeicao de horarios malformados, 72h offline com Hunt/treino/quest/boss, repeticao do catch-up sem duplicar relatorios nem conceder recompensas. Isso nao substitui encerrar o processo durante escrita nem uma sessao manual longa.
+
 - [ ] Saves antigos: migracao e recuperacao com backups representativos, inclusive datas HH:mm, inventario parcial e JSON invalido. Nenhum save pessoal foi migrado nesta revisao.
-- [ ] Persistencia sob falha: encerramento durante save, rollback, fila de saves e recuperacao apos queda do processo.
+- [ ] Persistencia sob falha: rollback e fila verificados; falta encerramento forcado durante escrita e recuperacao apos queda do processo.
 - [ ] Sessao offline longa: virada de dia, 24h+, multiplos personagens e reconexao ao cliente; nenhuma recompensa duplicada.
 - [ ] Fluxos interativos: clicar coleta/cancelamento/retorno a cidade em Hunt, treino, quest e boss; spam de clique e troca de personagem durante a acao.
 - [ ] Economia completa: NPC, Bazaar, forge, supplies, death penalty, treasury, upgrades e combinacoes de loot bonus de Destiny/Focus/Charms.
@@ -28,6 +32,8 @@ Data: 2026-09-13. Esta e uma auditoria direcionada, nao uma certificacao de todo
 ## Comandos de reproducao
 
 `node qa/audit-regressions.mjs`
+
+`cargo test --manifest-path src-tauri/Cargo.toml --lib`
 
 `npm run build`
 

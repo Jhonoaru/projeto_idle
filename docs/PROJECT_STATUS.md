@@ -4,6 +4,10 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Segunda rodada: save atomico em transacao nativa usando o pool SQLite existente; snapshot copiado ao enfileirar e load serializado com save. Falha forcada apos exclusao das tabelas restaura integralmente o save anterior, e a fila continua funcionando.
+- Rust: teste de rollback e recuperacao aprovado. Tauri/SQLite: fixture ampliada para 19 verificacoes aprovadas. Node: 72h offline em quatro tipos de acao, catch-up repetido sem recompensa duplicada, relogio legado e rejeicao de horas invalidas.
+- Permanecem pendentes backups antigos representativos, queda real do processo durante escrita e QA manual longo. Nao foram apagados dados do jogador.
+
 - Hunt e treino passam a gravar timestamps ISO completos, preservando data e segundos; removidos os dois formatadores legados. A leitura de horarios antigos permanece disponivel.
 - Coleta antecipada bloqueada nos comandos do App para Hunt, treino, quest e boss; controles do Action Panel desabilitados ate a conclusao. Removido o atalho visual Finalizar Simulacao da Hunt.
 - Corrigido bonus de valor de loot (Charms, Destiny e Focus): antes inflava apenas totalLootValue. Agora paga a diferenca em gold sobre loot aceito pela capacidade, incluido em goldGained/netProfit; os itens mantem preco de catalogo e nao pagam o bonus novamente no NPC. Campo opcional lootBonusGold identifica o pagamento no resultado.

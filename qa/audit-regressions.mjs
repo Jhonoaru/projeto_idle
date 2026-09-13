@@ -69,3 +69,24 @@ for (const [id, label] of [['charm-fortify', '-5% death risk'], ['charm-conserva
   assert.ok(renderToStaticMarkup(createElement(CharmStatusSummary, { bestiary: state, hunt: hunts[0] })).includes(label));
 }
 console.log('PASS: dated Hunt/training timers, next-day completion, real loot bonus, NPC sale reconciliation, full inventory, reduction labels');
+
+const { resolveActionEndsAt } = await import('../src/game-engine/offline/getActionCompletionStatus.ts');
+const { markExpiredActionsReady } = await import('../src/game-engine/offline/markExpiredActionsReady.ts');
+const anchor = new Date(2026, 8, 12, 23, 50);
+assert.equal(resolveActionEndsAt('00:20', anchor).getDate(), 13);
+for (const invalid of ['24:00', '12:60', '99:99', '12:00:99', ':', '12:00:00:10', 'invalid']) {
+  assert.equal(resolveActionEndsAt(invalid, anchor), undefined);
+}
+const offlineActors = ['hunting', 'training', 'questing', 'bossing'].map((type, index) => ({
+  ...structuredClone(started), id: `offline-${index}`, status: type,
+  currentAction: { ...started.currentAction, type, startedAt: anchor.toISOString(), endsAt: new Date(anchor.getTime() + 1800000).toISOString() },
+}));
+const originalRewards = offlineActors.map(({ experience, inventory }) => ({ experience, inventory }));
+const later = new Date(anchor.getTime() + 72 * 3600000);
+const firstCatchup = markExpiredActionsReady(offlineActors, later, anchor.toISOString());
+assert.equal(firstCatchup.reports.length, 4);
+assert.deepEqual(firstCatchup.characters.map(({ experience, inventory }) => ({ experience, inventory })), originalRewards);
+const repeatedCatchup = markExpiredActionsReady(firstCatchup.characters, later, anchor.toISOString());
+assert.equal(repeatedCatchup.reports.length, 0);
+assert.deepEqual(repeatedCatchup.characters, firstCatchup.characters);
+console.log('PASS: legacy midnight clock, malformed clocks, 72h offline across four actions, repeat catch-up idempotency');

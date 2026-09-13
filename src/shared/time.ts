@@ -64,12 +64,19 @@ function parseActionTimestamp(value: string, anchor: Date) {
     return Number.isFinite(timestamp.getTime()) ? timestamp : undefined;
   }
 
-  const parts = value.split(":").map(Number);
-  if (parts.length < 2 || parts.some((part) => !Number.isFinite(part))) return undefined;
+  const parts = parseActionClock(value);
+  if (!parts) return undefined;
 
   const [hours, minutes, seconds = 0] = parts;
   const date = new Date(anchor);
   date.setHours(hours, minutes, seconds, 0);
 
   return date;
+}
+
+export function parseActionClock(value: string) {
+  if (!/^\d{1,2}:\d{2}(?::\d{2})?$/.test(value)) return undefined;
+  const [hours, minutes, seconds = 0] = value.split(":").map(Number);
+  if (hours > 23 || minutes > 59 || seconds > 59) return undefined;
+  return [hours, minutes, seconds] as const;
 }

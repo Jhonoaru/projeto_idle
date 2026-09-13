@@ -1,4 +1,5 @@
 import type Database from "@tauri-apps/plugin-sql";
+import { invoke } from "@tauri-apps/api/core";
 import { normalizeBestiaryState } from "../game-engine/bestiary/getBestiaryProgress";
 import { normalizeCharacterCosmetics } from "../game-engine/collections/normalizeCharacterCosmetics";
 import { normalizeCombatSkillLoadout } from "../game-engine/combat-skills/normalizeCombatSkillLoadout";
@@ -77,7 +78,13 @@ export function createInitialGameState(): GameStateSnapshot {
   };
 }
 
-export async function loadGameState(db: Database): Promise<GameStateSnapshot | null> {
+export function loadGameState(db: Database): Promise<GameStateSnapshot | null> {
+  const operation = pendingSave.then(() => readGameState(db));
+  pendingSave = operation.then(() => undefined, () => undefined);
+  return operation;
+}
+
+async function readGameState(db: Database): Promise<GameStateSnapshot | null> {
   const guildRows = await db.select<GuildRow[]>("SELECT * FROM guilds LIMIT 1");
 
   if (guildRows.length === 0) {
@@ -174,7 +181,16 @@ export async function markOfflineCatchUpApplied(db: Database, now = new Date().t
 }
 
 export function saveGameState(db: Database, state: GameStateSnapshot) {
-  const saveOperation = pendingSave.then(() => persistGameState(db, state));
+  const snapshot = structuredClone(state);
+  const saveOperation = pendingSave.then(async () => {
+    const statements: { query: string; values: unknown[] }[] = [];
+    const writer = { execute: async (query: string, values: unknown[] = []) => {
+      statements.push({ query, values });
+      return { rowsAffected: 0, lastInsertId: 0 };
+    } } as Database;
+    await persistGameState(writer, snapshot);
+    await invoke("save_transaction", { db: db.path, statements });
+  });
   pendingSave = saveOperation.catch(() => undefined);
   return saveOperation;
 }

@@ -1,4 +1,5 @@
 import type { Character } from "../../shared/types";
+import { parseActionClock } from "../../shared/time";
 
 export type OfflineActionCompletionStatus =
   | "running"
@@ -34,16 +35,15 @@ export function getActionCompletionStatus(
 
 export function resolveActionEndsAt(endsAt: string | undefined, anchor: Date) {
   if (!endsAt) return undefined;
+  if (!Number.isFinite(anchor.getTime())) return undefined;
 
   const isoDate = new Date(endsAt);
   if (Number.isFinite(isoDate.getTime()) && endsAt.includes("T")) {
     return isoDate;
   }
 
-  const parts = endsAt.split(":").map(Number);
-  if (parts.length < 2 || parts.some((part) => !Number.isFinite(part))) {
-    return undefined;
-  }
+  const parts = parseActionClock(endsAt);
+  if (!parts) return undefined;
 
   const [hours, minutes, seconds = 0] = parts;
   const resolved = new Date(anchor);

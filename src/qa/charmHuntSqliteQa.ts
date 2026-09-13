@@ -56,6 +56,22 @@ async function runChecks(db: Database): Promise<Stage1785QaResult> {
   state.characters = state.characters.map((character) => character.id === activeCharacter.id ? activeCharacter : character);
   await saveGameState(db, state);
   state = requireState(await loadGameState(db), "active charmed hunt reload");
+  const beforeFailure = JSON.stringify(state);
+  await db.execute("CREATE TRIGGER audit_save_failure BEFORE INSERT ON characters BEGIN SELECT RAISE(ABORT, 'audit injected failure'); END");
+  let rejected = false;
+  try { await saveGameState(db, { ...state, guild: { ...state.guild, gold: state.guild.gold + 100 } }); }
+  catch { rejected = true; }
+  finally { await db.execute("DROP TRIGGER audit_save_failure"); }
+  check(rejected && JSON.stringify(await loadGameState(db)) === beforeFailure, "failed replacement rolls back the complete prior save");
+  await saveGameState(db, state);
+  check(JSON.stringify(await loadGameState(db)) === beforeFailure, "save queue recovers after transaction failure");
+  const mutable = structuredClone(state);
+  const snapshotGold = mutable.guild.gold;
+  const queued = saveGameState(db, mutable);
+  mutable.guild.gold += 999;
+  const queuedRead = loadGameState(db);
+  await queued;
+  check((await queuedRead)?.guild.gold === snapshotGold, "queued read sees committed snapshot despite caller mutation");
   const character = state.characters.find((entry) => entry.id === activeCharacter.id)!;
   check(character.status === "hunting" && character.currentAction?.targetId === stage1785Hunt.id, "active charmed Hunt survives SQL reload");
   const bonuses = calculateCharmBonusesForHunt(state.guild.bestiary, stage1785Hunt);
