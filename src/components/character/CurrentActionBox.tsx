@@ -94,8 +94,8 @@ export function CurrentActionBox({
 
       <div className="action-grid">
         {action.targetName ? <Detail label="Target" value={action.targetName} /> : null}
-        <Detail label="Started" value={action.startedAt} />
-        <Detail label="Ends" value={action.endsAt} />
+        <Detail label="Started" value={formatActionDate(action.startedAt)} />
+        <Detail label="Ends" value={formatActionDate(action.endsAt)} />
         <Detail label="Active" value={formatDuration(elapsedMs)} />
         <Detail label="Remaining" value={formatDuration(remainingMs)} />
         {isReadyToResolve ? <Detail label="Progress" value="100%" /> : null}
@@ -136,6 +136,14 @@ export function CurrentActionBox({
       ) : null}
     </div>
   );
+}
+
+function formatActionDate(value: string) {
+  if (!value.includes("T")) return value;
+  const date = new Date(value);
+  return Number.isFinite(date.getTime())
+    ? date.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" })
+    : "-";
 }
 
 function formatAutoRepeatMode(mode: string) {

@@ -1,6 +1,16 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-08
+Atualizado em: 2026-09-13
+
+## Revisao antes da Etapa 179
+
+- Hunt e treino passam a gravar timestamps ISO completos, preservando data e segundos; removidos os dois formatadores legados. A leitura de horarios antigos permanece disponivel.
+- Coleta antecipada bloqueada nos comandos do App para Hunt, treino, quest e boss; controles do Action Panel desabilitados ate a conclusao. Removido o atalho visual Finalizar Simulacao da Hunt.
+- Corrigido bonus de valor de loot (Charms, Destiny e Focus): antes inflava apenas totalLootValue. Agora paga a diferenca em gold sobre loot aceito pela capacidade, incluido em goldGained/netProfit; os itens mantem preco de catalogo e nao pagam o bonus novamente no NPC. Campo opcional lootBonusGold identifica o pagamento no resultado.
+- Charms exibem -% death risk e -% supplies, corrigindo os sinais e a descricao de safety. Removido import nao utilizado.
+- Regressao em Node usa services reais para conferir timers, conclusao no dia seguinte, controles bloqueados, gold liquido, venda NPC, inventario cheio e rotulos. Runner Tauri/SQLite da Etapa 178.5 atualizado e reexecutado: 11 verificacoes de banco/engine e 5 de WebView aprovadas.
+- A evidencia original da Etapa 178.5 validava o valor numerico do relatorio, mas nao o beneficio economico efetivo; esta revisao corrige essa lacuna. Nao ha compensacao retroativa automatica de Hunts antigas.
+- Checklist detalhada e pendencias: docs/PRE_179_AUDIT.md. Etapa 179 ainda nao iniciada.
 
 ## Etapa 178.5 - QA integrada de Charms em Hunt no Tauri/SQLite
 

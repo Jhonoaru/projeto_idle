@@ -1,4 +1,4 @@
-import { charms, getCharmById } from "../../data/charms";
+import { getCharmById } from "../../data/charms";
 import { monsters } from "../../data/monsters";
 import { calculateCharmBonusesForHunt } from "../../game-engine/bestiary/calculateCharmBonusesForHunt";
 import { normalizeBestiaryState } from "../../game-engine/bestiary/getBestiaryProgress";
@@ -49,8 +49,8 @@ export function CharmStatusSummary({ bestiary, hunt }: CharmStatusSummaryProps) 
 }
 
 function formatEffect(effect: number, type: string) {
-  const value = `+${effect.toFixed(effect % 1 === 0 ? 0 : 1)}%`;
-  if (type === "defense") return `${value} safety`;
-  if (type === "supply") return `${value} supplies`;
-  return `${value} ${type}`;
+  const value = `${effect.toFixed(effect % 1 === 0 ? 0 : 1)}%`;
+  if (type === "defense") return `-${value} death risk`;
+  if (type === "supply") return `-${value} supplies`;
+  return `+${value} ${type}`;
 }

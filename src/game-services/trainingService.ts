@@ -47,8 +47,8 @@ export function startTraining(
     characterId: character.id,
     type: trainingType,
     targetSkill,
-    startedAt: formatTime(startedAt),
-    endsAt: formatTime(endsAt),
+    startedAt: startedAt.toISOString(),
+    endsAt: endsAt.toISOString(),
     durationMinutes,
     cost,
     expectedGainPercent,
@@ -129,14 +129,6 @@ function formatTrainingType(trainingType: TrainingType) {
   if (trainingType === "exercise") return "Exercise Training";
   if (trainingType === "dummy") return "Dummy Training";
   return "Offline Training";
-}
-
-function formatTime(date: Date) {
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 }
 
 export interface TrainingResult {

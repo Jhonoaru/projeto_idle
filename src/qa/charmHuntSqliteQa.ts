@@ -65,8 +65,11 @@ async function runChecks(db: Database): Promise<Stage1785QaResult> {
   check(persistedBefore.activeCharms[0]?.monsterId === "monster-sewer-rat" && persistedBefore.unlockedCharmIds.includes("charm-scavenger"), "raw SQLite persists the Charm assignment before resolution");
 
   const finished = finishHunt(character, stage1785Hunt, durationMinutes, state.guild.gold, state.guild.bestiary);
-  const expectedLootValue = Math.round(baseline.totalLootValue * 1.05);
-  check(finished.result.totalLootValue === expectedLootValue, "Scavenger applies exactly +5% to deterministic Hunt loot value");
+  const rejectedValue = (baseline.rejectedLoot ?? []).reduce((sum, loot) => sum + loot.totalValue, 0);
+  const carriedValue = Math.max(0, baseline.totalLootValue - rejectedValue);
+  const expectedBonus = Math.round(carriedValue * 1.05) - carriedValue;
+  check(finished.result.totalLootValue === baseline.totalLootValue && finished.result.lootBonusGold === expectedBonus
+    && finished.result.netProfit === baseline.netProfit + expectedBonus, "Scavenger pays its carried-loot bonus in net gold without inflating item value");
   check((finished.result.charmBonusesApplied ?? []).length === 1 && finished.result.logs.some((entry) => entry.includes("Charm bonus applied: Scavenger")), "resolved Hunt result records the Charm bonus log");
 
   state.characters = state.characters.map((entry) => entry.id === character.id ? finished.character : entry);

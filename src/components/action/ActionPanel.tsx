@@ -1,4 +1,6 @@
 import { CHARACTER_STATUS_LABELS } from "../../shared/constants";
+import { useEffect, useState } from "react";
+import { getActionCompletionStatus } from "../../game-engine/offline/getActionCompletionStatus";
 import { ActionAnalyzer } from "./ActionAnalyzer";
 import { CurrentActionBox } from "../character/CurrentActionBox";
 import { DeathPanel } from "../death/DeathPanel";
@@ -45,6 +47,14 @@ export function ActionPanel({
   const action = selectedCharacter.currentAction;
   const currentQuest = quests.find((quest) => quest.id === action?.targetId);
   const isReadyToResolve = action?.readyToResolve === true;
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!action) return;
+    const timer = window.setInterval(() => setTick((value) => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [action]);
+  const completion = getActionCompletionStatus(selectedCharacter, new Date());
+  const canCollect = completion === "completed_offline" || completion === "ready_to_resolve";
 
   return (
     <div className="action-panel">
@@ -113,7 +123,8 @@ export function ActionPanel({
 
           {selectedCharacter.status === "hunting" ? (
             <ActionButtons
-              finishLabel={isReadyToResolve ? "Coletar resultado da Hunt" : "Finalizar Simulacao"}
+              finishLabel={canCollect ? "Coletar resultado da Hunt" : "Hunt em andamento"}
+              finishDisabled={!canCollect}
               onCancel={onCancelAction}
               onFinish={onFinishHunt}
               onStopAutoRepeat={action?.autoRepeat?.enabled ? onStopHuntAutoRepeat : undefined}
@@ -123,7 +134,8 @@ export function ActionPanel({
 
           {selectedCharacter.status === "training" ? (
             <ActionButtons
-              finishLabel={isReadyToResolve ? "Coletar treino" : "Finalizar Treino"}
+              finishLabel={canCollect ? "Coletar treino" : "Treino em andamento"}
+              finishDisabled={!canCollect}
               onCancel={onCancelAction}
               onFinish={onFinishTraining}
               showCancel={!isReadyToResolve}
@@ -133,7 +145,8 @@ export function ActionPanel({
           {selectedCharacter.status === "questing" ? (
             currentQuest ? (
               <ActionButtons
-                finishLabel={isReadyToResolve ? "Concluir Quest" : "Finalizar Quest"}
+                finishLabel={canCollect ? "Concluir Quest" : "Quest em andamento"}
+                finishDisabled={!canCollect}
                 onCancel={onCancelAction}
                 onFinish={() => onFinishQuest(currentQuest)}
                 showCancel={!isReadyToResolve}
@@ -145,7 +158,8 @@ export function ActionPanel({
 
           {selectedCharacter.status === "bossing" ? (
             <ActionButtons
-              finishLabel={isReadyToResolve ? "Coletar resultado do Boss" : "Finalizar Boss"}
+              finishLabel={canCollect ? "Coletar resultado do Boss" : "Boss em andamento"}
+              finishDisabled={!canCollect}
               onCancel={onCancelAction}
               onFinish={onFinishBoss}
               showCancel={!isReadyToResolve}
@@ -175,16 +189,18 @@ function ActionButtons({
   onCancel,
   onStopAutoRepeat,
   showCancel = true,
+  finishDisabled = false,
 }: {
   finishLabel: string;
   onFinish: () => void;
   onCancel: () => void;
   onStopAutoRepeat?: () => void;
   showCancel?: boolean;
+  finishDisabled?: boolean;
 }) {
   return (
     <div className="hunt-action-buttons">
-      <button onClick={onFinish} type="button">{finishLabel}</button>
+      <button disabled={finishDisabled} onClick={onFinish} type="button">{finishLabel}</button>
       {onStopAutoRepeat ? <button onClick={onStopAutoRepeat} type="button">Parar Auto-repeat</button> : null}
       {showCancel ? <button onClick={onCancel} type="button">Cancelar e Retornar</button> : null}
     </div>

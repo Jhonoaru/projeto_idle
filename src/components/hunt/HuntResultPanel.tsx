@@ -42,6 +42,7 @@ export function HuntResultPanel({
           <ResultStat label="Supplies" value={result.supplyValueUsed.toLocaleString("en-US")} />
           <ResultStat label="Net" value={result.netProfit.toLocaleString("en-US")} />
           <ResultStat label="Loot Value" value={result.totalLootValue.toLocaleString("en-US")} />
+          {(result.lootBonusGold ?? 0) > 0 ? <ResultStat label="Loot bonus (in Gold)" value={result.lootBonusGold!.toLocaleString("en-US")} /> : null}
           <ResultStat label="Loot Weight" value={`${result.totalLootWeight.toFixed(2)} cap`} />
           {character ? (
             <ResultStat

@@ -150,6 +150,7 @@ import {
 } from "../game-engine/region-mastery/guildRegionMastery";
 import { cancelBoss, finishBoss, startBoss } from "../game-services/bossService";
 import { finishHunt, startHunt } from "../game-services/huntService";
+import { getActionCompletionStatus } from "../game-engine/offline/getActionCompletionStatus";
 import {
   buyFromNpcShop,
   sellAllByCategory,
@@ -1209,7 +1210,17 @@ export function App() {
     prependLog(result.success ? "Travel finished" : "Traveling", result.message, result.success ? "success" : "warning");
   }
 
+  function canCollectSelectedAction() {
+    const completion = getActionCompletionStatus(selectedCharacter, new Date());
+    if (completion !== "completed_offline" && completion !== "ready_to_resolve") {
+      prependLog("Action blocked", "Aguarde o fim da acao para coletar o resultado.", "warning");
+      return false;
+    }
+    return true;
+  }
+
   function handleFinishHunt() {
+    if (!canCollectSelectedAction()) return;
     if (selectedCharacter.status !== "hunting" || !selectedCharacter.currentAction?.targetId) {
       prependLog("Hunt blocked", "Nenhuma hunt ativa para finalizar.", "warning");
       return;
@@ -2297,6 +2308,7 @@ export function App() {
   }
 
   function handleFinishTraining() {
+    if (!canCollectSelectedAction()) return;
     if (selectedCharacter.currentAction?.resolvedAt) {
       prependLog("Training blocked", "Resultado do treino ja foi coletado.", "warning");
       return;
@@ -2358,6 +2370,7 @@ export function App() {
   }
 
   function handleFinishQuest(quest: Quest) {
+    if (!canCollectSelectedAction()) return;
     if (selectedCharacter.currentAction?.resolvedAt) {
       prependLog("Quest blocked", "Resultado da quest ja foi coletado.", "warning");
       return;
@@ -2518,6 +2531,7 @@ export function App() {
   }
 
   function handleFinishBoss() {
+    if (!canCollectSelectedAction()) return;
     const activeBossContext = getActiveBossContext(
       selectedCharacter,
       selectedBoss,

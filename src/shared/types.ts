@@ -2233,6 +2233,7 @@ export interface HuntSimulationResult {
   goldGained: number;
   lootItems: HuntLootResult[];
   totalLootValue: number;
+  lootBonusGold?: number;
   totalLootWeight: number;
   supplyCost: number;
   suppliesUsed: HuntSupplyUsage[];

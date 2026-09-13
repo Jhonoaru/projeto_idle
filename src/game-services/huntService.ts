@@ -79,8 +79,8 @@ export function startHunt(
     currentAction: {
       type: "hunting",
       label: `Hunting at ${hunt.name}`,
-      startedAt: formatTime(startedAt),
-      endsAt: formatTime(endsAt),
+      startedAt: startedAt.toISOString(),
+      endsAt: endsAt.toISOString(),
       durationMinutes,
       targetId: hunt.id,
       targetName: hunt.name,
@@ -171,7 +171,8 @@ export function finishHunt(
       focusBonuses.goldMultiplier *
       (1 + appliedGuildGoldBonus / 100),
   );
-  result.totalLootValue = Math.round(result.totalLootValue * (1 + (destinyBonuses.lootBonusPercent ?? 0) / 100) * focusBonuses.lootMultiplier);
+  const lootMultiplier = charmBonuses.lootMultiplier
+    * (1 + (destinyBonuses.lootBonusPercent ?? 0) / 100) * focusBonuses.lootMultiplier;
   const expectedUsage = calculateSupplyUsage(character, hunt, result.durationMinutes).map((usage) => ({
     ...usage,
     quantityUsed: Math.max(0, Math.ceil(usage.quantityUsed * charmBonuses.supplyMultiplier * focusBonuses.supplyMultiplier * getSupplyMultiplier(character, usage.supplyType, imbuementBonuses.supplyReductionPercent, destinyBonuses.supplyReductionPercent ?? 0, combatSkillEffects.supplyReductionPercent))),
@@ -183,6 +184,11 @@ export function finishHunt(
     0,
   );
   const inventoryResult = addLootToInventory(supplyConsumption.character, result.lootItems);
+  // Pay the value bonus on carried loot; NPC prices remain catalog prices.
+  const rejectedValue = inventoryResult.rejectedLoot.reduce((sum, loot) => sum + loot.totalValue, 0);
+  const carriedLootValue = Math.max(0, result.totalLootValue - rejectedValue);
+  const lootBonusGold = Math.max(0, Math.round(carriedLootValue * lootMultiplier) - carriedLootValue);
+  result.goldGained += lootBonusGold;
   const characterAfterStatus: Character = {
     ...inventoryResult.character,
     status: result.died ? "dead" : "idle",
@@ -254,6 +260,7 @@ export function finishHunt(
   const netProfit = result.goldGained - supplyValueUsed - guildGoldLost;
   const resultWithRejectedLoot = {
     ...result,
+    lootBonusGold,
     suppliesUsed: supplyConsumption.suppliesUsed,
     supplyCost: supplyValueUsed,
     supplyValueUsed,
@@ -266,6 +273,7 @@ export function finishHunt(
     logs: [
       ...result.logs,
       ...charmBonuses.logs,
+      ...(lootBonusGold > 0 ? [`Loot value bonus paid: ${lootBonusGold} gold on carried items (included in Gold).`] : []),
       ...(imbuementBonuses.xpBonusPercent > 0 ? [`Forge bonus applied: +${imbuementBonuses.xpBonusPercent}% XP.`] : []),
       ...(imbuementBonuses.supplyReductionPercent > 0 ? [`Forge bonus applied: -${imbuementBonuses.supplyReductionPercent}% supplies.`] : []),
       ...(proficiencyBonuses.bonus.xpBonusPercent > 0 ? [`Weapon proficiency bonus applied: +${proficiencyBonuses.bonus.xpBonusPercent}% XP.`] : []),
@@ -338,27 +346,17 @@ function applyCharmBonusesToResult(
 
   const experienceGained = Math.round(result.experienceGained * charmBonuses.xpMultiplier);
   const goldGained = Math.round(result.goldGained * charmBonuses.goldMultiplier);
-  const totalLootValue = Math.round(result.totalLootValue * charmBonuses.lootMultiplier);
 
   return {
     ...result,
     experienceGained,
     goldGained,
-    totalLootValue,
     netProfit: goldGained,
   };
 }
 
 function normalizeGuildBonus(value: number) {
   return Number.isFinite(value) ? Math.min(25, Math.max(0, Math.floor(value))) : 0;
-}
-
-function formatTime(date: Date) {
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
 }
 
 function formatSkillName(skillName: SkillName) {
