@@ -77,8 +77,72 @@ const hero = { ...structuredClone(mockCharacters[0]), status: 'idle', currentAct
 const bestiary = { progress: [{ monsterId: 'monster-sewer-rat', monsterName: 'Sewer Rat', kills: 100, stage: 'completed' }], charmPoints: 0,
   unlockedCharmIds: ['charm-scavenger'], activeCharms: [{ charmId: 'charm-scavenger', monsterId: 'monster-sewer-rat' }] };
 const guild = { id: 'audit', name: 'Audit', gold: 1000, level: 1, renown: 0, rank: 'Recruit' };
+const { buyFromNpcShop, sellFromCharacterDepot, sellFromGuildDepot } = await import('../src/game-services/marketService.ts');
+const emptyDepot = { goldStored: 0, items: [] };
+for (const target of ['character_inventory', 'character_depot', 'guild_depot']) {
+  const buyer = { ...structuredClone(hero), characterDepot: [] };
+  const before = JSON.stringify(buyer);
+  const purchase = buyFromNpcShop(buyer, guild, emptyDepot, 'small-backpack', 2, 125, target);
+  assert.equal(purchase.success, true);
+  assert.equal(purchase.guild.gold, 750);
+  const delivered = target === 'character_inventory' ? purchase.character.inventory
+    : target === 'character_depot' ? purchase.character.characterDepot : purchase.guildDepot.items;
+  assert.equal(delivered.length, 2, `${target}: nonstackable purchases need separate identities`);
+  assert.equal(new Set(delivered.map(item => item.id)).size, 2);
+  assert.ok(delivered.every(item => item.quantity === 1));
+  assert.equal(JSON.stringify(buyer), before);
+  const sell = (character, currentGuild, depot, ids) => target === 'character_inventory'
+    ? sellFromCharacterInventory(character, currentGuild, ids)
+    : target === 'character_depot' ? sellFromCharacterDepot(character, currentGuild, ids)
+    : sellFromGuildDepot(depot, currentGuild, ids);
+  const ids = delivered.map(item => item.id);
+  const sold = sell(purchase.character, purchase.guild, purchase.guildDepot, [...ids, ...ids]);
+  assert.equal(sold.result.soldItems.length, 2);
+  const again = sell(sold.character ?? purchase.character, sold.guild, sold.guildDepot ?? purchase.guildDepot, ids);
+  assert.equal(again.result.totalGold, 0);
+  assert.equal(again.guild.gold, sold.guild.gold);
+}
+const noSpace = buyFromNpcShop({ ...hero, capacityMax: 0 }, guild, emptyDepot, 'small-backpack', 2, 125, 'character_inventory');
+assert.equal(noSpace.success, false);
+assert.equal(noSpace.guild.gold, guild.gold);
+assert.deepEqual(noSpace.character.inventory, hero.inventory);
+const suppliesPurchase = buyFromNpcShop(hero, guild, emptyDepot, 'minor-health-potion', 5, 30, 'guild_depot');
+assert.equal(suppliesPurchase.success, true);
+assert.equal(suppliesPurchase.guildDepot.items.length, 1);
+assert.equal(suppliesPurchase.guildDepot.items[0].quantity, 5);
+assert.equal(suppliesPurchase.guild.gold, 850);
+for (const [quantity, price] of [[0, 125], [NaN, 125], [2, 1], [1000, 125]]) {
+  const rejected = buyFromNpcShop(hero, { ...guild, gold: 1000000 }, emptyDepot, 'small-backpack', quantity, price, 'guild_depot');
+  assert.equal(rejected.success, false);
+  assert.equal(rejected.guild.gold, 1000000);
+  assert.deepEqual(rejected.guildDepot.items, []);
+}
+const lockedPurchase = buyFromNpcShop(hero, guild, emptyDepot, 'small-backpack', 1, 125, 'character_inventory');
+const lockedHero = { ...lockedPurchase.character, inventory: lockedPurchase.character.inventory.map(item => ({ ...item, locked: true })) };
+assert.equal(sellFromCharacterInventory(lockedHero, guild, lockedHero.inventory.map(item => item.id)).result.totalGold, 0);
+console.log('PASS: NPC delivery identities in three destinations, repeated sale, locks, capacity rollback and immutable input');
 const started = startHunt(hero, hunts[0], 30);
 const training = startTraining(hero, 'offline', 'sword', 30, 0);
+const { cancelCurrentAction, finishTravel } = await import('../src/game-services/actionService.ts');
+for (const status of ['hunting', 'training', 'questing', 'bossing']) {
+  const actor = { ...structuredClone(hero), status, questProgress: [], currentAction: { ...started.currentAction, type: status } };
+  const before = JSON.stringify(actor);
+  const canceled = cancelCurrentAction(actor);
+  assert.equal(canceled.success, true);
+  const travel = canceled.character.currentAction;
+  assert.equal(Date.parse(travel.endsAt) - Date.parse(travel.startedAt), 10000, 'return uses dated 10s timer');
+  assert.equal(finishTravel(canceled.character).success, false);
+  assert.equal(cancelCurrentAction(canceled.character).success, false);
+  const arrived = finishTravel({ ...canceled.character, currentAction: { ...travel, endsAt: new Date(Date.now() - 86400000).toISOString() } });
+  assert.equal(arrived.success, true);
+  assert.equal(arrived.character.status, 'idle');
+  assert.equal(arrived.character.currentAction, undefined);
+  assert.equal(finishTravel(arrived.character).success, false);
+  assert.equal(arrived.character.experience, actor.experience);
+  assert.deepEqual(arrived.character.inventory, actor.inventory);
+  assert.equal(JSON.stringify(actor), before);
+}
+console.log('PASS: cancellation of four action types, dated return, early/repeated arrival blocked and resources unchanged');
 const noop = () => {};
 const controls = { characters: [hero], hunts, quests: [], bosses: [], bossParty: { bossId: '', members: [] },
   onCancelAction: noop, onFinishTravel: noop, onFinishHunt: noop, onFinishTraining: noop,

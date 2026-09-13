@@ -50,6 +50,10 @@ export function buyMarketItem({
     return blocked(character, safeGuild, safeGuildDepot, `Compra bloqueada: quantidade invalida para ${item.name}.`);
   }
 
+  if (!item.stackable && normalizedQuantity > 999) {
+    return blocked(character, safeGuild, safeGuildDepot, "Compra bloqueada: limite de 999 itens individuais por compra.");
+  }
+
   if (!Number.isFinite(normalizedUnitPrice) || normalizedUnitPrice <= 0) {
     return blocked(character, safeGuild, safeGuildDepot, `Compra bloqueada: preco invalido para ${item.name}.`);
   }
@@ -76,15 +80,15 @@ export function buyMarketItem({
     return blocked(character, safeGuild, safeGuildDepot, `Compra bloqueada: ${item.name} nao serve para ${character.vocation}.`);
   }
 
-  const inventoryItem = createInventoryItem(
+  const inventoryItems = Array.from({ length: item.stackable ? 1 : normalizedQuantity }, () => createInventoryItem(
     itemId,
-    normalizedQuantity,
+    item.stackable ? normalizedQuantity : 1,
     safeDeliveryTarget === "guild_depot" ? "guildDepot" : "character",
     safeDeliveryTarget === "guild_depot" ? undefined : character.id,
-  );
+  ));
 
   if (safeDeliveryTarget === "character_inventory") {
-    const inventory = mergeStackableItems([...character.inventory, inventoryItem]);
+    const inventory = mergeStackableItems([...character.inventory, ...inventoryItems]);
     const capacityUsed = calculateCapacityUsed(inventory);
 
     if (capacityUsed > character.capacityMax) {
@@ -104,7 +108,7 @@ export function buyMarketItem({
     return {
       character: {
         ...character,
-        characterDepot: mergeStackableItems([...character.characterDepot, inventoryItem]),
+        characterDepot: mergeStackableItems([...character.characterDepot, ...inventoryItems]),
       },
       guild: { ...safeGuild, gold: Math.max(0, currentGold - totalCost) },
       guildDepot: safeGuildDepot,
@@ -113,7 +117,7 @@ export function buyMarketItem({
     };
   }
 
-  const depotItems = mergeStackableItems([...safeGuildDepot.items, inventoryItem]);
+  const depotItems = mergeStackableItems([...safeGuildDepot.items, ...inventoryItems]);
 
   return {
     character,

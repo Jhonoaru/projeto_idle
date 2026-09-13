@@ -1,4 +1,4 @@
-import { formatClock, getClockRemainingMs } from "../shared/time";
+import { getClockRemainingMs } from "../shared/time";
 import type { Character } from "../shared/types";
 
 const cancellableStatuses = ["hunting", "training", "questing", "bossing"] as const;
@@ -39,8 +39,8 @@ export function cancelCurrentAction(character: Character) {
     currentAction: {
       type: "traveling",
       label: `Retornando para ${character.city}`,
-      startedAt: formatClock(startedAt),
-      endsAt: formatClock(endsAt),
+      startedAt: startedAt.toISOString(),
+      endsAt: endsAt.toISOString(),
       durationMinutes: travelDurationMs / 60_000,
       targetName: character.city,
     },
