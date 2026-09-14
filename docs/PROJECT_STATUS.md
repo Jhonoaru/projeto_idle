@@ -4,6 +4,8 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Auditoria 2026-09-14: forge upgrade/tier usam item atual do personagem, rejeitam item ausente e gold nao finito. Regressao cobre selecao antiga e custo progressivo correto. Bazaar validado em engine para repeticao, rotacao expirada e falha sem cobranca/consumo da oferta. Imbuements, treasury e QA interativo seguem pendentes; nenhum save pessoal aberto.
+
 - Rodada NPC/retorno: compras de nao-empilhaveis agora geram identidades separadas nos tres destinos, com limite de 999 por compra. Regressao reproduziu duas mochilas em uma unica entrada antes da correcao. Testes cobrem venda repetida, locks, capacity sem cobranca e supplies empilhadas.
 - Retorno apos cancelar Hunt/treino/quest/boss agora grava ISO, preservando o prazo entre dias. Testes de servico validam 10 segundos, bloqueio antecipado/repetido e recursos inalterados. QA manual, economia dos outros sistemas e pilhas antigas ainda pendentes.
 

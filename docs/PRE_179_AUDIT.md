@@ -14,6 +14,8 @@ Data: 2026-09-13. Esta e uma auditoria direcionada, nao uma certificacao de todo
 
 ## Ainda verificar antes de fechar a versao
 
+Rodada 2026-09-14 (forge/Bazaar): upgrade e tier verificam posse e consultam o item atual antes de cobrar; gold nao finito bloqueado. Testes reproduziram item inexistente aceito antes da correcao; cobrem selecao antiga, custo do segundo nivel e inputs imutaveis. Bazaar: compra repetida, oferta expirada, gold/capacity insuficientes e historico sem consumo na falha verificados em engine. Ainda pendentes imbuements, treasury/upgrades da guilda e QA interativo; esta rodada nao certifica a economia completa.
+
 Rodada NPC/retorno: compra de multiplos nao-empilhaveis criava uma unica identidade. Corrigida para entradas individuais nos tres destinos, limite de 999 unidades nao-empilhaveis por compra (protege alocacao). Testes verificam potions empilhadas, preco adulterado, quantidade invalida, capacity insuficiente sem cobranca, locks e revenda repetida sem novo pagamento. Novos retornos a cidade usam ISO completo com 10 segundos; testes cobrem cancelamento dos quatro tipos de acao, chegada antecipada/repetida e preservacao de recursos. Nenhum save pessoal aberto; ainda nao houve QA interativo destes fluxos nem migracao de pilhas nao-empilhaveis antigas.
 
 Rodada de persistencia/offline (2026-09-13): gravacao agora usa uma transacao SQLx na mesma conexao do pool do SQL Plugin, com rollback. A fila copia o estado solicitado e serializa loads junto com saves. Teste Rust de rollback e recuperacao aprovado; fixture Tauri ampliada para 19 checks, incluindo falha forcada depois dos deletes, recuperacao e snapshot imutavel. Save principal permaneceu intacto.

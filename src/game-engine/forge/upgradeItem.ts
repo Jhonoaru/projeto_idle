@@ -1,7 +1,7 @@
 import { calculateCharacterAttributes } from "../character/calculateCharacterAttributes";
 import { canUpgradeItem } from "./canUpgradeItem";
 import { consumeForgeMaterials } from "./consumeForgeMaterials";
-import { updateCharacterItem } from "./forgeInventoryHelpers";
+import { findCharacterItem, updateCharacterItem } from "./forgeInventoryHelpers";
 import type { Character, Guild, GuildDepot, InventoryItem } from "../../shared/types";
 
 export function upgradeItem(
@@ -10,6 +10,9 @@ export function upgradeItem(
   guildDepot: GuildDepot,
   inventoryItem: InventoryItem,
 ) {
+  const current = findCharacterItem(character, inventoryItem.id)?.item;
+  if (!current) throw new Error("Item nao pertence ao personagem.");
+  inventoryItem = current;
   const validation = canUpgradeItem(character, guild, guildDepot, inventoryItem);
   if (!validation.canUpgrade || !validation.cost) throw new Error(validation.reason);
 

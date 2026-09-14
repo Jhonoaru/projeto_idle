@@ -1,6 +1,6 @@
 import { getItemTierCost } from "./getItemTierCost";
 import { hasForgeMaterials } from "./consumeForgeMaterials";
-import { isForgeEligibleItem } from "./forgeInventoryHelpers";
+import { findCharacterItem, isForgeEligibleItem } from "./forgeInventoryHelpers";
 import type { Character, Guild, GuildDepot, InventoryItem } from "../../shared/types";
 
 export function canIncreaseItemTier(
@@ -9,12 +9,15 @@ export function canIncreaseItemTier(
   guildDepot: GuildDepot,
   inventoryItem: InventoryItem,
 ) {
+  const current = findCharacterItem(character, inventoryItem.id)?.item;
+  if (!current) return { canIncrease: false, reason: "Item nao pertence ao personagem." };
+  inventoryItem = current;
   if (!isForgeEligibleItem(inventoryItem)) return { canIncrease: false, reason: "Item nao pode receber tier." };
   if ((inventoryItem.tier ?? 0) >= 3) return { canIncrease: false, reason: "Item ja esta no tier maximo." };
 
   const cost = getItemTierCost(inventoryItem.tier ?? 0);
   if (!cost) return { canIncrease: false, reason: "Custo de tier nao encontrado." };
-  if (guild.gold < cost.goldCost) return { canIncrease: false, reason: "Gold insuficiente." };
+  if (!Number.isFinite(guild.gold) || guild.gold < cost.goldCost) return { canIncrease: false, reason: "Gold insuficiente ou invalido." };
 
   const materials = hasForgeMaterials(character, guildDepot, cost.requiredMaterials);
   if (!materials.hasMaterials) {

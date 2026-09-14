@@ -77,6 +77,52 @@ const hero = { ...structuredClone(mockCharacters[0]), status: 'idle', currentAct
 const bestiary = { progress: [{ monsterId: 'monster-sewer-rat', monsterName: 'Sewer Rat', kills: 100, stage: 'completed' }], charmPoints: 0,
   unlockedCharmIds: ['charm-scavenger'], activeCharms: [{ charmId: 'charm-scavenger', monsterId: 'monster-sewer-rat' }] };
 const guild = { id: 'audit', name: 'Audit', gold: 1000, level: 1, renown: 0, rank: 'Recruit' };
+const { createInventoryItem } = await import('../src/data/inventoryFactory.ts');
+const { items: catalog } = await import('../src/data/items.ts');
+const { upgradeItem } = await import('../src/game-engine/forge/upgradeItem.ts');
+const { increaseItemTier } = await import('../src/game-engine/forge/increaseItemTier.ts');
+const { getItemUpgradeCost } = await import('../src/game-engine/forge/getItemUpgradeCost.ts');
+const { getItemTierCost } = await import('../src/game-engine/forge/getItemTierCost.ts');
+const gear = createInventoryItem(Object.values(catalog).find(item => item.type === 'equipment' && !item.stackable).id, 1, 'character', hero.id);
+const forgeHero = { ...structuredClone(hero), equipment: {}, characterDepot: [], inventory: [gear] };
+const forgeGuild = { ...guild, gold: 1000000 };
+const forgeDepot = { goldStored: 0, items: ['iron-ore', 'enchanted-dust', 'wyvern-scale'].map(id => createInventoryItem(id, 1000, 'guildDepot')) };
+for (const [operation, field, cost] of [[upgradeItem, 'upgradeLevel', getItemUpgradeCost], [increaseItemTier, 'tier', getItemTierCost]]) {
+  const before = JSON.stringify([forgeHero, forgeGuild, forgeDepot]);
+  assert.throws(() => operation(forgeHero, forgeGuild, forgeDepot, { ...gear, id: 'missing-item' }));
+  assert.throws(() => operation(forgeHero, { ...forgeGuild, gold: NaN }, forgeDepot, gear));
+  const first = operation(forgeHero, forgeGuild, forgeDepot, gear);
+  const second = operation(first.character, first.guild, first.guildDepot, gear);
+  assert.equal(second.character.inventory.find(item => item.id === gear.id)[field], 2);
+  assert.equal(second.guild.gold, forgeGuild.gold - cost(0).goldCost - cost(1).goldCost);
+  assert.equal(JSON.stringify([forgeHero, forgeGuild, forgeDepot]), before);
+}
+console.log('PASS: forge missing item, invalid gold, stale selection uses current cost/level, immutable inputs');
+const { normalizeGuildBazaarState } = await import('../src/game-engine/bazaar/normalizeGuildBazaarState.ts');
+const { purchaseBazaarOffer } = await import('../src/game-engine/bazaar/purchaseBazaarOffer.ts');
+const bazaarNow = new Date('2026-09-14T12:01:00Z');
+const bazaarGuild = { ...guild, gold: 1000000000, bazaar: normalizeGuildBazaarState(undefined, guild.id, bazaarNow) };
+const bazaarOffer = bazaarGuild.bazaar.offers[0];
+const bazaarArgs = { character: hero, guild: bazaarGuild, guildDepot: { goldStored: 0, items: [] }, offerId: bazaarOffer.id, deliveryTarget: 'guild_depot', now: bazaarNow };
+const bazaarBefore = JSON.stringify(bazaarArgs);
+const bazaarPurchase = purchaseBazaarOffer(bazaarArgs);
+assert.equal(bazaarPurchase.success, true);
+assert.equal(bazaarPurchase.guild.gold, bazaarGuild.gold - bazaarOffer.price);
+const bazaarRepeat = purchaseBazaarOffer({ ...bazaarArgs, ...bazaarPurchase });
+assert.equal(bazaarRepeat.success, false);
+assert.equal(bazaarRepeat.guild.gold, bazaarPurchase.guild.gold);
+assert.equal(bazaarRepeat.guild.bazaar.purchaseHistory.length, 1);
+const expiredOffer = purchaseBazaarOffer({ ...bazaarArgs, now: new Date(bazaarNow.getTime() + 600000) });
+assert.equal(expiredOffer.success, false);
+assert.equal(expiredOffer.guild.gold, bazaarGuild.gold);
+const noBazaarGold = purchaseBazaarOffer({ ...bazaarArgs, guild: { ...bazaarGuild, gold: 0 } });
+assert.equal(noBazaarGold.success, false);
+const noBazaarSpace = purchaseBazaarOffer({ ...bazaarArgs, character: { ...hero, capacityMax: -1 }, deliveryTarget: 'character_inventory' });
+assert.equal(noBazaarSpace.success, false);
+assert.equal(noBazaarSpace.guild.gold, bazaarGuild.gold);
+assert.equal(noBazaarSpace.guild.bazaar.purchaseHistory.length, 0);
+assert.equal(JSON.stringify(bazaarArgs), bazaarBefore);
+console.log('PASS: Bazaar repeat purchase, expired rotation, insufficient gold/capacity and immutable input');
 const { buyFromNpcShop, sellFromCharacterDepot, sellFromGuildDepot } = await import('../src/game-services/marketService.ts');
 const emptyDepot = { goldStored: 0, items: [] };
 for (const target of ['character_inventory', 'character_depot', 'guild_depot']) {
