@@ -4,6 +4,8 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Alto risco comparativo: 48 seeds Ranger com caminho valido de Destiny, Efficiency, Charm e Focus; supplies menores em 48/48 comparacoes de igual duracao, custos/cargas conferidos. Fortify/Focus risk: 43 -> 39 mortes no conjunto fixo. Nenhuma alteracao de mecanica; teste nao representa balanceamento estatistico global. QA interativo segue pendente.
+
 - Hunt perigosa: corrigida duracao de morte que podia exceder contrato curto (1 min gerava 5 min). Regressoes seeded cobrem morte/sobrevivencia em hunt deadly com supplies, custos e penalidade reconciliados. Matriz completa de bonus em alto risco e QA interativo ainda pendentes.
 
 - Combo 2026-09-14: cinco Focus individuais + Destiny + Wisdom Basic + guild bonus + Scavenger passaram; ultima carga expira, alvo ausente nao gasta carga e resultados finitos. Sem nova correcao de mecanica nesta rodada. Teste usa primeira hunt; nao certifica supplies em combate caro, risco alto ou todas as vocacoes/potencias.

@@ -455,6 +455,64 @@ const unrelatedFocusHero = { ...bonusHero, monsterFocus: { slots: [{ slotIndex: 
 const unrelatedOutcome = finishHunt(startHunt(unrelatedFocusHero, hunts[0], 30, 10, 15), hunts[0], 30, guild.gold, bestiary);
 assert.equal(unrelatedOutcome.character.monsterFocus.slots[0].remainingHunts, 2);
 assert.equal(unrelatedOutcome.result.experienceGained, bonusBaseline.result.experienceGained);
+const efficiency = imbuements.find(entry => entry.familyId === 'efficiency' && entry.powerLevel === 'basic');
+const { calculateCharacterAttributes } = await import('../src/game-engine/character/calculateCharacterAttributes.ts');
+assert.ok(efficiency);
+const efficiencySlot = efficiency.allowedEquipmentSlots[0];
+const efficiencyGear = createInventoryItem(Object.values(catalog).find(item => item.equipmentSlot === efficiencySlot && !item.stackable).id, 1, 'character', hero.id);
+const supplyPath = new Set();
+function includeSupplyPath(id) {
+  const node = destinyNodes.find(entry => entry.id === id);
+  assert.ok(node);
+  for (const prerequisite of node.prerequisiteNodeIds) includeSupplyPath(prerequisite);
+  supplyPath.add(id);
+}
+includeSupplyPath('destiny-ranger-supply-discipline');
+const dangerBestiary = {
+  progress: dangerousHunt.monsters.map(monster => ({ monsterId: monster.id, monsterName: monster.name, kills: 10000, stage: 'completed' })),
+  unlockedCharmIds: ['charm-conservation'], charmPoints: 0,
+  activeCharms: [{ charmId: 'charm-conservation', monsterId: dangerousHunt.monsters[0].id }],
+};
+let matchedDurations = 0;
+let cheaperSupplies = 0;
+let riskDeathsBefore = 0;
+let riskDeathsAfter = 0;
+for (let seed = 0; seed < 48; seed++) {
+  const regular = { ...structuredClone(hero), vocation: 'Ranger', id: `bonus-danger-${seed}`, level: dangerousHunt.minLevel,
+    accessIds: dangerousHunt.requiredAccess ? [dangerousHunt.requiredAccess] : [],
+    inventory: dangerousStock, capacityMax: 1000000, equipment: { [efficiencySlot]: efficiencyGear }, destiny: undefined, monsterFocus: undefined };
+  const boosted = { ...regular, destiny: { unlockedNodeIds: [...supplyPath] },
+    equipment: { [efficiencySlot]: { ...efficiencyGear, imbuements: [{ imbuementId: efficiency.id, remainingHunts: 2 }] } },
+    monsterFocus: { slots: [{ slotIndex: 0, monsterId: dangerousHunt.monsters[0].id, status: 'active', bonusType: 'supplies', bonusPercent: 6, remainingHunts: 2 }] } };
+  regular.attributes = calculateCharacterAttributes(regular);
+  boosted.attributes = calculateCharacterAttributes(boosted);
+  assert.ok(calculateDestinyBonuses(boosted).supplyReductionPercent > 0, 'fixture must activate Destiny supply reduction');
+  assert.ok(calculateActiveImbuementBonuses(boosted).supplyReductionPercent > 0);
+  const before = JSON.stringify(boosted);
+  const normalResult = finishHunt(startHunt(regular, dangerousHunt, 60), dangerousHunt, 60, 100000);
+  const boostedResult = finishHunt(startHunt(boosted, dangerousHunt, 60, 10, 15), dangerousHunt, 60, 100000, dangerBestiary);
+  assert.ok(boostedResult.result.supplyValueUsed > 0);
+  assert.equal(boostedResult.result.supplyValueUsed, boostedResult.result.suppliesUsed.reduce((sum, entry) => sum + entry.quantityUsed * catalog[entry.itemId].value, 0));
+  assert.equal(boostedResult.result.netProfit, boostedResult.result.goldGained - boostedResult.result.supplyValueUsed - boostedResult.guildGoldLost);
+  assert.equal(boostedResult.character.equipment[efficiencySlot].imbuements[0].remainingHunts, 1);
+  assert.equal(boostedResult.character.monsterFocus.slots[0].remainingHunts, 1);
+  if (normalResult.result.durationMinutes === boostedResult.result.durationMinutes) {
+    matchedDurations++;
+    assert.ok(boostedResult.result.supplyValueUsed <= normalResult.result.supplyValueUsed);
+    if (boostedResult.result.supplyValueUsed < normalResult.result.supplyValueUsed) cheaperSupplies++;
+  }
+  const riskHero = { ...boosted, monsterFocus: { slots: [{ ...boosted.monsterFocus.slots[0], bonusType: 'risk', bonusPercent: 5 }] } };
+  const riskCharm = { ...dangerBestiary, unlockedCharmIds: ['charm-fortify'], activeCharms: [{ charmId: 'charm-fortify', monsterId: dangerousHunt.monsters[0].id }] };
+  const protectedResult = finishHunt(startHunt(riskHero, dangerousHunt, 60), dangerousHunt, 60, 100000, riskCharm);
+  assert.ok(normalResult.result.died || !protectedResult.result.died, 'risk reductions cannot turn survival into death for same seed');
+  riskDeathsBefore += Number(normalResult.result.died);
+  riskDeathsAfter += Number(protectedResult.result.died);
+  assert.equal(JSON.stringify(boosted), before);
+}
+assert.ok(matchedDurations > 0 && cheaperSupplies > 0);
+assert.ok(riskDeathsBefore > 0 && riskDeathsBefore < 48, 'risk fixture must exercise death and survival');
+assert.ok(riskDeathsAfter <= riskDeathsBefore);
+console.log(`PASS: 48 paired dangerous hunts; ${matchedDurations} equal-duration comparisons, ${cheaperSupplies} cheaper supplies; deaths ${riskDeathsBefore} -> ${riskDeathsAfter}`);
 assert.ok(enhanced.result.lootBonusGold > 0, 'bonus must be nonzero, not a vacuous equality');
 assert.equal(enhanced.result.totalLootValue, baseline.result.totalLootValue);
 assert.equal(enhanced.result.goldGained - baseline.result.goldGained, enhanced.result.lootBonusGold);
