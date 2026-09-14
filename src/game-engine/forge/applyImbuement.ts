@@ -1,7 +1,7 @@
 import { calculateCharacterAttributes } from "../character/calculateCharacterAttributes";
 import { canApplyImbuement } from "./canApplyImbuement";
 import { consumeForgeMaterials } from "./consumeForgeMaterials";
-import { updateCharacterItem } from "./forgeInventoryHelpers";
+import { findCharacterItem, updateCharacterItem } from "./forgeInventoryHelpers";
 import { getImbuementById } from "../../data/imbuements";
 import type { Character, EquipmentSlot, Guild, GuildDepot, InventoryItem } from "../../shared/types";
 
@@ -13,6 +13,9 @@ export function applyImbuement(
   equipmentSlot: EquipmentSlot | undefined,
   imbuementId: string,
 ) {
+  const current = findCharacterItem(character, inventoryItem.id)?.item;
+  if (!current) throw new Error("Item nao pertence ao personagem.");
+  inventoryItem = current;
   const validation = canApplyImbuement(character, guild, guildDepot, inventoryItem, equipmentSlot, imbuementId);
   if (!validation.canApply || !validation.imbuement) throw new Error(validation.reason);
 

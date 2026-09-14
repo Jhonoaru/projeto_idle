@@ -4,6 +4,8 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Rodada imbuements/treasury/sede: imbuements validam posse, estado atual, slot real e gold finito; reaplicacao por selecao antiga bloqueada. Testes de engine aprovados para treasury (conservacao, repeticao e valores invalidos) e primeiro upgrade das quatro facilities (materiais exatos, locks, falhas sem custo). Build aprovado; niveis superiores, substituicao de imbuements e QA interativo continuam pendentes. Nenhum save pessoal aberto.
+
 - Auditoria 2026-09-14: forge upgrade/tier usam item atual do personagem, rejeitam item ausente e gold nao finito. Regressao cobre selecao antiga e custo progressivo correto. Bazaar validado em engine para repeticao, rotacao expirada e falha sem cobranca/consumo da oferta. Imbuements, treasury e QA interativo seguem pendentes; nenhum save pessoal aberto.
 
 - Rodada NPC/retorno: compras de nao-empilhaveis agora geram identidades separadas nos tres destinos, com limite de 999 por compra. Regressao reproduziu duas mochilas em uma unica entrada antes da correcao. Testes cobrem venda repetida, locks, capacity sem cobranca e supplies empilhadas.

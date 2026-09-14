@@ -1,6 +1,6 @@
 import { getImbuementById } from "../../data/imbuements";
 import { getForgeMaterialsAvailable } from "./getForgeMaterialsAvailable";
-import { isForgeEligibleItem } from "./forgeInventoryHelpers";
+import { findCharacterItem, isForgeEligibleItem } from "./forgeInventoryHelpers";
 import type {
   Character,
   EquipmentSlot,
@@ -56,9 +56,18 @@ export function getImbuementApplicationStatus(
   equipmentSlot: EquipmentSlot | undefined,
   imbuementId: string,
 ): ImbuementApplicationCheck {
+  const owned = findCharacterItem(character, inventoryItem.id);
+  if (!owned) {
+    return { status: "Locked", canApply: false, reason: "Item nao pertence ao personagem.", materials: [] };
+  }
+  inventoryItem = owned.item;
   const imbuement = getImbuementById(imbuementId);
-  const slot = equipmentSlot ?? inventoryItem.item.equipmentSlot;
+  const slot = owned.slot ?? inventoryItem.item.equipmentSlot;
   const materials = imbuement ? getMaterialStatus(character, guildDepot, imbuement.requiredMaterials) : [];
+
+  if (equipmentSlot && equipmentSlot !== slot) {
+    return { status: "Wrong Slot", canApply: false, reason: "Slot nao corresponde ao item atual.", imbuement, slot, materials };
+  }
 
   if (!imbuement) {
     return { status: "Locked", canApply: false, reason: "Imbuement nao encontrado.", materials };
@@ -110,7 +119,7 @@ export function getImbuementApplicationStatus(
     };
   }
 
-  if (guild.gold < imbuement.goldCost) {
+  if (!Number.isFinite(guild.gold) || guild.gold < imbuement.goldCost) {
     return { status: "Not Enough Gold", canApply: false, reason: "Gold insuficiente.", imbuement, slot, materials, willReplaceImbuementId: sameFamily?.imbuementId };
   }
 

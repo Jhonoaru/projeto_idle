@@ -98,6 +98,59 @@ for (const [operation, field, cost] of [[upgradeItem, 'upgradeLevel', getItemUpg
   assert.equal(JSON.stringify([forgeHero, forgeGuild, forgeDepot]), before);
 }
 console.log('PASS: forge missing item, invalid gold, stale selection uses current cost/level, immutable inputs');
+const { applyImbuement } = await import('../src/game-engine/forge/applyImbuement.ts');
+const { imbuements } = await import('../src/data/imbuements.ts');
+const imbueDefinition = imbuements.find(entry => entry.familyId === 'strike' && entry.powerLevel === 'basic') ?? imbuements[0];
+const weapon = createInventoryItem(Object.values(catalog).find(item => item.type === 'equipment' && item.equipmentSlot === 'weapon' && !item.stackable).id, 1, 'character', hero.id);
+const imbueHero = { ...forgeHero, inventory: [weapon] };
+const imbueBefore = JSON.stringify([imbueHero, forgeGuild, forgeDepot]);
+assert.throws(() => applyImbuement(imbueHero, forgeGuild, forgeDepot, { ...weapon, id: 'missing' }, 'weapon', imbueDefinition.id));
+assert.throws(() => applyImbuement(imbueHero, { ...forgeGuild, gold: NaN }, forgeDepot, weapon, 'weapon', imbueDefinition.id));
+assert.throws(() => applyImbuement(imbueHero, forgeGuild, forgeDepot, weapon, 'armor', imbueDefinition.id));
+const imbued = applyImbuement(imbueHero, forgeGuild, forgeDepot, weapon, 'weapon', imbueDefinition.id);
+assert.equal(imbued.guild.gold, forgeGuild.gold - imbueDefinition.goldCost);
+assert.equal(imbued.character.inventory[0].imbuements.length, 1);
+assert.throws(() => applyImbuement(imbued.character, imbued.guild, imbued.guildDepot, weapon, 'weapon', imbueDefinition.id));
+assert.equal(JSON.stringify([imbueHero, forgeGuild, forgeDepot]), imbueBefore);
+console.log('PASS: imbuement ownership, invalid gold, slot mismatch, stale repeat and immutable inputs');
+const { depositGuildGold, withdrawGuildGold } = await import('../src/game-engine/treasury/transferGuildTreasuryGold.ts');
+const treasuryTime = new Date('2026-09-14T15:00:00Z');
+const deposit = depositGuildGold(guild, 400, treasuryTime);
+assert.equal(deposit.success, true);
+assert.equal(deposit.guild.gold + deposit.guild.treasury.reservedGold, guild.gold);
+assert.equal(depositGuildGold(deposit.guild, 400, treasuryTime).success, false);
+const withdrawal = withdrawGuildGold(deposit.guild, 400, new Date(treasuryTime.getTime() + 1));
+assert.equal(withdrawal.success, true);
+assert.equal(withdrawal.guild.gold, guild.gold);
+assert.equal(withdrawal.guild.treasury.reservedGold, 0);
+for (const invalid of [0, -1, 0.5, NaN, Infinity, 1001]) {
+  const result = depositGuildGold(guild, invalid, treasuryTime);
+  assert.equal(result.success, false);
+  assert.equal(result.guild, guild);
+}
+assert.equal(withdrawGuildGold(deposit.guild, 401, treasuryTime).success, false);
+const { guildFacilities } = await import('../src/data/guildFacilities.ts');
+const { upgradeGuildFacility } = await import('../src/game-engine/headquarters/upgradeGuildFacility.ts');
+for (const facility of guildFacilities) {
+  const supplies = { goldStored: 0, items: facility.materialRequirements[0].map(req => createInventoryItem(req.itemId, req.quantity, 'guildDepot')) };
+  const before = JSON.stringify([guild, supplies]);
+  const upgraded = upgradeGuildFacility(guild, supplies, [hero], facility.id);
+  assert.equal(upgraded.success, true, facility.id);
+  assert.equal(upgraded.guild.gold, guild.gold - facility.upgradeCosts[0]);
+  assert.equal(upgraded.guild.headquarters.facilityLevels[facility.id], 1);
+  assert.equal(upgraded.depot.items.length, 0);
+  const repeated = upgradeGuildFacility(upgraded.guild, upgraded.depot, [hero], facility.id);
+  assert.equal(repeated.success, false);
+  assert.equal(repeated.guild, upgraded.guild);
+  const locked = upgradeGuildFacility(guild, { ...supplies, items: supplies.items.map(item => ({ ...item, locked: true })) }, [hero], facility.id);
+  assert.equal(locked.success, false);
+  assert.equal(locked.guild, guild);
+  const poor = upgradeGuildFacility({ ...guild, gold: 0 }, supplies, [hero], facility.id);
+  assert.equal(poor.success, false);
+  assert.equal(poor.depot, supplies);
+  assert.equal(JSON.stringify([guild, supplies]), before);
+}
+console.log('PASS: treasury conservation/duplicate/invalid transfers; all four facilities first upgrade, protected materials and failure without cost');
 const { normalizeGuildBazaarState } = await import('../src/game-engine/bazaar/normalizeGuildBazaarState.ts');
 const { purchaseBazaarOffer } = await import('../src/game-engine/bazaar/purchaseBazaarOffer.ts');
 const bazaarNow = new Date('2026-09-14T12:01:00Z');
