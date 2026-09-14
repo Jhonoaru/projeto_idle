@@ -4,6 +4,8 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Combo 2026-09-14: cinco Focus individuais + Destiny + Wisdom Basic + guild bonus + Scavenger passaram; ultima carga expira, alvo ausente nao gasta carga e resultados finitos. Sem nova correcao de mecanica nesta rodada. Teste usa primeira hunt; nao certifica supplies em combate caro, risco alto ou todas as vocacoes/potencias.
+
 - Rodada morte/supplies: corrigido consumo NaN que removia pilhas e penalidade gold NaN. Testes de consumo parcial, estoque esgotado, custo real, blessings e teto low-risk; combo de guild bonus + Scavenger com snapshot de inicio e loot bonus unico. Matriz completa de bonus e QA interativo seguem pendentes.
 
 - Complemento de limites 2026-09-14: treasury (limite exato, overflow, data invalida, historico de 30 e conservacao), Strike Basic -> Intricate (sem reembolso, custos, level OU tier) e quatro facilities ate nivel 3 passaram nas regressoes. Nenhuma mudanca de mecanica nesta rodada; cobertura ampliada. QA interativo e outras familias/potencias permanecem fora deste teste.

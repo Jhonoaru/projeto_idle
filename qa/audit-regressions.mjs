@@ -371,6 +371,49 @@ assert.equal(combined.result.lootBonusGold, enhanced.result.lootBonusGold);
 assert.equal(changedBonusAfterStart.result.goldGained, combined.result.goldGained);
 assert.equal(changedBonusAfterStart.result.experienceGained, combined.result.experienceGained);
 console.log('PASS: guild XP/gold plus Scavenger, one loot bonus payment, action bonus snapshot preserved');
+const { destinyNodes } = await import('../src/data/destinyNodes.ts');
+const { calculateDestinyBonuses } = await import('../src/game-engine/destiny/calculateDestinyBonuses.ts');
+const { monsterFocusConfig } = await import('../src/data/monsterFocus.ts');
+const { calculateMonsterFocusBonuses } = await import('../src/game-engine/monster-focus/calculateMonsterFocusBonuses.ts');
+const { calculateActiveImbuementBonuses } = await import('../src/game-engine/forge/calculateActiveImbuementBonuses.ts');
+const wisdom = imbuements.find(entry => entry.familyId === 'wisdom' && entry.powerLevel === 'basic');
+const helmet = createInventoryItem(Object.values(catalog).find(item => item.equipmentSlot === 'helmet').id, 1, 'character', hero.id);
+const bonusHero = { ...structuredClone(hero), level: 1000, destiny: { unlockedNodeIds: destinyNodes.map(node => node.id) },
+  equipment: { helmet: { ...helmet, imbuements: [{ imbuementId: wisdom.id, remainingHunts: 1 }] } }, monsterFocus: undefined };
+assert.ok(calculateDestinyBonuses(bonusHero).xpBonusPercent > 0);
+assert.ok(calculateActiveImbuementBonuses(bonusHero).xpBonusPercent > 0);
+const bonusBaseline = finishHunt(startHunt(bonusHero, hunts[0], 30, 10, 15), hunts[0], 30, guild.gold, bestiary);
+for (const [bonusType, bonusPercent] of Object.entries(monsterFocusConfig.bonusPercentByType)) {
+  const focusedHero = { ...bonusHero, monsterFocus: { slots: [{ slotIndex: 0, status: 'active', monsterId: hunts[0].monsters[0].id,
+    bonusType, bonusPercent, remainingHunts: 1 }] } };
+  const before = JSON.stringify(focusedHero);
+  const activeFocus = calculateMonsterFocusBonuses(focusedHero, hunts[0]);
+  assert.equal(activeFocus.applied.length, 1);
+  if (bonusType === 'supplies') assert.ok(activeFocus.supplyMultiplier < 1);
+  if (bonusType === 'risk') assert.ok(activeFocus.deathRiskMultiplier < 1);
+  const result = finishHunt(startHunt(focusedHero, hunts[0], 30, 10, 15), hunts[0], 30, guild.gold, bestiary);
+  assert.equal(result.character.monsterFocus.slots[0].status, 'expired');
+  assert.equal(result.character.monsterFocus.slots[0].remainingHunts, 0);
+  assert.deepEqual(result.character.equipment.helmet.imbuements, []);
+  assert.equal(calculateActiveImbuementBonuses(result.character).xpBonusPercent, 0);
+  assert.deepEqual(calculateMonsterFocusBonuses(result.character, hunts[0]).applied, []);
+  for (const key of ['experienceGained', 'goldGained', 'lootBonusGold', 'supplyValueUsed', 'netProfit']) {
+    assert.ok(Number.isFinite(result.result[key]), `${bonusType}: ${key}`);
+  }
+  if (bonusType === 'experience') assert.ok(result.result.experienceGained > bonusBaseline.result.experienceGained);
+  if (bonusType === 'gold') assert.ok(result.result.goldGained > bonusBaseline.result.goldGained);
+  if (bonusType === 'loot') assert.ok(result.result.lootBonusGold > bonusBaseline.result.lootBonusGold);
+  assert.equal(JSON.stringify(focusedHero), before);
+}
+console.log('PASS: five Focus types with Destiny/Wisdom/guild/Charm; last charges apply then expire without mutating inputs');
+const { monsters: monsterCatalog } = await import('../src/data/monsters.ts');
+const unrelatedMonster = Object.values(monsterCatalog).find(monster => !hunts[0].monsters.some(target => target.id === monster.id));
+assert.ok(unrelatedMonster);
+const unrelatedFocusHero = { ...bonusHero, monsterFocus: { slots: [{ slotIndex: 0, status: 'active', monsterId: unrelatedMonster.id,
+  bonusType: 'experience', bonusPercent: 10, remainingHunts: 2 }] } };
+const unrelatedOutcome = finishHunt(startHunt(unrelatedFocusHero, hunts[0], 30, 10, 15), hunts[0], 30, guild.gold, bestiary);
+assert.equal(unrelatedOutcome.character.monsterFocus.slots[0].remainingHunts, 2);
+assert.equal(unrelatedOutcome.result.experienceGained, bonusBaseline.result.experienceGained);
 assert.ok(enhanced.result.lootBonusGold > 0, 'bonus must be nonzero, not a vacuous equality');
 assert.equal(enhanced.result.totalLootValue, baseline.result.totalLootValue);
 assert.equal(enhanced.result.goldGained - baseline.result.goldGained, enhanced.result.lootBonusGold);
