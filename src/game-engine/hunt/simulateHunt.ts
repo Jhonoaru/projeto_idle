@@ -23,7 +23,7 @@ export function simulateHunt({
   const risk = calculateHuntRisk(character, hunt);
   const died = random() < risk.deathChance * deathRiskMultiplier;
   const effectiveDuration = died
-    ? Math.max(5, Math.round(durationMinutes * (0.25 + random() * 0.45)))
+    ? Math.min(durationMinutes, Math.max(5, Math.round(durationMinutes * (0.25 + random() * 0.45))))
     : durationMinutes;
   const durationFactor = effectiveDuration / 60;
   const power = calculateHuntPower(character);

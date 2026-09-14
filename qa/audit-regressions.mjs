@@ -245,6 +245,47 @@ assert.equal(JSON.stringify(bazaarArgs), bazaarBefore);
 console.log('PASS: Bazaar repeat purchase, expired rotation, insufficient gold/capacity and immutable input');
 const { buyFromNpcShop, sellFromCharacterDepot, sellFromGuildDepot } = await import('../src/game-services/marketService.ts');
 const emptyDepot = { goldStored: 0, items: [] };
+const { simulateHunt } = await import('../src/game-engine/hunt/simulateHunt.ts');
+const dangerousHunt = hunts.find(hunt => hunt.risk === 'deadly' && hunt.supplies?.length);
+assert.ok(dangerousHunt);
+let shortDeath;
+for (let seed = 0; seed < 100; seed++) {
+  const candidate = simulateHunt({ character: { ...hero, id: `short-death-${seed}`, level: 1 }, hunt: dangerousHunt, durationMinutes: 1 });
+  if (candidate.died) { shortDeath = candidate; break; }
+}
+assert.ok(shortDeath, 'must exercise a real seeded death');
+assert.ok(shortDeath.durationMinutes > 0 && shortDeath.durationMinutes <= 1, 'death duration cannot exceed contracted hunt');
+const dangerousStock = dangerousHunt.supplies.map(req => createInventoryItem(req.itemId, 1000, 'character', hero.id));
+let testedDeath = false;
+let testedSurvival = false;
+for (let seed = 0; seed < 100 && (!testedDeath || !testedSurvival); seed++) {
+  const actor = { ...structuredClone(hero), id: `dangerous-audit-${seed}`, level: dangerousHunt.minLevel,
+    accessIds: dangerousHunt.requiredAccess ? [dangerousHunt.requiredAccess] : [], inventory: dangerousStock, capacityMax: 1000000 };
+  const before = JSON.stringify(actor);
+  const outcome = finishHunt(startHunt(actor, dangerousHunt, 30), dangerousHunt, 30, 100000);
+  const used = outcome.result.suppliesUsed;
+  assert.ok(used.length > 0, 'dangerous fixture must actually consume supplies');
+  const actualValue = used.reduce((sum, usage) => {
+    assert.ok(Number.isSafeInteger(usage.quantityUsed) && usage.quantityUsed > 0);
+    assert.ok(usage.quantityUsed <= 1000);
+    assert.equal(usage.valueUsed, usage.quantityUsed * catalog[usage.itemId].value);
+    return sum + usage.valueUsed;
+  }, 0);
+  assert.equal(outcome.result.supplyValueUsed, actualValue);
+  assert.equal(outcome.result.netProfit, outcome.result.goldGained - actualValue - outcome.guildGoldLost);
+  assert.ok(outcome.result.durationMinutes > 0 && outcome.result.durationMinutes <= 30);
+  assert.equal(JSON.stringify(actor), before);
+  if (outcome.result.died) {
+    testedDeath = true;
+    assert.equal(outcome.character.status, 'dead');
+    assert.equal(outcome.character.deathState.penalty.goldLost, outcome.guildGoldLost);
+  } else {
+    testedSurvival = true;
+    assert.equal(outcome.guildGoldLost, 0);
+  }
+}
+assert.ok(testedDeath && testedSurvival, 'must cover both seeded outcomes');
+console.log('PASS: short death stays within duration; dangerous hunt supplies/value/net profit/death penalty reconcile in both outcomes');
 const { consumeSupplies } = await import('../src/game-engine/supplies/consumeSupplies.ts');
 const potion = createInventoryItem('minor-health-potion', 5, 'character', hero.id);
 const supplyHero = { ...hero, inventory: [potion] };
