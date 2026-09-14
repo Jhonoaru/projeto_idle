@@ -151,6 +151,73 @@ for (const facility of guildFacilities) {
   assert.equal(JSON.stringify([guild, supplies]), before);
 }
 console.log('PASS: treasury conservation/duplicate/invalid transfers; all four facilities first upgrade, protected materials and failure without cost');
+const { MAX_GUILD_GOLD, GUILD_TREASURY_HISTORY_LIMIT } = await import('../src/game-engine/treasury/normalizeGuildTreasuryState.ts');
+const reserve = (reservedGold) => ({ reservedGold, totalDeposited: 0, totalWithdrawn: 0, transactions: [] });
+const atReserveLimit = { ...guild, treasury: reserve(MAX_GUILD_GOLD) };
+assert.equal(depositGuildGold(atReserveLimit, 1, treasuryTime).success, false);
+const exactReserveLimit = depositGuildGold({ ...guild, treasury: reserve(MAX_GUILD_GOLD - 1) }, 1, treasuryTime);
+assert.equal(exactReserveLimit.success, true);
+assert.equal(exactReserveLimit.guild.treasury.reservedGold, MAX_GUILD_GOLD);
+assert.equal(withdrawGuildGold({ ...guild, gold: MAX_GUILD_GOLD, treasury: reserve(1) }, 1, treasuryTime).success, false);
+const exactSpendableLimit = withdrawGuildGold({ ...guild, gold: MAX_GUILD_GOLD - 1, treasury: reserve(1) }, 1, treasuryTime);
+assert.equal(exactSpendableLimit.success, true);
+assert.equal(exactSpendableLimit.guild.gold, MAX_GUILD_GOLD);
+assert.equal(depositGuildGold(guild, 1, new Date(NaN)).success, false);
+let historyGuild = structuredClone(guild);
+for (let index = 0; index < 40; index++) {
+  const result = depositGuildGold(historyGuild, 1, new Date(treasuryTime.getTime() + index));
+  assert.equal(result.success, true);
+  historyGuild = result.guild;
+}
+assert.equal(historyGuild.treasury.transactions.length, GUILD_TREASURY_HISTORY_LIMIT);
+assert.equal(historyGuild.gold + historyGuild.treasury.reservedGold, guild.gold);
+const intricate = imbuements.find(entry => entry.familyId === imbueDefinition.familyId && entry.powerLevel === 'intricate');
+assert.ok(intricate);
+const lowLevel = { ...imbued.character, level: 1 };
+assert.throws(() => applyImbuement(lowLevel, imbued.guild, imbued.guildDepot, weapon, 'weapon', intricate.id));
+const qualifiedByLevel = { ...imbued.character, level: 60 };
+const replaced = applyImbuement(qualifiedByLevel, imbued.guild, imbued.guildDepot, weapon, 'weapon', intricate.id);
+assert.deepEqual(replaced.character.inventory[0].imbuements.map(entry => entry.imbuementId), [intricate.id]);
+assert.equal(replaced.guild.gold, forgeGuild.gold - imbueDefinition.goldCost - intricate.goldCost);
+for (const requirement of intricate.requiredMaterials) {
+  const before = imbued.guildDepot.items.find(item => item.itemId === requirement.itemId).quantity;
+  const after = replaced.guildDepot.items.find(item => item.itemId === requirement.itemId).quantity;
+  assert.equal(before - after, requirement.quantity);
+}
+const qualifiedByTier = { ...lowLevel, inventory: lowLevel.inventory.map(item => ({ ...item, tier: 1 })) };
+assert.equal(applyImbuement(qualifiedByTier, imbued.guild, imbued.guildDepot, weapon, 'weapon', intricate.id).character.inventory[0].imbuements[0].imbuementId, intricate.id);
+const poorImbue = { ...imbued.guild, gold: 0 };
+const replacementBefore = JSON.stringify([qualifiedByLevel, poorImbue, imbued.guildDepot]);
+assert.throws(() => applyImbuement(qualifiedByLevel, poorImbue, imbued.guildDepot, weapon, 'weapon', intricate.id));
+assert.equal(JSON.stringify([qualifiedByLevel, poorImbue, imbued.guildDepot]), replacementBefore);
+const { getGuildCareer } = await import('../src/game-engine/achievements/getGuildCareer.ts');
+const veteranRoster = Array.from({ length: 5 }, (_, index) => ({ ...structuredClone(hero), id: `audit-veteran-${index}`, level: 100,
+  experience: 500000, completedQuestIds: ['q1', 'q2', 'q3', 'q4', 'q5'], accessIds: ['a1', 'a2', 'a3'] }));
+const veteranGuild = { ...forgeGuild, renown: 100 };
+assert.ok(getGuildCareer(veteranGuild, veteranRoster).points >= 350);
+for (const facility of guildFacilities) {
+  let currentGuild = structuredClone(veteranGuild);
+  let totalCost = 0;
+  let totalMaterials = 0;
+  for (let level = 0; level < 3; level++) {
+    const materials = { goldStored: 0, items: facility.materialRequirements[level].map(req => createInventoryItem(req.itemId, req.quantity, 'guildDepot')) };
+    const result = upgradeGuildFacility(currentGuild, materials, veteranRoster, facility.id);
+    assert.equal(result.success, true, `${facility.id} level ${level + 1}`);
+    totalCost += facility.upgradeCosts[level];
+    totalMaterials += facility.materialRequirements[level].reduce((sum, req) => sum + req.quantity, 0);
+    assert.equal(result.guild.gold, veteranGuild.gold - totalCost);
+    assert.equal(result.guild.headquarters.facilityLevels[facility.id], level + 1);
+    assert.equal(result.guild.headquarters.totalInvestedGold, totalCost);
+    assert.equal(result.guild.headquarters.totalInvestedMaterials, totalMaterials);
+    assert.deepEqual(result.depot.items, []);
+    currentGuild = result.guild;
+  }
+  const capped = upgradeGuildFacility(currentGuild, forgeDepot, veteranRoster, facility.id);
+  assert.equal(capped.success, false);
+  assert.equal(capped.guild, currentGuild);
+  assert.equal(capped.depot, forgeDepot);
+}
+console.log('PASS: treasury exact limits/overflow/history, imbuement replacement/level-or-tier/no refund, four facilities through max level');
 const { normalizeGuildBazaarState } = await import('../src/game-engine/bazaar/normalizeGuildBazaarState.ts');
 const { purchaseBazaarOffer } = await import('../src/game-engine/bazaar/purchaseBazaarOffer.ts');
 const bazaarNow = new Date('2026-09-14T12:01:00Z');
