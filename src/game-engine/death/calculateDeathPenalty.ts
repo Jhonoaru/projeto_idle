@@ -28,7 +28,8 @@ export function calculateDeathPenalty(
     Math.max(0, character.experience - levelFloor),
     protectedExperienceLost,
   );
-  const rawGoldLost = Math.floor(guildGold * rule.goldPercent);
+  const availableGold = Number.isFinite(guildGold) ? Math.max(0, guildGold) : 0;
+  const rawGoldLost = Math.floor(availableGold * rule.goldPercent);
   const lowRiskGoldLost = risk === "low" ? Math.min(rawGoldLost, 500) : rawGoldLost;
   const goldLost = Math.max(0, Math.floor(lowRiskGoldLost * penaltyMultiplier));
 

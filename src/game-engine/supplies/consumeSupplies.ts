@@ -11,12 +11,14 @@ export function consumeSupplies(
   const logs: string[] = [];
 
   for (const usage of supplyUsage) {
+    if (!Number.isSafeInteger(usage.quantityUsed) || usage.quantityUsed <= 0) continue;
     let remaining = usage.quantityUsed;
     let valueUsed = 0;
     const stacks = findSupplyItemsInInventory({ ...character, inventory }, usage.itemId);
 
     for (const stack of stacks) {
       if (remaining <= 0) break;
+      if (!Number.isSafeInteger(stack.quantity) || stack.quantity <= 0) continue;
 
       const quantityFromStack = Math.min(stack.quantity, remaining);
       remaining -= quantityFromStack;

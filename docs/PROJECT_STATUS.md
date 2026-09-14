@@ -4,6 +4,8 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Rodada morte/supplies: corrigido consumo NaN que removia pilhas e penalidade gold NaN. Testes de consumo parcial, estoque esgotado, custo real, blessings e teto low-risk; combo de guild bonus + Scavenger com snapshot de inicio e loot bonus unico. Matriz completa de bonus e QA interativo seguem pendentes.
+
 - Complemento de limites 2026-09-14: treasury (limite exato, overflow, data invalida, historico de 30 e conservacao), Strike Basic -> Intricate (sem reembolso, custos, level OU tier) e quatro facilities ate nivel 3 passaram nas regressoes. Nenhuma mudanca de mecanica nesta rodada; cobertura ampliada. QA interativo e outras familias/potencias permanecem fora deste teste.
 
 - Rodada imbuements/treasury/sede: imbuements validam posse, estado atual, slot real e gold finito; reaplicacao por selecao antiga bloqueada. Testes de engine aprovados para treasury (conservacao, repeticao e valores invalidos) e primeiro upgrade das quatro facilities (materiais exatos, locks, falhas sem custo). Build aprovado; niveis superiores, substituicao de imbuements e QA interativo continuam pendentes. Nenhum save pessoal aberto.

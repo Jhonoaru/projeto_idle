@@ -245,6 +245,43 @@ assert.equal(JSON.stringify(bazaarArgs), bazaarBefore);
 console.log('PASS: Bazaar repeat purchase, expired rotation, insufficient gold/capacity and immutable input');
 const { buyFromNpcShop, sellFromCharacterDepot, sellFromGuildDepot } = await import('../src/game-services/marketService.ts');
 const emptyDepot = { goldStored: 0, items: [] };
+const { consumeSupplies } = await import('../src/game-engine/supplies/consumeSupplies.ts');
+const potion = createInventoryItem('minor-health-potion', 5, 'character', hero.id);
+const supplyHero = { ...hero, inventory: [potion] };
+const usage = { itemId: potion.itemId, itemName: potion.item.name, supplyType: 'health', quantityUsed: 2, valueUsed: 0 };
+for (const invalid of [NaN, Infinity, -1, 0.5]) {
+  const consumed = consumeSupplies(supplyHero, [{ ...usage, quantityUsed: invalid }]);
+  assert.deepEqual(consumed.character.inventory, supplyHero.inventory, `invalid supply quantity ${invalid}`);
+  assert.deepEqual(consumed.suppliesUsed, []);
+}
+const partialSupply = consumeSupplies(supplyHero, [usage]);
+assert.equal(partialSupply.character.inventory[0].quantity, 3);
+assert.equal(partialSupply.suppliesUsed[0].valueUsed, 2 * potion.item.value);
+const exhausted = consumeSupplies(partialSupply.character, [{ ...usage, quantityUsed: 10 }]);
+assert.equal(exhausted.suppliesUsed[0].quantityUsed, 3);
+assert.deepEqual(exhausted.character.inventory, []);
+assert.deepEqual(consumeSupplies(exhausted.character, [usage]).suppliesUsed, []);
+assert.equal(supplyHero.inventory[0].quantity, 5);
+const { calculateDeathPenalty } = await import('../src/game-engine/death/calculateDeathPenalty.ts');
+const { applyDeathPenalty } = await import('../src/game-engine/death/applyDeathPenalty.ts');
+const { blessings } = await import('../src/data/blessings.ts');
+for (const invalid of [NaN, Infinity, -100]) {
+  assert.equal(calculateDeathPenalty(hero, invalid, 'deadly').penalty.goldLost, 0);
+}
+assert.equal(calculateDeathPenalty(hero, 1000000, 'low').penalty.goldLost, 500);
+const noBless = calculateDeathPenalty(hero, 10000, 'deadly').penalty;
+const blessed = calculateDeathPenalty(hero, 10000, 'deadly', blessings).penalty;
+assert.ok(blessed.goldLost < noBless.goldLost);
+assert.ok(blessed.experienceLost <= noBless.experienceLost);
+const deathHero = { ...structuredClone(hero), blessings: blessings.map(entry => entry.id), deathCount: 0 };
+const dead = applyDeathPenalty({ character: deathHero, guildGold: 10000, risk: 'deadly', cause: 'hunt' });
+assert.equal(dead.character.status, 'dead');
+assert.equal(dead.character.currentAction, undefined);
+assert.equal(dead.character.deathCount, 1);
+assert.deepEqual(dead.character.blessings, []);
+assert.deepEqual(dead.character.inventory, deathHero.inventory);
+assert.equal(deathHero.blessings.length, blessings.length);
+console.log('PASS: malformed/partial/exhausted supplies, value reconciliation, death gold limits and blessing consumption');
 for (const target of ['character_inventory', 'character_depot', 'guild_depot']) {
   const buyer = { ...structuredClone(hero), characterDepot: [] };
   const before = JSON.stringify(buyer);
@@ -325,6 +362,15 @@ for (const actor of [started, training]) {
 }
 const baseline = finishHunt(structuredClone(started), hunts[0], 30, guild.gold);
 const enhanced = finishHunt(structuredClone(started), hunts[0], 30, guild.gold, bestiary);
+const combinedStart = startHunt(hero, hunts[0], 30, 10, 15);
+const combined = finishHunt(structuredClone(combinedStart), hunts[0], 30, guild.gold, bestiary);
+const changedBonusAfterStart = finishHunt(structuredClone(combinedStart), hunts[0], 30, guild.gold, bestiary, 25, 25);
+assert.equal(combined.result.experienceGained, Math.round(enhanced.result.experienceGained * 1.1));
+assert.equal(combined.result.goldGained - combined.result.lootBonusGold, Math.round((enhanced.result.goldGained - enhanced.result.lootBonusGold) * 1.15));
+assert.equal(combined.result.lootBonusGold, enhanced.result.lootBonusGold);
+assert.equal(changedBonusAfterStart.result.goldGained, combined.result.goldGained);
+assert.equal(changedBonusAfterStart.result.experienceGained, combined.result.experienceGained);
+console.log('PASS: guild XP/gold plus Scavenger, one loot bonus payment, action bonus snapshot preserved');
 assert.ok(enhanced.result.lootBonusGold > 0, 'bonus must be nonzero, not a vacuous equality');
 assert.equal(enhanced.result.totalLootValue, baseline.result.totalLootValue);
 assert.equal(enhanced.result.goldGained - baseline.result.goldGained, enhanced.result.lootBonusGold);
