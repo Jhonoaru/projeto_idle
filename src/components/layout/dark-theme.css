@@ -1,0 +1,31 @@
+:root { color-scheme: dark; --client-bg: #101113; --client-surface: #191b1e; --client-raised: #22252a; --client-border: #383c43; --client-text: #e1e2e5; --client-muted: #a8adb7; }
+body, .game-shell { background: var(--client-bg); color: var(--client-text); }
+.game-shell .refreshed-topbar, .guild-navigation { background: #17191c; border-color: var(--client-border); }
+.refreshed-topbar .brand-block p, .guild-navigation h2, .guild-navigation summary { color: var(--client-muted); }
+.guild-navigation button { color: #c6c9d0; }
+.guild-navigation svg { color: #a6afc0; }
+.guild-navigation button:hover { background: #282c33; }
+.guild-navigation button[aria-current=page] { background: #30323a; border-color: #6b6555; }
+.game-shell .main-panel > .game-window { background: var(--client-surface); border-color: var(--client-border); }
+.game-shell .game-window-header { background: #202227; border-color: var(--client-border); }
+.game-shell :is(.panel, .forge-panel, .forge-workshop-shell, .explore-mode-panel, .character-hall-section) { background-color: var(--client-surface); border-color: var(--client-border); }
+.game-shell :is(.forge-summary > div, .forge-action-box, .forge-imbuement-card, .forge-item-header, .forge-item-list > button, .explore-board-card, .explore-board-footer) { background: #1c1e22; border-color: #3b3e46; color: var(--client-text); }
+.game-shell .explore-board-card:hover { background: #2a2c33; }
+.game-shell .explore-board-card.is-selected, .game-shell .central-roster-list button.is-selected { background: #303039; border-color: #b09d63; }
+.game-shell .central-roster-list button, .guild-central button, .explore-central-toolbar button { background: #22252a; border-color: #42454e; }
+.game-shell .central-explore { background: #d8bc70; color: #171717; }
+.game-shell .explore-mode-tabs button { background: #15171a; }
+.game-shell .explore-mode-tabs button.is-selected { background: #2b2d34; }
+.game-shell .explore-mode-tabs svg { color: #a5b8d3; }
+.game-shell :is(input, select, textarea) { background: #14161a; border-color: #42464f; color: var(--client-text); }
+.game-shell :is(.central-heading, .central-roster, .central-empty, .character-attributes > header, .character-attributes dl > div) { border-color: var(--client-border); }
+.guild-central small, .central-heading p, .central-empty { color: var(--client-muted); }
+.paperdoll-grid { display: grid; grid-template-columns: repeat(3, 58px); grid-template-rows: repeat(4, 58px); gap: 7px; width: max-content; margin: 8px auto 22px; }
+.paperdoll-grid > button { display: grid; place-items: center; width: 58px; height: 58px; padding: 3px; background: #111316; color: #626975; border: 1px solid #484d58; border-radius: 3px; box-shadow: inset 0 0 0 2px #202329; cursor: pointer; }
+.paperdoll-grid > button[aria-pressed=true] { outline: 2px solid #c8ad68; outline-offset: 1px; }
+.paperdoll-grid > button:hover { background: #292d35; color: #aeb8c7; }
+.paperdoll-grid .item-icon { width: 48px; height: 48px; min-width: 0; border-radius: 2px; }
+.paperdoll-inspection { min-height: 110px; padding: 14px 0; border-top: 1px solid var(--client-border); }
+.paperdoll-inspection strong, .paperdoll-inspection small { display: block; margin-bottom: 6px; }
+.paperdoll-inspection small { color: var(--client-muted); }
+.paperdoll-inspection p { font-size: 13px; line-height: 1.5; }

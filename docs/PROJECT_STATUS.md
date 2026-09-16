@@ -4,6 +4,8 @@ Atualizado em: 2026-09-16
 
 ## Revisao antes da Etapa 179
 
+- Tema dark compartilhado em carvao/grafite, sem filtro sobre sprites nem alteracao das cores de raridade. Atributos sem linha de stamina (mecanica preservada). Equipamento em paperdoll de nove slots fixos, inclusive vazios, com tooltip e inspecao por clique/teclado. QA browser confirmou nove slots, selecao de capacete vazio e ausencia de stamina. Paineis avancados com estilos locais ainda precisam de auditoria cromatica completa; Tauri nao testado.
+
 - Simplificacao solicitada: Central sem atalhos duplicados da lateral; ficha Atributos dedicada ao personagem, sem briefing/comandos da guilda; removido Current Action das Skills. CharacterSprite usa fallback por vocacao para fundadores/recrutas. Forja separada de Imbuements por modo; seletor de imbuement exibe uma unica receita, referencias recolhidas. Paleta preservada. Build/regressoes aprovados; QA browser isolado confirmou imagem carregada, troca para Powerful Strike e separacao dos controles. Tauri/SQLite nao testado nesta rodada.
 
 - Reformulacao visual do client: corrigida rolagem cortada por altura fixa/overflow do shell; navegacao lateral por categorias com icones, cabecalho compacto e menu mobile recolhivel. Central e Explorar atualizados. QA isolado confirmou fim do conteudo em Hunts/Bosses/Training/Quests e largura 390px; build/regressoes aprovados. Revisao individual dos demais paineis e Tauri pendentes. Plano em docs/CLIENT_VISUAL_REWORK.md.

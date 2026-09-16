@@ -16,6 +16,7 @@ import type { MainPanelTab } from "../components/layout/MainPanel";
 import type { HuntArea } from "../shared/types";
 import "../styles.css";
 import "../components/layout/client-refresh.css";
+import "../components/layout/dark-theme.css";
 const state = createInitialGameState();
 state.characters = state.characters.map((entry, index) => index === 0 ? { ...entry, id: "founder-qa", name: "Fundador QA" } : entry);
 const noop = () => {};
