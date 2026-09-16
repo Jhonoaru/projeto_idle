@@ -612,6 +612,8 @@ export function MainPanel({
 
         {activeTab === "hunts" ? (
           <ExploreWindow
+            onReturnToCentral={() => onChangeTab("central")}
+            onSelectCharacter={onSelectCharacter}
             bossParty={bossParty}
             bosses={bosses}
             characters={characters}
@@ -915,7 +917,7 @@ function getWindowTitle(tab: MainPanelTab) {
     collections: "Collections",
     action: "Current Action",
     atlas: "Region Atlas",
-    hunts: "Explorar / Modos de Jogo",
+    hunts: "Explorar",
     inventory: "Inventory & Equipment",
     equipment: "Equipment",
     depot: "Depot",
@@ -938,7 +940,7 @@ function getWindowTitle(tab: MainPanelTab) {
 }
 
 function getWindowSubtitle(tab: MainPanelTab) {
-  if (tab === "hunts") return "Hunts, bosses, training, and quests use the real game systems.";
+  if (tab === "hunts") return "";
   if (tab === "atlas") return "Region, area, access and level progression derived from the local save.";
   if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
   if (tab === "focus") return "Personal target contracts, field studies and temporary hunt bonuses.";

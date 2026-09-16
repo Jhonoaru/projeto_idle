@@ -39,7 +39,7 @@ export function TopBar({
   const guildProgression = getGuildProgression(guild);
 
   return (
-    <header className={`top-bar ${activeTab === "central" ? "is-central-topbar" : ""}`}>
+    <header className={`top-bar ${activeTab === "central" || activeTab === "hunts" ? "is-central-topbar" : ""}`}>
       <div className="brand-block">
         <span>{GAME_TITLE}</span>
         <h1>Guild Hunt</h1>
@@ -57,7 +57,7 @@ export function TopBar({
           label="Explorar"
           onClick={() => onOpenTab("hunts")}
         />
-        {activeTab !== "central" ? <>
+        {activeTab !== "central" && activeTab !== "hunts" ? <>
         <GameIconButton active={activeTab === "atlas"} icon="A" label="Atlas" onClick={() => onOpenTab("atlas")} />
         <GameIconButton active={activeTab === "market"} icon="M" label="Market" onClick={() => onOpenTab("market")} />
         <GameIconButton active={activeTab === "forge"} icon="F" label="Forge" onClick={() => onOpenTab("forge")} />

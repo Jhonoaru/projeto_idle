@@ -1,8 +1,11 @@
 # Guild Hunt Idle - Project Status
 
-Atualizado em: 2026-09-13
+Atualizado em: 2026-09-16
 
 ## Revisao antes da Etapa 179
+
+- Explorar integrado ao layout da Central: largura total, laterais antigas ocultas, barra superior reduzida, seletor de personagem e retorno explicito para a Central. Modos de jogo e fluxo hunt -> duracao -> combate preservados.
+- Validacao do Explorar: build aprovado e regressoes de engine aprovadas; navegador com fallback mock confirmou catalogo, troca de personagem e selecao de hunt abrindo duracao. QA Tauri/SQLite e teste responsivo especifico do Explorar ainda pendentes. Nenhum save pessoal alterado.
 
 - Reformulacao solicitada da abertura: nova Central da Guilda com roster ilustrado, selecao de personagem, atividades e grupos Jogar/Equipamentos/Guilda. Sistemas adicionais em disclosure; laterais ocultas somente na Central e barra inicial reduzida. Janelas fecham para Central; combate continua em home e retorno a cidade abre Central. Migracao unica de preferencias seleciona a nova abertura sem alterar save SQLite; personalizacao posterior preservada.
 - Validacao: build e regressoes; navegacao por cliques no browser (troca de personagem, NPC, retorno), screenshots desktop e verificacao de largura 390px. Browser usa fallback mock local, nao SQLite real. Nao foi realizado QA Tauri nesta rodada.

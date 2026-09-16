@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./explore-central.css";
 import { CreatureSprite } from "../creatures/CreatureSprite";
 import { BossPanel } from "../boss/BossPanel";
 import { BossSprite } from "../boss/BossSprite";
@@ -28,6 +29,8 @@ import type {
 type ExploreTab = "hunts" | "bosses" | "training" | "quests";
 
 interface ExploreWindowProps {
+  onReturnToCentral?: () => void;
+  onSelectCharacter?: (id: string) => void;
   bossParty: BossParty;
   bosses: Boss[];
   characters: Character[];
@@ -79,6 +82,8 @@ const tabs: Array<{ id: ExploreTab; label: string; icon: string }> = [
 ];
 
 export function ExploreWindow({
+  onReturnToCentral,
+  onSelectCharacter,
   bossParty,
   bosses,
   characters,
@@ -141,6 +146,12 @@ export function ExploreWindow({
 
   return (
     <div className="explore-window">
+      <div className="explore-central-toolbar">
+        <button type="button" onClick={onReturnToCentral}>Voltar para a Central</button>
+        <label>Personagem<select value={character.id} onChange={(event) => { onClearSelectedHunt(); onSelectCharacter?.(event.target.value); }}>
+          {characters.map(entry => <option value={entry.id} key={entry.id}>{entry.name} · Lv {entry.level} · {entry.status === "idle" ? "Disponivel" : "Em atividade"}</option>)}
+        </select></label>
+      </div>
       <header className="explore-mode-header">
         <span>Modos de jogo</span>
         <div className="explore-mode-tabs" aria-label="Explore modes">
