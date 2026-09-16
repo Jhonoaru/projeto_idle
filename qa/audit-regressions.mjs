@@ -24,6 +24,29 @@ registerHooks({
 });
 
 const { mapGuild, mapCharacter, mapInventoryItem } = await import('../src/database/saveMapper.ts');
+const { createNewGame, starterChoices } = await import('../src/game-engine/new-game/createNewGame.ts');
+for (const choice of starterChoices) {
+  const fresh = createNewGame('Guilda Teste', 'Fundador', choice.id);
+  assert.equal(fresh.characters.length, 1);
+  assert.equal(fresh.characters[0].level, 1);
+  assert.equal(fresh.characters[0].vocation, choice.vocation);
+  assert.equal(fresh.guild.gold, 150);
+  assert.equal(fresh.guild.renown, 0);
+  assert.equal(fresh.guild.level, 1);
+  assert.equal(fresh.depot.items.length, 0);
+  assert.equal(fresh.characters[0].currentAction, undefined);
+  assert.ok(fresh.characters[0].equipment.weapon.item.id);
+  assert.ok(fresh.guild.id.startsWith('guild-new-'));
+}
+assert.throws(() => createNewGame(' ', 'Hero', starterChoices[0].id));
+assert.throws(() => createNewGame('Guild', 'Hero', 'invalid'));
+const { loadGameState: readNewGame } = await import('../src/database/saveGameRepository.ts');
+const newRows = await readNewGame({ select: async sql => sql.includes('FROM guilds')
+  ? [{ id: 'guild-new-test', name: 'Test', gold: 150, renown: 0, rank: 'D', level: 1 }]
+  : [] });
+assert.equal(newRows.characters.length, 0, 'New saves must never receive demonstration characters');
+assert.equal(newRows.depot.items.length, 0);
+console.log('PASS: five level-one founders, input validation, empty depot and no demonstration roster injected');
 const legacyGuildRow = { id: 'legacy-audit', name: 'Legacy', gold: 123, renown: 0, rank: 'Recruit', level: 1 };
 for (const invalid of ['{broken', 'null', '{}', '42', '"text"']) {
   assert.deepEqual(mapGuild({ ...legacyGuildRow, hunt_presets_json: invalid }).huntPresets, [], `invalid list: ${invalid}`);

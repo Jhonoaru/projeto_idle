@@ -48,7 +48,7 @@ export function getGuildRecruitmentAvailability(guild: Guild, characters: Charac
   return { available: reasons.length === 0, reasons, candidate };
 }
 
-function createRecruitedCharacter(candidate: GuildRecruitCandidateDefinition, now: Date): Character {
+export function createRecruitedCharacter(candidate: GuildRecruitCandidateDefinition, now: Date): Character {
   const skills = createSkills(candidate.skills);
   const equipment = Object.fromEntries(
     Object.entries(candidate.equipment).map(([slot, itemId]) => [

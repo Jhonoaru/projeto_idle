@@ -4,6 +4,8 @@ Atualizado em: 2026-09-16
 
 ## Revisao antes da Etapa 179
 
+- Nova entrada, parte 1: menu principal padrao, continuar condicionado a save, fundacao com nome e cinco vocacoes de nivel 1. Novo save nao recebe personagens mock no reload. Arte original local com animacao CSS e musica sintetizada com volume/pausa. Ver docs/NEW_PLAYER_ROADMAP.md para continuar: proxima entrega e onboarding persistente e desbloqueios em todas as entradas. GIF real e QA Tauri ainda pendentes; sistemas existentes ainda nao foram bloqueados por onboarding.
+
 - Explorar integrado ao layout da Central: largura total, laterais antigas ocultas, barra superior reduzida, seletor de personagem e retorno explicito para a Central. Modos de jogo e fluxo hunt -> duracao -> combate preservados.
 - Validacao do Explorar: build aprovado e regressoes de engine aprovadas; navegador com fallback mock confirmou catalogo, troca de personagem e selecao de hunt abrindo duracao. QA Tauri/SQLite e teste responsivo especifico do Explorar ainda pendentes. Nenhum save pessoal alterado.
 

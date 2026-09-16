@@ -1,0 +1,31 @@
+.title-screen { min-height: 100dvh; position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: center; background: #101914; color: #f3ebd7; font-family: Georgia, serif; letter-spacing: 0; overflow: hidden; }
+.title-screen-art { position: absolute; inset: 0; z-index: -2; background: url('/assets/menu/guild-courtyard.png') center / cover; animation: menu-breathe 35s ease-in-out infinite alternate; }
+.title-screen::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, #08100fe8, #08100f88 45%, #08100f10); }
+.title-screen-content { width: min(620px, 100%); box-sizing: border-box; padding: 60px 48px; }
+.title-screen-kicker { font: 12px system-ui; color: #cbbd93; }
+.title-screen h1 { font-size: 64px; line-height: 1.05; margin: 18px 0 40px; color: #f5dfaa; text-shadow: 0 3px 12px #000; }
+.title-screen h1 span { display: block; font-size: 40px; }
+.title-screen button { font: bold 18px Georgia, serif; cursor: pointer; color: #eedcae; border: 1px solid #8e805c; background: #14201fe8; padding: 16px 24px; border-radius: 3px; }
+.title-screen button:hover:not(:disabled) { background: #30443a; border-color: #edcf86; }
+.title-screen button:disabled { opacity: .45; cursor: not-allowed; }
+.title-screen :focus-visible { outline: 2px solid #f4d47d; outline-offset: 4px; }
+.title-screen-nav { display: grid; gap: 14px; max-width: 350px; }
+.title-screen-nav button { text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.title-screen small, .title-screen p { font: 14px/1.6 system-ui; }
+.new-game-form { display: grid; gap: 16px; }
+.new-game-form h2 { margin: 0; font-size: 24px; }
+.new-game-form label { display: grid; gap: 6px; font: 14px/1.5 system-ui; }
+.new-game-form input:not([type=radio]) { min-width: 0; width: 100%; box-sizing: border-box; padding: 10px; background: #101b19; color: #fff; border: 1px solid #788674; border-radius: 3px; font: inherit; }
+.new-game-form fieldset { border: 0; padding: 0; margin: 0; }
+.new-game-form legend { font: 14px system-ui; margin-bottom: 10px; }
+.starter-choices { display: flex; flex-wrap: wrap; gap: 12px; }
+.starter-choices label { display: flex; align-items: center; }
+.new-game-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.new-game-warning { color: #ffc59b; }
+.title-screen-footer { margin-top: auto; padding: 18px 32px; display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; font: 12px system-ui; background: #09100ebd; }
+.title-screen-footer div { display: flex; gap: 12px; align-items: center; }
+.title-screen-footer button { font: 13px system-ui; padding: 9px 14px; }
+.title-screen-footer input { width: 100px; }
+@keyframes menu-breathe { from { transform: scale(1); } to { transform: scale(1.055); } }
+@media (prefers-reduced-motion: reduce) { .title-screen-art { animation: none; } }
+@media (max-width: 640px) { .title-screen-content { padding: 40px 22px; } .title-screen h1 { font-size: 46px; } .title-screen-footer { padding: 18px 22px; } }

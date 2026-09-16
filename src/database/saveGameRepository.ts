@@ -102,17 +102,18 @@ async function readGameState(db: Database): Promise<GameStateSnapshot | null> {
   const mappedCharacters = characterRows.map((row) =>
     mapCharacter(row, skillRows, inventoryRows, guild),
   );
-  const missingDefaultCharacters = mockCharacters.filter(
+  const defaults = guild.id.startsWith("guild-new-") ? [] : mockCharacters;
+  const missingDefaultCharacters = defaults.filter(
     (defaultCharacter) => !mappedCharacters.some((character) => character.id === defaultCharacter.id),
   );
   const partialDefaultSave = missingDefaultCharacters.length > 0;
   const characters = [
-    ...mockCharacters.map(
+    ...defaults.map(
       (defaultCharacter) =>
         mappedCharacters.find((character) => character.id === defaultCharacter.id) ?? defaultCharacter,
     ),
     ...mappedCharacters.filter(
-      (character) => !mockCharacters.some((defaultCharacter) => defaultCharacter.id === character.id),
+      (character) => !defaults.some((defaultCharacter) => defaultCharacter.id === character.id),
     ),
   ];
   const savedDepotItems = inventoryRows

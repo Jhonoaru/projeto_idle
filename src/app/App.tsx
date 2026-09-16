@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { MainMenu } from "../components/menu/MainMenu";
+import { createNewGame } from "../game-engine/new-game/createNewGame";
 import { GameShell } from "../components/layout/GameShell";
 import { CharacterSideMenu } from "../components/layout/CharacterSideMenu";
 import { LeftPanel } from "../components/layout/LeftPanel";
@@ -212,6 +214,8 @@ interface LastHuntResult {
 
 export function App() {
   const [guild, setGuild] = useState(mockGuild);
+  const [atMainMenu, setAtMainMenu] = useState(true);
+  const [hasSavedGame, setHasSavedGame] = useState(false);
   const [characters, setCharacters] = useState(mockCharacters);
   const activeGuildTitle = useMemo(
     () => getGuildIdentity(guild, characters).activeTitle?.definition.title,
@@ -328,9 +332,8 @@ export function App() {
         applyGameState(stateToApply);
         setSelectedCharacterId(stateToApply.characters[0]?.id ?? mockCharacters[0].id);
         setDatabase(db);
-        if (!loadedState) {
-          await saveGameState(db, stateToApply);
-        } else {
+        setHasSavedGame(Boolean(loadedState));
+        if (loadedState) {
           await markSaveLoaded(db);
           if (catchUp && catchUp.report.characterReports.length > 0) {
             setOfflineReport(catchUp.report);
@@ -338,8 +341,8 @@ export function App() {
             await markOfflineCatchUpApplied(db);
           }
         }
-        saveReadyRef.current = true;
-        setSaveStatus(loadedState ? "Save carregado." : "Save inicial criado.");
+        saveReadyRef.current = Boolean(loadedState);
+        setSaveStatus(loadedState ? "Save carregado." : "Nenhuma guilda criada.");
       } catch (error) {
         console.error("Failed to load local SQLite save.", error);
 
@@ -365,7 +368,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    if (!database || !saveReadyRef.current || isLoadingSave) return undefined;
+    if (!database || !saveReadyRef.current || isLoadingSave || atMainMenu) return undefined;
 
     setSaveStatus("Salvando...");
 
@@ -379,10 +382,10 @@ export function App() {
     }, 500);
 
     return () => window.clearTimeout(timeout);
-  }, [characters, database, depot, guild, isLoadingSave, logs]);
+  }, [characters, database, depot, guild, isLoadingSave, logs, atMainMenu]);
 
   useEffect(() => {
-    if (isLoadingSave) return;
+    if (isLoadingSave || atMainMenu) return;
     const plan = buildGuildLogisticsPlan(guild, depot, characters);
     const logisticsResult = syncGuildLogisticsAlerts(guild, plan.objectives);
     const procurementResult = syncGuildLoadoutProcurementAlerts(
@@ -413,14 +416,14 @@ export function App() {
     if (newLogs.length > 0) {
       setLogs((currentLogs) => [...newLogs, ...currentLogs]);
     }
-  }, [characters, depot, guild, isLoadingSave]);
+  }, [characters, depot, guild, isLoadingSave, atMainMenu]);
 
   useEffect(() => {
     charactersRef.current = characters;
   }, [characters]);
 
   useEffect(() => {
-    if (isLoadingSave) return undefined;
+    if (isLoadingSave || atMainMenu) return undefined;
 
     function finishExpiredTravelingCharacters() {
       const arrivals: ActivityLogEntry[] = [];
@@ -463,7 +466,7 @@ export function App() {
     const interval = window.setInterval(finishExpiredTravelingCharacters, 1000);
 
     return () => window.clearInterval(interval);
-  }, [isLoadingSave]);
+  }, [isLoadingSave, atMainMenu]);
 
   function updateSelectedCharacter(updatedCharacter: typeof selectedCharacter) {
     setCharacters((currentCharacters) =>
@@ -2671,6 +2674,27 @@ export function App() {
     }
   }
 
+  async function handleNewGame(guildName: string, heroName: string, candidateId: string) {
+    if (!database) throw new Error("SQLite indisponivel. Nenhum save foi alterado.");
+    const state = createNewGame(guildName, heroName, candidateId);
+    await saveGameState(database, state);
+    applyGameState(state);
+    setSelectedCharacterId(state.characters[0].id);
+    setSelectedHunt(undefined);
+    setOfflineReport(undefined);
+    setActiveTab("central");
+    saveReadyRef.current = true;
+    setHasSavedGame(true);
+    setSaveStatus("Guilda criada e salva.");
+    setAtMainMenu(false);
+  }
+
+  if (atMainMenu) {
+    return <MainMenu hasSave={hasSavedGame} guildName={guild.name} loading={isLoadingSave}
+      unavailable={!isLoadingSave && !database}
+      onContinue={() => { setActiveTab("central"); setAtMainMenu(false); }} onNewGame={handleNewGame} />;
+  }
+
   if (isLoadingSave) {
     return (
       <GameShell>
@@ -2684,6 +2708,13 @@ export function App() {
 
   return (
     <GameShell>
+      <button className="return-main-menu" onClick={async () => {
+        if (!database) return;
+        try {
+          await saveGameState(database, { guild, characters, depot, logs });
+          setAtMainMenu(true);
+        } catch { setSaveStatus("Falha ao salvar. Permanecendo no jogo."); }
+      }}>Menu principal</button>
       <TopBar
         activeTab={activeTab}
         guild={guild}
