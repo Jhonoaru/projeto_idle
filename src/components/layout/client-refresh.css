@@ -1,4 +1,19 @@
 /* One document scrollbar: page windows expand instead of clipping tall content. */
+.central-selected-character { display: flex; align-items: center; gap: 26px; padding: 28px 0; }
+.central-selected-character dl { display: grid; grid-template-columns: auto auto; gap: 8px 24px; }
+.central-selected-character dd { margin: 0; font-weight: 700; }
+.character-attributes > header { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding-bottom: 24px; border-bottom: 1px solid #3a4b45; }
+.character-attributes > header label { margin-left: auto; display: grid; gap: 8px; }
+.character-attributes-columns { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 24px; padding-top: 24px; }
+.character-attributes dl > div { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid #3a4b45; }
+.character-attributes dd { margin: 0; text-align: right; font-weight: 700; }
+.character-attributes small { display: block; font-weight: 400; }
+.character-attributes-gear > div { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.game-shell .forge-mode-forge .forge-layout-wide { grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr); }
+.forge-imbuement-list > label { display: grid; gap: 10px; }
+.forge-imbuement-list select, .character-attributes select { width: 100%; padding: 10px; background: #182622; color: inherit; border: 1px solid #3c514c; }
+@media (max-width: 1000px) { .character-attributes-columns { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .game-shell .forge-mode-forge .forge-layout-wide { grid-template-columns: 1fr; } }
 body { overflow: auto; background: #111718; }
 .game-shell { display: grid; grid-template-columns: 206px minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 0 20px; height: auto; min-height: 100dvh; overflow: visible; padding: 0 24px 30px 0; background: #111718; align-items: start; }
 .game-shell > .top-bar { grid-column: 1 / -1; grid-row: 1; }

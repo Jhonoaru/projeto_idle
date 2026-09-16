@@ -420,7 +420,18 @@ console.log('PASS: cancellation of four action types, dated return, early/repeat
 const noop = () => {};
 const { GuildCentral } = await import('../src/components/layout/GuildCentral.tsx');
 const centralMarkup = renderToStaticMarkup(createElement(GuildCentral, { guild, characters: [hero, started], selectedCharacter: hero, onSelectCharacter: noop, onOpenTab: noop }));
-for (const label of ['Central da Guilda', 'Personagens', 'Atividades', 'NPC e Bazar', 'Recrutamento', 'Progressao e outros sistemas', 'Combate']) assert.ok(centralMarkup.includes(label));
+for (const label of ['Central da Guilda', 'Personagens', 'Atividades', 'Combate']) assert.ok(centralMarkup.includes(label));
+for (const label of ['NPC e Bazar', 'Recrutamento', 'Progressao e outros sistemas']) assert.ok(!centralMarkup.includes(label));
+const { ForgePanel } = await import('../src/components/forge/ForgePanel.tsx');
+const forgeProps = { character: hero, guild, guildDepot: { items: [], goldStored: 0 }, onUpgradeItem: noop, onIncreaseTier: noop, onApplyImbuement: noop, onRemoveImbuements: noop };
+const forgeHtml = renderToStaticMarkup(createElement(ForgePanel, { ...forgeProps, mode: 'forge' }));
+const imbuingHtml = renderToStaticMarkup(createElement(ForgePanel, { ...forgeProps, mode: 'imbuing' }));
+assert.ok(forgeHtml.includes('Increase Tier'));
+assert.ok(!forgeHtml.includes('Apply Imbuement'));
+assert.ok(!imbuingHtml.includes('Increase Tier'));
+assert.equal((imbuingHtml.match(/class="forge-imbuement-card /g) ?? []).length, 1);
+const { getCharacterSprite } = await import('../src/data/characterSprites.ts');
+assert.ok(getCharacterSprite('founder-new-id', 'Guardian').src.endsWith('char-arkon.png'));
 assert.ok(centralMarkup.includes('aria-pressed="true"'));
 const controls = { characters: [hero], hunts, quests: [], bosses: [], bossParty: { bossId: '', members: [] },
   onCancelAction: noop, onFinishTravel: noop, onFinishHunt: noop, onFinishTraining: noop,

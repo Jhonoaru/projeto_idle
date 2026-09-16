@@ -33,7 +33,7 @@ import type { ActivityLogEntry, Character, EquipmentSlot, Guild, Skill } from ".
 
 type CharacterRoute = "action" | "hunts" | "inventory" | "skills" | "proficiency" | "destiny" | "blessings" | "market" | "quests" | "operations" | "armory" | "headquarters" | "contracts" | "staff" | "treasury" | "projects" | "logistics" | "recruitment";
 
-interface CharacterDetailsProps {
+export interface CharacterDetailsProps {
   character: Character;
   characters: Character[];
   guild: Guild;

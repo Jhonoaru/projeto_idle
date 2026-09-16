@@ -16,6 +16,7 @@ export const characterSprites: Record<string, CharacterSpriteDefinition> = {
   "char-shen": generatedSprite("char-shen"),
 };
 
-export function getCharacterSprite(characterId?: string) {
-  return characterId ? characterSprites[characterId] : undefined;
+export function getCharacterSprite(characterId?: string, vocation?: string) {
+  const fallback: Record<string, string> = { Guardian: "char-arkon", Ranger: "char-ayla", Arcanist: "char-mira", Warden: "char-lyra", Monk: "char-shen" };
+  return (characterId ? characterSprites[characterId] : undefined) ?? characterSprites[fallback[vocation ?? ""]];
 }

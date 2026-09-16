@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CharacterDetails } from "../character/CharacterDetails";
+import { CharacterAttributes } from "../character/CharacterAttributes";
 import { GuildCentral } from "./GuildCentral";
 import { ActionPanel } from "../action/ActionPanel";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
@@ -478,7 +478,7 @@ export function MainPanel({
       >
       <div className="tab-content client-window-content" ref={tabContentRef}>
         {activeTab === "character" ? (
-          <CharacterDetails
+          <CharacterAttributes
             character={selectedCharacter}
             characters={characters}
             guild={guild}
@@ -727,6 +727,7 @@ export function MainPanel({
         {activeTab === "imbuing" ? (
           <Panel title="Imbuing Shrine">
             <ForgePanel
+              mode="imbuing"
               character={selectedCharacter}
               guild={guild}
               guildDepot={depot}
@@ -942,7 +943,7 @@ function getWindowTitle(tab: MainPanelTab) {
 function getWindowSubtitle(tab: MainPanelTab) {
   if (tab === "hunts") return "";
   if (tab === "atlas") return "Region, area, access and level progression derived from the local save.";
-  if (tab === "imbuing") return "Imbuements are available here; upgrade and tier controls remain visible for now.";
+  if (tab === "imbuing") return "";
   if (tab === "focus") return "Personal target contracts, field studies and temporary hunt bonuses.";
   if (tab === "destiny") return "A real per-character passive wheel powered by level-earned Destiny Points.";
   if (tab === "collections") return "Guild-wide cosmetic unlocks with per-character outfit, mount, and avatar choices.";

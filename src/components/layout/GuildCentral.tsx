@@ -36,8 +36,7 @@ export function GuildCentral({ guild, characters, selectedCharacter, onSelectCha
           const end = Date.parse(character.currentAction?.endsAt ?? "");
           return <div key={character.id}><span><strong>{character.name}</strong><small>{character.currentAction?.targetName ?? character.city}</small></span><span>{ready ? "Pronto para coletar" : Number.isFinite(end) ? formatDuration(end - now.getTime()) : character.status === "dead" ? "Recuperacao" : "Em andamento"}</span><button onClick={() => { onSelectCharacter(character.id); onOpenTab("action"); }}>{ready ? "Coletar resultado" : "Ver atividade"}</button>{character.status === "hunting" || character.status === "bossing" ? <button onClick={() => { onSelectCharacter(character.id); onOpenTab("home"); }}>Combate</button> : null}</div>;
         })}</div>}
-        <div className="central-destinations">{groups.map(group => <section key={group.title}><h3>{group.title}</h3>{group.links.map(([tab, label]) => <button key={tab} onClick={() => onOpenTab(tab)}>{label}<span aria-hidden="true">›</span></button>)}</section>)}</div>
-        <details className="central-advanced"><summary>Progressao e outros sistemas</summary><nav>{advanced.map(([tab, label]) => <button key={tab} onClick={() => onOpenTab(tab)}>{label}</button>)}</nav></details>
+        <section className="central-selected-character"><CharacterSprite character={selectedCharacter} size="large" /><div><h3>{selectedCharacter.name}</h3><p>{selectedCharacter.vocation} · Nivel {selectedCharacter.level}</p><p>{selectedCharacter.city}</p><dl><dt>Ataque</dt><dd>{selectedCharacter.attributes.attackPower}</dd><dt>Defesa</dt><dd>{selectedCharacter.attributes.defensePower}</dd><dt>Vida</dt><dd>{selectedCharacter.attributes.maxHealth}</dd><dt>Mana</dt><dd>{selectedCharacter.attributes.maxMana}</dd></dl></div></section>
       </section>
     </div>
   </div>;

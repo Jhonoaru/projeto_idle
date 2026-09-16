@@ -24,6 +24,11 @@
   (nanoid e postcss). Nao foram corrigidos automaticamente nesta mudanca visual.
 
 ## Proxima entrega visual
+Atualizacao: antes da troca de paleta, Central perdeu atalhos duplicados; Atributos
+agora usa CharacterAttributes; Skills nao tem Current Action. Sprites genericos
+por vocacao cobrem IDs novos. ForgePanel tem modos forge/imbuing e um seletor de
+receita no lugar da lista completa. QA SSR e browser isolado aprovados.
+
 1. Inventario, equipamento, NPC/Bazar: densidade, comparacao, filtros e venda.
 2. Bosses: separar catalogo, preparacao, codex e trofeus em abas, evitando pagina longa.
 3. Personagem, skills, forja e sede: consolidar tipografia e controles antigos.

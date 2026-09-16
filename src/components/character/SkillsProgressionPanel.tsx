@@ -73,9 +73,6 @@ export function SkillsProgressionPanel({ character, onOpenTab }: SkillsProgressi
         <button onClick={() => onOpenTab("training")} type="button">Training Grounds</button>
         <button onClick={() => onOpenTab("proficiency")} type="button">Weapon Mastery</button>
         <button onClick={() => onOpenTab("destiny")} type="button">Path of Destiny</button>
-        {character.currentAction ? (
-          <button onClick={() => onOpenTab("action")} type="button">Current Action</button>
-        ) : null}
       </nav>
 
       <div className="skills-hall-layout">

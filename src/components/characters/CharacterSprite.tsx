@@ -9,7 +9,7 @@ import type { Character, CollectionItem, EquipmentSlot, InventoryItem } from "..
 type CharacterSpriteSize = "small" | "medium" | "large" | "scene";
 
 interface CharacterSpriteProps {
-  character: Pick<Character, "id" | "name" | "cosmetics"> & { equipment?: Character["equipment"] };
+  character: Pick<Character, "id" | "name" | "cosmetics"> & { equipment?: Character["equipment"]; vocation?: Character["vocation"] };
   className?: string;
   fallbackSymbol?: string;
   avatar?: CollectionItem;
@@ -25,7 +25,7 @@ export function CharacterSprite({
   size = "medium",
   showLoadout = false,
 }: CharacterSpriteProps) {
-  const baseSprite = getCharacterSprite(character.id);
+  const baseSprite = getCharacterSprite(character.id, character.vocation);
   const outfit = getOutfitSprite(character.cosmetics?.activeOutfitId);
   const mount = getMountSprite(character.cosmetics?.activeMountId);
   const [failedSources, setFailedSources] = useState<string[]>([]);

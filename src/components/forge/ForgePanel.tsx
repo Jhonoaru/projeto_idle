@@ -25,6 +25,7 @@ import { formatEquipmentSetBonus } from "../../game-engine/equipment/calculateEq
 import type { Character, EquipmentProgressionBandId, EquipmentSlot, Guild, GuildDepot, ImbuementDefinition, InventoryItem } from "../../shared/types";
 
 interface ForgePanelProps {
+  mode?: "forge" | "imbuing";
   character: Character;
   guild: Guild;
   guildDepot: GuildDepot;
@@ -37,6 +38,7 @@ interface ForgePanelProps {
 type ForgeFilter = "all" | "weapons" | "armor" | "accessories" | "backpack";
 
 export function ForgePanel({
+  mode = "forge",
   character,
   guild,
   guildDepot,
@@ -47,6 +49,7 @@ export function ForgePanel({
 }: ForgePanelProps) {
   const forgeableItems = getForgeableItems(character);
   const [filter, setFilter] = useState<ForgeFilter>("all");
+  const [imbuementId, setImbuementId] = useState(imbuements[0].id);
   const [selectedItemId, setSelectedItemId] = useState(forgeableItems[0]?.id);
   const materialsAvailable = getForgeMaterialsAvailable(character, guildDepot);
   const filteredItems = forgeableItems.filter((item) => matchesFilter(item, filter));
@@ -70,10 +73,10 @@ export function ForgePanel({
   }
 
   return (
-    <div className="forge-panel">
+    <div className={`forge-panel forge-mode-${mode}`}>
       <div className="forge-summary">
         <div>
-          <span>Arcane Forge</span>
+          <span>{mode === "forge" ? "Forja" : "Imbuements"}</span>
           <strong>{character.name}</strong>
         </div>
         <div>
@@ -86,9 +89,9 @@ export function ForgePanel({
         </div>
       </div>
 
-      <ForgeRarityLegend />
+      <details><summary>Referencias de equipamentos</summary><ForgeRarityLegend />
       <ForgeFamilyLegend />
-      <ForgeSetLegend />
+      <ForgeSetLegend /></details>
 
       <div className="forge-filters">
         {(["all", "weapons", "armor", "accessories", "backpack"] as ForgeFilter[]).map((option) => (
@@ -141,7 +144,7 @@ export function ForgePanel({
               {selectedIdentity ? <ForgeQualityTrack currentTier={selectedIdentity.tier} /> : null}
               {selectedProgression ? <EquipmentProgressionTrack currentBand={selectedProgression.bandId} /> : null}
 
-              <div className="forge-action-grid">
+              {mode === "forge" ? <div className="forge-action-grid">
                 <ForgeActionBox
                   actionLabel="Upgrade"
                   currentLabel={`+${selectedItem.upgradeLevel ?? 0} / +5`}
@@ -157,9 +160,9 @@ export function ForgePanel({
                   materialsAvailable={materialsAvailable}
                   onAction={() => onIncreaseTier(selectedItem)}
                 />
-              </div>
+              </div> : null}
 
-              <div className="forge-action-box">
+              {mode === "imbuing" ? <div className="forge-action-box">
                 <div>
                   <span>Active Imbuements</span>
                   <strong>{selectedItem.imbuements?.length ? `${selectedItem.imbuements.length} active` : "None"}</strong>
@@ -176,7 +179,7 @@ export function ForgePanel({
                     </div>
                   );
                 })}
-              </div>
+              </div> : null}
 
               {selectedBonuses ? (
                 <div className="forge-action-box">
@@ -189,12 +192,10 @@ export function ForgePanel({
               ) : null}
             </div>
 
-            <div className="forge-imbuement-list">
-              {imbuementFamilies.map((family) => (
-                <section className="forge-imbuement-family" key={family.id}>
-                  <h3>{family.label}</h3>
+            {mode === "imbuing" ? <div className="forge-imbuement-list">
+              <label>Imbuement<select value={imbuementId} onChange={event => setImbuementId(event.target.value)}>{imbuementFamilies.map(family => <optgroup key={family.id} label={family.label}>{imbuements.filter(entry => entry.familyId === family.id).map(entry => <option key={entry.id} value={entry.id}>{entry.name}</option>)}</optgroup>)}</select></label>
                   {imbuements
-                    .filter((imbuement) => imbuement.familyId === family.id)
+                    .filter((imbuement) => imbuement.id === imbuementId)
                     .map((imbuement) => (
                       <ImbuementCard
                         character={character}
@@ -207,9 +208,7 @@ export function ForgePanel({
                         slot={itemSlot}
                       />
                     ))}
-                </section>
-              ))}
-            </div>
+            </div> : null}
           </>
         ) : null}
       </div>
