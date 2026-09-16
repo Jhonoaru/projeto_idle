@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Compass, Skull, Swords, ScrollText } from "lucide-react";
 import "./explore-central.css";
 import { CreatureSprite } from "../creatures/CreatureSprite";
 import { BossPanel } from "../boss/BossPanel";
@@ -162,7 +163,7 @@ export function ExploreWindow({
               onClick={() => setActiveTab(tab.id)}
               type="button"
             >
-              <i aria-hidden="true">{tab.icon}</i>
+              {tab.id === "hunts" ? <Compass size={20} aria-hidden="true" /> : tab.id === "bosses" ? <Skull size={20} aria-hidden="true" /> : tab.id === "training" ? <Swords size={20} aria-hidden="true" /> : <ScrollText size={20} aria-hidden="true" />}
               <strong>{tab.label}</strong>
             </button>
           ))}

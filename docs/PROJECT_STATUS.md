@@ -4,6 +4,8 @@ Atualizado em: 2026-09-16
 
 ## Revisao antes da Etapa 179
 
+- Reformulacao visual do client: corrigida rolagem cortada por altura fixa/overflow do shell; navegacao lateral por categorias com icones, cabecalho compacto e menu mobile recolhivel. Central e Explorar atualizados. QA isolado confirmou fim do conteudo em Hunts/Bosses/Training/Quests e largura 390px; build/regressoes aprovados. Revisao individual dos demais paineis e Tauri pendentes. Plano em docs/CLIENT_VISUAL_REWORK.md.
+
 - Nova entrada, parte 1: menu principal padrao, continuar condicionado a save, fundacao com nome e cinco vocacoes de nivel 1. Novo save nao recebe personagens mock no reload. Arte original local com animacao CSS e musica sintetizada com volume/pausa. Ver docs/NEW_PLAYER_ROADMAP.md para continuar: proxima entrega e onboarding persistente e desbloqueios em todas as entradas. GIF real e QA Tauri ainda pendentes; sistemas existentes ainda nao foram bloqueados por onboarding.
 
 - Explorar integrado ao layout da Central: largura total, laterais antigas ocultas, barra superior reduzida, seletor de personagem e retorno explicito para a Central. Modos de jogo e fluxo hunt -> duracao -> combate preservados.

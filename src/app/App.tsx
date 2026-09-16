@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MainMenu } from "../components/menu/MainMenu";
+import { GuildNavigation } from "../components/layout/GuildNavigation";
 import { createNewGame } from "../game-engine/new-game/createNewGame";
 import { GameShell } from "../components/layout/GameShell";
 import { CharacterSideMenu } from "../components/layout/CharacterSideMenu";
@@ -2708,14 +2709,14 @@ export function App() {
 
   return (
     <GameShell>
-      <button className="return-main-menu" onClick={async () => {
-        if (!database) return;
-        try {
-          await saveGameState(database, { guild, characters, depot, logs });
-          setAtMainMenu(true);
-        } catch { setSaveStatus("Falha ao salvar. Permanecendo no jogo."); }
-      }}>Menu principal</button>
       <TopBar
+        onMainMenu={async () => {
+          if (!database) return;
+          try {
+            await saveGameState(database, { guild, characters, depot, logs });
+            setAtMainMenu(true);
+          } catch { setSaveStatus("Falha ao salvar. Permanecendo no jogo."); }
+        }}
         activeTab={activeTab}
         guild={guild}
         guildTitle={activeGuildTitle}
@@ -2735,6 +2736,7 @@ export function App() {
           setOfflineReport(undefined);
         }}
       />
+      <GuildNavigation activeTab={activeTab} onOpenTab={handleOpenTab} />
         <div className={`game-layout ${activeTab === "home" && selectedCharacter.status === "hunting" ? "is-hunt-scene-mode" : ""} ${activeTab === "character" ? "is-character-hall-mode" : ""} ${activeTab === "operations" ? "is-operations-dashboard-mode" : ""} ${activeTab === "armory" ? "is-armory-hall-mode" : ""} ${activeTab === "headquarters" ? "is-headquarters-hall-mode" : ""} ${activeTab === "contracts" ? "is-contracts-hall-mode" : ""} ${activeTab === "staff" ? "is-staff-hall-mode" : ""} ${activeTab === "treasury" ? "is-treasury-hall-mode" : ""} ${activeTab === "projects" ? "is-projects-hall-mode" : ""} ${activeTab === "logistics" ? "is-logistics-board-mode" : ""} ${activeTab === "recruitment" ? "is-recruitment-hall-mode" : ""} ${activeTab === "skills" ? "is-skills-hall-mode" : ""} ${activeTab === "training" || activeTab === "proficiency" ? "is-training-hall-mode" : ""} ${activeTab === "blessings" ? "is-blessings-hall-mode" : ""} ${activeTab === "bestiary" || activeTab === "focus" ? "is-hunting-research-mode" : ""} ${activeTab === "destiny" ? "is-destiny-hall-mode" : ""} ${activeTab === "collections" ? "is-collections-hall-mode" : ""} ${activeTab === "daily" ? "is-daily-hall-mode" : ""} ${activeTab === "ranking" ? "is-ranking-hall-mode" : ""} ${activeTab === "store" ? "is-store-hall-mode" : ""} ${activeTab === "updates" ? "is-updates-hall-mode" : ""} ${activeTab === "wiki" ? "is-codex-hall-mode" : ""} ${activeTab === "settings" ? "is-settings-hall-mode" : ""}`.trim()}>
         <LeftPanel
           characters={characters}

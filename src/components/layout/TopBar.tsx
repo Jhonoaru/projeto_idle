@@ -1,4 +1,5 @@
 import { GameCurrencyPill } from "../ui/GameCurrencyPill";
+import { LogOut, Save, Settings, Castle } from "lucide-react";
 import { GameIconButton } from "../ui/GameIconButton";
 import { canClaimDailyReward } from "../../game-engine/daily-reward/canClaimDailyReward";
 import { collectionItems } from "../../data/collections";
@@ -19,6 +20,7 @@ interface TopBarProps {
   onManualSave?: () => void;
   onReloadSave?: () => void;
   onResetSave?: () => void;
+  onMainMenu?: () => void;
 }
 
 export function TopBar({
@@ -32,6 +34,7 @@ export function TopBar({
   onManualSave,
   onReloadSave,
   onResetSave,
+  onMainMenu,
 }: TopBarProps) {
   const dailyAvailable = canClaimDailyReward(guild.dailyReward);
   const unlockedCosmetics = normalizeCollectionsState(guild.collections).unlockedCollectionItemIds.length;
@@ -39,10 +42,10 @@ export function TopBar({
   const guildProgression = getGuildProgression(guild);
 
   return (
-    <header className={`top-bar ${activeTab === "central" || activeTab === "hunts" ? "is-central-topbar" : ""}`}>
+    <header className={`top-bar refreshed-topbar ${activeTab === "central" || activeTab === "hunts" ? "is-central-topbar" : ""}`}>
       <div className="brand-block">
         <span>{GAME_TITLE}</span>
-        <h1>Guild Hunt</h1>
+        <h1><Castle size={23} aria-hidden="true" /> Guild Hunt</h1>
         <p>
           Guilda {guild.name}{guildTitle ? `, ${guildTitle}` : ""} / Rank {guildProgression.rank} Lv {guildProgression.level} / {selectedCharacter.name} Lv {selectedCharacter.level}
         </p>
@@ -90,6 +93,11 @@ export function TopBar({
             <button disabled={saveBusy} onClick={onResetSave} title="Reset local save" type="button">Reset</button>
           </div>
         ) : null}
+      </div>
+      <div className="refreshed-header-tools">
+        <button title="Salvar jogo" aria-label="Salvar jogo" disabled={saveBusy} onClick={onManualSave}><Save size={18} /></button>
+        <button title="Configuracoes" aria-label="Configuracoes" onClick={() => onOpenTab("settings")}><Settings size={18} /></button>
+        <button title="Salvar e voltar ao menu" aria-label="Salvar e voltar ao menu" onClick={onMainMenu}><LogOut size={18} /></button>
       </div>
     </header>
   );

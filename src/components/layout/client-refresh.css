@@ -1,0 +1,85 @@
+/* One document scrollbar: page windows expand instead of clipping tall content. */
+body { overflow: auto; background: #111718; }
+.game-shell { display: grid; grid-template-columns: 206px minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 0 20px; height: auto; min-height: 100dvh; overflow: visible; padding: 0 24px 30px 0; background: #111718; align-items: start; }
+.game-shell > .top-bar { grid-column: 1 / -1; grid-row: 1; }
+.game-shell > .guild-navigation { grid-column: 1; grid-row: 2 / 4; }
+.game-shell > :not(.top-bar):not(.guild-navigation) { grid-column: 2; min-width: 0; }
+.game-shell > .game-layout { grid-column: 2; grid-row: 3; display: block; width: 100%; max-width: none; height: auto; min-height: 0; overflow: visible; margin: 22px 0 0; }
+.game-shell .game-layout > :not(.main-panel) { display: none; }
+.game-shell .main-panel { display: block; min-width: 0; min-height: 0; height: auto; overflow: visible; }
+.game-shell .main-panel > .game-window { height: auto; max-height: none; display: block; overflow: visible; border: 1px solid #334343; border-radius: 5px; box-shadow: none; background: #182122; }
+.game-shell .main-panel > .game-window > .game-window-body { height: auto; max-height: none; overflow: visible; padding: 20px; }
+.game-shell .game-window-header { padding: 18px 20px; background: #1d292a; border-bottom: 1px solid #3a4946; }
+.game-shell .game-window-title h2 { font: 600 22px Georgia, serif; color: #ecdfba; }
+.game-shell .game-window-icon, .game-shell .client-legacy-tabs { display: none; }
+.game-shell .refreshed-topbar { min-height: 76px; max-width: none; width: 100%; margin: 0; display: flex; align-items: center; gap: 24px; padding: 12px 22px; border: 0; border-bottom: 1px solid #41504a; border-radius: 0; background: #192424; color: #e7e8dc; }
+.refreshed-topbar .brand-block { margin-right: auto; }
+.refreshed-topbar .brand-block > span { display: none; }
+.refreshed-topbar .brand-block h1 { display: flex; align-items: center; gap: 10px; font: bold 21px Georgia, serif; color: #edce84; margin: 0 0 5px; }
+.refreshed-topbar .brand-block p { color: #aebeb5; font-size: 12px; margin: 0; }
+.refreshed-topbar .client-top-nav, .refreshed-topbar .client-utility-buttons, .refreshed-topbar .save-controls button { display: none; }
+.refreshed-topbar .client-top-right { display: flex; align-items: center; gap: 16px; }
+.refreshed-topbar .game-currency-pill { border: 0; background: transparent; border-radius: 0; padding: 4px 12px; }
+.refreshed-topbar .save-controls { display: block; font-size: 11px; color: #91bb9f; }
+.refreshed-header-tools { display: flex; gap: 5px; }
+.refreshed-header-tools button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid #3e504d; border-radius: 4px; color: #c8d2cb; background: transparent; cursor: pointer; }
+.refreshed-header-tools button:hover { background: #304341; color: #f7e0a2; }
+.guild-navigation { position: sticky; top: 0; max-height: 100dvh; overflow-y: auto; padding: 22px 12px; background: #182021; border-right: 1px solid #303e3d; scrollbar-width: thin; }
+.guild-navigation section { margin-bottom: 20px; }
+.guild-navigation .navigation-toggle { display: none; }
+.guild-navigation h2 { color: #869e99; font: 600 10px system-ui; margin: 0 12px 8px; }
+.guild-navigation button { display: flex; width: 100%; gap: 10px; align-items: center; text-align: left; min-height: 38px; padding: 9px 12px; background: transparent; border: 1px solid transparent; border-radius: 4px; font: 13px system-ui; color: #c9d3d0; cursor: pointer; }
+.guild-navigation button:hover { background: #243432; }
+.guild-navigation button[aria-current=page] { background: #34433a; color: #f5df9e; border-color: #6b694c; }
+.guild-navigation svg { flex-shrink: 0; color: #87b5aa; }
+.guild-navigation summary { padding: 10px; font-size: 12px; cursor: pointer; color: #afc0b8; }
+.game-shell button:focus-visible, .game-shell summary:focus-visible { outline: 2px solid #e5c477; outline-offset: 2px; }
+.game-shell .guild-central { min-height: 0; max-height: none; overflow: visible; padding: 8px 0; background: transparent; }
+.game-shell .central-heading { padding: 10px 0 22px; }
+.game-shell .central-heading h2 { font: 600 30px Georgia, serif; }
+.game-shell .central-heading > div > span { display: none; }
+.game-shell .central-columns { grid-template-columns: minmax(220px, 270px) minmax(0, 1fr); gap: 28px; }
+.game-shell .central-destinations { gap: 24px; }
+.game-shell .central-destinations button { border: 0; border-bottom: 1px solid #354340; border-radius: 0; background: transparent; padding: 13px 0; }
+.game-shell .central-destinations button:hover { color: #f3d48a; background: #1e2c2b; }
+.game-shell .central-roster-list button { background: #1d2929; }
+.game-shell .central-roster-list button.is-selected { border-color: #b09d63; background: #2a3833; }
+.game-shell .explore-window { padding: 0; gap: 18px; }
+.game-shell .explore-mode-header { margin: 0; padding: 0; border: 0; }
+.game-shell .explore-mode-header > span { display: none; }
+.game-shell .explore-mode-tabs { gap: 0; border-bottom: 1px solid #41504a; }
+.game-shell .explore-mode-tabs button { min-height: 60px; border: 0; border-radius: 0; background: transparent; border-bottom: 3px solid transparent; justify-content: center; }
+.game-shell .explore-mode-tabs button.is-selected { background: #253734; border-bottom-color: #d2b56e; color: #efddb0; }
+.game-shell .explore-mode-tabs strong { font-size: 14px; }
+.game-shell .explore-mode-tabs svg { color: #90bdb0; }
+.game-shell .explore-mode-panel { padding: 0; gap: 20px; }
+.game-shell .explore-card-grid { max-height: none; overflow: visible; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 14px; }
+.game-shell .explore-board-card { border: 1px solid #40504c; border-radius: 5px; background: #1c2829; min-height: 220px; transition: border-color .15s, background .15s; }
+.game-shell .explore-board-card:hover { background: #263a35; border-color: #b9a572; }
+.game-shell .explore-board-card.is-selected { background: #293c34; border-color: #e0c17b; box-shadow: inset 0 3px #e0c17b; }
+.game-shell .explore-board-card.is-locked { opacity: 1; }
+.game-shell .explore-board-card > strong { font-size: 14px; color: #e9e1c9; padding: 10px 3px; }
+.game-shell .explore-card-title { color: #efe4c9; background: transparent; font-size: 14px; padding: 12px 3px; white-space: normal; }
+.game-shell .boss-board-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.game-shell .boss-board-card { min-height: 245px; }
+.game-shell .explore-board-summary { background: transparent; border: 0; padding: 0; }
+.game-shell .explore-board-summary p { color: #a5bbb3; max-width: 600px; }
+.game-shell .explore-detail-dock { min-width: 0; }
+@media (max-width: 1150px) { .refreshed-topbar .save-controls { display: none; } .game-shell .central-columns { grid-template-columns: 1fr; } .game-shell .central-roster { border: 0; padding: 0; } .game-shell .central-roster-list { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); } }
+@media (max-width: 760px) {
+  .game-shell { display: block; padding: 0 12px 24px; }
+  .game-shell .refreshed-topbar { flex-wrap: wrap; gap: 12px; padding: 14px; }
+  .refreshed-topbar .brand-block { width: 100%; }
+  .refreshed-header-tools { margin-left: auto; }
+  .guild-navigation { position: static; max-height: none; margin: 0 -12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 10px 14px; overflow: visible; border-bottom: 1px solid #354542; }
+  .guild-navigation .navigation-toggle { display: flex; grid-column: 1 / -1; }
+  .guild-navigation[data-expanded=false] > section, .guild-navigation[data-expanded=false] > details { display: none; }
+  .guild-navigation section { min-width: 0; margin: 0; }
+  .guild-navigation details { min-width: 0; }
+  .game-shell .main-panel > .game-window > .game-window-body { padding: 12px; }
+  .game-shell .explore-mode-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .game-shell .explore-card-grid { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); }
+  .game-shell .boss-board-grid { grid-template-columns: 1fr; }
+  .game-shell .explore-board-summary { grid-template-columns: 1fr; }
+  .game-shell .central-destinations { grid-template-columns: 1fr; }
+}
