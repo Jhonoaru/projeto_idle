@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { CharacterDetails } from "../character/CharacterDetails";
+import { GuildCentral } from "./GuildCentral";
 import { ActionPanel } from "../action/ActionPanel";
 import { BestiaryPanel } from "../bestiary/BestiaryPanel";
 import { MonsterFocusHall } from "../bestiary/MonsterFocusHall";
@@ -89,6 +90,7 @@ interface LastResultView {
 
 export type MainPanelTab =
   | "home"
+  | "central"
   | "character"
   | "operations"
   | "armory"
@@ -423,6 +425,7 @@ export function MainPanel({
 
   return (
     <section className="main-panel">
+      {activeTab === "central" ? <GuildCentral guild={guild} characters={characters} selectedCharacter={selectedCharacter} onSelectCharacter={onSelectCharacter} onOpenTab={onChangeTab} /> : null}
       {activeTab === "home" ? (
         <MainPlayArea
           bosses={bosses}
@@ -465,10 +468,10 @@ export function MainPanel({
         <TabButton activeTab={activeTab} label="Bestiary" tab="bestiary" onChangeTab={onChangeTab} />
       </div>
 
-      {activeTab !== "home" ? (
+      {activeTab !== "home" && activeTab !== "central" ? (
       <GameWindow
         icon={getWindowIcon(activeTab)}
-        onClose={() => onChangeTab("home")}
+        onClose={() => onChangeTab("central")}
         size="full"
         subtitle={getWindowSubtitle(activeTab)}
         title={getWindowTitle(activeTab)}
@@ -892,6 +895,7 @@ export function MainPanel({
 
 function getWindowTitle(tab: MainPanelTab) {
   const titles: Record<MainPanelTab, string> = {
+    central: "Central da Guilda",
     home: "Guild Hunt Idle",
     character: "Character Details",
     operations: "Campaign Operations Dashboard",

@@ -39,7 +39,7 @@ export function TopBar({
   const guildProgression = getGuildProgression(guild);
 
   return (
-    <header className="top-bar">
+    <header className={`top-bar ${activeTab === "central" ? "is-central-topbar" : ""}`}>
       <div className="brand-block">
         <span>{GAME_TITLE}</span>
         <h1>Guild Hunt</h1>
@@ -49,6 +49,7 @@ export function TopBar({
       </div>
 
       <div className="client-top-nav" aria-label="Main systems">
+        <GameIconButton active={activeTab === "central"} className="central-top-link" icon="G" label="Central" onClick={() => onOpenTab("central")} />
         <GameIconButton
           active={activeTab === "hunts"}
           className="is-explore"
@@ -56,6 +57,7 @@ export function TopBar({
           label="Explorar"
           onClick={() => onOpenTab("hunts")}
         />
+        {activeTab !== "central" ? <>
         <GameIconButton active={activeTab === "atlas"} icon="A" label="Atlas" onClick={() => onOpenTab("atlas")} />
         <GameIconButton active={activeTab === "market"} icon="M" label="Market" onClick={() => onOpenTab("market")} />
         <GameIconButton active={activeTab === "forge"} icon="F" label="Forge" onClick={() => onOpenTab("forge")} />
@@ -69,6 +71,7 @@ export function TopBar({
         />
         <GameIconButton active={activeTab === "ranking"} icon="R" label="Ranking" onClick={() => onOpenTab("ranking")} />
         <GameIconButton active={activeTab === "store"} icon="S" label="Store" onClick={() => onOpenTab("store")} />
+        </> : null}
       </div>
 
       <div className="client-top-right" aria-label="Client utilities">

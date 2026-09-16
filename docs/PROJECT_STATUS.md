@@ -4,6 +4,9 @@ Atualizado em: 2026-09-13
 
 ## Revisao antes da Etapa 179
 
+- Reformulacao solicitada da abertura: nova Central da Guilda com roster ilustrado, selecao de personagem, atividades e grupos Jogar/Equipamentos/Guilda. Sistemas adicionais em disclosure; laterais ocultas somente na Central e barra inicial reduzida. Janelas fecham para Central; combate continua em home e retorno a cidade abre Central. Migracao unica de preferencias seleciona a nova abertura sem alterar save SQLite; personalizacao posterior preservada.
+- Validacao: build e regressoes; navegacao por cliques no browser (troca de personagem, NPC, retorno), screenshots desktop e verificacao de largura 390px. Browser usa fallback mock local, nao SQLite real. Nao foi realizado QA Tauri nesta rodada.
+
 - Revisao offline 2026-09-15: Market/Store/Ranking mantem proposta local. Corrigida compra NPC que rejeitava desconto exibido: UI e engine compartilham calculo de Quartermaster/directives. Teste reproduziu bloqueio antes da correcao e valida compra descontada/precos invalidos. Sem remocao de componentes; QA por cliques e auditoria de trafego nao realizados.
 
 - Alto risco comparativo: 48 seeds Ranger com caminho valido de Destiny, Efficiency, Charm e Focus; supplies menores em 48/48 comparacoes de igual duracao, custos/cargas conferidos. Fortify/Focus risk: 43 -> 39 mortes no conjunto fixo. Nenhuma alteracao de mecanica; teste nao representa balanceamento estatistico global. QA interativo segue pendente.

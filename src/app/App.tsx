@@ -1176,7 +1176,7 @@ export function App() {
   function handleReturnToCityFromHuntScene() {
     const result = cancelCurrentAction(selectedCharacter);
     updateSelectedCharacter(result.character);
-    setActiveTab("home");
+    setActiveTab("central");
     prependLog(
       result.success ? "Return to city" : "Action blocked",
       result.message,

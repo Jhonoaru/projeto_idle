@@ -1,10 +1,11 @@
 export const CLIENT_PREFERENCES_STORAGE_KEY = "guild-hunt-idle.client-preferences.v1";
 export const CLIENT_LAST_VIEW_STORAGE_KEY = "guild-hunt-idle.last-view.v1";
 
-export const CLIENT_STARTUP_VIEWS = ["character", "hunts", "wiki"] as const;
+export const CLIENT_STARTUP_VIEWS = ["central", "character", "hunts", "wiki"] as const;
 export type ClientStartupView = (typeof CLIENT_STARTUP_VIEWS)[number];
 
 export const CLIENT_RESTORABLE_VIEWS = [
+  "central",
   "character",
   "operations",
   "armory",
@@ -63,7 +64,7 @@ export const DEFAULT_CLIENT_PREFERENCES: ClientPreferences = {
   showActivityFeed: true,
   showTopbarSaveControls: true,
   restoreLastView: false,
-  startupView: "character",
+  startupView: "central",
 };
 
 export function normalizeClientPreferences(value: unknown): ClientPreferences {
@@ -76,13 +77,19 @@ export function normalizeClientPreferences(value: unknown): ClientPreferences {
     showActivityFeed: source.showActivityFeed !== false,
     showTopbarSaveControls: source.showTopbarSaveControls !== false,
     restoreLastView: source.restoreLastView === true,
-    startupView: isStartupView(source.startupView) ? source.startupView : "character",
+    startupView: isStartupView(source.startupView) ? source.startupView : "central",
   };
 }
 
 export function loadClientPreferences(): ClientPreferences {
   try {
     const stored = window.localStorage.getItem(CLIENT_PREFERENCES_STORAGE_KEY);
+    if (!window.localStorage.getItem("guild-hunt-idle.central-startup.v1")) {
+      const preferences = { ...normalizeClientPreferences(stored ? JSON.parse(stored) : {}), startupView: "central" as const, restoreLastView: false };
+      saveClientPreferences(preferences);
+      window.localStorage.setItem("guild-hunt-idle.central-startup.v1", "1");
+      return preferences;
+    }
     return stored ? normalizeClientPreferences(JSON.parse(stored)) : DEFAULT_CLIENT_PREFERENCES;
   } catch {
     return DEFAULT_CLIENT_PREFERENCES;

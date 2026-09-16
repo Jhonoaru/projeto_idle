@@ -18,6 +18,7 @@ interface SettingsHallProps {
 }
 
 const STARTUP_VIEW_LABELS: Record<ClientStartupView, string> = {
+  central: "Central da Guilda",
   character: "Character Hall",
   hunts: "Explore",
   wiki: "Guild Codex",

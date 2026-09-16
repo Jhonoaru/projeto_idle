@@ -15,6 +15,7 @@ registerHooks({
     }
   },
   load(url, context, next) {
+    if (url.endsWith('.css')) return { format: 'module', shortCircuit: true, source: 'export default {};' };
     if (!/\.tsx?$/.test(url)) return next(url, context);
     return { format: 'module', shortCircuit: true, source: ts.transpileModule(readFileSync(new URL(url), 'utf8'), {
       compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.ReactJSX },
@@ -394,6 +395,10 @@ for (const status of ['hunting', 'training', 'questing', 'bossing']) {
 }
 console.log('PASS: cancellation of four action types, dated return, early/repeated arrival blocked and resources unchanged');
 const noop = () => {};
+const { GuildCentral } = await import('../src/components/layout/GuildCentral.tsx');
+const centralMarkup = renderToStaticMarkup(createElement(GuildCentral, { guild, characters: [hero, started], selectedCharacter: hero, onSelectCharacter: noop, onOpenTab: noop }));
+for (const label of ['Central da Guilda', 'Personagens', 'Atividades', 'NPC e Bazar', 'Recrutamento', 'Progressao e outros sistemas', 'Combate']) assert.ok(centralMarkup.includes(label));
+assert.ok(centralMarkup.includes('aria-pressed="true"'));
 const controls = { characters: [hero], hunts, quests: [], bosses: [], bossParty: { bossId: '', members: [] },
   onCancelAction: noop, onFinishTravel: noop, onFinishHunt: noop, onFinishTraining: noop,
   onFinishQuest: noop, onFinishBoss: noop, onReviveCharacter: noop, onStopHuntAutoRepeat: noop, onChangeTab: noop };
