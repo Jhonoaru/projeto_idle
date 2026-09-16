@@ -3,6 +3,7 @@ import { getItemById } from "../../data/items";
 import { shopItems } from "../../data/shopItems";
 import { calculateCapacityUsed } from "../inventory/calculateCapacityUsed";
 import { mergeStackableItems } from "../inventory/mergeStackableItems";
+import { applyNpcDiscount, getNpcDiscountPercent } from "./getNpcDiscount";
 import type { Character, Guild, GuildDepot, ShopDeliveryTarget } from "../../shared/types";
 
 interface BuyMarketItemInput {
@@ -58,7 +59,7 @@ export function buyMarketItem({
     return blocked(character, safeGuild, safeGuildDepot, `Compra bloqueada: preco invalido para ${item.name}.`);
   }
 
-  if (normalizedUnitPrice !== shopItem.buyPrice) {
+  if (normalizedUnitPrice !== applyNpcDiscount(shopItem.buyPrice, getNpcDiscountPercent(guild))) {
     return blocked(character, safeGuild, safeGuildDepot, `Compra bloqueada: preco de ${item.name} mudou no catalogo.`);
   }
 

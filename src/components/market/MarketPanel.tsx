@@ -4,8 +4,7 @@ import { shopItems, type ShopItem } from "../../data/shopItems";
 import { canSellItem } from "../../game-engine/market/canSellItem";
 import { calculateInventoryItemSellValue } from "../../game-engine/market/calculateSellValue";
 import { filterMarketItems } from "../../game-engine/market/filterMarketItems";
-import { getHeadquartersBonuses } from "../../game-engine/headquarters/getHeadquartersBonuses";
-import { getGuildDirectiveBonuses } from "../../game-engine/guild-directives/getGuildDirectiveStatus";
+import { applyNpcDiscount, getNpcDiscountPercent } from "../../game-engine/market/getNpcDiscount";
 import { normalizeGuildBazaarState } from "../../game-engine/bazaar/normalizeGuildBazaarState";
 import { ItemIcon } from "../items/ItemIcon";
 import { ItemTooltip } from "../items/ItemTooltip";
@@ -69,9 +68,7 @@ export function MarketPanel({
 }: MarketPanelProps) {
   const [mode, setMode] = useState<MarketMode>("buy");
   const [nowMs, setNowMs] = useState(() => Date.now());
-  const headquartersDiscount = getHeadquartersBonuses(guild.headquarters).npcPriceDiscountPercent;
-  const directiveDiscount = getGuildDirectiveBonuses(guild).npcPriceDiscountPercent;
-  const npcDiscount = headquartersDiscount + directiveDiscount;
+  const npcDiscount = getNpcDiscountPercent(guild);
   const bazaar = useMemo(
     () => normalizeGuildBazaarState(guild.bazaar, guild.id, new Date(nowMs)),
     [guild.bazaar, guild.id, nowMs],
@@ -758,14 +755,6 @@ function normalizeQuantity(value: number) {
 
 function normalizeGold(value: number) {
   return Number.isFinite(value) && value > 0 ? value : 0;
-}
-
-function applyNpcDiscount(unitPrice: number, discountPercent: number) {
-  const safePrice = Number.isFinite(unitPrice) ? Math.max(0, Math.floor(unitPrice)) : 0;
-  const safeDiscount = Number.isFinite(discountPercent)
-    ? Math.min(25, Math.max(0, Math.floor(discountPercent)))
-    : 0;
-  return Math.max(1, Math.round(safePrice * (1 - safeDiscount / 100)));
 }
 
 function getUseStatus(item: Item, character: Character) {
